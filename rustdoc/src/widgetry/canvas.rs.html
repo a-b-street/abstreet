@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/canvas.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>canvas.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/canvas.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>canvas.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -412,7 +413,7 @@
     <span class="kw">pub</span> <span class="ident">gui_scroll_speed</span>: <span class="ident">usize</span>,
 
     <span class="comment">// TODO Bit weird and hacky to mutate inside of draw() calls.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">covered_areas</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScreenRectangle</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">covered_areas</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScreenRectangle</span><span class="op">&gt;&gt;</span>,
 
     <span class="comment">// Kind of just widgetry state awkwardly stuck here...</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">lctrl_held</span>: <span class="ident">bool</span>,
@@ -420,7 +421,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Canvas</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_dims</span>: <span class="ident">ScreenDims</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Canvas</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_dims</span>: <span class="ident">ScreenDims</span>) <span class="op">-&gt;</span> <span class="ident">Canvas</span> {
         <span class="ident">Canvas</span> {
             <span class="ident">cam_x</span>: <span class="number">0.0</span>,
             <span class="ident">cam_y</span>: <span class="number">0.0</span>,
@@ -449,13 +450,13 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min_zoom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min_zoom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="kw">let</span> <span class="ident">percent_window</span> <span class="op">=</span> <span class="number">0.8</span>;
         (<span class="ident">percent_window</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">map_dims</span>.<span class="number">0</span>)
             .<span class="ident">min</span>(<span class="ident">percent_window</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">map_dims</span>.<span class="number">1</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UserInput</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UpdateType</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UserInput</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UpdateType</span><span class="op">&gt;</span> {
         <span class="comment">// Can&#39;t start dragging or zooming on top of covered area</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">touchpad_to_move</span> {
@@ -464,8 +465,8 @@
                         <span class="self">self</span>.<span class="ident">zoom</span>(<span class="ident">scroll_y</span>, <span class="self">self</span>.<span class="ident">cursor</span>);
                     } <span class="kw">else</span> {
                         <span class="comment">// Woo, inversion is different for the two. :P</span>
-                        <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">scroll_x</span> <span class="op">*</span> <span class="ident">PAN_SPEED</span>;
-                        <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">-</span><span class="op">=</span> <span class="ident">scroll_y</span> <span class="op">*</span> <span class="ident">PAN_SPEED</span>;
+                        <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+=</span> <span class="ident">scroll_x</span> <span class="op">*</span> <span class="ident">PAN_SPEED</span>;
+                        <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">-=</span> <span class="ident">scroll_y</span> <span class="op">*</span> <span class="ident">PAN_SPEED</span>;
                     }
                 }
             } <span class="kw">else</span> {
@@ -480,16 +481,16 @@
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">keys_to_pan</span> {
                 <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
-                    <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">-</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
+                    <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">-=</span> <span class="ident">PAN_SPEED</span>;
                 }
                 <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>) {
-                    <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
+                    <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+=</span> <span class="ident">PAN_SPEED</span>;
                 }
                 <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
-                    <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">-</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
+                    <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">-=</span> <span class="ident">PAN_SPEED</span>;
                 }
                 <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
-                    <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
+                    <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">+=</span> <span class="ident">PAN_SPEED</span>;
                 }
                 <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Q</span>) {
                     <span class="self">self</span>.<span class="ident">zoom</span>(
@@ -509,8 +510,8 @@
         <span class="comment">// If we start the drag on the map and move the mouse off the map, keep dragging.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">click</span>, <span class="ident">orig</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">drag_canvas_from</span> {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_cursor</span>();
-            <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">click</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">pt</span>.<span class="ident">x</span>;
-            <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">click</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">pt</span>.<span class="ident">y</span>;
+            <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+=</span> <span class="ident">click</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">pt</span>.<span class="ident">x</span>;
+            <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">+=</span> <span class="ident">click</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">pt</span>.<span class="ident">y</span>;
             <span class="self">self</span>.<span class="ident">drag_canvas_from</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">orig</span>));
 
             <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
@@ -528,9 +529,9 @@
             <span class="kw">let</span> <span class="ident">inner_bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_inner_bounds</span>();
             <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_map_bounds</span>();
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">edge_auto_panning</span>
-                <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="op">!</span><span class="ident">inner_bounds</span>.<span class="ident">contains</span>(<span class="ident">cursor_screen_pt</span>)
-                <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">map_bounds</span>.<span class="ident">contains</span>(<span class="ident">cursor_map_pt</span>)
-                <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>().<span class="ident">is_some</span>()
+                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">inner_bounds</span>.<span class="ident">contains</span>(<span class="ident">cursor_screen_pt</span>)
+                <span class="op">&amp;&amp;</span> <span class="ident">map_bounds</span>.<span class="ident">contains</span>(<span class="ident">cursor_map_pt</span>)
+                <span class="op">&amp;&amp;</span> <span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>().<span class="ident">is_some</span>()
             {
                 <span class="kw">let</span> <span class="ident">center_pt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">center_to_screen_pt</span>().<span class="ident">to_pt</span>();
                 <span class="kw">let</span> <span class="ident">displacement_x</span> <span class="op">=</span> <span class="ident">cursor_screen_pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">center_pt</span>.<span class="ident">x</span>();
@@ -540,8 +541,8 @@
                 <span class="kw">let</span> <span class="ident">displacement_unit_x</span> <span class="op">=</span> <span class="ident">displacement_x</span> <span class="op">/</span> <span class="ident">displacement_magnitude</span>;
                 <span class="kw">let</span> <span class="ident">displacement_unit_y</span> <span class="op">=</span> <span class="ident">displacement_y</span> <span class="op">/</span> <span class="ident">displacement_magnitude</span>;
                 <span class="comment">// Add displacement along each axis</span>
-                <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">displacement_unit_x</span> <span class="op">*</span> <span class="ident">PAN_SPEED</span>;
-                <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">displacement_unit_y</span> <span class="op">*</span> <span class="ident">PAN_SPEED</span>;
+                <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">+=</span> <span class="ident">displacement_unit_x</span> <span class="op">*</span> <span class="ident">PAN_SPEED</span>;
+                <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">+=</span> <span class="ident">displacement_unit_y</span> <span class="op">*</span> <span class="ident">PAN_SPEED</span>;
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">UpdateType</span>::<span class="ident">Pan</span>);
             }
         }
@@ -572,19 +573,19 @@
     }
 
     <span class="comment">// Might be hovering anywhere.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cursor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenPt</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cursor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ScreenPt</span> {
         <span class="self">self</span>.<span class="ident">cursor</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cursor_in_screen_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ScreenPt</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">window_has_cursor</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_none</span>() {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cursor_in_screen_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ScreenPt</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">window_has_cursor</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_none</span>() {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_cursor</span>())
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cursor_in_map_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cursor_in_map_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">window_has_cursor</span> {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_cursor</span>();
 
@@ -600,18 +601,18 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">screen_to_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">screen_to_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(
             (<span class="ident">pt</span>.<span class="ident">x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">cam_x</span>) <span class="op">/</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>,
             (<span class="ident">pt</span>.<span class="ident">y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">cam_y</span>) <span class="op">/</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>,
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center_to_screen_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenPt</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center_to_screen_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ScreenPt</span> {
         <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">/</span> <span class="number">2.0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center_to_map_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center_to_map_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="self">self</span>.<span class="ident">screen_to_map</span>(<span class="self">self</span>.<span class="ident">center_to_screen_pt</span>())
     }
 
@@ -620,7 +621,7 @@
         <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">=</span> (<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>) <span class="op">-</span> (<span class="self">self</span>.<span class="ident">window_height</span> <span class="op">/</span> <span class="number">2.0</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_to_screen</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenPt</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_to_screen</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">ScreenPt</span> {
         <span class="ident">ScreenPt</span>::<span class="ident">new</span>(
             (<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>) <span class="op">-</span> <span class="self">self</span>.<span class="ident">cam_x</span>,
             (<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>) <span class="op">-</span> <span class="self">self</span>.<span class="ident">cam_y</span>,
@@ -628,7 +629,7 @@
     }
 
     <span class="comment">// the inner bound tells us whether auto-panning should or should not take place</span>
-    <span class="kw">fn</span> <span class="ident">get_inner_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bounds</span> {
+    <span class="kw">fn</span> <span class="ident">get_inner_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Bounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds</span>::<span class="ident">new</span>();
         <span class="ident">b</span>.<span class="ident">update</span>(<span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">PANNING_THRESHOLD</span>, <span class="ident">PANNING_THRESHOLD</span>).<span class="ident">to_pt</span>());
         <span class="ident">b</span>.<span class="ident">update</span>(
@@ -641,18 +642,18 @@
         <span class="ident">b</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_window_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_window_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ScreenDims</span> {
         <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">window_width</span>, <span class="self">self</span>.<span class="ident">window_height</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_map_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bounds</span> {
+    <span class="kw">fn</span> <span class="ident">get_map_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Bounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds</span>::<span class="ident">new</span>();
         <span class="ident">b</span>.<span class="ident">update</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>));
         <span class="ident">b</span>.<span class="ident">update</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">map_dims</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">map_dims</span>.<span class="number">1</span>));
         <span class="ident">b</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_screen_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bounds</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_screen_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Bounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds</span>::<span class="ident">new</span>();
         <span class="ident">b</span>.<span class="ident">update</span>(<span class="self">self</span>.<span class="ident">screen_to_map</span>(<span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>)));
         <span class="ident">b</span>.<span class="ident">update</span>(<span class="self">self</span>.<span class="ident">screen_to_map</span>(<span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">window_width</span>, <span class="self">self</span>.<span class="ident">window_height</span>)));
@@ -669,18 +670,18 @@
     }
 
     <span class="comment">// True if this succeeds</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_camera_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_camera_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">CameraState</span><span class="op">&gt;</span>(
             <span class="ident">abstutil</span>::<span class="ident">path_camera_state</span>(<span class="ident">map_name</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
         ) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">loaded</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">loaded</span>) <span class="op">=&gt;</span> {
                 <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">=</span> <span class="ident">loaded</span>.<span class="ident">cam_x</span>;
                 <span class="self">self</span>.<span class="ident">cam_y</span> <span class="op">=</span> <span class="ident">loaded</span>.<span class="ident">cam_y</span>;
                 <span class="self">self</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">loaded</span>.<span class="ident">cam_zoom</span>;
                 <span class="bool-val">true</span>
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
@@ -689,23 +690,23 @@
         <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
         <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>,
         <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenPt</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">ScreenPt</span> {
         <span class="kw">let</span> <span class="ident">x1</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">horiz</span> {
-            <span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.0</span>,
-            <span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>,
-            <span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span>,
-            <span class="ident">HorizontalAlignment</span>::<span class="ident">Percent</span>(<span class="ident">pct</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pct</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_width</span>,
-            <span class="ident">HorizontalAlignment</span>::<span class="ident">Centered</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span> <span class="op">-</span> (<span class="ident">dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>),
+            <span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span> <span class="op">=&gt;</span> <span class="number">0.0</span>,
+            <span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span> <span class="op">=&gt;</span> (<span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>,
+            <span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span>,
+            <span class="ident">HorizontalAlignment</span>::<span class="ident">Percent</span>(<span class="ident">pct</span>) <span class="op">=&gt;</span> <span class="ident">pct</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_width</span>,
+            <span class="ident">HorizontalAlignment</span>::<span class="ident">Centered</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span> <span class="op">-</span> (<span class="ident">dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>),
         };
         <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">vert</span> {
-            <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.0</span>,
-            <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span>) <span class="op">/</span> <span class="number">2.0</span>,
-            <span class="ident">VerticalAlignment</span>::<span class="ident">Bottom</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span> <span class="op">=&gt;</span> <span class="number">0.0</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span> <span class="op">=&gt;</span> (<span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span>) <span class="op">/</span> <span class="number">2.0</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">Bottom</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span>,
             <span class="comment">// TODO Hack</span>
-            <span class="ident">VerticalAlignment</span>::<span class="ident">BottomAboveOSD</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">-</span> <span class="number">60.0</span>,
-            <span class="ident">VerticalAlignment</span>::<span class="ident">Percent</span>(<span class="ident">pct</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pct</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_height</span>,
-            <span class="ident">VerticalAlignment</span>::<span class="ident">Above</span>(<span class="ident">y</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">y</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span>,
-            <span class="ident">VerticalAlignment</span>::<span class="ident">Below</span>(<span class="ident">y</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">y</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">BottomAboveOSD</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">-</span> <span class="number">60.0</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">Percent</span>(<span class="ident">pct</span>) <span class="op">=&gt;</span> <span class="ident">pct</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_height</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">Above</span>(<span class="ident">y</span>) <span class="op">=&gt;</span> <span class="ident">y</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">Below</span>(<span class="ident">y</span>) <span class="op">=&gt;</span> <span class="ident">y</span>,
         };
         <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">x1</span>, <span class="ident">y1</span>)
     }

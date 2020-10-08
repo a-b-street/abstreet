@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/widgets/line_plot.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>line_plot.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/widgets/line_plot.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>line_plot.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -399,7 +400,7 @@
 };
 
 <span class="comment">// The X is always time</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
     <span class="ident">draw</span>: <span class="ident">Drawable</span>,
 
     <span class="comment">// The geometry here is in screen-space.</span>
@@ -411,15 +412,15 @@
     <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
     <span class="kw">pub</span> <span class="ident">filterable</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">max_x</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">max_y</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">disabled</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filterable</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filterable</span>() <span class="op">-&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">PlotOptions</span> {
             <span class="ident">filterable</span>: <span class="bool-val">true</span>,
             <span class="ident">max_x</span>: <span class="prelude-val">None</span>,
@@ -428,7 +429,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fixed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fixed</span>() <span class="op">-&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">PlotOptions</span> {
             <span class="ident">filterable</span>: <span class="bool-val">false</span>,
             <span class="ident">max_x</span>: <span class="prelude-val">None</span>,
@@ -438,13 +439,13 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="kw-2">mut</span> <span class="ident">series</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Series</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">opts</span>: <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="kw-2">mut</span> <span class="ident">series</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Series</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span>, <span class="ident">opts</span>: <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">legend</span> <span class="op">=</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">series</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>);
         <span class="ident">series</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">disabled</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">label</span>));
 
         <span class="comment">// Assume min_x is Time::START_OF_DAY and min_y is T::zero()</span>
-        <span class="kw">let</span> <span class="ident">max_x</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">max_x</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">max_x</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">max_x</span>.<span class="ident">unwrap_or_else</span>(<span class="op">||</span> {
             <span class="ident">series</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
@@ -457,7 +458,7 @@
                 .<span class="ident">max</span>()
                 .<span class="ident">unwrap_or</span>(<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>)
         });
-        <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">max_y</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">max_y</span>.<span class="ident">unwrap_or_else</span>(<span class="op">||</span> {
             <span class="ident">series</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
@@ -500,7 +501,7 @@
             }
         }
         <span class="comment">// X axis grid</span>
-        <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> {
+        <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">!=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> {
             <span class="kw">let</span> <span class="ident">order_of_mag</span> <span class="op">=</span> <span class="number">10.0_f64</span>.<span class="ident">powf</span>(<span class="ident">max_x</span>.<span class="ident">inner_seconds</span>().<span class="ident">log10</span>().<span class="ident">ceil</span>());
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10</span> {
                 <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">order_of_mag</span> <span class="op">/</span> <span class="number">10.0</span> <span class="op">*</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>));
@@ -524,7 +525,7 @@
             <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">width</span>, <span class="ident">height</span>),
         ]));
         <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">series</span> {
-            <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> {
+            <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">==</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> {
                 <span class="kw">continue</span>;
             }
 
@@ -539,7 +540,7 @@
                 ));
             }
             <span class="ident">pts</span>.<span class="ident">dedup</span>();
-            <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
+            <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&gt;=</span> <span class="number">2</span> {
                 <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">s</span>.<span class="ident">label</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">pts</span>);
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">s</span>.<span class="ident">color</span>, <span class="ident">thick_lineseries</span>(<span class="ident">pts</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>)));
             }
@@ -589,8 +590,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ScreenDims</span> {
         <span class="self">self</span>.<span class="ident">dims</span>
     }
 
@@ -636,60 +637,60 @@
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ord</span> {
     <span class="comment">// percent is [0.0, 1.0]</span>
-    <span class="kw">fn</span> <span class="ident">from_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
-    <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>;
-    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">from_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">T</span>;
+    <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">f64</span>;
+    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
     <span class="comment">// For order of magnitude calculations</span>
-    <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>;
-    <span class="kw">fn</span> <span class="ident">from_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
-    <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
+    <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span>;
+    <span class="kw">fn</span> <span class="ident">from_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">T</span>;
+    <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-&gt;</span> <span class="ident">T</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
-    <span class="kw">fn</span> <span class="ident">from_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">from_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
         ((<span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">percent</span>) <span class="kw">as</span> <span class="ident">usize</span>
     }
-    <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
-        <span class="kw">if</span> <span class="ident">max</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+    <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">if</span> <span class="ident">max</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="number">0.0</span>
         } <span class="kw">else</span> {
             (<span class="self">self</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">max</span> <span class="kw">as</span> <span class="ident">f64</span>)
         }
     }
-    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="ident">prettyprint_usize</span>(<span class="self">self</span>)
     }
-    <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span> <span class="kw">as</span> <span class="ident">f64</span>
     }
-    <span class="kw">fn</span> <span class="ident">from_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">from_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
         <span class="ident">x</span> <span class="kw">as</span> <span class="ident">usize</span>
     }
-    <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-&gt;</span> <span class="ident">usize</span> {
         <span class="number">0</span>
     }
 }
 <span class="kw">impl</span> <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Duration</span> {
-    <span class="kw">fn</span> <span class="ident">from_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">fn</span> <span class="ident">from_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Duration</span> {
         <span class="kw-2">*</span><span class="self">self</span> <span class="op">*</span> <span class="ident">percent</span>
     }
-    <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
-        <span class="kw">if</span> <span class="ident">max</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
+    <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">Duration</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">if</span> <span class="ident">max</span> <span class="op">==</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
             <span class="number">0.0</span>
         } <span class="kw">else</span> {
             <span class="self">self</span> <span class="op">/</span> <span class="ident">max</span>
         }
     }
-    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">to_string</span>()
     }
-    <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">f64</span>
     }
-    <span class="kw">fn</span> <span class="ident">from_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">fn</span> <span class="ident">from_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Duration</span> {
         <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>)
     }
-    <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-&gt;</span> <span class="ident">Duration</span> {
         <span class="ident">Duration</span>::<span class="ident">ZERO</span>
     }
 }
@@ -701,11 +702,11 @@
     <span class="kw">pub</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">T</span>)<span class="op">&gt;</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_legend</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_legend</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Yvalue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span>(
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-    <span class="ident">series</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Series</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">series</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Series</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span>,
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">series</span> {
@@ -739,7 +740,7 @@
 }
 
 <span class="comment">// TODO If this proves useful, lift to geom</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">thick_lineseries</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">thick_lineseries</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
     <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">math</span>::{<span class="ident">point</span>, <span class="ident">Point</span>};
     <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
     <span class="kw">use</span> <span class="ident">lyon</span>::<span class="ident">tessellation</span>::<span class="ident">geometry_builder</span>::{<span class="ident">BuffersBuilder</span>, <span class="ident">Positions</span>, <span class="ident">VertexBuffers</span>};
@@ -748,7 +749,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Path</span>::<span class="ident">builder</span>();
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">pts</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">point</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="kw">as</span> <span class="ident">f32</span>, <span class="ident">pt</span>.<span class="ident">y</span>() <span class="kw">as</span> <span class="ident">f32</span>);
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">builder</span>.<span class="ident">move_to</span>(<span class="ident">pt</span>);
         } <span class="kw">else</span> {
             <span class="ident">builder</span>.<span class="ident">line_to</span>(<span class="ident">pt</span>);

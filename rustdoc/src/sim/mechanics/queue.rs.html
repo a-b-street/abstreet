@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/mechanics/queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>queue.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/mechanics/queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>queue.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -340,7 +341,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Queue</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">Traversable</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Queue</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">Traversable</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Queue</span> {
         <span class="ident">Queue</span> {
             <span class="ident">id</span>,
             <span class="ident">cars</span>: <span class="ident">VecDeque</span>::<span class="ident">new</span>(),
@@ -356,7 +357,7 @@
         <span class="ident">now</span>: <span class="ident">Time</span>,
         <span class="ident">cars</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>,
         <span class="ident">queues</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner_get_car_positions</span>(<span class="ident">now</span>, <span class="ident">cars</span>, <span class="ident">queues</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>())
     }
 
@@ -366,7 +367,7 @@
         <span class="ident">cars</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>,
         <span class="ident">queues</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
         <span class="ident">recursed_queues</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Traversable</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         }
@@ -375,11 +376,11 @@
 
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span> {
             <span class="kw">let</span> <span class="ident">bound</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">result</span>.<span class="ident">last</span>() {
-                <span class="prelude-val">Some</span>((<span class="ident">leader</span>, <span class="ident">last_dist</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>((<span class="ident">leader</span>, <span class="ident">last_dist</span>)) <span class="op">=&gt;</span> {
                     <span class="kw-2">*</span><span class="ident">last_dist</span> <span class="op">-</span> <span class="ident">cars</span>[<span class="ident">leader</span>].<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">-</span> <span class="ident">FOLLOWING_DISTANCE</span>
                 }
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">laggy_head</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">laggy_head</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                         <span class="comment">// The simple but broken version:</span>
                         <span class="comment">//self.geom_len - cars[&amp;id].vehicle.length - FOLLOWING_DISTANCE</span>
 
@@ -415,10 +416,10 @@
 
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_away_from_this_queue</span> <span class="op">=</span> <span class="ident">head_dist</span>;
                             <span class="kw">for</span> <span class="ident">on</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">leader</span>.<span class="ident">last_steps</span> {
-                                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">on</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span> {
+                                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">on</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span> {
                                     <span class="kw">break</span>;
                                 }
-                                <span class="ident">dist_away_from_this_queue</span> <span class="op">+</span><span class="op">=</span> <span class="ident">queues</span>[<span class="ident">on</span>].<span class="ident">geom_len</span>;
+                                <span class="ident">dist_away_from_this_queue</span> <span class="op">+=</span> <span class="ident">queues</span>[<span class="ident">on</span>].<span class="ident">geom_len</span>;
                             }
                             <span class="comment">// They might actually be out of the way, but laggy_head hasn&#39;t been</span>
                             <span class="comment">// updated yet.</span>
@@ -433,7 +434,7 @@
                             }
                         }
                     }
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">geom_len</span>,
+                    <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">geom_len</span>,
                 },
             };
 
@@ -450,25 +451,25 @@
 
             <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">cars</span>[<span class="ident">id</span>];
             <span class="kw">let</span> <span class="ident">front</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">car</span>.<span class="ident">state</span> {
-                <span class="ident">CarState</span>::<span class="ident">Queued</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CarState</span>::<span class="ident">Queued</span> { .. } <span class="op">=&gt;</span> {
                     <span class="kw">if</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">last_step</span>() {
                         <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">get_end_dist</span>().<span class="ident">min</span>(<span class="ident">bound</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">bound</span>
                     }
                 }
-                <span class="ident">CarState</span>::<span class="ident">WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CarState</span>::<span class="ident">WaitingToAdvance</span> { .. } <span class="op">=&gt;</span> {
                     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">bound</span>, <span class="self">self</span>.<span class="ident">geom_len</span>);
                     <span class="self">self</span>.<span class="ident">geom_len</span>
                 }
-                <span class="ident">CarState</span>::<span class="ident">Crossing</span>(<span class="kw-2">ref</span> <span class="ident">time_int</span>, <span class="kw-2">ref</span> <span class="ident">dist_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CarState</span>::<span class="ident">Crossing</span>(<span class="kw-2">ref</span> <span class="ident">time_int</span>, <span class="kw-2">ref</span> <span class="ident">dist_int</span>) <span class="op">=&gt;</span> {
                     <span class="comment">// TODO Why percent_clamp_end? We process car updates in any order, so we might</span>
                     <span class="comment">// calculate this before moving this car from Crossing to another state.</span>
                     <span class="ident">dist_int</span>.<span class="ident">lerp</span>(<span class="ident">time_int</span>.<span class="ident">percent_clamp_end</span>(<span class="ident">now</span>)).<span class="ident">min</span>(<span class="ident">bound</span>)
                 }
-                <span class="ident">CarState</span>::<span class="ident">Unparking</span>(<span class="ident">front</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">front</span>,
-                <span class="ident">CarState</span>::<span class="ident">Parking</span>(<span class="ident">front</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">front</span>,
-                <span class="ident">CarState</span>::<span class="ident">IdlingAtStop</span>(<span class="ident">front</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">front</span>,
+                <span class="ident">CarState</span>::<span class="ident">Unparking</span>(<span class="ident">front</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">front</span>,
+                <span class="ident">CarState</span>::<span class="ident">Parking</span>(<span class="ident">front</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">front</span>,
+                <span class="ident">CarState</span>::<span class="ident">IdlingAtStop</span>(<span class="ident">front</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">front</span>,
             };
 
             <span class="ident">result</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">front</span>));
@@ -483,32 +484,32 @@
         <span class="ident">now</span>: <span class="ident">Time</span>,
         <span class="ident">cars</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>,
         <span class="ident">queues</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">laggy_head</span>.<span class="ident">is_none</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">is_empty</span>() {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">laggy_head</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="number">0</span>);
         }
 
         <span class="kw">let</span> <span class="ident">dists</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_car_positions</span>(<span class="ident">now</span>, <span class="ident">cars</span>, <span class="ident">queues</span>);
         <span class="comment">// TODO Binary search</span>
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">dists</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">dist</span>)<span class="op">|</span> <span class="ident">start_dist</span> <span class="op">&gt;</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">dist</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">i</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dists</span>.<span class="ident">len</span>(),
+        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">dists</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">dist</span>)<span class="op">|</span> <span class="ident">start_dist</span> <span class="op">&gt;=</span> <span class="kw-2">*</span><span class="ident">dist</span>) {
+            <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="ident">i</span>,
+            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">dists</span>.<span class="ident">len</span>(),
         };
 
         <span class="comment">// Nope, there&#39;s not actually room at the front right now.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">laggy_head</span>.<span class="ident">is_some</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">laggy_head</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
         <span class="comment">// Are we too close to the leader?</span>
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
-            <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">dists</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>].<span class="number">1</span> <span class="op">-</span> <span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">dists</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>].<span class="number">0</span>].<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">-</span> <span class="ident">FOLLOWING_DISTANCE</span>
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!=</span> <span class="number">0</span>
+            <span class="op">&amp;&amp;</span> <span class="ident">dists</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>].<span class="number">1</span> <span class="op">-</span> <span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">dists</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>].<span class="number">0</span>].<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">-</span> <span class="ident">FOLLOWING_DISTANCE</span>
                 <span class="op">&lt;</span> <span class="ident">start_dist</span>
         {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="comment">// Or the follower?</span>
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">dists</span>.<span class="ident">len</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">start_dist</span> <span class="op">-</span> <span class="ident">vehicle_len</span> <span class="op">-</span> <span class="ident">FOLLOWING_DISTANCE</span> <span class="op">&lt;</span> <span class="ident">dists</span>[<span class="ident">idx</span>].<span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!=</span> <span class="ident">dists</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">start_dist</span> <span class="op">-</span> <span class="ident">vehicle_len</span> <span class="op">-</span> <span class="ident">FOLLOWING_DISTANCE</span> <span class="op">&lt;</span> <span class="ident">dists</span>[<span class="ident">idx</span>].<span class="number">1</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
@@ -517,43 +518,43 @@
 
     <span class="comment">// If true, there&#39;s room and the car must actually start the turn (because the space is</span>
     <span class="comment">// reserved).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_to_reserve_entry</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>, <span class="ident">force_entry</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_to_reserve_entry</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>, <span class="ident">force_entry</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="comment">// Sometimes a car + FOLLOWING_DISTANCE might be longer than the geom_len entirely. In that</span>
         <span class="comment">// case, it just means the car won&#39;t totally fit on the queue at once, which is fine.</span>
         <span class="comment">// Reserve the normal amount of space; the next car trying to enter will get rejected.</span>
         <span class="comment">// Also allow this don&#39;t-block-the-box prevention to be disabled.</span>
         <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+</span> <span class="ident">dist</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">geom_len</span>
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">force_entry</span>
+            <span class="op">||</span> <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">==</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>
+            <span class="op">||</span> <span class="ident">force_entry</span>
         {
-            <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dist</span>;
+            <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+=</span> <span class="ident">dist</span>;
             <span class="kw">return</span> <span class="bool-val">true</span>;
         }
         <span class="bool-val">false</span>
     }
 
     <span class="comment">// TODO Refactor</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">room_for_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">geom_len</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">room_for_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">==</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>
+            <span class="op">||</span> <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">geom_len</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free_reserved_space</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>) {
-        <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">-</span><span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>);
+        <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">-=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>;
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">&gt;=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">target_lane_penalty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">target_lane_penalty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_vehicles</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">len</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">laggy_head</span>.<span class="ident">is_some</span>() {
-            <span class="ident">num_vehicles</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="ident">num_vehicles</span> <span class="op">+=</span> <span class="number">1</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">bike_cost</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
+        <span class="kw">let</span> <span class="ident">bike_cost</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>)
+            <span class="op">||</span> <span class="self">self</span>
                 .<span class="ident">laggy_head</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>)
                 .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
         {
             <span class="number">1</span>
@@ -570,7 +571,7 @@
     <span class="ident">cars</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>,
     <span class="ident">now</span>: <span class="ident">Time</span>,
     <span class="ident">id</span>: <span class="ident">Traversable</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
+) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
     <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">dists</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
         <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="number">1</span> <span class="op">-</span> <span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">0</span>].<span class="number">0</span>].<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">-</span> <span class="ident">FOLLOWING_DISTANCE</span> <span class="op">&lt;</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="number">1</span> {
             <span class="ident">dump_cars</span>(<span class="kw-2">&amp;</span><span class="ident">dists</span>, <span class="ident">cars</span>, <span class="ident">id</span>, <span class="ident">now</span>);
@@ -594,25 +595,25 @@
         <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">cars</span>[<span class="ident">id</span>];
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {} @ {} (length {})&quot;</span>, <span class="ident">id</span>, <span class="ident">dist</span>, <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>);
         <span class="kw">match</span> <span class="ident">car</span>.<span class="ident">state</span> {
-            <span class="ident">CarState</span>::<span class="ident">Crossing</span>(<span class="kw-2">ref</span> <span class="ident">time_int</span>, <span class="kw-2">ref</span> <span class="ident">dist_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CarState</span>::<span class="ident">Crossing</span>(<span class="kw-2">ref</span> <span class="ident">time_int</span>, <span class="kw-2">ref</span> <span class="ident">dist_int</span>) <span class="op">=&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(
                     <span class="string">&quot;  Going {} .. {} during {} .. {}&quot;</span>,
                     <span class="ident">dist_int</span>.<span class="ident">start</span>, <span class="ident">dist_int</span>.<span class="ident">end</span>, <span class="ident">time_int</span>.<span class="ident">start</span>, <span class="ident">time_int</span>.<span class="ident">end</span>
                 );
             }
-            <span class="ident">CarState</span>::<span class="ident">Queued</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CarState</span>::<span class="ident">Queued</span> { .. } <span class="op">=&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;  Queued currently&quot;</span>);
             }
-            <span class="ident">CarState</span>::<span class="ident">WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CarState</span>::<span class="ident">WaitingToAdvance</span> { .. } <span class="op">=&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;  WaitingToAdvance currently&quot;</span>);
             }
-            <span class="ident">CarState</span>::<span class="ident">Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CarState</span>::<span class="ident">Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;  Unparking during {} .. {}&quot;</span>, <span class="ident">time_int</span>.<span class="ident">start</span>, <span class="ident">time_int</span>.<span class="ident">end</span>);
             }
-            <span class="ident">CarState</span>::<span class="ident">Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CarState</span>::<span class="ident">Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;  Parking during {} .. {}&quot;</span>, <span class="ident">time_int</span>.<span class="ident">start</span>, <span class="ident">time_int</span>.<span class="ident">end</span>);
             }
-            <span class="ident">CarState</span>::<span class="ident">IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CarState</span>::<span class="ident">IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;  Idling during {} .. {}&quot;</span>, <span class="ident">time_int</span>.<span class="ident">start</span>, <span class="ident">time_int</span>.<span class="ident">end</span>);
             }
         }

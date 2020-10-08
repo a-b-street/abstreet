@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/layer/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/layer/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -468,7 +469,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">BikeNetwork</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="string">&quot;bike network&quot;</span>)
     }
     <span class="kw">fn</span> <span class="ident">event</span>(
@@ -476,8 +477,8 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!=</span> <span class="self">self</span>.<span class="ident">time</span> {
             <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">BikeNetwork</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
 
@@ -497,7 +498,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">BikeNetwork</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BikeNetwork</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">BikeNetwork</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_lanes</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_dist</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">on_bike_lanes</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
@@ -510,21 +511,21 @@
                 <span class="ident">on_bike_lanes</span>.<span class="ident">add</span>(<span class="ident">l</span>.<span class="ident">parent</span>, <span class="number">0</span>);
                 <span class="ident">intersections_on</span>.<span class="ident">add</span>(<span class="ident">l</span>.<span class="ident">src_i</span>, <span class="number">0</span>);
                 <span class="ident">intersections_on</span>.<span class="ident">add</span>(<span class="ident">l</span>.<span class="ident">src_i</span>, <span class="number">0</span>);
-                <span class="ident">num_lanes</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">total_dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">length</span>();
+                <span class="ident">num_lanes</span> <span class="op">+=</span> <span class="number">1</span>;
+                <span class="ident">total_dist</span> <span class="op">+=</span> <span class="ident">l</span>.<span class="ident">length</span>();
             }
         }
 
         <span class="comment">// Show throughput, broken down by bike lanes or not</span>
         <span class="kw">for</span> ((<span class="ident">r</span>, <span class="ident">agent_type</span>, <span class="kw">_</span>), <span class="ident">count</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">road_thruput</span>.<span class="ident">counts</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">agent_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">AgentType</span>::<span class="ident">Bike</span> {
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">agent_type</span> <span class="op">==</span> <span class="ident">AgentType</span>::<span class="ident">Bike</span> {
                 <span class="kw">if</span> <span class="ident">app</span>
                     .<span class="ident">primary</span>
                     .<span class="ident">map</span>
                     .<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>)
                     .<span class="ident">lanes_ltr</span>()
                     .<span class="ident">into_iter</span>()
-                    .<span class="ident">any</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Biking</span>)
+                    .<span class="ident">any</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Biking</span>)
                 {
                     <span class="ident">on_bike_lanes</span>.<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">*</span><span class="ident">count</span>);
                 } <span class="kw">else</span> {
@@ -537,7 +538,7 @@
         <span class="kw">for</span> ((<span class="ident">i</span>, <span class="ident">agent_type</span>, <span class="kw">_</span>), <span class="ident">count</span>) <span class="kw">in</span>
             <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">intersection_thruput</span>.<span class="ident">counts</span>
         {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">agent_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">AgentType</span>::<span class="ident">Bike</span> {
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">agent_type</span> <span class="op">==</span> <span class="ident">AgentType</span>::<span class="ident">Bike</span> {
                 <span class="kw">if</span> <span class="ident">app</span>
                     .<span class="ident">primary</span>
                     .<span class="ident">map</span>
@@ -609,10 +610,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">Static</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">name</span>)
     }
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
         <span class="ident">Layer</span>::<span class="ident">simple_event</span>(<span class="ident">ctx</span>, <span class="ident">minimap</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>)
     }
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -635,7 +636,7 @@
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">title</span>: <span class="ident">String</span>,
         <span class="ident">extra</span>: <span class="ident">Widget</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Static</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">Static</span> {
         <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -659,7 +660,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edits</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Static</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edits</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Static</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete</span>::<span class="ident">new</span>(
             <span class="ident">app</span>,
             <span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;modified road/intersection&quot;</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">edits_layer</span>)],
@@ -693,7 +694,7 @@
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">amenities</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Static</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">amenities</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Static</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete</span>::<span class="ident">new</span>(
             <span class="ident">app</span>,
             <span class="comment">// names are coming from amenity_type in another file</span>
@@ -735,7 +736,7 @@
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_sidewalks</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Static</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_sidewalks</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Static</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete</span>::<span class="ident">new</span>(<span class="ident">app</span>, <span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;no sidewalks&quot;</span>, <span class="ident">Color</span>::<span class="ident">RED</span>)]);
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_lanes</span>() {
             <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_shoulder</span>() {
@@ -751,7 +752,7 @@
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blackholes</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Static</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blackholes</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Static</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete</span>::<span class="ident">new</span>(
             <span class="ident">app</span>,
             <span class="macro">vec</span><span class="macro">!</span>[
@@ -761,7 +762,7 @@
             ],
         );
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-            <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">driving_blackhole</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">l</span>.<span class="ident">biking_blackhole</span> {
+            <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">driving_blackhole</span> <span class="op">&amp;&amp;</span> <span class="ident">l</span>.<span class="ident">biking_blackhole</span> {
                 <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="string">&quot;driving + biking blackhole&quot;</span>);
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">driving_blackhole</span> {
                 <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="string">&quot;driving blackhole&quot;</span>);
@@ -788,7 +789,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">CongestionCaps</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="string">&quot;congestion caps&quot;</span>)
     }
     <span class="kw">fn</span> <span class="ident">event</span>(
@@ -796,19 +797,19 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">minimap</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_tooltip</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!=</span> <span class="self">self</span>.<span class="ident">time</span> {
             <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">CongestionCaps</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="ident">recalc_tooltip</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
         <span class="comment">// Show a tooltip with count, only when unzoomed</span>
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">recalc_tooltip</span> {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">||</span> <span class="ident">recalc_tooltip</span> {
                 <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=&gt;</span> {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cap</span>) <span class="op">=</span> <span class="ident">app</span>
                             .<span class="ident">primary</span>
                             .<span class="ident">map</span>
@@ -822,7 +823,7 @@
                             ))));
                         }
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="kw">_</span> <span class="op">=&gt;</span> {}
                 }
             }
         } <span class="kw">else</span> {
@@ -848,14 +849,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">CongestionCaps</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CongestionCaps</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">CongestionCaps</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork</span>::<span class="ident">new</span>(<span class="ident">app</span>);
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_roads</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cap</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span>.<span class="ident">cap_vehicles_per_hour</span> {
-                <span class="ident">num_roads</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="ident">num_roads</span> <span class="op">+=</span> <span class="number">1</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">r</span>
                     .<span class="ident">all_lanes</span>()
                     .<span class="ident">into_iter</span>()

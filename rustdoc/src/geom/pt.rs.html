@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `geom/src/pt.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pt.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../geom/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `geom/src/pt.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pt.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -207,14 +208,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Pt2D</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">approx_eq</span>(<span class="kw-2">*</span><span class="ident">other</span>, <span class="ident">EPSILON_DIST</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Pt2D</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">is_finite</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">y</span>.<span class="ident">is_finite</span>() {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">is_finite</span>() <span class="op">||</span> <span class="op">!</span><span class="ident">y</span>.<span class="ident">is_finite</span>() {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Bad Pt2D {}, {}&quot;</span>, <span class="ident">x</span>, <span class="ident">y</span>);
         }
 
@@ -227,12 +228,12 @@
     }
 
     <span class="comment">// TODO This is a small first step...</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Pt2D</span>, <span class="ident">threshold</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">dist_to</span>(<span class="ident">other</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="ident">threshold</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Pt2D</span>, <span class="ident">threshold</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">dist_to</span>(<span class="ident">other</span>) <span class="op">&lt;=</span> <span class="ident">threshold</span>
     }
 
     <span class="comment">// Can go out of bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_gps</span>(<span class="ident">gps</span>: <span class="ident">LonLat</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_gps</span>(<span class="ident">gps</span>: <span class="ident">LonLat</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">get_max_world_pt</span>();
             (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
@@ -246,7 +247,7 @@
     }
 
     <span class="comment">// Can go out of bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_gps</span>(<span class="self">self</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LonLat</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_gps</span>(<span class="self">self</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-&gt;</span> <span class="ident">LonLat</span> {
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">get_max_world_pt</span>();
             (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
@@ -256,18 +257,18 @@
         <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">lon</span>, <span class="ident">lat</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">x</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">x</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">inner_x</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">y</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">y</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">inner_y</span>
     }
 
     <span class="comment">// TODO better name</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">project_away</span>(<span class="self">self</span>, <span class="ident">dist</span>: <span class="ident">Distance</span>, <span class="ident">theta</span>: <span class="ident">Angle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">project_away</span>(<span class="self">self</span>, <span class="ident">dist</span>: <span class="ident">Distance</span>, <span class="ident">theta</span>: <span class="ident">Angle</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="comment">// If negative, caller should use theta.opposite()</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dist</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dist</span> <span class="op">&gt;=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>);
 
         <span class="kw">let</span> (<span class="ident">sin</span>, <span class="ident">cos</span>) <span class="op">=</span> <span class="ident">theta</span>.<span class="ident">normalized_radians</span>().<span class="ident">sin_cos</span>();
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(
@@ -278,44 +279,44 @@
 
     <span class="comment">// TODO valid to do euclidean distance on world-space points that&#39;re formed from</span>
     <span class="comment">// Haversine?</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">raw_dist_to</span>(<span class="self">self</span>, <span class="ident">to</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">raw_dist_to</span>(<span class="self">self</span>, <span class="ident">to</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         ((<span class="self">self</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">to</span>.<span class="ident">x</span>()).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="self">self</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">to</span>.<span class="ident">y</span>()).<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">sqrt</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_to</span>(<span class="self">self</span>, <span class="ident">to</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_to</span>(<span class="self">self</span>, <span class="ident">to</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span>.<span class="ident">raw_dist_to</span>(<span class="ident">to</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">angle_to</span>(<span class="self">self</span>, <span class="ident">to</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">angle_to</span>(<span class="self">self</span>, <span class="ident">to</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
         <span class="comment">// DON&#39;T invert y here</span>
         <span class="ident">Angle</span>::<span class="ident">new_rads</span>((<span class="ident">to</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">y</span>()).<span class="ident">atan2</span>(<span class="ident">to</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">x</span>()))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="self">self</span>, <span class="ident">dx</span>: <span class="ident">f64</span>, <span class="ident">dy</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="self">self</span>, <span class="ident">dx</span>: <span class="ident">f64</span>, <span class="ident">dy</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">x</span>() <span class="op">+</span> <span class="ident">dx</span>, <span class="self">self</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="ident">dy</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">is_empty</span>() {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find center of 0 points&quot;</span>);
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">0.0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y</span> <span class="op">=</span> <span class="number">0.0</span>;
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="ident">x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pt</span>.<span class="ident">x</span>();
-            <span class="ident">y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pt</span>.<span class="ident">y</span>();
+            <span class="ident">x</span> <span class="op">+=</span> <span class="ident">pt</span>.<span class="ident">x</span>();
+            <span class="ident">y</span> <span class="op">+=</span> <span class="ident">pt</span>.<span class="ident">y</span>();
         }
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>;
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x</span> <span class="op">/</span> <span class="ident">len</span>, <span class="ident">y</span> <span class="op">/</span> <span class="ident">len</span>)
     }
 
     <span class="comment">// Temporary until Pt2D has proper resolution.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_dedupe</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">threshold</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_dedupe</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">threshold</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="comment">// Just use dedup() on the Vec.</span>
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">threshold</span>, <span class="ident">EPSILON_DIST</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">approx_eq</span>(<span class="ident">pt</span>, <span class="ident">threshold</span>) {
+            <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">||</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">approx_eq</span>(<span class="ident">pt</span>, <span class="ident">threshold</span>) {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
             }
         }
@@ -328,16 +329,16 @@
         <span class="ident">start</span>: <span class="ident">Pt2D</span>,
         <span class="ident">end</span>: <span class="ident">Pt2D</span>,
         <span class="ident">threshold</span>: <span class="ident">Distance</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">pt</span>.<span class="ident">approx_eq</span>(<span class="ident">start</span>, <span class="ident">threshold</span>) {
+            <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">approx_eq</span>(<span class="ident">start</span>, <span class="ident">threshold</span>) {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
             } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">is_empty</span>() {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
             }
             <span class="comment">// start and end might be the same.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">pt</span>.<span class="ident">approx_eq</span>(<span class="ident">end</span>, <span class="ident">threshold</span>) {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">approx_eq</span>(<span class="ident">end</span>, <span class="ident">threshold</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>);
             }
         }
@@ -358,7 +359,7 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_hashable</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashablePt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_hashable</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">HashablePt2D</span> {
         <span class="ident">HashablePt2D</span> {
             <span class="ident">x_nan</span>: <span class="ident">NotNan</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">x</span>()).<span class="ident">unwrap</span>(),
             <span class="ident">y_nan</span>: <span class="ident">NotNan</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">y</span>()).<span class="ident">unwrap</span>(),
@@ -367,7 +368,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Pt2D</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Pt2D({0}, {1})&quot;</span>, <span class="self">self</span>.<span class="ident">x</span>(), <span class="self">self</span>.<span class="ident">y</span>())
     }
 }
@@ -381,7 +382,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">HashablePt2D</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_pt2d</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_pt2d</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">x_nan</span>.<span class="ident">into_inner</span>(), <span class="self">self</span>.<span class="ident">y_nan</span>.<span class="ident">into_inner</span>())
     }
 }

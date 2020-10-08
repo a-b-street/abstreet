@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/text.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/text.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -587,15 +588,15 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Font</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">family</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">family</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bungee Inline&quot;</span>,
-            <span class="ident">Font</span>::<span class="ident">BungeeRegular</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bungee&quot;</span>,
-            <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Overpass&quot;</span>,
-            <span class="ident">Font</span>::<span class="ident">OverpassRegular</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Overpass&quot;</span>,
-            <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Overpass&quot;</span>,
-            <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Overpass Mono&quot;</span>,
-            <span class="ident">Font</span>::<span class="ident">ZcoolXiaoWei</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ZCOOL XiaoWei&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span> <span class="op">=&gt;</span> <span class="string">&quot;Bungee Inline&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">BungeeRegular</span> <span class="op">=&gt;</span> <span class="string">&quot;Bungee&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">=&gt;</span> <span class="string">&quot;Overpass&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassRegular</span> <span class="op">=&gt;</span> <span class="string">&quot;Overpass&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=&gt;</span> <span class="string">&quot;Overpass&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span> <span class="op">=&gt;</span> <span class="string">&quot;Overpass Mono&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">ZcoolXiaoWei</span> <span class="op">=&gt;</span> <span class="string">&quot;ZCOOL XiaoWei&quot;</span>,
         }
     }
 }
@@ -610,12 +611,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TextSpan</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">fg_color</span>, <span class="ident">DEFAULT_FG_COLOR</span>);
         <span class="self">self</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">color</span>;
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">fg_color</span>, <span class="ident">DEFAULT_FG_COLOR</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">color</span> {
             <span class="self">self</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">c</span>;
@@ -623,64 +624,64 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="self">self</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
     }
 
     <span class="comment">// Yuwen&#39;s new styles, defined in Figma. Should document them in Github better.</span>
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">display_title</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">display_title</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">64</span>;
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_heading_styled</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_heading_styled</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">BungeeRegular</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">32</span>;
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_heading_plain</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_heading_plain</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">OverpassBold</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">32</span>;
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_heading</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_heading</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">26</span>;
         <span class="self">self</span>
     }
     <span class="comment">// The default</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">OverpassRegular</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">21</span>;
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secondary</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secondary</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">OverpassRegular</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">21</span>;
         <span class="self">self</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>);
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">OverpassRegular</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">16</span>;
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_monospaced</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_monospaced</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">32</span>;
         <span class="self">self</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_monospaced</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_monospaced</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span>;
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">16</span>;
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">underlined</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">underlined</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">underlined</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
@@ -688,7 +689,7 @@
 
 <span class="comment">// TODO What&#39;s the better way of doing this? Also &quot;Line&quot; is a bit of a misnomer</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Line</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">text</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Line</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>(<span class="ident">text</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
     <span class="ident">TextSpan</span> {
         <span class="ident">text</span>: <span class="ident">text</span>.<span class="ident">into</span>(),
         <span class="ident">fg_color</span>: <span class="ident">DEFAULT_FG_COLOR</span>,
@@ -707,20 +708,20 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Text</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="ident">Text</span> {
             <span class="ident">lines</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">bg_color</span>: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line</span>: <span class="ident">TextSpan</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line</span>: <span class="ident">TextSpan</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">line</span>);
         <span class="ident">txt</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_all</span>(<span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_all</span>(<span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
             <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">l</span>);
@@ -728,7 +729,7 @@
         <span class="ident">txt</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_multiline</span>(<span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_multiline</span>(<span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">l</span>);
@@ -737,20 +738,20 @@
     }
 
     <span class="comment">// TODO Remove this</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_bg</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_bg</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">bg_color</span>.<span class="ident">is_none</span>());
         <span class="self">self</span>.<span class="ident">bg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BG_COLOR</span>);
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bg</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bg</span>: <span class="ident">Color</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">bg_color</span>.<span class="ident">is_none</span>());
         <span class="self">self</span>.<span class="ident">bg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">bg</span>);
         <span class="self">self</span>
     }
 
     <span class="comment">// TODO Not exactly sure this is the right place for this, but better than code duplication</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">hotkey</span>: <span class="ident">MK</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">hotkey</span>: <span class="ident">MK</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">key</span>) <span class="op">=</span> <span class="ident">hotkey</span>.<span class="ident">into</span>() {
             <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="ident">key</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>).<span class="ident">small</span>(),
@@ -761,7 +762,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fg</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fg</span>: <span class="ident">Color</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">spans</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">iter_mut</span>() {
             <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
                 <span class="ident">span</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">fg</span>;
@@ -799,7 +800,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_appended</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="ident">lines</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">l</span>);
             } <span class="kw">else</span> {
                 <span class="self">self</span>.<span class="ident">append</span>(<span class="ident">l</span>);
@@ -813,7 +814,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">is_empty</span>()
     }
 
@@ -821,16 +822,16 @@
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">lines</span>);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">dims</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">dims</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) <span class="op">-&gt;</span> <span class="ident">ScreenDims</span> {
         <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">assets</span>).<span class="ident">get_dims</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;&gt;</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span> <span class="op">=</span> <span class="ident">assets</span>.<span class="ident">as_ref</span>();
         <span class="self">self</span>.<span class="ident">inner_render</span>(<span class="ident">assets</span>, <span class="ident">svg</span>::<span class="ident">HIGH_QUALITY</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">inner_render</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>, <span class="ident">tolerance</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">inner_render</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>, <span class="ident">tolerance</span>: <span class="ident">f32</span>) <span class="op">-&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">hash_key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hash_key</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">batch</span>) <span class="op">=</span> <span class="ident">assets</span>.<span class="ident">get_cached_text</span>(<span class="kw-2">&amp;</span><span class="ident">hash_key</span>) {
             <span class="kw">return</span> <span class="ident">batch</span>;
@@ -862,7 +863,7 @@
                 );
             }
 
-            <span class="ident">y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">line_dims</span>.<span class="ident">height</span>;
+            <span class="ident">y</span> <span class="op">+=</span> <span class="ident">line_dims</span>.<span class="ident">height</span>;
 
             <span class="comment">// Add all of the padding at the bottom of the line.</span>
             <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">line_height</span> <span class="op">/</span> <span class="ident">SCALE_LINE_HEIGHT</span> <span class="op">*</span> <span class="number">0.2</span>;
@@ -881,33 +882,33 @@
         <span class="ident">output_batch</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_to_batch</span>(<span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_to_batch</span>(<span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>) <span class="op">-&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">prerender</span>.<span class="ident">assets</span>);
         <span class="ident">batch</span>.<span class="ident">autocrop_dims</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">batch</span>.<span class="ident">autocrop</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">hash_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">hash_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">DefaultHasher</span>::<span class="ident">new</span>();
         <span class="ident">hasher</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>).<span class="ident">as_ref</span>());
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">hasher</span>.<span class="ident">finish</span>())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">JustDraw</span>::<span class="ident">wrap</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>))
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">DeferDraw</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap_to_pct</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">pct</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap_to_pct</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">pct</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="self">self</span>.<span class="ident">inner_wrap_to_pct</span>(
             (<span class="ident">pct</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>,
             <span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>,
         )
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">inner_wrap_to_pct</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">f64</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">inner_wrap_to_pct</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">f64</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) <span class="op">-&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">bg</span>, <span class="ident">spans</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">drain</span>(..) {
             <span class="comment">// First optimistically assume everything just fits.</span>
@@ -944,7 +945,7 @@
                     <span class="kw">if</span> <span class="ident">width_left</span> <span class="op">&gt;</span> <span class="ident">width</span> {
                         <span class="ident">current_span</span>.<span class="ident">text</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
                         <span class="ident">current_span</span>.<span class="ident">text</span>.<span class="ident">push_str</span>(<span class="ident">word</span>);
-                        <span class="ident">width_left</span> <span class="op">-</span><span class="op">=</span> <span class="ident">width</span>;
+                        <span class="ident">width_left</span> <span class="op">-=</span> <span class="ident">width</span>;
                     } <span class="kw">else</span> {
                         <span class="ident">current_line</span>.<span class="ident">push</span>(<span class="ident">current_span</span>);
                         <span class="ident">lines</span>.<span class="ident">push</span>((<span class="ident">bg</span>, <span class="ident">current_line</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>()));
@@ -967,7 +968,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">render_line</span>(<span class="ident">spans</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>, <span class="ident">tolerance</span>: <span class="ident">f32</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+<span class="kw">fn</span> <span class="ident">render_line</span>(<span class="ident">spans</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>, <span class="ident">tolerance</span>: <span class="ident">f32</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) <span class="op">-&gt;</span> <span class="ident">GeomBatch</span> {
     <span class="comment">// TODO This assumes size and font don&#39;t change mid-line. We might be able to support that now,</span>
     <span class="comment">// actually.</span>
     <span class="comment">// https://www.oreilly.com/library/view/svg-text-layout/9781491933817/ch04.html</span>
@@ -981,9 +982,9 @@
         <span class="ident">spans</span>[<span class="number">0</span>].<span class="ident">size</span>,
         <span class="ident">spans</span>[<span class="number">0</span>].<span class="ident">font</span>.<span class="ident">family</span>(),
         <span class="kw">match</span> <span class="ident">spans</span>[<span class="number">0</span>].<span class="ident">font</span> {
-            <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
-            <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">=&gt;</span> <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
+            <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=&gt;</span> <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="string">&quot;&quot;</span>,
         }
     )
     .<span class="ident">unwrap</span>();
@@ -1007,42 +1008,42 @@
     <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">&quot;{}&lt;/text&gt;&lt;/svg&gt;&quot;</span>, <span class="ident">contents</span>).<span class="ident">unwrap</span>();
 
     <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">usvg</span>::<span class="ident">Tree</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">svg</span>, <span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">text_opts</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, <span class="ident">contents</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=&gt;</span> <span class="ident">t</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, <span class="ident">contents</span>, <span class="ident">err</span>),
     };
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
     <span class="kw">match</span> <span class="kw">crate</span>::<span class="ident">svg</span>::<span class="ident">add_svg_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
-        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">batch</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, <span class="ident">contents</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">batch</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, <span class="ident">contents</span>, <span class="ident">err</span>),
     }
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TextExt</span> {
-    <span class="kw">fn</span> <span class="ident">draw_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span>;
-    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span>;
+    <span class="kw">fn</span> <span class="ident">draw_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span>;
+    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">TextExt</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">draw_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">draw_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)
     }
-    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">TextExt</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">draw_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">draw_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)
     }
-    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">TextSpan</span> {
     <span class="comment">// TODO Copies from render_line a fair amount</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_curvey</span>(<span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">scale</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_curvey</span>(<span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">scale</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">assets</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">prerender</span>.<span class="ident">assets</span>;
         <span class="kw">let</span> <span class="ident">tolerance</span> <span class="op">=</span> <span class="ident">svg</span>::<span class="ident">HIGH_QUALITY</span>;
 
@@ -1076,9 +1077,9 @@
             (<span class="self">self</span>.<span class="ident">size</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">scale</span>,
             <span class="self">self</span>.<span class="ident">font</span>.<span class="ident">family</span>(),
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">font</span> {
-                <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
-                <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
+                <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">=&gt;</span> <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
+                <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=&gt;</span> <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
+                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="string">&quot;&quot;</span>,
             },
             <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">to_hex</span>(),
             <span class="ident">start_offset</span>,
@@ -1093,13 +1094,13 @@
         .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">usvg</span>::<span class="ident">Tree</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">svg</span>, <span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">text_opts</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
+            <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=&gt;</span> <span class="ident">t</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
         };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">match</span> <span class="kw">crate</span>::<span class="ident">svg</span>::<span class="ident">add_svg_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">batch</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">batch</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
         }
     }
 }

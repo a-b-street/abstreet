@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `abstutil/src/time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../abstutil/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `abstutil/src/time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../abstutil/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -636,7 +637,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">elapsed_seconds</span>(<span class="ident">since</span>: <span class="ident">Instant</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">elapsed_seconds</span>(<span class="ident">since</span>: <span class="ident">Instant</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
     <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">since</span>.<span class="ident">elapsed</span>();
     (<span class="ident">dt</span>.<span class="ident">as_secs</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">+</span> (<span class="ident">f64</span>::<span class="ident">from</span>(<span class="ident">dt</span>.<span class="ident">subsec_nanos</span>()) <span class="op">*</span> <span class="number">1e-9</span>)
 }
@@ -652,7 +653,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Progress</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">label</span>: <span class="ident">String</span>, <span class="ident">total_items</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Progress</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">label</span>: <span class="ident">String</span>, <span class="ident">total_items</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Progress</span> {
         <span class="ident">Progress</span> {
             <span class="ident">label</span>,
             <span class="ident">processed_items</span>: <span class="number">0</span>,
@@ -666,9 +667,9 @@
     <span class="comment">// Returns when done</span>
     <span class="kw">fn</span> <span class="ident">next</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">maybe_sink</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">processed_items</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="ident">maybe_sink</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">processed_items</span> <span class="op">+=</span> <span class="number">1</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">processed_items</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">total_items</span> {
             <span class="macro">panic</span><span class="macro">!</span>(
                 <span class="string">&quot;{} is too few items for {} progress&quot;</span>,
@@ -677,7 +678,7 @@
             );
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">processed_items</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">total_items</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">processed_items</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">total_items</span> {
             <span class="kw">let</span> <span class="ident">elapsed</span> <span class="op">=</span> <span class="ident">elapsed_seconds</span>(<span class="self">self</span>.<span class="ident">started_at</span>);
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} ({})... {}&quot;</span>,
@@ -685,7 +686,7 @@
                 <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">total_items</span>),
                 <span class="ident">prettyprint_time</span>(<span class="ident">elapsed</span>)
             );
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">total_items</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">total_items</span> <span class="op">==</span> <span class="number">1</span> {
                 <span class="ident">Timer</span>::<span class="ident">selfless_println</span>(<span class="ident">maybe_sink</span>, <span class="ident">line</span>.<span class="ident">clone</span>());
             } <span class="kw">else</span> {
                 <span class="ident">clear_current_line</span>();
@@ -695,7 +696,7 @@
                 }
             }
             <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">elapsed</span>, <span class="ident">line</span>));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">elapsed_seconds</span>(<span class="self">self</span>.<span class="ident">last_printed_at</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="ident">PROGRESS_FREQUENCY_SECONDS</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">elapsed_seconds</span>(<span class="self">self</span>.<span class="ident">last_printed_at</span>) <span class="op">&gt;=</span> <span class="ident">PROGRESS_FREQUENCY_SECONDS</span> {
             <span class="self">self</span>.<span class="ident">last_printed_at</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{}: {}/{}... {}&quot;</span>,
@@ -720,7 +721,7 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">cancel_iter_early</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">fn</span> <span class="ident">cancel_iter_early</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="ident">elapsed_seconds</span>(<span class="self">self</span>.<span class="ident">started_at</span>)
     }
 }
@@ -747,7 +748,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">warnings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
-    <span class="ident">sink</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">sink</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">TimerSpan</span> {
@@ -765,7 +766,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">raw_name</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>(<span class="ident">raw_name</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">raw_name</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">Timer</span> {
             <span class="ident">results</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
@@ -780,14 +781,14 @@
         <span class="ident">t</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_sink</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sink</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_sink</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sink</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="ident">name</span>);
         <span class="ident">t</span>.<span class="ident">sink</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sink</span>);
         <span class="ident">t</span>
     }
 
     <span class="comment">// TODO Shouldn&#39;t use this much.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">throwaway</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">throwaway</span>() <span class="op">-&gt;</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;throwaway&quot;</span>)
     }
 
@@ -796,7 +797,7 @@
     }
 
     <span class="comment">// Workaround for borrow checker</span>
-    <span class="kw">fn</span> <span class="ident">selfless_println</span>(<span class="ident">maybe_sink</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
+    <span class="kw">fn</span> <span class="ident">selfless_println</span>(<span class="ident">maybe_sink</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TimerSink</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
         {
             <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">line</span>);
@@ -833,8 +834,8 @@
     <span class="comment">// Used to end the scope of a timer early.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) {}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">raw_name</span>: <span class="ident">S</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;throwaway&quot;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">raw_name</span>: <span class="ident">S</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">==</span> <span class="string">&quot;throwaway&quot;</span> {
             <span class="kw">return</span>;
         }
 
@@ -848,16 +849,16 @@
         }));
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">raw_name</span>: <span class="ident">S</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;throwaway&quot;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">raw_name</span>: <span class="ident">S</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">==</span> <span class="string">&quot;throwaway&quot;</span> {
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">raw_name</span>.<span class="ident">into</span>();
 
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>() {
-            <span class="ident">StackEntry</span>::<span class="ident">TimerSpan</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>,
-            <span class="ident">StackEntry</span>::<span class="ident">Progress</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;stop() during unfinished start_iter(): {:?}&quot;</span>, <span class="ident">p</span>),
-            <span class="ident">StackEntry</span>::<span class="ident">File</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;stop() while reading file {}&quot;</span>, <span class="ident">f</span>.<span class="ident">path</span>),
+            <span class="ident">StackEntry</span>::<span class="ident">TimerSpan</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>,
+            <span class="ident">StackEntry</span>::<span class="ident">Progress</span>(<span class="ident">p</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;stop() during unfinished start_iter(): {:?}&quot;</span>, <span class="ident">p</span>),
+            <span class="ident">StackEntry</span>::<span class="ident">File</span>(<span class="ident">f</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;stop() while reading file {}&quot;</span>, <span class="ident">f</span>.<span class="ident">path</span>),
         };
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">span</span>.<span class="ident">name</span>, <span class="ident">name</span>);
         <span class="kw">let</span> <span class="ident">elapsed</span> <span class="op">=</span> <span class="ident">elapsed_seconds</span>(<span class="ident">span</span>.<span class="ident">started_at</span>);
@@ -865,10 +866,10 @@
 
         <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="string">&quot;  &quot;</span>.<span class="ident">repeat</span>(<span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">len</span>());
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">last_mut</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">TimerSpan</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">TimerSpan</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>)) <span class="op">=&gt;</span> {
                 <span class="ident">s</span>.<span class="ident">nested_results</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}- {}&quot;</span>, <span class="ident">padding</span>, <span class="ident">line</span>));
                 <span class="ident">s</span>.<span class="ident">nested_results</span>.<span class="ident">extend</span>(<span class="ident">span</span>.<span class="ident">nested_results</span>);
-                <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">nested_time</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> {
+                <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">nested_time</span> <span class="op">!=</span> <span class="number">0.0</span> {
                     <span class="ident">Timer</span>::<span class="ident">selfless_println</span>(
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sink</span>,
                         <span class="macro">format</span><span class="macro">!</span>(
@@ -883,13 +884,13 @@
                         <span class="ident">prettyprint_time</span>(<span class="ident">elapsed</span> <span class="op">-</span> <span class="ident">span</span>.<span class="ident">nested_time</span>)
                     ));
                 }
-                <span class="ident">s</span>.<span class="ident">nested_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">elapsed</span>;
+                <span class="ident">s</span>.<span class="ident">nested_time</span> <span class="op">+=</span> <span class="ident">elapsed</span>;
             }
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
                 <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}- {}&quot;</span>, <span class="ident">padding</span>, <span class="ident">line</span>));
                 <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">extend</span>(<span class="ident">span</span>.<span class="ident">nested_results</span>);
-                <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">nested_time</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> {
+                <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">nested_time</span> <span class="op">!=</span> <span class="number">0.0</span> {
                     <span class="self">self</span>.<span class="ident">println</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;{}... plus {}&quot;</span>,
                         <span class="ident">name</span>,
@@ -907,11 +908,11 @@
         <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">line</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_iter</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">raw_name</span>: <span class="ident">S</span>, <span class="ident">total_items</span>: <span class="ident">usize</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;throwaway&quot;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_iter</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">raw_name</span>: <span class="ident">S</span>, <span class="ident">total_items</span>: <span class="ident">usize</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">==</span> <span class="string">&quot;throwaway&quot;</span> {
             <span class="kw">return</span>;
         }
-        <span class="kw">if</span> <span class="ident">total_items</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">total_items</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">raw_name</span>.<span class="ident">into</span>();
@@ -927,7 +928,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;throwaway&quot;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">==</span> <span class="string">&quot;throwaway&quot;</span> {
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="ident">maybe_result</span> <span class="op">=</span>
@@ -943,7 +944,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel_iter_early</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;throwaway&quot;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">==</span> <span class="string">&quot;throwaway&quot;</span> {
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="ident">elapsed</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">Progress</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">progress</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">last_mut</span>() {
@@ -958,12 +959,12 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_result</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">elapsed</span>: <span class="ident">f64</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
         <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="string">&quot;  &quot;</span>.<span class="ident">repeat</span>(<span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">len</span>());
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">last_mut</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">TimerSpan</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">TimerSpan</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>)) <span class="op">=&gt;</span> {
                 <span class="ident">s</span>.<span class="ident">nested_results</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}- {}&quot;</span>, <span class="ident">padding</span>, <span class="ident">line</span>));
-                <span class="ident">s</span>.<span class="ident">nested_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">elapsed</span>;
+                <span class="ident">s</span>.<span class="ident">nested_time</span> <span class="op">+=</span> <span class="ident">elapsed</span>;
             }
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
                 <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}- {}&quot;</span>, <span class="ident">padding</span>, <span class="ident">line</span>));
                 <span class="comment">// Don&#39;t bother tracking excess time that the Timer has existed but had no spans</span>
             }
@@ -971,13 +972,13 @@
     }
 
     <span class="comment">// The order of the result is deterministic / matches the input.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parallelize</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span><span class="op">&gt;</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parallelize</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-&gt;</span> <span class="ident">O</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">timer_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">parallelism</span>: <span class="ident">Parallelism</span>,
         <span class="ident">requests</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
         <span class="ident">cb</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>
+    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">Send</span>,
         <span class="ident">O</span>: <span class="ident">Send</span>,
@@ -999,18 +1000,18 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
         {
             <span class="kw">let</span> <span class="ident">cpus</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">parallelism</span> {
-                <span class="ident">Parallelism</span>::<span class="ident">Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">num_cpus</span>::<span class="ident">get</span>(),
-                <span class="ident">Parallelism</span>::<span class="ident">Polite</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">num_cpus</span>::<span class="ident">get</span>() <span class="op">/</span> <span class="number">2</span>,
+                <span class="ident">Parallelism</span>::<span class="ident">Fastest</span> <span class="op">=&gt;</span> <span class="ident">num_cpus</span>::<span class="ident">get</span>(),
+                <span class="ident">Parallelism</span>::<span class="ident">Polite</span> <span class="op">=&gt;</span> <span class="ident">num_cpus</span>::<span class="ident">get</span>() <span class="op">/</span> <span class="number">2</span>,
             }
             .<span class="ident">max</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="ident">u32</span>;
             <span class="ident">scoped_threadpool</span>::<span class="ident">Pool</span>::<span class="ident">new</span>(<span class="ident">cpus</span>).<span class="ident">scoped</span>(<span class="op">|</span><span class="ident">scope</span><span class="op">|</span> {
                 <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat_with</span>(<span class="op">|</span><span class="op">|</span> <span class="prelude-val">None</span>)
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat_with</span>(<span class="op">||</span> <span class="prelude-val">None</span>)
                     .<span class="ident">take</span>(<span class="ident">requests</span>.<span class="ident">len</span>())
                     .<span class="ident">collect</span>();
                 <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">req</span>) <span class="kw">in</span> <span class="ident">requests</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
                     <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
-                    <span class="ident">scope</span>.<span class="ident">execute</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+                    <span class="ident">scope</span>.<span class="ident">execute</span>(<span class="kw">move</span> <span class="op">||</span> {
                         <span class="comment">// TODO Can we catch panics here, dump a better stacktrace? widgetry runner</span>
                         <span class="comment">// does this</span>
                         <span class="ident">tx</span>.<span class="ident">send</span>((<span class="ident">idx</span>, <span class="ident">cb</span>(<span class="ident">req</span>))).<span class="ident">unwrap</span>();
@@ -1029,7 +1030,7 @@
     }
 
     <span class="comment">// Then the caller passes this in as a reader</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_file</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_file</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">stack</span>
             .<span class="ident">push</span>(<span class="ident">StackEntry</span>::<span class="ident">File</span>(<span class="ident">TimedFileReader</span>::<span class="ident">new</span>(<span class="ident">path</span>)<span class="question-mark">?</span>));
         <span class="prelude-val">Ok</span>(())
@@ -1038,7 +1039,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;throwaway&quot;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">==</span> <span class="string">&quot;throwaway&quot;</span> {
             <span class="kw">return</span>;
         }
 
@@ -1046,24 +1047,24 @@
 
         <span class="comment">// If we&#39;re in the middle of unwinding a panic, don&#39;t further blow up.</span>
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">last</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">TimerSpan</span>(<span class="kw-2">ref</span> <span class="ident">s</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="ident">stop_name</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">TimerSpan</span>(<span class="kw-2">ref</span> <span class="ident">s</span>)) <span class="op">=&gt;</span> {
+                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">name</span> <span class="op">!=</span> <span class="ident">stop_name</span> {
                     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;dropping Timer during {}, due to panic?&quot;</span>, <span class="ident">s</span>.<span class="ident">name</span>);
                     <span class="kw">return</span>;
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">File</span>(<span class="kw-2">ref</span> <span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">File</span>(<span class="kw-2">ref</span> <span class="ident">r</span>)) <span class="op">=&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;dropping Timer while reading {}, due to panic?&quot;</span>, <span class="ident">r</span>.<span class="ident">path</span>);
                 <span class="kw">return</span>;
             }
-            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">Progress</span>(<span class="kw-2">ref</span> <span class="ident">p</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">Progress</span>(<span class="kw-2">ref</span> <span class="ident">p</span>)) <span class="op">=&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(
                     <span class="string">&quot;dropping Timer while doing progress {}, due to panic?&quot;</span>,
                     <span class="ident">p</span>.<span class="ident">label</span>
                 );
                 <span class="kw">return</span>;
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
 
         <span class="self">self</span>.<span class="ident">stop</span>(<span class="kw-2">&amp;</span><span class="ident">stop_name</span>);
@@ -1113,7 +1114,7 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prettyprint_time</span>(<span class="ident">seconds</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prettyprint_time</span>(<span class="ident">seconds</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:.4}s&quot;</span>, <span class="ident">seconds</span>)
 }
 
@@ -1147,7 +1148,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TimedFileReader</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TimedFileReader</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TimedFileReader</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">total_bytes</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">metadata</span>()<span class="question-mark">?</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">TimedFileReader</span> {
@@ -1162,10 +1163,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">last_mut</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">File</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">f</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">StackEntry</span>::<span class="ident">File</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">f</span>)) <span class="op">=&gt;</span> <span class="ident">f</span>,
+            <span class="kw">_</span> <span class="op">=&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">new</span>(
                     <span class="ident">ErrorKind</span>::<span class="ident">Other</span>,
                     <span class="string">&quot;trying to read when Timer doesn&#39;t have file on the stack?!&quot;</span>,
@@ -1174,7 +1175,7 @@
         };
 
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">inner</span>.<span class="ident">read</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
-        <span class="ident">file</span>.<span class="ident">processed_bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bytes</span>;
+        <span class="ident">file</span>.<span class="ident">processed_bytes</span> <span class="op">+=</span> <span class="ident">bytes</span>;
         <span class="kw">if</span> <span class="ident">file</span>.<span class="ident">processed_bytes</span> <span class="op">&gt;</span> <span class="ident">file</span>.<span class="ident">total_bytes</span> {
             <span class="macro">panic</span><span class="macro">!</span>(
                 <span class="string">&quot;{} is too many bytes read from {}&quot;</span>,
@@ -1183,7 +1184,7 @@
             );
         }
 
-        <span class="kw">if</span> <span class="ident">file</span>.<span class="ident">processed_bytes</span> <span class="op">=</span><span class="op">=</span> <span class="ident">file</span>.<span class="ident">total_bytes</span> {
+        <span class="kw">if</span> <span class="ident">file</span>.<span class="ident">processed_bytes</span> <span class="op">==</span> <span class="ident">file</span>.<span class="ident">total_bytes</span> {
             <span class="kw">let</span> <span class="ident">elapsed</span> <span class="op">=</span> <span class="ident">elapsed_seconds</span>(<span class="ident">file</span>.<span class="ident">started_at</span>);
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;Read {} ({})... {}&quot;</span>,
@@ -1191,7 +1192,7 @@
                 <span class="ident">prettyprint_usize</span>(<span class="ident">file</span>.<span class="ident">total_bytes</span> <span class="op">/</span> <span class="number">1024</span> <span class="op">/</span> <span class="number">1024</span>),
                 <span class="ident">prettyprint_time</span>(<span class="ident">elapsed</span>)
             );
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;throwaway&quot;</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">!=</span> <span class="string">&quot;throwaway&quot;</span> {
                 <span class="kw">if</span> <span class="ident">file</span>.<span class="ident">last_printed_at</span>.<span class="ident">is_none</span>() {
                     <span class="self">self</span>.<span class="ident">println</span>(<span class="ident">line</span>.<span class="ident">clone</span>());
                 } <span class="kw">else</span> {
@@ -1205,9 +1206,9 @@
             <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">pop</span>();
             <span class="self">self</span>.<span class="ident">add_result</span>(<span class="ident">elapsed</span>, <span class="ident">line</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file</span>.<span class="ident">last_printed_at</span>.<span class="ident">is_none</span>()
-            <span class="op">|</span><span class="op">|</span> <span class="ident">elapsed_seconds</span>(<span class="ident">file</span>.<span class="ident">last_printed_at</span>.<span class="ident">unwrap</span>()) <span class="op">&gt;</span><span class="op">=</span> <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>
+            <span class="op">||</span> <span class="ident">elapsed_seconds</span>(<span class="ident">file</span>.<span class="ident">last_printed_at</span>.<span class="ident">unwrap</span>()) <span class="op">&gt;=</span> <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>
         {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;throwaway&quot;</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outermost_name</span> <span class="op">!=</span> <span class="string">&quot;throwaway&quot;</span> {
                 <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;Reading {}: {}/{} MB... {}&quot;</span>,
                     <span class="ident">file</span>.<span class="ident">path</span>,

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `geom/src/distance.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>distance.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../geom/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `geom/src/distance.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>distance.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -213,7 +214,7 @@
 <span class="comment">// By construction, Distance is a finite f64 with trimmed precision.</span>
 <span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Distance</span> {}
 <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">cmp</span>::<span class="ident">Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">cmp</span>::<span class="ident">Ordering</span> {
         <span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()
     }
 }
@@ -221,7 +222,7 @@
 <span class="kw">impl</span> <span class="ident">Distance</span> {
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">0.0</span>);
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">meters</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">meters</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">value</span>.<span class="ident">is_finite</span>() {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Bad Distance {}&quot;</span>, <span class="ident">value</span>);
         }
@@ -230,23 +231,23 @@
     }
 
     <span class="comment">// TODO Can&#39;t panic inside a const fn, seemingly. Don&#39;t pass in anything bad!</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_meters</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_meters</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>(<span class="ident">value</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inches</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inches</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.0254</span> <span class="op">*</span> <span class="ident">value</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">miles</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">miles</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1609.34</span> <span class="op">*</span> <span class="ident">value</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">centimeters</span>(<span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">centimeters</span>(<span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>((<span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abs</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abs</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
             <span class="self">self</span>
         } <span class="kw">else</span> {
@@ -254,36 +255,36 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sqrt</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sqrt</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">sqrt</span>())
     }
 
     <span class="comment">// TODO Remove if possible.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_meters</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_meters</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
 
     <span class="comment">// TODO Store a bit in Maps to mark if they&#39;re in the US or not, plumb here to use meters</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_rounded</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_rounded</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="ident">feet</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="number">3.28084</span>;
         <span class="kw">let</span> <span class="ident">miles</span> <span class="op">=</span> <span class="ident">feet</span> <span class="op">/</span> <span class="number">5280.0</span>;
-        <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.1</span> {
+        <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&gt;=</span> <span class="number">0.1</span> {
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} miles&quot;</span>, (<span class="ident">miles</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>)
         } <span class="kw">else</span> {
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ft&quot;</span>, <span class="ident">feet</span>.<span class="ident">round</span>())
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">other</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">&gt;=</span> <span class="ident">other</span> {
             <span class="self">self</span>
         } <span class="kw">else</span> {
             <span class="ident">other</span>
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">other</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">&lt;=</span> <span class="ident">other</span> {
             <span class="self">self</span>
         } <span class="kw">else</span> {
             <span class="ident">other</span>
@@ -292,7 +293,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="comment">// TODO This is harder to localize</span>
         <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}m&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
@@ -301,7 +302,7 @@
 <span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Add</span> <span class="kw">for</span> <span class="ident">Distance</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">other</span>.<span class="number">0</span>)
     }
 }
@@ -315,7 +316,7 @@
 <span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Sub</span> <span class="kw">for</span> <span class="ident">Distance</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="number">0</span>)
     }
 }
@@ -323,7 +324,7 @@
 <span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Neg</span> <span class="kw">for</span> <span class="ident">Distance</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
 
-    <span class="kw">fn</span> <span class="ident">neg</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">neg</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="op">-</span><span class="self">self</span>.<span class="number">0</span>)
     }
 }
@@ -337,7 +338,7 @@
 <span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
 
-    <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">scalar</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">scalar</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="ident">scalar</span>)
     }
 }
@@ -345,7 +346,7 @@
 <span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">f64</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
 
-    <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span> <span class="op">*</span> <span class="ident">other</span>.<span class="number">0</span>)
     }
 }
@@ -353,8 +354,8 @@
 <span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Div</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">f64</span>;
 
-    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
-        <span class="kw">if</span> <span class="ident">other</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
+    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">if</span> <span class="ident">other</span> <span class="op">==</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t divide {} / {}&quot;</span>, <span class="self">self</span>, <span class="ident">other</span>);
         }
         <span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">other</span>.<span class="number">0</span>
@@ -364,8 +365,8 @@
 <span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Div</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
 
-    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">scalar</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
-        <span class="kw">if</span> <span class="ident">scalar</span> <span class="op">=</span><span class="op">=</span> <span class="number">0.0</span> {
+    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">scalar</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
+        <span class="kw">if</span> <span class="ident">scalar</span> <span class="op">==</span> <span class="number">0.0</span> {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t divide {} / {}&quot;</span>, <span class="self">self</span>, <span class="ident">scalar</span>);
         }
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">scalar</span>)
@@ -375,8 +376,8 @@
 <span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Div</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Duration</span>;
 
-    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Speed</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
-        <span class="kw">if</span> <span class="ident">other</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">ZERO</span> {
+    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Speed</span>) <span class="op">-&gt;</span> <span class="ident">Duration</span> {
+        <span class="kw">if</span> <span class="ident">other</span> <span class="op">==</span> <span class="ident">Speed</span>::<span class="ident">ZERO</span> {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t divide {} / {}&quot;</span>, <span class="self">self</span>, <span class="ident">other</span>);
         }
         <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">other</span>.<span class="ident">inner_meters_per_second</span>())
@@ -384,20 +385,20 @@
 }
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">Sum</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">sum</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span>
+    <span class="kw">fn</span> <span class="ident">sum</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Distance</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">iter</span> {
-            <span class="ident">sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">x</span>;
+            <span class="ident">sum</span> <span class="op">+=</span> <span class="ident">x</span>;
         }
         <span class="ident">sum</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">ZERO</span>
     }
 }

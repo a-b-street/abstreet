@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/render/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/render/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -583,7 +584,7 @@
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawMap</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">DrawMap</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawRoad</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawRoads&quot;</span>, <span class="ident">map</span>.<span class="ident">all_roads</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
@@ -729,7 +730,7 @@
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">Drawable</span> {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;generate unzoomed roads and intersections&quot;</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_pieces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">isize</span>, <span class="ident">Polygon</span>, <span class="ident">Color</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
@@ -773,31 +774,31 @@
     }
 
     <span class="comment">// The alt to these is implementing std::ops::Index, but that&#39;s way more verbose!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_r</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawRoad</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_r</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">RoadID</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawRoad</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_l</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawLane</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_l</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawLane</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span>[<span class="ident">id</span>.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_i</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawIntersection</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_i</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawIntersection</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_b</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawBuilding</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_b</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawBuilding</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buildings</span>[<span class="ident">id</span>.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_pl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawParkingLot</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_pl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawParkingLot</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking_lots</span>[<span class="ident">id</span>.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BusStopID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawBusStop</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BusStopID</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawBusStop</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_stops</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_a</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">AreaID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawArea</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_a</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">AreaID</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawArea</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">areas</span>[<span class="ident">id</span>.<span class="number">0</span>]
     }
 
@@ -807,45 +808,45 @@
         <span class="ident">id</span>: <span class="ident">ID</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">agents</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">AgentCache</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">on</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_b</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="comment">// Cars might be parked in a garage!</span>
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_draw_car</span>(<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)<span class="question-mark">?</span>.<span class="ident">on</span>
             }
-            <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="ident">app</span>.<span class="ident">primary</span>
                     .<span class="ident">sim</span>
                     .<span class="ident">get_draw_ped</span>(<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
                     .<span class="ident">unwrap</span>()
                     .<span class="ident">on</span>
             }
-            <span class="ident">ID</span>::<span class="ident">PedCrowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">PedCrowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) <span class="op">=&gt;</span> {
                 <span class="comment">// If the first member has vanished, just give up</span>
                 <span class="ident">app</span>.<span class="ident">primary</span>
                     .<span class="ident">sim</span>
                     .<span class="ident">get_draw_ped</span>(<span class="ident">members</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)<span class="question-mark">?</span>
                     .<span class="ident">on</span>
             }
-            <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_bs</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_a</span>(<span class="ident">id</span>));
             }
         };
@@ -860,11 +861,11 @@
 
         <span class="comment">// Why might this fail? Pedestrians merge into crowds, and crowds dissipate into</span>
         <span class="comment">// individuals</span>
-        <span class="ident">agents</span>.<span class="ident">get</span>(<span class="ident">on</span>).<span class="ident">into_iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">get_id</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">id</span>)
+        <span class="ident">agents</span>.<span class="ident">get</span>(<span class="ident">on</span>).<span class="ident">into_iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">get_id</span>() <span class="op">==</span> <span class="ident">id</span>)
     }
 
     <span class="comment">// Unsorted, unexpanded, raw result.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_matching_objects</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_matching_objects</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">query</span>(<span class="ident">bounds</span>.<span class="ident">as_bbox</span>()) {
             <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">id</span>.<span class="ident">clone</span>());
@@ -876,13 +877,13 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AgentCache</span> {
     <span class="comment">// This time applies to agents_per_on. unzoomed has its own possibly separate Time!</span>
     <span class="ident">time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="ident">agents_per_on</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">agents_per_on</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
     <span class="comment">// agent radius also matters</span>
     <span class="ident">unzoomed</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>, <span class="ident">UnzoomedAgents</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AgentCache</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">on</span>: <span class="ident">Traversable</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">on</span>: <span class="ident">Traversable</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">agents_per_on</span>[<span class="kw-2">&amp;</span><span class="ident">on</span>]
             .<span class="ident">iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">obj</span><span class="op">|</span> <span class="ident">obj</span>.<span class="ident">borrow</span>())
@@ -898,12 +899,12 @@
         <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
     ) {
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">time</span>();
-        <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">now</span>) <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">agents_per_on</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">on</span>) {
+        <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">now</span>) <span class="op">==</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">agents_per_on</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">on</span>) {
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="ident">step_count</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">step_count</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">source</span>.<span class="ident">get_draw_cars</span>(<span class="ident">on</span>, <span class="ident">map</span>).<span class="ident">into_iter</span>() {
             <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">draw_vehicle</span>(<span class="ident">c</span>, <span class="ident">map</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>));
         }
@@ -917,7 +918,7 @@
             <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DrawPedCrowd</span>::<span class="ident">new</span>(<span class="ident">c</span>, <span class="ident">map</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>)));
         }
 
-        <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">now</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
+        <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">now</span>) <span class="op">!=</span> <span class="self">self</span>.<span class="ident">time</span> {
             <span class="self">self</span>.<span class="ident">agents_per_on</span>.<span class="ident">clear</span>();
             <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">now</span>);
         }
@@ -939,7 +940,7 @@
     ) {
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">time</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">time</span>, <span class="ident">r</span>, <span class="kw-2">ref</span> <span class="ident">orig_agents</span>, <span class="kw-2">ref</span> <span class="ident">draw</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unzoomed</span> {
-            <span class="kw">if</span> <span class="ident">now</span> <span class="op">=</span><span class="op">=</span> <span class="ident">time</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">maybe_radius</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">color_agents</span> <span class="op">=</span><span class="op">=</span> <span class="ident">orig_agents</span> {
+            <span class="kw">if</span> <span class="ident">now</span> <span class="op">==</span> <span class="ident">time</span> <span class="op">&amp;&amp;</span> <span class="ident">maybe_radius</span> <span class="op">==</span> <span class="ident">r</span> <span class="op">&amp;&amp;</span> <span class="ident">color_agents</span> <span class="op">==</span> <span class="ident">orig_agents</span> {
                 <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
                 <span class="kw">return</span>;
             }
@@ -979,7 +980,7 @@
         <span class="kw">if</span> <span class="ident">debug_all_agents</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">source</span>.<span class="ident">get_all_draw_cars</span>(<span class="ident">map</span>) {
-                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="ident">cnt</span> <span class="op">+=</span> <span class="number">1</span>;
                 <span class="ident">draw_vehicle</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">g</span>.<span class="ident">prerender</span>, <span class="ident">cs</span>);
             }
             <span class="macro">println</span><span class="macro">!</span>(
@@ -1006,7 +1007,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">UnzoomedAgents</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UnzoomedAgents</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>) <span class="op">-&gt;</span> <span class="ident">UnzoomedAgents</span> {
         <span class="ident">UnzoomedAgents</span> {
             <span class="ident">cars</span>: <span class="bool-val">true</span>,
             <span class="ident">bikes</span>: <span class="bool-val">true</span>,
@@ -1020,30 +1021,30 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">agent</span>: <span class="kw-2">&amp;</span><span class="ident">UnzoomedAgent</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">agent</span>: <span class="kw-2">&amp;</span><span class="ident">UnzoomedAgent</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">agent</span>.<span class="ident">vehicle_type</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Car</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Car</span>) <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cars</span> {
                     <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">car_color</span>)
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Bike</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Bike</span>) <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bikes</span> {
                     <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">bike_color</span>)
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Bus</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Train</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Bus</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Train</span>) <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">buses_and_trains</span> {
                     <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">bus_color</span>)
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peds</span> {
                     <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">ped_color</span>)
                 } <span class="kw">else</span> {

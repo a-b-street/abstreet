@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `abstutil/src/abst_paths.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>abst_paths.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../abstutil/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `abstutil/src/abst_paths.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>abst_paths.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../abstutil/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -165,8 +166,8 @@
         <span class="comment">// $HOME/.abstreet, set ABST_PLAYER_HOME_DIR=1</span>
         <span class="kw">if</span> <span class="macro">option_env</span><span class="macro">!</span>(<span class="string">&quot;ABST_PLAYER_HOME_DIR&quot;</span>).<span class="ident">is_some</span>() {
             <span class="kw">match</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;HOME&quot;</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">dir</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/.abstreet&quot;</span>, <span class="ident">dir</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;/&#39;</span>)),
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;This build of A/B Street stores player data in $HOME/.abstreet, but $HOME isn&#39;t set: {}&quot;</span>, <span class="ident">err</span>),
+                <span class="prelude-val">Ok</span>(<span class="ident">dir</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/.abstreet&quot;</span>, <span class="ident">dir</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;/&#39;</span>)),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;This build of A/B Street stores player data in $HOME/.abstreet, but $HOME isn&#39;t set: {}&quot;</span>, <span class="ident">err</span>),
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
             <span class="string">&quot;../data&quot;</span>.<span class="ident">to_string</span>()
@@ -182,7 +183,7 @@
     };
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">p</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>(<span class="ident">p</span>: <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">into</span>();
     <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">starts_with</span>(<span class="string">&quot;player/&quot;</span>) {
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="kw-2">*</span><span class="ident">ROOT_PLAYER_DIR</span>, <span class="ident">p</span>)
@@ -193,21 +194,21 @@
 
 <span class="comment">// System data (Players can&#39;t edit, needed at runtime)</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_map</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_map</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/maps/{}.bin&quot;</span>, <span class="ident">map_name</span>))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_maps</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_maps</span>() <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="string">&quot;system/maps&quot;</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_prebaked_results</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_prebaked_results</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;system/prebaked_results/{}/{}.bin&quot;</span>,
         <span class="ident">map_name</span>, <span class="ident">scenario_name</span>
     ))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_scenario</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_scenario</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="comment">// TODO Getting complicated. Sometimes we&#39;re trying to load, so we should look for .bin, then</span>
     <span class="comment">// .json. But when we&#39;re writing a custom scenario, we actually want to write a .bin.</span>
     <span class="kw">let</span> <span class="ident">bin</span> <span class="op">=</span> <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -226,37 +227,37 @@
     }
     <span class="ident">bin</span>
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_scenarios</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_scenarios</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/scenarios/{}&quot;</span>, <span class="ident">map_name</span>))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_synthetic_map</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_synthetic_map</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/synthetic_maps/{}.json&quot;</span>, <span class="ident">map_name</span>))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_synthetic_maps</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_synthetic_maps</span>() <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="string">&quot;system/synthetic_maps&quot;</span>)
 }
 
 <span class="comment">// Player data (Players edit this)</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_camera_state</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_camera_state</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;player/camera_state/{}.json&quot;</span>, <span class="ident">map_name</span>))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_edits</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_edits</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;player/edits/{}/{}.json&quot;</span>, <span class="ident">map_name</span>, <span class="ident">edits_name</span>))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_edits</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_edits</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;player/edits/{}&quot;</span>, <span class="ident">map_name</span>))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_save</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">time</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_save</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">time</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;player/saves/{}/{}_{}/{}.bin&quot;</span>,
         <span class="ident">map_name</span>, <span class="ident">edits_name</span>, <span class="ident">run_name</span>, <span class="ident">time</span>
     ))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_saves</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_saves</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;player/saves/{}/{}_{}&quot;</span>,
         <span class="ident">map_name</span>, <span class="ident">edits_name</span>, <span class="ident">run_name</span>
@@ -265,14 +266,14 @@
 
 <span class="comment">// Input data (For developers to build maps, not needed at runtime)</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_popdat</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_popdat</span>() <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="string">&quot;input/seattle/popdat.bin&quot;</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_raw_map</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_raw_map</span>(<span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/raw_maps/{}.bin&quot;</span>, <span class="ident">map_name</span>))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_raw_maps</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_raw_maps</span>() <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="string">&quot;input/raw_maps&quot;</span>)
 }
 </pre></div>

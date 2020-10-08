@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/event_ctx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>event_ctx.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/event_ctx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>event_ctx.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -292,11 +293,11 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">EventCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_screen</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span><span class="op">&gt;</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_screen</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">O</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">raw_timer_name</span>: <span class="ident">S</span>,
         <span class="ident">f</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">O</span> {
         <span class="kw">let</span> <span class="ident">timer_name</span> <span class="op">=</span> <span class="ident">raw_timer_name</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new_with_sink</span>(
             <span class="kw-2">&amp;</span><span class="ident">timer_name</span>,
@@ -320,11 +321,11 @@
     }
 
     <span class="comment">// Use to immediately plumb through an (empty) event to something</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_op_event</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span><span class="op">&gt;</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_op_event</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">O</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">fake_mouseover</span>: <span class="ident">bool</span>,
         <span class="kw-2">mut</span> <span class="ident">cb</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">O</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="ident">EventCtx</span> {
             <span class="ident">fake_mouseover</span>,
             <span class="ident">input</span>: <span class="ident">UserInput</span>::<span class="ident">new</span>(<span class="ident">Event</span>::<span class="ident">NoOp</span>, <span class="self">self</span>.<span class="ident">canvas</span>),
@@ -338,39 +339,39 @@
         <span class="ident">result</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redo_mouseover</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redo_mouseover</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">fake_mouseover</span>
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">window_lost_cursor</span>()
-            <span class="op">|</span><span class="op">|</span> (<span class="op">!</span><span class="self">self</span>.<span class="ident">is_dragging</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">get_moved_mouse</span>().<span class="ident">is_some</span>())
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
+            <span class="op">||</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">window_lost_cursor</span>()
+            <span class="op">||</span> (<span class="op">!</span><span class="self">self</span>.<span class="ident">is_dragging</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">get_moved_mouse</span>().<span class="ident">is_some</span>())
+            <span class="op">||</span> <span class="self">self</span>
                 .<span class="ident">input</span>
                 .<span class="ident">get_mouse_scroll</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">dy</span>)<span class="op">|</span> <span class="ident">dy</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span>)
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">dy</span>)<span class="op">|</span> <span class="ident">dy</span> <span class="op">!=</span> <span class="number">0.0</span>)
                 .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normal_left_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normal_left_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">has_been_consumed</span>() {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_dragging</span>() <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_dragging</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
             <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">consume_event</span>();
             <span class="kw">return</span> <span class="bool-val">true</span>;
         }
         <span class="bool-val">false</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">is_dragging</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_canvas_from</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_just_ended</span>
+    <span class="kw">fn</span> <span class="ident">is_dragging</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_canvas_from</span>.<span class="ident">is_some</span>() <span class="op">||</span> <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_just_ended</span>
     }
 
     <span class="comment">// Delegation to assets</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">default_line_height</span>.<span class="ident">borrow</span>()
     }
 
     <span class="comment">// TODO I can&#39;t decide which way the API should go.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-&gt;</span> <span class="ident">Drawable</span> {
         <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
     }
 
@@ -380,7 +381,7 @@
             .<span class="ident">set_cursor_icon</span>(<span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">CursorIcon</span>::<span class="ident">Hand</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Style</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Style</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">style</span>
     }
 
@@ -405,7 +406,7 @@
         <span class="ident">style</span>: <span class="ident">Style</span>,
         <span class="ident">initial_size</span>: <span class="ident">ScreenDims</span>,
         <span class="ident">title</span>: <span class="ident">String</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LoadingScreen</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">LoadingScreen</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">canvas</span> <span class="op">=</span> <span class="ident">Canvas</span>::<span class="ident">new</span>(<span class="ident">initial_size</span>);
         <span class="kw">let</span> <span class="ident">max_capacity</span> <span class="op">=</span>
             (<span class="number">0.8</span> <span class="op">*</span> <span class="ident">initial_size</span>.<span class="ident">height</span> <span class="op">/</span> <span class="kw-2">*</span><span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">default_line_height</span>.<span class="ident">borrow</span>()) <span class="kw">as</span> <span class="ident">usize</span>;
@@ -500,7 +501,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TimerSink</span> <span class="kw">for</span> <span class="ident">LoadingScreen</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="comment">// TODO Do word wrap. Assume the window is fixed during loading, if it makes things easier.</span>
     <span class="kw">fn</span> <span class="ident">println</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_capacity</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">max_capacity</span> {
             <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_front</span>();
         }
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">line</span>);

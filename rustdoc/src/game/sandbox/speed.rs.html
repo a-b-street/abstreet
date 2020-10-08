@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/sandbox/speed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>speed.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/sandbox/speed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>speed.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -443,7 +444,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SpeedControls</span> {
-    <span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">paused</span>: <span class="ident">bool</span>, <span class="ident">setting</span>: <span class="ident">SpeedSetting</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+    <span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">paused</span>: <span class="ident">bool</span>, <span class="ident">setting</span>: <span class="ident">SpeedSetting</span>) <span class="op">-&gt;</span> <span class="ident">Panel</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="ident">row</span>.<span class="ident">push</span>(
             <span class="kw">if</span> <span class="ident">paused</span> {
@@ -472,7 +473,7 @@
                     <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>, <span class="string">&quot;speed up&quot;</span>));
 
                     <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
-                        .<span class="ident">color</span>(<span class="kw">if</span> <span class="ident">setting</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">s</span> {
+                        .<span class="ident">color</span>(<span class="kw">if</span> <span class="ident">setting</span> <span class="op">&gt;=</span> <span class="ident">s</span> {
                             <span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>
                         } <span class="kw">else</span> {
                             <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.2</span>))
@@ -529,7 +530,7 @@
             .<span class="ident">build</span>(<span class="ident">ctx</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SpeedControls</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">SpeedControls</span> {
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>, <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span>);
         <span class="ident">SpeedControls</span> {
             <span class="ident">panel</span>,
@@ -543,38 +544,38 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">maybe_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;real-time speed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;real-time speed&quot;</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;5x speed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;5x speed&quot;</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;30x speed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;30x speed&quot;</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;3600x speed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;3600x speed&quot;</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;play&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;play&quot;</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;pause&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;pause&quot;</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="string">&quot;reset to midnight&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;reset to midnight&quot;</span> <span class="op">=&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">maybe_mode</span> {
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
                             <span class="ident">ctx</span>,
@@ -589,16 +590,16 @@
                         )));
                     }
                 }
-                <span class="string">&quot;jump to specific time&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;jump to specific time&quot;</span> <span class="op">=&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">JumpToTime</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="ident">maybe_mode</span>.<span class="ident">cloned</span>(),
                     )));
                 }
-                <span class="string">&quot;step forwards&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;step forwards&quot;</span> <span class="op">=&gt;</span> {
                     <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;step forwards&quot;</span>);
-                    <span class="kw">if</span> <span class="ident">dt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.1</span>) {
+                    <span class="kw">if</span> <span class="ident">dt</span> <span class="op">==</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.1</span>) {
                         <span class="ident">app</span>.<span class="ident">primary</span>
                             .<span class="ident">sim</span>
                             .<span class="ident">tiny_step</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>);
@@ -612,25 +613,25 @@
                         <span class="prelude-val">None</span>,
                     )));
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="kw">_</span> <span class="op">=&gt;</span> {}
         }
         <span class="comment">// Just kind of constantly scrape this</span>
         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">time_increment</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;step forwards&quot;</span>);
 
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                 }
-                <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                 }
-                <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                 }
@@ -638,7 +639,7 @@
         }
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>) {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> <span class="op">=&gt;</span> {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> {
                         <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
                         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
@@ -647,15 +648,15 @@
                         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                     }
                 }
-                <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                 }
-                <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span>;
                     <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
                 }
-                <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span> <span class="op">=&gt;</span> {}
             }
         }
 
@@ -663,10 +664,10 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">real_dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
                 <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">use_update_event</span>();
                 <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                    <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1.0</span>,
-                    <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5.0</span>,
-                    <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">30.0</span>,
-                    <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">3600.0</span>,
+                    <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> <span class="op">=&gt;</span> <span class="number">1.0</span>,
+                    <span class="ident">SpeedSetting</span>::<span class="ident">Fast</span> <span class="op">=&gt;</span> <span class="number">5.0</span>,
+                    <span class="ident">SpeedSetting</span>::<span class="ident">Faster</span> <span class="op">=&gt;</span> <span class="number">30.0</span>,
+                    <span class="ident">SpeedSetting</span>::<span class="ident">Fastest</span> <span class="op">=&gt;</span> <span class="number">3600.0</span>,
                 };
                 <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">real_dt</span>;
                 <span class="comment">// TODO This should match the update frequency in widgetry. Plumb along the deadline</span>
@@ -690,11 +691,11 @@
                 <span class="ident">alerts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">msg</span>)<span class="op">|</span> <span class="ident">msg</span>).<span class="ident">collect</span>(),
             );
             <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">alerts</span>[<span class="number">0</span>].<span class="number">1</span> {
-                <span class="ident">AlertLocation</span>::<span class="ident">Nil</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="ident">AlertLocation</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)),
+                <span class="ident">AlertLocation</span>::<span class="ident">Nil</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+                <span class="ident">AlertLocation</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)),
                 <span class="comment">// TODO Open info panel and warp to them</span>
-                <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="ident">AlertLocation</span>::<span class="ident">Building</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)),
+                <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+                <span class="ident">AlertLocation</span>::<span class="ident">Building</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)),
             };
             <span class="comment">// TODO Can filter for particular alerts places like this:</span>
             <span class="comment">/*if !alerts[0].2.contains(&quot;Turn conflict cycle&quot;) {
@@ -736,14 +737,14 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resume_realtime</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">setting</span> <span class="op">!</span><span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> <span class="op">||</span> <span class="self">self</span>.<span class="ident">setting</span> <span class="op">!=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span> {
             <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting</span>::<span class="ident">Realtime</span>;
             <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">SpeedControls</span>::<span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">paused</span>, <span class="self">self</span>.<span class="ident">setting</span>);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">paused</span>
     }
 }
@@ -754,7 +755,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TimePanel</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TimePanel</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">TimePanel</span> {
         <span class="ident">TimePanel</span> {
             <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -781,9 +782,9 @@
 
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>));
 
-                    <span class="kw">if</span> <span class="ident">percent</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> {
+                    <span class="kw">if</span> <span class="ident">percent</span> <span class="op">!=</span> <span class="number">0.0</span> {
                         <span class="ident">batch</span>.<span class="ident">push</span>(
-                            <span class="kw">if</span> <span class="ident">percent</span> <span class="op">&lt;</span> <span class="number">0.25</span> <span class="op">|</span><span class="op">|</span> <span class="ident">percent</span> <span class="op">&gt;</span> <span class="number">0.75</span> {
+                            <span class="kw">if</span> <span class="ident">percent</span> <span class="op">&lt;</span> <span class="number">0.25</span> <span class="op">||</span> <span class="ident">percent</span> <span class="op">&gt;</span> <span class="number">0.75</span> {
                                 <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">night_time_slider</span>
                             } <span class="kw">else</span> {
                                 <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">day_time_slider</span>
@@ -809,7 +810,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() {
             <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">TimePanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);

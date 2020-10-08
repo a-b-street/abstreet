@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/backend_glow.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backend_glow.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/backend_glow.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backend_glow.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -580,7 +581,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">glow</span>::<span class="ident">Context</span>,
         <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="op">&lt;</span><span class="ident">glow</span>::<span class="ident">Context</span> <span class="kw">as</span> <span class="ident">glow</span>::<span class="ident">HasContext</span><span class="op">&gt;</span>::<span class="ident">Program</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="ident">GfxCtxInnards</span> {
             <span class="ident">gl</span>,
             <span class="ident">program</span>,
@@ -647,7 +648,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_clip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_clip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">clip</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_clip</span><span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">disable_clipping</span>(<span class="ident">scale_factor</span>, <span class="ident">canvas</span>);
         <span class="prelude-val">Some</span>(<span class="ident">clip</span>)
@@ -687,7 +688,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">VertexArray</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">VertexArray</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>) <span class="op">-&gt;</span> <span class="ident">VertexArray</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gl</span>.<span class="ident">create_vertex_array</span>().<span class="ident">unwrap</span>() };
         <span class="ident">VertexArray</span> {
             <span class="ident">id</span>,
@@ -719,7 +720,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Buffer</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Buffer</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>) <span class="op">-&gt;</span> <span class="ident">Buffer</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gl</span>.<span class="ident">create_buffer</span>().<span class="ident">unwrap</span>() };
         <span class="ident">Buffer</span> {
             <span class="ident">id</span>,
@@ -764,7 +765,7 @@
         <span class="ident">gl</span>: <span class="ident">glow</span>::<span class="ident">Context</span>,
         <span class="ident">program</span>: <span class="op">&lt;</span><span class="ident">glow</span>::<span class="ident">Context</span> <span class="kw">as</span> <span class="ident">glow</span>::<span class="ident">HasContext</span><span class="op">&gt;</span>::<span class="ident">Program</span>,
         <span class="ident">window_adapter</span>: <span class="ident">WindowAdapter</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrerenderInnards</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">PrerenderInnards</span> {
         <span class="ident">PrerenderInnards</span> {
             <span class="ident">gl</span>: <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">gl</span>),
             <span class="ident">program</span>,
@@ -773,7 +774,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">actually_upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permanent</span>: <span class="ident">bool</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">actually_upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permanent</span>: <span class="ident">bool</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-&gt;</span> <span class="ident">Drawable</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vertices</span>: <span class="ident">Vec</span><span class="op">&lt;</span>[<span class="ident">f32</span>; <span class="number">8</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
@@ -839,7 +840,7 @@
                     <span class="ident">stride</span>,
                     <span class="ident">offset</span>,
                 );
-                <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">size</span> <span class="op">*</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">i32</span>;
+                <span class="ident">offset</span> <span class="op">+=</span> <span class="ident">size</span> <span class="op">*</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">i32</span>;
             }
 
             <span class="comment">// Safety?</span>
@@ -868,7 +869,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">window</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">Window</span> {
+    <span class="kw">fn</span> <span class="ident">window</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">Window</span> {
         <span class="self">self</span>.<span class="ident">window_adapter</span>.<span class="ident">window</span>()
     }
 
@@ -880,7 +881,7 @@
         <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">set_cursor_icon</span>(<span class="ident">icon</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_new_frame</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GfxCtxInnards</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_new_frame</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">GfxCtxInnards</span> {
         <span class="ident">GfxCtxInnards</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>)
     }
 
@@ -896,7 +897,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">ScreenDims</span> {
         <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">inner_size</span>().<span class="ident">to_logical</span>(<span class="ident">scale_factor</span>).<span class="ident">into</span>()
     }
 
@@ -904,7 +905,7 @@
         <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">set_window_icon</span>(<span class="prelude-val">Some</span>(<span class="ident">icon</span>));
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">monitor_scale_factor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">monitor_scale_factor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">scale_factor</span>()
     }
 
@@ -940,7 +941,7 @@
     <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow</span>::<span class="ident">Context</span>,
     <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">sprite_length</span>: <span class="ident">u32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;&gt;</span> {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">filename</span>);
     <span class="kw">let</span> <span class="ident">image_bytes</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">slurp_file</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">dynamic_img</span> <span class="op">=</span> <span class="ident">image</span>::<span class="ident">load_from_memory</span>(<span class="kw-2">&amp;</span><span class="ident">image_bytes</span>)<span class="question-mark">?</span>;
@@ -992,7 +993,7 @@
     <span class="comment">// In order to avoid branching in our shader logic, all shapes are rendered with a texture.</span>
     <span class="comment">// Even &quot;non-textured&quot; styles like Fill::Color, use a &quot;default&quot; no-op (pure white) texture,</span>
     <span class="comment">// which we generate here.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">formatted_pixels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">image</span>::<span class="ident">Rgba</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">formatted_pixels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">image</span>::<span class="ident">Rgba</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span> <span class="op">=</span>
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">image</span>::<span class="ident">Rgba</span>([<span class="number">255</span>; <span class="number">4</span>]); (<span class="ident">sprite_length</span> <span class="op">*</span> <span class="ident">sprite_length</span>) <span class="kw">as</span> <span class="ident">usize</span>];
 
     <span class="comment">// OpenGL texture arrays expect each texture&#39;s bytes to be contiguous, but it&#39;s conventional to</span>

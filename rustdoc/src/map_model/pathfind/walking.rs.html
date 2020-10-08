@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `map_model/src/pathfind/walking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `map_model/src/pathfind/walking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -509,7 +510,7 @@
     <span class="ident">use_transit</span>: <span class="ident">bool</span>,
 
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-    <span class="ident">path_calc</span>: <span class="ident">ThreadLocal</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">PathCalculator</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">path_calc</span>: <span class="ident">ThreadLocal</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">PathCalculator</span><span class="op">&gt;&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -523,20 +524,20 @@
 }
 
 <span class="kw">impl</span> <span class="ident">WalkingNode</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WalkingNode</span> {
-        <span class="kw">let</span> <span class="ident">dst_i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()).<span class="ident">length</span>() <span class="op">-</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">WalkingNode</span> {
+        <span class="kw">let</span> <span class="ident">dst_i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()).<span class="ident">length</span>() <span class="op">-</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">&lt;=</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>();
         <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">pos</span>.<span class="ident">lane</span>(), <span class="ident">dst_i</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">end_transit</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WalkingNode</span> {
+    <span class="kw">fn</span> <span class="ident">end_transit</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">WalkingNode</span> {
         <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>());
         <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">src_i</span>).<span class="ident">is_outgoing_border</span>() {
-            <span class="kw">if</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
+            <span class="kw">if</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
                 <span class="kw">return</span> <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="ident">l</span>.<span class="ident">src_i</span>);
             }
         }
         <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>).<span class="ident">is_outgoing_border</span>() {
-            <span class="kw">if</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">length</span>() {
+            <span class="kw">if</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">l</span>.<span class="ident">length</span>() {
                 <span class="kw">return</span> <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>);
             }
         }
@@ -550,7 +551,7 @@
         <span class="ident">use_transit</span>: <span class="ident">bool</span>,
         <span class="ident">bus_graph</span>: <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>,
         <span class="ident">train_graph</span>: <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SidewalkPathfinder</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">SidewalkPathfinder</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="ident">NodeMap</span>::<span class="ident">new</span>();
         <span class="comment">// We&#39;re assuming that to start with, no sidewalks are closed for construction!</span>
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
@@ -600,11 +601,11 @@
     }
 
     <span class="comment">// Returns the raw nodes</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;&gt;</span> {
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>(), <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">calc</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">path_calc</span>
-            .<span class="ident">get_or</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">fast_paths</span>::<span class="ident">create_calculator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">graph</span>)))
+            .<span class="ident">get_or</span>(<span class="op">||</span> <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">fast_paths</span>::<span class="ident">create_calculator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">graph</span>)))
             .<span class="ident">borrow_mut</span>();
         <span class="kw">let</span> <span class="ident">raw_path</span> <span class="op">=</span> <span class="ident">calc</span>.<span class="ident">calc_path</span>(
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">graph</span>,
@@ -621,7 +622,7 @@
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">start</span>: <span class="ident">Position</span>,
         <span class="ident">end</span>: <span class="ident">Position</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">raw_path</span> <span class="op">=</span> <span class="ident">fast_paths</span>::<span class="ident">calc_path</span>(
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">graph</span>,
             <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">closest</span>(<span class="ident">start</span>, <span class="ident">map</span>)),
@@ -641,7 +642,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">possible_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BusRoute</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">nodes</span> {
             <span class="kw">match</span> <span class="ident">n</span> {
-                <span class="ident">WalkingNode</span>::<span class="ident">RideBus</span>(<span class="ident">stop2</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">WalkingNode</span>::<span class="ident">RideBus</span>(<span class="ident">stop2</span>) <span class="op">=&gt;</span> {
                     <span class="kw">if</span> <span class="ident">first_stop</span>.<span class="ident">is_none</span>() {
                         <span class="ident">first_stop</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">stop2</span>);
                         <span class="ident">possible_routes</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_routes_serving_stop</span>(<span class="kw-2">*</span><span class="ident">stop2</span>);
@@ -656,8 +657,8 @@
                         <span class="kw">let</span> <span class="ident">stop1</span> <span class="op">=</span> <span class="ident">first_stop</span>.<span class="ident">unwrap</span>();
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filtered</span> <span class="op">=</span> <span class="ident">possible_routes</span>.<span class="ident">clone</span>();
                         <span class="ident">filtered</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">idx1</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stop1</span>).<span class="ident">unwrap</span>();
-                            <span class="kw">let</span> <span class="ident">idx2</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stop2</span>);
+                            <span class="kw">let</span> <span class="ident">idx1</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">==</span> <span class="ident">stop1</span>).<span class="ident">unwrap</span>();
+                            <span class="kw">let</span> <span class="ident">idx2</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">stop2</span>);
                             <span class="ident">idx2</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx2</span><span class="op">|</span> <span class="ident">idx1</span> <span class="op">&lt;</span> <span class="ident">idx2</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
                         });
                         <span class="kw">if</span> <span class="ident">filtered</span>.<span class="ident">is_empty</span>() {
@@ -674,11 +675,11 @@
                         <span class="ident">possible_routes</span> <span class="op">=</span> <span class="ident">filtered</span>;
                     }
                 }
-                <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> {
                     <span class="comment">// Make sure the route actually leaves via the correct border!</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">possible_routes</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
                         <span class="ident">r</span>.<span class="ident">end_border</span>
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">i</span>)
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span>)
                             .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
                     }) {
                         <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">first_stop</span>.<span class="ident">unwrap</span>(), <span class="prelude-val">None</span>, <span class="ident">r</span>.<span class="ident">id</span>));
@@ -690,7 +691,7 @@
                         <span class="ident">possible_routes</span>[<span class="number">0</span>].<span class="ident">id</span>,
                     ));
                 }
-                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop1</span>) <span class="op">=</span> <span class="ident">first_stop</span> {
                         <span class="kw">return</span> <span class="prelude-val">Some</span>((
                             <span class="ident">stop1</span>,
@@ -711,12 +712,12 @@
     <span class="ident">use_transit</span>: <span class="ident">bool</span>,
     <span class="ident">bus_graph</span>: <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>,
     <span class="ident">train_graph</span>: <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InputGraph</span> {
+) <span class="op">-&gt;</span> <span class="ident">InputGraph</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">InputGraph</span>::<span class="ident">new</span>();
 
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
         <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>()
-            <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">map</span>
+            <span class="op">&amp;&amp;</span> <span class="ident">map</span>
                 .<span class="ident">get_r</span>(<span class="ident">l</span>.<span class="ident">parent</span>)
                 .<span class="ident">access_restrictions</span>
                 .<span class="ident">allow_through_traffic</span>
@@ -725,7 +726,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">walking_cost</span>(<span class="ident">l</span>.<span class="ident">length</span>());
             <span class="comment">// TODO Tune this penalty, along with many others.</span>
             <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_shoulder</span>() {
-                <span class="ident">cost</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">2</span>;
+                <span class="ident">cost</span> <span class="op">*=</span> <span class="number">2</span>;
             }
             <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="bool-val">true</span>));
             <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="bool-val">false</span>));
@@ -737,9 +738,9 @@
     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_turns</span>().<span class="ident">values</span>() {
         <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">between_sidewalks</span>() {
             <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span>
-                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
+                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
             <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span>
-                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
+                <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">from</span>),
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">to</span>),
@@ -791,9 +792,9 @@
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">let</span> (<span class="ident">stop1</span>, <span class="ident">stop2</span>) <span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">pair</span>[<span class="number">0</span>]), <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">pair</span>[<span class="number">1</span>]));
             <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
-                <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bus_graph</span>,
-                <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">train_graph</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=&gt;</span> <span class="ident">bus_graph</span>,
+                <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=&gt;</span> <span class="ident">train_graph</span>,
+                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             };
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">driving_cost</span>)) <span class="op">=</span> <span class="ident">graph</span>.<span class="ident">pathfind</span>(
                 <span class="kw-2">&amp;</span><span class="ident">PathRequest</span> {
@@ -818,9 +819,9 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">route</span>.<span class="ident">end_border</span> {
             <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
-                <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bus_graph</span>,
-                <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">train_graph</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=&gt;</span> <span class="ident">bus_graph</span>,
+                <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=&gt;</span> <span class="ident">train_graph</span>,
+                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             };
             <span class="kw">let</span> <span class="ident">stop1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">driving_cost</span>)) <span class="op">=</span> <span class="ident">graph</span>.<span class="ident">pathfind</span>(
@@ -867,28 +868,28 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walking_cost</span>(<span class="ident">dist</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walking_cost</span>(<span class="ident">dist</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="ident">walking_speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">meters_per_second</span>(<span class="number">1.34</span>);
     <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">dist</span> <span class="op">/</span> <span class="ident">walking_speed</span>;
     (<span class="ident">time</span>.<span class="ident">inner_seconds</span>().<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">max</span>(<span class="number">1</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walking_path_to_steps</span>(<span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walking_path_to_steps</span>(<span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
     <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
         <span class="kw">let</span> (<span class="ident">l1</span>, <span class="ident">l1_endpt</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>] {
-            <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>, <span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">l</span>, <span class="ident">endpt</span>),
-            <span class="ident">WalkingNode</span>::<span class="ident">RideBus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>, <span class="ident">endpt</span>) <span class="op">=&gt;</span> (<span class="ident">l</span>, <span class="ident">endpt</span>),
+            <span class="ident">WalkingNode</span>::<span class="ident">RideBus</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         };
         <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">1</span>] {
-            <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">l</span>,
-            <span class="ident">WalkingNode</span>::<span class="ident">RideBus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">l</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">l</span>,
+            <span class="ident">WalkingNode</span>::<span class="ident">RideBus</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">WalkingNode</span>::<span class="ident">LeaveMap</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         };
 
-        <span class="kw">if</span> <span class="ident">l1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l2</span> {
+        <span class="kw">if</span> <span class="ident">l1</span> <span class="op">==</span> <span class="ident">l2</span> {
             <span class="kw">if</span> <span class="ident">l1_endpt</span> {
                 <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">ContraflowLane</span>(<span class="ident">l1</span>));
             } <span class="kw">else</span> {
@@ -919,7 +920,7 @@
     <span class="comment">// Don&#39;t start or end a path in a turn; sim layer breaks.</span>
     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">steps</span>[<span class="number">0</span>] {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>);
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">parent</span> {
+        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">t</span>.<span class="ident">parent</span> {
             <span class="ident">steps</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">PathStep</span>::<span class="ident">ContraflowLane</span>(<span class="ident">lane</span>.<span class="ident">id</span>));
         } <span class="kw">else</span> {
             <span class="ident">steps</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>));
@@ -927,7 +928,7 @@
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">steps</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">dst</span>);
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">parent</span> {
+        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">t</span>.<span class="ident">parent</span> {
             <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>));
         } <span class="kw">else</span> {
             <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">ContraflowLane</span>(<span class="ident">lane</span>.<span class="ident">id</span>));
@@ -937,10 +938,10 @@
     <span class="ident">steps</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">one_step_walking_path</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Path</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">one_step_walking_path</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Path</span> {
     <span class="comment">// Weird case, but it can happen for walking from a building path to a bus stop that&#39;re</span>
     <span class="comment">// actually at the same spot.</span>
-    <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>() {
+    <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>() {
         <span class="ident">Path</span>::<span class="ident">new</span>(
             <span class="ident">map</span>,
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>())],
