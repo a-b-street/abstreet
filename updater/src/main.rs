@@ -1,4 +1,3 @@
-use abstutil::{Entry, Manifest};
 use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs::{create_dir_all, remove_file, set_permissions, File, Permissions};
@@ -6,6 +5,8 @@ use std::io::{copy, BufRead, BufReader, Read, Write};
 use std::process::Command;
 
 use walkdir::WalkDir;
+
+use abstutil::{Entry, Manifest, Timer};
 
 const MD5_BUF_READ_SIZE: usize = 4096;
 const TMP_DOWNLOAD_NAME: &str = "tmp_download.zip";
@@ -37,10 +38,7 @@ async fn main() {
 async fn download() {
     let cities = Cities::load_or_create();
     let local = generate_manifest();
-    let truth = filter_manifest(
-        Manifest::load("data/MANIFEST.json".to_string()).unwrap(),
-        cities,
-    );
+    let truth = filter_manifest(Manifest::load(), cities);
 
     // Anything local need deleting?
     for path in local.entries.keys() {
@@ -76,10 +74,7 @@ async fn download() {
 fn just_compare() {
     let cities = Cities::load_or_create();
     let local = generate_manifest();
-    let truth = filter_manifest(
-        Manifest::load("data/MANIFEST.json".to_string()).unwrap(),
-        cities,
-    );
+    let truth = filter_manifest(Manifest::load(), cities);
 
     // Anything local need deleting?
     for path in local.entries.keys() {
@@ -100,7 +95,11 @@ fn upload() {
     let remote_base = "/home/dabreegster/Dropbox/abstreet_data";
 
     let mut local = generate_manifest();
-    let remote = Manifest::load(format!("{}/MANIFEST.json", remote_base)).unwrap_or(Manifest {
+    let remote: Manifest = abstutil::maybe_read_json(
+        format!("{}/MANIFEST.json", remote_base),
+        &mut Timer::throwaway(),
+    )
+    .unwrap_or(Manifest {
         entries: BTreeMap::new(),
     });
 
@@ -147,17 +146,14 @@ fn upload() {
         }
     }
 
-    local.write(format!("{}/MANIFEST.json", remote_base));
-    local.write("data/MANIFEST.json".to_string());
+    abstutil::write_json(format!("{}/MANIFEST.json", remote_base), &local);
+    abstutil::write_json("data/MANIFEST.json".to_string(), &local);
 }
 
 async fn check_links() {
     let client = reqwest::Client::new();
 
-    for (file, entry) in Manifest::load("data/MANIFEST.json".to_string())
-        .unwrap()
-        .entries
-    {
+    for (file, entry) in Manifest::load().entries {
         println!("> Check remote for {}", file);
         let url = entry.dropbox_url.unwrap();
         let url = format!("{}{}", &url[..url.len() - 1], "1");

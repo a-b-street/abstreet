@@ -5,7 +5,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
+use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::nice_map_name;
 use crate::render::DrawArea;
 
@@ -59,10 +59,7 @@ impl CityPicker {
 
         let mut other_cities = vec![Line("Other cities").draw(ctx)];
         let mut this_city = vec![];
-        for name in abstutil::Manifest::load(abstutil::path("MANIFEST.json"))
-            .unwrap()
-            .all_map_names()
-        {
+        for name in abstutil::Manifest::load().all_map_names() {
             if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
                 let btn = Btn::txt(&name, Text::from(Line(nice_map_name(&name)).fg(*color)))
                     .tooltip(Text::new());
@@ -199,7 +196,7 @@ fn switch_map(
         })
     } else {
         // TODO Some kind of UI for running the updater from here!
-        Transition::Replace(PopupMsg::new(
+        Transition::Replace(crate::game::PopupMsg::new(
             ctx,
             "Missing data",
             vec![

@@ -5,8 +5,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
-use crate::Timer;
-
 #[derive(Serialize, Deserialize)]
 pub struct Manifest {
     // Keyed by path, starting with "data/"
@@ -23,13 +21,15 @@ pub struct Entry {
 }
 
 impl Manifest {
-    pub fn write(&self, path: String) {
-        println!("- Wrote {}", path);
-        crate::write_json(path, self);
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn load() -> Manifest {
+        crate::maybe_read_json(crate::path("MANIFEST.json"), &mut crate::Timer::throwaway())
+            .unwrap()
     }
 
-    pub fn load(path: String) -> Result<Manifest, std::io::Error> {
-        crate::maybe_read_json(path, &mut Timer::throwaway())
+    #[cfg(target_arch = "wasm32")]
+    pub fn load() -> Manifest {
+        crate::from_json(&include_bytes!("../../data/MANIFEST.json").to_vec()).unwrap()
     }
 
     pub fn all_map_names(&self) -> BTreeSet<String> {
