@@ -218,7 +218,14 @@ fn switch_map(
 ) -> Transition {
     Transition::Replace(loader::AsyncFileLoader::new(
         ctx,
-        format!("http://0.0.0.0:8000/system/maps/{}.bin", name),
+        if cfg!(feature = "wasm_s3") {
+            format!(
+                "http://abstreet.s3-website.us-east-2.amazonaws.com/system/maps/{}.bin",
+                name
+            )
+        } else {
+            format!("http://0.0.0.0:8000/system/maps/{}.bin", name)
+        },
         on_load,
     ))
 }

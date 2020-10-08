@@ -13,6 +13,8 @@ crate-type = ["cdylib", "lib"]
 [features]
 default = ["built", "widgetry/glow-backend", "reqwest"]
 wasm = ["console_log", "futures", "futures-channel", "js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys", "widgetry/wasm-backend"]
+# Just a marker to not use localhost URLs
+wasm_s3 = []
 
 [dependencies]
 aabb-quadtree = "0.1.0"
