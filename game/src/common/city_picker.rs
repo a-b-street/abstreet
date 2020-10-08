@@ -211,12 +211,13 @@ fn switch_map(
 // On the web, we asynchronously download the map file.
 #[cfg(target_arch = "wasm32")]
 fn switch_map(
-    _: &mut EventCtx,
+    ctx: &mut EventCtx,
     _: &mut App,
     name: &str,
     on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
 ) -> Transition {
     Transition::Replace(loader::AsyncFileLoader::new(
+        ctx,
         format!("http://0.0.0.0:8000/system/maps/{}.bin", name),
         on_load,
     ))
@@ -242,13 +243,17 @@ mod loader {
     pub struct AsyncFileLoader {
         response: oneshot::Receiver<Vec<u8>>,
         on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+        panel: Panel,
     }
 
     impl AsyncFileLoader {
         pub fn new(
+            ctx: &mut EventCtx,
             url: String,
             on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
         ) -> Box<dyn State> {
+            let panel = ctx.make_loading_screen(Text::from(Line(format!("Loading {}...", url))));
+
             // Make the HTTP request nonblockingly. When the response is received, send it through
             // the channel.
             let (tx, rx) = oneshot::channel();
@@ -272,6 +277,7 @@ mod loader {
             Box::new(AsyncFileLoader {
                 response: rx,
                 on_load,
+                panel,
             })
         }
     }
@@ -300,9 +306,9 @@ mod loader {
         }
 
         fn draw(&self, g: &mut GfxCtx, _: &App) {
-            // TODO Mimic the loading screen. Ideally even count the bytes received and have a
-            // progress bar.
-            g.clear(Color::RED);
+            // TODO Progress bar for bytes received
+            g.clear(Color::BLACK);
+            self.panel.draw(g);
         }
     }
 }
