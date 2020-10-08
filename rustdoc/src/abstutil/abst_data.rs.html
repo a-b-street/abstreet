@@ -33,61 +33,39 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">Write</span>};
+<span class="comment">// A list of all data files that&#39;re part of A/B Street. The updater crate manages this file, either</span>
+<span class="comment">// downloading updates or, for developers, uploading them.</span>
 
-<span class="comment">// keyed by path</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Manifest</span>(<span class="kw">pub</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Entry</span><span class="op">&gt;</span>);
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
+
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Timer</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Manifest</span> {
+    <span class="comment">// Keyed by path, starting with &quot;data/&quot;</span>
+    <span class="kw">pub</span> <span class="ident">entries</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Entry</span><span class="op">&gt;</span>,
+}
+
+<span class="comment">// A single file</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Entry</span> {
+    <span class="comment">// md5sum of the file</span>
     <span class="kw">pub</span> <span class="ident">checksum</span>: <span class="ident">String</span>,
+    <span class="comment">// URL to a .zip file containing the one file</span>
     <span class="kw">pub</span> <span class="ident">dropbox_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Manifest</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="ident">String</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">unwrap</span>();
-        <span class="kw">for</span> (<span class="ident">path</span>, <span class="ident">entry</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="macro">writeln</span><span class="macro">!</span>(
-                <span class="ident">f</span>,
-                <span class="string">&quot;{},{},{}&quot;</span>,
-                <span class="ident">path</span>,
-                <span class="ident">entry</span>.<span class="ident">checksum</span>,
-                <span class="ident">entry</span>.<span class="ident">dropbox_url</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()
-            )
-            .<span class="ident">unwrap</span>();
-        }
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Wrote {}&quot;</span>, <span class="ident">path</span>);
+        <span class="kw">crate</span>::<span class="ident">write_json</span>(<span class="ident">path</span>, <span class="self">self</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Manifest</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kv</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>).<span class="ident">lines</span>() {
-            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">line</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&quot;,&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">parts</span>.<span class="ident">len</span>(), <span class="number">3</span>);
-            <span class="ident">kv</span>.<span class="ident">insert</span>(
-                <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">to_string</span>(),
-                <span class="ident">Entry</span> {
-                    <span class="ident">checksum</span>: <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">to_string</span>(),
-                    <span class="ident">dropbox_url</span>: <span class="prelude-val">Some</span>(<span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">to_string</span>()),
-                },
-            );
-        }
-        <span class="prelude-val">Ok</span>(<span class="ident">Manifest</span>(<span class="ident">kv</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Manifest</span>, <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span>::<span class="ident">maybe_read_json</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>())
     }
 }
 </pre></div>
