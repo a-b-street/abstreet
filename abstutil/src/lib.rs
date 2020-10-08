@@ -2,7 +2,7 @@
 //
 // - Timer (a mix of logging, profiling, and even parallel execution)
 // - IO utilities, some of which have web equivalents using include_dir
-// - A/B Street-specific filesystem paths
+// - Utilities to find A/B Street-specific data
 // - true utility functions (collections, prettyprinting, CLI parsing
 
 #[macro_use]
@@ -19,12 +19,14 @@ pub use io_web::*;
 
 // I'm not generally a fan of wildcard exports, but they're more maintable here.
 pub use crate::serde::*;
+pub use abst_data::*;
 pub use abst_paths::*;
 pub use cli::*;
 pub use collections::*;
 pub use time::*;
 pub use utils::*;
 
+mod abst_data;
 mod abst_paths;
 mod cli;
 mod collections;

@@ -5,6 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+abstutil = { path = "../abstutil" }
 md5 = "0.7.0"
 reqwest = { version = "0.10.8", default-features=false, features=["rustls-tls"] }
 tokio = { version = "0.2.22", features = ["full"] }

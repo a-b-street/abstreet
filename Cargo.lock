@@ -2759,6 +2759,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "updater"
 version = "0.1.0"
 dependencies = [
+ "abstutil 0.1.0",
  "md5 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.10.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio 0.2.22 (registry+https://github.com/rust-lang/crates.io-index)",

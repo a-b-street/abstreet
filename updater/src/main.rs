@@ -1,3 +1,4 @@
+use abstutil::{Entry, Manifest};
 use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs::{create_dir_all, remove_file, set_permissions, File, Permissions};
@@ -35,10 +36,11 @@ async fn main() {
 
 async fn download() {
     let cities = Cities::load_or_create();
-    let local = Manifest::generate();
-    let truth = Manifest::load("data/MANIFEST.txt".to_string())
-        .unwrap()
-        .filter(cities);
+    let local = generate_manifest();
+    let truth = filter_manifest(
+        Manifest::load("data/MANIFEST.txt".to_string()).unwrap(),
+        cities,
+    );
 
     // Anything local need deleting?
     for path in local.0.keys() {
@@ -73,10 +75,11 @@ async fn download() {
 
 fn just_compare() {
     let cities = Cities::load_or_create();
-    let local = Manifest::generate();
-    let truth = Manifest::load("data/MANIFEST.txt".to_string())
-        .unwrap()
-        .filter(cities);
+    let local = generate_manifest();
+    let truth = filter_manifest(
+        Manifest::load("data/MANIFEST.txt".to_string()).unwrap(),
+        cities,
+    );
 
     // Anything local need deleting?
     for path in local.0.keys() {
@@ -96,7 +99,7 @@ fn just_compare() {
 fn upload() {
     let remote_base = "/home/dabreegster/Dropbox/abstreet_data";
 
-    let mut local = Manifest::generate();
+    let mut local = generate_manifest();
     let remote = Manifest::load(format!("{}/MANIFEST.txt", remote_base))
         .unwrap_or(Manifest(BTreeMap::new()));
 
@@ -166,183 +169,142 @@ async fn check_links() {
     }
 }
 
-// keyed by path
-struct Manifest(BTreeMap<String, Entry>);
-struct Entry {
-    checksum: String,
-    dropbox_url: Option<String>,
+fn generate_manifest() -> Manifest {
+    let mut kv = BTreeMap::new();
+    for entry in WalkDir::new("data/input")
+        .into_iter()
+        .chain(WalkDir::new("data/system").into_iter())
+        .filter_map(|e| e.ok())
+    {
+        if entry.file_type().is_dir() {
+            continue;
+        }
+        let orig_path = entry.path().display().to_string();
+        let path = orig_path.replace("\\", "/");
+        if path.contains("system/assets/")
+            || path.contains("system/fonts")
+            || path.contains("system/proposals")
+            || path.contains("system/synthetic_maps")
+            || path.contains("/polygons/")
+        {
+            continue;
+        }
+
+        println!("> compute md5sum of {}", path);
+
+        // since these files can be very large, computes the md5 hash in chunks
+        let mut file = File::open(&orig_path).unwrap();
+        let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
+        let mut context = md5::Context::new();
+        while let Ok(n) = file.read(&mut buffer) {
+            if n == 0 {
+                break;
+            }
+            context.consume(&buffer[..n]);
+        }
+        let checksum = format!("{:x}", context.compute());
+        kv.insert(
+            path,
+            Entry {
+                checksum,
+                dropbox_url: None,
+            },
+        );
+    }
+    Manifest(kv)
 }
 
-impl Manifest {
-    fn generate() -> Manifest {
-        let mut kv = BTreeMap::new();
-        for entry in WalkDir::new("data/input")
-            .into_iter()
-            .chain(WalkDir::new("data/system").into_iter())
-            .filter_map(|e| e.ok())
+fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
+    // TODO Temporary hack until directories are organized better
+    fn map_belongs_to_city(map: &str, city: &str) -> bool {
+        match city {
+            "seattle" => {
+                map == "ballard"
+                    || map == "downtown"
+                    || map == "lakeslice"
+                    || map == "montlake"
+                    || map == "south_seattle"
+                    || map == "udistrict"
+                    || map == "west_seattle"
+            }
+            "huge_seattle" => map == "huge_seattle",
+            "krakow" => map == "krakow_center",
+            "berlin" => map == "berlin_center",
+            "xian" => map == "xian",
+            "tel_aviv" => map == "tel_aviv",
+            "london" => map == "southbank",
+            _ => panic!("Unknown city {}. Check your data/config", city),
+        }
+    }
+
+    let mut remove = Vec::new();
+    for path in manifest.0.keys() {
+        // TODO Some hardcoded weird exceptions
+        if !cities.runtime.contains(&"huge_seattle".to_string())
+            && path == "data/system/scenarios/montlake/everyone_weekday.bin"
         {
-            if entry.file_type().is_dir() {
-                continue;
-            }
-            let orig_path = entry.path().display().to_string();
-            let path = orig_path.replace("\\", "/");
-            if path.contains("system/assets/")
-                || path.contains("system/fonts")
-                || path.contains("system/proposals")
-                || path.contains("system/synthetic_maps")
-                || path.contains("/polygons/")
-            {
-                continue;
-            }
-
-            println!("> compute md5sum of {}", path);
-
-            // since these files can be very large, computes the md5 hash in chunks
-            let mut file = File::open(&orig_path).unwrap();
-            let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
-            let mut context = md5::Context::new();
-            while let Ok(n) = file.read(&mut buffer) {
-                if n == 0 {
-                    break;
-                }
-                context.consume(&buffer[..n]);
-            }
-            let checksum = format!("{:x}", context.compute());
-            kv.insert(
-                path,
-                Entry {
-                    checksum,
-                    dropbox_url: None,
-                },
-            );
-        }
-        Manifest(kv)
-    }
-
-    fn write(&self, path: String) {
-        let mut f = File::create(&path).unwrap();
-        for (path, entry) in &self.0 {
-            writeln!(
-                f,
-                "{},{},{}",
-                path,
-                entry.checksum,
-                entry.dropbox_url.as_ref().unwrap()
-            )
-            .unwrap();
-        }
-        println!("- Wrote {}", path);
-    }
-
-    fn load(path: String) -> Result<Manifest, Box<dyn Error>> {
-        let mut kv = BTreeMap::new();
-        for line in BufReader::new(File::open(path)?).lines() {
-            let line = line?;
-            let parts = line.split(",").collect::<Vec<_>>();
-            assert_eq!(parts.len(), 3);
-            kv.insert(
-                parts[0].to_string(),
-                Entry {
-                    checksum: parts[1].to_string(),
-                    dropbox_url: Some(parts[2].to_string()),
-                },
-            );
-        }
-        Ok(Manifest(kv))
-    }
-
-    fn filter(mut self, cities: Cities) -> Manifest {
-        // TODO Temporary hack until directories are organized better
-        fn map_belongs_to_city(map: &str, city: &str) -> bool {
-            match city {
-                "seattle" => {
-                    map == "ballard"
-                        || map == "downtown"
-                        || map == "lakeslice"
-                        || map == "montlake"
-                        || map == "south_seattle"
-                        || map == "udistrict"
-                        || map == "west_seattle"
-                }
-                "huge_seattle" => map == "huge_seattle",
-                "krakow" => map == "krakow_center",
-                "berlin" => map == "berlin_center",
-                "xian" => map == "xian",
-                "tel_aviv" => map == "tel_aviv",
-                "london" => map == "southbank",
-                _ => panic!("Unknown city {}. Check your data/config", city),
-            }
+            remove.push(path.clone());
+            continue;
         }
 
-        let mut remove = Vec::new();
-        for path in self.0.keys() {
-            // TODO Some hardcoded weird exceptions
-            if !cities.runtime.contains(&"huge_seattle".to_string())
-                && path == "data/system/scenarios/montlake/everyone_weekday.bin"
-            {
-                remove.push(path.clone());
-                continue;
-            }
-
-            let parts = path.split("/").collect::<Vec<_>>();
-            if parts[1] == "input" {
-                if parts[2] == "screenshots" {
-                    let map = parts[3].trim_end_matches(".zip");
-                    if cities
-                        .input
-                        .iter()
-                        .any(|city| map_belongs_to_city(map, city))
-                    {
-                        continue;
-                    }
-                }
-                if parts[2] == "raw_maps" {
-                    let map = parts[3].trim_end_matches(".bin");
-                    if cities
-                        .input
-                        .iter()
-                        .any(|city| map_belongs_to_city(map, city))
-                    {
-                        continue;
-                    }
-                }
-                if cities.input.contains(&parts[2].to_string()) {
+        let parts = path.split("/").collect::<Vec<_>>();
+        if parts[1] == "input" {
+            if parts[2] == "screenshots" {
+                let map = parts[3].trim_end_matches(".zip");
+                if cities
+                    .input
+                    .iter()
+                    .any(|city| map_belongs_to_city(map, city))
+                {
                     continue;
                 }
-            } else if parts[1] == "system" {
-                if parts[2] == "maps" {
-                    let map = parts[3].trim_end_matches(".bin");
-                    if cities
-                        .runtime
-                        .iter()
-                        .any(|city| map_belongs_to_city(map, city))
-                    {
-                        continue;
-                    }
-                } else if parts[2] == "cities" {
-                    if cities.runtime.contains(&basename(parts[3])) {
-                        continue;
-                    }
-                } else {
-                    let map = &parts[3];
-                    if cities
-                        .runtime
-                        .iter()
-                        .any(|city| map_belongs_to_city(map, city))
-                    {
-                        continue;
-                    }
+            }
+            if parts[2] == "raw_maps" {
+                let map = parts[3].trim_end_matches(".bin");
+                if cities
+                    .input
+                    .iter()
+                    .any(|city| map_belongs_to_city(map, city))
+                {
+                    continue;
+                }
+            }
+            if cities.input.contains(&parts[2].to_string()) {
+                continue;
+            }
+        } else if parts[1] == "system" {
+            if parts[2] == "maps" {
+                let map = parts[3].trim_end_matches(".bin");
+                if cities
+                    .runtime
+                    .iter()
+                    .any(|city| map_belongs_to_city(map, city))
+                {
+                    continue;
+                }
+            } else if parts[2] == "cities" {
+                if cities.runtime.contains(&basename(parts[3])) {
+                    continue;
                 }
             } else {
-                panic!("Wait what's {}", path);
+                let map = &parts[3];
+                if cities
+                    .runtime
+                    .iter()
+                    .any(|city| map_belongs_to_city(map, city))
+                {
+                    continue;
+                }
             }
-            remove.push(path.clone());
+        } else {
+            panic!("Wait what's {}", path);
         }
-        for path in remove {
-            self.0.remove(&path).unwrap();
-        }
-        self
+        remove.push(path.clone());
     }
+    for path in remove {
+        manifest.0.remove(&path).unwrap();
+    }
+    manifest
 }
 
 // What data to download?
