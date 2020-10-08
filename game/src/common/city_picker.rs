@@ -5,7 +5,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::nice_map_name;
 use crate::render::DrawArea;
 
@@ -46,10 +46,6 @@ impl CityPicker {
             }
 
             for (name, polygon) in city.regions {
-                // For example, the huge_seattle map isn't bundled in releases.
-                if !abstutil::file_exists(abstutil::path_map(&name)) {
-                    continue;
-                }
                 let color = app.cs.rotating_color_agents(regions.len());
                 if &name == app.primary.map.get_name() {
                     batch.push(color.alpha(0.5), polygon.clone());
@@ -63,7 +59,10 @@ impl CityPicker {
 
         let mut other_cities = vec![Line("Other cities").draw(ctx)];
         let mut this_city = vec![];
-        for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
+        for name in abstutil::Manifest::load(abstutil::path("MANIFEST.json"))
+            .unwrap()
+            .all_map_names()
+        {
             if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
                 let btn = Btn::txt(&name, Text::from(Line(nice_map_name(&name)).fg(*color)))
                     .tooltip(Text::new());
@@ -193,10 +192,23 @@ fn switch_map(
     name: &str,
     on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
 ) -> Transition {
-    ctx.loading_screen("switch map", |ctx, _| {
-        app.switch_map(ctx, abstutil::path_map(name));
-        (on_load)(ctx, app)
-    })
+    if abstutil::file_exists(abstutil::path_map(&name)) {
+        ctx.loading_screen("switch map", |ctx, _| {
+            app.switch_map(ctx, abstutil::path_map(name));
+            (on_load)(ctx, app)
+        })
+    } else {
+        // TODO Some kind of UI for running the updater from here!
+        Transition::Replace(PopupMsg::new(
+            ctx,
+            "Missing data",
+            vec![
+                format!("{} is missing", abstutil::path_map(&name)),
+                "You need to opt into this by modifying data/config and running the updater"
+                    .to_string(),
+            ],
+        ))
+    }
 }
 
 // On the web, we asynchronously download the map file.

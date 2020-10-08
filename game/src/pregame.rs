@@ -181,7 +181,9 @@ impl State for MainMenu {
                 }
                 "Sandbox mode" => {
                     // We might've left with a synthetic map loaded.
-                    let map_path = if abstutil::list_all_objects(abstutil::path_all_maps())
+                    let map_path = if abstutil::Manifest::load(abstutil::path("MANIFEST.json"))
+                        .unwrap()
+                        .all_map_names()
                         .contains(app.primary.map.get_name())
                     {
                         abstutil::path_map(app.primary.map.get_name())
