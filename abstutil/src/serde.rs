@@ -14,6 +14,10 @@ pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Error> {
     serde_json::from_slice(raw).map_err(|err| Error::new(ErrorKind::Other, err))
 }
 
+pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Error> {
+    bincode::deserialize(raw).map_err(|err| Error::new(ErrorKind::Other, err))
+}
+
 pub fn serialized_size_bytes<T: Serialize>(obj: &T) -> usize {
     bincode::serialized_size(obj).unwrap() as usize
 }

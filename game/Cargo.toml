@@ -9,7 +9,7 @@ crate-type = ["cdylib", "lib"]
 
 [features]
 default = ["built", "widgetry/glow-backend", "reqwest"]
-wasm = ["console_log", "wasm-bindgen", "widgetry/wasm-backend"]
+wasm = ["console_log", "futures", "futures-channel", "js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys", "widgetry/wasm-backend"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
@@ -21,9 +21,12 @@ console_log = { version = "0.1", optional = true }
 contour = "0.2.0"
 downcast-rs = "1.2.0"
 enumset = "1.0.1"
+futures = { version = "0.3.5", optional = true }
+futures-channel = { version = "0.3.6", optional = true }
 geojson = "0.19.0"
 geom = { path = "../geom" }
 instant = "0.1.7"
+js-sys = { version = "0.3.45", optional = true }
 kml = { path = "../kml" }
 log = "0.4.11"
 lttb = "0.2.0"
@@ -38,6 +41,7 @@ serde_json = "1.0.57"
 svg_face = "0.1.2"
 sim = { path = "../sim" }
 wasm-bindgen = { version = "0.2.68", optional = true }
+wasm-bindgen-futures = { version = "0.4.18", optional = true }
 webbrowser = "0.5.5"
 widgetry = { path = "../widgetry", default-features=false }
 xmltree = "0.10.1"
@@ -45,3 +49,15 @@ xmltree = "0.10.1"
 [build-dependencies]
 built = "0.4.2"
 walkdir = "2.2.7"
+
+[dependencies.web-sys]
+version = "0.3.4"
+optional = true
+features = [
+  "Headers",
+  "Request",
+  "RequestInit",
+  "RequestMode",
+  "Response",
+  "Window",
+]

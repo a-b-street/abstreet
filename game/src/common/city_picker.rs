@@ -114,10 +114,9 @@ impl State for CityPicker {
                     return Transition::Pop;
                 }
                 name => {
-                    return ctx.loading_screen("switch map", |ctx, _| {
-                        app.switch_map(ctx, abstutil::path_map(name));
-                        (self.on_load)(ctx, app)
-                    });
+                    let on_load =
+                        std::mem::replace(&mut self.on_load, Box::new(|_, _| Transition::Keep));
+                    return switch_map(ctx, app, name, on_load);
                 }
             },
             _ => {}
@@ -182,6 +181,119 @@ impl State for CityPicker {
             g.unfork();
 
             g.draw_mouse_tooltip(Text::from(Line(nice_map_name(name))));
+        }
+    }
+}
+
+// Natively, we can blockingly load from the filesystem as usual.
+#[cfg(not(target_arch = "wasm32"))]
+fn switch_map(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    name: &str,
+    on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+) -> Transition {
+    ctx.loading_screen("switch map", |ctx, _| {
+        app.switch_map(ctx, abstutil::path_map(name));
+        (on_load)(ctx, app)
+    })
+}
+
+// On the web, we asynchronously download the map file.
+#[cfg(target_arch = "wasm32")]
+fn switch_map(
+    _: &mut EventCtx,
+    _: &mut App,
+    name: &str,
+    on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+) -> Transition {
+    Transition::Replace(loader::AsyncFileLoader::new(
+        format!("http://0.0.0.0:8000/system/maps/{}.bin", name),
+        on_load,
+    ))
+}
+
+#[cfg(target_arch = "wasm32")]
+mod loader {
+    use futures_channel::oneshot;
+    use wasm_bindgen::JsCast;
+    use wasm_bindgen_futures::JsFuture;
+    use web_sys::{Request, RequestInit, RequestMode, Response};
+
+    use abstutil::Timer;
+    use map_model::Map;
+    use widgetry::UpdateType;
+
+    use super::*;
+    use crate::render::DrawMap;
+
+    // Instead of blockingly reading a file within ctx.loading_screen, on the web have to
+    // asynchronously make an HTTP request and keep "polling" for completion in a way that's
+    // compatible with winit's event loop.
+    pub struct AsyncFileLoader {
+        response: oneshot::Receiver<Vec<u8>>,
+        on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+    }
+
+    impl AsyncFileLoader {
+        pub fn new(
+            url: String,
+            on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+        ) -> Box<dyn State> {
+            // Make the HTTP request nonblockingly. When the response is received, send it through
+            // the channel.
+            let (tx, rx) = oneshot::channel();
+            wasm_bindgen_futures::spawn_local(async move {
+                let mut opts = RequestInit::new();
+                opts.method("GET");
+                opts.mode(RequestMode::Cors);
+                let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+
+                let window = web_sys::window().unwrap();
+                let resp_value = JsFuture::from(window.fetch_with_request(&request))
+                    .await
+                    .unwrap();
+                let resp: Response = resp_value.dyn_into().unwrap();
+                let buf = JsFuture::from(resp.array_buffer().unwrap()).await.unwrap();
+                let array = js_sys::Uint8Array::new(&buf);
+                let bytes = array.to_vec();
+                tx.send(bytes).unwrap();
+            });
+
+            Box::new(AsyncFileLoader {
+                response: rx,
+                on_load,
+            })
+        }
+    }
+
+    impl State for AsyncFileLoader {
+        fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+            if let Some(resp) = self.response.try_recv().unwrap() {
+                let map: Map = abstutil::from_binary(&resp).unwrap();
+
+                // TODO This is a hack, repeating only some parts of app.switch_map. Refactor.
+                let bounds = map.get_bounds();
+                ctx.canvas.map_dims = (bounds.width(), bounds.height());
+                app.primary.map = map;
+                let mut timer = Timer::new("switch maps");
+                app.primary.draw_map =
+                    DrawMap::new(&app.primary.map, &app.opts, &app.cs, ctx, &mut timer);
+                app.primary.clear_sim();
+
+                return (self.on_load)(ctx, app);
+            }
+
+            // Until the response is received, just ask winit to regularly call event(), so we can
+            // keep polling the channel.
+            ctx.request_update(UpdateType::Game);
+            Transition::Keep
+        }
+
+        fn draw(&self, g: &mut GfxCtx, _: &App) {
+            // TODO Mimic the loading screen. Ideally even count the bytes received and have a
+            // progress bar.
+            g.clear(Color::RED);
         }
     }
 }
