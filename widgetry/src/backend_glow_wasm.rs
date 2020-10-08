@@ -34,6 +34,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     let canvas = winit_window.canvas();
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
+    document.get_element_by_id("loading").unwrap().remove();
     let body = document.body().unwrap();
     body.append_child(&canvas)
         .expect("Append canvas to HTML body");
