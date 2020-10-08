@@ -158,10 +158,6 @@ async fn check_links() {
         .unwrap()
         .entries
     {
-        // TODO Fiddle with this as needed
-        if file.contains("input") {
-            continue;
-        }
         println!("> Check remote for {}", file);
         let url = entry.dropbox_url.unwrap();
         let url = format!("{}{}", &url[..url.len() - 1], "1");
