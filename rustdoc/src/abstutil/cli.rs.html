@@ -168,6 +168,13 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
@@ -216,6 +223,13 @@
                     <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Weird argument {}&quot;</span>, <span class="ident">arg</span>);
                 }
             }
+        }
+
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+        {
+            <span class="comment">// Silence some compiler warnings</span>
+            <span class="ident">args</span>.<span class="ident">free</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">new</span>());
+            <span class="ident">args</span>.<span class="ident">free</span>.<span class="ident">pop</span>();
         }
 
         <span class="ident">args</span>
