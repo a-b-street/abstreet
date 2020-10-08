@@ -434,13 +434,13 @@ fn highlight_slow_intersections(ctx: &EventCtx, app: &App, details: &mut Details
 
 /// Highlights lanes which were "slow" on the map
 fn highlight_slow_lanes(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
-    let lane_speeds = &app
+    if let Some(lane_speeds) = &app
         .primary
         .sim
         .get_analytics()
         .lane_speed_percentage
-        .get(&id);
-    if let Some(lane_speeds) = lane_speeds {
+        .get(&id)
+    {
         for (id, speed_percent) in lane_speeds.iter() {
             let lane = app.primary.map.get_l(*id);
             let (fg_color, bg_color) = if speed_percent > &95 {
@@ -509,31 +509,22 @@ fn make_bar(
     progress_along_path: Option<f64>,
 ) -> Widget {
     let map = &app.primary.map;
+    let blank_lane_speeds_bt = BTreeMap::new();
+    let blank_intersection_delays_bt = BTreeMap::new();
     let intersection_delays = &app
         .primary
         .sim
         .get_analytics()
         .trip_intersection_delays
-        .get(&trip_id);
-    // TODO There surely has to be a better way of doing this?
-    let blank_lane_speeds_bt = BTreeMap::new();
-    let blank_intersection_delays_bt = BTreeMap::new();
-    let intersection_delays = if intersection_delays.is_some() {
-        intersection_delays.unwrap()
-    } else {
-        &blank_intersection_delays_bt
-    };
+        .get(&trip_id)
+        .unwrap_or(&blank_intersection_delays_bt);
     let lane_speeds = &app
         .primary
         .sim
         .get_analytics()
         .lane_speed_percentage
-        .get(&trip_id);
-    let lane_speeds = if lane_speeds.is_some() {
-        lane_speeds.unwrap()
-    } else {
-        &blank_lane_speeds_bt
-    };
+        .get(&trip_id)
+        .unwrap_or(&blank_lane_speeds_bt);
     let box_width = 0.22 * ctx.canvas.window_width;
     let mut total_dist = Distance::meters(0.0);
     let mut segments: Vec<(Distance, Color, Text)> = Vec::new();
@@ -541,7 +532,6 @@ fn make_bar(
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
     let total_duration_so_far = end_time.unwrap_or_else(|| app.primary.sim.time()) - trip.departure;
 
-    let mut icons = Vec::new();
     let mut icons_geom = Vec::new();
     let mut icon_pos = Vec::new();
     for (idx, p) in phases.into_iter().enumerate() {
@@ -611,8 +601,7 @@ fn make_bar(
                     PathStep::Lane(id) | PathStep::ContraflowLane(id) => {
                         let lane_detail = map.get_l(*id);
                         sum_phase_dist += lane_detail.length();
-                        let avg_speed = lane_speeds.get(id);
-                        if let Some(avg_speed) = avg_speed {
+                        if let Some(avg_speed) = lane_speeds.get(id) {
                             segments.push((
                                 norm_distance,
                                 norm_color,
@@ -639,8 +628,7 @@ fn make_bar(
                     PathStep::Turn(id) => {
                         let turn_details = map.get_t(*id);
                         sum_phase_dist += turn_details.geom.length();
-                        let delay = intersection_delays.get(id);
-                        if let Some(delay) = delay {
+                        if let Some(delay) = intersection_delays.get(id) {
                             segments.push((
                                 norm_distance,
                                 norm_color,
@@ -681,7 +669,6 @@ fn make_bar(
         total_dist += sum_phase_dist;
     }
     let mut timeline = Vec::new();
-    let mut icons = Vec::new();
     assert_eq!(icons_geom.len(), icon_pos.len());
     let mut offset = 0.0;
     for index in 0..icon_pos.len() {
@@ -692,7 +679,7 @@ fn make_bar(
             ctx,
             img.centered_on(
                 // TODO Hardcoded layouting...
-                Pt2D::new(pos + offset, -20.0),
+                Pt2D::new(pos + offset, 15.0),
             ),
         ));
         offset += (pos * 2.0) - img_size.width;

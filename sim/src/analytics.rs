@@ -18,7 +18,9 @@ use map_model::{
     ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID,
 };
 
-use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
+use crate::{
+    AgentID, AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType,
+};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {
@@ -193,18 +195,36 @@ impl Analytics {
         }
 
         // Trip Intersection delay
-        if let Event::TripIntersectionDelay(trip_id, turn_id, delay) = ev {
-            self.trip_intersection_delays
-                .entry(trip_id)
-                .or_insert_with(|| BTreeMap::new())
-                .insert(turn_id, delay);
+        if let Event::TripIntersectionDelay(trip_id, turn_id, agent, delay) = ev {
+            match agent {
+                AgentID::Car(_) => {
+                    if delay > Duration::seconds(30.0) {
+                        self.trip_intersection_delays
+                            .entry(trip_id)
+                            .or_insert_with(BTreeMap::new)
+                            .insert(turn_id, delay.inner_seconds() as u8);
+                    }
+                }
+                AgentID::Pedestrian(_) => {
+                    if delay > Duration::seconds(15.0) {
+                        self.trip_intersection_delays
+                            .entry(trip_id)
+                            .or_insert_with(BTreeMap::new)
+                            .insert(turn_id, delay.inner_seconds() as u8);
+                    }
+                }
+                AgentID::BusPassenger(_, _) => {}
+            }
         }
         // Lane Speed
-        if let Event::LaneSpeedPercentage(trip_id, lane_id, speed_percent) = ev {
-            self.lane_speed_percentage
-                .entry(trip_id)
-                .or_insert_with(|| BTreeMap::new())
-                .insert(lane_id, speed_percent);
+        if let Event::LaneSpeedPercentage(trip_id, lane_id, avg_speed, max_speed) = ev {
+            let speed_percent: u8 = ((avg_speed / max_speed) * 100.0) as u8;
+            if speed_percent < 95 {
+                self.lane_speed_percentage
+                    .entry(trip_id)
+                    .or_insert_with(BTreeMap::new)
+                    .insert(lane_id, speed_percent);
+            }
         }
 
         // Intersection delays

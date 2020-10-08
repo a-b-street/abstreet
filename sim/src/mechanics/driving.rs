@@ -8,15 +8,15 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Speed, Time};
 use map_model::{LaneID, Map, Path, PathStep, Traversable};
 
+use crate::{
+    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
+    DrawCarInput, Event, FOLLOWING_DISTANCE, IntersectionSimState, ParkedCar, ParkingSim, ParkingSimState,
+    ParkingSpot, PersonID, Scheduler, TimeInterval, TransitSimState, TripID, TripManager,
+    UnzoomedAgent, Vehicle, WalkingSimState,
+};
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::sim::Ctx;
-use crate::{
-    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
-    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSimState, ParkingSpot,
-    PersonID, Scheduler, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
-    Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
-};
 
 const TIME_TO_UNPARK_ONSTRET: Duration = Duration::const_seconds(10.0);
 const TIME_TO_PARK_ONSTREET: Duration = Duration::const_seconds(15.0);
@@ -210,7 +210,7 @@ impl DrivingSimState {
             // checker, temporarily move one of them out of the BTreeMap.
             let mut car = self.cars.remove(&id).unwrap();
             // Responsibility of update_car to manage scheduling stuff!
-            need_distances = self.update_car_without_distances(&mut car, now, ctx, transit);
+            need_distances = self.update_car_without_distances(&mut car, id, now, ctx, transit);
             self.cars.insert(id, car);
         }
 
@@ -243,6 +243,7 @@ impl DrivingSimState {
     fn update_car_without_distances(
         &mut self,
         car: &mut Car,
+        id: CarID,
         now: Time,
         ctx: &mut Ctx,
         transit: &mut TransitSimState,
@@ -250,19 +251,20 @@ impl DrivingSimState {
         match car.state {
             CarState::Crossing(time_int, dist_int) => {
                 let time_cross = now - time_int.start;
-                let avg_speed = Speed::from_dist_time(dist_int.length(), time_cross);
-                let route = car.router.head();
-                let max_speed = route.speed_limit(ctx.map).min(
-                    car.vehicle
-                        .max_speed
-                        .unwrap_or(Speed::meters_per_second(100.0)),
-                );
-                let speed_percent: u8 = ((avg_speed / max_speed) * 100.0) as u8;
-                if speed_percent < 95 {
+                if time_cross > Duration::ZERO {
+                    let avg_speed = Speed::from_dist_time(dist_int.length(), time_cross);
+
+                    let route = car.router.head();
+                    let max_speed = route.speed_limit(ctx.map).min(
+                        car.vehicle
+                            .max_speed
+                            .unwrap_or(Speed::meters_per_second(100.0)),
+                    );
+
                     if let Some((trip, _)) = car.trip_and_person {
                         if let Traversable::Lane(lane) = route {
                             self.events
-                                .push(Event::LaneSpeedPercentage(trip, lane, speed_percent));
+                                .push(Event::LaneSpeedPercentage(trip, lane, avg_speed, max_speed));
                         }
                     }
                 }
@@ -376,12 +378,12 @@ impl DrivingSimState {
                         return false;
                     }
                     if let Some((trip, _)) = car.trip_and_person {
-                        let delay = (now - blocked_since).inner_seconds() as u8;
-                        // Maybe alter the minimum delay time to be recorded
-                        if delay > 30 {
-                            self.events
-                                .push(Event::TripIntersectionDelay(trip, t, delay));
-                        }
+                        self.events.push(Event::TripIntersectionDelay(
+                            trip,
+                            t,
+                            AgentID::Car(id),
+                            now - blocked_since,
+                        ));
                     }
                 }
 
