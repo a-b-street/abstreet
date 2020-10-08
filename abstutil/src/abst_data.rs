@@ -1,45 +1,34 @@
-use std::collections::BTreeMap;
-use std::error::Error;
-use std::fs::File;
-use std::io::{BufRead, BufReader, Write};
+// A list of all data files that're part of A/B Street. The updater crate manages this file, either
+// downloading updates or, for developers, uploading them.
 
-// keyed by path
-pub struct Manifest(pub BTreeMap<String, Entry>);
+use std::collections::BTreeMap;
+
+use serde::{Deserialize, Serialize};
+
+use crate::Timer;
+
+#[derive(Serialize, Deserialize)]
+pub struct Manifest {
+    // Keyed by path, starting with "data/"
+    pub entries: BTreeMap<String, Entry>,
+}
+
+// A single file
+#[derive(Serialize, Deserialize)]
 pub struct Entry {
+    // md5sum of the file
     pub checksum: String,
+    // URL to a .zip file containing the one file
     pub dropbox_url: Option<String>,
 }
 
 impl Manifest {
     pub fn write(&self, path: String) {
-        let mut f = File::create(&path).unwrap();
-        for (path, entry) in &self.0 {
-            writeln!(
-                f,
-                "{},{},{}",
-                path,
-                entry.checksum,
-                entry.dropbox_url.as_ref().unwrap()
-            )
-            .unwrap();
-        }
         println!("- Wrote {}", path);
+        crate::write_json(path, self);
     }
 
-    pub fn load(path: String) -> Result<Manifest, Box<dyn Error>> {
-        let mut kv = BTreeMap::new();
-        for line in BufReader::new(File::open(path)?).lines() {
-            let line = line?;
-            let parts = line.split(",").collect::<Vec<_>>();
-            assert_eq!(parts.len(), 3);
-            kv.insert(
-                parts[0].to_string(),
-                Entry {
-                    checksum: parts[1].to_string(),
-                    dropbox_url: Some(parts[2].to_string()),
-                },
-            );
-        }
-        Ok(Manifest(kv))
+    pub fn load(path: String) -> Result<Manifest, std::io::Error> {
+        crate::maybe_read_json(path, &mut Timer::throwaway())
     }
 }

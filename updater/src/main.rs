@@ -38,21 +38,21 @@ async fn download() {
     let cities = Cities::load_or_create();
     let local = generate_manifest();
     let truth = filter_manifest(
-        Manifest::load("data/MANIFEST.txt".to_string()).unwrap(),
+        Manifest::load("data/MANIFEST.json".to_string()).unwrap(),
         cities,
     );
 
     // Anything local need deleting?
-    for path in local.0.keys() {
-        if !truth.0.contains_key(path) {
+    for path in local.entries.keys() {
+        if !truth.entries.contains_key(path) {
             rm(&path);
         }
     }
 
     // Anything missing or needing updating?
     let mut failed = Vec::new();
-    for (path, entry) in truth.0 {
-        if local.0.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
+    for (path, entry) in truth.entries {
+        if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
             match curl(entry).await {
                 Ok(()) => {
@@ -77,20 +77,20 @@ fn just_compare() {
     let cities = Cities::load_or_create();
     let local = generate_manifest();
     let truth = filter_manifest(
-        Manifest::load("data/MANIFEST.txt".to_string()).unwrap(),
+        Manifest::load("data/MANIFEST.json".to_string()).unwrap(),
         cities,
     );
 
     // Anything local need deleting?
-    for path in local.0.keys() {
-        if !truth.0.contains_key(path) {
+    for path in local.entries.keys() {
+        if !truth.entries.contains_key(path) {
             println!("- Remove {}", path);
         }
     }
 
     // Anything missing or needing updating?
-    for (path, entry) in truth.0 {
-        if local.0.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
+    for (path, entry) in truth.entries {
+        if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             println!("- Update {}", path);
         }
     }
@@ -100,20 +100,21 @@ fn upload() {
     let remote_base = "/home/dabreegster/Dropbox/abstreet_data";
 
     let mut local = generate_manifest();
-    let remote = Manifest::load(format!("{}/MANIFEST.txt", remote_base))
-        .unwrap_or(Manifest(BTreeMap::new()));
+    let remote = Manifest::load(format!("{}/MANIFEST.json", remote_base)).unwrap_or(Manifest {
+        entries: BTreeMap::new(),
+    });
 
     // Anything remote need deleting?
-    for path in remote.0.keys() {
-        if !local.0.contains_key(path) {
+    for path in remote.entries.keys() {
+        if !local.entries.contains_key(path) {
             rm(&format!("{}/{}.zip", remote_base, path));
         }
     }
 
     // Anything missing or needing updating?
-    for (path, entry) in &mut local.0 {
+    for (path, entry) in &mut local.entries {
         let remote_path = format!("{}/{}.zip", remote_base, path);
-        let changed = remote.0.get(path).map(|x| &x.checksum) != Some(&entry.checksum);
+        let changed = remote.entries.get(path).map(|x| &x.checksum) != Some(&entry.checksum);
         if changed {
             std::fs::create_dir_all(std::path::Path::new(&remote_path).parent().unwrap()).unwrap();
             run(Command::new("zip").arg(&remote_path).arg(&path));
@@ -128,7 +129,10 @@ fn upload() {
                 }
             }
         }
-        entry.dropbox_url = remote.0.get(path).map(|x| x.dropbox_url.clone().unwrap());
+        entry.dropbox_url = remote
+            .entries
+            .get(path)
+            .map(|x| x.dropbox_url.clone().unwrap());
         // The sharelink sometimes changes when the file does.
         if entry.dropbox_url.is_none() || changed {
             // Dropbox crashes when trying to upload lots of tiny screenshots. :D
@@ -143,14 +147,17 @@ fn upload() {
         }
     }
 
-    local.write(format!("{}/MANIFEST.txt", remote_base));
-    local.write("data/MANIFEST.txt".to_string());
+    local.write(format!("{}/MANIFEST.json", remote_base));
+    local.write("data/MANIFEST.json".to_string());
 }
 
 async fn check_links() {
     let client = reqwest::Client::new();
 
-    for (file, entry) in Manifest::load("data/MANIFEST.txt".to_string()).unwrap().0 {
+    for (file, entry) in Manifest::load("data/MANIFEST.json".to_string())
+        .unwrap()
+        .entries
+    {
         // TODO Fiddle with this as needed
         if file.contains("input") {
             continue;
@@ -211,7 +218,7 @@ fn generate_manifest() -> Manifest {
             },
         );
     }
-    Manifest(kv)
+    Manifest { entries: kv }
 }
 
 fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
@@ -238,7 +245,7 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
     }
 
     let mut remove = Vec::new();
-    for path in manifest.0.keys() {
+    for path in manifest.entries.keys() {
         // TODO Some hardcoded weird exceptions
         if !cities.runtime.contains(&"huge_seattle".to_string())
             && path == "data/system/scenarios/montlake/everyone_weekday.bin"
@@ -302,7 +309,7 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
         remove.push(path.clone());
     }
     for path in remove {
-        manifest.0.remove(&path).unwrap();
+        manifest.entries.remove(&path).unwrap();
     }
     manifest
 }
