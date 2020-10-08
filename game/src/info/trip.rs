@@ -3,11 +3,11 @@ use std::collections::BTreeMap;
 use maplit::btreemap;
 
 use geom::{ArrowCap, Distance, Duration, Percent, Polygon, PolyLine, Pt2D, Time};
-use map_model::{LaneID, Map, Path, PathStep};
+use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
-    Btn, Color, DrawWithTooltips, EventCtx, Fill, GeomBatch, Line, LinePlot, PlotOptions,
-    RewriteColor, Series, Text, TextExt, TextSpan, Widget,
+    Btn, Color, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor,
+    Series, Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
@@ -134,8 +134,6 @@ pub fn ongoing(
         &app.primary.map,
         Some(props.dist_crossed / props.total_dist),
     ));
-    highlight_slow_intersections(app, details, id, ctx);
-    highlight_slow_lanes(app, details, id, ctx);
     Widget::col(col)
 }
 
@@ -358,8 +356,6 @@ pub fn finished(
         map_for_pathfinding,
         None,
     ));
-    highlight_slow_intersections(app, details, id, ctx);
-    highlight_slow_lanes(app, details, id, ctx);
     Widget::col(col)
 }
 
@@ -390,11 +386,15 @@ pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
 }
 
 /// Highlights intersections which were "slow" on the map
-fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID, ctx: &EventCtx) {
-    let data_opt = &app.primary.sim.get_analytics().trip_intersection_delays(id);
-    if data_opt.is_some() {
-        let data = data_opt.unwrap();
-        for (id, time) in data {
+fn highlight_slow_intersections(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
+    let intersection_delays = &app
+        .primary
+        .sim
+        .get_analytics()
+        .trip_intersection_delays
+        .get(&id);
+    if let Some(intersection_delays) = intersection_delays {
+        for (id, time) in intersection_delays.iter() {
             let intersection = app.primary.map.get_i(id.parent);
             // Maybe alter the delay times
             let (normal_delay_time, slow_delay_time) = if intersection.is_traffic_signal() {
@@ -402,41 +402,46 @@ fn highlight_slow_intersections(app: &App, details: &mut Details, id: TripID, ct
             } else {
                 (5, 30)
             };
-            let (fg_color, bg_color) = if time < &normal_delay_time {
+            let (fg_color, bg_color) = if *time < normal_delay_time {
                 (Color::WHITE, app.cs.normal_slow_intersection)
-            } else if time < &slow_delay_time {
+            } else if *time < slow_delay_time {
                 (Color::BLACK, app.cs.slow_intersection)
             } else {
                 (Color::WHITE, app.cs.very_slow_intersection)
             };
-            // Draw label after, to prevent being obscured by the line
+
             let time_duration = Duration::seconds(*time as f64);
-            let unzoomed_label = Text::from(TextSpan::from(
-                Line(format!("{}", time_duration)).body().fg(fg_color),
-            ))
-            .bg(bg_color);
-            let zoomed_label = Text::from(TextSpan::from(
-                Line(format!("{}", time_duration)).size(6).fg(fg_color),
-            ))
-            .bg(bg_color);
-            let unzoomed_rendered = unzoomed_label
+            details.unzoomed.append(
+                Text::from(TextSpan::from(
+                    Line(format!("{}", time_duration)).fg(fg_color),
+                ))
+                .bg(bg_color)
                 .render(ctx)
-                .centered_on(intersection.polygon.center());
-            let zoomed_rendered = zoomed_label
+                .centered_on(intersection.polygon.center()),
+            );
+            details.zoomed.append(
+                Text::from(TextSpan::from(
+                    Line(format!("{}", time_duration)).fg(fg_color),
+                ))
+                .bg(bg_color)
                 .render(ctx)
-                .centered_on(intersection.polygon.center());
-            details.unzoomed.append(unzoomed_rendered.clone());
-            details.zoomed.append(zoomed_rendered);
+                .scale(0.4)
+                .centered_on(intersection.polygon.center()),
+            );
         }
     }
 }
 
 /// Highlights lanes which were "slow" on the map
-fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &EventCtx) {
-    let data_opt = &app.primary.sim.get_analytics().trip_lane_speeds(id);
-    if data_opt.is_some() {
-        let data = data_opt.unwrap();
-        for (id, speed_percent) in data {
+fn highlight_slow_lanes(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
+    let lane_speeds = &app
+        .primary
+        .sim
+        .get_analytics()
+        .lane_speed_percentage
+        .get(&id);
+    if let Some(lane_speeds) = lane_speeds {
+        for (id, speed_percent) in lane_speeds.iter() {
             let lane = app.primary.map.get_l(*id);
             let (fg_color, bg_color) = if speed_percent > &95 {
                 (Color::WHITE, app.cs.normal_slow_intersection)
@@ -446,34 +451,37 @@ fn highlight_slow_lanes(app: &App, details: &mut Details, id: TripID, ctx: &Even
                 (Color::WHITE, app.cs.very_slow_intersection)
             };
             details.unzoomed.push(
-                Fill::Color(bg_color),
+                bg_color,
                 lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
             );
             details.zoomed.extend(
-                Fill::Color(bg_color),
+                bg_color,
                 lane.lane_center_pts.dashed_lines(
                     Distance::meters(0.75),
                     Distance::meters(1.0),
                     Distance::meters(0.4),
                 ),
             );
-            // Draw label after, to prevent being obscured by the line
-            let unzoomed_label = Text::from(TextSpan::from(
-                Line(format!("{}s", speed_percent)).body().fg(fg_color),
-            ))
-            .bg(bg_color);
-            let zoomed_label = Text::from(TextSpan::from(
-                Line(format!("{}s", speed_percent)).small().fg(fg_color),
-            ))
-            .bg(bg_color);
-
             let (pt, _) = lane
                 .lane_center_pts
                 .must_dist_along(lane.lane_center_pts.length() / 2.0);
-            let unzoomed_rendered = unzoomed_label.render(ctx).centered_on(pt); //.rotate(angle);
-            let zoomed_rendered = zoomed_label.render(ctx).centered_on(pt); //.rotate(angle);
-            details.unzoomed.append(unzoomed_rendered.clone());
-            details.zoomed.append(zoomed_rendered);
+            details.unzoomed.append(
+                Text::from(TextSpan::from(
+                    Line(format!("{}s", speed_percent)).fg(fg_color),
+                ))
+                .bg(bg_color)
+                .render(ctx)
+                .centered_on(pt),
+            );
+            details.zoomed.append(
+                Text::from(TextSpan::from(
+                    Line(format!("{}s", speed_percent)).fg(fg_color),
+                ))
+                .bg(bg_color)
+                .render(ctx)
+                .scale(0.4)
+                .centered_on(pt),
+            );
         }
     }
 }
@@ -501,28 +509,38 @@ fn make_bar(
     progress_along_path: Option<f64>,
 ) -> Widget {
     let map = &app.primary.map;
-    let data_inter_opt = &app
+    let intersection_delays = &app
         .primary
         .sim
         .get_analytics()
-        .trip_intersection_delays(trip_id);
-    let data_lane_opt = &app.primary.sim.get_analytics().trip_lane_speeds(trip_id);
+        .trip_intersection_delays
+        .get(&trip_id);
+    // TODO There surely has to be a better way of doing this?
+    let blank_lane_speeds_bt = BTreeMap::new();
+    let blank_intersection_delays_bt = BTreeMap::new();
+    let intersection_delays = if intersection_delays.is_some() {
+        intersection_delays.unwrap()
+    } else {
+        &blank_intersection_delays_bt
+    };
+    let lane_speeds = &app
+        .primary
+        .sim
+        .get_analytics()
+        .lane_speed_percentage
+        .get(&trip_id);
+    let lane_speeds = if lane_speeds.is_some() {
+        lane_speeds.unwrap()
+    } else {
+        &blank_lane_speeds_bt
+    };
     let box_width = 0.22 * ctx.canvas.window_width;
     let mut total_dist = Distance::meters(0.0);
     let mut segments: Vec<(Distance, Color, Text)> = Vec::new();
     let trip = app.primary.sim.trip_info(trip_id);
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
     let total_duration_so_far = end_time.unwrap_or_else(|| app.primary.sim.time()) - trip.departure;
-    let data_inter = if data_inter_opt.is_some() {
-        data_inter_opt.unwrap().to_vec()
-    } else {
-        Vec::new()
-    };
-    let data_lane: Vec<(LaneID, u8)> = if data_lane_opt.is_some() {
-        data_lane_opt.unwrap().to_vec()
-    } else {
-        Vec::new()
-    };
+
     let mut icons = Vec::new();
     let mut icons_geom = Vec::new();
     let mut icon_pos = Vec::new();
@@ -593,72 +611,62 @@ fn make_bar(
                     PathStep::Lane(id) | PathStep::ContraflowLane(id) => {
                         let lane_detail = map.get_l(*id);
                         sum_phase_dist += lane_detail.length();
-                        let mut found = false;
-                        for (lane, avg_speed) in &data_lane {
-                            if lane == id {
-                                segments.push((
-                                    norm_distance,
-                                    norm_color,
-                                    build_text(&msgs, &norm_distance),
-                                ));
-                                let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
-                                display_txt.add(Line(format!(
-                                    "  Road: {}",
-                                    map.get_r(lane_detail.parent)
-                                        .get_name(app.opts.language.as_ref())
-                                )));
-                                display_txt.add(Line(format!("  Lane ID: {}", lane)));
-                                display_txt.add(Line(format!(
-                                    "  Lane distance: {}",
-                                    lane_detail.length().describe_rounded()
-                                )));
-                                display_txt.add(Line(format!("  Average speed: {}", avg_speed)));
-                                segments.push((lane_detail.length(), Color::RED, display_txt));
-                                norm_distance = Distance::meters(0.0);
-                                found = true;
-                                break;
-                            }
-                        }
-                        if !found {
+                        let avg_speed = lane_speeds.get(id);
+                        if let Some(avg_speed) = avg_speed {
+                            segments.push((
+                                norm_distance,
+                                norm_color,
+                                build_text(&msgs, &norm_distance),
+                            ));
+                            let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
+                            display_txt.add(Line(format!(
+                                "  Road: {}",
+                                map.get_r(lane_detail.parent)
+                                    .get_name(app.opts.language.as_ref())
+                            )));
+                            display_txt.add(Line(format!("  Lane ID: {}", id)));
+                            display_txt.add(Line(format!(
+                                "  Lane distance: {}",
+                                lane_detail.length().describe_rounded()
+                            )));
+                            display_txt.add(Line(format!("  Average speed: {}", avg_speed)));
+                            segments.push((lane_detail.length(), Color::RED, display_txt));
+                            norm_distance = Distance::meters(0.0);
+                        } else {
                             norm_distance += lane_detail.length();
                         }
                     }
                     PathStep::Turn(id) => {
                         let turn_details = map.get_t(*id);
                         sum_phase_dist += turn_details.geom.length();
-                        let mut found = false;
-                        for (turn, delay) in &data_inter {
-                            if turn == id {
-                                segments.push((
-                                    norm_distance,
-                                    norm_color,
-                                    build_text(&msgs, &norm_distance),
-                                ));
+                        let delay = intersection_delays.get(id);
+                        if let Some(delay) = delay {
+                            segments.push((
+                                norm_distance,
+                                norm_color,
+                                build_text(&msgs, &norm_distance),
+                            ));
 
-                                let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
-                                display_txt.add(Line(format!("  Intersection: {}", turn.parent)));
-                                display_txt.add(Line(format!(
-                                    "  Delay: {}",
-                                    Duration::seconds(*delay as f64)
-                                )));
-                                segments.push((
-                                    // To make sure that the hotspot isn't too small
-                                    if 0.05 < (turn_details.geom.length() / sum_phase_dist) {
-                                        turn_details.geom.length()
-                                    } else {
-                                        sum_phase_dist += sum_phase_dist * 0.05;
-                                        sum_phase_dist -= turn_details.geom.length();
-                                        sum_phase_dist * 0.05
-                                    },
-                                    Color::RED,
-                                    display_txt,
-                                ));
-                                norm_distance = Distance::meters(0.0);
-                                found = true;
-                                break;
-                            }
-                        }
-                        if !found {
+                            let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
+                            display_txt.add(Line(format!("  Intersection: {}", id.parent)));
+                            display_txt.add(Line(format!(
+                                "  Delay: {}",
+                                Duration::seconds(*delay as f64)
+                            )));
+                            segments.push((
+                                // To make sure that the hotspot isn't too small
+                                if 0.05 < (turn_details.geom.length() / sum_phase_dist) {
+                                    turn_details.geom.length()
+                                } else {
+                                    sum_phase_dist += sum_phase_dist * 0.05;
+                                    sum_phase_dist -= turn_details.geom.length();
+                                    sum_phase_dist * 0.05
+                                },
+                                Color::RED,
+                                display_txt,
+                            ));
+                            norm_distance = Distance::meters(0.0);
+                        } else {
                             norm_distance += turn_details.geom.length();
                         }
                     }
@@ -667,7 +675,7 @@ fn make_bar(
             segments.push((norm_distance, norm_color, build_text(&msgs, &norm_distance)));
         } else {
             // TODO Think of something to do instead
-            unimplemented!("We dont have a path!!");
+            error!("No path for {}", trip_id)
         }
         icon_pos.push(sum_phase_dist / 2.0);
         total_dist += sum_phase_dist;
@@ -929,6 +937,8 @@ fn make_timeline(
     if false {
         col.extend(elevation);
     }
+    highlight_slow_intersections(ctx, app, details, trip_id);
+    highlight_slow_lanes(ctx, app, details, trip_id);
     Widget::col(col)
 }
 

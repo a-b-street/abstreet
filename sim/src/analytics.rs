@@ -47,11 +47,11 @@ pub struct Analytics {
     // Records how long was spent waiting at each turn (Intersection) for a given trip
     // Over a certain threshold
     // TripID, [(TurnID, Time Waiting In Seconds)]
-    pub trip_intersection_delays: BTreeMap<TripID, Vec<(TurnID, u8)>>,
-    // Records how long was spent waiting at each lane for a given trip
-    // Over a certain threshold
-    // TripID, [(LaneID, Time Waiting In Seconds)]
-    pub lane_speed_percentage: BTreeMap<TripID, Vec<(LaneID, u8)>>,
+    pub trip_intersection_delays: BTreeMap<TripID, BTreeMap<TurnID, u8>>,
+    // Records the average speed/maximum speed for each lane
+    // If it is over a certain threshold (<95% of max speed)
+    // TripID, [(LaneID, Percent of maximum speed as an integer (0-100)]
+    pub lane_speed_percentage: BTreeMap<TripID, BTreeMap<LaneID, u8>>,
 
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
@@ -196,15 +196,15 @@ impl Analytics {
         if let Event::TripIntersectionDelay(trip_id, turn_id, delay) = ev {
             self.trip_intersection_delays
                 .entry(trip_id)
-                .or_insert_with(Vec::new)
-                .push((turn_id, delay));
+                .or_insert_with(|| BTreeMap::new())
+                .insert(turn_id, delay);
         }
-        //Lane Speed
+        // Lane Speed
         if let Event::LaneSpeedPercentage(trip_id, lane_id, speed_percent) = ev {
             self.lane_speed_percentage
                 .entry(trip_id)
-                .or_insert_with(Vec::new)
-                .push((lane_id, speed_percent));
+                .or_insert_with(|| BTreeMap::new())
+                .insert(lane_id, speed_percent);
         }
 
         // Intersection delays
@@ -278,17 +278,6 @@ impl Analytics {
 
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
-
-    // Returns a list of turns(Intersections), with a delay over the threshold
-    // (u8 represents the time waiting in seconds)
-    pub fn trip_intersection_delays(&self, trip: TripID) -> Option<&Vec<(TurnID, u8)>> {
-        self.trip_intersection_delays.get(&trip)
-    }
-    // Returns a list of lanes, with a delay over the threshold
-    // (u8 represents the time waiting in seconds)
-    pub fn trip_lane_speeds(&self, trip: TripID) -> Option<&Vec<(LaneID, u8)>> {
-        self.lane_speed_percentage.get(&trip)
-    }
 
     // Ignores the current time. Returns None for cancelled trips.
     pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {

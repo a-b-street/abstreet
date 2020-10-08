@@ -69,12 +69,6 @@ impl TextSpan {
         }
         self
     }
-    pub fn size(mut self, size: usize) -> TextSpan {
-        if 0 < size && size < 100 {
-            self.size = size;
-        }
-        self
-    }
 
     pub fn draw(self, ctx: &EventCtx) -> Widget {
         Text::from(self).draw(ctx)
