@@ -722,13 +722,6 @@
 <span id="721">721</span>
 <span id="722">722</span>
 <span id="723">723</span>
-<span id="724">724</span>
-<span id="725">725</span>
-<span id="726">726</span>
-<span id="727">727</span>
-<span id="728">728</span>
-<span id="729">729</span>
-<span id="730">730</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -1310,15 +1303,8 @@
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) <span class="op">-&gt;</span> <span class="ident">PerMap</span> {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;draw_map&quot;</span>);
-        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">DrawMap</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>, <span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="ident">timer</span>);
+        <span class="kw">let</span> (<span class="ident">draw_map</span>, <span class="ident">zorder_range</span>) <span class="op">=</span> <span class="ident">DrawMap</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>, <span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="ident">timer</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;draw_map&quot;</span>);
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low_z</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high_z</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="ident">low_z</span> <span class="op">=</span> <span class="ident">low_z</span>.<span class="ident">min</span>(<span class="ident">r</span>.<span class="ident">zorder</span>);
-            <span class="ident">high_z</span> <span class="op">=</span> <span class="ident">high_z</span>.<span class="ident">max</span>(<span class="ident">r</span>.<span class="ident">zorder</span>);
-        }
 
         <span class="kw">let</span> <span class="ident">per_map</span> <span class="op">=</span> <span class="ident">PerMap</span> {
             <span class="ident">map</span>,
@@ -1328,8 +1314,8 @@
             <span class="ident">current_flags</span>: <span class="ident">flags</span>,
             <span class="ident">last_warped_from</span>: <span class="prelude-val">None</span>,
             <span class="ident">sim_cb</span>: <span class="prelude-val">None</span>,
-            <span class="ident">zorder_range</span>: (<span class="ident">low_z</span>, <span class="ident">high_z</span>),
-            <span class="ident">show_zorder</span>: <span class="ident">high_z</span>,
+            <span class="ident">zorder_range</span>,
+            <span class="ident">show_zorder</span>: <span class="ident">zorder_range</span>.<span class="number">1</span>,
             <span class="ident">dirty_from_edits</span>: <span class="bool-val">false</span>,
             <span class="ident">has_modified_trips</span>: <span class="bool-val">false</span>,
             <span class="ident">unedited_map</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),

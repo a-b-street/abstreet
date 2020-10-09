@@ -526,6 +526,16 @@
 <span id="525">525</span>
 <span id="526">526</span>
 <span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Borrow</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
@@ -578,13 +588,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DrawMap</span> {
+    <span class="doccomment">/// Returns the DrawMap and also the zorder_range (low, high)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">DrawMap</span> {
+    ) <span class="op">-&gt;</span> (<span class="ident">DrawMap</span>, (<span class="ident">isize</span>, <span class="ident">isize</span>)) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawRoad</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawRoads&quot;</span>, <span class="ident">map</span>.<span class="ident">all_roads</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
@@ -699,7 +710,7 @@
             <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>.<span class="ident">get_total_bytes_uploaded</span>() <span class="op">/</span> <span class="number">1024</span> <span class="op">/</span> <span class="number">1024</span>)
         ));
 
-        <span class="ident">DrawMap</span> {
+        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">DrawMap</span> {
             <span class="ident">roads</span>,
             <span class="ident">lanes</span>,
             <span class="ident">intersections</span>,
@@ -722,7 +733,16 @@
             }),
 
             <span class="ident">quadtree</span>,
+        };
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low_z</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high_z</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
+            <span class="ident">low_z</span> <span class="op">=</span> <span class="ident">low_z</span>.<span class="ident">min</span>(<span class="ident">r</span>.<span class="ident">zorder</span>);
+            <span class="ident">high_z</span> <span class="op">=</span> <span class="ident">high_z</span>.<span class="ident">max</span>(<span class="ident">r</span>.<span class="ident">zorder</span>);
         }
+
+        (<span class="ident">draw_map</span>, (<span class="ident">low_z</span>, <span class="ident">high_z</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">regenerate_unzoomed_layer</span>(
