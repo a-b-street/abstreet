@@ -490,7 +490,6 @@
 <span id="489">489</span>
 <span id="490">490</span>
 <span id="491">491</span>
-<span id="492">492</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span>;
@@ -562,7 +561,6 @@
         <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">title</span> {
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>))]
         } <span class="kw">else</span> {
-            <span class="comment">// TODO We&#39;re assuming we never wind up starting freeform mode with a synthetic map</span>
             <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">maybe_mode</span>.<span class="ident">unwrap_or_else</span>(<span class="op">||</span> {
                 <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
             });
