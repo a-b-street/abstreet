@@ -578,15 +578,8 @@ impl PerMap {
         timer: &mut Timer,
     ) -> PerMap {
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, opts, cs, ctx, timer);
+        let (draw_map, zorder_range) = DrawMap::new(&map, opts, cs, ctx, timer);
         timer.stop("draw_map");
-
-        let mut low_z = 0;
-        let mut high_z = 0;
-        for r in map.all_roads() {
-            low_z = low_z.min(r.zorder);
-            high_z = high_z.max(r.zorder);
-        }
 
         let per_map = PerMap {
             map,
@@ -596,8 +589,8 @@ impl PerMap {
             current_flags: flags,
             last_warped_from: None,
             sim_cb: None,
-            zorder_range: (low_z, high_z),
-            show_zorder: high_z,
+            zorder_range,
+            show_zorder: zorder_range.1,
             dirty_from_edits: false,
             has_modified_trips: false,
             unedited_map: RefCell::new(None),

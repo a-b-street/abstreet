@@ -5,9 +5,9 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::colors::ColorSchemeChoice;
+use crate::colors::{ColorScheme, ColorSchemeChoice};
 use crate::game::{State, Transition};
-use crate::render::DrawBuilding;
+use crate::render::{DrawBuilding, DrawMap};
 
 // TODO SimOptions stuff too
 #[derive(Clone)]
@@ -288,7 +288,15 @@ impl State for OptionsPanel {
                     let scheme = self.panel.dropdown_value("Color scheme");
                     if app.opts.color_scheme != scheme {
                         app.opts.color_scheme = scheme;
-                        app.switch_map(ctx, app.primary.current_flags.sim_flags.load.clone());
+                        app.cs = ColorScheme::new(app.opts.color_scheme);
+                        ctx.set_style(app.cs.gui_style.clone());
+
+                        ctx.loading_screen("rerendering map colors", |ctx, timer| {
+                            let (draw_map, zorder_range) =
+                                DrawMap::new(&app.primary.map, &app.opts, &app.cs, ctx, timer);
+                            app.primary.draw_map = draw_map;
+                            app.primary.zorder_range = zorder_range;
+                        });
                     }
 
                     app.opts.min_zoom_for_detail = self.panel.dropdown_value("min zoom");
