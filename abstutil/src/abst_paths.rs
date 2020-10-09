@@ -91,13 +91,6 @@ pub fn path_all_scenarios(map_name: &str) -> String {
     path(format!("system/scenarios/{}", map_name))
 }
 
-pub fn path_synthetic_map(map_name: &str) -> String {
-    path(format!("system/synthetic_maps/{}.json", map_name))
-}
-pub fn path_all_synthetic_maps() -> String {
-    path("system/synthetic_maps")
-}
-
 // Player data (Players edit this)
 
 pub fn path_camera_state(map_name: &str) -> String {

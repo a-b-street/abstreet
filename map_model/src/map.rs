@@ -100,12 +100,7 @@ impl Map {
             }
         }
 
-        let raw: RawMap = if path.starts_with(&abstutil::path_all_raw_maps()) {
-            abstutil::read_binary(path, timer)
-        } else {
-            // Synthetic
-            abstutil::read_json(path, timer)
-        };
+        let raw: RawMap = abstutil::read_binary(path, timer);
         Map::create_from_raw(raw, true, timer)
     }
 

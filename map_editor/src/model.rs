@@ -44,12 +44,7 @@ impl Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
-        if path.starts_with(&abstutil::path_all_raw_maps()) {
-            model.map = abstutil::read_binary(path, &mut timer);
-        } else {
-            // Synthetic map!
-            model.map = abstutil::read_json(path, &mut timer);
-        }
+        model.map = abstutil::read_binary(path, &mut timer);
         model.intersection_geom = intersection_geom;
 
         if model.include_bldgs {
@@ -114,7 +109,7 @@ impl Model {
             .gps_bounds
             .update(Pt2D::new(bounds.max_x, bounds.max_y).to_gps(&seattle_bounds));
 
-        abstutil::write_json(abstutil::path_synthetic_map(&self.map.name), &self.map);
+        self.map.save();
     }
 
     fn compute_bounds(&self) -> Bounds {

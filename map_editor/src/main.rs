@@ -362,7 +362,5 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
 }
 
 fn main() {
-    widgetry::run(widgetry::Settings::new("Synthetic map editor"), |ctx| {
-        UI::new(ctx)
-    });
+    widgetry::run(widgetry::Settings::new("RawMap editor"), |ctx| UI::new(ctx));
 }

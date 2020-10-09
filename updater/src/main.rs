@@ -183,7 +183,6 @@ fn generate_manifest() -> Manifest {
         if path.contains("system/assets/")
             || path.contains("system/fonts")
             || path.contains("system/proposals")
-            || path.contains("system/synthetic_maps")
             || path.contains("/polygons/")
         {
             continue;

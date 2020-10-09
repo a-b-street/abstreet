@@ -113,7 +113,6 @@ impl SimFlags {
 
             (map, sim, rng)
         } else if self.load.starts_with(&abstutil::path_all_raw_maps())
-            || self.load.starts_with(&abstutil::path_all_synthetic_maps())
             || self.load.starts_with(&abstutil::path_all_maps())
         {
             timer.note(format!("Loading map {}", self.load));

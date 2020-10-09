@@ -181,15 +181,7 @@ impl State for MainMenu {
                     return Tutorial::start(ctx, app);
                 }
                 "Sandbox mode" => {
-                    // We might've left with a synthetic map loaded.
-                    let map_path = if abstutil::Manifest::load()
-                        .all_map_names()
-                        .contains(app.primary.map.get_name())
-                    {
-                        abstutil::path_map(app.primary.map.get_name())
-                    } else {
-                        abstutil::path_map("montlake")
-                    };
+                    let map_path = abstutil::path_map(app.primary.map.get_name());
                     let scenario = if abstutil::file_exists(abstutil::path_scenario(
                         app.primary.map.get_name(),
                         "weekday",
