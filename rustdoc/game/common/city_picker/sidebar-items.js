@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["switch_map",""]],"struct":[["CityPicker",""]]});
+initSidebarItems({"struct":[["CityPicker",""]]});
