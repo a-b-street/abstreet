@@ -559,6 +559,12 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -581,6 +587,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">apply_map_edits</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">open_browser</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">Tutorial</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
 
@@ -974,45 +981,50 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="string">&quot;Try out this proposal&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">proposals</span>[<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()];
-                    <span class="comment">// Apply edits before setting up the sandbox, for simplicity</span>
-                    <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">edits</span>.<span class="ident">map_name</span>.<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">edits</span>.<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="ident">maybe_err</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-                        <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">map_name</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() {
-                            <span class="comment">// TODO Broken in web</span>
-                            <span class="ident">app</span>.<span class="ident">switch_map</span>(<span class="ident">ctx</span>, <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">map_name</span>));
-                        }
-                        <span class="kw">match</span> <span class="ident">PermanentMapEdits</span>::<span class="ident">from_permanent</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-                            <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) <span class="op">=&gt;</span> {
-                                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                                <span class="ident">app</span>.<span class="ident">primary</span>
-                                    .<span class="ident">map</span>
-                                    .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-                                <span class="prelude-val">None</span>
+                    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">proposals</span>[<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()].<span class="ident">clone</span>();
+
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="ident">edits</span>.<span class="ident">map_name</span>.<span class="ident">clone</span>(),
+                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                            <span class="comment">// Apply edits before setting up the sandbox, for simplicity</span>
+                            <span class="kw">let</span> <span class="ident">maybe_err</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+                                <span class="kw">match</span> <span class="ident">PermanentMapEdits</span>::<span class="ident">from_permanent</span>(
+                                    <span class="ident">edits</span>.<span class="ident">clone</span>(),
+                                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
+                                ) {
+                                    <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) <span class="op">=&gt;</span> {
+                                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                                        <span class="ident">app</span>.<span class="ident">primary</span>
+                                            .<span class="ident">map</span>
+                                            .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+                                        <span class="prelude-val">None</span>
+                                    }
+                                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>),
+                                }
+                            });
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">maybe_err</span> {
+                                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                                    <span class="ident">ctx</span>,
+                                    <span class="string">&quot;Can&#39;t load proposal&quot;</span>,
+                                    <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">err</span>],
+                                ))
+                            } <span class="kw">else</span> {
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span>
+                                    <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
+                                    <span class="ident">ctx</span>,
+                                    <span class="ident">app</span>,
+                                    <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
+                                        <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+                                        <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>(),
+                                        <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                                    ),
+                                ))
                             }
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-                        }
-                    });
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">maybe_err</span> {
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="string">&quot;Can&#39;t load proposal&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">err</span>],
-                        ));
-                    } <span class="kw">else</span> {
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span>
-                            <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
-                                <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="ident">map_name</span>),
-                                <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>(),
-                                <span class="ident">Vec</span>::<span class="ident">new</span>(),
-                            ),
-                        ));
-                    }
+                        }),
+                    ));
                 }
                 <span class="string">&quot;Read detailed write-up&quot;</span> <span class="op">=&gt;</span> {
                     <span class="ident">open_browser</span>(

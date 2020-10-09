@@ -179,6 +179,27 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies</span>
 <span class="doccomment">//! on native and web. Both cases are wrapped up as a State that runs a callback when done.</span>
@@ -196,6 +217,16 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">wasm_loader</span>::<span class="ident">MapLoader</span>;
 
+<span class="kw">struct</span> <span class="ident">MapAlreadyLoaded</span> {
+    <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+}
+<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">MapAlreadyLoaded</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
+        (<span class="self">self</span>.<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>)
+    }
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {}
+}
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">native_loader</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
@@ -208,9 +239,14 @@
     <span class="kw">impl</span> <span class="ident">MapLoader</span> {
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
             <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+            <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
             <span class="ident">name</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
         ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">name</span> {
+                <span class="kw">return</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapAlreadyLoaded</span> { <span class="ident">on_load</span> });
+            }
+
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapLoader</span> { <span class="ident">name</span>, <span class="ident">on_load</span> })
         }
     }
@@ -277,9 +313,15 @@
     <span class="kw">impl</span> <span class="ident">MapLoader</span> {
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
             <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+            <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
             <span class="ident">name</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
         ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">name</span> {
+                <span class="kw">return</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapAlreadyLoaded</span> { <span class="ident">on_load</span> });
+            }
+            <span class="comment">// TODO If we want to load montlake, just pull from bundled data.</span>
+
             <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm_s3&quot;</span>) {
                 <span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/system/maps/{}.bin&quot;</span>,
