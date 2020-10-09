@@ -223,6 +223,7 @@ impl State for DebugMode {
                 "screenshot all of the everything" => {
                     return Transition::Push(ScreenshotTest::new(
                         ctx,
+                        app,
                         vec![
                             "downtown",
                             "krakow_center",
@@ -735,9 +736,10 @@ struct ScreenshotTest {
 }
 
 impl ScreenshotTest {
-    fn new(ctx: &mut EventCtx, mut todo_maps: Vec<&'static str>) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App, mut todo_maps: Vec<&'static str>) -> Box<dyn State> {
         MapLoader::new(
             ctx,
+            app,
             todo_maps.pop().unwrap().to_string(),
             Box::new(move |_, _| {
                 Transition::Replace(Box::new(ScreenshotTest {
@@ -755,7 +757,11 @@ impl State for ScreenshotTest {
             if self.todo_maps.is_empty() {
                 Transition::Pop
             } else {
-                Transition::Replace(ScreenshotTest::new(ctx, self.todo_maps.drain(..).collect()))
+                Transition::Replace(ScreenshotTest::new(
+                    ctx,
+                    app,
+                    self.todo_maps.drain(..).collect(),
+                ))
             }
         } else {
             self.screenshot_done = true;

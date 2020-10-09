@@ -113,7 +113,12 @@ impl State for CityPicker {
                 name => {
                     let on_load =
                         std::mem::replace(&mut self.on_load, Box::new(|_, _| Transition::Keep));
-                    return Transition::Replace(MapLoader::new(ctx, name.to_string(), on_load));
+                    return Transition::Replace(MapLoader::new(
+                        ctx,
+                        app,
+                        name.to_string(),
+                        on_load,
+                    ));
                 }
             },
             _ => {}
@@ -149,7 +154,7 @@ impl State for CityPicker {
             {
                 let on_load =
                     std::mem::replace(&mut self.on_load, Box::new(|_, _| Transition::Keep));
-                return Transition::Replace(MapLoader::new(ctx, name.to_string(), on_load));
+                return Transition::Replace(MapLoader::new(ctx, app, name.to_string(), on_load));
             }
         }
 

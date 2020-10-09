@@ -14,6 +14,16 @@ pub use native_loader::MapLoader;
 #[cfg(target_arch = "wasm32")]
 pub use wasm_loader::MapLoader;
 
+struct MapAlreadyLoaded {
+    on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+}
+impl State for MapAlreadyLoaded {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        (self.on_load)(ctx, app)
+    }
+    fn draw(&self, _: &mut GfxCtx, _: &App) {}
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 mod native_loader {
     use super::*;
@@ -26,9 +36,14 @@ mod native_loader {
     impl MapLoader {
         pub fn new(
             _: &mut EventCtx,
+            app: &App,
             name: String,
             on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
         ) -> Box<dyn State> {
+            if app.primary.map.get_name() == &name {
+                return Box::new(MapAlreadyLoaded { on_load });
+            }
+
             Box::new(MapLoader { name, on_load })
         }
     }
@@ -95,9 +110,15 @@ mod wasm_loader {
     impl MapLoader {
         pub fn new(
             ctx: &mut EventCtx,
+            app: &App,
             name: String,
             on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
         ) -> Box<dyn State> {
+            if app.primary.map.get_name() == &name {
+                return Box::new(MapAlreadyLoaded { on_load });
+            }
+            // TODO If we want to load montlake, just pull from bundled data.
+
             let url = if cfg!(feature = "wasm_s3") {
                 format!(
                     "http://abstreet.s3-website.us-east-2.amazonaws.com/system/maps/{}.bin",

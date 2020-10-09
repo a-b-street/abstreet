@@ -19,6 +19,7 @@ use crate::devtools::DevToolsMode;
 use crate::edit::apply_map_edits;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
 use crate::helpers::open_browser;
+use crate::load::MapLoader;
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};
 
@@ -412,45 +413,50 @@ impl State for Proposals {
                     return Transition::Pop;
                 }
                 "Try out this proposal" => {
-                    let edits = &self.proposals[self.current.as_ref().unwrap()];
-                    // Apply edits before setting up the sandbox, for simplicity
-                    let map_name = edits.map_name.clone();
-                    let edits = edits.clone();
-                    let maybe_err = ctx.loading_screen("apply edits", |ctx, mut timer| {
-                        if &edits.map_name != app.primary.map.get_name() {
-                            // TODO Broken in web
-                            app.switch_map(ctx, abstutil::path_map(&edits.map_name));
-                        }
-                        match PermanentMapEdits::from_permanent(edits, &app.primary.map) {
-                            Ok(edits) => {
-                                apply_map_edits(ctx, app, edits);
-                                app.primary
-                                    .map
-                                    .recalculate_pathfinding_after_edits(&mut timer);
-                                None
+                    let edits = self.proposals[self.current.as_ref().unwrap()].clone();
+
+                    return Transition::Push(MapLoader::new(
+                        ctx,
+                        app,
+                        edits.map_name.clone(),
+                        Box::new(move |ctx, app| {
+                            // Apply edits before setting up the sandbox, for simplicity
+                            let maybe_err = ctx.loading_screen("apply edits", |ctx, mut timer| {
+                                match PermanentMapEdits::from_permanent(
+                                    edits.clone(),
+                                    &app.primary.map,
+                                ) {
+                                    Ok(edits) => {
+                                        apply_map_edits(ctx, app, edits);
+                                        app.primary
+                                            .map
+                                            .recalculate_pathfinding_after_edits(&mut timer);
+                                        None
+                                    }
+                                    Err(err) => Some(err),
+                                }
+                            });
+                            if let Some(err) = maybe_err {
+                                Transition::Replace(PopupMsg::new(
+                                    ctx,
+                                    "Can't load proposal",
+                                    vec![err],
+                                ))
+                            } else {
+                                app.primary.layer =
+                                    Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
+                                Transition::Replace(SandboxMode::new(
+                                    ctx,
+                                    app,
+                                    GameplayMode::PlayScenario(
+                                        abstutil::path_map(app.primary.map.get_name()),
+                                        "weekday".to_string(),
+                                        Vec::new(),
+                                    ),
+                                ))
                             }
-                            Err(err) => Some(err),
-                        }
-                    });
-                    if let Some(err) = maybe_err {
-                        return Transition::Push(PopupMsg::new(
-                            ctx,
-                            "Can't load proposal",
-                            vec![err],
-                        ));
-                    } else {
-                        app.primary.layer =
-                            Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
-                        return Transition::Push(SandboxMode::new(
-                            ctx,
-                            app,
-                            GameplayMode::PlayScenario(
-                                abstutil::path_map(&map_name),
-                                "weekday".to_string(),
-                                Vec::new(),
-                            ),
-                        ));
-                    }
+                        }),
+                    ));
                 }
                 "Read detailed write-up" => {
                     open_browser(
