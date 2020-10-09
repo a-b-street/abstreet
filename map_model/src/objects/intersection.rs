@@ -1,7 +1,3 @@
-// An intersection connects roads. Most have >2 roads and are controlled by stop signs or traffic
-// signals. Roads that lead to the boundary of the map end at border intersections, with only that
-// one road attached.
-
 use std::collections::BTreeSet;
 use std::fmt;
 
@@ -35,10 +31,13 @@ pub enum IntersectionType {
     Construction,
 }
 
+/// An intersection connects roads. Most have >2 roads and are controlled by stop signs or traffic
+/// signals. Roads that lead to the boundary of the map end at border intersections, with only that
+/// one road attached.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Intersection {
     pub id: IntersectionID,
-    // This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
+    /// This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
     pub polygon: Polygon,
     pub turns: BTreeSet<TurnID>,
     pub elevation: Distance,
@@ -46,7 +45,7 @@ pub struct Intersection {
     pub intersection_type: IntersectionType,
     pub orig_id: osm::NodeID,
 
-    // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
+    /// Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     // TODO narrow down when and why. is it just sidewalks in weird cases?
     // TODO Change to BTreeSet, or otherwise emphasize to callers that the order of these isn't
     // meaningful
@@ -96,7 +95,7 @@ impl Intersection {
             .collect()
     }
 
-    // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
+    /// Strict for bikes. If there are bike lanes, not allowed to use other lanes.
     pub fn get_outgoing_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
         constraints.filter_lanes(self.outgoing_lanes.clone(), map)
     }

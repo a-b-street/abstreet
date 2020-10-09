@@ -1,4 +1,4 @@
-// Useful utilities for working with OpenStreetMap.
+//! Useful utilities for working with OpenStreetMap.
 
 use std::fmt;
 

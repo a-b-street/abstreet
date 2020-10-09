@@ -1,5 +1,3 @@
-// A Road represents a segment between exactly two Intersections. It contains Lanes as children.
-
 use std::fmt;
 
 use enumset::EnumSet;
@@ -84,32 +82,32 @@ impl DirectedRoadID {
         }
     }
 
-    // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
+    /// Strict for bikes. If there are bike lanes, not allowed to use other lanes.
     pub fn lanes(self, constraints: PathConstraints, map: &Map) -> Vec<LaneID> {
         let r = map.get_r(self.id);
         constraints.filter_lanes(r.children(self.dir).iter().map(|(l, _)| *l).collect(), map)
     }
 }
 
-// These're bidirectional (possibly)
+/// A Road represents a segment between exactly two Intersections. It contains Lanes as children.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Road {
     pub id: RoadID,
     pub osm_tags: Tags,
-    // self is 'from'
+    /// self is 'from'
     pub turn_restrictions: Vec<(RestrictionType, RoadID)>,
-    // self is 'from'. (via, to). Only BanTurns.
+    /// self is 'from'. (via, to). Only BanTurns.
     pub complicated_turn_restrictions: Vec<(RoadID, RoadID)>,
     pub orig_id: OriginalRoad,
     pub speed_limit: Speed,
     pub access_restrictions: AccessRestrictions,
     pub zorder: isize,
 
-    // Invariant: A road must contain at least one child
+    /// Invariant: A road must contain at least one child
     pub(crate) lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
-    // The physical center of the road, including sidewalks, after trimming. The order implies road
-    // orientation. No edits ever change this.
+    /// The physical center of the road, including sidewalks, after trimming. The order implies
+    /// road orientation. No edits ever change this.
     // TODO Maybe deprecated in favor of get_left_side?
     pub center_pts: PolyLine,
     pub src_i: IntersectionID,
@@ -117,8 +115,8 @@ pub struct Road {
 }
 
 impl Road {
-    // Returns all lanes from the left side of the road to right. Left/right is determined by the
-    // orientation of center_pts.
+    /// Returns all lanes from the left side of the road to right. Left/right is determined by the
+    /// orientation of center_pts.
     pub fn lanes_ltr(&self) -> Vec<(LaneID, Direction, LaneType)> {
         // TODO Change this to return &Vec
         self.lanes_ltr.clone()
@@ -128,7 +126,7 @@ impl Road {
         self.center_pts.must_shift_left(self.get_half_width(map))
     }
 
-    // Counting from the left side of the road
+    /// Counting from the left side of the road
     pub fn offset(&self, lane: LaneID) -> usize {
         for (idx, (l, _, _)) in self.lanes_ltr().into_iter().enumerate() {
             if lane == l {
@@ -184,7 +182,7 @@ impl Road {
         Speed::miles_per_hour(20.0)
     }
 
-    // Includes off-side
+    /// Includes off-side
     // TODO Specialize a variant for PathConstraints.can_use. Only one caller needs something
     // fancier.
     pub fn find_closest_lane<F: Fn(&Lane) -> bool>(
@@ -212,8 +210,8 @@ impl Road {
         self.lanes_ltr().into_iter().map(|(l, _, _)| l).collect()
     }
 
-    // This is the FIRST yellow line where the direction of the road changes. If multiple direction
-    // changes happen, the result is kind of arbitrary.
+    /// This is the FIRST yellow line where the direction of the road changes. If multiple direction
+    /// changes happen, the result is kind of arbitrary.
     pub fn get_dir_change_pl(&self, map: &Map) -> PolyLine {
         let mut found: Option<LaneID> = None;
         for pair in self.lanes_ltr().windows(2) {
@@ -308,7 +306,7 @@ impl Road {
         stops
     }
 
-    // Returns [-1.0, 1.0]. 0 is flat, positive is uphill, negative is downhill.
+    /// Returns [-1.0, 1.0]. 0 is flat, positive is uphill, negative is downhill.
     // TODO Or do we care about the total up/down along the possibly long road?
     pub fn percent_grade(&self, map: &Map) -> f64 {
         let rise = map.get_i(self.dst_i).elevation - map.get_i(self.src_i).elevation;
@@ -388,8 +386,8 @@ impl Road {
 // seemed to really need to still handle lanes going outward from the "center" line. Should keep
 // whittling this down, probably. These very much don't handle multiple direction changes.
 impl Road {
-    // These are ordered from closest to center lane (left-most when driving on the right) to
-    // farthest (sidewalk)
+    /// These are ordered from closest to center lane (left-most when driving on the right) to
+    /// farthest (sidewalk)
     pub(crate) fn children_forwards(&self) -> Vec<(LaneID, LaneType)> {
         let mut result = Vec::new();
         for (l, dir, lt) in self.lanes_ltr() {
@@ -410,8 +408,8 @@ impl Road {
         result
     }
 
-    // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
-    // it counts up from there.
+    /// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
+    /// it counts up from there.
     pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
         for &dir in [Direction::Fwd, Direction::Back].iter() {
             if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
@@ -430,7 +428,7 @@ impl Road {
         }
     }
 
-    // Returns lanes from the "center" going out
+    /// Returns lanes from the "center" going out
     pub(crate) fn incoming_lanes(&self, i: IntersectionID) -> Vec<(LaneID, LaneType)> {
         if self.src_i == i {
             self.children_backwards()
@@ -441,7 +439,7 @@ impl Road {
         }
     }
 
-    // Returns lanes from the "center" going out
+    /// Returns lanes from the "center" going out
     pub(crate) fn outgoing_lanes(&self, i: IntersectionID) -> Vec<(LaneID, LaneType)> {
         if self.src_i == i {
             self.children_forwards()

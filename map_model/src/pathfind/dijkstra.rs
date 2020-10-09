@@ -1,4 +1,4 @@
-// Pathfinding without needing to build a separate contraction hierarchy.
+//! Pathfinding without needing to build a separate contraction hierarchy.
 
 use std::collections::BTreeSet;
 

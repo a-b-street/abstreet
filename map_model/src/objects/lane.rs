@@ -1,5 +1,3 @@
-// A road segment is broken down into individual lanes, which have a LaneType.
-
 use std::collections::BTreeSet;
 use std::fmt;
 
@@ -12,10 +10,10 @@ use crate::{
     osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, Road, RoadID, TurnType,
 };
 
-// Bit longer than the longest car.
+/// Bit longer than the longest car.
 pub const PARKING_SPOT_LENGTH: Distance = Distance::const_meters(8.0);
-// The full PARKING_SPOT_LENGTH used for on-street is looking too conservative for some manually
-// audited cases in Seattle. This is 0.8 of above
+/// The full PARKING_SPOT_LENGTH used for on-street is looking too conservative for some manually
+/// audited cases in Seattle. This is 0.8 of above
 pub const PARKING_LOT_SPOT_LENGTH: Distance = Distance::const_meters(6.4);
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -106,6 +104,7 @@ impl LaneType {
     }
 }
 
+/// A road segment is broken down into individual lanes, which have a LaneType.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Lane {
     pub id: LaneID,
@@ -117,11 +116,11 @@ pub struct Lane {
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
 
-    // Meaningless order
+    /// Meaningless order
     pub bus_stops: BTreeSet<BusStopID>,
 
-    // {Cars, bikes} trying to start or end here might not be able to reach most lanes in the
-    // graph, because this is near a border.
+    /// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the
+    /// graph, because this is near a border.
     pub driving_blackhole: bool,
     pub biking_blackhole: bool,
 }
@@ -151,7 +150,7 @@ impl Lane {
         }
     }
 
-    // pt2 will be endpoint
+    /// pt2 will be endpoint
     pub fn end_line(&self, i: IntersectionID) -> Line {
         if i == self.src_i {
             self.first_line().reverse()

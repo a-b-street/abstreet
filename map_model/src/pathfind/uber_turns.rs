@@ -1,5 +1,5 @@
-// To deal with complicated intersections and short roads in OSM, cluster intersections close
-// together and then calculate UberTurns that string together several turns.
+//! To deal with complicated intersections and short roads in OSM, cluster intersections close
+//! together and then calculate UberTurns that string together several turns.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -11,7 +11,7 @@ use geom::{Angle, Distance, PolyLine, Pt2D};
 
 use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map, TurnID};
 
-// This only applies to VehiclePathfinder; walking through these intersections is nothing special.
+/// This only applies to VehiclePathfinder; walking through these intersections is nothing special.
 // TODO I haven't seen any cases yet with "interior" intersections. Some stuff might break.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct IntersectionCluster {
@@ -86,7 +86,7 @@ impl IntersectionCluster {
         clusters
     }
 
-    // (legal, illegal)
+    /// (legal, illegal)
     pub fn new(
         members: BTreeSet<IntersectionID>,
         map: &Map,
@@ -156,7 +156,7 @@ impl IntersectionCluster {
         )
     }
 
-    // Find all other traffic signals "close" to one. Ignore stop sign intersections in between.
+    /// Find all other traffic signals "close" to one. Ignore stop sign intersections in between.
     pub fn autodetect(from: IntersectionID, map: &Map) -> Option<BTreeSet<IntersectionID>> {
         if !map.get_i(from).is_traffic_signal() {
             return None;
@@ -300,7 +300,7 @@ impl IntersectionCluster {
 
 impl UberTurnGroup {
     // TODO Share code with TurnGroup
-    // Polyline points FROM intersection
+    /// Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
         let r = map.get_r(self.from.id);
 

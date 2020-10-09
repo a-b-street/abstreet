@@ -1,5 +1,5 @@
-// Naming is confusing, but RawMap -> InitialMap -> Map. InitialMap is separate pretty much just
-// for the step of producing https://dabreegster.github.io/abstreet/map/importing/geometry.html.
+//! Naming is confusing, but RawMap -> InitialMap -> Map. InitialMap is separate pretty much just
+//! for the step of producing <https://dabreegster.github.io/abstreet/map/importing/geometry.html>.
 
 use std::collections::{BTreeMap, BTreeSet};
 

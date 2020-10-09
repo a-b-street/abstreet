@@ -5,8 +5,8 @@ use abstutil::{retain_btreemap, MultiMap, Timer};
 use crate::osm;
 use crate::raw::{OriginalRoad, RawMap};
 
-// Some roads might be totally disconnected from the largest clump because of how the map's
-// bounding polygon was drawn, or bad map data, or which roads are filtered from OSM. Remove them.
+/// Some roads might be totally disconnected from the largest clump because of how the map's
+/// bounding polygon was drawn, or bad map data, or which roads are filtered from OSM. Remove them.
 pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
     timer.start("removing disconnected roads");
     // This is a simple floodfill, not Tarjan's. Assumes all roads bidirectional.

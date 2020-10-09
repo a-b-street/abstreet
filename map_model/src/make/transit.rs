@@ -1,6 +1,3 @@
-// Construct the final model of bus/train stops and routes. This is quite broken currently, so not
-// going to describe how it works.
-
 use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 
 use abstutil::Timer;
@@ -12,6 +9,8 @@ use crate::{
     BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathConstraints, Position,
 };
 
+/// Construct the final model of bus/train stops and routes. This is quite broken currently, so not
+/// going to describe how it works.
 pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer: &mut Timer) {
     timer.start("make transit stops and routes");
     let matcher = Matcher::new(raw_routes, map, timer);

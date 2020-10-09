@@ -1,9 +1,9 @@
-// Zones and AccessRestrictions are used to model things like:
-// 1) gated communities, where only trips beginning or ending at a building in the neighborhood may
-//    use any of the private roads
-// 2) Stay Healthy Streets, where most car traffic is banned, except for trips beginning/ending in
-//    the zone
-// 3) Congestion capping, where only so many cars per hour can enter the zone
+//! Zones and AccessRestrictions are used to model things like:
+//! 1) gated communities, where only trips beginning or ending at a building in the neighborhood may
+//!    use any of the private roads
+//! 2) Stay Healthy Streets, where most car traffic is banned, except for trips beginning/ending in
+//!    the zone
+//! 3) Congestion capping, where only so many cars per hour can enter the zone
 
 use std::collections::BTreeSet;
 
@@ -31,8 +31,8 @@ impl AccessRestrictions {
     }
 }
 
-// A contiguous set of roads with access restrictions. This is derived from all the map's roads and
-// kept cached for performance.
+/// A contiguous set of roads with access restrictions. This is derived from all the map's roads and
+/// kept cached for performance.
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Zone {
     pub members: BTreeSet<RoadID>,
@@ -64,7 +64,7 @@ impl Zone {
         zones
     }
 
-    // Run slower Dijkstra's within the interior of a private zone. Don't go outside the borders.
+    /// Run slower Dijkstra's within the interior of a private zone. Don't go outside the borders.
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
         assert_ne!(req.constraints, PathConstraints::Pedestrian);
 

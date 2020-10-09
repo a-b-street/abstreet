@@ -1,4 +1,4 @@
-// Everything related to pathfinding through a map for different types of agents.
+//! Everything related to pathfinding through a map for different types of agents.
 
 use std::collections::{BTreeSet, VecDeque};
 use std::fmt;
@@ -27,9 +27,9 @@ mod walking;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PathStep {
-    // Original direction
+    /// Original direction
     Lane(LaneID),
-    // Sidewalks only!
+    /// Sidewalks only!
     ContraflowLane(LaneID),
     Turn(TurnID),
 }
@@ -160,7 +160,7 @@ impl Path {
         )
     }
 
-    // Only used for weird serialization magic.
+    /// Only used for weird serialization magic.
     pub fn dummy() -> Path {
         Path {
             steps: VecDeque::new(),
@@ -281,7 +281,7 @@ impl Path {
         false
     }
 
-    // Trusting the caller to do this in valid ways.
+    /// Trusting the caller to do this in valid ways.
     pub fn modify_step(&mut self, idx: usize, step: PathStep, map: &Map) {
         assert!(self.currently_inside_ut.is_none());
         assert!(idx != 0);
@@ -309,7 +309,7 @@ impl Path {
         self.steps[self.steps.len() - 1]
     }
 
-    // dist_ahead is unlimited when None.
+    /// dist_ahead is unlimited when None.
     pub fn trace(
         &self,
         map: &Map,
@@ -431,7 +431,7 @@ impl Path {
     }
 }
 
-// Who's asking for a path?
+/// Who's asking for a path?
 // TODO This is an awful name.
 #[derive(Debug, Serialize, Deserialize, PartialOrd, Ord, EnumSetType)]
 pub enum PathConstraints {
@@ -453,7 +453,7 @@ impl PathConstraints {
         ]
     }
 
-    // Not bijective, but this is the best guess of user intent
+    /// Not bijective, but this is the best guess of user intent
     pub fn from_lt(lt: LaneType) -> PathConstraints {
         match lt {
             LaneType::Sidewalk | LaneType::Shoulder => PathConstraints::Pedestrian,
@@ -488,7 +488,7 @@ impl PathConstraints {
         }
     }
 
-    // Strict for bikes. If there are bike lanes, not allowed to use other lanes.
+    /// Strict for bikes. If there are bike lanes, not allowed to use other lanes.
     pub(crate) fn filter_lanes(self, mut choices: Vec<LaneID>, map: &Map) -> Vec<LaneID> {
         choices.retain(|l| self.can_use(map.get_l(*l), map));
         if self == PathConstraints::Bike {
@@ -590,9 +590,9 @@ fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
     }
 }
 
-// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can
-// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra's
-// maneuever.
+/// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can
+/// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra's
+/// maneuever.
 #[derive(Serialize, Deserialize)]
 pub enum Pathfinder {
     Dijkstra,

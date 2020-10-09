@@ -1,7 +1,3 @@
-// A traffic signal consists of a sequence of Stages that repeat in a cycle. Most Stages last for a
-// fixed duration. During a single Stage, some movements are protected (can proceed with the highest
-// priority), while others are permitted (have to yield before proceeding).
-
 use std::collections::{BTreeMap, BTreeSet};
 use std::convert::TryFrom;
 
@@ -22,6 +18,9 @@ use crate::{
 // https://en.wikipedia.org/wiki/Preferred_walking_speed
 const CROSSWALK_PACE: Speed = Speed::const_meters_per_second(1.4);
 
+/// A traffic signal consists of a sequence of Stages that repeat in a cycle. Most Stages last for a
+/// fixed duration. During a single Stage, some movements are protected (can proceed with the
+/// highest priority), while others are permitted (have to yield before proceeding).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
@@ -47,8 +46,8 @@ pub struct Stage {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum PhaseType {
     Fixed(Duration),
-    // Same as fixed, but when this stage would normally end, if there's still incoming demand,
-    // repeat the stage entirely.
+    /// Same as fixed, but when this stage would normally end, if there's still incoming demand,
+    /// repeat the stage entirely.
     // TODO This is a silly policy, but a start towards variable timers.
     Adaptive(Duration),
 }
@@ -155,7 +154,7 @@ impl ControlTrafficSignal {
         Ok(())
     }
 
-    // Returns true if this did anything
+    /// Returns true if this did anything
     pub fn convert_to_ped_scramble(&mut self) -> bool {
         let orig = self.clone();
 

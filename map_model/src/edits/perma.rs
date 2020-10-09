@@ -9,23 +9,23 @@ use crate::edits::{EditCmd, EditIntersection, EditRoad, MapEdits};
 use crate::raw::OriginalRoad;
 use crate::{osm, ControlStopSign, IntersectionID, Map};
 
-// MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won't
-// work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that're less
-// likely to change.
+/// MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won't
+/// work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that're less
+/// likely to change.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PermanentMapEdits {
     pub map_name: String,
     pub edits_name: String,
     pub version: usize,
     commands: Vec<PermanentEditCmd>,
-    // If false, adjacent roads with the same AccessRestrictions will not be merged into the same
-    // Zone; every Road will be its own Zone. This is used to experiment with a per-road cap. Note
-    // this is a map-wide setting.
+    /// If false, adjacent roads with the same AccessRestrictions will not be merged into the same
+    /// Zone; every Road will be its own Zone. This is used to experiment with a per-road cap. Note
+    /// this is a map-wide setting.
     merge_zones: bool,
 
-    // Edits without these are player generated.
+    /// Edits without these are player generated.
     pub proposal_description: Vec<String>,
-    // The link is optional even for proposals
+    /// The link is optional even for proposals
     pub proposal_link: Option<String>,
 }
 
@@ -99,8 +99,8 @@ impl PermanentMapEdits {
         }
     }
 
-    // Load edits from the permanent form, looking up the Map IDs by the hopefully stabler OSM IDs.
-    // Validate that the basemap hasn't changed in important ways.
+    /// Load edits from the permanent form, looking up the Map IDs by the hopefully stabler OSM IDs.
+    /// Validate that the basemap hasn't changed in important ways.
     // TODO When a change has happened, try to preserve as much of the original edits as possible,
     // and warn the player about the rest?
     pub fn from_permanent(perma: PermanentMapEdits, map: &Map) -> Result<MapEdits, String> {

@@ -9,10 +9,10 @@ use geom::Distance;
 pub use crate::pathfind::driving_cost;
 use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest};
 
-// Calculate the srongy connected components (SCC) of the part of the map accessible by constraints
-// (ie, the graph of sidewalks or driving+bike lanes). The largest component is the "main" graph;
-// the rest is disconnected. Returns (lanes in the largest "main" component, all other disconnected
-// lanes)
+/// Calculate the srongy connected components (SCC) of the part of the map accessible by constraints
+/// (ie, the graph of sidewalks or driving+bike lanes). The largest component is the "main" graph;
+/// the rest is disconnected. Returns (lanes in the largest "main" component, all other disconnected
+/// lanes)
 pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, HashSet<LaneID>) {
     let mut graph = DiGraphMap::new();
     for turn in map.all_turns().values() {
@@ -46,7 +46,7 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
     (largest_group, disconnected)
 }
 
-// Starting from one building, calculate the cost to all others.
+/// Starting from one building, calculate the cost to all others.
 // TODO Also take a PathConstraints and use different cost functions based on that -- maybe just
 // total time?
 pub fn all_costs_from(map: &Map, start: BuildingID) -> HashMap<BuildingID, Distance> {

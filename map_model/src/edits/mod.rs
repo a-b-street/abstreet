@@ -1,6 +1,6 @@
-// Once a Map exists, the player can edit it in the UI (producing MapEdits in-memory), then save
-// the changes to a file (as PermanentMapEdits). See
-// https://dabreegster.github.io/abstreet/map/edits.html.
+//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save
+//! the changes to a file (as `PermanentMapEdits`). See
+//! <https://dabreegster.github.io/abstreet/map/edits.html>.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -20,25 +20,26 @@ use crate::{
 mod compat;
 mod perma;
 
-// Represents changes to a map. Note this isn't serializable -- that's what PermanentMapEdits does.
+/// Represents changes to a map. Note this isn't serializable -- that's what `PermanentMapEdits`
+/// does.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MapEdits {
     pub edits_name: String,
-    // A stack, oldest edit is first. The same intersection may be edited multiple times in this
-    // stack, until compress() happens.
+    /// A stack, oldest edit is first. The same intersection may be edited multiple times in this
+    /// stack, until compress() happens.
     pub commands: Vec<EditCmd>,
-    // If false, adjacent roads with the same AccessRestrictions will not be merged into the same
-    // Zone; every Road will be its own Zone. This is used to experiment with a per-road cap. Note
-    // this is a map-wide setting.
+    /// If false, adjacent roads with the same AccessRestrictions will not be merged into the same
+    /// Zone; every Road will be its own Zone. This is used to experiment with a per-road cap. Note
+    /// this is a map-wide setting.
     pub merge_zones: bool,
 
-    // Derived from commands, kept up to date by update_derived
+    /// Derived from commands, kept up to date by update_derived
     pub changed_roads: BTreeSet<RoadID>,
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
     pub changed_routes: BTreeSet<BusRouteID>,
 
-    // Some edits are included in the game by default, in data/system/proposals, as "community
-    // proposals." They require a description and may have a link to a write-up.
+    /// Some edits are included in the game by default, in data/system/proposals, as "community
+    /// proposals." They require a description and may have a link to a write-up.
     pub proposal_description: Vec<String>,
     pub proposal_link: Option<String>,
 }
@@ -205,7 +206,7 @@ impl MapEdits {
         });
     }
 
-    // Assumes update_derived has been called.
+    /// Assumes update_derived has been called.
     pub fn compress(&mut self, map: &Map) {
         for r in &self.changed_roads {
             self.commands.push(EditCmd::ChangeRoad {
@@ -231,7 +232,7 @@ impl MapEdits {
         }
     }
 
-    // Pick apart changed_roads and figure out if an entire road was edited, or just a few lanes.
+    /// Pick apart changed_roads and figure out if an entire road was edited, or just a few lanes.
     pub fn changed_lanes(&self, map: &Map) -> (BTreeSet<LaneID>, BTreeSet<RoadID>) {
         let mut lanes = BTreeSet::new();
         let mut roads = BTreeSet::new();
@@ -274,7 +275,7 @@ impl EditEffects {
 }
 
 impl EditCmd {
-    // (summary, details)
+    /// (summary, details)
     pub fn describe(&self, map: &Map) -> (String, Vec<String>) {
         let mut details = Vec::new();
         let summary = match self {
@@ -501,7 +502,7 @@ impl Map {
         EditCmd::ChangeRoad { r, old, new }
     }
 
-    // Panics on borders
+    /// Panics on borders
     pub fn get_i_edit(&self, i: IntersectionID) -> EditIntersection {
         match self.get_i(i).intersection_type {
             IntersectionType::StopSign => EditIntersection::StopSign(self.get_stop_sign(i).clone()),
@@ -628,8 +629,8 @@ impl Map {
         )
     }
 
-    // This can expensive, so don't constantly do it while editing in the UI. But this must happen
-    // before the simulation resumes.
+    /// This can expensive, so don't constantly do it while editing in the UI. But this must happen
+    /// before the simulation resumes.
     pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
         if !self.pathfinder_dirty {
             return;
@@ -656,8 +657,8 @@ impl Map {
         self.pathfinder_dirty = false;
     }
 
-    // Since the player is in the middle of editing, the signal may not be valid. Don't go through
-    // the entire apply_edits flow.
+    /// Since the player is in the middle of editing, the signal may not be valid. Don't go through
+    /// the entire apply_edits flow.
     pub fn incremental_edit_traffic_signal(&mut self, signal: ControlTrafficSignal) {
         assert_eq!(
             self.get_i(signal.id).intersection_type,
