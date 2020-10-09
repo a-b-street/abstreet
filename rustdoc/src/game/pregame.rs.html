@@ -557,6 +557,9 @@
 <span id="556">556</span>
 <span id="557">557</span>
 <span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -741,7 +744,6 @@
                     <span class="kw">return</span> <span class="ident">Tutorial</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;Sandbox mode&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">map_path</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>());
                     <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_scenario</span>(
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
                         <span class="string">&quot;weekday&quot;</span>,
@@ -753,7 +755,11 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(<span class="ident">map_path</span>, <span class="ident">scenario</span>.<span class="ident">to_string</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>()),
+                        <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
+                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
+                            <span class="ident">scenario</span>.<span class="ident">to_string</span>(),
+                            <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                        ),
                     ));
                 }
                 <span class="string">&quot;Challenges&quot;</span> <span class="op">=&gt;</span> {
@@ -1001,7 +1007,7 @@
                                     <span class="ident">ctx</span>,
                                     <span class="ident">app</span>,
                                     <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
-                                        <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+                                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
                                         <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>(),
                                         <span class="ident">Vec</span>::<span class="ident">new</span>(),
                                     ),

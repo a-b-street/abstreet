@@ -521,6 +521,14 @@
 <span id="520">520</span>
 <span id="521">521</span>
 <span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -545,6 +553,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">PickLayer</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">OptionsPanel</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">MainMenu</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">UnzoomedAgents</span>;
@@ -576,49 +585,56 @@
 <span class="kw">impl</span> <span class="ident">SandboxMode</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
-        <span class="kw">let</span> <span class="ident">gameplay</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">MapLoader</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="ident">mode</span>.<span class="ident">map_name</span>().<span class="ident">to_string</span>(),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">gameplay</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">SandboxMode</span> {
-            <span class="ident">controls</span>: <span class="ident">SandboxControls</span> {
-                <span class="ident">common</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_common</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">CommonState</span>::<span class="ident">new</span>())
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
-                <span class="ident">route_preview</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">can_examine_objects</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">RoutePreview</span>::<span class="ident">new</span>())
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
-                <span class="ident">tool_panel</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_tool_panel</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">tool_panel</span>(<span class="ident">ctx</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
-                <span class="ident">time_panel</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_time_panel</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">TimePanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
-                <span class="ident">speed</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_speed</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">SpeedControls</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
-                <span class="ident">agent_meter</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_agent_meter</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">AgentMeter</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
-                <span class="ident">minimap</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_minimap</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">Minimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
-            },
-            <span class="ident">gameplay</span>,
-            <span class="ident">gameplay_mode</span>: <span class="ident">mode</span>,
-        })
+                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">SandboxMode</span> {
+                    <span class="ident">controls</span>: <span class="ident">SandboxControls</span> {
+                        <span class="ident">common</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_common</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">CommonState</span>::<span class="ident">new</span>())
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        },
+                        <span class="ident">route_preview</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">can_examine_objects</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">RoutePreview</span>::<span class="ident">new</span>())
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        },
+                        <span class="ident">tool_panel</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_tool_panel</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">tool_panel</span>(<span class="ident">ctx</span>))
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        },
+                        <span class="ident">time_panel</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_time_panel</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">TimePanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        },
+                        <span class="ident">speed</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_speed</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">SpeedControls</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        },
+                        <span class="ident">agent_meter</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_agent_meter</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">AgentMeter</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        },
+                        <span class="ident">minimap</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_minimap</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">Minimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        },
+                    },
+                    <span class="ident">gameplay</span>,
+                    <span class="ident">gameplay_mode</span>: <span class="ident">mode</span>.<span class="ident">clone</span>(),
+                }))
+            }),
+        )
     }
 
     <span class="comment">// Just for Warping</span>

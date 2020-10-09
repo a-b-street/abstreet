@@ -310,7 +310,7 @@
         <span class="lifetime">&#39;OUTER</span>: <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">stages</span>) <span class="kw">in</span> <span class="ident">challenges</span>::<span class="ident">Challenge</span>::<span class="ident">all</span>() {
             <span class="kw">for</span> <span class="ident">challenge</span> <span class="kw">in</span> <span class="ident">stages</span> {
                 <span class="kw">if</span> <span class="ident">challenge</span>.<span class="ident">alias</span> <span class="op">==</span> <span class="ident">x</span> {
-                    <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">challenge</span>.<span class="ident">gameplay</span>.<span class="ident">map_path</span>();
+                    <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">challenge</span>.<span class="ident">gameplay</span>.<span class="ident">map_name</span>());
                     <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">challenge</span>.<span class="ident">gameplay</span>);
                     <span class="kw">break</span> <span class="lifetime">&#39;OUTER</span>;
                 } <span class="kw">else</span> {
@@ -330,11 +330,11 @@
     <span class="kw">if</span> <span class="ident">mode</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;scenarios/&quot;</span>) {
         <span class="comment">// TODO regex</span>
         <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
-        <span class="kw">let</span> <span class="ident">map_path</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>]);
+        <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">to_string</span>();
         <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]);
-        <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">map_path</span>.<span class="ident">clone</span>();
+        <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="ident">map_name</span>);
         <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
-            <span class="ident">map_path</span>,
+            <span class="ident">map_name</span>,
             <span class="ident">scenario</span>,
             <span class="ident">Vec</span>::<span class="ident">new</span>(),
         ));
