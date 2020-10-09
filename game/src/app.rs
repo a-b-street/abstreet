@@ -47,34 +47,9 @@ impl App {
         ctx.set_style(cs.gui_style.clone());
 
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            PerMap::new(flags, &opts, &cs, ctx, &mut timer)
+            let (map, sim, _) = flags.sim_flags.load(timer);
+            PerMap::map_loaded(map, sim, splash, flags, &opts, &cs, ctx, &mut timer)
         });
-
-        let mut rng = primary.current_flags.sim_flags.make_rng();
-        let rand_focus_pt = primary
-            .map
-            .all_buildings()
-            .choose(&mut rng)
-            .and_then(|b| ID::Building(b.id).canonical_point(&primary))
-            .or_else(|| {
-                primary
-                    .map
-                    .all_lanes()
-                    .choose(&mut rng)
-                    .and_then(|l| ID::Lane(l.id).canonical_point(&primary))
-            })
-            .expect("Can't get canonical_point of a random building or lane");
-        let bounds = primary.map.get_bounds();
-        ctx.canvas.map_dims = (bounds.width(), bounds.height());
-
-        if splash {
-            ctx.canvas.center_on_map_pt(rand_focus_pt);
-        } else {
-            if !ctx.canvas.load_camera_state(primary.map.get_name()) {
-                println!("Couldn't load camera state, just focusing on an arbitrary building");
-                ctx.canvas.center_on_map_pt(rand_focus_pt);
-            }
-        }
 
         App {
             primary,
@@ -576,15 +551,16 @@ pub struct PerMap {
 }
 
 impl PerMap {
-    pub fn new(
+    fn map_loaded(
+        map: Map,
+        sim: Sim,
+        splash: bool,
         flags: Flags,
         opts: &Options,
         cs: &ColorScheme,
         ctx: &mut EventCtx,
         timer: &mut Timer,
     ) -> PerMap {
-        let (map, sim, _) = flags.sim_flags.load(timer);
-
         timer.start("draw_map");
         let draw_map = DrawMap::new(&map, opts, cs, ctx, timer);
         timer.stop("draw_map");
@@ -596,12 +572,12 @@ impl PerMap {
             high_z = high_z.max(r.zorder);
         }
 
-        PerMap {
+        let per_map = PerMap {
             map,
             draw_map,
             sim,
             current_selection: None,
-            current_flags: flags.clone(),
+            current_flags: flags,
             last_warped_from: None,
             sim_cb: None,
             zorder_range: (low_z, high_z),
@@ -609,7 +585,35 @@ impl PerMap {
             dirty_from_edits: false,
             has_modified_trips: false,
             unedited_map: RefCell::new(None),
+        };
+
+        let mut rng = per_map.current_flags.sim_flags.make_rng();
+        let rand_focus_pt = per_map
+            .map
+            .all_buildings()
+            .choose(&mut rng)
+            .and_then(|b| ID::Building(b.id).canonical_point(&per_map))
+            .or_else(|| {
+                per_map
+                    .map
+                    .all_lanes()
+                    .choose(&mut rng)
+                    .and_then(|l| ID::Lane(l.id).canonical_point(&per_map))
+            })
+            .expect("Can't get canonical_point of a random building or lane");
+        let bounds = per_map.map.get_bounds();
+        ctx.canvas.map_dims = (bounds.width(), bounds.height());
+
+        if splash {
+            ctx.canvas.center_on_map_pt(rand_focus_pt);
+        } else {
+            if !ctx.canvas.load_camera_state(per_map.map.get_name()) {
+                println!("Couldn't load camera state, just focusing on an arbitrary building");
+                ctx.canvas.center_on_map_pt(rand_focus_pt);
+            }
         }
+
+        per_map
     }
 
     // Returns whatever was there
