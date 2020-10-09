@@ -36,7 +36,7 @@ impl Minimap {
             dragging: false,
             panel: make_minimap_panel(ctx, app, 0),
             zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
-            layer: app.layer.is_none(),
+            layer: app.primary.layer.is_none(),
 
             zoom_lvl: 0,
             base_zoom,
@@ -90,7 +90,7 @@ impl Minimap {
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
         let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
-        let layer = app.layer.is_none();
+        let layer = app.primary.layer.is_none();
         if zoomed != self.zoomed || layer != self.layer {
             let just_zoomed_in = zoomed && !self.zoomed;
 
@@ -279,7 +279,7 @@ impl Minimap {
         );
         g.redraw(&app.primary.draw_map.draw_all_buildings);
         // Not the building or parking lot paths
-        if let Some(ref l) = app.layer {
+        if let Some(ref l) = app.primary.layer {
             l.draw_minimap(g);
         }
 

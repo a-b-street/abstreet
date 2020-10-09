@@ -18,13 +18,11 @@ use crate::options::Options;
 use crate::render::{AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents};
 use crate::sandbox::{GameplayMode, TutorialState};
 
+/// The top-level data that lasts through the entire game, no matter what state the game is in.
 pub struct App {
     // Naming is from older days when there was an A/B test, "side-by-side" mode. Keeping this
     // naming, because that mode will return someday.
     pub primary: PerMap,
-    // Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
-    // scenario name too. TODO Embed that in Analytics directly instead.
-    prebaked: Option<(String, String, Analytics)>,
     pub cs: ColorScheme,
     // TODO This is a bit weird to keep here; it's controlled almost entirely by the minimap panel.
     // It has no meaning in edit mode.
@@ -32,13 +30,9 @@ pub struct App {
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
-    pub layer: Option<Box<dyn Layer>>,
 
-    // Static data that lasts the entire session. Use sparingly.
+    /// Static data that lasts the entire session. Use sparingly.
     pub session: SessionState,
-
-    // Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.
-    pub suspended_sim: Option<Sim>,
 }
 
 impl App {
@@ -53,28 +47,26 @@ impl App {
 
         App {
             primary,
-            prebaked: None,
             unzoomed_agents: UnzoomedAgents::new(&cs),
             cs,
             opts,
             per_obj: PerObjectActions::new(),
-            layer: None,
             session: SessionState::empty(),
-            suspended_sim: None,
         }
     }
 
+    // TODO Should the prebaked methods be on primary along with the data?
     pub fn has_prebaked(&self) -> Option<(&String, &String)> {
-        self.prebaked.as_ref().map(|(m, s, _)| (m, s))
+        self.primary.prebaked.as_ref().map(|(m, s, _)| (m, s))
     }
     pub fn prebaked(&self) -> &Analytics {
-        &self.prebaked.as_ref().unwrap().2
+        &self.primary.prebaked.as_ref().unwrap().2
     }
     pub fn set_prebaked(&mut self, prebaked: Option<(String, String, Analytics)>) {
-        self.prebaked = prebaked;
+        self.primary.prebaked = prebaked;
 
         if false {
-            if let Some((_, _, ref a)) = self.prebaked {
+            if let Some((_, _, ref a)) = self.primary.prebaked {
                 use abstutil::{prettyprint_usize, serialized_size_bytes};
                 println!(
                     "- road_thruput: {} bytes",
@@ -265,7 +257,7 @@ impl App {
         }
     }
 
-    // Assumes some defaults.
+    /// Assumes some defaults.
     pub fn recalculate_current_selection(&mut self, ctx: &EventCtx) {
         self.primary.current_selection = self.calculate_current_selection(
             ctx,
@@ -521,15 +513,15 @@ impl ShowObject for ShowEverything {
 #[derive(Clone)]
 pub struct Flags {
     pub sim_flags: SimFlags,
-    // Number of agents to generate when requested. If unspecified, trips to/from borders will be
-    // included.
+    /// Number of agents to generate when requested. If unspecified, trips to/from borders will be
+    /// included.
     pub num_agents: Option<usize>,
-    // If true, all map edits immediately apply to the live simulation. Otherwise, most edits
-    // require resetting to midnight.
+    /// If true, all map edits immediately apply to the live simulation. Otherwise, most edits
+    /// require resetting to midnight.
     pub live_map_edits: bool,
 }
 
-// All of the state that's bound to a specific map+edit has to live here.
+/// All of the state that's bound to a specific map.
 pub struct PerMap {
     pub map: Map,
     pub draw_map: DrawMap,
@@ -541,13 +533,21 @@ pub struct PerMap {
     pub sim_cb: Option<Box<dyn SimCallback>>,
     pub show_zorder: isize,
     pub zorder_range: (isize, isize),
-    // If we ever left edit mode and resumed without restarting from midnight, this is true.
+    /// If we ever left edit mode and resumed without restarting from midnight, this is true.
     pub dirty_from_edits: bool,
-    // Any ScenarioModifiers in effect?
+    /// Any ScenarioModifiers in effect?
     pub has_modified_trips: bool,
 
-    // Sometimes we need the map before any edits have been applied. Cache it here.
+    /// Sometimes we need the map before any edits have been applied. Cache it here.
     pub unedited_map: RefCell<Option<Map>>,
+
+    pub layer: Option<Box<dyn Layer>>,
+    /// Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.
+    pub suspended_sim: Option<Sim>,
+    /// Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
+    /// scenario name too.
+    // TODO Embed that in Analytics directly instead.
+    prebaked: Option<(String, String, Analytics)>,
 }
 
 impl PerMap {
@@ -585,6 +585,9 @@ impl PerMap {
             dirty_from_edits: false,
             has_modified_trips: false,
             unedited_map: RefCell::new(None),
+            layer: None,
+            suspended_sim: None,
+            prebaked: None,
         };
 
         let mut rng = per_map.current_flags.sim_flags.make_rng();
@@ -616,7 +619,7 @@ impl PerMap {
         per_map
     }
 
-    // Returns whatever was there
+    /// Returns whatever was there
     pub fn clear_sim(&mut self) -> Sim {
         self.dirty_from_edits = false;
         std::mem::replace(
@@ -629,8 +632,8 @@ impl PerMap {
         )
     }
 
-    // If needed, makes sure the unedited_map is populated. Callers can then do
-    // self.unedited_map.borrow().unwrap_or(&self.map).
+    /// If needed, makes sure the unedited_map is populated. Callers can then do
+    /// `self.unedited_map.borrow().unwrap_or(&self.map)`.
     // TODO I'd like to return &Map or something here, but can't get the borrow checker to work.
     pub fn calculate_unedited_map(&self) {
         if self.map.get_edits().commands.is_empty() {

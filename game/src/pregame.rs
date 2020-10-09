@@ -439,7 +439,8 @@ impl State for Proposals {
                             vec![err],
                         ));
                     } else {
-                        app.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
+                        app.primary.layer =
+                            Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
                         return Transition::Push(SandboxMode::new(
                             ctx,
                             app,

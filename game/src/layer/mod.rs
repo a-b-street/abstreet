@@ -57,24 +57,24 @@ pub struct PickLayer {
 
 impl PickLayer {
     pub fn update(ctx: &mut EventCtx, app: &mut App, minimap: &Panel) -> Option<Transition> {
-        if app.layer.is_none() {
+        if app.primary.layer.is_none() {
             return None;
         }
 
-        // TODO Since the Layer is embedded in UI, we have to do this slight trick
-        let mut layer = app.layer.take().unwrap();
+        // TODO Since the Layer is embedded in App, we have to do this slight trick
+        let mut layer = app.primary.layer.take().unwrap();
         match layer.event(ctx, app, minimap) {
             Some(LayerOutcome::Close) => {
-                app.layer = None;
+                app.primary.layer = None;
                 return None;
             }
             Some(LayerOutcome::Replace(l)) => {
-                app.layer = Some(l);
+                app.primary.layer = Some(l);
                 return None;
             }
             None => {}
         }
-        app.layer = Some(layer);
+        app.primary.layer = Some(layer);
 
         None
     }
@@ -87,7 +87,7 @@ impl PickLayer {
                 .align_right(),
         ])];
 
-        let current = match app.layer {
+        let current = match app.primary.layer {
             None => "None",
             Some(ref l) => l.name().unwrap_or(""),
         };
@@ -161,31 +161,31 @@ impl State for PickLayer {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {}
                 "None" => {
-                    app.layer = None;
+                    app.primary.layer = None;
                 }
                 "amenities" => {
-                    app.layer = Some(Box::new(map::Static::amenities(ctx, app)));
+                    app.primary.layer = Some(Box::new(map::Static::amenities(ctx, app)));
                 }
                 "backpressure" => {
-                    app.layer = Some(Box::new(traffic::Backpressure::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(traffic::Backpressure::new(ctx, app)));
                 }
                 "bike network" => {
-                    app.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(map::BikeNetwork::new(ctx, app)));
                 }
                 "delay" => {
-                    app.layer = Some(Box::new(traffic::Delay::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(traffic::Delay::new(ctx, app)));
                 }
                 "elevation" => {
-                    app.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(elevation::Elevation::new(ctx, app)));
                 }
                 "map edits" => {
-                    app.layer = Some(Box::new(map::Static::edits(ctx, app)));
+                    app.primary.layer = Some(Box::new(map::Static::edits(ctx, app)));
                 }
                 "no sidewalks" => {
-                    app.layer = Some(Box::new(map::Static::no_sidewalks(ctx, app)));
+                    app.primary.layer = Some(Box::new(map::Static::no_sidewalks(ctx, app)));
                 }
                 "pandemic model" => {
-                    app.layer = Some(Box::new(pandemic::Pandemic::new(
+                    app.primary.layer = Some(Box::new(pandemic::Pandemic::new(
                         ctx,
                         app,
                         pandemic::Options {
@@ -195,21 +195,21 @@ impl State for PickLayer {
                     )));
                 }
                 "blackholes" => {
-                    app.layer = Some(Box::new(map::Static::blackholes(ctx, app)));
+                    app.primary.layer = Some(Box::new(map::Static::blackholes(ctx, app)));
                 }
                 "congestion caps" => {
-                    app.layer = Some(Box::new(map::CongestionCaps::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(map::CongestionCaps::new(ctx, app)));
                 }
                 "parking occupancy" => {
-                    app.layer = Some(Box::new(parking::Occupancy::new(
+                    app.primary.layer = Some(Box::new(parking::Occupancy::new(
                         ctx, app, true, true, true, false, true,
                     )));
                 }
                 "parking efficiency" => {
-                    app.layer = Some(Box::new(parking::Efficiency::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(parking::Efficiency::new(ctx, app)));
                 }
                 "population map" => {
-                    app.layer = Some(Box::new(population::PopulationMap::new(
+                    app.primary.layer = Some(Box::new(population::PopulationMap::new(
                         ctx,
                         app,
                         population::Options {
@@ -218,13 +218,13 @@ impl State for PickLayer {
                     )));
                 }
                 "throughput" => {
-                    app.layer = Some(Box::new(traffic::Throughput::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(traffic::Throughput::new(ctx, app)));
                 }
                 "traffic jams" => {
-                    app.layer = Some(Box::new(traffic::TrafficJams::new(ctx, app)));
+                    app.primary.layer = Some(Box::new(traffic::TrafficJams::new(ctx, app)));
                 }
                 "transit network" => {
-                    app.layer = Some(Box::new(transit::TransitNetwork::new(
+                    app.primary.layer = Some(Box::new(transit::TransitNetwork::new(
                         ctx, app, false, true, true,
                     )));
                 }

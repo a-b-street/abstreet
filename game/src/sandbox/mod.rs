@@ -204,7 +204,7 @@ impl State for SandboxMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if let Some(ref l) = app.layer {
+        if let Some(ref l) = app.primary.layer {
             l.draw(g, app);
         }
 
@@ -236,7 +236,7 @@ impl State for SandboxMode {
     }
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
-        app.layer = None;
+        app.primary.layer = None;
         app.unzoomed_agents = UnzoomedAgents::new(&app.cs);
         self.gameplay.on_destroy(app);
     }

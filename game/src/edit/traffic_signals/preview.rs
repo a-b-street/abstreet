@@ -80,7 +80,7 @@ pub fn make_previewer(
     let random = "random agents around these intersections".to_string();
     let right_now = format!(
         "change the traffic signal live at {}",
-        app.suspended_sim.as_ref().unwrap().time()
+        app.primary.suspended_sim.as_ref().unwrap().time()
     );
 
     ChooseSomething::new(
@@ -110,7 +110,7 @@ pub fn make_previewer(
                     spawn_agents_around(*i, app);
                 }
             } else {
-                app.primary.sim = app.suspended_sim.as_ref().unwrap().clone();
+                app.primary.sim = app.primary.suspended_sim.as_ref().unwrap().clone();
                 app.primary
                     .sim
                     .handle_live_edited_traffic_signals(&app.primary.map);
