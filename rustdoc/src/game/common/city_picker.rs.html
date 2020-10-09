@@ -334,7 +334,6 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
-<span id="336">336</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
@@ -634,19 +633,18 @@
     <span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">AsyncFileLoader</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">resp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">response</span>.<span class="ident">try_recv</span>().<span class="ident">unwrap</span>() {
-                <span class="comment">// TODO We stop drawing the timer and start blocking at this point. It can take a</span>
+                <span class="comment">// TODO We stop drawing and start blocking at this point. It can take a</span>
                 <span class="comment">// while. Any way to make it still be nonblockingish? Maybe put some of the work</span>
                 <span class="comment">// inside that spawn_local?</span>
-                <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_binary</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">unwrap</span>();
 
-                <span class="comment">// TODO This is a hack, repeating only some parts of app.switch_map. Refactor.</span>
-                <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bounds</span>();
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">map_dims</span> <span class="op">=</span> (<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span> <span class="op">=</span> <span class="ident">map</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;switch maps&quot;</span>);
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span> <span class="op">=</span>
-                    <span class="ident">DrawMap</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;finish loading map&quot;</span>);
+                <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_binary</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim</span>::<span class="ident">new</span>(
+                    <span class="kw-2">&amp;</span><span class="ident">map</span>,
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>(),
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+                );
+                <span class="ident">app</span>.<span class="ident">map_switched</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
 
                 <span class="kw">return</span> (<span class="self">self</span>.<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
