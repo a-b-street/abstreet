@@ -232,11 +232,13 @@ fn switch_map(
 #[cfg(target_arch = "wasm32")]
 mod loader {
     use futures_channel::oneshot;
+    use instant::Instant;
     use wasm_bindgen::JsCast;
     use wasm_bindgen_futures::JsFuture;
     use web_sys::{Request, RequestInit, RequestMode, Response};
 
     use abstutil::Timer;
+    use geom::Duration;
     use map_model::Map;
     use widgetry::UpdateType;
 
@@ -250,6 +252,8 @@ mod loader {
         response: oneshot::Receiver<Vec<u8>>,
         on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
         panel: Panel,
+        started: Instant,
+        url: String,
     }
 
     impl AsyncFileLoader {
@@ -258,16 +262,15 @@ mod loader {
             url: String,
             on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
         ) -> Box<dyn State> {
-            let panel = ctx.make_loading_screen(Text::from(Line(format!("Loading {}...", url))));
-
             // Make the HTTP request nonblockingly. When the response is received, send it through
             // the channel.
             let (tx, rx) = oneshot::channel();
+            let url_copy = url.clone();
             wasm_bindgen_futures::spawn_local(async move {
                 let mut opts = RequestInit::new();
                 opts.method("GET");
                 opts.mode(RequestMode::Cors);
-                let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+                let request = Request::new_with_str_and_init(&url_copy, &opts).unwrap();
 
                 let window = web_sys::window().unwrap();
                 let resp_value = JsFuture::from(window.fetch_with_request(&request))
@@ -283,7 +286,9 @@ mod loader {
             Box::new(AsyncFileLoader {
                 response: rx,
                 on_load,
-                panel,
+                panel: ctx.make_loading_screen(Text::from(Line(format!("Loading {}...", url)))),
+                started: Instant::now(),
+                url,
             })
         }
     }
@@ -291,6 +296,9 @@ mod loader {
     impl State for AsyncFileLoader {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
             if let Some(resp) = self.response.try_recv().unwrap() {
+                // TODO We stop drawing the timer and start blocking at this point. It can take a
+                // while. Any way to make it still be nonblockingish? Maybe put some of the work
+                // inside that spawn_local?
                 let map: Map = abstutil::from_binary(&resp).unwrap();
 
                 // TODO This is a hack, repeating only some parts of app.switch_map. Refactor.
@@ -304,6 +312,14 @@ mod loader {
 
                 return (self.on_load)(ctx, app);
             }
+
+            self.panel = ctx.make_loading_screen(Text::from_multiline(vec![
+                Line(format!("Loading {}...", self.url)),
+                Line(format!(
+                    "Time spent: {}",
+                    Duration::realtime_elapsed(self.started)
+                )),
+            ]));
 
             // Until the response is received, just ask winit to regularly call event(), so we can
             // keep polling the channel.
