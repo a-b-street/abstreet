@@ -124,13 +124,29 @@ impl App {
         }
     }
 
+    // TODO Refactor the CityPicker trick as a general loading screen for native or web, and change
+    // all callers of this to organize control flow around a State.
     pub fn switch_map(&mut self, ctx: &mut EventCtx, load: String) {
-        ctx.canvas.save_camera_state(self.primary.map.get_name());
         let mut flags = self.primary.current_flags.clone();
         flags.sim_flags.load = load;
-        let session = std::mem::replace(&mut self.session, SessionState::empty());
-        *self = App::new(flags, self.opts.clone(), ctx, false);
-        self.session = session;
+
+        ctx.loading_screen("load map", |ctx, timer| {
+            let (map, sim, _) = flags.sim_flags.load(timer);
+            self.map_switched(ctx, map, sim, timer);
+        });
+    }
+    pub fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, sim: Sim, timer: &mut Timer) {
+        ctx.canvas.save_camera_state(self.primary.map.get_name());
+        self.primary = PerMap::map_loaded(
+            map,
+            sim,
+            false,
+            self.primary.current_flags.clone(),
+            &self.opts,
+            &self.cs,
+            ctx,
+            timer,
+        )
     }
 
     pub fn draw(

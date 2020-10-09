@@ -296,19 +296,18 @@ mod loader {
     impl State for AsyncFileLoader {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
             if let Some(resp) = self.response.try_recv().unwrap() {
-                // TODO We stop drawing the timer and start blocking at this point. It can take a
+                // TODO We stop drawing and start blocking at this point. It can take a
                 // while. Any way to make it still be nonblockingish? Maybe put some of the work
                 // inside that spawn_local?
-                let map: Map = abstutil::from_binary(&resp).unwrap();
 
-                // TODO This is a hack, repeating only some parts of app.switch_map. Refactor.
-                let bounds = map.get_bounds();
-                ctx.canvas.map_dims = (bounds.width(), bounds.height());
-                app.primary.map = map;
-                let mut timer = Timer::new("switch maps");
-                app.primary.draw_map =
-                    DrawMap::new(&app.primary.map, &app.opts, &app.cs, ctx, &mut timer);
-                app.primary.clear_sim();
+                let mut timer = Timer::new("finish loading map");
+                let map: Map = abstutil::from_binary(&resp).unwrap();
+                let sim = Sim::new(
+                    &map,
+                    app.primary.current_flags.sim_flags.opts.clone(),
+                    &mut timer,
+                );
+                app.map_switched(ctx, map, sim, &mut timer);
 
                 return (self.on_load)(ctx, app);
             }
