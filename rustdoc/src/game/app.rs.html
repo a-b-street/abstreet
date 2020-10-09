@@ -710,6 +710,9 @@
 <span id="709">709</span>
 <span id="710">710</span>
 <span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -731,13 +734,11 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">AgentCache</span>, <span class="ident">DrawMap</span>, <span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">UnzoomedAgents</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">TutorialState</span>};
 
+<span class="doccomment">/// The top-level data that lasts through the entire game, no matter what state the game is in.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">App</span> {
     <span class="comment">// Naming is from older days when there was an A/B test, &quot;side-by-side&quot; mode. Keeping this</span>
     <span class="comment">// naming, because that mode will return someday.</span>
     <span class="kw">pub</span> <span class="ident">primary</span>: <span class="ident">PerMap</span>,
-    <span class="comment">// Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and</span>
-    <span class="comment">// scenario name too. TODO Embed that in Analytics directly instead.</span>
-    <span class="ident">prebaked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">Analytics</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">cs</span>: <span class="ident">ColorScheme</span>,
     <span class="comment">// TODO This is a bit weird to keep here; it&#39;s controlled almost entirely by the minimap panel.</span>
     <span class="comment">// It has no meaning in edit mode.</span>
@@ -745,13 +746,9 @@
     <span class="kw">pub</span> <span class="ident">opts</span>: <span class="ident">Options</span>,
 
     <span class="kw">pub</span> <span class="ident">per_obj</span>: <span class="ident">PerObjectActions</span>,
-    <span class="kw">pub</span> <span class="ident">layer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;&gt;</span>,
 
-    <span class="comment">// Static data that lasts the entire session. Use sparingly.</span>
+    <span class="doccomment">/// Static data that lasts the entire session. Use sparingly.</span>
     <span class="kw">pub</span> <span class="ident">session</span>: <span class="ident">SessionState</span>,
-
-    <span class="comment">// Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.</span>
-    <span class="kw">pub</span> <span class="ident">suspended_sim</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sim</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">App</span> {
@@ -766,28 +763,26 @@
 
         <span class="ident">App</span> {
             <span class="ident">primary</span>,
-            <span class="ident">prebaked</span>: <span class="prelude-val">None</span>,
             <span class="ident">unzoomed_agents</span>: <span class="ident">UnzoomedAgents</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">cs</span>),
             <span class="ident">cs</span>,
             <span class="ident">opts</span>,
             <span class="ident">per_obj</span>: <span class="ident">PerObjectActions</span>::<span class="ident">new</span>(),
-            <span class="ident">layer</span>: <span class="prelude-val">None</span>,
             <span class="ident">session</span>: <span class="ident">SessionState</span>::<span class="ident">empty</span>(),
-            <span class="ident">suspended_sim</span>: <span class="prelude-val">None</span>,
         }
     }
 
+    <span class="comment">// TODO Should the prebaked methods be on primary along with the data?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_prebaked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">prebaked</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">m</span>, <span class="ident">s</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="ident">m</span>, <span class="ident">s</span>))
+        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">m</span>, <span class="ident">s</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="ident">m</span>, <span class="ident">s</span>))
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prebaked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Analytics</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prebaked</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">2</span>
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">2</span>
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_prebaked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">prebaked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">Analytics</span>)<span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">prebaked</span> <span class="op">=</span> <span class="ident">prebaked</span>;
+        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span> <span class="op">=</span> <span class="ident">prebaked</span>;
 
         <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">a</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">prebaked</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">a</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span> {
                 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>};
                 <span class="macro">println</span><span class="macro">!</span>(
                     <span class="string">&quot;- road_thruput: {} bytes&quot;</span>,
@@ -978,7 +973,7 @@
         }
     }
 
-    <span class="comment">// Assumes some defaults.</span>
+    <span class="doccomment">/// Assumes some defaults.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recalculate_current_selection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
         <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(
             <span class="ident">ctx</span>,
@@ -1234,15 +1229,15 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Flags</span> {
     <span class="kw">pub</span> <span class="ident">sim_flags</span>: <span class="ident">SimFlags</span>,
-    <span class="comment">// Number of agents to generate when requested. If unspecified, trips to/from borders will be</span>
-    <span class="comment">// included.</span>
+    <span class="doccomment">/// Number of agents to generate when requested. If unspecified, trips to/from borders will be</span>
+    <span class="doccomment">/// included.</span>
     <span class="kw">pub</span> <span class="ident">num_agents</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="comment">// If true, all map edits immediately apply to the live simulation. Otherwise, most edits</span>
-    <span class="comment">// require resetting to midnight.</span>
+    <span class="doccomment">/// If true, all map edits immediately apply to the live simulation. Otherwise, most edits</span>
+    <span class="doccomment">/// require resetting to midnight.</span>
     <span class="kw">pub</span> <span class="ident">live_map_edits</span>: <span class="ident">bool</span>,
 }
 
-<span class="comment">// All of the state that&#39;s bound to a specific map+edit has to live here.</span>
+<span class="doccomment">/// All of the state that&#39;s bound to a specific map.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PerMap</span> {
     <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">Map</span>,
     <span class="kw">pub</span> <span class="ident">draw_map</span>: <span class="ident">DrawMap</span>,
@@ -1254,13 +1249,21 @@
     <span class="kw">pub</span> <span class="ident">sim_cb</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimCallback</span><span class="op">&gt;&gt;</span>,
     <span class="kw">pub</span> <span class="ident">show_zorder</span>: <span class="ident">isize</span>,
     <span class="kw">pub</span> <span class="ident">zorder_range</span>: (<span class="ident">isize</span>, <span class="ident">isize</span>),
-    <span class="comment">// If we ever left edit mode and resumed without restarting from midnight, this is true.</span>
+    <span class="doccomment">/// If we ever left edit mode and resumed without restarting from midnight, this is true.</span>
     <span class="kw">pub</span> <span class="ident">dirty_from_edits</span>: <span class="ident">bool</span>,
-    <span class="comment">// Any ScenarioModifiers in effect?</span>
+    <span class="doccomment">/// Any ScenarioModifiers in effect?</span>
     <span class="kw">pub</span> <span class="ident">has_modified_trips</span>: <span class="ident">bool</span>,
 
-    <span class="comment">// Sometimes we need the map before any edits have been applied. Cache it here.</span>
+    <span class="doccomment">/// Sometimes we need the map before any edits have been applied. Cache it here.</span>
     <span class="kw">pub</span> <span class="ident">unedited_map</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;&gt;</span>,
+
+    <span class="kw">pub</span> <span class="ident">layer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;&gt;</span>,
+    <span class="doccomment">/// Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.</span>
+    <span class="kw">pub</span> <span class="ident">suspended_sim</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sim</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and</span>
+    <span class="doccomment">/// scenario name too.</span>
+    <span class="comment">// TODO Embed that in Analytics directly instead.</span>
+    <span class="ident">prebaked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">Analytics</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">PerMap</span> {
@@ -1298,6 +1301,9 @@
             <span class="ident">dirty_from_edits</span>: <span class="bool-val">false</span>,
             <span class="ident">has_modified_trips</span>: <span class="bool-val">false</span>,
             <span class="ident">unedited_map</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
+            <span class="ident">layer</span>: <span class="prelude-val">None</span>,
+            <span class="ident">suspended_sim</span>: <span class="prelude-val">None</span>,
+            <span class="ident">prebaked</span>: <span class="prelude-val">None</span>,
         };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">per_map</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>();
@@ -1329,7 +1335,7 @@
         <span class="ident">per_map</span>
     }
 
-    <span class="comment">// Returns whatever was there</span>
+    <span class="doccomment">/// Returns whatever was there</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_sim</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Sim</span> {
         <span class="self">self</span>.<span class="ident">dirty_from_edits</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(
@@ -1342,8 +1348,8 @@
         )
     }
 
-    <span class="comment">// If needed, makes sure the unedited_map is populated. Callers can then do</span>
-    <span class="comment">// self.unedited_map.borrow().unwrap_or(&amp;self.map).</span>
+    <span class="doccomment">/// If needed, makes sure the unedited_map is populated. Callers can then do</span>
+    <span class="doccomment">/// `self.unedited_map.borrow().unwrap_or(&amp;self.map)`.</span>
     <span class="comment">// TODO I&#39;d like to return &amp;Map or something here, but can&#39;t get the borrow checker to work.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_unedited_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
