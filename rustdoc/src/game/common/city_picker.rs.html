@@ -319,6 +319,22 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
@@ -554,11 +570,13 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">loader</span> {
     <span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">oneshot</span>;
+    <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
     <span class="kw">use</span> <span class="ident">wasm_bindgen</span>::<span class="ident">JsCast</span>;
     <span class="kw">use</span> <span class="ident">wasm_bindgen_futures</span>::<span class="ident">JsFuture</span>;
     <span class="kw">use</span> <span class="ident">web_sys</span>::{<span class="ident">Request</span>, <span class="ident">RequestInit</span>, <span class="ident">RequestMode</span>, <span class="ident">Response</span>};
 
     <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+    <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
     <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
     <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">UpdateType</span>;
 
@@ -572,6 +590,8 @@
         <span class="ident">response</span>: <span class="ident">oneshot</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
         <span class="ident">panel</span>: <span class="ident">Panel</span>,
+        <span class="ident">started</span>: <span class="ident">Instant</span>,
+        <span class="ident">url</span>: <span class="ident">String</span>,
     }
 
     <span class="kw">impl</span> <span class="ident">AsyncFileLoader</span> {
@@ -580,16 +600,15 @@
             <span class="ident">url</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
         ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>))));
-
             <span class="comment">// Make the HTTP request nonblockingly. When the response is received, send it through</span>
             <span class="comment">// the channel.</span>
             <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">oneshot</span>::<span class="ident">channel</span>();
+            <span class="kw">let</span> <span class="ident">url_copy</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">clone</span>();
             <span class="ident">wasm_bindgen_futures</span>::<span class="ident">spawn_local</span>(<span class="kw">async</span> <span class="kw">move</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">RequestInit</span>::<span class="ident">new</span>();
                 <span class="ident">opts</span>.<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>);
                 <span class="ident">opts</span>.<span class="ident">mode</span>(<span class="ident">RequestMode</span>::<span class="ident">Cors</span>);
-                <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request</span>::<span class="ident">new_with_str_and_init</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request</span>::<span class="ident">new_with_str_and_init</span>(<span class="kw-2">&amp;</span><span class="ident">url_copy</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>).<span class="ident">unwrap</span>();
 
                 <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys</span>::<span class="ident">window</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">resp_value</span> <span class="op">=</span> <span class="ident">JsFuture</span>::<span class="ident">from</span>(<span class="ident">window</span>.<span class="ident">fetch_with_request</span>(<span class="kw-2">&amp;</span><span class="ident">request</span>))
@@ -605,7 +624,9 @@
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">AsyncFileLoader</span> {
                 <span class="ident">response</span>: <span class="ident">rx</span>,
                 <span class="ident">on_load</span>,
-                <span class="ident">panel</span>,
+                <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>)))),
+                <span class="ident">started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
+                <span class="ident">url</span>,
             })
         }
     }
@@ -613,6 +634,9 @@
     <span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">AsyncFileLoader</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">resp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">response</span>.<span class="ident">try_recv</span>().<span class="ident">unwrap</span>() {
+                <span class="comment">// TODO We stop drawing the timer and start blocking at this point. It can take a</span>
+                <span class="comment">// while. Any way to make it still be nonblockingish? Maybe put some of the work</span>
+                <span class="comment">// inside that spawn_local?</span>
                 <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_binary</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">unwrap</span>();
 
                 <span class="comment">// TODO This is a hack, repeating only some parts of app.switch_map. Refactor.</span>
@@ -626,6 +650,14 @@
 
                 <span class="kw">return</span> (<span class="self">self</span>.<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
+
+            <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="self">self</span>.<span class="ident">url</span>)),
+                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;Time spent: {}&quot;</span>,
+                    <span class="ident">Duration</span>::<span class="ident">realtime_elapsed</span>(<span class="self">self</span>.<span class="ident">started</span>)
+                )),
+            ]));
 
             <span class="comment">// Until the response is received, just ask winit to regularly call event(), so we can</span>
             <span class="comment">// keep polling the channel.</span>
