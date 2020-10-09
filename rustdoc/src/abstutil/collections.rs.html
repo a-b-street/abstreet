@@ -428,7 +428,7 @@
     <span class="bool-val">false</span>
 }
 
-<span class="comment">// Use when your key is just PartialEq, not Ord or Hash.</span>
+<span class="doccomment">/// Use when your key is just PartialEq, not Ord or Hash.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="ident">inner</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>,
 }
@@ -451,7 +451,7 @@
     }
 }
 
-<span class="comment">// Convenience functions around a string-&gt;string map</span>
+<span class="doccomment">/// Convenience functions around a string-&gt;string map</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tags</span>(<span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>);
 

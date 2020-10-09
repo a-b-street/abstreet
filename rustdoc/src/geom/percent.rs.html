@@ -26,7 +26,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
-<span class="comment">// Most of the time, [0, 1]. But some callers may go outside this range.</span>
+<span class="doccomment">/// Most of the time, [0, 1]. But some callers may go outside this range.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Percent</span>(<span class="ident">f64</span>);
 

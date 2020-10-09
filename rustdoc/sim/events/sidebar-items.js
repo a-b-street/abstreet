@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["AlertLocation",""],["Event",""],["TripPhaseType",""]]});
+initSidebarItems({"enum":[["AlertLocation",""],["Event","As a simulation runs, different systems emit Events. This cleanly separates the internal mechanics of the simulation from consumers that just want to know what's happening."],["TripPhaseType",""]]});

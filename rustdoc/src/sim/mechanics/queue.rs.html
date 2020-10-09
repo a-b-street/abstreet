@@ -308,12 +308,7 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
-<span id="310">310</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where</span>
-<span class="comment">// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is</span>
-<span class="comment">// implemented.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -324,19 +319,22 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::{<span class="ident">Car</span>, <span class="ident">CarState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">VehicleType</span>, <span class="ident">FOLLOWING_DISTANCE</span>};
 
+<span class="doccomment">/// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where</span>
+<span class="doccomment">/// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is</span>
+<span class="doccomment">/// implemented.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Queue</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Traversable</span>,
     <span class="kw">pub</span> <span class="ident">cars</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
-    <span class="comment">// This car&#39;s back is still partly in this queue.</span>
+    <span class="doccomment">/// This car&#39;s back is still partly in this queue.</span>
     <span class="kw">pub</span> <span class="ident">laggy_head</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">geom_len</span>: <span class="ident">Distance</span>,
-    <span class="comment">// When a car&#39;s turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the</span>
-    <span class="comment">// target lane. When the car completely leaves (stops being the laggy_head), free up that</span>
-    <span class="comment">// space. To prevent blocking the box for possibly scary amounts of time, allocate some of this</span>
-    <span class="comment">// length first. This is unused for turns themselves. This value can exceed geom_len (for the</span>
-    <span class="comment">// edge case of ONE long car on a short queue).</span>
+    <span class="doccomment">/// When a car&#39;s turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the</span>
+    <span class="doccomment">/// target lane. When the car completely leaves (stops being the laggy_head), free up that</span>
+    <span class="doccomment">/// space. To prevent blocking the box for possibly scary amounts of time, allocate some of</span>
+    <span class="doccomment">/// this length first. This is unused for turns themselves. This value can exceed geom_len</span>
+    <span class="doccomment">/// (for the edge case of ONE long car on a short queue).</span>
     <span class="kw">pub</span> <span class="ident">reserved_length</span>: <span class="ident">Distance</span>,
 }
 
@@ -351,7 +349,7 @@
         }
     }
 
-    <span class="comment">// Farthest along (greatest distance) is first.</span>
+    <span class="doccomment">/// Farthest along (greatest distance) is first.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_car_positions</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
@@ -516,8 +514,8 @@
         <span class="prelude-val">Some</span>(<span class="ident">idx</span>)
     }
 
-    <span class="comment">// If true, there&#39;s room and the car must actually start the turn (because the space is</span>
-    <span class="comment">// reserved).</span>
+    <span class="doccomment">/// If true, there&#39;s room and the car must actually start the turn (because the space is</span>
+    <span class="doccomment">/// reserved).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_to_reserve_entry</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>, <span class="ident">force_entry</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="comment">// Sometimes a car + FOLLOWING_DISTANCE might be longer than the geom_len entirely. In that</span>
         <span class="comment">// case, it just means the car won&#39;t totally fit on the queue at once, which is fine.</span>

@@ -126,7 +126,7 @@
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="comment">// Stores in radians</span>
+<span class="doccomment">/// Stores in radians</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Angle</span>(<span class="ident">f64</span>);
 
@@ -167,8 +167,8 @@
         <span class="self">self</span>.<span class="ident">normalized_radians</span>().<span class="ident">to_degrees</span>()
     }
 
-    <span class="comment">// Logically this returns [-180, 180], but keep in mind when we print this angle, it&#39;ll</span>
-    <span class="comment">// normalize to be [0, 360].</span>
+    <span class="doccomment">/// Logically this returns [-180, 180], but keep in mind when we print this angle, it&#39;ll</span>
+    <span class="doccomment">/// normalize to be [0, 360].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shortest_rotation_towards</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
         <span class="comment">// https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle</span>
         <span class="ident">Angle</span>::<span class="ident">new_degs</span>(
@@ -184,8 +184,8 @@
         <span class="ident">rotation</span>.<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="ident">within_degrees</span>
     }
 
-    <span class="comment">// I don&#39;t know how to describe what this does. Use for rotating labels in map-space and making</span>
-    <span class="comment">// sure the text is never upside-down.</span>
+    <span class="doccomment">/// I don&#39;t know how to describe what this does. Use for rotating labels in map-space and making</span>
+    <span class="doccomment">/// sure the text is never upside-down.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reorient</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
         <span class="kw">let</span> <span class="ident">theta</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">normalized_degrees</span>().<span class="ident">rem_euclid</span>(<span class="number">360.0</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>;

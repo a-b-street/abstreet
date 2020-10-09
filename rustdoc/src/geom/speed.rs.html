@@ -124,14 +124,14 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">EPSILON_DIST</span>};
 
-<span class="comment">// In meters per second. Can be negative.</span>
+<span class="doccomment">/// In meters per second. Can be negative.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Speed</span>(<span class="ident">f64</span>);
 
 <span class="kw">impl</span> <span class="ident">Speed</span> {
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="ident">Speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">const_meters_per_second</span>(<span class="number">0.0</span>);
 
-    <span class="comment">// Is a speed effectively zero based on the timestep?</span>
+    <span class="doccomment">/// Is a speed effectively zero based on the timestep?</span>
     <span class="comment">// TODO Probably better to tweak the rounding so that uselessly tiny speeds round to 0.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_zero</span>(<span class="self">self</span>, <span class="ident">timestep</span>: <span class="ident">Duration</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span> <span class="op">*</span> <span class="ident">timestep</span> <span class="op">&lt;=</span> <span class="ident">EPSILON_DIST</span>

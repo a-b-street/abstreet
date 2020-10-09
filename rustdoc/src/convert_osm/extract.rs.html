@@ -734,16 +734,16 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Options</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OsmExtract</span> {
-    <span class="comment">// Unsplit roads</span>
+    <span class="doccomment">/// Unsplit roads</span>
     <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">WayID</span>, <span class="ident">RawRoad</span>)<span class="op">&gt;</span>,
-    <span class="comment">// Traffic signals to the direction they apply (or just true if unspecified)</span>
+    <span class="doccomment">/// Traffic signals to the direction they apply (or just true if unspecified)</span>
     <span class="kw">pub</span> <span class="ident">traffic_signals</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">bool</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">osm_node_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">NodeID</span><span class="op">&gt;</span>,
-    <span class="comment">// (ID, restriction type, from way ID, via node ID, to way ID)</span>
+    <span class="doccomment">/// (ID, restriction type, from way ID, via node ID, to way ID)</span>
     <span class="kw">pub</span> <span class="ident">simple_turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RestrictionType</span>, <span class="ident">WayID</span>, <span class="ident">NodeID</span>, <span class="ident">WayID</span>)<span class="op">&gt;</span>,
-    <span class="comment">// (relation ID, from way ID, via way ID, to way ID)</span>
+    <span class="doccomment">/// (relation ID, from way ID, via way ID, to way ID)</span>
     <span class="kw">pub</span> <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RelationID</span>, <span class="ident">WayID</span>, <span class="ident">WayID</span>, <span class="ident">WayID</span>)<span class="op">&gt;</span>,
-    <span class="comment">// (location, name, amenity type)</span>
+    <span class="doccomment">/// (location, name, amenity type)</span>
     <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
 }
 

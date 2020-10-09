@@ -285,9 +285,10 @@
 <span id="284">284</span>
 <span id="285">285</span>
 <span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Represents a single vehicle. Note &quot;car&quot; is a misnomer; it could also be a bus or bike.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -300,24 +301,25 @@
     <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleType</span>,
 };
 
+<span class="doccomment">/// Represents a single vehicle. Note &quot;car&quot; is a misnomer; it could also be a bus or bike.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Car</span> {
     <span class="kw">pub</span> <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
     <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">CarState</span>,
     <span class="kw">pub</span> <span class="ident">router</span>: <span class="ident">Router</span>,
-    <span class="comment">// None for buses</span>
+    <span class="doccomment">/// None for buses</span>
     <span class="comment">// TODO Can we scrap person here and use vehicle owner?</span>
     <span class="kw">pub</span> <span class="ident">trip_and_person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">started_at</span>: <span class="ident">Time</span>,
     <span class="kw">pub</span> <span class="ident">total_blocked_time</span>: <span class="ident">Duration</span>,
 
-    <span class="comment">// In reverse order -- most recently left is first. The sum length of these must be &gt;=</span>
-    <span class="comment">// vehicle.length.</span>
+    <span class="doccomment">/// In reverse order -- most recently left is first. The sum length of these must be &gt;=</span>
+    <span class="doccomment">/// vehicle.length.</span>
     <span class="kw">pub</span> <span class="ident">last_steps</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">Traversable</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Car</span> {
-    <span class="comment">// Assumes the current head of the path is the thing to cross.</span>
+    <span class="doccomment">/// Assumes the current head of the path is the thing to cross.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crossing_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start_dist</span>: <span class="ident">Distance</span>, <span class="ident">start_time</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">CarState</span> {
         <span class="kw">let</span> <span class="ident">dist_int</span> <span class="op">=</span> <span class="ident">DistanceInterval</span>::<span class="ident">new_driving</span>(
             <span class="ident">start_dist</span>,
@@ -538,14 +540,18 @@
     }
 }
 
-<span class="comment">// See https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html for details about the</span>
-<span class="comment">// state machine encoded here.</span>
+<span class="doccomment">/// See &lt;https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html&gt; for details about the</span>
+<span class="doccomment">/// state machine encoded here.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CarState</span> {
     <span class="ident">Crossing</span>(<span class="ident">TimeInterval</span>, <span class="ident">DistanceInterval</span>),
-    <span class="ident">Queued</span> { <span class="ident">blocked_since</span>: <span class="ident">Time</span> },
-    <span class="ident">WaitingToAdvance</span> { <span class="ident">blocked_since</span>: <span class="ident">Time</span> },
-    <span class="comment">// Where&#39;s the front of the car while this is happening?</span>
+    <span class="ident">Queued</span> {
+        <span class="ident">blocked_since</span>: <span class="ident">Time</span>,
+    },
+    <span class="ident">WaitingToAdvance</span> {
+        <span class="ident">blocked_since</span>: <span class="ident">Time</span>,
+    },
+    <span class="doccomment">/// Where&#39;s the front of the car while this is happening?</span>
     <span class="ident">Unparking</span>(<span class="ident">Distance</span>, <span class="ident">ParkingSpot</span>, <span class="ident">TimeInterval</span>),
     <span class="ident">Parking</span>(<span class="ident">Distance</span>, <span class="ident">ParkingSpot</span>, <span class="ident">TimeInterval</span>),
     <span class="ident">IdlingAtStop</span>(<span class="ident">Distance</span>, <span class="ident">TimeInterval</span>),

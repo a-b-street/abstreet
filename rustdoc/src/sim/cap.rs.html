@@ -118,12 +118,7 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per</span>
-<span class="comment">// hour. CapSimState enforces this.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -136,7 +131,8 @@
 <span class="comment">// Note this only indexes into the zones we track here, not all of them in the map.</span>
 <span class="kw">type</span> <span class="ident">ZoneIdx</span> <span class="op">=</span> <span class="ident">usize</span>;
 
-<span class="comment">// This only caps driving trips.</span>
+<span class="doccomment">/// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per</span>
+<span class="doccomment">/// hour. CapSimState enforces this, just for driving trips.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CapSimState</span> {
     <span class="ident">lane_to_zone</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">ZoneIdx</span><span class="op">&gt;</span>,
@@ -203,8 +199,8 @@
         <span class="bool-val">true</span>
     }
 
-    <span class="comment">// Before the driving portion of a trip begins, check that the desired path doesn&#39;t exceed any</span>
-    <span class="comment">// caps. If so, attempt to reroute around.</span>
+    <span class="doccomment">/// Before the driving portion of a trip begins, check that the desired path doesn&#39;t exceed any</span>
+    <span class="doccomment">/// caps. If so, attempt to reroute around.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate_path</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>,

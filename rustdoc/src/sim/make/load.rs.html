@@ -131,10 +131,7 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
-<span id="133">133</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// SimFlags specifies a simulation to setup.</span>
-
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
@@ -143,12 +140,13 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 
+<span class="doccomment">/// SimFlags specifies a simulation to setup.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimFlags</span> {
-    <span class="comment">// A path to some file.</span>
-    <span class="comment">// - a savestate: restore the simulation exactly from some savestate</span>
-    <span class="comment">// - a scenario</span>
-    <span class="comment">// - some kind of map: start an empty simulation on the map</span>
+    <span class="doccomment">/// A path to some file.</span>
+    <span class="doccomment">/// - a savestate: restore the simulation exactly from some savestate</span>
+    <span class="doccomment">/// - a scenario</span>
+    <span class="doccomment">/// - some kind of map: start an empty simulation on the map</span>
     <span class="kw">pub</span> <span class="ident">load</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">rng_seed</span>: <span class="ident">u8</span>,

@@ -797,12 +797,7 @@
 <span id="796">796</span>
 <span id="797">797</span>
 <span id="798">798</span>
-<span id="799">799</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and</span>
-<span class="comment">// just &quot;ghost&quot; through each other. There&#39;s no queueing or slowdown when many people are</span>
-<span class="comment">// overlapping. They&#39;re simply grouped together into a DrawPedCrowdInput for rendering.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -825,6 +820,9 @@
 <span class="kw">const</span> <span class="ident">TIME_TO_START_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">30.0</span>);
 <span class="kw">const</span> <span class="ident">TIME_TO_FINISH_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">45.0</span>);
 
+<span class="doccomment">/// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and</span>
+<span class="doccomment">/// just &quot;ghost&quot; through each other. There&#39;s no queueing or slowdown when many people are</span>
+<span class="doccomment">/// overlapping. They&#39;re simply grouped together into a DrawPedCrowdInput for rendering.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WalkingSimState</span> {
     <span class="comment">// BTreeMap not for deterministic simulation, but to make serialized things easier to compare.</span>
@@ -1519,7 +1517,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">enum</span> <span class="ident">PedState</span> {
     <span class="ident">Crossing</span>(<span class="ident">DistanceInterval</span>, <span class="ident">TimeInterval</span>),
-    <span class="comment">// The Distance is either 0 or the current traversable&#39;s length. The Time is blocked_since.</span>
+    <span class="doccomment">/// The Distance is either 0 or the current traversable&#39;s length. The Time is blocked_since.</span>
     <span class="ident">WaitingToTurn</span>(<span class="ident">Distance</span>, <span class="ident">Time</span>),
     <span class="ident">LeavingBuilding</span>(<span class="ident">BuildingID</span>, <span class="ident">TimeInterval</span>),
     <span class="ident">EnteringBuilding</span>(<span class="ident">BuildingID</span>, <span class="ident">TimeInterval</span>),

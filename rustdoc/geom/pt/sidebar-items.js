@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["HashablePt2D",""],["Pt2D",""]]});
+initSidebarItems({"struct":[["HashablePt2D","This represents world space, NOT LonLat."],["Pt2D","This represents world-space in meters."]]});

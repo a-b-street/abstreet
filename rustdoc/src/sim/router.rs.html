@@ -450,8 +450,8 @@
 <span id="449">449</span>
 <span id="450">450</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
-<span class="comment">// lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
+<span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
+<span class="doccomment">//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -471,7 +471,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Router</span> {
-    <span class="comment">// Front is always the current step</span>
+    <span class="doccomment">/// Front is always the current step</span>
     <span class="ident">path</span>: <span class="ident">Path</span>,
     <span class="ident">goal</span>: <span class="ident">Goal</span>,
     <span class="ident">owner</span>: <span class="ident">CarID</span>,
@@ -489,11 +489,11 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">enum</span> <span class="ident">Goal</span> {
-    <span class="comment">// Spot and cached distance along the last driving lane</span>
+    <span class="doccomment">/// Spot and cached distance along the last driving lane</span>
     <span class="ident">ParkNearBuilding</span> {
         <span class="ident">target</span>: <span class="ident">BuildingID</span>,
         <span class="ident">spot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
-        <span class="comment">// No parking available at all!</span>
+        <span class="doccomment">/// No parking available at all!</span>
         <span class="ident">stuck_end_dist</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>,
         <span class="ident">started_looking</span>: <span class="ident">bool</span>,
     },
@@ -602,7 +602,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>
     }
 
-    <span class="comment">// Returns the step just finished</span>
+    <span class="doccomment">/// Returns the step just finished</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">advance</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
@@ -638,8 +638,8 @@
         <span class="ident">prev</span>
     }
 
-    <span class="comment">// Called when the car is Queued at the last step, or when they initially advance to the last</span>
-    <span class="comment">// step.</span>
+    <span class="doccomment">/// Called when the car is Queued at the last step, or when they initially advance to the last</span>
+    <span class="doccomment">/// step.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_handle_end</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">front</span>: <span class="ident">Distance</span>,

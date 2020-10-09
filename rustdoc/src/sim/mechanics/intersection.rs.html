@@ -804,17 +804,7 @@
 <span id="803">803</span>
 <span id="804">804</span>
 <span id="805">805</span>
-<span id="806">806</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Manages conflicts at intersections. When an agent has reached the end of a lane, they call</span>
-<span class="comment">// maybe_start_turn to make a Request. Based on the intersection type (stop sign, traffic signal,</span>
-<span class="comment">// or a &quot;freeform policy&quot;), the Request gets queued or immediately accepted. When agents finish</span>
-<span class="comment">// turns or when some time passes (for traffic signals), the intersection also gets a chance to</span>
-<span class="comment">// react, maybe granting one of the pending requests.</span>
-<span class="comment">//</span>
-<span class="comment">// Most of the complexity comes from attempting to workaround</span>
-<span class="comment">// https://dabreegster.github.io/abstreet/trafficsim/gridlock.html.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -833,6 +823,14 @@
 <span class="kw">const</span> <span class="ident">WAIT_AT_STOP_SIGN</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.5</span>);
 <span class="kw">const</span> <span class="ident">WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.2</span>);
 
+<span class="doccomment">/// Manages conflicts at intersections. When an agent has reached the end of a lane, they call</span>
+<span class="doccomment">/// maybe_start_turn to make a Request. Based on the intersection type (stop sign, traffic signal,</span>
+<span class="doccomment">/// or a &quot;freeform policy&quot;), the Request gets queued or immediately accepted. When agents finish</span>
+<span class="doccomment">/// turns or when some time passes (for traffic signals), the intersection also gets a chance to</span>
+<span class="doccomment">/// react, maybe granting one of the pending requests.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Most of the complexity comes from attempting to workaround</span>
+<span class="doccomment">/// &lt;https://dabreegster.github.io/abstreet/trafficsim/gridlock.html&gt;.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntersectionSimState</span> {
     <span class="ident">state</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">State</span><span class="op">&gt;</span>,
@@ -940,7 +938,7 @@
         }
     }
 
-    <span class="comment">// For deleting cars</span>
+    <span class="doccomment">/// For deleting cars</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel_request</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">agent</span>: <span class="ident">AgentID</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>) {
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">parent</span>).<span class="ident">unwrap</span>();
         <span class="ident">state</span>.<span class="ident">waiting</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">Request</span> { <span class="ident">agent</span>, <span class="ident">turn</span> });
@@ -961,8 +959,8 @@
         <span class="self">self</span>.<span class="ident">wakeup_waiting</span>(<span class="ident">now</span>, <span class="ident">i</span>, <span class="ident">scheduler</span>, <span class="ident">map</span>);
     }
 
-    <span class="comment">// Vanished at border, stopped biking, etc -- a vehicle disappeared, and didn&#39;t have one last</span>
-    <span class="comment">// turn.</span>
+    <span class="doccomment">/// Vanished at border, stopped biking, etc -- a vehicle disappeared, and didn&#39;t have one last</span>
+    <span class="doccomment">/// turn.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vehicle_gone</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
         <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">blocked_by</span>, <span class="op">|</span>(<span class="ident">c1</span>, <span class="ident">c2</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">c1</span> <span class="op">!=</span> <span class="ident">car</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">c2</span> <span class="op">!=</span> <span class="ident">car</span>);
     }
@@ -1035,7 +1033,7 @@
         }
     }
 
-    <span class="comment">// This is only triggered for traffic signals.</span>
+    <span class="doccomment">/// This is only triggered for traffic signals.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_intersection</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
@@ -1084,13 +1082,13 @@
         <span class="self">self</span>.<span class="ident">wakeup_waiting</span>(<span class="ident">now</span>, <span class="ident">id</span>, <span class="ident">scheduler</span>, <span class="ident">map</span>);
     }
 
-    <span class="comment">// For cars: The head car calls this when they&#39;re at the end of the lane WaitingToAdvance. If</span>
-    <span class="comment">// this returns true, then the head car MUST actually start this turn.</span>
-    <span class="comment">// For peds: Likewise -- only called when the ped is at the start of the turn. They must</span>
-    <span class="comment">// actually do the turn if this returns true.</span>
-    <span class="comment">//</span>
-    <span class="comment">// If this returns false, the agent should NOT retry. IntersectionSimState will schedule a</span>
-    <span class="comment">// retry event at some point.</span>
+    <span class="doccomment">/// For cars: The head car calls this when they&#39;re at the end of the lane WaitingToAdvance. If</span>
+    <span class="doccomment">/// this returns true, then the head car MUST actually start this turn.</span>
+    <span class="doccomment">/// For peds: Likewise -- only called when the ped is at the start of the turn. They must</span>
+    <span class="doccomment">/// actually do the turn if this returns true.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If this returns false, the agent should NOT retry. IntersectionSimState will schedule a</span>
+    <span class="doccomment">/// retry event at some point.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_start_turn</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">agent</span>: <span class="ident">AgentID</span>,

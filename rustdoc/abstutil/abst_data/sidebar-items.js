@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Entry",""],["Manifest",""]]});
+initSidebarItems({"struct":[["Entry","A single file"],["Manifest",""]]});

@@ -391,7 +391,7 @@
 <span id="390">390</span>
 <span id="391">391</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// All sorts of read-only queries about a simulation</span>
+<span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -422,14 +422,14 @@
         <span class="self">self</span>.<span class="ident">time</span> <span class="op">==</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_done</span>()
     }
 
-    <span class="comment">// (number of finished trips, number of unfinished trips)</span>
+    <span class="doccomment">/// (number of finished trips, number of unfinished trips)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">num_trips</span>()
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">AgentType</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">num_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit</span>)
     }
-    <span class="comment">// (total number of people, just in buildings, just off map)</span>
+    <span class="doccomment">/// (total number of people, just in buildings, just off map)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_ppl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">num_ppl</span>()
     }
@@ -452,7 +452,7 @@
         <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">debug_lane</span>(<span class="ident">id</span>);
     }
 
-    <span class="comment">// Only call for active agents, will panic otherwise</span>
+    <span class="doccomment">/// Only call for active agents, will panic otherwise</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">AgentID</span>) <span class="op">-&gt;</span> <span class="ident">AgentProperties</span> {
         <span class="kw">match</span> <span class="ident">id</span> {
             <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">agent_properties</span>(<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">time</span>),
@@ -500,7 +500,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_trip_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">TripInfo</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">all_trip_info</span>()
     }
-    <span class="comment">// If trip is finished, returns (total time, total waiting time)</span>
+    <span class="doccomment">/// If trip is finished, returns (total time, total waiting time)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finished_trip_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">finished_trip_time</span>(<span class="ident">id</span>)
     }
@@ -521,7 +521,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lookup_parked_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">id</span>)
     }
-    <span class="comment">// For every parked car, (position of parking spot, position of owner)</span>
+    <span class="doccomment">/// For every parked car, (position of parking spot, position of owner)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parking</span>
             .<span class="ident">all_parked_car_positions</span>(<span class="ident">map</span>)
@@ -642,7 +642,7 @@
         <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">get_blocked_by</span>(<span class="ident">a</span>)
     }
 
-    <span class="comment">// (bus, stop index it&#39;s coming from, percent to next stop, location)</span>
+    <span class="doccomment">/// (bus, stop index it&#39;s coming from, percent to next stop, location)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status_of_buses</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">route</span>: <span class="ident">BusRouteID</span>,
@@ -669,8 +669,8 @@
             .<span class="ident">find_blockage_front</span>(<span class="ident">car</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>)
     }
 
-    <span class="comment">// For intersections with an agent waiting beyond some threshold, return when they started</span>
-    <span class="comment">// waiting. Sorted by earliest waiting (likely the root cause of gridlock).</span>
+    <span class="doccomment">/// For intersections with an agent waiting beyond some threshold, return when they started</span>
+    <span class="doccomment">/// waiting. Sorted by earliest waiting (likely the root cause of gridlock).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delayed_intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">threshold</span>: <span class="ident">Duration</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">IntersectionID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">intersections</span>
             .<span class="ident">delayed_intersections</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">threshold</span>)
@@ -733,7 +733,7 @@
         <span class="ident">pts_per_type</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
     }
 
-    <span class="comment">// (number of vehicles in the lane, penalty if a bike or other slow vehicle is present)</span>
+    <span class="doccomment">/// (number of vehicles in the lane, penalty if a bike or other slow vehicle is present)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">target_lane_penalty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>() {
             (<span class="number">0</span>, <span class="number">0</span>)

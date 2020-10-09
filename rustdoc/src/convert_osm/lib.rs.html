@@ -165,47 +165,47 @@
     <span class="kw">pub</span> <span class="ident">city_name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
 
-    <span class="comment">// The path to an osmosis boundary polygon. Highly recommended.</span>
+    <span class="doccomment">/// The path to an osmosis boundary polygon. Highly recommended.</span>
     <span class="kw">pub</span> <span class="ident">clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">map_config</span>: <span class="ident">MapConfig</span>,
 
     <span class="kw">pub</span> <span class="ident">onstreet_parking</span>: <span class="ident">OnstreetParking</span>,
     <span class="kw">pub</span> <span class="ident">public_offstreet_parking</span>: <span class="ident">PublicOffstreetParking</span>,
     <span class="kw">pub</span> <span class="ident">private_offstreet_parking</span>: <span class="ident">PrivateOffstreetParking</span>,
-    <span class="comment">// If provided, pull elevation data from this SRTM file. The SRTM parser is incorrect, so the</span>
-    <span class="comment">// results will be nonsense.</span>
+    <span class="doccomment">/// If provided, pull elevation data from this SRTM file. The SRTM parser is incorrect, so the</span>
+    <span class="doccomment">/// results will be nonsense.</span>
     <span class="kw">pub</span> <span class="ident">elevation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="comment">// OSM railway=rail will be included as light rail if so. Cosmetic only.</span>
+    <span class="doccomment">/// OSM railway=rail will be included as light rail if so. Cosmetic only.</span>
     <span class="kw">pub</span> <span class="ident">include_railroads</span>: <span class="ident">bool</span>,
 }
 
-<span class="comment">// What roads will have on-street parking lanes? Data from</span>
-<span class="comment">// https://wiki.openstreetmap.org/wiki/Key:parking:lane is always used if available.</span>
+<span class="doccomment">/// What roads will have on-street parking lanes? Data from</span>
+<span class="doccomment">/// &lt;https://wiki.openstreetmap.org/wiki/Key:parking:lane&gt; is always used if available.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">OnstreetParking</span> {
-    <span class="comment">// If not tagged, there won&#39;t be parking.</span>
+    <span class="doccomment">/// If not tagged, there won&#39;t be parking.</span>
     <span class="ident">JustOSM</span>,
-    <span class="comment">// If OSM data is missing, then try to match data from</span>
-    <span class="comment">// http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface. This is Seattle specific.</span>
+    <span class="doccomment">/// If OSM data is missing, then try to match data from</span>
+    <span class="doccomment">/// &lt;http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface&gt;. This is Seattle specific.</span>
     <span class="ident">Blockface</span>(<span class="ident">String</span>),
-    <span class="comment">// If OSM data is missing, then infer parking lanes on some percentage of</span>
-    <span class="comment">// &quot;highway=residential&quot; roads.</span>
+    <span class="doccomment">/// If OSM data is missing, then infer parking lanes on some percentage of</span>
+    <span class="doccomment">/// &quot;highway=residential&quot; roads.</span>
     <span class="ident">SomeAdditionalWhereNoData</span> {
-        <span class="comment">// [0, 100]</span>
+        <span class="doccomment">/// [0, 100]</span>
         <span class="ident">pct</span>: <span class="ident">usize</span>,
     },
 }
 
-<span class="comment">// How many spots are available in public parking garages?</span>
+<span class="doccomment">/// How many spots are available in public parking garages?</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PublicOffstreetParking</span> {
     <span class="prelude-val">None</span>,
-    <span class="comment">// Pull data from</span>
-    <span class="comment">// https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots, a</span>
-    <span class="comment">// Seattle-specific data source.</span>
+    <span class="doccomment">/// Pull data from</span>
+    <span class="doccomment">/// &lt;https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots&gt;, a</span>
+    <span class="doccomment">/// Seattle-specific data source.</span>
     <span class="ident">GIS</span>(<span class="ident">String</span>),
 }
 
-<span class="comment">// If a building doesn&#39;t have anything from public_offstreet_parking and isn&#39;t tagged as a garage</span>
-<span class="comment">// in OSM, how many private spots should it have?</span>
+<span class="doccomment">/// If a building doesn&#39;t have anything from public_offstreet_parking and isn&#39;t tagged as a garage</span>
+<span class="doccomment">/// in OSM, how many private spots should it have?</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PrivateOffstreetParking</span> {
     <span class="ident">FixedPerBldg</span>(<span class="ident">usize</span>),
     <span class="comment">// TODO Based on the number of residents?</span>

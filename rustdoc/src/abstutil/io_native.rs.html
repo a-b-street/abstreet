@@ -184,7 +184,7 @@
 <span id="183">183</span>
 <span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Normal file IO using the filesystem</span>
+<span class="doccomment">//! Normal file IO using the filesystem</span>
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">io</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">time</span>::{<span class="ident">clear_current_line</span>, <span class="ident">prettyprint_time</span>};
@@ -200,7 +200,7 @@
     <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>.<span class="ident">into</span>()).<span class="ident">exists</span>()
 }
 
-<span class="comment">// Returns full paths</span>
+<span class="doccomment">/// Returns full paths</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_dir</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">files</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">match</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">read_dir</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
@@ -273,7 +273,7 @@
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Wrote {}&quot;</span>, <span class="ident">path</span>);
 }
 
-<span class="comment">// Idempotent</span>
+<span class="doccomment">/// Idempotent</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_file</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>(<span class="ident">path</span>: <span class="ident">I</span>) {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">into</span>();
     <span class="kw">if</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">remove_file</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">is_ok</span>() {
@@ -296,8 +296,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">FileWithProgress</span> {
-    <span class="comment">// Also hands back a callback that&#39;ll add the final result to the timer. The caller must run</span>
-    <span class="comment">// it.</span>
+    <span class="doccomment">/// Also hands back a callback that&#39;ll add the final result to the timer. The caller must run</span>
+    <span class="doccomment">/// it.</span>
     <span class="comment">// TODO It&#39;s really a FnOnce, but I don&#39;t understand the compiler error.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">FileWithProgress</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>)<span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;

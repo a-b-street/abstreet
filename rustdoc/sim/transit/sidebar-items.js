@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["BusState",""]],"struct":[["Bus",""],["Route",""],["Stop",""],["TransitSimState",""]],"type":[["StopIdx",""]]});
+initSidebarItems({"enum":[["BusState",""]],"struct":[["Bus",""],["Route",""],["Stop",""],["TransitSimState","Manages public transit vehicles (buses and trains) that follow a route. The transit model is currently kind of broken, so not describing the state machine yet."]],"type":[["StopIdx",""]]});

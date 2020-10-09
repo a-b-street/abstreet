@@ -325,7 +325,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Distance</span>, <span class="ident">Speed</span>};
 
-<span class="comment">// In seconds. Can be negative.</span>
+<span class="doccomment">/// In seconds. Can be negative.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Duration</span>(<span class="ident">f64</span>);
 
@@ -433,7 +433,7 @@
         }
     }
 
-    <span class="comment">// If two durations are within this amount, they&#39;ll print as if they&#39;re the same.</span>
+    <span class="doccomment">/// If two durations are within this amount, they&#39;ll print as if they&#39;re the same.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">epsilon_eq</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">eps</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.1</span>);
         <span class="kw">if</span> <span class="self">self</span> <span class="op">&gt;</span> <span class="ident">other</span> {
@@ -469,7 +469,7 @@
 
     <span class="comment">// TODO Do something fancier? http://vis.stanford.edu/papers/tick-labels</span>
     <span class="comment">// TODO Unit test me</span>
-    <span class="comment">// Returns (rounded max, the boundaries in number of minutes)</span>
+    <span class="doccomment">/// Returns (rounded max, the boundaries in number of minutes)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_intervals_for_max</span>(<span class="self">self</span>, <span class="ident">num_labels</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> (<span class="ident">Duration</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
         <span class="comment">// Example 1: 43 minutes, max 5 labels... raw_mins_per_interval is 8.6</span>
         <span class="kw">let</span> <span class="ident">raw_mins_per_interval</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">num_minutes_rounded_up</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">num_labels</span> <span class="kw">as</span> <span class="ident">f64</span>);

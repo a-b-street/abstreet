@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SimFlags",""]]});
+initSidebarItems({"struct":[["SimFlags","SimFlags specifies a simulation to setup."]]});

@@ -42,8 +42,8 @@
 <span id="41">41</span>
 <span id="42">42</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// A list of all data files that&#39;re part of A/B Street. The updater crate manages this file, either</span>
-<span class="comment">// downloading updates or, for developers, uploading them.</span>
+<span class="doccomment">//! A list of all data files that&#39;re part of A/B Street. The updater crate manages this file, either</span>
+<span class="doccomment">//! downloading updates or, for developers, uploading them.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -51,16 +51,16 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Manifest</span> {
-    <span class="comment">// Keyed by path, starting with &quot;data/&quot;</span>
+    <span class="doccomment">/// Keyed by path, starting with &quot;data/&quot;</span>
     <span class="kw">pub</span> <span class="ident">entries</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Entry</span><span class="op">&gt;</span>,
 }
 
-<span class="comment">// A single file</span>
+<span class="doccomment">/// A single file</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Entry</span> {
-    <span class="comment">// md5sum of the file</span>
+    <span class="doccomment">/// md5sum of the file</span>
     <span class="kw">pub</span> <span class="ident">checksum</span>: <span class="ident">String</span>,
-    <span class="comment">// URL to a .zip file containing the one file</span>
+    <span class="doccomment">/// URL to a .zip file containing the one file</span>
     <span class="kw">pub</span> <span class="ident">dropbox_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 

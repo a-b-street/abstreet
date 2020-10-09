@@ -120,7 +120,7 @@
     }
 }
 
-<span class="comment">// Keeps file extensions</span>
+<span class="doccomment">/// Keeps file extensions</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_prev_file</span>(<span class="ident">orig</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">files</span> <span class="op">=</span> <span class="ident">list_dir</span>(<span class="ident">parent_path</span>(<span class="kw-2">&amp;</span><span class="ident">orig</span>));
     <span class="ident">files</span>.<span class="ident">reverse</span>();
@@ -132,8 +132,8 @@
     <span class="ident">files</span>.<span class="ident">into_iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">f</span> <span class="op">&gt;</span> <span class="ident">orig</span>)
 }
 
-<span class="comment">// Load all serialized things from a directory, return sorted by name, with file extension removed.</span>
-<span class="comment">// Detects JSON or binary. Filters out broken files.</span>
+<span class="doccomment">/// Load all serialized things from a directory, return sorted by name, with file extension removed.</span>
+<span class="doccomment">/// Detects JSON or binary. Filters out broken files.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_all_objects</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">dir</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">T</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;load_all_objects from {}&quot;</span>, <span class="ident">dir</span>));
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tree</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
@@ -150,7 +150,7 @@
     <span class="ident">tree</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
 }
 
-<span class="comment">// Just list all things from a directory, return sorted by name, with file extension removed.</span>
+<span class="doccomment">/// Just list all things from a directory, return sorted by name, with file extension removed.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_objects</span>(<span class="ident">dir</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="ident">list_dir</span>(<span class="ident">dir</span>).<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>)).<span class="ident">collect</span>()
 }

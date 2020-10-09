@@ -1050,7 +1050,6 @@
 <span id="1049">1049</span>
 <span id="1050">1050</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// The Sim ties together all the pieces of the simulation. Its main property is the current time.</span>
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
@@ -1084,6 +1083,7 @@
 <span class="comment">// TODO Do something else.</span>
 <span class="kw">const</span> <span class="ident">BLIND_RETRY_TO_SPAWN</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">5.0</span>);
 
+<span class="doccomment">/// The Sim ties together all the pieces of the simulation. Its main property is the current time.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sim</span> {
     <span class="ident">driving</span>: <span class="ident">DrivingSimState</span>,
@@ -1176,11 +1176,11 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AlertHandler</span> {
-    <span class="comment">// Just print the alert to STDOUT</span>
+    <span class="doccomment">/// Just print the alert to STDOUT</span>
     <span class="ident">Print</span>,
-    <span class="comment">// Print the alert to STDOUT and don&#39;t proceed until the UI calls clear_alerts()</span>
+    <span class="doccomment">/// Print the alert to STDOUT and don&#39;t proceed until the UI calls clear_alerts()</span>
     <span class="ident">Block</span>,
-    <span class="comment">// Don&#39;t do anything</span>
+    <span class="doccomment">/// Don&#39;t do anything</span>
     <span class="ident">Silence</span>,
 }
 
@@ -1269,7 +1269,7 @@
         <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">get_free_lot_spots</span>(<span class="ident">pl</span>)
     }
 
-    <span class="comment">// (Filled, available)</span>
+    <span class="doccomment">/// (Filled, available)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">get_all_parking_spots</span>()
     }
@@ -1278,7 +1278,7 @@
         <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">bldg_to_parked_cars</span>(<span class="ident">b</span>)
     }
 
-    <span class="comment">// Also returns the start distance of the building. TODO Do that in the Path properly.</span>
+    <span class="doccomment">/// Also returns the start distance of the building. TODO Do that in the Path properly.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walking_path_to_nearest_parking_spot</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
@@ -2088,7 +2088,7 @@
 <span class="ident">downcast_rs</span>::<span class="macro">impl_downcast</span><span class="macro">!</span>(<span class="ident">SimCallback</span>);
 
 <span class="kw">impl</span> <span class="ident">Sim</span> {
-    <span class="comment">// Only one at a time supported.</span>
+    <span class="doccomment">/// Only one at a time supported.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_periodic_callback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">frequency</span>: <span class="ident">Duration</span>) {
         <span class="comment">// TODO Round up time nicely?</span>
         <span class="self">self</span>.<span class="ident">scheduler</span>

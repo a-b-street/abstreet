@@ -871,7 +871,7 @@
         <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>()
     }
 
-    <span class="comment">// Doesn&#39;t check for duplicates. Use at your own risk.</span>
+    <span class="doccomment">/// Doesn&#39;t check for duplicates. Use at your own risk.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unchecked_new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&gt;=</span> <span class="number">2</span>);
         <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">fold</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="op">|</span><span class="ident">so_far</span>, <span class="ident">pair</span><span class="op">|</span> {
@@ -881,7 +881,7 @@
         <span class="ident">PolyLine</span> { <span class="ident">pts</span>, <span class="ident">length</span> }
     }
 
-    <span class="comment">// First dedupes adjacent points</span>
+    <span class="doccomment">/// First dedupes adjacent points</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deduping_new</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
         <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">pts</span>)
@@ -968,7 +968,7 @@
         <span class="self">self</span>.<span class="ident">must_extend</span>(<span class="ident">new</span>)
     }
 
-    <span class="comment">// One or both args might be empty.</span>
+    <span class="doccomment">/// One or both args might be empty.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="ident">first</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">second</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">second</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">first</span>);
@@ -1001,7 +1001,7 @@
         <span class="self">self</span>.<span class="ident">length</span>
     }
 
-    <span class="comment">// Returns the excess distance left over from the end</span>
+    <span class="doccomment">/// Returns the excess distance left over from the end</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">Distance</span>), <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> <span class="op">||</span> <span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> <span class="op">||</span> <span class="ident">end</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t get a polyline slice [{}, {}]&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>));
@@ -1076,7 +1076,7 @@
         <span class="prelude-val">Ok</span>((<span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">result</span>)<span class="question-mark">?</span>, <span class="ident">end</span> <span class="op">-</span> <span class="ident">dist_so_far</span>))
     }
 
-    <span class="comment">// No excess leftover distance allowed.</span>
+    <span class="doccomment">/// No excess leftover distance allowed.</span>
     <span class="comment">// TODO Lot of callers of this. Make safer later.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">start</span>, <span class="ident">end</span>).<span class="ident">unwrap</span>()
@@ -1308,7 +1308,7 @@
         <span class="ident">polygons</span>
     }
 
-    <span class="comment">// Don&#39;t draw the dashes too close to the ends.</span>
+    <span class="doccomment">/// Don&#39;t draw the dashes too close to the ends.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dashed_lines</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">width</span>: <span class="ident">Distance</span>,
@@ -1430,7 +1430,7 @@
         <span class="ident">polygons</span>
     }
 
-    <span class="comment">// Also return the angle of the line where the hit was found</span>
+    <span class="doccomment">/// Also return the angle of the line where the hit was found</span>
     <span class="comment">// TODO Also return distance along self of the hit</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">other</span>);
@@ -1465,8 +1465,8 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="comment">// Panics if the pt is not on the polyline. Returns None if the point is the first point</span>
-    <span class="comment">// (meaning the slice is empty).</span>
+    <span class="doccomment">/// Panics if the pt is not on the polyline. Returns None if the point is the first point</span>
+    <span class="doccomment">/// (meaning the slice is empty).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice_ending_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">first_pt</span>() <span class="op">==</span> <span class="ident">pt</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -1489,7 +1489,7 @@
         }
     }
 
-    <span class="comment">// Returns None if the point is the last point.</span>
+    <span class="doccomment">/// Returns None if the point is the last point.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice_starting_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_pt</span>() <span class="op">==</span> <span class="ident">pt</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -1536,8 +1536,8 @@
         <span class="ident">Bounds</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span>)
     }
 
-    <span class="comment">// If the current line is at least this long, return it. Otherwise, extend the end of it,</span>
-    <span class="comment">// following the angle of the last line.</span>
+    <span class="doccomment">/// If the current line is at least this long, return it. Otherwise, extend the end of it,</span>
+    <span class="doccomment">/// following the angle of the last line.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend_to_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">min_len</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
         <span class="kw">let</span> <span class="ident">need_len</span> <span class="op">=</span> <span class="ident">min_len</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">length</span>();
         <span class="kw">if</span> <span class="ident">need_len</span> <span class="op">&lt;=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {

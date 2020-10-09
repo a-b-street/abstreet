@@ -988,13 +988,7 @@
 <span id="987">987</span>
 <span id="988">988</span>
 <span id="989">989</span>
-<span id="990">990</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Manages the state of parked cars. There are two implementations:</span>
-<span class="comment">// - NormalParkingSimState allows only one vehicle per ParkingSpot defined in the map</span>
-<span class="comment">// - InfiniteParkingSimState pretends every building has infinite capacity, and onstreet parking is</span>
-<span class="comment">//   ignored</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">enum_dispatch</span>::<span class="ident">enum_dispatch</span>;
@@ -1012,6 +1006,10 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">CarStatus</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Vehicle</span>};
 
+<span class="doccomment">/// Manages the state of parked cars. There are two implementations:</span>
+<span class="doccomment">/// - NormalParkingSimState allows only one vehicle per ParkingSpot defined in the map</span>
+<span class="doccomment">/// - InfiniteParkingSimState pretends every building has infinite capacity, and onstreet parking is</span>
+<span class="doccomment">///   ignored</span>
 <span class="attribute">#[<span class="ident">enum_dispatch</span>(<span class="ident">ParkingSimState</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ParkingSim</span> {
     <span class="comment">// Returns any cars that got very abruptly evicted from existence</span>
@@ -1071,8 +1069,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ParkingSimState</span> {
-    <span class="comment">// Counterintuitive: any spots located in blackholes are just not represented here. If somebody</span>
-    <span class="comment">// tries to drive from a blackholed spot, they couldn&#39;t reach most places.</span>
+    <span class="doccomment">/// Counterintuitive: any spots located in blackholes are just not represented here. If somebody</span>
+    <span class="doccomment">/// tries to drive from a blackholed spot, they couldn&#39;t reach most places.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">infinite</span>: <span class="ident">bool</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">ParkingSimState</span> {
         <span class="kw">if</span> <span class="ident">infinite</span> {
             <span class="ident">ParkingSimState</span>::<span class="ident">Infinite</span>(<span class="ident">InfiniteParkingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>))
@@ -1654,10 +1652,10 @@
     }
 }
 
-<span class="comment">// This assigns infinite private parking to all buildings and none anywhere else. This effectively</span>
-<span class="comment">// disables the simulation of parking entirely, making driving trips just go directly between</span>
-<span class="comment">// buildings. Useful for maps without good parking data (which is currently all of them) and</span>
-<span class="comment">// experiments where parking contention skews results and just gets in the way.</span>
+<span class="doccomment">/// This assigns infinite private parking to all buildings and none anywhere else. This effectively</span>
+<span class="doccomment">/// disables the simulation of parking entirely, making driving trips just go directly between</span>
+<span class="doccomment">/// buildings. Useful for maps without good parking data (which is currently all of them) and</span>
+<span class="doccomment">/// experiments where parking contention skews results and just gets in the way.</span>
 <span class="comment">//</span>
 <span class="comment">// TODO Reconsider this split implementation. There&#39;s lots of copied code. We can maybe just use</span>
 <span class="comment">// NormalParkingSimState with an &#39;infinite: bool&#39; and rethinking num_spots_per_offstreet.</span>

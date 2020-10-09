@@ -227,8 +227,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">extract</span>::<span class="ident">OsmExtract</span>;
 
-<span class="comment">// Returns amenities and a mapping of all points to split road. (Some internal points on roads are</span>
-<span class="comment">// removed, so this mapping isn&#39;t redundant.)</span>
+<span class="doccomment">/// Returns amenities and a mapping of all points to split road. (Some internal points on roads are</span>
+<span class="doccomment">/// removed, so this mapping isn&#39;t redundant.)</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">split_up_roads</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>,
     <span class="kw-2">mut</span> <span class="ident">input</span>: <span class="ident">OsmExtract</span>,

@@ -96,7 +96,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Distance</span>;
 
-<span class="comment">// longitude is x, latitude is y</span>
+<span class="doccomment">/// longitude is x, latitude is y</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LonLat</span> {
     <span class="ident">longitude</span>: <span class="ident">NotNan</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
@@ -136,7 +136,7 @@
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">earth_radius_m</span> <span class="op">*</span> <span class="ident">c</span>)
     }
 
-    <span class="comment">// Pretty meaningless units, for comparing distances very roughly</span>
+    <span class="doccomment">/// Pretty meaningless units, for comparing distances very roughly</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fast_dist</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">LonLat</span>) <span class="op">-&gt;</span> <span class="ident">NotNan</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
         <span class="ident">NotNan</span>::<span class="ident">new</span>((<span class="self">self</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">x</span>()).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="self">self</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">y</span>()).<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">unwrap</span>()
     }

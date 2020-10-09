@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_counter_clockwise",""]],"struct":[["InfiniteLine",""],["Line",""]]});
+initSidebarItems({"fn":[["is_counter_clockwise",""]],"struct":[["InfiniteLine",""],["Line","Segment, technically. Should rename."]]});

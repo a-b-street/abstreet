@@ -110,9 +110,6 @@
 <span id="109">109</span>
 <span id="110">110</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// As a simulation runs, different systems emit Events. This cleanly separates the internal</span>
-<span class="comment">// mechanics of the simulation from consumers that just want to know what&#39;s happening.</span>
-
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
@@ -125,11 +122,14 @@
     <span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">OffMapLocation</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>,
 };
 
-<span class="comment">// An Event always occurs at a particular time, plumbed separately to consumers.</span>
-<span class="comment">//</span>
-<span class="comment">// Many of these were created for a test framework that&#39;s been abandoned. They could be removed or</span>
-<span class="comment">// have their API adjusted, but it&#39;s not urgent; publishing an event that&#39;s not used by Analytics</span>
-<span class="comment">// has no performance impact.</span>
+<span class="doccomment">/// As a simulation runs, different systems emit Events. This cleanly separates the internal</span>
+<span class="doccomment">/// mechanics of the simulation from consumers that just want to know what&#39;s happening.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// An Event always occurs at a particular time, plumbed separately to consumers.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Many of these were created for a test framework that&#39;s been abandoned. They could be removed or</span>
+<span class="doccomment">/// have their API adjusted, but it&#39;s not urgent; publishing an event that&#39;s not used by Analytics</span>
+<span class="doccomment">/// has no performance impact.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Event</span> {
     <span class="ident">CarReachedParkingSpot</span>(<span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>),
@@ -137,13 +137,13 @@
 
     <span class="ident">BusArrivedAtStop</span>(<span class="ident">CarID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>),
     <span class="ident">BusDepartedFromStop</span>(<span class="ident">CarID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>),
-    <span class="comment">// How long waiting at the stop?</span>
+    <span class="doccomment">/// How long waiting at the stop?</span>
     <span class="ident">PassengerBoardsTransit</span>(<span class="ident">PersonID</span>, <span class="ident">CarID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">Duration</span>),
     <span class="ident">PassengerAlightsTransit</span>(<span class="ident">PersonID</span>, <span class="ident">CarID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>),
 
     <span class="ident">PersonEntersBuilding</span>(<span class="ident">PersonID</span>, <span class="ident">BuildingID</span>),
     <span class="ident">PersonLeavesBuilding</span>(<span class="ident">PersonID</span>, <span class="ident">BuildingID</span>),
-    <span class="comment">// None if cancelled</span>
+    <span class="doccomment">/// None if cancelled</span>
     <span class="ident">PersonLeavesMap</span>(
         <span class="ident">PersonID</span>,
         <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span>,
@@ -158,8 +158,8 @@
 
     <span class="ident">BikeStoppedAtSidewalk</span>(<span class="ident">CarID</span>, <span class="ident">LaneID</span>),
 
-    <span class="comment">// If the agent is a transit vehicle, then include a count of how many passengers are on</span>
-    <span class="comment">// board.</span>
+    <span class="doccomment">/// If the agent is a transit vehicle, then include a count of how many passengers are on</span>
+    <span class="doccomment">/// board.</span>
     <span class="ident">AgentEntersTraversable</span>(<span class="ident">AgentID</span>, <span class="ident">Traversable</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>),
     <span class="ident">IntersectionDelayMeasured</span>(<span class="ident">CompressedMovementID</span>, <span class="ident">Duration</span>, <span class="ident">AgentID</span>),
 
@@ -172,8 +172,8 @@
     <span class="ident">TripCancelled</span>(<span class="ident">TripID</span>),
     <span class="ident">TripPhaseStarting</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">TripPhaseType</span>),
 
-    <span class="comment">// Just use for parking replanning. Not happy about copying the full path in here, but the way</span>
-    <span class="comment">// to plumb info into Analytics is Event.</span>
+    <span class="doccomment">/// Just use for parking replanning. Not happy about copying the full path in here, but the way</span>
+    <span class="doccomment">/// to plumb info into Analytics is Event.</span>
     <span class="ident">PathAmended</span>(<span class="ident">Path</span>),
 
     <span class="ident">Alert</span>(<span class="ident">AlertLocation</span>, <span class="ident">String</span>),
@@ -194,7 +194,7 @@
     <span class="ident">Biking</span>,
     <span class="ident">Parking</span>,
     <span class="ident">WaitingForBus</span>(<span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>),
-    <span class="comment">// What stop did they board at?</span>
+    <span class="doccomment">/// What stop did they board at?</span>
     <span class="ident">RidingBus</span>(<span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">CarID</span>),
     <span class="ident">Cancelled</span>,
     <span class="ident">Finished</span>,

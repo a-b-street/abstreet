@@ -340,7 +340,7 @@
         )
     }
 
-    <span class="comment">// None if empty</span>
+    <span class="doccomment">/// None if empty</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percentile</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">p</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -371,7 +371,7 @@
         <span class="self">self</span>.<span class="ident">count</span>
     }
 
-    <span class="comment">// Could implement PartialEq, but be a bit more clear how approximate this is</span>
+    <span class="doccomment">/// Could implement PartialEq, but be a bit more clear how approximate this is</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seems_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">describe</span>() <span class="op">==</span> <span class="ident">other</span>.<span class="ident">describe</span>()
     }

@@ -1698,15 +1698,7 @@
 <span id="1697">1697</span>
 <span id="1698">1698</span>
 <span id="1699">1699</span>
-<span id="1700">1700</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Manages people, each of which executes some trips through the day. Each trip is further broken</span>
-<span class="comment">// down into legs -- for example, a driving trip might start with somebody walking to their car,</span>
-<span class="comment">// driving somewhere, parking, and then walking to their final destination.</span>
-<span class="comment">// https://dabreegster.github.io/abstreet/trafficsim/trips.html describes some of the variations.</span>
-<span class="comment">//</span>
-<span class="comment">// Here be dragons, keep hands and feet inside the ride at all times...</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -1727,6 +1719,12 @@
     <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>,
 };
 
+<span class="doccomment">/// Manages people, each of which executes some trips through the day. Each trip is further broken</span>
+<span class="doccomment">/// down into legs -- for example, a driving trip might start with somebody walking to their car,</span>
+<span class="doccomment">/// driving somewhere, parking, and then walking to their final destination.</span>
+<span class="doccomment">/// https://dabreegster.github.io/abstreet/trafficsim/trips.html describes some of the variations.</span>
+<span class="comment">//</span>
+<span class="comment">// Here be dragons, keep hands and feet inside the ride at all times...</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripManager</span> {
     <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span>,
@@ -2181,7 +2179,7 @@
         <span class="self">self</span>.<span class="ident">person_finished_trip</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">ctx</span>);
     }
 
-    <span class="comment">// If no route is returned, the pedestrian boarded a bus immediately.</span>
+    <span class="doccomment">/// If no route is returned, the pedestrian boarded a bus immediately.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ped_reached_bus_stop</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
@@ -2430,7 +2428,7 @@
         <span class="self">self</span>.<span class="ident">person_finished_trip</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">ctx</span>);
     }
 
-    <span class="comment">// Cancel a trip before it&#39;s started. The person will stay where they are.</span>
+    <span class="doccomment">/// Cancel a trip before it&#39;s started. The person will stay where they are.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel_unstarted_trip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TripID</span>, <span class="ident">reason</span>: <span class="ident">String</span>) {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>];
         <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-=</span> <span class="number">1</span>;
@@ -2438,8 +2436,8 @@
         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>));
     }
 
-    <span class="comment">// Cancel a trip after it&#39;s started. The person will be magically warped to their destination,</span>
-    <span class="comment">// along with their car, as if the trip had completed normally.</span>
+    <span class="doccomment">/// Cancel a trip after it&#39;s started. The person will be magically warped to their destination,</span>
+    <span class="doccomment">/// along with their car, as if the trip had completed normally.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel_trip</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
@@ -2574,7 +2572,7 @@
         }
     }
 
-    <span class="comment">// This will be None for parked cars and buses. Should always work for pedestrians.</span>
+    <span class="doccomment">/// This will be None for parked cars and buses. Should always work for pedestrians.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_to_trip</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">AgentID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">cloned</span>()
     }
@@ -3088,15 +3086,15 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripInfo</span> {
-    <span class="comment">// Scheduled departure; the start may be delayed if the previous trip is taking too long.</span>
+    <span class="doccomment">/// Scheduled departure; the start may be delayed if the previous trip is taking too long.</span>
     <span class="kw">pub</span> <span class="ident">departure</span>: <span class="ident">Time</span>,
     <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">TripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">end</span>: <span class="ident">TripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
-    <span class="comment">// Did a ScenarioModifier apply to this?</span>
+    <span class="doccomment">/// Did a ScenarioModifier apply to this?</span>
     <span class="kw">pub</span> <span class="ident">modified</span>: <span class="ident">bool</span>,
-    <span class="comment">// Was this trip affected by a congestion cap?</span>
+    <span class="doccomment">/// Was this trip affected by a congestion cap?</span>
     <span class="kw">pub</span> <span class="ident">capped</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">cancellation_reason</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
@@ -3161,14 +3159,14 @@
     }
 }
 
-<span class="comment">// These don&#39;t specify where the leg starts, since it might be unknown -- like when we drive and</span>
-<span class="comment">// don&#39;t know where we&#39;ll wind up parking.</span>
+<span class="doccomment">/// These don&#39;t specify where the leg starts, since it might be unknown -- like when we drive and</span>
+<span class="doccomment">/// don&#39;t know where we&#39;ll wind up parking.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripLeg</span> {
     <span class="ident">Walk</span>(<span class="ident">SidewalkSpot</span>),
-    <span class="comment">// A person may own many vehicles, so specify which they use</span>
+    <span class="doccomment">/// A person may own many vehicles, so specify which they use</span>
     <span class="ident">Drive</span>(<span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>),
-    <span class="comment">// Maybe get off at a stop, maybe ride off-map</span>
+    <span class="doccomment">/// Maybe get off at a stop, maybe ride off-map</span>
     <span class="ident">RideBus</span>(<span class="ident">BusRouteID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>),
     <span class="ident">Remote</span>(<span class="ident">OffMapLocation</span>),
 }
@@ -3345,7 +3343,7 @@
 
     <span class="kw">pub</span> <span class="ident">ped</span>: <span class="ident">PedestrianID</span>,
     <span class="kw">pub</span> <span class="ident">ped_speed</span>: <span class="ident">Speed</span>,
-    <span class="comment">// Both cars and bikes</span>
+    <span class="doccomment">/// Both cars and bikes</span>
     <span class="kw">pub</span> <span class="ident">vehicles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vehicle</span><span class="op">&gt;</span>,
 
     <span class="ident">delayed_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">TripSpec</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,

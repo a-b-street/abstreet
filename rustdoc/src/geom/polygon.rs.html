@@ -509,12 +509,12 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Polygon</span> {
     <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
-    <span class="comment">// Groups of three indices make up the triangles</span>
+    <span class="doccomment">/// Groups of three indices make up the triangles</span>
     <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>,
 
-    <span class="comment">// If the polygon has holes, explicitly store all the rings (the one outer and all of the</span>
-    <span class="comment">// inner) so they can later be used to generate outlines and such. If the polygon has no holes,</span>
-    <span class="comment">// then this will just be None, since the points form a ring.</span>
+    <span class="doccomment">/// If the polygon has holes, explicitly store all the rings (the one outer and all of the</span>
+    <span class="doccomment">/// inner) so they can later be used to generate outlines and such. If the polygon has no</span>
+    <span class="doccomment">/// holes, then this will just be None, since the points form a ring.</span>
     <span class="ident">rings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;&gt;</span>,
 }
 
@@ -657,8 +657,8 @@
         })
     }
 
-    <span class="comment">// The order of these points depends on the constructor! The first and last point may or may</span>
-    <span class="comment">// not match. Polygons constructed from PolyLines will have a very weird order.</span>
+    <span class="doccomment">/// The order of these points depends on the constructor! The first and last point may or may</span>
+    <span class="doccomment">/// not match. Polygons constructed from PolyLines will have a very weird order.</span>
     <span class="comment">// TODO rename outer_points to be clear</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">points</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
@@ -686,7 +686,7 @@
         <span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_pt2d</span>()).<span class="ident">collect</span>())
     }
 
-    <span class="comment">// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
+    <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rectangle</span>(<span class="ident">width</span>: <span class="ident">f64</span>, <span class="ident">height</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
         <span class="ident">Polygon</span> {
             <span class="ident">points</span>: <span class="macro">vec</span><span class="macro">!</span>[
@@ -728,8 +728,8 @@
         <span class="prelude-val">Some</span>(<span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>).<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">y1</span>))
     }
 
-    <span class="comment">// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
-    <span class="comment">// If radius is None, be as round as possible</span>
+    <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
+    <span class="doccomment">/// If radius is None, be as round as possible</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rounded_rectangle</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="ident">w</span>.<span class="ident">min</span>(<span class="ident">h</span>) <span class="op">/</span> <span class="number">2.0</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span> <span class="op">&lt;=</span> <span class="ident">w</span>);
@@ -803,8 +803,8 @@
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
     }
 
-    <span class="comment">// Only works for polygons that&#39;re formed from rings. Those made from PolyLines won&#39;t work, for</span>
-    <span class="comment">// example.</span>
+    <span class="doccomment">/// Only works for polygons that&#39;re formed from rings. Those made from PolyLines won&#39;t work, for</span>
+    <span class="doccomment">/// example.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">Polygon</span>::<span class="ident">union_all</span>(
@@ -815,21 +815,21 @@
         }
     }
 
-    <span class="comment">// Remove the internal rings used for to_outline. This is fine to do if the polygon is being</span>
-    <span class="comment">// added to some larger piece of geometry that won&#39;t need an outline.</span>
+    <span class="doccomment">/// Remove the internal rings used for to_outline. This is fine to do if the polygon is being</span>
+    <span class="doccomment">/// added to some larger piece of geometry that won&#39;t need an outline.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">strip_rings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="ident">p</span>.<span class="ident">rings</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="ident">p</span>
     }
 
-    <span class="comment">// Usually m^2, unless the polygon is in screen-space</span>
+    <span class="doccomment">/// Usually m^2, unless the polygon is in screen-space</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">area</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="comment">// Polygon orientation messes this up sometimes</span>
         <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">area</span>().<span class="ident">abs</span>()
     }
 
-    <span class="comment">// Doesn&#39;t handle multiple crossings in and out.</span>
+    <span class="doccomment">/// Doesn&#39;t handle multiple crossings in and out.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clip_polyline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>());
         <span class="kw">let</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">all_intersections</span>(<span class="ident">input</span>);

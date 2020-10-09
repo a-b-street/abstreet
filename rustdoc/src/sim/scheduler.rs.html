@@ -284,12 +284,7 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
-<span id="286">286</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// The priority queue driving the discrete event simulation. Different pieces of the simulation</span>
-<span class="comment">// schedule Commands to happen at a specific time, and the Scheduler hands out the commands in</span>
-<span class="comment">// order.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">btree_map</span>::<span class="ident">Entry</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BinaryHeap</span>};
@@ -305,19 +300,19 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Command</span> {
-    <span class="comment">// If true, retry when there&#39;s no room to spawn somewhere</span>
+    <span class="doccomment">/// If true, retry when there&#39;s no room to spawn somewhere</span>
     <span class="ident">SpawnCar</span>(<span class="ident">CreateCar</span>, <span class="ident">bool</span>),
     <span class="ident">SpawnPed</span>(<span class="ident">CreatePedestrian</span>),
     <span class="ident">StartTrip</span>(<span class="ident">TripID</span>, <span class="ident">TripSpec</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>),
     <span class="ident">UpdateCar</span>(<span class="ident">CarID</span>),
-    <span class="comment">// Distinguish this from UpdateCar to avoid confusing things</span>
+    <span class="doccomment">/// Distinguish this from UpdateCar to avoid confusing things</span>
     <span class="ident">UpdateLaggyHead</span>(<span class="ident">CarID</span>),
     <span class="ident">UpdatePed</span>(<span class="ident">PedestrianID</span>),
     <span class="ident">UpdateIntersection</span>(<span class="ident">IntersectionID</span>),
     <span class="ident">Callback</span>(<span class="ident">Duration</span>),
     <span class="ident">Pandemic</span>(<span class="ident">pandemic</span>::<span class="ident">Cmd</span>),
     <span class="ident">FinishRemoteTrip</span>(<span class="ident">TripID</span>),
-    <span class="comment">// The Time is redundant, just used to dedupe commands</span>
+    <span class="doccomment">/// The Time is redundant, just used to dedupe commands</span>
     <span class="ident">StartBus</span>(<span class="ident">BusRouteID</span>, <span class="ident">Time</span>),
 }
 
@@ -347,8 +342,8 @@
     }
 }
 
-<span class="comment">// A smaller version of Command that satisfies many more properties. Only one Command per</span>
-<span class="comment">// CommandType may exist at a time.</span>
+<span class="doccomment">/// A smaller version of Command that satisfies many more properties. Only one Command per</span>
+<span class="doccomment">/// CommandType may exist at a time.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CommandType</span> {
     <span class="ident">StartTrip</span>(<span class="ident">TripID</span>),
@@ -386,6 +381,9 @@
     }
 }
 
+<span class="doccomment">/// The priority queue driving the discrete event simulation. Different pieces of the simulation</span>
+<span class="doccomment">/// schedule Commands to happen at a specific time, and the Scheduler hands out the commands in</span>
+<span class="doccomment">/// order.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Scheduler</span> {
     <span class="ident">items</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">&gt;</span>,
@@ -474,8 +472,8 @@
         }
     }
 
-    <span class="comment">// This next command might&#39;ve actually been rescheduled to a later time; the caller won&#39;t know</span>
-    <span class="comment">// that here.</span>
+    <span class="doccomment">/// This next command might&#39;ve actually been rescheduled to a later time; the caller won&#39;t know</span>
+    <span class="doccomment">/// that here.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peek_next_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">peek</span>().<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">cmd</span><span class="op">|</span> <span class="ident">cmd</span>.<span class="ident">time</span>)
     }
@@ -484,9 +482,9 @@
         <span class="self">self</span>.<span class="ident">last_time</span>
     }
 
-    <span class="comment">// This API is safer than handing out a batch of items at a time, because while processing one</span>
-    <span class="comment">// item, we might change the priority of other items or add new items. Don&#39;t make the caller</span>
-    <span class="comment">// reconcile those changes -- just keep pulling items from here, one at a time.</span>
+    <span class="doccomment">/// This API is safer than handing out a batch of items at a time, because while processing one</span>
+    <span class="doccomment">/// item, we might change the priority of other items or add new items. Don&#39;t make the caller</span>
+    <span class="doccomment">/// reconcile those changes -- just keep pulling items from here, one at a time.</span>
     <span class="comment">//</span>
     <span class="comment">// TODO Above description is a little vague. This should be used with peek_next_time in a</span>
     <span class="comment">// particular way...</span>
@@ -512,8 +510,8 @@
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delta times for events: {}&quot;</span>, <span class="self">self</span>.<span class="ident">delta_times</span>.<span class="ident">describe</span>())
     }
 
-    <span class="comment">// It&#39;s much more efficient to save without the paths, and to recalculate them when loading</span>
-    <span class="comment">// later.</span>
+    <span class="doccomment">/// It&#39;s much more efficient to save without the paths, and to recalculate them when loading</span>
+    <span class="doccomment">/// later.</span>
     <span class="comment">// TODO Why not just implement Default on Path and use skip_serializing? Because we want to</span>
     <span class="comment">// serialize paths inside Router for live agents. We need to defer calling make_router and just</span>
     <span class="comment">// store the input in CreateCar.</span>

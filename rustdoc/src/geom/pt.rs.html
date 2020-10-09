@@ -200,7 +200,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">EPSILON_DIST</span>};
 
-<span class="comment">// This represents world-space in meters.</span>
+<span class="doccomment">/// This represents world-space in meters.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pt2D</span> {
     <span class="ident">inner_x</span>: <span class="ident">f64</span>,
@@ -232,7 +232,7 @@
         <span class="self">self</span>.<span class="ident">dist_to</span>(<span class="ident">other</span>) <span class="op">&lt;=</span> <span class="ident">threshold</span>
     }
 
-    <span class="comment">// Can go out of bounds.</span>
+    <span class="doccomment">/// Can go out of bounds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_gps</span>(<span class="ident">gps</span>: <span class="ident">LonLat</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">get_max_world_pt</span>();
@@ -246,7 +246,7 @@
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x</span>, <span class="ident">y</span>)
     }
 
-    <span class="comment">// Can go out of bounds.</span>
+    <span class="doccomment">/// Can go out of bounds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_gps</span>(<span class="self">self</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-&gt;</span> <span class="ident">LonLat</span> {
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">get_max_world_pt</span>();
@@ -373,7 +373,7 @@
     }
 }
 
-<span class="comment">// This represents world space, NOT LonLat.</span>
+<span class="doccomment">/// This represents world space, NOT LonLat.</span>
 <span class="comment">// TODO So rename it HashablePair or something</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashablePt2D</span> {

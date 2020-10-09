@@ -215,7 +215,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Duration</span>};
 
-<span class="comment">// In seconds since midnight. Can&#39;t be negative.</span>
+<span class="doccomment">/// In seconds since midnight. Can&#39;t be negative.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Time</span>(<span class="ident">f64</span>);
 
@@ -239,7 +239,7 @@
         <span class="ident">Time</span>(<span class="ident">trim_f64</span>(<span class="ident">value</span>))
     }
 
-    <span class="comment">// (hours, minutes, seconds, centiseconds)</span>
+    <span class="doccomment">/// (hours, minutes, seconds, centiseconds)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_parts</span>(<span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> (<span class="ident">remainder</span> <span class="op">/</span> <span class="number">3600.0</span>).<span class="ident">floor</span>();
@@ -257,7 +257,7 @@
             <span class="ident">centis</span> <span class="kw">as</span> <span class="ident">usize</span>,
         )
     }
-    <span class="comment">// Rounded up</span>
+    <span class="doccomment">/// Rounded up</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hours</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
         <span class="kw">let</span> (<span class="ident">hr</span>, <span class="ident">min</span>, <span class="ident">sec</span>, <span class="ident">cs</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
         <span class="kw">if</span> <span class="ident">min</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">||</span> <span class="ident">sec</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">||</span> <span class="ident">cs</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -361,7 +361,7 @@
         <span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">other</span>.<span class="number">0</span>
     }
 
-    <span class="comment">// For RNG range generation. Don&#39;t abuse.</span>
+    <span class="doccomment">/// For RNG range generation. Don&#39;t abuse.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_seconds</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }

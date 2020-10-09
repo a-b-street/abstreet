@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Distance",""]]});
+initSidebarItems({"struct":[["Distance","In meters. Can be negative."]]});

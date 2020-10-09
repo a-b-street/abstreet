@@ -1047,11 +1047,7 @@
 <span id="1046">1046</span>
 <span id="1047">1047</span>
 <span id="1048">1048</span>
-<span id="1049">1049</span>
-<span id="1050">1050</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Simulates vehicles!</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -1080,6 +1076,7 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">BLIND_RETRY_TO_CREEP_FORWARDS</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.1</span>);
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">BLIND_RETRY_TO_REACH_END_DIST</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">5.0</span>);
 
+<span class="doccomment">/// Simulates vehicles!</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrivingSimState</span> {
     <span class="attribute">#[<span class="ident">serde</span>(
@@ -1124,7 +1121,7 @@
         <span class="ident">sim</span>
     }
 
-    <span class="comment">// True if it worked</span>
+    <span class="doccomment">/// True if it worked</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_car_on_lane</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
@@ -1218,7 +1215,26 @@
         }
         <span class="bool-val">false</span>
     }
-
+    <span class="doccomment">/// State transitions for this car:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Crossing -&gt; Queued or WaitingToAdvance</span>
+    <span class="doccomment">/// Unparking -&gt; Crossing</span>
+    <span class="doccomment">/// IdlingAtStop -&gt; Crossing</span>
+    <span class="doccomment">/// Queued -&gt; last step handling (Parking or done)</span>
+    <span class="doccomment">/// WaitingToAdvance -&gt; try to advance to the next step of the path</span>
+    <span class="doccomment">/// Parking -&gt; done</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// State transitions for other cars:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Crossing -&gt; Crossing (recalculate dist/time)</span>
+    <span class="doccomment">/// Queued -&gt; Crossing</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Why is it safe to process cars in any order, rather than making sure to follow the order</span>
+    <span class="doccomment">/// of queues? Because of the invariant that distances should never suddenly jump when a car</span>
+    <span class="doccomment">/// has entered/exiting a queue.</span>
+    <span class="doccomment">/// This car might have reached the router&#39;s end distance, but maybe not -- might</span>
+    <span class="doccomment">/// actually be stuck behind other cars. We have to calculate the distances right now to</span>
+    <span class="doccomment">/// be sure.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_car</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">id</span>: <span class="ident">CarID</span>,
@@ -1228,26 +1244,6 @@
         <span class="ident">transit</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TransitSimState</span>,
         <span class="ident">walking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WalkingSimState</span>,
     ) {
-        <span class="comment">// State transitions for this car:</span>
-        <span class="comment">//</span>
-        <span class="comment">// Crossing -&gt; Queued or WaitingToAdvance</span>
-        <span class="comment">// Unparking -&gt; Crossing</span>
-        <span class="comment">// IdlingAtStop -&gt; Crossing</span>
-        <span class="comment">// Queued -&gt; last step handling (Parking or done)</span>
-        <span class="comment">// WaitingToAdvance -&gt; try to advance to the next step of the path</span>
-        <span class="comment">// Parking -&gt; done</span>
-        <span class="comment">//</span>
-        <span class="comment">// State transitions for other cars:</span>
-        <span class="comment">//</span>
-        <span class="comment">// Crossing -&gt; Crossing (recalculate dist/time)</span>
-        <span class="comment">// Queued -&gt; Crossing</span>
-        <span class="comment">//</span>
-        <span class="comment">// Why is it safe to process cars in any order, rather than making sure to follow the order</span>
-        <span class="comment">// of queues? Because of the invariant that distances should never suddenly jump when a car</span>
-        <span class="comment">// has entered/exiting a queue.</span>
-        <span class="comment">// This car might have reached the router&#39;s end distance, but maybe not -- might</span>
-        <span class="comment">// actually be stuck behind other cars. We have to calculate the distances right now to</span>
-        <span class="comment">// be sure.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">need_distances</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
             <span class="kw">match</span> <span class="ident">car</span>.<span class="ident">state</span> {
@@ -1904,7 +1900,7 @@
         <span class="ident">result</span>
     }
 
-    <span class="comment">// This is about as expensive as get_draw_cars_on.</span>
+    <span class="doccomment">/// This is about as expensive as get_draw_cars_on.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_single_draw_car</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">id</span>: <span class="ident">CarID</span>,

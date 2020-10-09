@@ -447,8 +447,8 @@
 <span id="446">446</span>
 <span id="447">447</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
-<span class="comment">// https://github.com/dabreegster/abstreet/issues/258</span>
+<span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
+<span class="doccomment">//! https://github.com/dabreegster/abstreet/issues/258</span>
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -466,17 +466,17 @@
 <span class="comment">// TODO Some of these fields are unused now that we separately pass TripEndpoint</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripSpec</span> {
-    <span class="comment">// Can be used to spawn from a border or anywhere for interactive debugging.</span>
+    <span class="doccomment">/// Can be used to spawn from a border or anywhere for interactive debugging.</span>
     <span class="ident">VehicleAppearing</span> {
         <span class="ident">start_pos</span>: <span class="ident">Position</span>,
         <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>,
-        <span class="comment">// This must be a currently off-map vehicle owned by the person.</span>
+        <span class="doccomment">/// This must be a currently off-map vehicle owned by the person.</span>
         <span class="ident">use_vehicle</span>: <span class="ident">CarID</span>,
         <span class="ident">retry_if_no_room</span>: <span class="ident">bool</span>,
         <span class="ident">origin</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>,
     },
-    <span class="comment">// A VehicleAppearing that failed to even pick a start_pos, because of a bug with badly chosen</span>
-    <span class="comment">// borders.</span>
+    <span class="doccomment">/// A VehicleAppearing that failed to even pick a start_pos, because of a bug with badly chosen</span>
+    <span class="doccomment">/// borders.</span>
     <span class="ident">NoRoomToSpawn</span> {
         <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
         <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>,
@@ -485,7 +485,7 @@
         <span class="ident">error</span>: <span class="ident">String</span>,
     },
     <span class="ident">UsingParkedCar</span> {
-        <span class="comment">// This must be a currently parked vehicle owned by the person.</span>
+        <span class="doccomment">/// This must be a currently parked vehicle owned by the person.</span>
         <span class="ident">car</span>: <span class="ident">CarID</span>,
         <span class="ident">start_bldg</span>: <span class="ident">BuildingID</span>,
         <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>,
@@ -506,7 +506,7 @@
         <span class="ident">stop1</span>: <span class="ident">BusStopID</span>,
         <span class="ident">maybe_stop2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>,
     },
-    <span class="comment">// Completely off-map trip. Don&#39;t really simulate much of it.</span>
+    <span class="doccomment">/// Completely off-map trip. Don&#39;t really simulate much of it.</span>
     <span class="ident">Remote</span> {
         <span class="ident">from</span>: <span class="ident">OffMapLocation</span>,
         <span class="ident">to</span>: <span class="ident">OffMapLocation</span>,
@@ -515,7 +515,7 @@
     },
 }
 
-<span class="comment">// This structure is created temporarily by a Scenario or to interactively spawn agents.</span>
+<span class="doccomment">/// This structure is created temporarily by a Scenario or to interactively spawn agents.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripSpawner</span> {
     <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(
         <span class="ident">PersonID</span>,

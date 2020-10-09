@@ -166,7 +166,7 @@
             .<span class="ident">collect</span>()
     }
 
-    <span class="comment">// Finds the closest point on the existing geometry to the query pt.</span>
+    <span class="doccomment">/// Finds the closest point on the existing geometry to the query pt.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query_pt</span>: <span class="ident">Pt2D</span>, <span class="ident">max_dist_away</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">all_close_pts</span>(<span class="ident">query_pt</span>, <span class="ident">max_dist_away</span>)
             .<span class="ident">into_iter</span>()

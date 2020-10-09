@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Duration",""]]});
+initSidebarItems({"struct":[["Duration","In seconds. Can be negative."]]});
