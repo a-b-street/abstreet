@@ -19,6 +19,7 @@ mod game;
 mod helpers;
 mod info;
 mod layer;
+mod load;
 mod options;
 mod pregame;
 mod render;
