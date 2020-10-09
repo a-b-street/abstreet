@@ -27,9 +27,9 @@ pub mod tutorial;
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum GameplayMode {
     // TODO Maybe this should be "sandbox"
-    // Map path
+    // Map name
     Freeform(String),
-    // Map path, scenario name
+    // Map name, scenario name
     PlayScenario(String, String, Vec<ScenarioModifier>),
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
@@ -77,13 +77,13 @@ pub trait GameplayState: downcast_rs::Downcast {
 downcast_rs::impl_downcast!(GameplayState);
 
 impl GameplayMode {
-    pub fn map_path(&self) -> String {
+    pub fn map_name(&self) -> &str {
         match self {
-            GameplayMode::Freeform(ref path) => path.to_string(),
-            GameplayMode::PlayScenario(ref path, _, _) => path.to_string(),
-            GameplayMode::FixTrafficSignals => abstutil::path_map("downtown"),
-            GameplayMode::OptimizeCommute(_, _) => abstutil::path_map("montlake"),
-            GameplayMode::Tutorial(_) => abstutil::path_map("montlake"),
+            GameplayMode::Freeform(ref name) => name,
+            GameplayMode::PlayScenario(ref name, _, _) => name,
+            GameplayMode::FixTrafficSignals => "downtown",
+            GameplayMode::OptimizeCommute(_, _) => "montlake",
+            GameplayMode::Tutorial(_) => "montlake",
         }
     }
 
@@ -179,11 +179,7 @@ impl GameplayMode {
     }
 
     pub fn initialize(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn GameplayState> {
-        ctx.loading_screen("setup challenge", |ctx, timer| {
-            if &abstutil::basename(&self.map_path()) != app.primary.map.get_name() {
-                app.switch_map(ctx, self.map_path());
-            }
-
+        ctx.loading_screen("setup challenge", |_, timer| {
             if let Some(scenario) = self.scenario(
                 &app.primary.map,
                 app.primary.current_flags.num_agents,

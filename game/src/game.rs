@@ -68,9 +68,8 @@ impl Game {
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &mut app))]
         } else {
-            let mode = maybe_mode.unwrap_or_else(|| {
-                GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name()))
-            });
+            let mode = maybe_mode
+                .unwrap_or_else(|| GameplayMode::Freeform(app.primary.map.get_name().clone()));
             vec![SandboxMode::new(ctx, &mut app, mode)]
         };
         if let Some(ss) = savestate {

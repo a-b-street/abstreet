@@ -325,14 +325,14 @@ pub fn generic_prebake_all() {
     for (_, list) in Challenge::all() {
         for c in list {
             per_map
-                .entry(c.gameplay.map_path())
+                .entry(c.gameplay.map_name().to_string())
                 .or_insert_with(Vec::new)
                 .push(c);
         }
     }
-    for (map_path, list) in per_map {
-        timer.start(format!("prebake for {}", map_path));
-        let map = map_model::Map::new(map_path.clone(), &mut timer);
+    for (map_name, list) in per_map {
+        timer.start(format!("prebake for {}", map_name));
+        let map = map_model::Map::new(abstutil::path_map(&map_name), &mut timer);
 
         let mut done_scenarios = HashSet::new();
         for challenge in list {
@@ -363,7 +363,7 @@ pub fn generic_prebake_all() {
             }
         }
 
-        timer.stop(format!("prebake for {}", map_path));
+        timer.stop(format!("prebake for {}", map_name));
     }
 }
 

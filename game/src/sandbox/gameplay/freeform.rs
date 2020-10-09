@@ -44,24 +44,20 @@ impl GameplayState for Freeform {
     ) -> Option<Transition> {
         match self.top_center.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "change map" => {
-                    Some(Transition::Push(CityPicker::new(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            // The map will be switched before this callback happens.
-                            let path = abstutil::path_map(app.primary.map.get_name());
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                Transition::Replace(SandboxMode::new(
-                                    ctx,
-                                    app,
-                                    GameplayMode::Freeform(path),
-                                )),
-                            ])
-                        }),
-                    )))
-                }
+                "change map" => Some(Transition::Push(CityPicker::new(
+                    ctx,
+                    app,
+                    Box::new(|ctx, app| {
+                        Transition::Multi(vec![
+                            Transition::Pop,
+                            Transition::Replace(SandboxMode::new(
+                                ctx,
+                                app,
+                                GameplayMode::Freeform(app.primary.map.get_name().clone()),
+                            )),
+                        ])
+                    }),
+                ))),
                 "change traffic" => Some(Transition::Push(make_change_traffic(
                     ctx,
                     app,
@@ -71,7 +67,7 @@ impl GameplayState for Freeform {
                 "edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
                     app,
-                    GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name())),
+                    GameplayMode::Freeform(app.primary.map.get_name().clone()),
                 ))),
                 "Start a new trip" => Some(Transition::Push(AgentSpawner::new(ctx, None))),
                 "Record trips as a scenario" => Some(Transition::Push(PromptInput::new(
@@ -195,16 +191,19 @@ pub fn make_change_traffic(
         &btn,
         choices,
         Box::new(|scenario_name, ctx, app| {
-            let map_path = abstutil::path_map(app.primary.map.get_name());
             Transition::Multi(vec![
                 Transition::Pop,
                 Transition::Replace(SandboxMode::new(
                     ctx,
                     app,
                     if scenario_name == "none" {
-                        GameplayMode::Freeform(map_path)
+                        GameplayMode::Freeform(app.primary.map.get_name().clone())
                     } else {
-                        GameplayMode::PlayScenario(map_path, scenario_name, Vec::new())
+                        GameplayMode::PlayScenario(
+                            app.primary.map.get_name().clone(),
+                            scenario_name,
+                            Vec::new(),
+                        )
                     },
                 )),
             ])

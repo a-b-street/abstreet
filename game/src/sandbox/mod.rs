@@ -21,6 +21,7 @@ use crate::edit::{
 use crate::game::{ChooseSomething, State, Transition};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
+use crate::load::MapLoader;
 use crate::options::OptionsPanel;
 use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
@@ -52,49 +53,56 @@ pub struct SandboxControls {
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State> {
         app.primary.clear_sim();
-        let gameplay = mode.initialize(ctx, app);
+        MapLoader::new(
+            ctx,
+            app,
+            mode.map_name().to_string(),
+            Box::new(move |ctx, app| {
+                let gameplay = mode.initialize(ctx, app);
 
-        Box::new(SandboxMode {
-            controls: SandboxControls {
-                common: if gameplay.has_common() {
-                    Some(CommonState::new())
-                } else {
-                    None
-                },
-                route_preview: if gameplay.can_examine_objects() {
-                    Some(RoutePreview::new())
-                } else {
-                    None
-                },
-                tool_panel: if gameplay.has_tool_panel() {
-                    Some(tool_panel(ctx))
-                } else {
-                    None
-                },
-                time_panel: if gameplay.has_time_panel() {
-                    Some(TimePanel::new(ctx, app))
-                } else {
-                    None
-                },
-                speed: if gameplay.has_speed() {
-                    Some(SpeedControls::new(ctx, app))
-                } else {
-                    None
-                },
-                agent_meter: if gameplay.has_agent_meter() {
-                    Some(AgentMeter::new(ctx, app))
-                } else {
-                    None
-                },
-                minimap: if gameplay.has_minimap() {
-                    Some(Minimap::new(ctx, app))
-                } else {
-                    None
-                },
-            },
-            gameplay,
-            gameplay_mode: mode,
-        })
+                Transition::Replace(Box::new(SandboxMode {
+                    controls: SandboxControls {
+                        common: if gameplay.has_common() {
+                            Some(CommonState::new())
+                        } else {
+                            None
+                        },
+                        route_preview: if gameplay.can_examine_objects() {
+                            Some(RoutePreview::new())
+                        } else {
+                            None
+                        },
+                        tool_panel: if gameplay.has_tool_panel() {
+                            Some(tool_panel(ctx))
+                        } else {
+                            None
+                        },
+                        time_panel: if gameplay.has_time_panel() {
+                            Some(TimePanel::new(ctx, app))
+                        } else {
+                            None
+                        },
+                        speed: if gameplay.has_speed() {
+                            Some(SpeedControls::new(ctx, app))
+                        } else {
+                            None
+                        },
+                        agent_meter: if gameplay.has_agent_meter() {
+                            Some(AgentMeter::new(ctx, app))
+                        } else {
+                            None
+                        },
+                        minimap: if gameplay.has_minimap() {
+                            Some(Minimap::new(ctx, app))
+                        } else {
+                            None
+                        },
+                    },
+                    gameplay,
+                    gameplay_mode: mode.clone(),
+                }))
+            }),
+        )
     }
 
     // Just for Warping

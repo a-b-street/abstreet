@@ -181,7 +181,6 @@ impl State for MainMenu {
                     return Tutorial::start(ctx, app);
                 }
                 "Sandbox mode" => {
-                    let map_path = abstutil::path_map(app.primary.map.get_name());
                     let scenario = if abstutil::file_exists(abstutil::path_scenario(
                         app.primary.map.get_name(),
                         "weekday",
@@ -193,7 +192,11 @@ impl State for MainMenu {
                     return Transition::Push(SandboxMode::new(
                         ctx,
                         app,
-                        GameplayMode::PlayScenario(map_path, scenario.to_string(), Vec::new()),
+                        GameplayMode::PlayScenario(
+                            app.primary.map.get_name().clone(),
+                            scenario.to_string(),
+                            Vec::new(),
+                        ),
                     ));
                 }
                 "Challenges" => {
@@ -441,7 +444,7 @@ impl State for Proposals {
                                     ctx,
                                     app,
                                     GameplayMode::PlayScenario(
-                                        abstutil::path_map(app.primary.map.get_name()),
+                                        app.primary.map.get_name().clone(),
                                         "weekday".to_string(),
                                         Vec::new(),
                                     ),
