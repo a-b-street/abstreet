@@ -87,7 +87,7 @@ impl GameplayMode {
         }
     }
 
-    pub fn scenario(
+    fn scenario(
         &self,
         map: &Map,
         num_agents: Option<usize>,
