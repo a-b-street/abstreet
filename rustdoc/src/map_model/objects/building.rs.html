@@ -202,11 +202,7 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-<span id="204">204</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// A building has connections to the road and sidewalk, may contain commercial amenities, and have</span>
-<span class="comment">// off-street parking.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -234,6 +230,8 @@
     }
 }
 
+<span class="doccomment">/// A building has connections to the road and sidewalk, may contain commercial amenities, and have</span>
+<span class="doccomment">/// off-street parking.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Building</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">BuildingID</span>,
@@ -242,38 +240,38 @@
     <span class="kw">pub</span> <span class="ident">address</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NamePerLanguage</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>,
-    <span class="comment">// Where a text label should be centered to have the best chances of being contained within the</span>
-    <span class="comment">// polygon.</span>
+    <span class="doccomment">/// Where a text label should be centered to have the best chances of being contained within</span>
+    <span class="doccomment">/// the polygon.</span>
     <span class="kw">pub</span> <span class="ident">label_center</span>: <span class="ident">Pt2D</span>,
     <span class="comment">// TODO Might fold these into BuildingType::Commercial</span>
-    <span class="comment">// (Name, amenity)</span>
+    <span class="doccomment">/// (Name, amenity)</span>
     <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">bldg_type</span>: <span class="ident">BuildingType</span>,
     <span class="kw">pub</span> <span class="ident">parking</span>: <span class="ident">OffstreetParking</span>,
 
-    <span class="comment">// The building&#39;s connection for pedestrians is immutable. For cars and bikes, it can change</span>
-    <span class="comment">// based on map edits, so don&#39;t cache it.</span>
+    <span class="doccomment">/// The building&#39;s connection for pedestrians is immutable. For cars and bikes, it can change</span>
+    <span class="doccomment">/// based on map edits, so don&#39;t cache it.</span>
     <span class="kw">pub</span> <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>,
-    <span class="comment">// Goes from building to sidewalk</span>
+    <span class="doccomment">/// Goes from building to sidewalk</span>
     <span class="kw">pub</span> <span class="ident">driveway_geom</span>: <span class="ident">PolyLine</span>,
 }
 
-<span class="comment">// Represent None as Private(0, false).</span>
+<span class="doccomment">/// Represent no parking as Private(0, false).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">OffstreetParking</span> {
-    <span class="comment">// (Name, spots)</span>
+    <span class="doccomment">/// (Name, spots)</span>
     <span class="ident">PublicGarage</span>(<span class="ident">String</span>, <span class="ident">usize</span>),
-    <span class="comment">// (Spots, explicitly tagged as a garage)</span>
+    <span class="doccomment">/// (Spots, explicitly tagged as a garage)</span>
     <span class="ident">Private</span>(<span class="ident">usize</span>, <span class="ident">bool</span>),
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BuildingType</span> {
-    <span class="comment">// An estimated number of residents</span>
+    <span class="doccomment">/// An estimated number of residents</span>
     <span class="ident">Residential</span>(<span class="ident">usize</span>),
-    <span class="comment">// An estimated number of residents, workers</span>
+    <span class="doccomment">/// An estimated number of residents, workers</span>
     <span class="ident">ResidentialCommercial</span>(<span class="ident">usize</span>, <span class="ident">usize</span>),
-    <span class="comment">// An estimated number of workers</span>
+    <span class="doccomment">/// An estimated number of workers</span>
     <span class="ident">Commercial</span>(<span class="ident">usize</span>),
     <span class="ident">Empty</span>,
 }
@@ -287,7 +285,7 @@
     }
 }
 
-<span class="comment">// None corresponds to the native name</span>
+<span class="doccomment">/// None corresponds to the native name</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NamePerLanguage</span>(
     <span class="attribute">#[<span class="ident">serde</span>(
@@ -340,7 +338,7 @@
         }
     }
 
-    <span class="comment">// The polyline goes from the building to the driving position</span>
+    <span class="doccomment">/// The polyline goes from the building to the driving position</span>
     <span class="comment">// TODO Make this handle parking_blackhole</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driving_connection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="self">self</span>.<span class="ident">sidewalk</span>()).<span class="ident">find_closest_lane</span>(
@@ -356,8 +354,8 @@
         <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="self">self</span>.<span class="ident">driveway_geom</span>.<span class="ident">clone</span>().<span class="ident">must_push</span>(<span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>))))
     }
 
-    <span class="comment">// Returns (biking position, sidewalk position). Could fail if the biking graph is</span>
-    <span class="comment">// disconnected.</span>
+    <span class="doccomment">/// Returns (biking position, sidewalk position). Could fail if the biking graph is</span>
+    <span class="doccomment">/// disconnected.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">biking_connection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
         <span class="comment">// Easy case: the building is directly next to a usable lane</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">sidewalk_to_bike</span>(<span class="self">self</span>.<span class="ident">sidewalk_pos</span>, <span class="ident">map</span>) {

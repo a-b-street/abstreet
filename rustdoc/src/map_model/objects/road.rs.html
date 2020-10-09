@@ -451,11 +451,7 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// A Road represents a segment between exactly two Intersections. It contains Lanes as children.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSet</span>;
@@ -540,32 +536,32 @@
         }
     }
 
-    <span class="comment">// Strict for bikes. If there are bike lanes, not allowed to use other lanes.</span>
+    <span class="doccomment">/// Strict for bikes. If there are bike lanes, not allowed to use other lanes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lanes</span>(<span class="self">self</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>);
         <span class="ident">constraints</span>.<span class="ident">filter_lanes</span>(<span class="ident">r</span>.<span class="ident">children</span>(<span class="self">self</span>.<span class="ident">dir</span>).<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">collect</span>(), <span class="ident">map</span>)
     }
 }
 
-<span class="comment">// These&#39;re bidirectional (possibly)</span>
+<span class="doccomment">/// A Road represents a segment between exactly two Intersections. It contains Lanes as children.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Road</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">RoadID</span>,
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
-    <span class="comment">// self is &#39;from&#39;</span>
+    <span class="doccomment">/// self is &#39;from&#39;</span>
     <span class="kw">pub</span> <span class="ident">turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RestrictionType</span>, <span class="ident">RoadID</span>)<span class="op">&gt;</span>,
-    <span class="comment">// self is &#39;from&#39;. (via, to). Only BanTurns.</span>
+    <span class="doccomment">/// self is &#39;from&#39;. (via, to). Only BanTurns.</span>
     <span class="kw">pub</span> <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="ident">OriginalRoad</span>,
     <span class="kw">pub</span> <span class="ident">speed_limit</span>: <span class="ident">Speed</span>,
     <span class="kw">pub</span> <span class="ident">access_restrictions</span>: <span class="ident">AccessRestrictions</span>,
     <span class="kw">pub</span> <span class="ident">zorder</span>: <span class="ident">isize</span>,
 
-    <span class="comment">// Invariant: A road must contain at least one child</span>
+    <span class="doccomment">/// Invariant: A road must contain at least one child</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">lanes_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>,
 
-    <span class="comment">// The physical center of the road, including sidewalks, after trimming. The order implies road</span>
-    <span class="comment">// orientation. No edits ever change this.</span>
+    <span class="doccomment">/// The physical center of the road, including sidewalks, after trimming. The order implies</span>
+    <span class="doccomment">/// road orientation. No edits ever change this.</span>
     <span class="comment">// TODO Maybe deprecated in favor of get_left_side?</span>
     <span class="kw">pub</span> <span class="ident">center_pts</span>: <span class="ident">PolyLine</span>,
     <span class="kw">pub</span> <span class="ident">src_i</span>: <span class="ident">IntersectionID</span>,
@@ -573,8 +569,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Road</span> {
-    <span class="comment">// Returns all lanes from the left side of the road to right. Left/right is determined by the</span>
-    <span class="comment">// orientation of center_pts.</span>
+    <span class="doccomment">/// Returns all lanes from the left side of the road to right. Left/right is determined by the</span>
+    <span class="doccomment">/// orientation of center_pts.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lanes_ltr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span> {
         <span class="comment">// TODO Change this to return &amp;Vec</span>
         <span class="self">self</span>.<span class="ident">lanes_ltr</span>.<span class="ident">clone</span>()
@@ -584,7 +580,7 @@
         <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">must_shift_left</span>(<span class="self">self</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
     }
 
-    <span class="comment">// Counting from the left side of the road</span>
+    <span class="doccomment">/// Counting from the left side of the road</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
         <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes_ltr</span>().<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">if</span> <span class="ident">lane</span> <span class="op">==</span> <span class="ident">l</span> {
@@ -640,7 +636,7 @@
         <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">20.0</span>)
     }
 
-    <span class="comment">// Includes off-side</span>
+    <span class="doccomment">/// Includes off-side</span>
     <span class="comment">// TODO Specialize a variant for PathConstraints.can_use. Only one caller needs something</span>
     <span class="comment">// fancier.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_closest_lane</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-&gt;</span> <span class="ident">bool</span><span class="op">&gt;</span>(
@@ -668,8 +664,8 @@
         <span class="self">self</span>.<span class="ident">lanes_ltr</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">l</span>).<span class="ident">collect</span>()
     }
 
-    <span class="comment">// This is the FIRST yellow line where the direction of the road changes. If multiple direction</span>
-    <span class="comment">// changes happen, the result is kind of arbitrary.</span>
+    <span class="doccomment">/// This is the FIRST yellow line where the direction of the road changes. If multiple direction</span>
+    <span class="doccomment">/// changes happen, the result is kind of arbitrary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_dir_change_pl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes_ltr</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
@@ -764,7 +760,7 @@
         <span class="ident">stops</span>
     }
 
-    <span class="comment">// Returns [-1.0, 1.0]. 0 is flat, positive is uphill, negative is downhill.</span>
+    <span class="doccomment">/// Returns [-1.0, 1.0]. 0 is flat, positive is uphill, negative is downhill.</span>
     <span class="comment">// TODO Or do we care about the total up/down along the possibly long road?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent_grade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="kw">let</span> <span class="ident">rise</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">dst_i</span>).<span class="ident">elevation</span> <span class="op">-</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">src_i</span>).<span class="ident">elevation</span>;
@@ -844,8 +840,8 @@
 <span class="comment">// seemed to really need to still handle lanes going outward from the &quot;center&quot; line. Should keep</span>
 <span class="comment">// whittling this down, probably. These very much don&#39;t handle multiple direction changes.</span>
 <span class="kw">impl</span> <span class="ident">Road</span> {
-    <span class="comment">// These are ordered from closest to center lane (left-most when driving on the right) to</span>
-    <span class="comment">// farthest (sidewalk)</span>
+    <span class="doccomment">/// These are ordered from closest to center lane (left-most when driving on the right) to</span>
+    <span class="doccomment">/// farthest (sidewalk)</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">children_forwards</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">dir</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes_ltr</span>() {
@@ -866,8 +862,8 @@
         <span class="ident">result</span>
     }
 
-    <span class="comment">// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then</span>
-    <span class="comment">// it counts up from there.</span>
+    <span class="doccomment">/// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then</span>
+    <span class="doccomment">/// it counts up from there.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">dir_and_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> (<span class="ident">Direction</span>, <span class="ident">usize</span>) {
         <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">dir</span> <span class="kw">in</span> [<span class="ident">Direction</span>::<span class="ident">Fwd</span>, <span class="ident">Direction</span>::<span class="ident">Back</span>].<span class="ident">iter</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>(<span class="ident">dir</span>).<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">lane</span>) {
@@ -886,7 +882,7 @@
         }
     }
 
-    <span class="comment">// Returns lanes from the &quot;center&quot; going out</span>
+    <span class="doccomment">/// Returns lanes from the &quot;center&quot; going out</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">incoming_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span> {
             <span class="self">self</span>.<span class="ident">children_backwards</span>()
@@ -897,7 +893,7 @@
         }
     }
 
-    <span class="comment">// Returns lanes from the &quot;center&quot; going out</span>
+    <span class="doccomment">/// Returns lanes from the &quot;center&quot; going out</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">outgoing_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span> {
             <span class="self">self</span>.<span class="ident">children_forwards</span>()

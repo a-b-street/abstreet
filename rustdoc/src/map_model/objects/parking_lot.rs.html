@@ -55,10 +55,7 @@
 <span id="54">54</span>
 <span id="55">55</span>
 <span id="56">56</span>
-<span id="57">57</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Parking lots have some fixed capacity for cars, and are connected to a sidewalk and road.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -86,25 +83,26 @@
     }
 }
 
+<span class="doccomment">/// Parking lots have some fixed capacity for cars, and are connected to a sidewalk and road.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParkingLot</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">ParkingLotID</span>,
     <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
     <span class="kw">pub</span> <span class="ident">aisles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;&gt;</span>,
     <span class="kw">pub</span> <span class="ident">osm_id</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>,
-    <span class="comment">// The middle of the &quot;T&quot;, pointing towards the parking aisle</span>
+    <span class="doccomment">/// The middle of the &quot;T&quot;, pointing towards the parking aisle</span>
     <span class="kw">pub</span> <span class="ident">spots</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span>,
-    <span class="comment">// If we can&#39;t render all spots (maybe a lot with no aisles or a multi-story garage), still</span>
-    <span class="comment">// count the other spots.</span>
+    <span class="doccomment">/// If we can&#39;t render all spots (maybe a lot with no aisles or a multi-story garage), still</span>
+    <span class="doccomment">/// count the other spots.</span>
     <span class="kw">pub</span> <span class="ident">extra_spots</span>: <span class="ident">usize</span>,
 
-    <span class="comment">// Goes from the lot to the driving lane</span>
+    <span class="doccomment">/// Goes from the lot to the driving lane</span>
     <span class="kw">pub</span> <span class="ident">driveway_line</span>: <span class="ident">PolyLine</span>,
-    <span class="comment">// Guaranteed to be at least 7m (MAX_CAR_LENGTH + a little buffer) away from both ends of the</span>
-    <span class="comment">// lane, to prevent various headaches</span>
+    <span class="doccomment">/// Guaranteed to be at least 7m (MAX_CAR_LENGTH + a little buffer) away from both ends of the</span>
+    <span class="doccomment">/// lane, to prevent various headaches</span>
     <span class="kw">pub</span> <span class="ident">driving_pos</span>: <span class="ident">Position</span>,
 
-    <span class="comment">// Lot to sidewalk</span>
+    <span class="doccomment">/// Lot to sidewalk</span>
     <span class="kw">pub</span> <span class="ident">sidewalk_line</span>: <span class="ident">Line</span>,
     <span class="kw">pub</span> <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>,
 }

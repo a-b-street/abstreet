@@ -398,8 +398,8 @@
 <span id="397">397</span>
 <span id="398">398</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// See https://dabreegster.github.io/abstreet/map/importing/index.html for an overview. This module</span>
-<span class="comment">// covers the RawMap-&gt;Map stage.</span>
+<span class="doccomment">//! See &lt;https://dabreegster.github.io/abstreet/map/importing/index.html&gt; for an overview. This module</span>
+<span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -740,8 +740,8 @@
     }
 }
 
-<span class="comment">// Snap points to an exact Position along the nearest lane. If the result doesn&#39;t contain a</span>
-<span class="comment">// requested point, then there was no matching lane close enough.</span>
+<span class="doccomment">/// Snap points to an exact Position along the nearest lane. If the result doesn&#39;t contain a</span>
+<span class="doccomment">/// requested point, then there was no matching lane close enough.</span>
 <span class="kw">fn</span> <span class="ident">match_points_to_lanes</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-&gt;</span> <span class="ident">bool</span><span class="op">&gt;</span>(
     <span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">Bounds</span>,
     <span class="ident">pts</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>,

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["all_costs_from",""],["driving_cost",""],["find_scc",""]]});
+initSidebarItems({"fn":[["all_costs_from","Starting from one building, calculate the cost to all others."],["driving_cost",""],["find_scc","Calculate the srongy connected components (SCC) of the part of the map accessible by constraints (ie, the graph of sidewalks or driving+bike lanes). The largest component is the \"main\" graph; the rest is disconnected. Returns (lanes in the largest \"main\" component, all other disconnected lanes)"]]});

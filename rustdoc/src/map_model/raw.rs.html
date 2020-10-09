@@ -397,10 +397,11 @@
 <span id="396">396</span>
 <span id="397">397</span>
 <span id="398">398</span>
+<span id="399">399</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
-<span class="comment">// structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
-<span class="comment">// constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
+<span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
+<span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
+<span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -445,8 +446,9 @@
     <span class="kw">pub</span> <span class="ident">config</span>: <span class="ident">MapConfig</span>,
 }
 
-<span class="comment">// A way to refer to roads across many maps and over time. Also trivial to relate with OSM to find</span>
-<span class="comment">// upstream problems.</span>
+<span class="doccomment">/// A way to refer to roads across many maps and over time. Also trivial to relate with OSM to find</span>
+<span class="doccomment">/// upstream problems.</span>
+<span class="comment">// </span>
 <span class="comment">// - Using LonLat is more indirect, and f64&#39;s need to be trimmed and compared carefully with epsilon</span>
 <span class="comment">//   checks.</span>
 <span class="comment">// - TODO Look at some stable ID standard like linear referencing</span>
@@ -545,7 +547,7 @@
         }
     }
 
-    <span class="comment">// (Intersection polygon, polygons for roads, list of labeled polylines to debug)</span>
+    <span class="doccomment">/// (Intersection polygon, polygons for roads, list of labeled polylines to debug)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preview_intersection</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">id</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
@@ -649,18 +651,18 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawRoad</span> {
-    <span class="comment">// This is effectively a PolyLine, except there&#39;s a case where we need to plumb forward</span>
-    <span class="comment">// cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has</span>
-    <span class="comment">// happened.</span>
+    <span class="doccomment">/// This is effectively a PolyLine, except there&#39;s a case where we need to plumb forward</span>
+    <span class="doccomment">/// cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has</span>
+    <span class="doccomment">/// happened.</span>
     <span class="kw">pub</span> <span class="ident">center_points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
     <span class="kw">pub</span> <span class="ident">turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RestrictionType</span>, <span class="ident">OriginalRoad</span>)<span class="op">&gt;</span>,
-    <span class="comment">// (via, to). For turn restrictions where &#39;via&#39; is an entire road. Only BanTurns.</span>
+    <span class="doccomment">/// (via, to). For turn restrictions where &#39;via&#39; is an entire road. Only BanTurns.</span>
     <span class="kw">pub</span> <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">OriginalRoad</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RawRoad</span> {
-    <span class="comment">// Returns the corrected center and total width</span>
+    <span class="doccomment">/// Returns the corrected center and total width</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_geometry</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">id</span>: <span class="ident">OriginalRoad</span>,
@@ -712,8 +714,8 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawIntersection</span> {
-    <span class="comment">// Represents the original place where OSM center-lines meet. This is meaningless beyond</span>
-    <span class="comment">// RawMap; roads and intersections get merged and deleted.</span>
+    <span class="doccomment">/// Represents the original place where OSM center-lines meet. This may be meaningless beyond</span>
+    <span class="doccomment">/// RawMap; roads and intersections get merged and deleted.</span>
     <span class="kw">pub</span> <span class="ident">point</span>: <span class="ident">Pt2D</span>,
     <span class="kw">pub</span> <span class="ident">intersection_type</span>: <span class="ident">IntersectionType</span>,
     <span class="kw">pub</span> <span class="ident">elevation</span>: <span class="ident">Distance</span>,
@@ -725,7 +727,7 @@
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
     <span class="kw">pub</span> <span class="ident">public_garage_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">num_parking_spots</span>: <span class="ident">usize</span>,
-    <span class="comment">// (Name, amenity type)</span>
+    <span class="doccomment">/// (Name, amenity type)</span>
     <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
 }
 
@@ -777,23 +779,23 @@
     <span class="kw">pub</span> <span class="ident">short_name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">osm_rel_id</span>: <span class="ident">osm</span>::<span class="ident">RelationID</span>,
     <span class="kw">pub</span> <span class="ident">gtfs_trip_marker</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="comment">// If not, light rail</span>
+    <span class="doccomment">/// If not, light rail</span>
     <span class="kw">pub</span> <span class="ident">is_bus</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawBusStop</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">border_start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">NodeID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">border_end</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">NodeID</span><span class="op">&gt;</span>,
-    <span class="comment">// This is guaranteed to be in order and contiguous.</span>
+    <span class="doccomment">/// This is guaranteed to be in order and contiguous.</span>
     <span class="kw">pub</span> <span class="ident">all_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawBusStop</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="comment">// Probably not an intersection, but this type is more convenient.</span>
+    <span class="doccomment">/// Probably not an intersection, but this type is more convenient.</span>
     <span class="kw">pub</span> <span class="ident">vehicle_pos</span>: (<span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">Pt2D</span>),
-    <span class="comment">// Guaranteed to be filled out when RawMap is fully written.</span>
+    <span class="doccomment">/// Guaranteed to be filled out when RawMap is fully written.</span>
     <span class="kw">pub</span> <span class="ident">matched_road</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>)<span class="op">&gt;</span>,
-    <span class="comment">// If it&#39;s not explicitly mapped, we&#39;ll do equiv_pos.</span>
+    <span class="doccomment">/// If it&#39;s not explicitly mapped, we&#39;ll do equiv_pos.</span>
     <span class="kw">pub</span> <span class="ident">ped_pos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
 }
 </pre></div>

@@ -60,8 +60,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AreaType</span>, <span class="ident">Map</span>};
 
-<span class="comment">// A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,</span>
-<span class="comment">// ballard, downtown, etc). The load map screen uses this struct to display the entire city.</span>
+<span class="doccomment">/// A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,</span>
+<span class="doccomment">/// ballard, downtown, etc). The load map screen uses this struct to display the entire city.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">City</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,

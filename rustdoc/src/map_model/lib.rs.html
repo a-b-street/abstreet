@@ -118,28 +118,28 @@
 <span id="117">117</span>
 <span id="118">118</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// map_model describes the world where simulations occur. Importing a map from OSM partly happens</span>
-<span class="comment">// in convert_osm and here.</span>
-<span class="comment">//</span>
-<span class="comment">// Helpful terminology:</span>
-<span class="comment">// - ch = contraction hierarchy, for speeding up pathfinding</span>
-<span class="comment">// - degenerate intersection = only has 2 roads connected, so why is it an intersection at all?</span>
-<span class="comment">// - lc = lane-change (which is modelled very strangely: https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#lane-changing)</span>
-<span class="comment">// - ltr = left-to-right, the order of lanes for a road</span>
-<span class="comment">// - osm = OpenStreetMap</span>
-<span class="comment">//</span>
-<span class="comment">// Map objects are usually abbreviated in method names:</span>
-<span class="comment">// - a = area</span>
-<span class="comment">// - b = building</span>
-<span class="comment">// - br = bus route</span>
-<span class="comment">// - bs = bus stop</span>
-<span class="comment">// - i = intersection</span>
-<span class="comment">// - l = lane</span>
-<span class="comment">// - pl = parking lot</span>
-<span class="comment">// - r = road</span>
-<span class="comment">// - ss = stop sign</span>
-<span class="comment">// - t = turn</span>
-<span class="comment">// - ts = traffic signal</span>
+<span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens</span>
+<span class="doccomment">//! in `convert_osm` and here.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Helpful terminology:</span>
+<span class="doccomment">//! - ch = contraction hierarchy, for speeding up pathfinding</span>
+<span class="doccomment">//! - degenerate intersection = only has 2 roads connected, so why is it an intersection at all?</span>
+<span class="doccomment">//! - lc = lane-change (which is modelled very strangely: &lt;https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#lane-changing&gt;)</span>
+<span class="doccomment">//! - ltr = left-to-right, the order of lanes for a road</span>
+<span class="doccomment">//! - osm = OpenStreetMap</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Map objects are usually abbreviated in method names:</span>
+<span class="doccomment">//! - a = area</span>
+<span class="doccomment">//! - b = building</span>
+<span class="doccomment">//! - br = bus route</span>
+<span class="doccomment">//! - bs = bus stop</span>
+<span class="doccomment">//! - i = intersection</span>
+<span class="doccomment">//! - l = lane</span>
+<span class="doccomment">//! - pl = parking lot</span>
+<span class="doccomment">//! - r = road</span>
+<span class="doccomment">//! - ss = stop sign</span>
+<span class="doccomment">//! - t = turn</span>
+<span class="doccomment">//! - ts = traffic signal</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;

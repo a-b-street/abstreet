@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["flood",""],["group_geom",""],["trace_back",""]],"struct":[["IntersectionCluster",""],["UberTurn",""],["UberTurnGroup",""]]});
+initSidebarItems({"fn":[["flood",""],["group_geom",""],["trace_back",""]],"struct":[["IntersectionCluster","This only applies to VehiclePathfinder; walking through these intersections is nothing special."],["UberTurn",""],["UberTurnGroup",""]]});

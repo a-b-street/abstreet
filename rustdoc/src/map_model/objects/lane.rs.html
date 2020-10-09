@@ -296,10 +296,7 @@
 <span id="295">295</span>
 <span id="296">296</span>
 <span id="297">297</span>
-<span id="298">298</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// A road segment is broken down into individual lanes, which have a LaneType.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -312,10 +309,10 @@
     <span class="ident">osm</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnType</span>,
 };
 
-<span class="comment">// Bit longer than the longest car.</span>
+<span class="doccomment">/// Bit longer than the longest car.</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PARKING_SPOT_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">8.0</span>);
-<span class="comment">// The full PARKING_SPOT_LENGTH used for on-street is looking too conservative for some manually</span>
-<span class="comment">// audited cases in Seattle. This is 0.8 of above</span>
+<span class="doccomment">/// The full PARKING_SPOT_LENGTH used for on-street is looking too conservative for some manually</span>
+<span class="doccomment">/// audited cases in Seattle. This is 0.8 of above</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PARKING_LOT_SPOT_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">6.4</span>);
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -406,6 +403,7 @@
     }
 }
 
+<span class="doccomment">/// A road segment is broken down into individual lanes, which have a LaneType.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Lane</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">LaneID</span>,
@@ -417,11 +415,11 @@
     <span class="kw">pub</span> <span class="ident">src_i</span>: <span class="ident">IntersectionID</span>,
     <span class="kw">pub</span> <span class="ident">dst_i</span>: <span class="ident">IntersectionID</span>,
 
-    <span class="comment">// Meaningless order</span>
+    <span class="doccomment">/// Meaningless order</span>
     <span class="kw">pub</span> <span class="ident">bus_stops</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>,
 
-    <span class="comment">// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the</span>
-    <span class="comment">// graph, because this is near a border.</span>
+    <span class="doccomment">/// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the</span>
+    <span class="doccomment">/// graph, because this is near a border.</span>
     <span class="kw">pub</span> <span class="ident">driving_blackhole</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">biking_blackhole</span>: <span class="ident">bool</span>,
 }
@@ -451,7 +449,7 @@
         }
     }
 
-    <span class="comment">// pt2 will be endpoint</span>
+    <span class="doccomment">/// pt2 will be endpoint</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
         <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">src_i</span> {
             <span class="self">self</span>.<span class="ident">first_line</span>().<span class="ident">reverse</span>()

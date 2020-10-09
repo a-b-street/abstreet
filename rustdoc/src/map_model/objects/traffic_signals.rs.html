@@ -446,12 +446,7 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
-<span id="448">448</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// A traffic signal consists of a sequence of Stages that repeat in a cycle. Most Stages last for a</span>
-<span class="comment">// fixed duration. During a single Stage, some movements are protected (can proceed with the highest</span>
-<span class="comment">// priority), while others are permitted (have to yield before proceeding).</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 
@@ -472,6 +467,9 @@
 <span class="comment">// https://en.wikipedia.org/wiki/Preferred_walking_speed</span>
 <span class="kw">const</span> <span class="ident">CROSSWALK_PACE</span>: <span class="ident">Speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">const_meters_per_second</span>(<span class="number">1.4</span>);
 
+<span class="doccomment">/// A traffic signal consists of a sequence of Stages that repeat in a cycle. Most Stages last for a</span>
+<span class="doccomment">/// fixed duration. During a single Stage, some movements are protected (can proceed with the</span>
+<span class="doccomment">/// highest priority), while others are permitted (have to yield before proceeding).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ControlTrafficSignal</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
@@ -497,8 +495,8 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PhaseType</span> {
     <span class="ident">Fixed</span>(<span class="ident">Duration</span>),
-    <span class="comment">// Same as fixed, but when this stage would normally end, if there&#39;s still incoming demand,</span>
-    <span class="comment">// repeat the stage entirely.</span>
+    <span class="doccomment">/// Same as fixed, but when this stage would normally end, if there&#39;s still incoming demand,</span>
+    <span class="doccomment">/// repeat the stage entirely.</span>
     <span class="comment">// TODO This is a silly policy, but a start towards variable timers.</span>
     <span class="ident">Adaptive</span>(<span class="ident">Duration</span>),
 }
@@ -605,7 +603,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="comment">// Returns true if this did anything</span>
+    <span class="doccomment">/// Returns true if this did anything</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_to_ped_scramble</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
 

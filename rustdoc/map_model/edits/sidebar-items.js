@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["EditCmd",""],["EditIntersection",""]],"fn":[["recalculate_turns",""]],"mod":[["compat",""],["perma",""]],"struct":[["EditEffects",""],["EditRoad",""],["MapEdits",""]]});
+initSidebarItems({"enum":[["EditCmd",""],["EditIntersection",""]],"fn":[["recalculate_turns",""]],"mod":[["compat",""],["perma",""]],"struct":[["EditEffects",""],["EditRoad",""],["MapEdits","Represents changes to a map. Note this isn't serializable -- that's what `PermanentMapEdits` does."]]});

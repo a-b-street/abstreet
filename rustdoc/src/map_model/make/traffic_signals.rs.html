@@ -576,12 +576,7 @@
 <span id="575">575</span>
 <span id="576">576</span>
 <span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Heuristically generate a ControlTrafficSignal just based on the roads leading to each traffic</span>
-<span class="comment">// signal.</span>
-
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
@@ -592,8 +587,9 @@
     <span class="ident">PhaseType</span>, <span class="ident">RoadID</span>, <span class="ident">Stage</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
 
-<span class="comment">// Applies a bunch of heuristics to a single intersection, returning the valid results in</span>
-<span class="comment">// best-first order.</span>
+<span class="doccomment">/// Applies a bunch of heuristics to a single intersection, returning the valid results in</span>
+<span class="doccomment">/// best-first order. The signal configuration is only based on the roads connected to the</span>
+<span class="doccomment">/// intersection.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_possible_policies</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
@@ -1033,7 +1029,7 @@
     }
 }
 
-<span class="comment">// Temporary experiment to group all movements into the smallest number of stages.</span>
+<span class="doccomment">/// Temporary experiment to group all movements into the smallest number of stages.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brute_force</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) {
     <span class="kw">let</span> <span class="ident">movements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Movement</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Movement</span>::<span class="ident">for_i</span>(<span class="ident">i</span>, <span class="ident">map</span>)
         .<span class="ident">unwrap</span>()
@@ -1106,11 +1102,11 @@
     <span class="ident">results</span>
 }
 
-<span class="comment">// Simple second-pass after generating all signals. Find pairs of traffic signals very close to</span>
-<span class="comment">// each other with 2 stages each, see if the primary movement of the first stages lead to each</span>
-<span class="comment">// other, and flip the order of stages if not. This is often wrong when the most common movement is</span>
-<span class="comment">// actually turning left then going straight (near Mercer for example), but not sure how we could</span>
-<span class="comment">// know that without demand data.</span>
+<span class="doccomment">/// Simple second-pass after generating all signals. Find pairs of traffic signals very close to</span>
+<span class="doccomment">/// each other with 2 stages each, see if the primary movement of the first stages lead to each</span>
+<span class="doccomment">/// other, and flip the order of stages if not. This is often wrong when the most common movement is</span>
+<span class="doccomment">/// actually turning left then going straight (near Mercer for example), but not sure how we could</span>
+<span class="doccomment">/// know that without demand data.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">synchronize</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();

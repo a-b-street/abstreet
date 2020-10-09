@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ParkingLot",""],["ParkingLotID",""]]});
+initSidebarItems({"struct":[["ParkingLot","Parking lots have some fixed capacity for cars, and are connected to a sidewalk and road."],["ParkingLotID",""]]});

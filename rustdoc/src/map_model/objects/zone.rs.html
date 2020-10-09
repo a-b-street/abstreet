@@ -178,12 +178,12 @@
 <span id="177">177</span>
 <span id="178">178</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Zones and AccessRestrictions are used to model things like:</span>
-<span class="comment">// 1) gated communities, where only trips beginning or ending at a building in the neighborhood may</span>
-<span class="comment">//    use any of the private roads</span>
-<span class="comment">// 2) Stay Healthy Streets, where most car traffic is banned, except for trips beginning/ending in</span>
-<span class="comment">//    the zone</span>
-<span class="comment">// 3) Congestion capping, where only so many cars per hour can enter the zone</span>
+<span class="doccomment">//! Zones and AccessRestrictions are used to model things like:</span>
+<span class="doccomment">//! 1) gated communities, where only trips beginning or ending at a building in the neighborhood may</span>
+<span class="doccomment">//!    use any of the private roads</span>
+<span class="doccomment">//! 2) Stay Healthy Streets, where most car traffic is banned, except for trips beginning/ending in</span>
+<span class="doccomment">//!    the zone</span>
+<span class="doccomment">//! 3) Congestion capping, where only so many cars per hour can enter the zone</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -211,8 +211,8 @@
     }
 }
 
-<span class="comment">// A contiguous set of roads with access restrictions. This is derived from all the map&#39;s roads and</span>
-<span class="comment">// kept cached for performance.</span>
+<span class="doccomment">/// A contiguous set of roads with access restrictions. This is derived from all the map&#39;s roads and</span>
+<span class="doccomment">/// kept cached for performance.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Zone</span> {
     <span class="kw">pub</span> <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
@@ -244,7 +244,7 @@
         <span class="ident">zones</span>
     }
 
-    <span class="comment">// Run slower Dijkstra&#39;s within the interior of a private zone. Don&#39;t go outside the borders.</span>
+    <span class="doccomment">/// Run slower Dijkstra&#39;s within the interior of a private zone. Don&#39;t go outside the borders.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>);
 

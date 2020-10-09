@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Direction",""]],"struct":[["DirectedRoadID",""],["Road",""],["RoadID",""]]});
+initSidebarItems({"enum":[["Direction",""]],"struct":[["DirectedRoadID",""],["Road","A Road represents a segment between exactly two Intersections. It contains Lanes as children."],["RoadID",""]]});

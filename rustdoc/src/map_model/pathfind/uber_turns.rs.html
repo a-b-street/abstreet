@@ -353,8 +353,8 @@
 <span id="352">352</span>
 <span id="353">353</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// To deal with complicated intersections and short roads in OSM, cluster intersections close</span>
-<span class="comment">// together and then calculate UberTurns that string together several turns.</span>
+<span class="doccomment">//! To deal with complicated intersections and short roads in OSM, cluster intersections close</span>
+<span class="doccomment">//! together and then calculate UberTurns that string together several turns.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -366,7 +366,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">TurnID</span>};
 
-<span class="comment">// This only applies to VehiclePathfinder; walking through these intersections is nothing special.</span>
+<span class="doccomment">/// This only applies to VehiclePathfinder; walking through these intersections is nothing special.</span>
 <span class="comment">// TODO I haven&#39;t seen any cases yet with &quot;interior&quot; intersections. Some stuff might break.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntersectionCluster</span> {
@@ -441,7 +441,7 @@
         <span class="ident">clusters</span>
     }
 
-    <span class="comment">// (legal, illegal)</span>
+    <span class="doccomment">/// (legal, illegal)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
@@ -511,7 +511,7 @@
         )
     }
 
-    <span class="comment">// Find all other traffic signals &quot;close&quot; to one. Ignore stop sign intersections in between.</span>
+    <span class="doccomment">/// Find all other traffic signals &quot;close&quot; to one. Ignore stop sign intersections in between.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autodetect</span>(<span class="ident">from</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">from</span>).<span class="ident">is_traffic_signal</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -655,7 +655,7 @@
 
 <span class="kw">impl</span> <span class="ident">UberTurnGroup</span> {
     <span class="comment">// TODO Share code with TurnGroup</span>
-    <span class="comment">// Polyline points FROM intersection</span>
+    <span class="doccomment">/// Polyline points FROM intersection</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">src_center_and_width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> (<span class="ident">PolyLine</span>, <span class="ident">Distance</span>) {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">from</span>.<span class="ident">id</span>);
 

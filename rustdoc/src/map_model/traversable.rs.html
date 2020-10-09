@@ -225,7 +225,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">TurnID</span>};
 
-<span class="comment">// Represents a specific point some distance along a lane.</span>
+<span class="doccomment">/// Represents a specific point some distance along a lane.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Position</span> {
     <span class="comment">// Don&#39;t let callers construct a Position directly, so it&#39;s easy to find callers of new().</span>
@@ -336,7 +336,7 @@
     }
 }
 
-<span class="comment">// Either a lane or a turn, where most movement happens.</span>
+<span class="doccomment">/// Either a lane or a turn, where most movement happens.</span>
 <span class="comment">// TODO Consider adding building and parking lot driveways here.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Traversable</span> {

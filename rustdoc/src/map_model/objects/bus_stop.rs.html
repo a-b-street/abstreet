@@ -104,7 +104,7 @@
 <span id="103">103</span>
 <span id="104">104</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Bus stops and routes.</span>
+<span class="doccomment">//! Bus stops and routes.</span>
 <span class="comment">// TODO Rename public transit -- these also cover light rail now.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -119,8 +119,8 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BusStopID</span> {
     <span class="kw">pub</span> <span class="ident">sidewalk</span>: <span class="ident">LaneID</span>,
-    <span class="comment">// As long as this is unique per lane, this value is otherwise meaningless. Not contiguous or</span>
-    <span class="comment">// ordered in any way.</span>
+    <span class="doccomment">/// As long as this is unique per lane, this value is otherwise meaningless. Not contiguous or</span>
+    <span class="doccomment">/// ordered in any way.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">idx</span>: <span class="ident">usize</span>,
 }
 
@@ -149,10 +149,10 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BusStop</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">BusStopID</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="comment">// These may be on different roads entirely, like for light rail platforms.</span>
+    <span class="doccomment">/// These may be on different roads entirely, like for light rail platforms.</span>
     <span class="kw">pub</span> <span class="ident">driving_pos</span>: <span class="ident">Position</span>,
     <span class="kw">pub</span> <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>,
-    <span class="comment">// If it&#39;s both, train overrides bus</span>
+    <span class="doccomment">/// If it&#39;s both, train overrides bus</span>
     <span class="kw">pub</span> <span class="ident">is_train_stop</span>: <span class="ident">bool</span>,
 }
 
@@ -164,14 +164,14 @@
     <span class="kw">pub</span> <span class="ident">gtfs_trip_marker</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">osm_rel_id</span>: <span class="ident">osm</span>::<span class="ident">RelationID</span>,
     <span class="kw">pub</span> <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>,
-    <span class="comment">// May be a border or not. If not, is long enough for buses to spawn fully.</span>
+    <span class="doccomment">/// May be a border or not. If not, is long enough for buses to spawn fully.</span>
     <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">LaneID</span>,
     <span class="kw">pub</span> <span class="ident">end_border</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">route_type</span>: <span class="ident">PathConstraints</span>,
-    <span class="comment">// Non-empty, times in order for one day when a vehicle should begin at start.</span>
+    <span class="doccomment">/// Non-empty, times in order for one day when a vehicle should begin at start.</span>
     <span class="kw">pub</span> <span class="ident">spawn_times</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="comment">// Explicitly store whatever the original was, since this can&#39;t be reconstructed without side</span>
-    <span class="comment">// input.</span>
+    <span class="doccomment">/// Explicitly store whatever the original was, since this can&#39;t be reconstructed without side</span>
+    <span class="doccomment">/// input.</span>
     <span class="kw">pub</span> <span class="ident">orig_spawn_times</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
 }
 

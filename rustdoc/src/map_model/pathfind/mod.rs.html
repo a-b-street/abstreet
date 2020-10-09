@@ -637,7 +637,7 @@
 <span id="636">636</span>
 <span id="637">637</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Everything related to pathfinding through a map for different types of agents.</span>
+<span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -666,9 +666,9 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathStep</span> {
-    <span class="comment">// Original direction</span>
+    <span class="doccomment">/// Original direction</span>
     <span class="ident">Lane</span>(<span class="ident">LaneID</span>),
-    <span class="comment">// Sidewalks only!</span>
+    <span class="doccomment">/// Sidewalks only!</span>
     <span class="ident">ContraflowLane</span>(<span class="ident">LaneID</span>),
     <span class="ident">Turn</span>(<span class="ident">TurnID</span>),
 }
@@ -799,7 +799,7 @@
         )
     }
 
-    <span class="comment">// Only used for weird serialization magic.</span>
+    <span class="doccomment">/// Only used for weird serialization magic.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>() <span class="op">-&gt;</span> <span class="ident">Path</span> {
         <span class="ident">Path</span> {
             <span class="ident">steps</span>: <span class="ident">VecDeque</span>::<span class="ident">new</span>(),
@@ -920,7 +920,7 @@
         <span class="bool-val">false</span>
     }
 
-    <span class="comment">// Trusting the caller to do this in valid ways.</span>
+    <span class="doccomment">/// Trusting the caller to do this in valid ways.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify_step</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">step</span>: <span class="ident">PathStep</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">currently_inside_ut</span>.<span class="ident">is_none</span>());
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="op">!=</span> <span class="number">0</span>);
@@ -948,7 +948,7 @@
         <span class="self">self</span>.<span class="ident">steps</span>[<span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]
     }
 
-    <span class="comment">// dist_ahead is unlimited when None.</span>
+    <span class="doccomment">/// dist_ahead is unlimited when None.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
@@ -1070,7 +1070,7 @@
     }
 }
 
-<span class="comment">// Who&#39;s asking for a path?</span>
+<span class="doccomment">/// Who&#39;s asking for a path?</span>
 <span class="comment">// TODO This is an awful name.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">EnumSetType</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathConstraints</span> {
@@ -1092,7 +1092,7 @@
         ]
     }
 
-    <span class="comment">// Not bijective, but this is the best guess of user intent</span>
+    <span class="doccomment">/// Not bijective, but this is the best guess of user intent</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_lt</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>) <span class="op">-&gt;</span> <span class="ident">PathConstraints</span> {
         <span class="kw">match</span> <span class="ident">lt</span> {
             <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
@@ -1127,7 +1127,7 @@
         }
     }
 
-    <span class="comment">// Strict for bikes. If there are bike lanes, not allowed to use other lanes.</span>
+    <span class="doccomment">/// Strict for bikes. If there are bike lanes, not allowed to use other lanes.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">filter_lanes</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
         <span class="ident">choices</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>));
         <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> {
@@ -1229,9 +1229,9 @@
     }
 }
 
-<span class="comment">// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can</span>
-<span class="comment">// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra&#39;s</span>
-<span class="comment">// maneuever.</span>
+<span class="doccomment">/// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can</span>
+<span class="doccomment">/// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra&#39;s</span>
+<span class="doccomment">/// maneuever.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Pathfinder</span> {
     <span class="ident">Dijkstra</span>,

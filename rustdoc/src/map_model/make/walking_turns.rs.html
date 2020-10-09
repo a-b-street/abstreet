@@ -460,7 +460,7 @@
     <span class="ident">TurnID</span>, <span class="ident">TurnType</span>,
 };
 
-<span class="comment">// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns</span>
+<span class="doccomment">/// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_walking_turns</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>;
     <span class="kw">let</span> <span class="ident">all_roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_roads</span>();
