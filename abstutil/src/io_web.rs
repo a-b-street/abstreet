@@ -1,5 +1,5 @@
-// Since the local filesystem can't be read from a web browser, instead bundle system data files in
-// the WASM binary using include_dir. For now, no support for saving files.
+//! Since the local filesystem can't be read from a web browser, instead bundle system data files in
+//! the WASM binary using include_dir. For now, no support for saving files.
 
 pub use crate::io::*;
 use crate::Timer;

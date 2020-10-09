@@ -1,4 +1,4 @@
-// Generate paths for different A/B Street files
+//! Generate paths for different A/B Street files
 
 use crate::file_exists;
 

@@ -1,12 +1,3 @@
-// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
-// organizing and storing some information from them. The UI queries Analytics to draw time-series
-// and display statistics.
-//
-// For all maps whose weekday scenario fully runs, the game's release includes some "prebaked
-// results." These are just serialized Analytics after running the simulation on a map without any
-// edits for the full day. This is the basis of A/B testing -- the player can edit the map, start
-// running the simulation, and compare the live Analytics to the prebaked baseline Analytics.
-
 use std::collections::{BTreeMap, VecDeque};
 
 use serde::{Deserialize, Serialize};
@@ -20,6 +11,14 @@ use map_model::{
 
 use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
 
+/// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
+/// organizing and storing some information from them. The UI queries Analytics to draw time-series
+/// and display statistics.
+///
+/// For all maps whose weekday scenario fully runs, the game's release includes some "prebaked
+/// results." These are just serialized Analytics after running the simulation on a map without any
+/// edits for the full day. This is the basis of A/B testing -- the player can edit the map, start
+/// running the simulation, and compare the live Analytics to the prebaked baseline Analytics.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Analytics {
     pub road_thruput: TimeSeriesCount<RoadID>,
@@ -29,36 +28,36 @@ pub struct Analytics {
     // intersection. So for now, eat the file size cost.
     pub traffic_signal_thruput: TimeSeriesCount<CompressedMovementID>,
 
-    // Most fields in Analytics are cumulative over time, but this is just for the current moment
-    // in time.
+    /// Most fields in Analytics are cumulative over time, but this is just for the current moment
+    /// in time.
     pub demand: BTreeMap<MovementID, usize>,
 
     // TODO Reconsider this one
     pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
-    // For each passenger boarding, how long did they wait at the stop?
+    /// For each passenger boarding, how long did they wait at the stop?
     pub passengers_boarding: BTreeMap<BusStopID, Vec<(Time, BusRouteID, Duration)>>,
     pub passengers_alighting: BTreeMap<BusStopID, Vec<(Time, BusRouteID)>>,
 
     pub started_trips: BTreeMap<TripID, Time>,
     // TODO Hack: No TripMode means cancelled
-    // Finish time, ID, mode, trip duration
+    /// Finish time, ID, mode, trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
 
     // TODO Transit riders aren't represented here yet, just the vehicle they're riding.
-    // Only for traffic signals. The u8 is the movement index from a CompressedMovementID.
+    /// Only for traffic signals. The u8 is the movement index from a CompressedMovementID.
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(u8, Time, Duration, AgentType)>>,
 
-    // Per parking lane or lot, when does a spot become filled (true) or free (false)
+    /// Per parking lane or lot, when does a spot become filled (true) or free (false)
     pub parking_lane_changes: BTreeMap<LaneID, Vec<(Time, bool)>>,
     pub parking_lot_changes: BTreeMap<ParkingLotID, Vec<(Time, bool)>>,
 
     pub(crate) alerts: Vec<(Time, AlertLocation, String)>,
 
-    // After we restore from a savestate, don't record anything. This is only going to make sense
-    // if savestates are only used for quickly previewing against prebaked results, where we have
-    // the full Analytics anyway.
+    /// After we restore from a savestate, don't record anything. This is only going to make sense
+    /// if savestates are only used for quickly previewing against prebaked results, where we have
+    /// the full Analytics anyway.
     record_anything: bool,
 }
 
@@ -252,7 +251,7 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
-    // Ignores the current time. Returns None for cancelled trips.
+    /// Ignores the current time. Returns None for cancelled trips.
     pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {
         // TODO This is so inefficient!
         for (_, id, maybe_mode, dt) in &self.finished_trips {
@@ -267,7 +266,7 @@ impl Analytics {
         None
     }
 
-    // Returns pairs of trip times for finished trips in both worlds. (ID, before, after, mode)
+    /// Returns pairs of trip times for finished trips in both worlds. (ID, before, after, mode)
     pub fn both_finished_trips(
         &self,
         now: Time,
@@ -297,8 +296,8 @@ impl Analytics {
         results
     }
 
-    // If calling on prebaked Analytics, be careful to pass in an unedited map, to match how the
-    // simulation was originally run. Otherwise the paths may be nonsense.
+    /// If calling on prebaked Analytics, be careful to pass in an unedited map, to match how the
+    /// simulation was originally run. Otherwise the paths may be nonsense.
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
         let mut phases: Vec<TripPhase> = Vec::new();
         for (t, id, maybe_req, phase_type) in &self.trip_log {
@@ -394,7 +393,7 @@ impl Analytics {
         pts
     }
 
-    // Returns the free spots over time
+    /// Returns the free spots over time
     pub fn parking_lane_availability(
         &self,
         now: Time,
@@ -467,20 +466,20 @@ impl Default for Analytics {
 pub struct TripPhase {
     pub start_time: Time,
     pub end_time: Option<Time>,
-    // Plumb along start distance
+    /// Plumb along start distance
     pub path: Option<(Distance, Path)>,
     pub has_path_req: bool,
     pub phase_type: TripPhaseType,
 }
 
-// See https://github.com/dabreegster/abstreet/issues/85
+/// See https://github.com/dabreegster/abstreet/issues/85
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TimeSeriesCount<X: Ord + Clone> {
-    // (Road or intersection, type, hour block) -> count for that hour
+    /// (Road or intersection, type, hour block) -> count for that hour
     pub counts: BTreeMap<(X, AgentType, usize), usize>,
 
-    // Very expensive to store, so it's optional. But useful to flag on to experiment with
-    // representations better than the hour count above.
+    /// Very expensive to store, so it's optional. But useful to flag on to experiment with
+    /// representations better than the hour count above.
     pub raw: Vec<(Time, AgentType, X)>,
 }
 
@@ -601,13 +600,13 @@ impl Window {
         }
     }
 
-    // Returns the count at time
+    /// Returns the count at time
     pub fn add(&mut self, time: Time) -> usize {
         self.times.push_back(time);
         self.count(time)
     }
 
-    // Grab the count at this time, but don't add a new time
+    /// Grab the count at this time, but don't add a new time
     pub fn count(&mut self, end: Time) -> usize {
         while !self.times.is_empty() && end - *self.times.front().unwrap() > self.window_size {
             self.times.pop_front();

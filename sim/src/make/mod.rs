@@ -1,5 +1,5 @@
-// Everything needed to setup a simulation.
-// https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html for context.
+//! Everything needed to setup a simulation.
+//! <https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html> for context.
 
 use rand::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -23,8 +23,8 @@ mod modifier;
 mod scenario;
 mod spawner;
 
-// Need to explain this trick -- basically keeps consistency between two different simulations when
-// each one might make slightly different sequences of calls to the RNG.
+/// Need to explain this trick -- basically keeps consistency between two different simulations when
+/// each one might make slightly different sequences of calls to the RNG.
 pub fn fork_rng(base_rng: &mut XorShiftRng) -> XorShiftRng {
     XorShiftRng::from_seed([base_rng.next_u32() as u8; 16])
 }

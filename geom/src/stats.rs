@@ -150,7 +150,7 @@ impl<T: HgramValue<T>> Histogram<T> {
         )
     }
 
-    // None if empty
+    /// None if empty
     pub fn percentile(&self, p: f64) -> Option<T> {
         if self.count == 0 {
             return None;
@@ -181,7 +181,7 @@ impl<T: HgramValue<T>> Histogram<T> {
         self.count
     }
 
-    // Could implement PartialEq, but be a bit more clear how approximate this is
+    /// Could implement PartialEq, but be a bit more clear how approximate this is
     pub fn seems_eq(&self, other: &Histogram<T>) -> bool {
         self.describe() == other.describe()
     }

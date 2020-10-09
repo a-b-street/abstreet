@@ -41,7 +41,7 @@ pub fn read_object<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Resu
     }
 }
 
-// Keeps file extensions
+/// Keeps file extensions
 pub fn find_prev_file(orig: String) -> Option<String> {
     let mut files = list_dir(parent_path(&orig));
     files.reverse();
@@ -53,8 +53,8 @@ pub fn find_next_file(orig: String) -> Option<String> {
     files.into_iter().find(|f| *f > orig)
 }
 
-// Load all serialized things from a directory, return sorted by name, with file extension removed.
-// Detects JSON or binary. Filters out broken files.
+/// Load all serialized things from a directory, return sorted by name, with file extension removed.
+/// Detects JSON or binary. Filters out broken files.
 pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
     let mut timer = Timer::new(format!("load_all_objects from {}", dir));
     let mut tree: BTreeMap<String, T> = BTreeMap::new();
@@ -71,7 +71,7 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
     tree.into_iter().collect()
 }
 
-// Just list all things from a directory, return sorted by name, with file extension removed.
+/// Just list all things from a directory, return sorted by name, with file extension removed.
 pub fn list_all_objects(dir: String) -> Vec<String> {
     list_dir(dir).into_iter().map(|x| basename(&x)).collect()
 }

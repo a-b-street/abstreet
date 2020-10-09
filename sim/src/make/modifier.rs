@@ -1,5 +1,3 @@
-// Transforms an existing Scenario before instantiating it.
-
 use std::collections::BTreeSet;
 
 use rand::Rng;
@@ -12,6 +10,7 @@ use map_model::Map;
 
 use crate::{IndividTrip, PersonID, Scenario, SpawnTrip, TripMode};
 
+/// Transforms an existing Scenario before instantiating it.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Deserialize)]
 pub enum ScenarioModifier {
     RepeatDays(usize),
@@ -22,13 +21,13 @@ pub enum ScenarioModifier {
         departure_filter: (Time, Time),
         from_modes: BTreeSet<TripMode>,
     },
-    // Scenario name
+    /// Scenario name
     AddExtraTrips(String),
 }
 
 impl ScenarioModifier {
-    // If this modifies scenario_name, then that means prebaked results don't match up and
-    // shouldn't be used.
+    /// If this modifies scenario_name, then that means prebaked results don't match up and
+    /// shouldn't be used.
     pub fn apply(&self, map: &Map, mut s: Scenario, rng: &mut XorShiftRng) -> Scenario {
         match self {
             ScenarioModifier::RepeatDays(n) => repeat_days(s, *n),

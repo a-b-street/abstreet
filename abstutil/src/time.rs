@@ -105,7 +105,7 @@ pub trait TimerSink {
     fn reprintln(&mut self, line: String);
 }
 
-// Hierarchial magic
+/// Hierarchial magic
 pub struct Timer<'a> {
     results: Vec<String>,
     stack: Vec<StackEntry>,
@@ -127,9 +127,9 @@ struct TimerSpan {
 }
 
 pub enum Parallelism {
-    // Use all CPUs
+    /// Use all CPUs
     Fastest,
-    // Use half of CPUs
+    /// Use half of CPUs
     Polite,
 }
 
@@ -179,8 +179,8 @@ impl<'a> Timer<'a> {
         }
     }
 
-    // Log immediately, but also repeat at the end, to avoid having to scroll up and find
-    // interesting debug stuff.
+    /// Log immediately, but also repeat at the end, to avoid having to scroll up and find
+    /// interesting debug stuff.
     pub fn note(&mut self, line: String) {
         // Interrupt the start_iter with a newline.
         if let Some(StackEntry::Progress(_)) = self.stack.last() {
@@ -199,7 +199,7 @@ impl<'a> Timer<'a> {
         self.errors.push(line);
     }
 
-    // Used to end the scope of a timer early.
+    /// Used to end the scope of a timer early.
     pub fn done(self) {}
 
     pub fn start<S: Into<String>>(&mut self, raw_name: S) {
@@ -339,7 +339,7 @@ impl<'a> Timer<'a> {
         }
     }
 
-    // The order of the result is deterministic / matches the input.
+    /// The order of the result is deterministic / matches the input.
     pub fn parallelize<I, O, F: Fn(I) -> O>(
         &mut self,
         timer_name: &str,
@@ -399,7 +399,7 @@ impl<'a> Timer<'a> {
         }
     }
 
-    // Then the caller passes this in as a reader
+    /// Then the caller passes this in as a reader
     pub fn read_file(&mut self, path: &str) -> Result<(), Error> {
         self.stack
             .push(StackEntry::File(TimedFileReader::new(path)?));

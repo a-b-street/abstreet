@@ -1,6 +1,6 @@
 use std::fmt;
 
-// Most of the time, [0, 1]. But some callers may go outside this range.
+/// Most of the time, [0, 1]. But some callers may go outside this range.
 #[derive(Clone, Copy, PartialEq)]
 pub struct Percent(f64);
 

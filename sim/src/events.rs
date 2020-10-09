@@ -1,6 +1,3 @@
-// As a simulation runs, different systems emit Events. This cleanly separates the internal
-// mechanics of the simulation from consumers that just want to know what's happening.
-
 use serde::{Deserialize, Serialize};
 
 use geom::Duration;
@@ -13,11 +10,14 @@ use crate::{
     AgentID, CarID, OffMapLocation, ParkingSpot, PedestrianID, PersonID, TripID, TripMode,
 };
 
-// An Event always occurs at a particular time, plumbed separately to consumers.
-//
-// Many of these were created for a test framework that's been abandoned. They could be removed or
-// have their API adjusted, but it's not urgent; publishing an event that's not used by Analytics
-// has no performance impact.
+/// As a simulation runs, different systems emit Events. This cleanly separates the internal
+/// mechanics of the simulation from consumers that just want to know what's happening.
+///
+/// An Event always occurs at a particular time, plumbed separately to consumers.
+///
+/// Many of these were created for a test framework that's been abandoned. They could be removed or
+/// have their API adjusted, but it's not urgent; publishing an event that's not used by Analytics
+/// has no performance impact.
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Event {
     CarReachedParkingSpot(CarID, ParkingSpot),
@@ -25,13 +25,13 @@ pub enum Event {
 
     BusArrivedAtStop(CarID, BusRouteID, BusStopID),
     BusDepartedFromStop(CarID, BusRouteID, BusStopID),
-    // How long waiting at the stop?
+    /// How long waiting at the stop?
     PassengerBoardsTransit(PersonID, CarID, BusRouteID, BusStopID, Duration),
     PassengerAlightsTransit(PersonID, CarID, BusRouteID, BusStopID),
 
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),
-    // None if cancelled
+    /// None if cancelled
     PersonLeavesMap(
         PersonID,
         Option<AgentID>,
@@ -46,8 +46,8 @@ pub enum Event {
 
     BikeStoppedAtSidewalk(CarID, LaneID),
 
-    // If the agent is a transit vehicle, then include a count of how many passengers are on
-    // board.
+    /// If the agent is a transit vehicle, then include a count of how many passengers are on
+    /// board.
     AgentEntersTraversable(AgentID, Traversable, Option<usize>),
     IntersectionDelayMeasured(CompressedMovementID, Duration, AgentID),
 
@@ -60,8 +60,8 @@ pub enum Event {
     TripCancelled(TripID),
     TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
 
-    // Just use for parking replanning. Not happy about copying the full path in here, but the way
-    // to plumb info into Analytics is Event.
+    /// Just use for parking replanning. Not happy about copying the full path in here, but the way
+    /// to plumb info into Analytics is Event.
     PathAmended(Path),
 
     Alert(AlertLocation, String),
@@ -82,7 +82,7 @@ pub enum TripPhaseType {
     Biking,
     Parking,
     WaitingForBus(BusRouteID, BusStopID),
-    // What stop did they board at?
+    /// What stop did they board at?
     RidingBus(BusRouteID, BusStopID, CarID),
     Cancelled,
     Finished,

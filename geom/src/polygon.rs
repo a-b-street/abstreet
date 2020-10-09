@@ -11,12 +11,12 @@ use crate::{Angle, Bounds, Distance, HashablePt2D, PolyLine, Pt2D, Ring};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
     points: Vec<Pt2D>,
-    // Groups of three indices make up the triangles
+    /// Groups of three indices make up the triangles
     indices: Vec<u16>,
 
-    // If the polygon has holes, explicitly store all the rings (the one outer and all of the
-    // inner) so they can later be used to generate outlines and such. If the polygon has no holes,
-    // then this will just be None, since the points form a ring.
+    /// If the polygon has holes, explicitly store all the rings (the one outer and all of the
+    /// inner) so they can later be used to generate outlines and such. If the polygon has no
+    /// holes, then this will just be None, since the points form a ring.
     rings: Option<Vec<Ring>>,
 }
 
@@ -159,8 +159,8 @@ impl Polygon {
         })
     }
 
-    // The order of these points depends on the constructor! The first and last point may or may
-    // not match. Polygons constructed from PolyLines will have a very weird order.
+    /// The order of these points depends on the constructor! The first and last point may or may
+    /// not match. Polygons constructed from PolyLines will have a very weird order.
     // TODO rename outer_points to be clear
     pub fn points(&self) -> &Vec<Pt2D> {
         if let Some(ref rings) = self.rings {
@@ -188,7 +188,7 @@ impl Polygon {
         Pt2D::center(&pts.iter().map(|pt| pt.to_pt2d()).collect())
     }
 
-    // Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
+    /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     pub fn rectangle(width: f64, height: f64) -> Polygon {
         Polygon {
             points: vec![
@@ -230,8 +230,8 @@ impl Polygon {
         Some(Polygon::rectangle(width, height).translate(x1, y1))
     }
 
-    // Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    // If radius is None, be as round as possible
+    /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
+    /// If radius is None, be as round as possible
     pub fn rounded_rectangle(w: f64, h: f64, r: Option<f64>) -> Polygon {
         let r = r.unwrap_or_else(|| w.min(h) / 2.0);
         assert!(2.0 * r <= w);
@@ -305,8 +305,8 @@ impl Polygon {
         Pt2D::new(pt.x(), pt.y())
     }
 
-    // Only works for polygons that're formed from rings. Those made from PolyLines won't work, for
-    // example.
+    /// Only works for polygons that're formed from rings. Those made from PolyLines won't work, for
+    /// example.
     pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, String> {
         if let Some(ref rings) = self.rings {
             Ok(Polygon::union_all(
@@ -317,21 +317,21 @@ impl Polygon {
         }
     }
 
-    // Remove the internal rings used for to_outline. This is fine to do if the polygon is being
-    // added to some larger piece of geometry that won't need an outline.
+    /// Remove the internal rings used for to_outline. This is fine to do if the polygon is being
+    /// added to some larger piece of geometry that won't need an outline.
     pub fn strip_rings(&self) -> Polygon {
         let mut p = self.clone();
         p.rings = None;
         p
     }
 
-    // Usually m^2, unless the polygon is in screen-space
+    /// Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
         // Polygon orientation messes this up sometimes
         to_geo(&self.points()).area().abs()
     }
 
-    // Doesn't handle multiple crossings in and out.
+    /// Doesn't handle multiple crossings in and out.
     pub fn clip_polyline(&self, input: &PolyLine) -> Option<Vec<Pt2D>> {
         let ring = Ring::must_new(self.points.clone());
         let hits = ring.all_intersections(input);

@@ -1,5 +1,5 @@
-// Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own
-// simulation input data; import it here.
+//! Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own
+//! simulation input data; import it here.
 
 use serde::Deserialize;
 

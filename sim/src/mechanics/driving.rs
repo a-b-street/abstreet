@@ -1,5 +1,3 @@
-// Simulates vehicles!
-
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
@@ -28,6 +26,7 @@ const TIME_TO_WAIT_AT_STOP: Duration = Duration::const_seconds(10.0);
 pub(crate) const BLIND_RETRY_TO_CREEP_FORWARDS: Duration = Duration::const_seconds(0.1);
 pub(crate) const BLIND_RETRY_TO_REACH_END_DIST: Duration = Duration::const_seconds(5.0);
 
+/// Simulates vehicles!
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DrivingSimState {
     #[serde(
@@ -72,7 +71,7 @@ impl DrivingSimState {
         sim
     }
 
-    // True if it worked
+    /// True if it worked
     pub fn start_car_on_lane(
         &mut self,
         now: Time,
@@ -166,7 +165,26 @@ impl DrivingSimState {
         }
         false
     }
-
+    /// State transitions for this car:
+    ///
+    /// Crossing -> Queued or WaitingToAdvance
+    /// Unparking -> Crossing
+    /// IdlingAtStop -> Crossing
+    /// Queued -> last step handling (Parking or done)
+    /// WaitingToAdvance -> try to advance to the next step of the path
+    /// Parking -> done
+    ///
+    /// State transitions for other cars:
+    ///
+    /// Crossing -> Crossing (recalculate dist/time)
+    /// Queued -> Crossing
+    ///
+    /// Why is it safe to process cars in any order, rather than making sure to follow the order
+    /// of queues? Because of the invariant that distances should never suddenly jump when a car
+    /// has entered/exiting a queue.
+    /// This car might have reached the router's end distance, but maybe not -- might
+    /// actually be stuck behind other cars. We have to calculate the distances right now to
+    /// be sure.
     pub fn update_car(
         &mut self,
         id: CarID,
@@ -176,26 +194,6 @@ impl DrivingSimState {
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) {
-        // State transitions for this car:
-        //
-        // Crossing -> Queued or WaitingToAdvance
-        // Unparking -> Crossing
-        // IdlingAtStop -> Crossing
-        // Queued -> last step handling (Parking or done)
-        // WaitingToAdvance -> try to advance to the next step of the path
-        // Parking -> done
-        //
-        // State transitions for other cars:
-        //
-        // Crossing -> Crossing (recalculate dist/time)
-        // Queued -> Crossing
-        //
-        // Why is it safe to process cars in any order, rather than making sure to follow the order
-        // of queues? Because of the invariant that distances should never suddenly jump when a car
-        // has entered/exiting a queue.
-        // This car might have reached the router's end distance, but maybe not -- might
-        // actually be stuck behind other cars. We have to calculate the distances right now to
-        // be sure.
         let mut need_distances = {
             let car = &self.cars[&id];
             match car.state {
@@ -852,7 +850,7 @@ impl DrivingSimState {
         result
     }
 
-    // This is about as expensive as get_draw_cars_on.
+    /// This is about as expensive as get_draw_cars_on.
     pub fn get_single_draw_car(
         &self,
         id: CarID,

@@ -1,5 +1,5 @@
-// Intermediate structures used to instantiate a Scenario. Badly needs simplification:
-// https://github.com/dabreegster/abstreet/issues/258
+//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:
+//! https://github.com/dabreegster/abstreet/issues/258
 
 use serde::{Deserialize, Serialize};
 
@@ -17,17 +17,17 @@ use crate::{
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub enum TripSpec {
-    // Can be used to spawn from a border or anywhere for interactive debugging.
+    /// Can be used to spawn from a border or anywhere for interactive debugging.
     VehicleAppearing {
         start_pos: Position,
         goal: DrivingGoal,
-        // This must be a currently off-map vehicle owned by the person.
+        /// This must be a currently off-map vehicle owned by the person.
         use_vehicle: CarID,
         retry_if_no_room: bool,
         origin: Option<OffMapLocation>,
     },
-    // A VehicleAppearing that failed to even pick a start_pos, because of a bug with badly chosen
-    // borders.
+    /// A VehicleAppearing that failed to even pick a start_pos, because of a bug with badly chosen
+    /// borders.
     NoRoomToSpawn {
         i: IntersectionID,
         goal: DrivingGoal,
@@ -36,7 +36,7 @@ pub enum TripSpec {
         error: String,
     },
     UsingParkedCar {
-        // This must be a currently parked vehicle owned by the person.
+        /// This must be a currently parked vehicle owned by the person.
         car: CarID,
         start_bldg: BuildingID,
         goal: DrivingGoal,
@@ -57,7 +57,7 @@ pub enum TripSpec {
         stop1: BusStopID,
         maybe_stop2: Option<BusStopID>,
     },
-    // Completely off-map trip. Don't really simulate much of it.
+    /// Completely off-map trip. Don't really simulate much of it.
     Remote {
         from: OffMapLocation,
         to: OffMapLocation,
@@ -66,7 +66,7 @@ pub enum TripSpec {
     },
 }
 
-// This structure is created temporarily by a Scenario or to interactively spawn agents.
+/// This structure is created temporarily by a Scenario or to interactively spawn agents.
 pub struct TripSpawner {
     trips: Vec<(
         PersonID,

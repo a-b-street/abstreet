@@ -1,4 +1,4 @@
-// Normal file IO using the filesystem
+//! Normal file IO using the filesystem
 
 pub use crate::io::*;
 use crate::time::{clear_current_line, prettyprint_time};
@@ -14,7 +14,7 @@ pub fn file_exists<I: Into<String>>(path: I) -> bool {
     Path::new(&path.into()).exists()
 }
 
-// Returns full paths
+/// Returns full paths
 pub fn list_dir(path: String) -> Vec<String> {
     let mut files: Vec<String> = Vec::new();
     match std::fs::read_dir(&path) {
@@ -87,7 +87,7 @@ pub fn write_binary<T: Serialize>(path: String, obj: &T) {
     println!("Wrote {}", path);
 }
 
-// Idempotent
+/// Idempotent
 pub fn delete_file<I: Into<String>>(path: I) {
     let path = path.into();
     if std::fs::remove_file(&path).is_ok() {
@@ -110,8 +110,8 @@ pub struct FileWithProgress {
 }
 
 impl FileWithProgress {
-    // Also hands back a callback that'll add the final result to the timer. The caller must run
-    // it.
+    /// Also hands back a callback that'll add the final result to the timer. The caller must run
+    /// it.
     // TODO It's really a FnOnce, but I don't understand the compiler error.
     pub fn new(path: &str) -> Result<(FileWithProgress, Box<dyn Fn(&mut Timer)>), Error> {
         let file = File::open(path)?;

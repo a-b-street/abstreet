@@ -1,10 +1,3 @@
-// Manages people, each of which executes some trips through the day. Each trip is further broken
-// down into legs -- for example, a driving trip might start with somebody walking to their car,
-// driving somewhere, parking, and then walking to their final destination.
-// https://dabreegster.github.io/abstreet/trafficsim/trips.html describes some of the variations.
-//
-// Here be dragons, keep hands and feet inside the ride at all times...
-
 use std::collections::{BTreeMap, VecDeque};
 
 use serde::{Deserialize, Serialize};
@@ -25,6 +18,12 @@ use crate::{
     VehicleType, WalkingSimState,
 };
 
+/// Manages people, each of which executes some trips through the day. Each trip is further broken
+/// down into legs -- for example, a driving trip might start with somebody walking to their car,
+/// driving somewhere, parking, and then walking to their final destination.
+/// https://dabreegster.github.io/abstreet/trafficsim/trips.html describes some of the variations.
+//
+// Here be dragons, keep hands and feet inside the ride at all times...
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TripManager {
     trips: Vec<Trip>,
@@ -479,7 +478,7 @@ impl TripManager {
         self.person_finished_trip(now, person, ctx);
     }
 
-    // If no route is returned, the pedestrian boarded a bus immediately.
+    /// If no route is returned, the pedestrian boarded a bus immediately.
     pub fn ped_reached_bus_stop(
         &mut self,
         now: Time,
@@ -728,7 +727,7 @@ impl TripManager {
         self.person_finished_trip(now, person, ctx);
     }
 
-    // Cancel a trip before it's started. The person will stay where they are.
+    /// Cancel a trip before it's started. The person will stay where they are.
     pub fn cancel_unstarted_trip(&mut self, id: TripID, reason: String) {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
@@ -736,8 +735,8 @@ impl TripManager {
         self.events.push(Event::TripCancelled(trip.id));
     }
 
-    // Cancel a trip after it's started. The person will be magically warped to their destination,
-    // along with their car, as if the trip had completed normally.
+    /// Cancel a trip after it's started. The person will be magically warped to their destination,
+    /// along with their car, as if the trip had completed normally.
     pub fn cancel_trip(
         &mut self,
         now: Time,
@@ -872,7 +871,7 @@ impl TripManager {
         }
     }
 
-    // This will be None for parked cars and buses. Should always work for pedestrians.
+    /// This will be None for parked cars and buses. Should always work for pedestrians.
     pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
         self.active_trip_mode.get(&id).cloned()
     }
@@ -1386,15 +1385,15 @@ struct Trip {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TripInfo {
-    // Scheduled departure; the start may be delayed if the previous trip is taking too long.
+    /// Scheduled departure; the start may be delayed if the previous trip is taking too long.
     pub departure: Time,
     pub mode: TripMode,
     pub start: TripEndpoint,
     pub end: TripEndpoint,
     pub purpose: TripPurpose,
-    // Did a ScenarioModifier apply to this?
+    /// Did a ScenarioModifier apply to this?
     pub modified: bool,
-    // Was this trip affected by a congestion cap?
+    /// Was this trip affected by a congestion cap?
     pub capped: bool,
     pub cancellation_reason: Option<String>,
 }
@@ -1459,14 +1458,14 @@ impl Trip {
     }
 }
 
-// These don't specify where the leg starts, since it might be unknown -- like when we drive and
-// don't know where we'll wind up parking.
+/// These don't specify where the leg starts, since it might be unknown -- like when we drive and
+/// don't know where we'll wind up parking.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum TripLeg {
     Walk(SidewalkSpot),
-    // A person may own many vehicles, so specify which they use
+    /// A person may own many vehicles, so specify which they use
     Drive(CarID, DrivingGoal),
-    // Maybe get off at a stop, maybe ride off-map
+    /// Maybe get off at a stop, maybe ride off-map
     RideBus(BusRouteID, Option<BusStopID>),
     Remote(OffMapLocation),
 }
@@ -1643,7 +1642,7 @@ pub struct Person {
 
     pub ped: PedestrianID,
     pub ped_speed: Speed,
-    // Both cars and bikes
+    /// Both cars and bikes
     pub vehicles: Vec<Vehicle>,
 
     delayed_trips: Vec<(TripID, TripSpec, Option<PathRequest>, Option<Path>)>,

@@ -1,5 +1,5 @@
-// For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically
-// lane-change to avoid a slow lane, can can handle re-planning to look for available parking.
+//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically
+//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.
 
 use std::collections::BTreeMap;
 
@@ -19,7 +19,7 @@ use crate::{
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Router {
-    // Front is always the current step
+    /// Front is always the current step
     path: Path,
     goal: Goal,
     owner: CarID,
@@ -37,11 +37,11 @@ pub enum ActionAtEnd {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 enum Goal {
-    // Spot and cached distance along the last driving lane
+    /// Spot and cached distance along the last driving lane
     ParkNearBuilding {
         target: BuildingID,
         spot: Option<(ParkingSpot, Distance)>,
-        // No parking available at all!
+        /// No parking available at all!
         stuck_end_dist: Option<Distance>,
         started_looking: bool,
     },
@@ -150,7 +150,7 @@ impl Router {
         &self.path
     }
 
-    // Returns the step just finished
+    /// Returns the step just finished
     pub fn advance(
         &mut self,
         vehicle: &Vehicle,
@@ -186,8 +186,8 @@ impl Router {
         prev
     }
 
-    // Called when the car is Queued at the last step, or when they initially advance to the last
-    // step.
+    /// Called when the car is Queued at the last step, or when they initially advance to the last
+    /// step.
     pub fn maybe_handle_end(
         &mut self,
         front: Distance,

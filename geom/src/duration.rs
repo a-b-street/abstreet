@@ -8,7 +8,7 @@ use abstutil::elapsed_seconds;
 
 use crate::{trim_f64, Distance, Speed};
 
-// In seconds. Can be negative.
+/// In seconds. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Duration(f64);
 
@@ -116,7 +116,7 @@ impl Duration {
         }
     }
 
-    // If two durations are within this amount, they'll print as if they're the same.
+    /// If two durations are within this amount, they'll print as if they're the same.
     pub fn epsilon_eq(self, other: Duration) -> bool {
         let eps = Duration::seconds(0.1);
         if self > other {
@@ -152,7 +152,7 @@ impl Duration {
 
     // TODO Do something fancier? http://vis.stanford.edu/papers/tick-labels
     // TODO Unit test me
-    // Returns (rounded max, the boundaries in number of minutes)
+    /// Returns (rounded max, the boundaries in number of minutes)
     pub fn make_intervals_for_max(self, num_labels: usize) -> (Duration, Vec<usize>) {
         // Example 1: 43 minutes, max 5 labels... raw_mins_per_interval is 8.6
         let raw_mins_per_interval = (self.num_minutes_rounded_up() as f64) / (num_labels as f64);

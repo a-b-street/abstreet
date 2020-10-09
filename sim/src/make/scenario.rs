@@ -1,5 +1,3 @@
-// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
-
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt;
 
@@ -22,20 +20,21 @@ use crate::{
     MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 
+/// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
     pub scenario_name: String,
     pub map_name: String,
 
     pub people: Vec<PersonSpec>,
-    // None means seed all buses. Otherwise the route name must be present here.
+    /// None means seed all buses. Otherwise the route name must be present here.
     pub only_seed_buses: Option<BTreeSet<String>>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct PersonSpec {
     pub id: PersonID,
-    // Just used for debugging
+    /// Just used for debugging
     pub orig_id: Option<OrigPersonID>,
     pub trips: Vec<IndividTrip>,
 }
@@ -46,7 +45,7 @@ pub struct IndividTrip {
     pub trip: SpawnTrip,
     pub purpose: TripPurpose,
     pub cancelled: bool,
-    // Did a ScenarioModifier affect this?
+    /// Did a ScenarioModifier affect this?
     pub modified: bool,
 }
 
@@ -64,7 +63,7 @@ impl IndividTrip {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SpawnTrip {
-    // Only for interactive / debug trips
+    /// Only for interactive / debug trips
     VehicleAppearing {
         start: Position,
         goal: DrivingGoal,
@@ -73,7 +72,7 @@ pub enum SpawnTrip {
     FromBorder {
         dr: DirectedRoadID,
         goal: DrivingGoal,
-        // For bikes starting at a border, use FromBorder. UsingBike implies a walk->bike trip.
+        /// For bikes starting at a border, use FromBorder. UsingBike implies a walk->bike trip.
         is_bike: bool,
         origin: Option<OffMapLocation>,
     },
@@ -87,7 +86,7 @@ pub enum SpawnTrip {
         BusStopID,
         Option<BusStopID>,
     ),
-    // Completely off-map trip. Don't really simulate much of it.
+    /// Completely off-map trip. Don't really simulate much of it.
     Remote {
         from: OffMapLocation,
         to: OffMapLocation,
@@ -102,7 +101,7 @@ pub struct OffMapLocation {
     pub gps: LonLat,
 }
 
-// Lifted from Seattle's Soundcast model, but seems general enough to use anyhere.
+/// Lifted from Seattle's Soundcast model, but seems general enough to use anyhere.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum TripPurpose {
     Home,
@@ -142,7 +141,7 @@ impl fmt::Display for TripPurpose {
 }
 
 impl Scenario {
-    // Any case where map edits could change the calls to the RNG, we have to fork.
+    /// Any case where map edits could change the calls to the RNG, we have to fork.
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
         sim.set_name(self.scenario_name.clone());
 

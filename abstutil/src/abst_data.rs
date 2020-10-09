@@ -1,5 +1,5 @@
-// A list of all data files that're part of A/B Street. The updater crate manages this file, either
-// downloading updates or, for developers, uploading them.
+//! A list of all data files that're part of A/B Street. The updater crate manages this file, either
+//! downloading updates or, for developers, uploading them.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -7,16 +7,16 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Manifest {
-    // Keyed by path, starting with "data/"
+    /// Keyed by path, starting with "data/"
     pub entries: BTreeMap<String, Entry>,
 }
 
-// A single file
+/// A single file
 #[derive(Serialize, Deserialize)]
 pub struct Entry {
-    // md5sum of the file
+    /// md5sum of the file
     pub checksum: String,
-    // URL to a .zip file containing the one file
+    /// URL to a .zip file containing the one file
     pub dropbox_url: Option<String>,
 }
 

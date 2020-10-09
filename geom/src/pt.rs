@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
 
-// This represents world-space in meters.
+/// This represents world-space in meters.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Pt2D {
     inner_x: f64,
@@ -37,7 +37,7 @@ impl Pt2D {
         self.dist_to(other) <= threshold
     }
 
-    // Can go out of bounds.
+    /// Can go out of bounds.
     pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Pt2D {
         let (width, height) = {
             let pt = b.get_max_world_pt();
@@ -51,7 +51,7 @@ impl Pt2D {
         Pt2D::new(x, y)
     }
 
-    // Can go out of bounds.
+    /// Can go out of bounds.
     pub fn to_gps(self, b: &GPSBounds) -> LonLat {
         let (width, height) = {
             let pt = b.get_max_world_pt();
@@ -178,7 +178,7 @@ impl fmt::Display for Pt2D {
     }
 }
 
-// This represents world space, NOT LonLat.
+/// This represents world space, NOT LonLat.
 // TODO So rename it HashablePair or something
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct HashablePt2D {

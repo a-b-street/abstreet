@@ -1,5 +1,3 @@
-// Represents a single vehicle. Note "car" is a misnomer; it could also be a bus or bike.
-
 use std::collections::VecDeque;
 
 use serde::{Deserialize, Serialize};
@@ -12,24 +10,25 @@ use crate::{
     TransitSimState, TripID, Vehicle, VehicleType,
 };
 
+/// Represents a single vehicle. Note "car" is a misnomer; it could also be a bus or bike.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Car {
     pub vehicle: Vehicle,
     pub state: CarState,
     pub router: Router,
-    // None for buses
+    /// None for buses
     // TODO Can we scrap person here and use vehicle owner?
     pub trip_and_person: Option<(TripID, PersonID)>,
     pub started_at: Time,
     pub total_blocked_time: Duration,
 
-    // In reverse order -- most recently left is first. The sum length of these must be >=
-    // vehicle.length.
+    /// In reverse order -- most recently left is first. The sum length of these must be >=
+    /// vehicle.length.
     pub last_steps: VecDeque<Traversable>,
 }
 
 impl Car {
-    // Assumes the current head of the path is the thing to cross.
+    /// Assumes the current head of the path is the thing to cross.
     pub fn crossing_state(&self, start_dist: Distance, start_time: Time, map: &Map) -> CarState {
         let dist_int = DistanceInterval::new_driving(
             start_dist,
@@ -250,14 +249,18 @@ impl Car {
     }
 }
 
-// See https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html for details about the
-// state machine encoded here.
+/// See <https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html> for details about the
+/// state machine encoded here.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum CarState {
     Crossing(TimeInterval, DistanceInterval),
-    Queued { blocked_since: Time },
-    WaitingToAdvance { blocked_since: Time },
-    // Where's the front of the car while this is happening?
+    Queued {
+        blocked_since: Time,
+    },
+    WaitingToAdvance {
+        blocked_since: Time,
+    },
+    /// Where's the front of the car while this is happening?
     Unparking(Distance, ParkingSpot, TimeInterval),
     Parking(Distance, ParkingSpot, TimeInterval),
     IdlingAtStop(Distance, TimeInterval),

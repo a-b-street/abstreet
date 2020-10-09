@@ -47,7 +47,7 @@ pub struct RawMap {
 
 /// A way to refer to roads across many maps and over time. Also trivial to relate with OSM to find
 /// upstream problems.
-// 
+//
 // - Using LonLat is more indirect, and f64's need to be trimmed and compared carefully with epsilon
 //   checks.
 // - TODO Look at some stable ID standard like linear referencing

@@ -1,9 +1,9 @@
-// The contents of this crate need to be organized better:
-//
-// - Timer (a mix of logging, profiling, and even parallel execution)
-// - IO utilities, some of which have web equivalents using include_dir
-// - Utilities to find A/B Street-specific data
-// - true utility functions (collections, prettyprinting, CLI parsing
+//! The contents of this crate need to be organized better:
+//!
+//! - Timer (a mix of logging, profiling, and even parallel execution)
+//! - IO utilities, some of which have web equivalents using include_dir
+//! - Utilities to find A/B Street-specific data
+//! - true utility functions (collections, prettyprinting, CLI parsing
 
 #[macro_use]
 extern crate log;

@@ -7,8 +7,8 @@ use map_model::{osm, IntersectionType, NamePerLanguage};
 
 use crate::extract::OsmExtract;
 
-// Returns amenities and a mapping of all points to split road. (Some internal points on roads are
-// removed, so this mapping isn't redundant.)
+/// Returns amenities and a mapping of all points to split road. (Some internal points on roads are
+/// removed, so this mapping isn't redundant.)
 pub fn split_up_roads(
     map: &mut RawMap,
     mut input: OsmExtract,

@@ -1,5 +1,3 @@
-// SimFlags specifies a simulation to setup.
-
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
@@ -8,12 +6,13 @@ use map_model::{Map, MapEdits};
 
 use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
 
+/// SimFlags specifies a simulation to setup.
 #[derive(Clone)]
 pub struct SimFlags {
-    // A path to some file.
-    // - a savestate: restore the simulation exactly from some savestate
-    // - a scenario
-    // - some kind of map: start an empty simulation on the map
+    /// A path to some file.
+    /// - a savestate: restore the simulation exactly from some savestate
+    /// - a scenario
+    /// - some kind of map: start an empty simulation on the map
     pub load: String,
     pub modifiers: Vec<ScenarioModifier>,
     pub rng_seed: u8,

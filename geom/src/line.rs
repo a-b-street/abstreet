@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 
-// Segment, technically. Should rename.
+/// Segment, technically. Should rename.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct Line(Pt2D, Pt2D);
 
@@ -74,7 +74,7 @@ impl Line {
         }
     }
 
-    // An intersection that isn't just two endpoints touching
+    /// An intersection that isn't just two endpoints touching
     pub fn crosses(&self, other: &Line) -> bool {
         if self.pt1() == other.pt1()
             || self.pt1() == other.pt2()
@@ -221,7 +221,7 @@ fn is_counter_clockwise(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> bool {
 pub struct InfiniteLine(Pt2D, Pt2D);
 
 impl InfiniteLine {
-    // Fails for parallel lines.
+    /// Fails for parallel lines.
     // https://stackoverflow.com/a/565282 by way of
     // https://github.com/ucarion/line_intersection/blob/master/src/lib.rs
     pub fn intersection(&self, other: &InfiniteLine) -> Option<Pt2D> {

@@ -1,9 +1,9 @@
-// The sim crate runs a traffic simulation on top of the map_model. See also
-// https://dabreegster.github.io/abstreet/trafficsim/index.html.
-//
-// The simulation is very roughly layered into two pieces: the low-level "mechanics" of simulating
-// individual agents over time, and higher-level systems like TripManager and TransitSimState that
-// glue together individual goals executed by the agents.
+//! The sim crate runs a traffic simulation on top of the map_model. See also
+//! https://dabreegster.github.io/abstreet/trafficsim/index.html.
+//!
+//! The simulation is very roughly layered into two pieces: the low-level "mechanics" of simulating
+//! individual agents over time, and higher-level systems like TripManager and TransitSimState that
+//! glue together individual goals executed by the agents.
 
 #[macro_use]
 extern crate log;
@@ -66,16 +66,16 @@ pub const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
 pub const BUS_LENGTH: Distance = Distance::const_meters(12.5);
 pub const LIGHT_RAIL_LENGTH: Distance = Distance::const_meters(60.0);
 
-// At all speeds (including at rest), cars must be at least this far apart, measured from front of
-// one car to the back of the other.
+/// At all speeds (including at rest), cars must be at least this far apart, measured from front of
+/// one car to the back of the other.
 pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
-// When spawning at borders, start the front of the vehicle this far along and gradually appear.
-// Getting too close to EPSILON_DIST can lead to get_draw_car having no geometry at all.
+/// When spawning at borders, start the front of the vehicle this far along and gradually appear.
+/// Getting too close to EPSILON_DIST can lead to get_draw_car having no geometry at all.
 pub const SPAWN_DIST: Distance = Distance::const_meters(0.05);
 
-// The numeric ID must be globally unique, without considering VehicleType. VehicleType is bundled
-// for convenient debugging.
+/// The numeric ID must be globally unique, without considering VehicleType. VehicleType is bundled
+/// for convenient debugging.
 // TODO Implement Eq, Hash, Ord manually to guarantee this.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct CarID(
@@ -322,9 +322,9 @@ impl VehicleSpec {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum ParkingSpot {
-    // Lane and idx
+    /// Lane and idx
     Onstreet(LaneID, usize),
-    // Building and idx (pretty meaningless)
+    /// Building and idx (pretty meaningless)
     Offstreet(BuildingID, usize),
     Lot(ParkingLotID, usize),
 }
@@ -336,8 +336,8 @@ pub struct ParkedCar {
     pub parked_since: Time,
 }
 
-// It'd be nice to inline the goal_pos like SidewalkSpot does, but DrivingGoal is persisted in
-// Scenarios, so this wouldn't survive map edits.
+/// It'd be nice to inline the goal_pos like SidewalkSpot does, but DrivingGoal is persisted in
+/// Scenarios, so this wouldn't survive map edits.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DrivingGoal {
     ParkNear(BuildingID),
@@ -404,23 +404,23 @@ pub struct SidewalkSpot {
     pub sidewalk_pos: Position,
 }
 
-// Point of interest, that is
+/// Point of interest, that is
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum SidewalkPOI {
-    // Note that for offstreet parking, the path will be the same as the building's front path.
+    /// Note that for offstreet parking, the path will be the same as the building's front path.
     ParkingSpot(ParkingSpot),
-    // Don't actually know where this goes yet!
+    /// Don't actually know where this goes yet!
     DeferredParkingSpot,
     Building(BuildingID),
     BusStop(BusStopID),
     Border(IntersectionID, Option<OffMapLocation>),
-    // The bikeable position
+    /// The bikeable position
     BikeRack(Position),
     SuddenlyAppear,
 }
 
 impl SidewalkSpot {
-    // Pretty hacky case
+    /// Pretty hacky case
     pub fn deferred_parking_spot() -> SidewalkSpot {
         SidewalkSpot {
             connection: SidewalkPOI::DeferredParkingSpot,
@@ -610,7 +610,7 @@ pub struct CreateCar {
     pub req: PathRequest,
     pub start_dist: Distance,
     pub maybe_parked_car: Option<ParkedCar>,
-    // None for buses
+    /// None for buses
     pub trip_and_person: Option<(TripID, PersonID)>,
     pub maybe_route: Option<BusRouteID>,
 }

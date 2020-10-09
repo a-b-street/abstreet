@@ -8,7 +8,7 @@ use map_model::osm::WayID;
 use map_model::raw::{OriginalRoad, RawMap};
 use map_model::{osm, Direction};
 
-// Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.
+/// Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.
 pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
     if map.city_name == "oneshot" {
         return;

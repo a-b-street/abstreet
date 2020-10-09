@@ -73,7 +73,7 @@ where
             .collect()
     }
 
-    // Finds the closest point on the existing geometry to the query pt.
+    /// Finds the closest point on the existing geometry to the query pt.
     pub fn closest_pt(&self, query_pt: Pt2D, max_dist_away: Distance) -> Option<(K, Pt2D)> {
         self.all_close_pts(query_pt, max_dist_away)
             .into_iter()

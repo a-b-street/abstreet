@@ -1,7 +1,3 @@
-// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and
-// just "ghost" through each other. There's no queueing or slowdown when many people are
-// overlapping. They're simply grouped together into a DrawPedCrowdInput for rendering.
-
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
@@ -24,6 +20,9 @@ use crate::{
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 
+/// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and
+/// just "ghost" through each other. There's no queueing or slowdown when many people are
+/// overlapping. They're simply grouped together into a DrawPedCrowdInput for rendering.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct WalkingSimState {
     // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
@@ -718,7 +717,7 @@ impl Pedestrian {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 enum PedState {
     Crossing(DistanceInterval, TimeInterval),
-    // The Distance is either 0 or the current traversable's length. The Time is blocked_since.
+    /// The Distance is either 0 or the current traversable's length. The Time is blocked_since.
     WaitingToTurn(Distance, Time),
     LeavingBuilding(BuildingID, TimeInterval),
     EnteringBuilding(BuildingID, TimeInterval),

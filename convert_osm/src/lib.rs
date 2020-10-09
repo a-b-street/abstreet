@@ -17,47 +17,47 @@ pub struct Options {
     pub city_name: String,
     pub name: String,
 
-    // The path to an osmosis boundary polygon. Highly recommended.
+    /// The path to an osmosis boundary polygon. Highly recommended.
     pub clip: Option<String>,
     pub map_config: MapConfig,
 
     pub onstreet_parking: OnstreetParking,
     pub public_offstreet_parking: PublicOffstreetParking,
     pub private_offstreet_parking: PrivateOffstreetParking,
-    // If provided, pull elevation data from this SRTM file. The SRTM parser is incorrect, so the
-    // results will be nonsense.
+    /// If provided, pull elevation data from this SRTM file. The SRTM parser is incorrect, so the
+    /// results will be nonsense.
     pub elevation: Option<String>,
-    // OSM railway=rail will be included as light rail if so. Cosmetic only.
+    /// OSM railway=rail will be included as light rail if so. Cosmetic only.
     pub include_railroads: bool,
 }
 
-// What roads will have on-street parking lanes? Data from
-// https://wiki.openstreetmap.org/wiki/Key:parking:lane is always used if available.
+/// What roads will have on-street parking lanes? Data from
+/// <https://wiki.openstreetmap.org/wiki/Key:parking:lane> is always used if available.
 pub enum OnstreetParking {
-    // If not tagged, there won't be parking.
+    /// If not tagged, there won't be parking.
     JustOSM,
-    // If OSM data is missing, then try to match data from
-    // http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface. This is Seattle specific.
+    /// If OSM data is missing, then try to match data from
+    /// <http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface>. This is Seattle specific.
     Blockface(String),
-    // If OSM data is missing, then infer parking lanes on some percentage of
-    // "highway=residential" roads.
+    /// If OSM data is missing, then infer parking lanes on some percentage of
+    /// "highway=residential" roads.
     SomeAdditionalWhereNoData {
-        // [0, 100]
+        /// [0, 100]
         pct: usize,
     },
 }
 
-// How many spots are available in public parking garages?
+/// How many spots are available in public parking garages?
 pub enum PublicOffstreetParking {
     None,
-    // Pull data from
-    // https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots, a
-    // Seattle-specific data source.
+    /// Pull data from
+    /// <https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots>, a
+    /// Seattle-specific data source.
     GIS(String),
 }
 
-// If a building doesn't have anything from public_offstreet_parking and isn't tagged as a garage
-// in OSM, how many private spots should it have?
+/// If a building doesn't have anything from public_offstreet_parking and isn't tagged as a garage
+/// in OSM, how many private spots should it have?
 pub enum PrivateOffstreetParking {
     FixedPerBldg(usize),
     // TODO Based on the number of residents?

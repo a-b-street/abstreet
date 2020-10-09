@@ -1,5 +1,5 @@
-// This is a much more primitive way to randomly generate trips. activity_model.rs has something
-// more realistic.
+//! This is a much more primitive way to randomly generate trips. activity_model.rs has something
+//! more realistic.
 
 use std::collections::BTreeSet;
 
@@ -16,7 +16,6 @@ use crate::{
     DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip, TripPurpose,
 };
 
-// A way to generate Scenarios
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct ScenarioGenerator {
     pub scenario_name: String,
