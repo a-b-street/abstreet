@@ -319,7 +319,6 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
-<span id="321">321</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
@@ -469,10 +468,9 @@
                 .<span class="ident">per_obj</span>
                 .<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;switch to {}&quot;</span>, <span class="ident">nice_map_name</span>(<span class="ident">name</span>)))
             {
-                <span class="kw">return</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;switch map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
-                    <span class="ident">app</span>.<span class="ident">switch_map</span>(<span class="ident">ctx</span>, <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="ident">name</span>));
-                    (<span class="self">self</span>.<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>)
-                });
+                <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span>
+                    <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">on_load</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>));
+                <span class="kw">return</span> <span class="ident">switch_map</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">on_load</span>);
             }
         }
 
