@@ -240,10 +240,10 @@ mod loader {
     use abstutil::Timer;
     use geom::Duration;
     use map_model::Map;
+    use sim::Sim;
     use widgetry::UpdateType;
 
     use super::*;
-    use crate::render::DrawMap;
 
     // Instead of blockingly reading a file within ctx.loading_screen, on the web have to
     // asynchronously make an HTTP request and keep "polling" for completion in a way that's
