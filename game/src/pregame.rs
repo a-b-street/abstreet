@@ -418,6 +418,7 @@ impl State for Proposals {
                     let edits = edits.clone();
                     let maybe_err = ctx.loading_screen("apply edits", |ctx, mut timer| {
                         if &edits.map_name != app.primary.map.get_name() {
+                            // TODO Broken in web
                             app.switch_map(ctx, abstutil::path_map(&edits.map_name));
                         }
                         match PermanentMapEdits::from_permanent(edits, &app.primary.map) {

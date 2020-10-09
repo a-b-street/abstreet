@@ -146,10 +146,9 @@ impl State for CityPicker {
                 .per_obj
                 .left_click(ctx, format!("switch to {}", nice_map_name(name)))
             {
-                return ctx.loading_screen("switch map", |ctx, _| {
-                    app.switch_map(ctx, abstutil::path_map(name));
-                    (self.on_load)(ctx, app)
-                });
+                let on_load =
+                    std::mem::replace(&mut self.on_load, Box::new(|_, _| Transition::Keep));
+                return switch_map(ctx, app, name, on_load);
             }
         }
 
