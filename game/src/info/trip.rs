@@ -534,6 +534,7 @@ fn make_bar(
 
     let mut icons_geom = Vec::new();
     let mut icon_pos = Vec::new();
+    let mut icons = Vec::new();
     for (idx, p) in phases.into_iter().enumerate() {
         let mut msgs = Vec::new();
         let norm_color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
