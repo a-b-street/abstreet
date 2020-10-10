@@ -148,8 +148,7 @@ pub fn make_change_traffic(
     current: String,
 ) -> Box<dyn State> {
     let mut choices = Vec::new();
-    for name in abstutil::list_all_objects(abstutil::path_all_scenarios(app.primary.map.get_name()))
-    {
+    for name in abstutil::Manifest::load().all_scenario_names(app.primary.map.get_name()) {
         if name == "weekday" {
             choices.push(Choice::new("realistic weekday traffic", name).tooltip(
                 "Trips will begin throughout the entire day. Midnight is usually quiet, so you \

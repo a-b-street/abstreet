@@ -38,13 +38,14 @@ impl MapLoader {
                     // Kind of a hack. We can't generically call Map::new with the FileLoader.
                     map.map_loaded_directly();
 
-                    let mut timer = Timer::new("finish loading map");
-                    let sim = Sim::new(
-                        &map,
-                        app.primary.current_flags.sim_flags.opts.clone(),
-                        &mut timer,
-                    );
-                    app.map_switched(ctx, map, sim, &mut timer);
+                    ctx.loading_screen("finish loading map", |ctx, timer| {
+                        let sim = Sim::new(
+                            &map,
+                            app.primary.current_flags.sim_flags.opts.clone(),
+                            timer,
+                        );
+                        app.map_switched(ctx, map, sim, timer);
+                    });
                     (on_load)(ctx, app)
                 } else {
                     // TODO Some kind of UI for running the updater from here!

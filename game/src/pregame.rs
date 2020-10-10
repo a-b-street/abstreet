@@ -181,7 +181,7 @@ impl State for MainMenu {
                     return Tutorial::start(ctx, app);
                 }
                 "Sandbox mode" => {
-                    let scenario = if abstutil::file_exists(abstutil::path_scenario(
+                    let scenario = if abstutil::Manifest::load().contains(abstutil::path_scenario(
                         app.primary.map.get_name(),
                         "weekday",
                     )) {

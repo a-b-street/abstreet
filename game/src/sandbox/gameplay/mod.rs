@@ -3,7 +3,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::Duration;
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
-use sim::{Analytics, OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
+use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
     lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget,
 };
@@ -76,6 +76,12 @@ pub trait GameplayState: downcast_rs::Downcast {
 }
 downcast_rs::impl_downcast!(GameplayState);
 
+pub enum LoadScenario {
+    Nothing,
+    Path(String),
+    Scenario(Scenario),
+}
+
 impl GameplayMode {
     pub fn map_name(&self) -> &str {
         match self {
@@ -87,51 +93,40 @@ impl GameplayMode {
         }
     }
 
-    fn scenario(
+    pub fn scenario(
         &self,
         map: &Map,
         num_agents: Option<usize>,
         mut rng: XorShiftRng,
         timer: &mut Timer,
-    ) -> Option<Scenario> {
+    ) -> LoadScenario {
         let name = match self {
             GameplayMode::Freeform(_) => {
                 let mut s = Scenario::empty(map, "empty");
                 s.only_seed_buses = None;
-                return Some(s);
+                return LoadScenario::Scenario(s);
             }
             GameplayMode::PlayScenario(_, ref scenario, _) => scenario.to_string(),
             // TODO Some of these WILL have scenarios!
             GameplayMode::Tutorial(_) => {
-                return None;
+                return LoadScenario::Nothing;
             }
             _ => "weekday".to_string(),
         };
-        Some(if name == "random" {
-            (if let Some(n) = num_agents {
-                ScenarioGenerator::scaled_run(n)
-            } else {
-                ScenarioGenerator::small_run(map)
-            })
-            .generate(map, &mut rng, timer)
+        if name == "random" {
+            LoadScenario::Scenario(
+                (if let Some(n) = num_agents {
+                    ScenarioGenerator::scaled_run(n)
+                } else {
+                    ScenarioGenerator::small_run(map)
+                })
+                .generate(map, &mut rng, timer),
+            )
         } else if name == "home_to_work" {
-            ScenarioGenerator::proletariat_robot(map, &mut rng, timer)
+            LoadScenario::Scenario(ScenarioGenerator::proletariat_robot(map, &mut rng, timer))
         } else {
-            let path = abstutil::path_scenario(map.get_name(), &name);
-            let mut scenario = match abstutil::read_object(path.clone(), timer) {
-                Ok(s) => s,
-                Err(err) => {
-                    Map::corrupt_err(path, err);
-                    std::process::exit(1);
-                }
-            };
-            if let GameplayMode::PlayScenario(_, _, ref modifiers) = self {
-                for m in modifiers {
-                    scenario = m.apply(map, scenario, &mut rng);
-                }
-            }
-            scenario
-        })
+            LoadScenario::Path(abstutil::path_scenario(map.get_name(), &name))
+        }
     }
 
     pub fn can_edit_lanes(&self) -> bool {
@@ -178,55 +173,8 @@ impl GameplayMode {
         true
     }
 
+    /// Must be called after the scenario has been setup
     pub fn initialize(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn GameplayState> {
-        ctx.loading_screen("setup challenge", |_, timer| {
-            if let Some(scenario) = self.scenario(
-                &app.primary.map,
-                app.primary.current_flags.num_agents,
-                app.primary.current_flags.sim_flags.make_rng(),
-                timer,
-            ) {
-                scenario.instantiate(
-                    &mut app.primary.sim,
-                    &app.primary.map,
-                    &mut app.primary.current_flags.sim_flags.make_rng(),
-                    timer,
-                );
-                app.primary
-                    .sim
-                    .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
-
-                // Maybe we've already got prebaked data for this map+scenario.
-                if !app
-                    .has_prebaked()
-                    .map(|(m, s)| m == &scenario.map_name && s == &scenario.scenario_name)
-                    .unwrap_or(false)
-                {
-                    // If there's no prebaked data, so be it; some functionality disappears
-                    if let Ok(prebaked) = abstutil::maybe_read_binary::<Analytics>(
-                        abstutil::path_prebaked_results(
-                            &scenario.map_name,
-                            &scenario.scenario_name,
-                        ),
-                        timer,
-                    ) {
-                        app.set_prebaked(Some((
-                            scenario.map_name.clone(),
-                            scenario.scenario_name.clone(),
-                            prebaked,
-                        )));
-                    } else {
-                        println!(
-                            "No prebaked simulation results for \"{}\" scenario on {} map. This \
-                             means trip dashboards can't compare current times to any kind of \
-                             baseline.",
-                            scenario.scenario_name, scenario.map_name
-                        );
-                        app.set_prebaked(None);
-                    }
-                }
-            }
-        });
         match self {
             GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, app),
             GameplayMode::PlayScenario(_, ref scenario, ref modifiers) => {

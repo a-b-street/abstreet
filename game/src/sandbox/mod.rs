@@ -3,6 +3,7 @@ use maplit::btreeset;
 pub use speed::{SpeedControls, TimePanel};
 pub use time_warp::TimeWarpScreen;
 
+use abstutil::Timer;
 use geom::Time;
 use sim::AgentType;
 use widgetry::{
@@ -21,7 +22,7 @@ use crate::edit::{
 use crate::game::{ChooseSomething, State, Transition};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
-use crate::load::MapLoader;
+use crate::load::{FileLoader, MapLoader};
 use crate::options::OptionsPanel;
 use crate::pregame::MainMenu;
 use crate::render::UnzoomedAgents;
@@ -52,57 +53,190 @@ pub struct SandboxControls {
 
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State> {
+        // TODO This is quite convoluted to support loading files on the web. Each step is a State.
+        // The overview is:
+        //
+        // 1) load the map
+        // 2) figure out the scenario from the GameplayMode
+        // 3) if it's a file, go load it
+        // 4) if there's prebaked data, load it
+        //
+        // Need to keep working on this to express these with less nesting, ideally like futures,
+        // with .and_then() or something.
+
         app.primary.clear_sim();
         MapLoader::new(
             ctx,
             app,
             mode.map_name().to_string(),
             Box::new(move |ctx, app| {
-                let gameplay = mode.initialize(ctx, app);
+                let mut timer = Timer::new("load scenario");
+                match mode.scenario(
+                    &app.primary.map,
+                    app.primary.current_flags.num_agents,
+                    app.primary.current_flags.sim_flags.make_rng(),
+                    &mut timer,
+                ) {
+                    gameplay::LoadScenario::Nothing => {
+                        Transition::Replace(SandboxMode::mode_to_sandbox(ctx, app, mode.clone()))
+                    }
+                    gameplay::LoadScenario::Scenario(scenario) => {
+                        ctx.loading_screen("instantiate scenario", |_, mut timer| {
+                            scenario.instantiate(
+                                &mut app.primary.sim,
+                                &app.primary.map,
+                                &mut app.primary.current_flags.sim_flags.make_rng(),
+                                &mut timer,
+                            );
+                            app.primary
+                                .sim
+                                .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
+                        });
 
-                Transition::Replace(Box::new(SandboxMode {
-                    controls: SandboxControls {
-                        common: if gameplay.has_common() {
-                            Some(CommonState::new())
-                        } else {
-                            None
-                        },
-                        route_preview: if gameplay.can_examine_objects() {
-                            Some(RoutePreview::new())
-                        } else {
-                            None
-                        },
-                        tool_panel: if gameplay.has_tool_panel() {
-                            Some(tool_panel(ctx))
-                        } else {
-                            None
-                        },
-                        time_panel: if gameplay.has_time_panel() {
-                            Some(TimePanel::new(ctx, app))
-                        } else {
-                            None
-                        },
-                        speed: if gameplay.has_speed() {
-                            Some(SpeedControls::new(ctx, app))
-                        } else {
-                            None
-                        },
-                        agent_meter: if gameplay.has_agent_meter() {
-                            Some(AgentMeter::new(ctx, app))
-                        } else {
-                            None
-                        },
-                        minimap: if gameplay.has_minimap() {
-                            Some(Minimap::new(ctx, app))
-                        } else {
-                            None
-                        },
-                    },
-                    gameplay,
-                    gameplay_mode: mode.clone(),
-                }))
+                        Transition::Replace(SandboxMode::mode_to_sandbox(ctx, app, mode.clone()))
+                    }
+                    gameplay::LoadScenario::Path(path) => {
+                        let mode = mode.clone();
+                        Transition::Replace(
+                            // Let's get nesty...
+                            FileLoader::<sim::Scenario>::new(
+                                ctx,
+                                path,
+                                Box::new(move |ctx, app, scenario| {
+                                    let mode = mode.clone();
+                                    let scenario = ctx.loading_screen(
+                                        "instantiate scenario",
+                                        |_, mut timer| {
+                                            // TODO Handle corrupt files
+                                            let mut scenario = scenario.unwrap();
+                                            if let GameplayMode::PlayScenario(_, _, ref modifiers) =
+                                                mode.clone()
+                                            {
+                                                let mut rng =
+                                                    app.primary.current_flags.sim_flags.make_rng();
+                                                for m in modifiers {
+                                                    scenario = m.apply(
+                                                        &app.primary.map,
+                                                        scenario,
+                                                        &mut rng,
+                                                    );
+                                                }
+                                            }
+
+                                            scenario.instantiate(
+                                                &mut app.primary.sim,
+                                                &app.primary.map,
+                                                &mut app.primary.current_flags.sim_flags.make_rng(),
+                                                &mut timer,
+                                            );
+                                            app.primary.sim.tiny_step(
+                                                &app.primary.map,
+                                                &mut app.primary.sim_cb,
+                                            );
+
+                                            scenario
+                                        },
+                                    );
+
+                                    // Maybe we've already got prebaked data for this map+scenario.
+                                    if !app
+                                        .has_prebaked()
+                                        .map(|(m, s)| {
+                                            m == &scenario.map_name && s == &scenario.scenario_name
+                                        })
+                                        .unwrap_or(false)
+                                    {
+                                        // Oh, you thought we were done?
+                                        let mode = mode.clone();
+                                        Transition::Replace(FileLoader::<sim::Analytics>::new(
+                                            ctx,
+                                            abstutil::path_prebaked_results(
+                                                &scenario.map_name,
+                                                &scenario.scenario_name,
+                                            ),
+                                            Box::new(move |ctx, app, prebaked| {
+                                                if let Some(prebaked) = prebaked {
+                                                    app.set_prebaked(Some((
+                                                        scenario.map_name.clone(),
+                                                        scenario.scenario_name.clone(),
+                                                        prebaked,
+                                                    )));
+                                                } else {
+                                                    warn!(
+                                                        "No prebaked simulation results for \
+                                                         \"{}\" scenario on {} map. This means \
+                                                         trip dashboards can't compare current \
+                                                         times to any kind of baseline.",
+                                                        scenario.scenario_name, scenario.map_name
+                                                    );
+                                                    app.set_prebaked(None);
+                                                }
+                                                Transition::Replace(SandboxMode::mode_to_sandbox(
+                                                    ctx,
+                                                    app,
+                                                    mode.clone(),
+                                                ))
+                                            }),
+                                        ))
+                                    } else {
+                                        Transition::Replace(SandboxMode::mode_to_sandbox(
+                                            ctx,
+                                            app,
+                                            mode.clone(),
+                                        ))
+                                    }
+                                }),
+                            ),
+                        )
+                    }
+                }
             }),
         )
+    }
+
+    fn mode_to_sandbox(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State> {
+        let gameplay = mode.initialize(ctx, app);
+        Box::new(SandboxMode {
+            controls: SandboxControls {
+                common: if gameplay.has_common() {
+                    Some(CommonState::new())
+                } else {
+                    None
+                },
+                route_preview: if gameplay.can_examine_objects() {
+                    Some(RoutePreview::new())
+                } else {
+                    None
+                },
+                tool_panel: if gameplay.has_tool_panel() {
+                    Some(tool_panel(ctx))
+                } else {
+                    None
+                },
+                time_panel: if gameplay.has_time_panel() {
+                    Some(TimePanel::new(ctx, app))
+                } else {
+                    None
+                },
+                speed: if gameplay.has_speed() {
+                    Some(SpeedControls::new(ctx, app))
+                } else {
+                    None
+                },
+                agent_meter: if gameplay.has_agent_meter() {
+                    Some(AgentMeter::new(ctx, app))
+                } else {
+                    None
+                },
+                minimap: if gameplay.has_minimap() {
+                    Some(Minimap::new(ctx, app))
+                } else {
+                    None
+                },
+            },
+            gameplay,
+            gameplay_mode: mode,
+        })
     }
 
     // Just for Warping
