@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["MapLoader",""]]});
+initSidebarItems({"struct":[["FileLoader",""]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["native_loader",""]],"struct":[["MapAlreadyLoaded",""]]});
+initSidebarItems({"mod":[["native_loader",""]],"struct":[["MapAlreadyLoaded",""],["MapLoader",""]]});

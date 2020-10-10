@@ -672,6 +672,12 @@
 <span id="671">671</span>
 <span id="672">672</span>
 <span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -777,6 +783,12 @@
 
         <span class="kw">let</span> <span class="ident">raw</span>: <span class="ident">RawMap</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>);
         <span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="bool-val">true</span>, <span class="ident">timer</span>)
+    }
+
+    <span class="doccomment">/// If you have to deserialize a `Map` directly, call this after. Prefer using `Map::new`</span>
+    <span class="doccomment">/// though.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_loaded_directly</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_edits</span>();
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">corrupt_err</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">err</span>: <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span>) {

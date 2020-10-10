@@ -200,11 +200,32 @@
 <span id="199">199</span>
 <span id="200">200</span>
 <span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies</span>
 <span class="doccomment">//! on native and web. Both cases are wrapped up as a State that runs a callback when done.</span>
 
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>;
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">Sim</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>};
 
@@ -212,10 +233,59 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">native_loader</span>::<span class="ident">MapLoader</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">native_loader</span>::<span class="ident">FileLoader</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">wasm_loader</span>::<span class="ident">MapLoader</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">wasm_loader</span>::<span class="ident">FileLoader</span>;
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MapLoader</span>;
+
+<span class="kw">impl</span> <span class="ident">MapLoader</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
+        <span class="ident">name</span>: <span class="ident">String</span>,
+        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">name</span> {
+            <span class="kw">return</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapAlreadyLoaded</span> { <span class="ident">on_load</span> });
+        }
+
+        <span class="comment">// TODO If we want to load montlake on the web, just pull from bundled data.</span>
+        <span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">map_model</span>::<span class="ident">Map</span><span class="op">&gt;</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">map</span><span class="op">|</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">map</span>) <span class="op">=</span> <span class="ident">map</span> {
+                    <span class="comment">// Kind of a hack. We can&#39;t generically call Map::new with the FileLoader.</span>
+                    <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>();
+
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;finish loading map&quot;</span>);
+                    <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim</span>::<span class="ident">new</span>(
+                        <span class="kw-2">&amp;</span><span class="ident">map</span>,
+                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>(),
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+                    );
+                    <span class="ident">app</span>.<span class="ident">map_switched</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+                    (<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>)
+                } <span class="kw">else</span> {
+                    <span class="comment">// TODO Some kind of UI for running the updater from here!</span>
+                    <span class="comment">// TODO On the web, this shouldn&#39;t happen; display a different error message</span>
+                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;Missing data&quot;</span>,
+                        <span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} is missing&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)),
+                            <span class="string">&quot;You need to opt into this by modifying data/config and running the \
+                             updater&quot;</span>
+                                .<span class="ident">to_string</span>(),
+                        ],
+                    ))
+                }
+            }),
+        )
+    }
+}
 
 <span class="kw">struct</span> <span class="ident">MapAlreadyLoaded</span> {
     <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
@@ -231,52 +301,31 @@
 <span class="kw">mod</span> <span class="ident">native_loader</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MapLoader</span> {
-        <span class="ident">name</span>: <span class="ident">String</span>,
-        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="ident">path</span>: <span class="ident">String</span>,
+        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
     }
 
-    <span class="kw">impl</span> <span class="ident">MapLoader</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
             <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-            <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-            <span class="ident">name</span>: <span class="ident">String</span>,
-            <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+            <span class="ident">path</span>: <span class="ident">String</span>,
+            <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
         ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">name</span> {
-                <span class="kw">return</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapAlreadyLoaded</span> { <span class="ident">on_load</span> });
-            }
-
-            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapLoader</span> { <span class="ident">name</span>, <span class="ident">on_load</span> })
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FileLoader</span> { <span class="ident">path</span>, <span class="ident">on_load</span> })
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">MapLoader</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
-            <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>)) {
-                <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>), <span class="ident">timer</span>);
-                    <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim</span>::<span class="ident">new</span>(
-                        <span class="kw-2">&amp;</span><span class="ident">map</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>(),
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-                    );
-                    <span class="ident">app</span>.<span class="ident">map_switched</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">timer</span>);
-                });
-                (<span class="self">self</span>.<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>)
-            } <span class="kw">else</span> {
-                <span class="comment">// TODO Some kind of UI for running the updater from here!</span>
-                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;load {}&quot;</span>, <span class="self">self</span>.<span class="ident">path</span>), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+                <span class="comment">// Assumes a binary file</span>
+                (<span class="self">self</span>.<span class="ident">on_load</span>)(
                     <span class="ident">ctx</span>,
-                    <span class="string">&quot;Missing data&quot;</span>,
-                    <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} is missing&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>)),
-                        <span class="string">&quot;You need to opt into this by modifying data/config and running the \
-                         updater&quot;</span>
-                            .<span class="ident">to_string</span>(),
-                    ],
-                ))
-            }
+                    <span class="ident">app</span>,
+                    <span class="ident">abstutil</span>::<span class="ident">maybe_read_binary</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>).<span class="ident">ok</span>(),
+                )
+            })
         }
 
         <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -293,7 +342,6 @@
     <span class="kw">use</span> <span class="ident">wasm_bindgen_futures</span>::<span class="ident">JsFuture</span>;
     <span class="kw">use</span> <span class="ident">web_sys</span>::{<span class="ident">Request</span>, <span class="ident">RequestInit</span>, <span class="ident">RequestMode</span>, <span class="ident">Response</span>};
 
-    <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
     <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
     <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>};
 
@@ -302,33 +350,30 @@
     <span class="comment">// Instead of blockingly reading a file within ctx.loading_screen, on the web have to</span>
     <span class="comment">// asynchronously make an HTTP request and keep &quot;polling&quot; for completion in a way that&#39;s</span>
     <span class="comment">// compatible with winit&#39;s event loop.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MapLoader</span> {
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">response</span>: <span class="ident">oneshot</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span>,
-        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
         <span class="ident">panel</span>: <span class="ident">Panel</span>,
         <span class="ident">started</span>: <span class="ident">Instant</span>,
         <span class="ident">url</span>: <span class="ident">String</span>,
     }
 
-    <span class="kw">impl</span> <span class="ident">MapLoader</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
             <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-            <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-            <span class="ident">name</span>: <span class="ident">String</span>,
-            <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+            <span class="ident">path</span>: <span class="ident">String</span>,
+            <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
         ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">name</span> {
-                <span class="kw">return</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapAlreadyLoaded</span> { <span class="ident">on_load</span> });
-            }
-            <span class="comment">// TODO If we want to load montlake, just pull from bundled data.</span>
-
             <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm_s3&quot;</span>) {
                 <span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/system/maps/{}.bin&quot;</span>,
-                    <span class="ident">name</span>
+                    <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/{}&quot;</span>,
+                    <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;&quot;</span>)).<span class="ident">unwrap</span>()
                 )
             } <span class="kw">else</span> {
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;http://0.0.0.0:8000/system/maps/{}.bin&quot;</span>, <span class="ident">name</span>)
+                <span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;http://0.0.0.0:8000/{}&quot;</span>,
+                    <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;&quot;</span>)).<span class="ident">unwrap</span>()
+                )
             };
 
             <span class="comment">// Make the HTTP request nonblockingly. When the response is received, send it through</span>
@@ -352,7 +397,7 @@
                 <span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">bytes</span>).<span class="ident">unwrap</span>();
             });
 
-            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapLoader</span> {
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FileLoader</span> {
                 <span class="ident">response</span>: <span class="ident">rx</span>,
                 <span class="ident">on_load</span>,
                 <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>)))),
@@ -362,23 +407,16 @@
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">MapLoader</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">resp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">response</span>.<span class="ident">try_recv</span>().<span class="ident">unwrap</span>() {
                 <span class="comment">// TODO We stop drawing and start blocking at this point. It can take a</span>
                 <span class="comment">// while. Any way to make it still be nonblockingish? Maybe put some of the work</span>
                 <span class="comment">// inside that spawn_local?</span>
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;finish loading map&quot;</span>);
-                <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_binary</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim</span>::<span class="ident">new</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">map</span>,
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>(),
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-                );
-                <span class="ident">app</span>.<span class="ident">map_switched</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-
-                <span class="kw">return</span> (<span class="self">self</span>.<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="comment">// TODO Plumb failures</span>
+                <span class="kw">let</span> <span class="ident">obj</span>: <span class="ident">T</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_binary</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">unwrap</span>();
+                <span class="kw">return</span> (<span class="self">self</span>.<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">obj</span>));
             }
 
             <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
