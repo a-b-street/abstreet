@@ -104,6 +104,12 @@ impl Map {
         Map::create_from_raw(raw, true, timer)
     }
 
+    /// If you have to deserialize a `Map` directly, call this after. Prefer using `Map::new`
+    /// though.
+    pub fn map_loaded_directly(&mut self) {
+        self.edits = self.new_edits();
+    }
+
     pub fn corrupt_err(path: String, err: std::io::Error) {
         println!("\nError loading {}: {}\n", path, err);
         if err.to_string().contains("No such file") {

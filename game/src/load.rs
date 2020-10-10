@@ -1,7 +1,9 @@
 //! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies
 //! on native and web. Both cases are wrapped up as a State that runs a callback when done.
 
-use map_model::Map;
+use serde::de::DeserializeOwned;
+
+use abstutil::Timer;
 use sim::Sim;
 use widgetry::{Color, EventCtx, GfxCtx};
 
@@ -9,10 +11,59 @@ use crate::app::App;
 use crate::game::{State, Transition};
 
 #[cfg(not(target_arch = "wasm32"))]
-pub use native_loader::MapLoader;
+pub use native_loader::FileLoader;
 
 #[cfg(target_arch = "wasm32")]
-pub use wasm_loader::MapLoader;
+pub use wasm_loader::FileLoader;
+
+pub struct MapLoader;
+
+impl MapLoader {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        name: String,
+        on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+    ) -> Box<dyn State> {
+        if app.primary.map.get_name() == &name {
+            return Box::new(MapAlreadyLoaded { on_load });
+        }
+
+        // TODO If we want to load montlake on the web, just pull from bundled data.
+        FileLoader::<map_model::Map>::new(
+            ctx,
+            abstutil::path_map(&name),
+            Box::new(move |ctx, app, map| {
+                if let Some(mut map) = map {
+                    // Kind of a hack. We can't generically call Map::new with the FileLoader.
+                    map.map_loaded_directly();
+
+                    let mut timer = Timer::new("finish loading map");
+                    let sim = Sim::new(
+                        &map,
+                        app.primary.current_flags.sim_flags.opts.clone(),
+                        &mut timer,
+                    );
+                    app.map_switched(ctx, map, sim, &mut timer);
+                    (on_load)(ctx, app)
+                } else {
+                    // TODO Some kind of UI for running the updater from here!
+                    // TODO On the web, this shouldn't happen; display a different error message
+                    Transition::Replace(crate::game::PopupMsg::new(
+                        ctx,
+                        "Missing data",
+                        vec![
+                            format!("{} is missing", abstutil::path_map(&name)),
+                            "You need to opt into this by modifying data/config and running the \
+                             updater"
+                                .to_string(),
+                        ],
+                    ))
+                }
+            }),
+        )
+    }
+}
 
 struct MapAlreadyLoaded {
     on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
@@ -28,52 +79,31 @@ impl State for MapAlreadyLoaded {
 mod native_loader {
     use super::*;
 
-    pub struct MapLoader {
-        name: String,
-        on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+    pub struct FileLoader<T> {
+        path: String,
+        on_load: Box<dyn Fn(&mut EventCtx, &mut App, Option<T>) -> Transition>,
     }
 
-    impl MapLoader {
+    impl<T: 'static + DeserializeOwned> FileLoader<T> {
         pub fn new(
             _: &mut EventCtx,
-            app: &App,
-            name: String,
-            on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+            path: String,
+            on_load: Box<dyn Fn(&mut EventCtx, &mut App, Option<T>) -> Transition>,
         ) -> Box<dyn State> {
-            if app.primary.map.get_name() == &name {
-                return Box::new(MapAlreadyLoaded { on_load });
-            }
-
-            Box::new(MapLoader { name, on_load })
+            Box::new(FileLoader { path, on_load })
         }
     }
 
-    impl State for MapLoader {
+    impl<T: 'static + DeserializeOwned> State for FileLoader<T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-            if abstutil::file_exists(abstutil::path_map(&self.name)) {
-                ctx.loading_screen("load map", |ctx, mut timer| {
-                    let map = Map::new(abstutil::path_map(&self.name), timer);
-                    let sim = Sim::new(
-                        &map,
-                        app.primary.current_flags.sim_flags.opts.clone(),
-                        &mut timer,
-                    );
-                    app.map_switched(ctx, map, sim, timer);
-                });
-                (self.on_load)(ctx, app)
-            } else {
-                // TODO Some kind of UI for running the updater from here!
-                Transition::Replace(crate::game::PopupMsg::new(
+            ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
+                // Assumes a binary file
+                (self.on_load)(
                     ctx,
-                    "Missing data",
-                    vec![
-                        format!("{} is missing", abstutil::path_map(&self.name)),
-                        "You need to opt into this by modifying data/config and running the \
-                         updater"
-                            .to_string(),
-                    ],
-                ))
-            }
+                    app,
+                    abstutil::maybe_read_binary(self.path.clone(), timer).ok(),
+                )
+            })
         }
 
         fn draw(&self, g: &mut GfxCtx, _: &App) {
@@ -90,7 +120,6 @@ mod wasm_loader {
     use wasm_bindgen_futures::JsFuture;
     use web_sys::{Request, RequestInit, RequestMode, Response};
 
-    use abstutil::Timer;
     use geom::Duration;
     use widgetry::{Line, Panel, Text, UpdateType};
 
@@ -99,33 +128,30 @@ mod wasm_loader {
     // Instead of blockingly reading a file within ctx.loading_screen, on the web have to
     // asynchronously make an HTTP request and keep "polling" for completion in a way that's
     // compatible with winit's event loop.
-    pub struct MapLoader {
+    pub struct FileLoader<T> {
         response: oneshot::Receiver<Vec<u8>>,
-        on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+        on_load: Box<dyn Fn(&mut EventCtx, &mut App, Option<T>) -> Transition>,
         panel: Panel,
         started: Instant,
         url: String,
     }
 
-    impl MapLoader {
+    impl<T: 'static + DeserializeOwned> FileLoader<T> {
         pub fn new(
             ctx: &mut EventCtx,
-            app: &App,
-            name: String,
-            on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+            path: String,
+            on_load: Box<dyn Fn(&mut EventCtx, &mut App, Option<T>) -> Transition>,
         ) -> Box<dyn State> {
-            if app.primary.map.get_name() == &name {
-                return Box::new(MapAlreadyLoaded { on_load });
-            }
-            // TODO If we want to load montlake, just pull from bundled data.
-
             let url = if cfg!(feature = "wasm_s3") {
                 format!(
-                    "http://abstreet.s3-website.us-east-2.amazonaws.com/system/maps/{}.bin",
-                    name
+                    "http://abstreet.s3-website.us-east-2.amazonaws.com/{}",
+                    path.strip_prefix(&abstutil::path("")).unwrap()
                 )
             } else {
-                format!("http://0.0.0.0:8000/system/maps/{}.bin", name)
+                format!(
+                    "http://0.0.0.0:8000/{}",
+                    path.strip_prefix(&abstutil::path("")).unwrap()
+                )
             };
 
             // Make the HTTP request nonblockingly. When the response is received, send it through
@@ -149,7 +175,7 @@ mod wasm_loader {
                 tx.send(bytes).unwrap();
             });
 
-            Box::new(MapLoader {
+            Box::new(FileLoader {
                 response: rx,
                 on_load,
                 panel: ctx.make_loading_screen(Text::from(Line(format!("Loading {}...", url)))),
@@ -159,23 +185,16 @@ mod wasm_loader {
         }
     }
 
-    impl State for MapLoader {
+    impl<T: 'static + DeserializeOwned> State for FileLoader<T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
             if let Some(resp) = self.response.try_recv().unwrap() {
                 // TODO We stop drawing and start blocking at this point. It can take a
                 // while. Any way to make it still be nonblockingish? Maybe put some of the work
                 // inside that spawn_local?
 
-                let mut timer = Timer::new("finish loading map");
-                let map: Map = abstutil::from_binary(&resp).unwrap();
-                let sim = Sim::new(
-                    &map,
-                    app.primary.current_flags.sim_flags.opts.clone(),
-                    &mut timer,
-                );
-                app.map_switched(ctx, map, sim, &mut timer);
-
-                return (self.on_load)(ctx, app);
+                // TODO Plumb failures
+                let obj: T = abstutil::from_binary(&resp).unwrap();
+                return (self.on_load)(ctx, app, Some(obj));
             }
 
             self.panel = ctx.make_loading_screen(Text::from_multiline(vec![
