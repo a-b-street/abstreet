@@ -45,13 +45,13 @@ pub struct Analytics {
     /// Finish time, ID, mode, trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
 
-    // Records how long was spent waiting at each turn (Intersection) for a given trip
-    // Over a certain threshold
-    // TripID, [(TurnID, Time Waiting In Seconds)]
+    /// Records how long was spent waiting at each turn (Intersection) for a given trip
+    /// Over a certain threshold
+    /// TripID, [(TurnID, Time Waiting In Seconds)]
     pub trip_intersection_delays: BTreeMap<TripID, BTreeMap<TurnID, u8>>,
-    // Records the average speed/maximum speed for each lane
-    // If it is over a certain threshold (<95% of max speed)
-    // TripID, [(LaneID, Percent of maximum speed as an integer (0-100)]
+    /// Records the average speed/maximum speed for each lane
+    /// If it is over a certain threshold (<95% of max speed)
+    /// TripID, [(LaneID, Percent of maximum speed as an integer (0-100)]
     pub lane_speed_percentage: BTreeMap<TripID, BTreeMap<LaneID, u8>>,
 
     // TODO This subsumes finished_trips

@@ -208,7 +208,7 @@ impl DrivingSimState {
             // checker, temporarily move one of them out of the BTreeMap.
             let mut car = self.cars.remove(&id).unwrap();
             // Responsibility of update_car to manage scheduling stuff!
-            need_distances = self.update_car_without_distances(&mut car, id, now, ctx, transit);
+            need_distances = self.update_car_without_distances(&mut car, now, ctx, transit);
             self.cars.insert(id, car);
         }
 
@@ -241,7 +241,6 @@ impl DrivingSimState {
     fn update_car_without_distances(
         &mut self,
         car: &mut Car,
-        id: CarID,
         now: Time,
         ctx: &mut Ctx,
         transit: &mut TransitSimState,
@@ -379,7 +378,7 @@ impl DrivingSimState {
                         self.events.push(Event::TripIntersectionDelay(
                             trip,
                             t,
-                            AgentID::Car(id),
+                            AgentID::Car(car.vehicle.id),
                             now - blocked_since,
                         ));
                     }

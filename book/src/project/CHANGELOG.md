@@ -611,5 +611,15 @@ changes here.
 
 - improve turn generation, with goldenfile tests
 - UI adjustments: unzoomed routes, better delay layer, include reasons for cancelled trips, throughput layer counts
-- small map importing fixes: multipolygon parking lots,
+- small map importing fixes: multipolygon parking lots
 - fix infinite parking and blackholed buildings
+
+0.2.15
+
+- large internal change allowing asynchronously loading extra files over HTTP for web
+- the release of the first web version!
+- cars looking for parking now have a "thought bubble" showing this, by Michael
+- slow sections of a trip are now shown in the info panel, by Sam
+- fix by Michael for handling window resizing in panels
+- fix original routes on edited maps
+- internal code organization and documentation

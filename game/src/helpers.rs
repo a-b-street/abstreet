@@ -289,8 +289,10 @@ pub fn open_browser(url: String) {
 
 pub fn loading_tips() -> Text {
     Text::from_multiline(vec![
-        Line("Recent changes (September 27)"),
+        Line("Recent changes (October 11)"),
         Line(""),
+        Line("- A web version has launched!"),
+        Line("- Slow segments of a trip shown in the info panel"),
         Line("- Alleyways are now included in the map"),
         Line("- Check out the trip tables and summary changes (press 'q')"),
         Line("- Try out the new traffic signal editor!"),
