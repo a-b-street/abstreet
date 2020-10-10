@@ -4,14 +4,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Distance, Duration, EPSILON_DIST, trim_f64};
 
-// In meters per second. Can be negative.
+/// In meters per second. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Speed(f64);
 
 impl Speed {
     pub const ZERO: Speed = Speed::const_meters_per_second(0.0);
 
-    // Is a speed effectively zero based on the timestep?
+    /// Is a speed effectively zero based on the timestep?
     // TODO Probably better to tweak the rounding so that uselessly tiny speeds round to 0.
     pub fn is_zero(self, timestep: Duration) -> bool {
         self * timestep <= EPSILON_DIST

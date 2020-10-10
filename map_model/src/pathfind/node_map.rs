@@ -1,4 +1,4 @@
-// Some helpers for working with fast_paths.
+//! Some helpers for working with fast_paths.
 
 use std::collections::BTreeMap;
 use std::fmt::Debug;

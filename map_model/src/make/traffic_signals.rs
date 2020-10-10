@@ -1,6 +1,3 @@
-// Heuristically generate a ControlTrafficSignal just based on the roads leading to each traffic
-// signal.
-
 use std::collections::HashSet;
 
 use abstutil::Timer;
@@ -11,8 +8,9 @@ use crate::{
     PhaseType, RoadID, Stage, TurnPriority, TurnType,
 };
 
-// Applies a bunch of heuristics to a single intersection, returning the valid results in
-// best-first order.
+/// Applies a bunch of heuristics to a single intersection, returning the valid results in
+/// best-first order. The signal configuration is only based on the roads connected to the
+/// intersection.
 pub fn get_possible_policies(
     map: &Map,
     id: IntersectionID,
@@ -26,15 +24,19 @@ pub fn get_possible_policies(
         .unwrap()
         .remove(&map.get_i(id).orig_id.0)
     {
-        if let Ok(ts) = ControlTrafficSignal::import(raw, id, map) {
-            results.push(("hand-mapped current real settings".to_string(), ts));
-        } else {
-            let i = map.get_i(id);
-            timer.error(format!(
-                "seattle_traffic_signals data for {} ({}) out of date, go update it",
-                i.orig_id,
-                i.name(None, map)
-            ));
+        match ControlTrafficSignal::import(raw, id, map) {
+            Ok(ts) => {
+                results.push(("hand-mapped current real settings".to_string(), ts));
+            }
+            Err(err) => {
+                let i = map.get_i(id);
+                timer.error(format!(
+                    "seattle_traffic_signals data for {} ({}) out of date, go update it: {}",
+                    i.orig_id,
+                    i.name(None, map),
+                    err
+                ));
+            }
         }
     }
 
@@ -448,7 +450,7 @@ fn make_stages(
     }
 }
 
-// Temporary experiment to group all movements into the smallest number of stages.
+/// Temporary experiment to group all movements into the smallest number of stages.
 pub fn brute_force(map: &Map, i: IntersectionID) {
     let movements: Vec<Movement> = Movement::for_i(i, map)
         .unwrap()
@@ -521,11 +523,11 @@ fn helper(items: &[usize], max_size: usize) -> Vec<Partition> {
     results
 }
 
-// Simple second-pass after generating all signals. Find pairs of traffic signals very close to
-// each other with 2 stages each, see if the primary movement of the first stages lead to each
-// other, and flip the order of stages if not. This is often wrong when the most common movement is
-// actually turning left then going straight (near Mercer for example), but not sure how we could
-// know that without demand data.
+/// Simple second-pass after generating all signals. Find pairs of traffic signals very close to
+/// each other with 2 stages each, see if the primary movement of the first stages lead to each
+/// other, and flip the order of stages if not. This is often wrong when the most common movement is
+/// actually turning left then going straight (near Mercer for example), but not sure how we could
+/// know that without demand data.
 pub fn synchronize(map: &mut Map) {
     let mut seen = HashSet::new();
     let mut pairs = Vec::new();

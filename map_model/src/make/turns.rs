@@ -8,7 +8,7 @@ use geom::{Distance, PolyLine, Pt2D};
 use crate::raw::RestrictionType;
 use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
 
-// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
+/// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
 pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
     assert!(!i.is_border());
 

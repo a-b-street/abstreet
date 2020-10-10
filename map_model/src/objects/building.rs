@@ -1,6 +1,3 @@
-// A building has connections to the road and sidewalk, may contain commercial amenities, and have
-// off-street parking.
-
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt;
 
@@ -28,6 +25,8 @@ impl fmt::Display for BuildingID {
     }
 }
 
+/// A building has connections to the road and sidewalk, may contain commercial amenities, and have
+/// off-street parking.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Building {
     pub id: BuildingID,
@@ -36,38 +35,38 @@ pub struct Building {
     pub address: String,
     pub name: Option<NamePerLanguage>,
     pub orig_id: osm::OsmID,
-    // Where a text label should be centered to have the best chances of being contained within the
-    // polygon.
+    /// Where a text label should be centered to have the best chances of being contained within
+    /// the polygon.
     pub label_center: Pt2D,
     // TODO Might fold these into BuildingType::Commercial
-    // (Name, amenity)
+    /// (Name, amenity)
     pub amenities: BTreeSet<(NamePerLanguage, String)>,
     pub bldg_type: BuildingType,
     pub parking: OffstreetParking,
 
-    // The building's connection for pedestrians is immutable. For cars and bikes, it can change
-    // based on map edits, so don't cache it.
+    /// The building's connection for pedestrians is immutable. For cars and bikes, it can change
+    /// based on map edits, so don't cache it.
     pub sidewalk_pos: Position,
-    // Goes from building to sidewalk
+    /// Goes from building to sidewalk
     pub driveway_geom: PolyLine,
 }
 
-// Represent None as Private(0, false).
+/// Represent no parking as Private(0, false).
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum OffstreetParking {
-    // (Name, spots)
+    /// (Name, spots)
     PublicGarage(String, usize),
-    // (Spots, explicitly tagged as a garage)
+    /// (Spots, explicitly tagged as a garage)
     Private(usize, bool),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum BuildingType {
-    // An estimated number of residents
+    /// An estimated number of residents
     Residential(usize),
-    // An estimated number of residents, workers
+    /// An estimated number of residents, workers
     ResidentialCommercial(usize, usize),
-    // An estimated number of workers
+    /// An estimated number of workers
     Commercial(usize),
     Empty,
 }
@@ -81,7 +80,7 @@ impl BuildingType {
     }
 }
 
-// None corresponds to the native name
+/// None corresponds to the native name
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct NamePerLanguage(
     #[serde(
@@ -134,7 +133,7 @@ impl Building {
         }
     }
 
-    // The polyline goes from the building to the driving position
+    /// The polyline goes from the building to the driving position
     // TODO Make this handle parking_blackhole
     pub fn driving_connection(&self, map: &Map) -> Option<(Position, PolyLine)> {
         let lane = map.get_parent(self.sidewalk()).find_closest_lane(
@@ -150,8 +149,8 @@ impl Building {
         Some((pos, self.driveway_geom.clone().must_push(pos.pt(map))))
     }
 
-    // Returns (biking position, sidewalk position). Could fail if the biking graph is
-    // disconnected.
+    /// Returns (biking position, sidewalk position). Could fail if the biking graph is
+    /// disconnected.
     pub fn biking_connection(&self, map: &Map) -> Option<(Position, Position)> {
         // Easy case: the building is directly next to a usable lane
         if let Some(pair) = sidewalk_to_bike(self.sidewalk_pos, map) {

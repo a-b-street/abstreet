@@ -1,5 +1,5 @@
-// Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody
-// should use public transit.
+//! Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody
+//! should use public transit.
 
 use std::cell::RefCell;
 use std::collections::HashSet;
@@ -31,7 +31,7 @@ pub struct SidewalkPathfinder {
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Serialize, Deserialize)]
 pub enum WalkingNode {
-    // false is src_i, true is dst_i
+    /// false is src_i, true is dst_i
     SidewalkEndpoint(LaneID, bool),
     // TODO Lots of complexity below could be avoided by explicitly sticking BusRouteID here too.
     // Worth it?
@@ -116,7 +116,7 @@ impl SidewalkPathfinder {
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
 
-    // Returns the raw nodes
+    /// Returns the raw nodes
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
         assert_ne!(req.start.lane(), req.end.lane());
         let mut calc = self
@@ -131,8 +131,8 @@ impl SidewalkPathfinder {
         Some(self.nodes.translate(&raw_path))
     }
 
-    // Attempt the pathfinding and see if we should ride a bus. If so, says (stop1, optional stop
-    // 2, route). If there's no stop 2, then ride the bus off the border.
+    /// Attempt the pathfinding and see if we should ride a bus. If so, says (stop1, optional stop
+    /// 2, route). If there's no stop 2, then ride the bus off the border.
     pub fn should_use_transit(
         &self,
         map: &Map,

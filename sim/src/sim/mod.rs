@@ -1,4 +1,3 @@
-// The Sim ties together all the pieces of the simulation. Its main property is the current time.
 // This file has a jumbled mess of queries, setup, and mutating methods.
 
 use std::collections::{BTreeSet, HashSet};
@@ -32,6 +31,7 @@ mod queries;
 // TODO Do something else.
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);
 
+/// The Sim ties together all the pieces of the simulation. Its main property is the current time.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Sim {
     driving: DrivingSimState,
@@ -124,11 +124,11 @@ impl SimOptions {
 
 #[derive(Clone)]
 pub enum AlertHandler {
-    // Just print the alert to STDOUT
+    /// Just print the alert to STDOUT
     Print,
-    // Print the alert to STDOUT and don't proceed until the UI calls clear_alerts()
+    /// Print the alert to STDOUT and don't proceed until the UI calls clear_alerts()
     Block,
-    // Don't do anything
+    /// Don't do anything
     Silence,
 }
 
@@ -217,7 +217,7 @@ impl Sim {
         self.parking.get_free_lot_spots(pl)
     }
 
-    // (Filled, available)
+    /// (Filled, available)
     pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
         self.parking.get_all_parking_spots()
     }
@@ -226,7 +226,7 @@ impl Sim {
         self.parking.bldg_to_parked_cars(b)
     }
 
-    // Also returns the start distance of the building. TODO Do that in the Path properly.
+    /// Also returns the start distance of the building. TODO Do that in the Path properly.
     pub fn walking_path_to_nearest_parking_spot(
         &self,
         map: &Map,
@@ -1036,7 +1036,7 @@ pub trait SimCallback: downcast_rs::Downcast {
 downcast_rs::impl_downcast!(SimCallback);
 
 impl Sim {
-    // Only one at a time supported.
+    /// Only one at a time supported.
     pub fn set_periodic_callback(&mut self, frequency: Duration) {
         // TODO Round up time nicely?
         self.scheduler

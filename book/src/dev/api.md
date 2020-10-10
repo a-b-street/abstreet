@@ -50,8 +50,8 @@ are missing, etc. A summary of the commands available so far:
   - **GET /traffic-signals/get-cumulative-thruput?id=42**: Returns the number of
     agents passing through intersection #42 since midnight, grouped by direction
     of travel.
-  - **GET /traffic-signals/get-all-current-state**: Returns the current state
-    of all traffic signals, including the stage timing, waiting, and accepted
+  - **GET /traffic-signals/get-all-current-state**: Returns the current state of
+    all traffic signals, including the stage timing, waiting, and accepted
     agents.
 - **/data**
   - **GET /data/get-finished-trips**: Returns a JSON list of all finished trips.
@@ -77,6 +77,9 @@ If you need to deeply inspect the map, you can dump it to JSON:
 ```
 cargo run --bin dump_map data/system/maps/montlake.bin > montlake.json
 ```
+
+See some example code that
+[reads this JSON and finds buildings](https://github.com/dabreegster/abstreet/blob/master/headless/examples/generate_traffic.py).
 
 The format of the map isn't well-documented yet. See the
 [generated API docs](https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html)

@@ -13,6 +13,7 @@ use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, PromptInput, State, Transition};
 use crate::helpers::ID;
+use crate::load::MapLoader;
 use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
 use crate::sandbox::GameplayMode;
@@ -220,8 +221,10 @@ impl State for DebugMode {
                     return Transition::Keep;
                 }
                 "screenshot all of the everything" => {
-                    return Transition::Push(Box::new(ScreenshotTest {
-                        todo_maps: vec![
+                    return Transition::Push(ScreenshotTest::new(
+                        ctx,
+                        app,
+                        vec![
                             "downtown",
                             "krakow_center",
                             "lakeslice",
@@ -229,7 +232,7 @@ impl State for DebugMode {
                             "southbank",
                             "udistrict",
                         ],
-                    }));
+                    ));
                 }
                 "find bad traffic signals" => {
                     find_bad_signals(app);
@@ -729,17 +732,42 @@ fn find_large_intersections(app: &App) {
 // separate state is the easiest way to automatically screenshot multiple maps.
 struct ScreenshotTest {
     todo_maps: Vec<&'static str>,
+    screenshot_done: bool,
+}
+
+impl ScreenshotTest {
+    fn new(ctx: &mut EventCtx, app: &App, mut todo_maps: Vec<&'static str>) -> Box<dyn State> {
+        MapLoader::new(
+            ctx,
+            app,
+            todo_maps.pop().unwrap().to_string(),
+            Box::new(move |_, _| {
+                Transition::Replace(Box::new(ScreenshotTest {
+                    todo_maps: todo_maps.clone(),
+                    screenshot_done: false,
+                }))
+            }),
+        )
+    }
 }
 
 impl State for ScreenshotTest {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(name) = self.todo_maps.pop() {
-            app.switch_map(ctx, abstutil::path_map(name));
+        if self.screenshot_done {
+            if self.todo_maps.is_empty() {
+                Transition::Pop
+            } else {
+                Transition::Replace(ScreenshotTest::new(
+                    ctx,
+                    app,
+                    self.todo_maps.drain(..).collect(),
+                ))
+            }
+        } else {
+            self.screenshot_done = true;
             screenshot_everything(ctx, app);
             // TODO Sometimes this still gets stuck and needs a mouse wiggle for input event?
             Transition::Keep
-        } else {
-            Transition::Pop
         }
     }
     fn draw(&self, _: &mut GfxCtx, _: &App) {}

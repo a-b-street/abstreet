@@ -10,13 +10,13 @@ use crate::{
     osm, AccessRestrictions, Direction, EditCmd, EditRoad, LaneType, Map, PermanentMapEdits, RoadID,
 };
 
-// When the PermanentMapEdits format changes, add a transformation here to automatically convert
-// edits written with the old format.
-//
-// This problem is often solved with something like protocol buffers, but the resulting proto
-// usually winds up with permanent legacy fields, unless the changes are purely additive. For
-// example, protobufs wouldn't have helped with the fix_intersection_ids problem. Explicit
-// transformation is easier!
+/// When the PermanentMapEdits format changes, add a transformation here to automatically convert
+/// edits written with the old format.
+///
+/// This problem is often solved with something like protocol buffers, but the resulting proto
+/// usually winds up with permanent legacy fields, unless the changes are purely additive. For
+/// example, protobufs wouldn't have helped with the fix_intersection_ids problem. Explicit
+/// transformation is easier!
 pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits, String> {
     // c46a74f10f4f1976a48aa8642ac11717d74b262c added an explicit version field. There are a few
     // changes before that.

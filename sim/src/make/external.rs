@@ -1,5 +1,5 @@
-// Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own
-// simulation input data; import it here.
+//! Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own
+//! simulation input data; import it here.
 
 use serde::Deserialize;
 
@@ -10,15 +10,21 @@ use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode
 
 #[derive(Deserialize)]
 pub struct ExternalPerson {
-    pub origin: LonLat,
+    pub origin: ExternalTripEndpoint,
     pub trips: Vec<ExternalTrip>,
 }
 
 #[derive(Deserialize)]
 pub struct ExternalTrip {
     pub departure: Time,
-    pub position: LonLat,
+    pub destination: ExternalTripEndpoint,
     pub mode: TripMode,
+}
+
+#[derive(Deserialize)]
+pub enum ExternalTripEndpoint {
+    TripEndpoint(TripEndpoint),
+    Position(LonLat),
 }
 
 impl ExternalPerson {
@@ -30,15 +36,18 @@ impl ExternalPerson {
         for i in map.all_intersections() {
             closest.add(TripEndpoint::Border(i.id, None), i.polygon.points());
         }
-        let lookup_pt = |gps| match closest.closest_pt(
-            Pt2D::from_gps(gps, map.get_gps_bounds()),
-            Distance::meters(100.0),
-        ) {
-            Some((x, _)) => Ok(x),
-            None => Err(format!(
-                "No building or border intersection within 100m of {}",
-                gps
-            )),
+        let lookup_pt = |endpt| match endpt {
+            ExternalTripEndpoint::TripEndpoint(endpt) => Ok(endpt),
+            ExternalTripEndpoint::Position(gps) => match closest.closest_pt(
+                Pt2D::from_gps(gps, map.get_gps_bounds()),
+                Distance::meters(100.0),
+            ) {
+                Some((x, _)) => Ok(x),
+                None => Err(format!(
+                    "No building or border intersection within 100m of {}",
+                    gps
+                )),
+            },
         };
 
         let mut results = Vec::new();
@@ -50,7 +59,7 @@ impl ExternalPerson {
             };
             let mut from = lookup_pt(person.origin)?;
             for trip in person.trips {
-                let to = lookup_pt(trip.position)?;
+                let to = lookup_pt(trip.destination)?;
                 if let Some(t) = SpawnTrip::new(from.clone(), to.clone(), trip.mode, &map) {
                     // TODO Add space in the API to specify purpose, but probably make it optional.
                     spec.trips

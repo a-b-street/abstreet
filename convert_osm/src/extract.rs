@@ -13,16 +13,16 @@ use crate::transit;
 use crate::Options;
 
 pub struct OsmExtract {
-    // Unsplit roads
+    /// Unsplit roads
     pub roads: Vec<(WayID, RawRoad)>,
-    // Traffic signals to the direction they apply (or just true if unspecified)
+    /// Traffic signals to the direction they apply (or just true if unspecified)
     pub traffic_signals: HashMap<HashablePt2D, bool>,
     pub osm_node_ids: HashMap<HashablePt2D, NodeID>,
-    // (ID, restriction type, from way ID, via node ID, to way ID)
+    /// (ID, restriction type, from way ID, via node ID, to way ID)
     pub simple_turn_restrictions: Vec<(RestrictionType, WayID, NodeID, WayID)>,
-    // (relation ID, from way ID, via way ID, to way ID)
+    /// (relation ID, from way ID, via way ID, to way ID)
     pub complicated_turn_restrictions: Vec<(RelationID, WayID, WayID, WayID)>,
-    // (location, name, amenity type)
+    /// (location, name, amenity type)
     pub amenities: Vec<(Pt2D, NamePerLanguage, String)>,
 }
 

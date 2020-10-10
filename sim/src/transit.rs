@@ -1,6 +1,3 @@
-// Manages public transit vehicles (buses and trains) that follow a route. The transit model is
-// currently kind of broken, so not describing the state machine yet.
-
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
@@ -37,7 +34,7 @@ struct Route {
 struct Bus {
     car: CarID,
     route: BusRouteID,
-    // Where does each passenger want to deboard?
+    /// Where does each passenger want to deboard?
     passengers: Vec<(PersonID, Option<BusStopID>)>,
     state: BusState,
 }
@@ -50,7 +47,8 @@ enum BusState {
     Done,
 }
 
-// This kind of acts like TripManager, managing transitions... but a bit more statefully.
+/// Manages public transit vehicles (buses and trains) that follow a route. The transit model is
+/// currently kind of broken, so not describing the state machine yet.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct TransitSimState {
     #[serde(
@@ -63,7 +61,7 @@ pub struct TransitSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     routes: BTreeMap<BusRouteID, Route>,
-    // waiting at => (ped, route, bound for, started waiting)
+    /// waiting at => (ped, route, bound for, started waiting)
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -89,7 +87,7 @@ impl TransitSimState {
         }
     }
 
-    // Returns the path for the first leg.
+    /// Returns the path for the first leg.
     pub fn create_empty_route(&mut self, bus_route: &BusRoute, map: &Map) -> (PathRequest, Path) {
         if !self.routes.contains_key(&bus_route.id) {
             assert!(bus_route.stops.len() > 1);
@@ -172,8 +170,8 @@ impl TransitSimState {
         );
     }
 
-    // If true, the bus is idling. If false, the bus actually arrived at a border and should now
-    // vanish.
+    /// If true, the bus is idling. If false, the bus actually arrived at a border and should now
+    /// vanish.
     pub fn bus_arrived_at_stop(
         &mut self,
         now: Time,
@@ -303,7 +301,7 @@ impl TransitSimState {
         }
     }
 
-    // Returns the bus if the pedestrian boarded immediately.
+    /// Returns the bus if the pedestrian boarded immediately.
     pub fn ped_waiting_for_bus(
         &mut self,
         now: Time,
@@ -369,7 +367,7 @@ impl TransitSimState {
         self.buses[&bus].route
     }
 
-    // also stop idx that the bus is coming from
+    /// also stop idx that the bus is coming from
     pub fn buses_for_route(&self, route: BusRouteID) -> Vec<(CarID, Option<usize>)> {
         if let Some(ref r) = self.routes.get(&route) {
             r.active_vehicles
@@ -395,7 +393,7 @@ impl TransitSimState {
         }
     }
 
-    // (buses, trains)
+    /// (buses, trains)
     pub fn active_vehicles(&self) -> (usize, usize) {
         let mut buses = 0;
         let mut trains = 0;

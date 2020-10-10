@@ -1,5 +1,5 @@
-// Uses https://github.com/easbar/fast_paths. Slower creation during map importing, but very fast
-// queries.
+//! Uses https://github.com/easbar/fast_paths. Slower creation during map importing, but very fast
+//! queries.
 
 use serde::{Deserialize, Serialize};
 

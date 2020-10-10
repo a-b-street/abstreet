@@ -1,5 +1,5 @@
-// Since the local filesystem can't be read from a web browser, instead bundle system data files in
-// the WASM binary using include_dir. For now, no support for saving files.
+//! Since the local filesystem can't be read from a web browser, instead bundle system data files in
+//! the WASM binary using include_dir. For now, no support for saving files.
 
 pub use crate::io::*;
 use crate::Timer;
@@ -7,7 +7,16 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::io::{Error, ErrorKind};
 
-static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!("../data/system");
+// Bring in everything from data/system/ matching one of the prefixes -- aka, no scenarios, and
+// only the smallest map. Everything else has to be dynamically loaded over HTTP.
+static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
+    "../data/system",
+    "assets/",
+    "cities/",
+    "fonts/",
+    "maps/montlake.bin",
+    "proposals/"
+);
 
 pub fn file_exists<I: Into<String>>(path: I) -> bool {
     SYSTEM_DATA

@@ -1,4 +1,4 @@
-// Intermediate structures so that sim and game crates don't have a cyclic dependency.
+//! Intermediate structures so that sim and game crates don't have a cyclic dependency.
 
 use geom::{Angle, Distance, PolyLine, Pt2D, Time};
 use map_model::{BuildingID, Map, ParkingLotID, Traversable, TurnID};
@@ -25,7 +25,7 @@ pub struct DrawPedCrowdInput {
 
 #[derive(Clone)]
 pub enum PedCrowdLocation {
-    // bool is contraflow
+    /// bool is contraflow
     Sidewalk(Traversable, bool),
     BldgDriveway(BuildingID),
     LotDriveway(ParkingLotID),
@@ -36,9 +36,10 @@ pub struct DrawCarInput {
     pub id: CarID,
     pub waiting_for_turn: Option<TurnID>,
     pub status: CarStatus,
-    // Front of the car
+    pub show_parking_intent: bool,
+    /// Front of the car
     pub on: Traversable,
-    // Possibly the rest
+    /// Possibly the rest
     pub partly_on: Vec<Traversable>,
     pub label: Option<String>,
 
@@ -53,13 +54,13 @@ pub enum CarStatus {
 }
 
 pub struct UnzoomedAgent {
-    // None means a pedestrian.
+    /// None means a pedestrian.
     pub vehicle_type: Option<VehicleType>,
     pub pos: Pt2D,
-    // None means a bus.
+    /// None means a bus.
     pub person: Option<PersonID>,
-    // True only for cars currently looking for parking. I don't want this struct to grow, but this
-    // is important enough to call out here.
+    /// True only for cars currently looking for parking. I don't want this struct to grow, but
+    /// this is important enough to call out here.
     pub parking: bool,
 }
 
@@ -68,7 +69,7 @@ pub struct UnzoomedAgent {
 // otherwise? except we don't know what to calculate. maybe cache it?
 pub trait GetDrawAgents {
     fn time(&self) -> Time;
-    // Every time the time changes, this should increase. For smoothly animating stuff.
+    /// Every time the time changes, this should increase. For smoothly animating stuff.
     fn step_count(&self) -> usize;
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
     fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput>;

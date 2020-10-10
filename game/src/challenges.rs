@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, Percent, Time};
@@ -313,57 +313,6 @@ pub fn prebake_all() {
         let scenario: Scenario =
             abstutil::read_binary(abstutil::path_scenario(name, "weekday"), &mut timer);
         prebake(&map, scenario, None, &mut timer);
-    }
-}
-
-// TODO This variant will be more useful when all scenarios tend to actually complete. ;)
-#[allow(unused)]
-pub fn generic_prebake_all() {
-    let mut timer = Timer::new("prebake all challenge results");
-
-    let mut per_map: BTreeMap<String, Vec<Challenge>> = BTreeMap::new();
-    for (_, list) in Challenge::all() {
-        for c in list {
-            per_map
-                .entry(c.gameplay.map_path())
-                .or_insert_with(Vec::new)
-                .push(c);
-        }
-    }
-    for (map_path, list) in per_map {
-        timer.start(format!("prebake for {}", map_path));
-        let map = map_model::Map::new(map_path.clone(), &mut timer);
-
-        let mut done_scenarios = HashSet::new();
-        for challenge in list {
-            // Bit of an abuse of this, but just need to fix the rng seed.
-            if let Some(scenario) = challenge.gameplay.scenario(
-                &map,
-                None,
-                SimFlags::for_test("prebaked").make_rng(),
-                &mut timer,
-            ) {
-                if done_scenarios.contains(&scenario.scenario_name) {
-                    continue;
-                }
-                done_scenarios.insert(scenario.scenario_name.clone());
-
-                prebake(&map, scenario, None, &mut timer);
-            }
-        }
-        // TODO A weird hack to glue up tutorial scenarios.
-        if map.get_name() == "montlake" {
-            for generator in TutorialState::scenarios_to_prebake(&map) {
-                let scenario = generator.generate(
-                    &map,
-                    &mut SimFlags::for_test("prebaked").make_rng(),
-                    &mut timer,
-                );
-                prebake(&map, scenario, None, &mut timer);
-            }
-        }
-
-        timer.stop(format!("prebake for {}", map_path));
     }
 }
 

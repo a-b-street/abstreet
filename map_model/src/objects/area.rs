@@ -1,5 +1,3 @@
-// Areas are just used for drawing.
-
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
@@ -32,6 +30,7 @@ pub enum AreaType {
     Island,
 }
 
+/// Areas are just used for drawing.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Area {
     pub id: AreaID,

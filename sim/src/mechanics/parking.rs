@@ -1,8 +1,3 @@
-// Manages the state of parked cars. There are two implementations:
-// - NormalParkingSimState allows only one vehicle per ParkingSpot defined in the map
-// - InfiniteParkingSimState pretends every building has infinite capacity, and onstreet parking is
-//   ignored
-
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
 
 use enum_dispatch::enum_dispatch;
@@ -20,6 +15,10 @@ use map_model::{
 
 use crate::{CarID, CarStatus, DrawCarInput, Event, ParkedCar, ParkingSpot, PersonID, Vehicle};
 
+/// Manages the state of parked cars. There are two implementations:
+/// - NormalParkingSimState allows only one vehicle per ParkingSpot defined in the map
+/// - InfiniteParkingSimState pretends every building has infinite capacity, and onstreet parking is
+///   ignored
 #[enum_dispatch(ParkingSimState)]
 pub trait ParkingSim {
     // Returns any cars that got very abruptly evicted from existence
@@ -79,8 +78,8 @@ pub enum ParkingSimState {
 }
 
 impl ParkingSimState {
-    // Counterintuitive: any spots located in blackholes are just not represented here. If somebody
-    // tries to drive from a blackholed spot, they couldn't reach most places.
+    /// Counterintuitive: any spots located in blackholes are just not represented here. If somebody
+    /// tries to drive from a blackholed spot, they couldn't reach most places.
     pub fn new(map: &Map, infinite: bool, timer: &mut Timer) -> ParkingSimState {
         if infinite {
             ParkingSimState::Infinite(InfiniteParkingSimState::new(map))
@@ -331,6 +330,7 @@ impl ParkingSim for NormalParkingSimState {
                     id: p.vehicle.id,
                     waiting_for_turn: None,
                     status: CarStatus::Parked,
+                    show_parking_intent: false,
                     on: Traversable::Lane(lane),
                     partly_on: Vec::new(),
                     label: None,
@@ -351,6 +351,7 @@ impl ParkingSim for NormalParkingSimState {
                     id: p.vehicle.id,
                     waiting_for_turn: None,
                     status: CarStatus::Parked,
+                    show_parking_intent: false,
                     // Just used for z-order
                     on: Traversable::Lane(pl.driving_pos.lane()),
                     partly_on: Vec::new(),
@@ -660,10 +661,10 @@ impl ParkingLane {
     }
 }
 
-// This assigns infinite private parking to all buildings and none anywhere else. This effectively
-// disables the simulation of parking entirely, making driving trips just go directly between
-// buildings. Useful for maps without good parking data (which is currently all of them) and
-// experiments where parking contention skews results and just gets in the way.
+/// This assigns infinite private parking to all buildings and none anywhere else. This effectively
+/// disables the simulation of parking entirely, making driving trips just go directly between
+/// buildings. Useful for maps without good parking data (which is currently all of them) and
+/// experiments where parking contention skews results and just gets in the way.
 //
 // TODO Reconsider this split implementation. There's lots of copied code. We can maybe just use
 // NormalParkingSimState with an 'infinite: bool' and rethinking num_spots_per_offstreet.

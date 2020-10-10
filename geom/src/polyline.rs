@@ -59,7 +59,7 @@ impl PolyLine {
         PolyLine::new(pts).unwrap()
     }
 
-    // Doesn't check for duplicates. Use at your own risk.
+    /// Doesn't check for duplicates. Use at your own risk.
     pub fn unchecked_new(pts: Vec<Pt2D>) -> PolyLine {
         assert!(pts.len() >= 2);
         let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
@@ -69,7 +69,7 @@ impl PolyLine {
         PolyLine { pts, length }
     }
 
-    // First dedupes adjacent points
+    /// First dedupes adjacent points
     pub fn deduping_new(mut pts: Vec<Pt2D>) -> Result<PolyLine, String> {
         pts.dedup();
         PolyLine::new(pts)
@@ -156,7 +156,7 @@ impl PolyLine {
         self.must_extend(new)
     }
 
-    // One or both args might be empty.
+    /// One or both args might be empty.
     pub fn append(first: Vec<Pt2D>, second: Vec<Pt2D>) -> Result<Vec<Pt2D>, String> {
         if second.is_empty() {
             return Ok(first);
@@ -189,7 +189,7 @@ impl PolyLine {
         self.length
     }
 
-    // Returns the excess distance left over from the end
+    /// Returns the excess distance left over from the end
     pub fn slice(&self, start: Distance, end: Distance) -> Result<(PolyLine, Distance), String> {
         if start > end || start < Distance::ZERO || end < Distance::ZERO {
             return Err(format!("Can't get a polyline slice [{}, {}]", start, end));
@@ -264,7 +264,7 @@ impl PolyLine {
         Ok((PolyLine::new(result)?, end - dist_so_far))
     }
 
-    // No excess leftover distance allowed.
+    /// No excess leftover distance allowed.
     // TODO Lot of callers of this. Make safer later.
     pub fn exact_slice(&self, start: Distance, end: Distance) -> PolyLine {
         self.maybe_exact_slice(start, end).unwrap()
@@ -496,7 +496,7 @@ impl PolyLine {
         polygons
     }
 
-    // Don't draw the dashes too close to the ends.
+    /// Don't draw the dashes too close to the ends.
     pub fn dashed_lines(
         &self,
         width: Distance,
@@ -618,7 +618,7 @@ impl PolyLine {
         polygons
     }
 
-    // Also return the angle of the line where the hit was found
+    /// Also return the angle of the line where the hit was found
     // TODO Also return distance along self of the hit
     pub fn intersection(&self, other: &PolyLine) -> Option<(Pt2D, Angle)> {
         assert_ne!(self, other);
@@ -653,8 +653,8 @@ impl PolyLine {
         None
     }
 
-    // Panics if the pt is not on the polyline. Returns None if the point is the first point
-    // (meaning the slice is empty).
+    /// Panics if the pt is not on the polyline. Returns None if the point is the first point
+    /// (meaning the slice is empty).
     pub fn get_slice_ending_at(&self, pt: Pt2D) -> Option<PolyLine> {
         if self.first_pt() == pt {
             return None;
@@ -677,7 +677,7 @@ impl PolyLine {
         }
     }
 
-    // Returns None if the point is the last point.
+    /// Returns None if the point is the last point.
     pub fn get_slice_starting_at(&self, pt: Pt2D) -> Option<PolyLine> {
         if self.last_pt() == pt {
             return None;
@@ -724,8 +724,8 @@ impl PolyLine {
         Bounds::from(&self.pts)
     }
 
-    // If the current line is at least this long, return it. Otherwise, extend the end of it,
-    // following the angle of the last line.
+    /// If the current line is at least this long, return it. Otherwise, extend the end of it,
+    /// following the angle of the last line.
     pub fn extend_to_length(&self, min_len: Distance) -> PolyLine {
         let need_len = min_len - self.length();
         if need_len <= Distance::ZERO {

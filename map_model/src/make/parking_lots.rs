@@ -1,7 +1,3 @@
-// Take in parking lots from OSM and all parking aisle roads. Match parking lots to the nearest
-// sidewalk + driving lane, then automatically generate individual parking spots perpendicular to
-// the aisles.
-
 use std::collections::HashSet;
 
 use abstutil::Timer;
@@ -14,6 +10,9 @@ use crate::{
     PARKING_LOT_SPOT_LENGTH,
 };
 
+/// Take in parking lots from OSM and all parking aisle roads. Match parking lots to the nearest
+/// sidewalk + driving lane, then automatically generate individual parking spots perpendicular to
+/// the aisles.
 pub fn make_all_parking_lots(
     input: &Vec<RawParkingLot>,
     aisles: &Vec<(osm::WayID, Vec<Pt2D>)>,

@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::Distance;
 
-// longitude is x, latitude is y
+/// longitude is x, latitude is y
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 pub struct LonLat {
     longitude: NotNan<f64>,
@@ -48,7 +48,7 @@ impl LonLat {
         Distance::meters(earth_radius_m * c)
     }
 
-    // Pretty meaningless units, for comparing distances very roughly
+    /// Pretty meaningless units, for comparing distances very roughly
     pub fn fast_dist(self, other: LonLat) -> NotNan<f64> {
         NotNan::new((self.x() - other.x()).powi(2) + (self.y() - other.y()).powi(2)).unwrap()
     }

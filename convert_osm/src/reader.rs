@@ -35,7 +35,7 @@ pub struct Way {
 
 pub struct Relation {
     pub tags: Tags,
-    // Role, member
+    /// Role, member
     pub members: Vec<(String, OsmID)>,
 }
 

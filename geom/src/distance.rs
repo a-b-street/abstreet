@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{trim_f64, Duration, Speed};
 
-// In meters. Can be negative.
+/// In meters. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Distance(f64);
 

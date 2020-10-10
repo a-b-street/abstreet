@@ -55,8 +55,8 @@ pub struct EditMode {
 impl EditMode {
     pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State> {
         let orig_dirty = app.primary.dirty_from_edits;
-        assert!(app.suspended_sim.is_none());
-        app.suspended_sim = Some(app.primary.clear_sim());
+        assert!(app.primary.suspended_sim.is_none());
+        app.primary.suspended_sim = Some(app.primary.clear_sim());
         let edits = app.primary.map.get_edits();
         let layer = crate::layer::map::Static::edits(ctx, app);
         Box::new(EditMode {
@@ -73,7 +73,7 @@ impl EditMode {
     }
 
     fn quit(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let old_sim = app.suspended_sim.take().unwrap();
+        let old_sim = app.primary.suspended_sim.take().unwrap();
 
         // If nothing changed, short-circuit
         if app.primary.map.get_edits() == &self.orig_edits {
@@ -614,7 +614,12 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             .centered_horiz(),
         Btn::text_bg2(format!(
             "Finish & resume from {}",
-            app.suspended_sim.as_ref().unwrap().time().ampm_tostring()
+            app.primary
+                .suspended_sim
+                .as_ref()
+                .unwrap()
+                .time()
+                .ampm_tostring()
         ))
         .build(ctx, "finish editing", Key::Escape),
     ]))
@@ -660,8 +665,8 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         app.primary.draw_map.intersections[i.0].clear_rendering();
     }
 
-    if app.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
-        app.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
+    if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
+        app.primary.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
     }
 
     // Autosave

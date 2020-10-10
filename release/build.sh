@@ -22,6 +22,7 @@ cp $game_binary $output/game
 cp $importer_binary $output
 mkdir $output/data
 cp -Rv data/system $output/data/system
+cp data/MANIFEST.json $output/data
 
 # Windows doesn't have zip?!
 if [[ "$output" != "abst_windows" ]]; then

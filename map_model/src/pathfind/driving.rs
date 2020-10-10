@@ -1,4 +1,4 @@
-// Pathfinding for cars, bikes, buses, and trains using contraction hierarchies
+//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies
 
 use std::cell::RefCell;
 

@@ -1,4 +1,4 @@
-// A bunch of (mostly read-only) queries on a Map.
+//! A bunch of (mostly read-only) queries on a Map.
 
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
@@ -18,8 +18,8 @@ use crate::{
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MapConfig {
-    // If true, driving happens on the right side of the road (USA). If false, on the left
-    // (Australia).
+    /// If true, driving happens on the right side of the road (USA). If false, on the left
+    /// (Australia).
     pub driving_side: DrivingSide,
     pub bikes_can_use_bus_lanes: bool,
 }
@@ -100,13 +100,14 @@ impl Map {
             }
         }
 
-        let raw: RawMap = if path.starts_with(&abstutil::path_all_raw_maps()) {
-            abstutil::read_binary(path, timer)
-        } else {
-            // Synthetic
-            abstutil::read_json(path, timer)
-        };
+        let raw: RawMap = abstutil::read_binary(path, timer);
         Map::create_from_raw(raw, true, timer)
+    }
+
+    /// If you have to deserialize a `Map` directly, call this after. Prefer using `Map::new`
+    /// though.
+    pub fn map_loaded_directly(&mut self) {
+        self.edits = self.new_edits();
     }
 
     pub fn corrupt_err(path: String, err: std::io::Error) {
@@ -130,7 +131,7 @@ impl Map {
         );
     }
 
-    // Just for temporary std::mem::replace tricks.
+    /// Just for temporary std::mem::replace tricks.
     pub fn blank() -> Map {
         Map {
             roads: Vec::new(),
@@ -293,7 +294,7 @@ impl Map {
             .collect()
     }
 
-    // The turns may belong to two different intersections!
+    /// The turns may belong to two different intersections!
     pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
         let lane = self.get_l(l);
         let mut turns: Vec<&Turn> = self
@@ -443,7 +444,7 @@ impl Map {
         self.get_parent(self.get_b(id).sidewalk())
     }
 
-    // This and all_outgoing_borders are expensive to constantly repeat
+    /// This and all_outgoing_borders are expensive to constantly repeat
     pub fn all_incoming_borders(&self) -> Vec<&Intersection> {
         let mut result: Vec<&Intersection> = Vec::new();
         for i in &self.intersections {
@@ -471,10 +472,10 @@ impl Map {
         abstutil::write_binary(abstutil::path_map(&self.name), self);
     }
 
-    // Cars trying to park near this building should head for the driving lane returned here, then
-    // start their search. Some parking lanes are connected to driving lanes that're "parking
-    // blackholes" -- if there are no free spots on that lane, then the roads force cars to a
-    // border.
+    /// Cars trying to park near this building should head for the driving lane returned here, then
+    /// start their search. Some parking lanes are connected to driving lanes that're "parking
+    /// blackholes" -- if there are no free spots on that lane, then the roads force cars to a
+    /// border.
     // TODO Making driving_connection do this.
     pub fn find_driving_lane_near_building(&self, b: BuildingID) -> LaneID {
         let sidewalk = self.get_b(b).sidewalk();
@@ -654,7 +655,7 @@ impl Map {
         &self.config
     }
 
-    // Simple search along undirected roads
+    /// Simple search along undirected roads
     pub fn simple_path_btwn(&self, i1: IntersectionID, i2: IntersectionID) -> Option<Vec<RoadID>> {
         let mut graph: UnGraphMap<IntersectionID, RoadID> = UnGraphMap::new();
         for r in self.all_roads() {

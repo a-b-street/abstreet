@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{trim_f64, Duration};
 
-// In seconds since midnight. Can't be negative.
+/// In seconds since midnight. Can't be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Time(f64);
 
@@ -29,7 +29,7 @@ impl Time {
         Time(trim_f64(value))
     }
 
-    // (hours, minutes, seconds, centiseconds)
+    /// (hours, minutes, seconds, centiseconds)
     pub fn get_parts(self) -> (usize, usize, usize, usize) {
         let mut remainder = self.0;
         let hours = (remainder / 3600.0).floor();
@@ -47,7 +47,7 @@ impl Time {
             centis as usize,
         )
     }
-    // Rounded up
+    /// Rounded up
     pub fn get_hours(self) -> usize {
         let (hr, min, sec, cs) = self.get_parts();
         if min > 0 || sec > 0 || cs > 0 {
@@ -151,7 +151,7 @@ impl Time {
         self.0 / other.0
     }
 
-    // For RNG range generation. Don't abuse.
+    /// For RNG range generation. Don't abuse.
     pub fn inner_seconds(self) -> f64 {
         self.0
     }

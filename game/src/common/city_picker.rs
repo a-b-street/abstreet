@@ -7,6 +7,7 @@ use widgetry::{
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::helpers::nice_map_name;
+use crate::load::MapLoader;
 use crate::render::DrawArea;
 
 pub struct CityPicker {
@@ -46,10 +47,6 @@ impl CityPicker {
             }
 
             for (name, polygon) in city.regions {
-                // For example, the huge_seattle map isn't bundled in releases.
-                if !abstutil::file_exists(abstutil::path_map(&name)) {
-                    continue;
-                }
                 let color = app.cs.rotating_color_agents(regions.len());
                 if &name == app.primary.map.get_name() {
                     batch.push(color.alpha(0.5), polygon.clone());
@@ -63,7 +60,7 @@ impl CityPicker {
 
         let mut other_cities = vec![Line("Other cities").draw(ctx)];
         let mut this_city = vec![];
-        for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
+        for name in abstutil::Manifest::load().all_map_names() {
             if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
                 let btn = Btn::txt(&name, Text::from(Line(nice_map_name(&name)).fg(*color)))
                     .tooltip(Text::new());
@@ -114,10 +111,14 @@ impl State for CityPicker {
                     return Transition::Pop;
                 }
                 name => {
-                    return ctx.loading_screen("switch map", |ctx, _| {
-                        app.switch_map(ctx, abstutil::path_map(name));
-                        (self.on_load)(ctx, app)
-                    });
+                    let on_load =
+                        std::mem::replace(&mut self.on_load, Box::new(|_, _| Transition::Keep));
+                    return Transition::Replace(MapLoader::new(
+                        ctx,
+                        app,
+                        name.to_string(),
+                        on_load,
+                    ));
                 }
             },
             _ => {}
@@ -151,10 +152,9 @@ impl State for CityPicker {
                 .per_obj
                 .left_click(ctx, format!("switch to {}", nice_map_name(name)))
             {
-                return ctx.loading_screen("switch map", |ctx, _| {
-                    app.switch_map(ctx, abstutil::path_map(name));
-                    (self.on_load)(ctx, app)
-                });
+                let on_load =
+                    std::mem::replace(&mut self.on_load, Box::new(|_, _| Transition::Keep));
+                return Transition::Replace(MapLoader::new(ctx, app, name.to_string(), on_load));
             }
         }
 

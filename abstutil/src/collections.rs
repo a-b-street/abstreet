@@ -180,7 +180,7 @@ pub fn contains_duplicates<T: Ord>(vec: &Vec<T>) -> bool {
     false
 }
 
-// Use when your key is just PartialEq, not Ord or Hash.
+/// Use when your key is just PartialEq, not Ord or Hash.
 pub struct VecMap<K, V> {
     inner: Vec<(K, V)>,
 }
@@ -203,7 +203,7 @@ impl<K: Clone + PartialEq, V> VecMap<K, V> {
     }
 }
 
-// Convenience functions around a string->string map
+/// Convenience functions around a string->string map
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Tags(BTreeMap<String, String>);
 

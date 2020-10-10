@@ -1,4 +1,4 @@
-// All sorts of read-only queries about a simulation
+//! All sorts of read-only queries about a simulation
 
 use std::collections::{BTreeMap, HashSet};
 
@@ -29,14 +29,14 @@ impl Sim {
         self.time == Time::START_OF_DAY && self.is_done()
     }
 
-    // (number of finished trips, number of unfinished trips)
+    /// (number of finished trips, number of unfinished trips)
     pub fn num_trips(&self) -> (usize, usize) {
         self.trips.num_trips()
     }
     pub fn num_agents(&self) -> Counter<AgentType> {
         self.trips.num_agents(&self.transit)
     }
-    // (total number of people, just in buildings, just off map)
+    /// (total number of people, just in buildings, just off map)
     pub fn num_ppl(&self) -> (usize, usize, usize) {
         self.trips.num_ppl()
     }
@@ -59,7 +59,7 @@ impl Sim {
         self.driving.debug_lane(id);
     }
 
-    // Only call for active agents, will panic otherwise
+    /// Only call for active agents, will panic otherwise
     pub fn agent_properties(&self, id: AgentID) -> AgentProperties {
         match id {
             AgentID::Pedestrian(id) => self.walking.agent_properties(id, self.time),
@@ -107,7 +107,7 @@ impl Sim {
     pub fn all_trip_info(&self) -> Vec<(TripID, TripInfo)> {
         self.trips.all_trip_info()
     }
-    // If trip is finished, returns (total time, total waiting time)
+    /// If trip is finished, returns (total time, total waiting time)
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         self.trips.finished_trip_time(id)
     }
@@ -132,7 +132,7 @@ impl Sim {
     pub fn lookup_parked_car(&self, id: CarID) -> Option<&ParkedCar> {
         self.parking.lookup_parked_car(id)
     }
-    // For every parked car, (position of parking spot, position of owner)
+    /// For every parked car, (position of parking spot, position of owner)
     pub fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, Position)> {
         self.parking
             .all_parked_car_positions(map)
@@ -253,7 +253,7 @@ impl Sim {
         self.intersections.get_blocked_by(a)
     }
 
-    // (bus, stop index it's coming from, percent to next stop, location)
+    /// (bus, stop index it's coming from, percent to next stop, location)
     pub fn status_of_buses(
         &self,
         route: BusRouteID,
@@ -280,8 +280,8 @@ impl Sim {
             .find_blockage_front(car, map, &self.intersections)
     }
 
-    // For intersections with an agent waiting beyond some threshold, return when they started
-    // waiting. Sorted by earliest waiting (likely the root cause of gridlock).
+    /// For intersections with an agent waiting beyond some threshold, return when they started
+    /// waiting. Sorted by earliest waiting (likely the root cause of gridlock).
     pub fn delayed_intersections(&self, threshold: Duration) -> Vec<(IntersectionID, Time)> {
         self.intersections
             .delayed_intersections(self.time, threshold)
@@ -344,7 +344,7 @@ impl Sim {
         pts_per_type.into_iter().collect()
     }
 
-    // (number of vehicles in the lane, penalty if a bike or other slow vehicle is present)
+    /// (number of vehicles in the lane, penalty if a bike or other slow vehicle is present)
     pub fn target_lane_penalty(&self, lane: &Lane) -> (usize, usize) {
         if lane.is_walkable() {
             (0, 0)

@@ -14,7 +14,9 @@ To sum up what the map model provides: geometry + semantics.
   - Imagine a hackathon where people easily build games based on the real world
   - Like <https://developers.google.com/maps/documentation/gaming/overview_musk>
     but open
-- A new OSM viewer/editor
+- A new OSM viewer/editor, particularly focused on POIs
+- Something focusing on 15-minute neighborhoods, with isochrones and nearby
+  amenities
 
 TODO: Give a quick Python example of what interacting with the end goal could
 look like.

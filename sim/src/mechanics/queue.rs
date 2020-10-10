@@ -1,7 +1,3 @@
-// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where
-// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is
-// implemented.
-
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
@@ -12,19 +8,22 @@ use map_model::{Map, Traversable};
 use crate::mechanics::car::{Car, CarState};
 use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 
+/// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where
+/// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is
+/// implemented.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Queue {
     pub id: Traversable,
     pub cars: VecDeque<CarID>,
-    // This car's back is still partly in this queue.
+    /// This car's back is still partly in this queue.
     pub laggy_head: Option<CarID>,
 
     pub geom_len: Distance,
-    // When a car's turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
-    // target lane. When the car completely leaves (stops being the laggy_head), free up that
-    // space. To prevent blocking the box for possibly scary amounts of time, allocate some of this
-    // length first. This is unused for turns themselves. This value can exceed geom_len (for the
-    // edge case of ONE long car on a short queue).
+    /// When a car's turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
+    /// target lane. When the car completely leaves (stops being the laggy_head), free up that
+    /// space. To prevent blocking the box for possibly scary amounts of time, allocate some of
+    /// this length first. This is unused for turns themselves. This value can exceed geom_len
+    /// (for the edge case of ONE long car on a short queue).
     pub reserved_length: Distance,
 }
 
@@ -39,7 +38,7 @@ impl Queue {
         }
     }
 
-    // Farthest along (greatest distance) is first.
+    /// Farthest along (greatest distance) is first.
     pub fn get_car_positions(
         &self,
         now: Time,
@@ -204,8 +203,8 @@ impl Queue {
         Some(idx)
     }
 
-    // If true, there's room and the car must actually start the turn (because the space is
-    // reserved).
+    /// If true, there's room and the car must actually start the turn (because the space is
+    /// reserved).
     pub fn try_to_reserve_entry(&mut self, car: &Car, force_entry: bool) -> bool {
         // Sometimes a car + FOLLOWING_DISTANCE might be longer than the geom_len entirely. In that
         // case, it just means the car won't totally fit on the queue at once, which is fine.

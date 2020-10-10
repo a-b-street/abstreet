@@ -2,6 +2,5 @@
 
 set -e
 wasm-pack build --dev --target web -- --no-default-features --features wasm
-cp index.html pkg
 cd pkg
 python3 -m http.server 8000

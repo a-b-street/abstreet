@@ -1,6 +1,6 @@
-// An experimental SEIR model by https://github.com/omalaspinas/ glued to the traffic simulation.
-// Transmission may occur when people spend time in shared spaces like buildings, bus stops, and
-// buses.
+//! An experimental SEIR model by https://github.com/omalaspinas/ glued to the traffic simulation.
+//! Transmission may occur when people spend time in shared spaces like buildings, bus stops, and
+//! buses.
 
 use std::ops;
 

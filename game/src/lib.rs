@@ -19,6 +19,7 @@ mod game;
 mod helpers;
 mod info;
 mod layer;
+mod load;
 mod options;
 mod pregame;
 mod render;
@@ -89,7 +90,7 @@ pub fn main() {
         'OUTER: for (_, stages) in challenges::Challenge::all() {
             for challenge in stages {
                 if challenge.alias == x {
-                    flags.sim_flags.load = challenge.gameplay.map_path();
+                    flags.sim_flags.load = abstutil::path_map(challenge.gameplay.map_name());
                     mode = Some(challenge.gameplay);
                     break 'OUTER;
                 } else {
@@ -109,11 +110,11 @@ pub fn main() {
     if mode.is_none() && flags.sim_flags.load.contains("scenarios/") {
         // TODO regex
         let parts = flags.sim_flags.load.split("/").collect::<Vec<_>>();
-        let map_path = abstutil::path_map(parts[parts.len() - 2]);
+        let map_name = parts[parts.len() - 2].to_string();
         let scenario = abstutil::basename(parts[parts.len() - 1]);
-        flags.sim_flags.load = map_path.clone();
+        flags.sim_flags.load = abstutil::path_map(&map_name);
         mode = Some(sandbox::GameplayMode::PlayScenario(
-            map_path,
+            map_name,
             scenario,
             Vec::new(),
         ));

@@ -1,9 +1,3 @@
-// A Turn leads from the end of one Lane to the start of another. (Except for pedestrians;
-// sidewalks are bidirectional.)
-//
-// A Movement groups all turns from one road to another, letting traffic signals operate at a
-// higher level of abstraction.
-
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
@@ -14,13 +8,13 @@ use geom::{Angle, Distance, PolyLine, Pt2D};
 
 use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map};
 
-// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
-// Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.
+/// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
+/// Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct TurnID {
     pub parent: IntersectionID,
-    // src and dst must both belong to parent. No guarantees that src is incoming and dst is
-    // outgoing for turns between sidewalks.
+    /// src and dst must both belong to parent. No guarantees that src is incoming and dst is
+    /// outgoing for turns between sidewalks.
     pub src: LaneID,
     pub dst: LaneID,
 }
@@ -60,18 +54,21 @@ impl TurnType {
 // turns should be treated as less important.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
 pub enum TurnPriority {
-    // For stop signs: Can't currently specify this!
-    // For traffic signals: Can't do this turn right now.
+    /// For stop signs: Can't currently specify this!
+    /// For traffic signals: Can't do this turn right now.
     Banned,
-    // For stop signs: cars have to stop before doing this turn, and are accepted with the lowest
-    // priority. For traffic signals: Cars can do this immediately if there are no previously
-    // accepted conflicting turns.
+    /// For stop signs: cars have to stop before doing this turn, and are accepted with the lowest
+    /// priority.
+    /// For traffic signals: Cars can do this immediately if there are no previously accepted
+    /// conflicting turns.
     Yield,
-    // For stop signs: cars can do this without stopping. These can conflict!
-    // For traffic signals: Must be non-conflicting.
+    /// For stop signs: cars can do this without stopping. These can conflict!
+    /// For traffic signals: Must be non-conflicting.
     Protected,
 }
 
+/// A Turn leads from the end of one Lane to the start of another. (Except for pedestrians;
+/// sidewalks are bidirectional.)
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Turn {
     pub id: TurnID,
@@ -79,8 +76,8 @@ pub struct Turn {
     // TODO Some turns might not actually have geometry. Currently encoded by two equal points.
     // Represent more directly?
     pub geom: PolyLine,
-    // Empty except for TurnType::Crosswalk. Usually just one other ID, except for the case of 4
-    // duplicates at a degenerate intersection.
+    /// Empty except for TurnType::Crosswalk. Usually just one other ID, except for the case of 4
+    /// duplicates at a degenerate intersection.
     pub other_crosswalk_ids: BTreeSet<TurnID>,
 }
 
@@ -118,7 +115,7 @@ impl Turn {
     }
 
     // TODO Maybe precompute this.
-    // penalties for (lane types, lane-changing, slow lane)
+    /// penalties for (lane types, lane-changing, slow lane)
     pub fn penalty(&self, map: &Map) -> (usize, usize, usize) {
         let from = map.get_l(self.id.src);
         let to = map.get_l(self.id.dst);
@@ -182,8 +179,8 @@ impl Turn {
     }
 }
 
-// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
-// here to keep each crosswalk separate.
+/// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
+/// here to keep each crosswalk separate.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct MovementID {
     pub from: DirectedRoadID,
@@ -192,7 +189,7 @@ pub struct MovementID {
     pub crosswalk: bool,
 }
 
-// This is cheaper to store than a MovementID. It simply indexes into the list of movements.
+/// This is cheaper to store than a MovementID. It simply indexes into the list of movements.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct CompressedMovementID {
     pub i: IntersectionID,
@@ -200,14 +197,16 @@ pub struct CompressedMovementID {
     pub idx: u8,
 }
 
+/// A Movement groups all turns from one road to another, letting traffic signals operate at a
+/// higher level of abstraction.
+/// This is only useful for traffic signals currently.
 // TODO Unclear how this plays with different lane types
-// This is only useful for traffic signals currently.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Movement {
     pub id: MovementID,
     pub turn_type: TurnType,
     pub members: Vec<TurnID>,
-    // The "overall" path of movement, aka, an "average" of the turn geometry
+    /// The "overall" path of movement, aka, an "average" of the turn geometry
     pub geom: PolyLine,
     pub angle: Angle,
 }
@@ -287,7 +286,7 @@ impl Movement {
         Ok(results)
     }
 
-    // Polyline points FROM intersection
+    /// Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
         let r = map.get_r(self.id.from.id);
 

@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-// Stores in radians
+/// Stores in radians
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct Angle(f64);
 
@@ -43,8 +43,8 @@ impl Angle {
         self.normalized_radians().to_degrees()
     }
 
-    // Logically this returns [-180, 180], but keep in mind when we print this angle, it'll
-    // normalize to be [0, 360].
+    /// Logically this returns [-180, 180], but keep in mind when we print this angle, it'll
+    /// normalize to be [0, 360].
     pub fn shortest_rotation_towards(self, other: Angle) -> Angle {
         // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
         Angle::new_degs(
@@ -60,8 +60,8 @@ impl Angle {
         rotation.abs() < within_degrees
     }
 
-    // I don't know how to describe what this does. Use for rotating labels in map-space and making
-    // sure the text is never upside-down.
+    /// I don't know how to describe what this does. Use for rotating labels in map-space and making
+    /// sure the text is never upside-down.
     pub fn reorient(self) -> Angle {
         let theta = self.normalized_degrees().rem_euclid(360.0);
         let mut result = self;

@@ -1,12 +1,3 @@
-// Manages conflicts at intersections. When an agent has reached the end of a lane, they call
-// maybe_start_turn to make a Request. Based on the intersection type (stop sign, traffic signal,
-// or a "freeform policy"), the Request gets queued or immediately accepted. When agents finish
-// turns or when some time passes (for traffic signals), the intersection also gets a chance to
-// react, maybe granting one of the pending requests.
-//
-// Most of the complexity comes from attempting to workaround
-// https://dabreegster.github.io/abstreet/trafficsim/gridlock.html.
-
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 use serde::{Deserialize, Serialize};
@@ -25,6 +16,14 @@ use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
 const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.2);
 
+/// Manages conflicts at intersections. When an agent has reached the end of a lane, they call
+/// maybe_start_turn to make a Request. Based on the intersection type (stop sign, traffic signal,
+/// or a "freeform policy"), the Request gets queued or immediately accepted. When agents finish
+/// turns or when some time passes (for traffic signals), the intersection also gets a chance to
+/// react, maybe granting one of the pending requests.
+///
+/// Most of the complexity comes from attempting to workaround
+/// <https://dabreegster.github.io/abstreet/trafficsim/gridlock.html>.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,
@@ -132,7 +131,7 @@ impl IntersectionSimState {
         }
     }
 
-    // For deleting cars
+    /// For deleting cars
     pub fn cancel_request(&mut self, agent: AgentID, turn: TurnID) {
         let state = self.state.get_mut(&turn.parent).unwrap();
         state.waiting.remove(&Request { agent, turn });
@@ -153,8 +152,8 @@ impl IntersectionSimState {
         self.wakeup_waiting(now, i, scheduler, map);
     }
 
-    // Vanished at border, stopped biking, etc -- a vehicle disappeared, and didn't have one last
-    // turn.
+    /// Vanished at border, stopped biking, etc -- a vehicle disappeared, and didn't have one last
+    /// turn.
     pub fn vehicle_gone(&mut self, car: CarID) {
         retain_btreeset(&mut self.blocked_by, |(c1, c2)| *c1 != car && *c2 != car);
     }
@@ -227,7 +226,7 @@ impl IntersectionSimState {
         }
     }
 
-    // This is only triggered for traffic signals.
+    /// This is only triggered for traffic signals.
     pub fn update_intersection(
         &mut self,
         now: Time,
@@ -276,13 +275,13 @@ impl IntersectionSimState {
         self.wakeup_waiting(now, id, scheduler, map);
     }
 
-    // For cars: The head car calls this when they're at the end of the lane WaitingToAdvance. If
-    // this returns true, then the head car MUST actually start this turn.
-    // For peds: Likewise -- only called when the ped is at the start of the turn. They must
-    // actually do the turn if this returns true.
-    //
-    // If this returns false, the agent should NOT retry. IntersectionSimState will schedule a
-    // retry event at some point.
+    /// For cars: The head car calls this when they're at the end of the lane WaitingToAdvance. If
+    /// this returns true, then the head car MUST actually start this turn.
+    /// For peds: Likewise -- only called when the ped is at the start of the turn. They must
+    /// actually do the turn if this returns true.
+    ///
+    /// If this returns false, the agent should NOT retry. IntersectionSimState will schedule a
+    /// retry event at some point.
     pub fn maybe_start_turn(
         &mut self,
         agent: AgentID,

@@ -1,6 +1,6 @@
-// The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate
-// structure is useful to iterate quickly on parts of the map importing pipeline without having to
-// constantly read .osm files, and to visualize the intermediate state with map_editor.
+//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate
+//! structure is useful to iterate quickly on parts of the map importing pipeline without having to
+//! constantly read .osm files, and to visualize the intermediate state with map_editor.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -45,8 +45,9 @@ pub struct RawMap {
     pub config: MapConfig,
 }
 
-// A way to refer to roads across many maps and over time. Also trivial to relate with OSM to find
-// upstream problems.
+/// A way to refer to roads across many maps and over time. Also trivial to relate with OSM to find
+/// upstream problems.
+//
 // - Using LonLat is more indirect, and f64's need to be trimmed and compared carefully with epsilon
 //   checks.
 // - TODO Look at some stable ID standard like linear referencing
@@ -145,7 +146,7 @@ impl RawMap {
         }
     }
 
-    // (Intersection polygon, polygons for roads, list of labeled polylines to debug)
+    /// (Intersection polygon, polygons for roads, list of labeled polylines to debug)
     pub fn preview_intersection(
         &self,
         id: osm::NodeID,
@@ -249,18 +250,18 @@ impl RawMap {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RawRoad {
-    // This is effectively a PolyLine, except there's a case where we need to plumb forward
-    // cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has
-    // happened.
+    /// This is effectively a PolyLine, except there's a case where we need to plumb forward
+    /// cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has
+    /// happened.
     pub center_points: Vec<Pt2D>,
     pub osm_tags: Tags,
     pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,
-    // (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.
+    /// (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.
     pub complicated_turn_restrictions: Vec<(OriginalRoad, OriginalRoad)>,
 }
 
 impl RawRoad {
-    // Returns the corrected center and total width
+    /// Returns the corrected center and total width
     pub fn get_geometry(
         &self,
         id: OriginalRoad,
@@ -312,8 +313,8 @@ impl RawRoad {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RawIntersection {
-    // Represents the original place where OSM center-lines meet. This is meaningless beyond
-    // RawMap; roads and intersections get merged and deleted.
+    /// Represents the original place where OSM center-lines meet. This may be meaningless beyond
+    /// RawMap; roads and intersections get merged and deleted.
     pub point: Pt2D,
     pub intersection_type: IntersectionType,
     pub elevation: Distance,
@@ -325,7 +326,7 @@ pub struct RawBuilding {
     pub osm_tags: Tags,
     pub public_garage_name: Option<String>,
     pub num_parking_spots: usize,
-    // (Name, amenity type)
+    /// (Name, amenity type)
     pub amenities: BTreeSet<(NamePerLanguage, String)>,
 }
 
@@ -377,22 +378,22 @@ pub struct RawBusRoute {
     pub short_name: String,
     pub osm_rel_id: osm::RelationID,
     pub gtfs_trip_marker: Option<String>,
-    // If not, light rail
+    /// If not, light rail
     pub is_bus: bool,
     pub stops: Vec<RawBusStop>,
     pub border_start: Option<osm::NodeID>,
     pub border_end: Option<osm::NodeID>,
-    // This is guaranteed to be in order and contiguous.
+    /// This is guaranteed to be in order and contiguous.
     pub all_pts: Vec<(osm::NodeID, Pt2D)>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawBusStop {
     pub name: String,
-    // Probably not an intersection, but this type is more convenient.
+    /// Probably not an intersection, but this type is more convenient.
     pub vehicle_pos: (osm::NodeID, Pt2D),
-    // Guaranteed to be filled out when RawMap is fully written.
+    /// Guaranteed to be filled out when RawMap is fully written.
     pub matched_road: Option<(OriginalRoad, Direction)>,
-    // If it's not explicitly mapped, we'll do equiv_pos.
+    /// If it's not explicitly mapped, we'll do equiv_pos.
     pub ped_pos: Option<Pt2D>,
 }

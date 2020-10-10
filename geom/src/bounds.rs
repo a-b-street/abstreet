@@ -141,7 +141,7 @@ impl GPSBounds {
         b
     }
 
-    // Fails if points are out-of-bounds.
+    /// Fails if points are out-of-bounds.
     pub fn try_convert(&self, pts: &Vec<LonLat>) -> Option<Vec<Pt2D>> {
         let mut result = Vec::new();
         for pt in pts {
@@ -153,7 +153,7 @@ impl GPSBounds {
         Some(result)
     }
 
-    // Results can be out-of-bounds.
+    /// Results can be out-of-bounds.
     pub fn convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
         pts.iter().map(|pt| Pt2D::from_gps(*pt, self)).collect()
     }

@@ -1,7 +1,3 @@
-// The priority queue driving the discrete event simulation. Different pieces of the simulation
-// schedule Commands to happen at a specific time, and the Scheduler hands out the commands in
-// order.
-
 use std::cmp::Ordering;
 use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, BinaryHeap};
@@ -17,19 +13,19 @@ use crate::{
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum Command {
-    // If true, retry when there's no room to spawn somewhere
+    /// If true, retry when there's no room to spawn somewhere
     SpawnCar(CreateCar, bool),
     SpawnPed(CreatePedestrian),
     StartTrip(TripID, TripSpec, Option<PathRequest>, Option<Path>),
     UpdateCar(CarID),
-    // Distinguish this from UpdateCar to avoid confusing things
+    /// Distinguish this from UpdateCar to avoid confusing things
     UpdateLaggyHead(CarID),
     UpdatePed(PedestrianID),
     UpdateIntersection(IntersectionID),
     Callback(Duration),
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
-    // The Time is redundant, just used to dedupe commands
+    /// The Time is redundant, just used to dedupe commands
     StartBus(BusRouteID, Time),
 }
 
@@ -59,8 +55,8 @@ impl Command {
     }
 }
 
-// A smaller version of Command that satisfies many more properties. Only one Command per
-// CommandType may exist at a time.
+/// A smaller version of Command that satisfies many more properties. Only one Command per
+/// CommandType may exist at a time.
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub enum CommandType {
     StartTrip(TripID),
@@ -98,6 +94,9 @@ impl Ord for Item {
     }
 }
 
+/// The priority queue driving the discrete event simulation. Different pieces of the simulation
+/// schedule Commands to happen at a specific time, and the Scheduler hands out the commands in
+/// order.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Scheduler {
     items: BinaryHeap<Item>,
@@ -186,8 +185,8 @@ impl Scheduler {
         }
     }
 
-    // This next command might've actually been rescheduled to a later time; the caller won't know
-    // that here.
+    /// This next command might've actually been rescheduled to a later time; the caller won't know
+    /// that here.
     pub fn peek_next_time(&self) -> Option<Time> {
         self.items.peek().as_ref().map(|cmd| cmd.time)
     }
@@ -196,9 +195,9 @@ impl Scheduler {
         self.last_time
     }
 
-    // This API is safer than handing out a batch of items at a time, because while processing one
-    // item, we might change the priority of other items or add new items. Don't make the caller
-    // reconcile those changes -- just keep pulling items from here, one at a time.
+    /// This API is safer than handing out a batch of items at a time, because while processing one
+    /// item, we might change the priority of other items or add new items. Don't make the caller
+    /// reconcile those changes -- just keep pulling items from here, one at a time.
     //
     // TODO Above description is a little vague. This should be used with peek_next_time in a
     // particular way...
@@ -224,8 +223,8 @@ impl Scheduler {
         format!("delta times for events: {}", self.delta_times.describe())
     }
 
-    // It's much more efficient to save without the paths, and to recalculate them when loading
-    // later.
+    /// It's much more efficient to save without the paths, and to recalculate them when loading
+    /// later.
     // TODO Why not just implement Default on Path and use skip_serializing? Because we want to
     // serialize paths inside Router for live agents. We need to defer calling make_router and just
     // store the input in CreateCar.

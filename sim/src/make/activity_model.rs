@@ -1,7 +1,7 @@
-// An activity model creates "people" that follow a set schedule of activities through the day.
-// Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go
-// somewhere at some time. This is an extremely simple activity model that just uses data inferred
-// from OSM.
+//! An activity model creates "people" that follow a set schedule of activities through the day.
+//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go
+//! somewhere at some time. This is an extremely simple activity model that just uses data inferred
+//! from OSM.
 
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -18,7 +18,7 @@ use crate::{
 };
 
 impl ScenarioGenerator {
-    // Designed in https://github.com/dabreegster/abstreet/issues/154
+    /// Designed in https://github.com/dabreegster/abstreet/issues/154
     pub fn proletariat_robot(map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
         let mut residents: Vec<BuildingID> = Vec::new();
         let mut workers: Vec<BuildingID> = Vec::new();

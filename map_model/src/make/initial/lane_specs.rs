@@ -1,5 +1,4 @@
-// Purely from OSM tags, determine the lanes that a road segment has.
-
+/// Purely from OSM tags, determine the lanes that a road segment has.
 use std::iter;
 
 use abstutil::Tags;

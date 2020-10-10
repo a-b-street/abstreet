@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
 
-// Maybe a misnomer, but like a PolyLine, but closed.
+/// Maybe a misnomer, but like a PolyLine, but closed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Ring {
     // first equals last
@@ -59,8 +59,8 @@ impl Ring {
         self.pts
     }
 
-    // Be careful with the order of results. Hits on an earlier line segment of other show up first,
-    // but if the ring hits a line segment at multiple points, who knows. Dedupes.
+    /// Be careful with the order of results. Hits on an earlier line segment of other show up
+    /// first, but if the ring hits a line segment at multiple points, who knows. Dedupes.
     pub fn all_intersections(&self, other: &PolyLine) -> Vec<Pt2D> {
         let mut hits = Vec::new();
         let mut seen = HashSet::new();
@@ -111,7 +111,7 @@ impl Ring {
         }
     }
 
-    // Extract all PolyLines and Rings. Doesn't handle crazy double loops and stuff.
+    /// Extract all PolyLines and Rings. Doesn't handle crazy double loops and stuff.
     pub fn split_points(pts: &Vec<Pt2D>) -> Result<(Vec<PolyLine>, Vec<Ring>), String> {
         let mut seen = HashSet::new();
         let mut intersections = HashSet::new();

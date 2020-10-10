@@ -129,6 +129,58 @@ impl<'a> EventCtx<'a> {
     pub fn set_style(&mut self, style: Style) {
         *self.style = style;
     }
+
+    pub fn make_loading_screen(&mut self, txt: Text) -> Panel {
+        let border = Color::hex("#F4DA22");
+        Panel::new(Widget::row(vec![
+            Widget::custom_col(vec![
+                Widget::draw_batch(
+                    self,
+                    GeomBatch::load_svg(self.prerender, "system/assets/map/dont_walk.svg")
+                        .scale(5.0),
+                )
+                .container()
+                .bg(Color::BLACK)
+                .padding(15)
+                .outline(5.0, border)
+                .centered_horiz()
+                .margin_below(5),
+                Widget::draw_batch(
+                    self,
+                    GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 30.0))]),
+                )
+                .centered_horiz(),
+                self.style
+                    .loading_tips
+                    .clone()
+                    .wrap_to_pct(self, 25)
+                    .draw(self)
+                    .container()
+                    .bg(Color::BLACK)
+                    .padding(15)
+                    .outline(5.0, Color::YELLOW)
+                    .force_width_pct(self, Percent::int(30))
+                    .margin_below(5),
+                Widget::draw_batch(
+                    self,
+                    GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 100.0))]),
+                )
+                .centered_horiz(),
+            ])
+            .centered_vert(),
+            Widget::draw_batch(
+                self,
+                txt.inner_render(&self.prerender.assets, svg::LOW_QUALITY),
+            )
+            .container()
+            .fill_width()
+            .padding(16)
+            .bg(text::BG_COLOR),
+        ]))
+        .exact_size_percent(80, 80)
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+        .build_custom(self)
+    }
 }
 
 pub struct LoadingScreen<'a> {
@@ -182,55 +234,7 @@ impl<'a> LoadingScreen<'a> {
         for l in &self.lines {
             txt.add(Line(l));
         }
-        let border = Color::hex("#F4DA22");
-        let panel = Panel::new(Widget::row(vec![
-            Widget::custom_col(vec![
-                Widget::draw_batch(
-                    &ctx,
-                    GeomBatch::load_svg(ctx.prerender, "system/assets/map/dont_walk.svg")
-                        .scale(5.0),
-                )
-                .container()
-                .bg(Color::BLACK)
-                .padding(15)
-                .outline(5.0, border)
-                .centered_horiz()
-                .margin_below(5),
-                Widget::draw_batch(
-                    &ctx,
-                    GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 30.0))]),
-                )
-                .centered_horiz(),
-                ctx.style
-                    .loading_tips
-                    .clone()
-                    .wrap_to_pct(&ctx, 25)
-                    .draw(&ctx)
-                    .container()
-                    .bg(Color::BLACK)
-                    .padding(15)
-                    .outline(5.0, Color::YELLOW)
-                    .force_width_pct(&ctx, Percent::int(30))
-                    .margin_below(5),
-                Widget::draw_batch(
-                    &ctx,
-                    GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 100.0))]),
-                )
-                .centered_horiz(),
-            ])
-            .centered_vert(),
-            Widget::draw_batch(
-                &ctx,
-                txt.inner_render(&ctx.prerender.assets, svg::LOW_QUALITY),
-            )
-            .container()
-            .fill_width()
-            .padding(16)
-            .bg(text::BG_COLOR),
-        ]))
-        .exact_size_percent(80, 80)
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
-        .build_custom(&mut ctx);
+        let panel = ctx.make_loading_screen(txt);
 
         let mut g = GfxCtx::new(self.prerender, &self.canvas, &self.style, false);
         g.clear(Color::BLACK);

@@ -18,13 +18,11 @@ use crate::options::Options;
 use crate::render::{AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents};
 use crate::sandbox::{GameplayMode, TutorialState};
 
+/// The top-level data that lasts through the entire game, no matter what state the game is in.
 pub struct App {
     // Naming is from older days when there was an A/B test, "side-by-side" mode. Keeping this
     // naming, because that mode will return someday.
     pub primary: PerMap,
-    // Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
-    // scenario name too. TODO Embed that in Analytics directly instead.
-    prebaked: Option<(String, String, Analytics)>,
     pub cs: ColorScheme,
     // TODO This is a bit weird to keep here; it's controlled almost entirely by the minimap panel.
     // It has no meaning in edit mode.
@@ -32,13 +30,9 @@ pub struct App {
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
-    pub layer: Option<Box<dyn Layer>>,
 
-    // Static data that lasts the entire session. Use sparingly.
+    /// Static data that lasts the entire session. Use sparingly.
     pub session: SessionState,
-
-    // Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.
-    pub suspended_sim: Option<Sim>,
 }
 
 impl App {
@@ -47,59 +41,32 @@ impl App {
         ctx.set_style(cs.gui_style.clone());
 
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            PerMap::new(flags, &opts, &cs, ctx, &mut timer)
+            let (map, sim, _) = flags.sim_flags.load(timer);
+            PerMap::map_loaded(map, sim, splash, flags, &opts, &cs, ctx, &mut timer)
         });
-
-        let mut rng = primary.current_flags.sim_flags.make_rng();
-        let rand_focus_pt = primary
-            .map
-            .all_buildings()
-            .choose(&mut rng)
-            .and_then(|b| ID::Building(b.id).canonical_point(&primary))
-            .or_else(|| {
-                primary
-                    .map
-                    .all_lanes()
-                    .choose(&mut rng)
-                    .and_then(|l| ID::Lane(l.id).canonical_point(&primary))
-            })
-            .expect("Can't get canonical_point of a random building or lane");
-        let bounds = primary.map.get_bounds();
-        ctx.canvas.map_dims = (bounds.width(), bounds.height());
-
-        if splash {
-            ctx.canvas.center_on_map_pt(rand_focus_pt);
-        } else {
-            if !ctx.canvas.load_camera_state(primary.map.get_name()) {
-                println!("Couldn't load camera state, just focusing on an arbitrary building");
-                ctx.canvas.center_on_map_pt(rand_focus_pt);
-            }
-        }
 
         App {
             primary,
-            prebaked: None,
             unzoomed_agents: UnzoomedAgents::new(&cs),
             cs,
             opts,
             per_obj: PerObjectActions::new(),
-            layer: None,
             session: SessionState::empty(),
-            suspended_sim: None,
         }
     }
 
+    // TODO Should the prebaked methods be on primary along with the data?
     pub fn has_prebaked(&self) -> Option<(&String, &String)> {
-        self.prebaked.as_ref().map(|(m, s, _)| (m, s))
+        self.primary.prebaked.as_ref().map(|(m, s, _)| (m, s))
     }
     pub fn prebaked(&self) -> &Analytics {
-        &self.prebaked.as_ref().unwrap().2
+        &self.primary.prebaked.as_ref().unwrap().2
     }
     pub fn set_prebaked(&mut self, prebaked: Option<(String, String, Analytics)>) {
-        self.prebaked = prebaked;
+        self.primary.prebaked = prebaked;
 
         if false {
-            if let Some((_, _, ref a)) = self.prebaked {
+            if let Some((_, _, ref a)) = self.primary.prebaked {
                 use abstutil::{prettyprint_usize, serialized_size_bytes};
                 println!(
                     "- road_thruput: {} bytes",
@@ -157,13 +124,18 @@ impl App {
         }
     }
 
-    pub fn switch_map(&mut self, ctx: &mut EventCtx, load: String) {
+    pub fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, sim: Sim, timer: &mut Timer) {
         ctx.canvas.save_camera_state(self.primary.map.get_name());
-        let mut flags = self.primary.current_flags.clone();
-        flags.sim_flags.load = load;
-        let session = std::mem::replace(&mut self.session, SessionState::empty());
-        *self = App::new(flags, self.opts.clone(), ctx, false);
-        self.session = session;
+        self.primary = PerMap::map_loaded(
+            map,
+            sim,
+            false,
+            self.primary.current_flags.clone(),
+            &self.opts,
+            &self.cs,
+            ctx,
+            timer,
+        )
     }
 
     pub fn draw(
@@ -290,7 +262,7 @@ impl App {
         }
     }
 
-    // Assumes some defaults.
+    /// Assumes some defaults.
     pub fn recalculate_current_selection(&mut self, ctx: &EventCtx) {
         self.primary.current_selection = self.calculate_current_selection(
             ctx,
@@ -546,15 +518,15 @@ impl ShowObject for ShowEverything {
 #[derive(Clone)]
 pub struct Flags {
     pub sim_flags: SimFlags,
-    // Number of agents to generate when requested. If unspecified, trips to/from borders will be
-    // included.
+    /// Number of agents to generate when requested. If unspecified, trips to/from borders will be
+    /// included.
     pub num_agents: Option<usize>,
-    // If true, all map edits immediately apply to the live simulation. Otherwise, most edits
-    // require resetting to midnight.
+    /// If true, all map edits immediately apply to the live simulation. Otherwise, most edits
+    /// require resetting to midnight.
     pub live_map_edits: bool,
 }
 
-// All of the state that's bound to a specific map+edit has to live here.
+/// All of the state that's bound to a specific map.
 pub struct PerMap {
     pub map: Map,
     pub draw_map: DrawMap,
@@ -566,53 +538,86 @@ pub struct PerMap {
     pub sim_cb: Option<Box<dyn SimCallback>>,
     pub show_zorder: isize,
     pub zorder_range: (isize, isize),
-    // If we ever left edit mode and resumed without restarting from midnight, this is true.
+    /// If we ever left edit mode and resumed without restarting from midnight, this is true.
     pub dirty_from_edits: bool,
-    // Any ScenarioModifiers in effect?
+    /// Any ScenarioModifiers in effect?
     pub has_modified_trips: bool,
 
-    // Sometimes we need the map before any edits have been applied. Cache it here.
+    /// Sometimes we need the map before any edits have been applied. Cache it here.
     pub unedited_map: RefCell<Option<Map>>,
+
+    pub layer: Option<Box<dyn Layer>>,
+    /// Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.
+    pub suspended_sim: Option<Sim>,
+    /// Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
+    /// scenario name too.
+    // TODO Embed that in Analytics directly instead.
+    prebaked: Option<(String, String, Analytics)>,
 }
 
 impl PerMap {
-    pub fn new(
+    fn map_loaded(
+        map: Map,
+        sim: Sim,
+        splash: bool,
         flags: Flags,
         opts: &Options,
         cs: &ColorScheme,
         ctx: &mut EventCtx,
         timer: &mut Timer,
     ) -> PerMap {
-        let (map, sim, _) = flags.sim_flags.load(timer);
-
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, opts, cs, ctx, timer);
+        let (draw_map, zorder_range) = DrawMap::new(&map, opts, cs, ctx, timer);
         timer.stop("draw_map");
 
-        let mut low_z = 0;
-        let mut high_z = 0;
-        for r in map.all_roads() {
-            low_z = low_z.min(r.zorder);
-            high_z = high_z.max(r.zorder);
-        }
-
-        PerMap {
+        let per_map = PerMap {
             map,
             draw_map,
             sim,
             current_selection: None,
-            current_flags: flags.clone(),
+            current_flags: flags,
             last_warped_from: None,
             sim_cb: None,
-            zorder_range: (low_z, high_z),
-            show_zorder: high_z,
+            zorder_range,
+            show_zorder: zorder_range.1,
             dirty_from_edits: false,
             has_modified_trips: false,
             unedited_map: RefCell::new(None),
+            layer: None,
+            suspended_sim: None,
+            prebaked: None,
+        };
+
+        let mut rng = per_map.current_flags.sim_flags.make_rng();
+        let rand_focus_pt = per_map
+            .map
+            .all_buildings()
+            .choose(&mut rng)
+            .and_then(|b| ID::Building(b.id).canonical_point(&per_map))
+            .or_else(|| {
+                per_map
+                    .map
+                    .all_lanes()
+                    .choose(&mut rng)
+                    .and_then(|l| ID::Lane(l.id).canonical_point(&per_map))
+            })
+            .expect("Can't get canonical_point of a random building or lane");
+        let bounds = per_map.map.get_bounds();
+        ctx.canvas.map_dims = (bounds.width(), bounds.height());
+
+        if splash {
+            ctx.canvas.center_on_map_pt(rand_focus_pt);
+        } else {
+            if !ctx.canvas.load_camera_state(per_map.map.get_name()) {
+                println!("Couldn't load camera state, just focusing on an arbitrary building");
+                ctx.canvas.center_on_map_pt(rand_focus_pt);
+            }
         }
+
+        per_map
     }
 
-    // Returns whatever was there
+    /// Returns whatever was there
     pub fn clear_sim(&mut self) -> Sim {
         self.dirty_from_edits = false;
         std::mem::replace(
@@ -625,8 +630,8 @@ impl PerMap {
         )
     }
 
-    // If needed, makes sure the unedited_map is populated. Callers can then do
-    // self.unedited_map.borrow().unwrap_or(&self.map).
+    /// If needed, makes sure the unedited_map is populated. Callers can then do
+    /// `self.unedited_map.borrow().unwrap_or(&self.map)`.
     // TODO I'd like to return &Map or something here, but can't get the borrow checker to work.
     pub fn calculate_unedited_map(&self) {
         if self.map.get_edits().commands.is_empty() {

@@ -1,6 +1,3 @@
-// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per
-// hour. CapSimState enforces this.
-
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
@@ -13,7 +10,8 @@ use crate::{CarID, VehicleType};
 // Note this only indexes into the zones we track here, not all of them in the map.
 type ZoneIdx = usize;
 
-// This only caps driving trips.
+/// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per
+/// hour. CapSimState enforces this, just for driving trips.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CapSimState {
     lane_to_zone: BTreeMap<LaneID, ZoneIdx>,
@@ -80,8 +78,8 @@ impl CapSimState {
         true
     }
 
-    // Before the driving portion of a trip begins, check that the desired path doesn't exceed any
-    // caps. If so, attempt to reroute around.
+    /// Before the driving portion of a trip begins, check that the desired path doesn't exceed any
+    /// caps. If so, attempt to reroute around.
     pub fn validate_path(
         &mut self,
         req: &PathRequest,

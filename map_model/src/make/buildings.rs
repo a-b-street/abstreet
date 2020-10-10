@@ -1,5 +1,3 @@
-// Finalize importing of buildings, mostly by matching them to the nearest sidewalk.
-
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 use rand::{Rng, SeedableRng};
@@ -14,6 +12,7 @@ use crate::{
     osm, Building, BuildingID, BuildingType, LaneID, Map, NamePerLanguage, OffstreetParking,
 };
 
+/// Finalize importing of buildings, mostly by matching them to the nearest sidewalk.
 pub fn make_all_buildings(
     input: &BTreeMap<osm::OsmID, RawBuilding>,
     map: &Map,

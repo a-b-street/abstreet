@@ -32,23 +32,22 @@ pub enum DashTab {
 
 impl DashTab {
     pub fn picker(self, ctx: &EventCtx, app: &App) -> Widget {
+        let mut choices = vec![
+            Choice::new("Trip Table", DashTab::FinishedTripTable),
+            Choice::new("Trip Summaries", DashTab::TripSummaries),
+            Choice::new("Parking Overhead", DashTab::ParkingOverhead),
+            Choice::new("Active Traffic", DashTab::ActiveTraffic),
+            Choice::new("Transit Routes", DashTab::TransitRoutes),
+            Choice::new("Commuter Patterns", DashTab::CommuterPatterns),
+            Choice::new("Traffic Signal Demand", DashTab::TrafficSignals),
+        ];
+        if app.has_prebaked().is_none() {
+            choices.remove(1);
+        }
         Widget::row(vec![
             Widget::draw_svg(ctx, "system/assets/meters/trip_histogram.svg"),
             Line("Data").big_heading_plain().draw(ctx),
-            Widget::dropdown(
-                ctx,
-                "tab",
-                self,
-                vec![
-                    Choice::new("Trip Table", DashTab::FinishedTripTable),
-                    Choice::new("Trip Summaries", DashTab::TripSummaries),
-                    Choice::new("Parking Overhead", DashTab::ParkingOverhead),
-                    Choice::new("Active Traffic", DashTab::ActiveTraffic),
-                    Choice::new("Transit Routes", DashTab::TransitRoutes),
-                    Choice::new("Commuter Patterns", DashTab::CommuterPatterns),
-                    Choice::new("Traffic Signal Demand", DashTab::TrafficSignals),
-                ],
-            ),
+            Widget::dropdown(ctx, "tab", self, choices),
             format!("By {}", app.primary.sim.time())
                 .draw_text(ctx)
                 .centered_vert(),

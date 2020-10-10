@@ -1,4 +1,4 @@
-// Generate paths for different A/B Street files
+//! Generate paths for different A/B Street files
 
 use crate::file_exists;
 
@@ -89,13 +89,6 @@ pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
 }
 pub fn path_all_scenarios(map_name: &str) -> String {
     path(format!("system/scenarios/{}", map_name))
-}
-
-pub fn path_synthetic_map(map_name: &str) -> String {
-    path(format!("system/synthetic_maps/{}.json", map_name))
-}
-pub fn path_all_synthetic_maps() -> String {
-    path("system/synthetic_maps")
 }
 
 // Player data (Players edit this)

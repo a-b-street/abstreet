@@ -68,10 +68,8 @@ impl Game {
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &mut app))]
         } else {
-            // TODO We're assuming we never wind up starting freeform mode with a synthetic map
-            let mode = maybe_mode.unwrap_or_else(|| {
-                GameplayMode::Freeform(abstutil::path_map(app.primary.map.get_name()))
-            });
+            let mode = maybe_mode
+                .unwrap_or_else(|| GameplayMode::Freeform(app.primary.map.get_name().clone()));
             vec![SandboxMode::new(ctx, &mut app, mode)]
         };
         if let Some(ss) = savestate {
@@ -206,14 +204,14 @@ impl GUI for Game {
         if self.app.primary.map.get_edits().commands.is_empty() {
             println!("No edits");
         } else {
-            println!("Edits:");
-            println!(
-                "{}",
-                abstutil::to_json(&PermanentMapEdits::to_permanent(
+            abstutil::write_json(
+                "edits_during_crash.json".to_string(),
+                &PermanentMapEdits::to_permanent(
                     self.app.primary.map.get_edits(),
-                    &self.app.primary.map
-                ))
+                    &self.app.primary.map,
+                ),
             );
+            println!("Please include edits_during_crash.json in your bug report.");
         }
 
         // Repeat, because it can be hard to see the top of the report if it's long

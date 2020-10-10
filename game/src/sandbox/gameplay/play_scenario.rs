@@ -58,16 +58,18 @@ impl GameplayState for PlayScenario {
                         ctx,
                         app,
                         Box::new(move |ctx, app| {
-                            // The map will be switched before this callback happens.
-                            let path = abstutil::path_map(app.primary.map.get_name());
                             // Try to load a scenario with the same name exists
                             let mode = if abstutil::file_exists(abstutil::path_scenario(
                                 app.primary.map.get_name(),
                                 &scenario,
                             )) {
-                                GameplayMode::PlayScenario(path, scenario.clone(), Vec::new())
+                                GameplayMode::PlayScenario(
+                                    app.primary.map.get_name().clone(),
+                                    scenario.clone(),
+                                    Vec::new(),
+                                )
                             } else {
-                                GameplayMode::Freeform(path)
+                                GameplayMode::Freeform(app.primary.map.get_name().clone())
                             };
                             Transition::Multi(vec![
                                 Transition::Pop,
@@ -86,7 +88,7 @@ impl GameplayState for PlayScenario {
                     ctx,
                     app,
                     GameplayMode::PlayScenario(
-                        abstutil::path_map(app.primary.map.get_name()),
+                        app.primary.map.get_name().clone(),
                         self.scenario_name.clone(),
                         self.modifiers.clone(),
                     ),
@@ -237,7 +239,7 @@ impl State for EditScenarioModifiers {
                             ctx,
                             app,
                             GameplayMode::PlayScenario(
-                                abstutil::path_map(&app.primary.map.get_name()),
+                                app.primary.map.get_name().clone(),
                                 self.scenario_name.clone(),
                                 self.modifiers.clone(),
                             ),
