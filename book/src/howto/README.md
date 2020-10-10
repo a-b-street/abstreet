@@ -28,6 +28,10 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 - [FreeBSD](https://www.freshports.org/games/abstreet/), thanks to
   [Yuri](https://github.com/yurivict)
 
+Or you can try playing
+[directly in your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/)
+-- still experimental for now.
+
 Or you can [compile from source](../dev/index.md).
 
 ## Playing the game

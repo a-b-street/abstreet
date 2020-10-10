@@ -3,7 +3,6 @@
 
 use serde::de::DeserializeOwned;
 
-use abstutil::Timer;
 use sim::Sim;
 use widgetry::{Color, EventCtx, GfxCtx};
 
