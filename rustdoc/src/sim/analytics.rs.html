@@ -710,13 +710,13 @@
     <span class="doccomment">/// Finish time, ID, mode, trip duration</span>
     <span class="kw">pub</span> <span class="ident">finished_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TripID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span>,
 
-    <span class="comment">// Records how long was spent waiting at each turn (Intersection) for a given trip</span>
-    <span class="comment">// Over a certain threshold</span>
-    <span class="comment">// TripID, [(TurnID, Time Waiting In Seconds)]</span>
+    <span class="doccomment">/// Records how long was spent waiting at each turn (Intersection) for a given trip</span>
+    <span class="doccomment">/// Over a certain threshold</span>
+    <span class="doccomment">/// TripID, [(TurnID, Time Waiting In Seconds)]</span>
     <span class="kw">pub</span> <span class="ident">trip_intersection_delays</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnID</span>, <span class="ident">u8</span><span class="op">&gt;&gt;</span>,
-    <span class="comment">// Records the average speed/maximum speed for each lane</span>
-    <span class="comment">// If it is over a certain threshold (&lt;95% of max speed)</span>
-    <span class="comment">// TripID, [(LaneID, Percent of maximum speed as an integer (0-100)]</span>
+    <span class="doccomment">/// Records the average speed/maximum speed for each lane</span>
+    <span class="doccomment">/// If it is over a certain threshold (&lt;95% of max speed)</span>
+    <span class="doccomment">/// TripID, [(LaneID, Percent of maximum speed as an integer (0-100)]</span>
     <span class="kw">pub</span> <span class="ident">lane_speed_percentage</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">u8</span><span class="op">&gt;&gt;</span>,
 
     <span class="comment">// TODO This subsumes finished_trips</span>
