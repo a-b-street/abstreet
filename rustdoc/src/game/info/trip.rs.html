@@ -985,6 +985,7 @@
 <span id="984">984</span>
 <span id="985">985</span>
 <span id="986">986</span>
+<span id="987">987</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -1522,6 +1523,7 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icons_geom</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon_pos</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">p</span>) <span class="kw">in</span> <span class="ident">phases</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">msgs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">norm_color</span> <span class="op">=</span> <span class="ident">color_for_trip_phase</span>(<span class="ident">app</span>, <span class="ident">p</span>.<span class="ident">phase_type</span>).<span class="ident">alpha</span>(<span class="number">0.7</span>);
