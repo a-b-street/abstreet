@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
-use geom::{ArrowCap, Distance, Duration, Percent, Polygon, PolyLine, Pt2D, Time};
+use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
@@ -12,7 +12,7 @@ use widgetry::{
 
 use crate::app::App;
 use crate::helpers::{color_for_trip_phase, ID};
-use crate::info::{Details, make_table, Tab};
+use crate::info::{make_table, Details, Tab};
 
 #[derive(Clone)]
 pub struct OpenTrip {

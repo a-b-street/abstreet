@@ -2,12 +2,12 @@ use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
 use std::hash::Hasher;
 
-use geom::{Polygon, PolyLine};
+use geom::{PolyLine, Polygon};
 
-use crate::{
-    Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, svg, Widget,
-};
 use crate::assets::Assets;
+use crate::{
+    svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, Widget,
+};
 
 // Same as body()
 pub const DEFAULT_FONT: Font = Font::OverpassRegular;
