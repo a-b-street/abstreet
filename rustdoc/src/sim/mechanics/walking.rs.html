@@ -797,25 +797,31 @@
 <span id="796">796</span>
 <span id="797">797</span>
 <span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">MultiMap</span>, <span class="ident">serialize_multimap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">Traversable</span>,
-    <span class="ident">SIDEWALK_THICKNESS</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
+    <span class="ident">Traversable</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">Command</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">DistanceInterval</span>, <span class="ident">DrawPedCrowdInput</span>,
     <span class="ident">DrawPedestrianInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedCrowdLocation</span>,
     <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>,
     <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>,
 };
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 
 <span class="kw">const</span> <span class="ident">TIME_TO_START_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">30.0</span>);
 <span class="kw">const</span> <span class="ident">TIME_TO_FINISH_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">45.0</span>);
@@ -1043,6 +1049,12 @@
                     <span class="ident">ctx</span>.<span class="ident">scheduler</span>
                         .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
                     <span class="ident">ped</span>.<span class="ident">total_blocked_time</span> <span class="op">+=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">blocked_since</span>;
+                    <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripIntersectionDelay</span>(
+                        <span class="ident">ped</span>.<span class="ident">trip</span>,
+                        <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_turn</span>(),
+                        <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>),
+                        <span class="ident">now</span> <span class="op">-</span> <span class="ident">blocked_since</span>,
+                    ));
                 }
             }
             <span class="ident">PedState</span>::<span class="ident">LeavingBuilding</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {

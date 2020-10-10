@@ -495,6 +495,16 @@
 <span id="494">494</span>
 <span id="495">495</span>
 <span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>::<span class="ident">RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">LaneType</span>;
@@ -593,6 +603,11 @@
     <span class="kw">pub</span> <span class="ident">signal_box</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">signal_spinner</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">signal_turn_block_bg</span>: <span class="ident">Color</span>,
+
+    <span class="comment">// Timeline delay highlighting</span>
+    <span class="kw">pub</span> <span class="ident">very_slow_intersection</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">slow_intersection</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">normal_slow_intersection</span>: <span class="ident">Color</span>,
 
     <span class="comment">// Other static elements</span>
     <span class="kw">pub</span> <span class="ident">void_background</span>: <span class="ident">Color</span>,
@@ -707,6 +722,11 @@
             <span class="ident">signal_box</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>),
             <span class="ident">signal_spinner</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2994A&quot;</span>),
             <span class="ident">signal_turn_block_bg</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.6</span>),
+
+            <span class="comment">// Timeline delay highlighting</span>
+            <span class="ident">very_slow_intersection</span>: <span class="ident">Color</span>::<span class="ident">RED</span>,
+            <span class="ident">slow_intersection</span>: <span class="ident">Color</span>::<span class="ident">YELLOW</span>,
+            <span class="ident">normal_slow_intersection</span>: <span class="ident">Color</span>::<span class="ident">GREEN</span>,
 
             <span class="comment">// Other static elements</span>
             <span class="ident">void_background</span>: <span class="ident">Color</span>::<span class="ident">BLACK</span>,
