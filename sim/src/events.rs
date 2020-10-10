@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use geom::Duration;
+use geom::{Duration, Speed};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, Path,
-    PathRequest, Traversable,
+    PathRequest, Traversable, TurnID,
 };
 
 use crate::{
@@ -59,6 +59,10 @@ pub enum Event {
     },
     TripCancelled(TripID),
     TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
+    /// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn
+    TripIntersectionDelay(TripID, TurnID, AgentID, Duration),
+    /// TripID, LaneID (Where the delay was encountered), Average Speed, Max Speed
+    LaneSpeedPercentage(TripID, LaneID, Speed, Speed),
 
     /// Just use for parking replanning. Not happy about copying the full path in here, but the way
     /// to plumb info into Analytics is Event.
@@ -93,18 +97,18 @@ pub enum TripPhaseType {
 impl TripPhaseType {
     pub fn describe(self, map: &Map) -> String {
         match self {
-            TripPhaseType::Driving => "driving".to_string(),
-            TripPhaseType::Walking => "walking".to_string(),
-            TripPhaseType::Biking => "biking".to_string(),
-            TripPhaseType::Parking => "parking".to_string(),
+            TripPhaseType::Driving => "Driving".to_string(),
+            TripPhaseType::Walking => "Walking".to_string(),
+            TripPhaseType::Biking => "Biking".to_string(),
+            TripPhaseType::Parking => "Parking".to_string(),
             TripPhaseType::WaitingForBus(r, _) => {
-                format!("waiting for bus {}", map.get_br(r).full_name)
+                format!("Waiting for bus {}", map.get_br(r).full_name)
             }
-            TripPhaseType::RidingBus(r, _, _) => format!("riding bus {}", map.get_br(r).full_name),
-            TripPhaseType::Cancelled => "trip cancelled due to some bug".to_string(),
-            TripPhaseType::Finished => "trip finished".to_string(),
-            TripPhaseType::DelayedStart => "delayed by previous trip taking too long".to_string(),
-            TripPhaseType::Remote => "remote trip outside the map boundaries".to_string(),
+            TripPhaseType::RidingBus(r, _, _) => format!("Riding bus {}", map.get_br(r).full_name),
+            TripPhaseType::Cancelled => "Trip was cancelled due to some bug".to_string(),
+            TripPhaseType::Finished => "Trip finished".to_string(),
+            TripPhaseType::DelayedStart => "Delayed by a previous trip taking too long".to_string(),
+            TripPhaseType::Remote => "Remote trip outside is the map boundaries".to_string(),
         }
     }
 }

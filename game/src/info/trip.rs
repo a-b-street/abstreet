@@ -2,17 +2,17 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
-use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
+use geom::{ArrowCap, Distance, Duration, Percent, Polygon, PolyLine, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
     Btn, Color, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions, RewriteColor,
-    Series, Text, TextExt, Widget,
+    Series, Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
 use crate::helpers::{color_for_trip_phase, ID};
-use crate::info::{make_table, Details, Tab};
+use crate::info::{Details, make_table, Tab};
 
 #[derive(Clone)]
 pub struct OpenTrip {
@@ -20,6 +20,7 @@ pub struct OpenTrip {
     // (unzoomed, zoomed). Indexed by order of TripPhase.
     cached_routes: Vec<Option<(Polygon, Vec<Polygon>)>>,
 }
+
 // Ignore cached_routes
 impl std::cmp::PartialEq for OpenTrip {
     fn eq(&self, other: &OpenTrip) -> bool {
@@ -133,7 +134,6 @@ pub fn ongoing(
         &app.primary.map,
         Some(props.dist_crossed / props.total_dist),
     ));
-
     Widget::col(col)
 }
 
@@ -356,7 +356,6 @@ pub fn finished(
         map_for_pathfinding,
         None,
     ));
-
     Widget::col(col)
 }
 
@@ -386,6 +385,328 @@ pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     Widget::col(col)
 }
 
+/// Highlights intersections which were "slow" on the map
+fn highlight_slow_intersections(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
+    let intersection_delays = &app
+        .primary
+        .sim
+        .get_analytics()
+        .trip_intersection_delays
+        .get(&id);
+    if let Some(intersection_delays) = intersection_delays {
+        for (id, time) in intersection_delays.iter() {
+            let intersection = app.primary.map.get_i(id.parent);
+            // Maybe alter the delay times
+            let (normal_delay_time, slow_delay_time) = if intersection.is_traffic_signal() {
+                (30, 120)
+            } else {
+                (5, 30)
+            };
+            let (fg_color, bg_color) = if *time < normal_delay_time {
+                (Color::WHITE, app.cs.normal_slow_intersection)
+            } else if *time < slow_delay_time {
+                (Color::BLACK, app.cs.slow_intersection)
+            } else {
+                (Color::WHITE, app.cs.very_slow_intersection)
+            };
+
+            let time_duration = Duration::seconds(*time as f64);
+            details.unzoomed.append(
+                Text::from(TextSpan::from(
+                    Line(format!("{}", time_duration)).fg(fg_color),
+                ))
+                .bg(bg_color)
+                .render(ctx)
+                .centered_on(intersection.polygon.center()),
+            );
+            details.zoomed.append(
+                Text::from(TextSpan::from(
+                    Line(format!("{}", time_duration)).fg(fg_color),
+                ))
+                .bg(bg_color)
+                .render(ctx)
+                .scale(0.4)
+                .centered_on(intersection.polygon.center()),
+            );
+        }
+    }
+}
+
+/// Highlights lanes which were "slow" on the map
+fn highlight_slow_lanes(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
+    if let Some(lane_speeds) = &app
+        .primary
+        .sim
+        .get_analytics()
+        .lane_speed_percentage
+        .get(&id)
+    {
+        for (id, speed_percent) in lane_speeds.iter() {
+            let lane = app.primary.map.get_l(*id);
+            let (fg_color, bg_color) = if speed_percent > &95 {
+                (Color::WHITE, app.cs.normal_slow_intersection)
+            } else if speed_percent > &60 {
+                (Color::BLACK, app.cs.slow_intersection)
+            } else {
+                (Color::WHITE, app.cs.very_slow_intersection)
+            };
+            details.unzoomed.push(
+                bg_color,
+                lane.lane_center_pts.make_polygons(Distance::meters(10.0)),
+            );
+            details.zoomed.extend(
+                bg_color,
+                lane.lane_center_pts.dashed_lines(
+                    Distance::meters(0.75),
+                    Distance::meters(1.0),
+                    Distance::meters(0.4),
+                ),
+            );
+            let (pt, _) = lane
+                .lane_center_pts
+                .must_dist_along(lane.lane_center_pts.length() / 2.0);
+            details.unzoomed.append(
+                Text::from(TextSpan::from(
+                    Line(format!("{}s", speed_percent)).fg(fg_color),
+                ))
+                .bg(bg_color)
+                .render(ctx)
+                .centered_on(pt),
+            );
+            details.zoomed.append(
+                Text::from(TextSpan::from(
+                    Line(format!("{}s", speed_percent)).fg(fg_color),
+                ))
+                .bg(bg_color)
+                .render(ctx)
+                .scale(0.4)
+                .centered_on(pt),
+            );
+        }
+    }
+}
+
+/// Helper func for make_bar()
+/// Builds a default text overlay widget
+fn build_text(msgs: &Vec<String>, distance: &Distance) -> Text {
+    let mut display_txt = Text::new();
+    for msg in msgs {
+        display_txt.add(Line(msg));
+    }
+    display_txt.add(Line(format!(
+        "  Distance covered: {}",
+        distance.describe_rounded()
+    )));
+    display_txt
+}
+
+/// Makes the timeline bar in trip info panel
+fn make_bar(
+    ctx: &mut EventCtx,
+    app: &App,
+    trip_id: TripID,
+    phases: &Vec<TripPhase>,
+    progress_along_path: Option<f64>,
+) -> Widget {
+    let map = &app.primary.map;
+    let blank_lane_speeds_bt = BTreeMap::new();
+    let blank_intersection_delays_bt = BTreeMap::new();
+    let intersection_delays = &app
+        .primary
+        .sim
+        .get_analytics()
+        .trip_intersection_delays
+        .get(&trip_id)
+        .unwrap_or(&blank_intersection_delays_bt);
+    let lane_speeds = &app
+        .primary
+        .sim
+        .get_analytics()
+        .lane_speed_percentage
+        .get(&trip_id)
+        .unwrap_or(&blank_lane_speeds_bt);
+    let box_width = 0.22 * ctx.canvas.window_width;
+    let mut total_dist = Distance::meters(0.0);
+    let mut segments: Vec<(Distance, Color, Text)> = Vec::new();
+    let trip = app.primary.sim.trip_info(trip_id);
+    let end_time = phases.last().as_ref().and_then(|p| p.end_time);
+    let total_duration_so_far = end_time.unwrap_or_else(|| app.primary.sim.time()) - trip.departure;
+
+    let mut icons_geom = Vec::new();
+    let mut icon_pos = Vec::new();
+    for (idx, p) in phases.into_iter().enumerate() {
+        let mut msgs = Vec::new();
+        let norm_color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
+        msgs.push(p.phase_type.describe(map));
+        msgs.push(format!("  Started at {}", p.start_time.ampm_tostring()));
+        let phase_duration = if let Some(t2) = p.end_time {
+            let d = t2 - p.start_time;
+            msgs.push(format!(
+                "  Ended at {} (duration: {})",
+                t2.ampm_tostring(),
+                d
+            ));
+            d
+        } else {
+            let d = app.primary.sim.time() - p.start_time;
+            msgs.push(format!("  Ongoing (duration so far: {})", d));
+            d
+        };
+        // TODO Problems when this is really low?
+        let percent_duration = if total_duration_so_far == Duration::ZERO {
+            0.0
+        } else {
+            phase_duration / total_duration_so_far
+        };
+
+        let phase_width = box_width * percent_duration;
+        if idx == phases.len() - 1 {
+            if let Some(p) = progress_along_path {
+                icons.push(Widget::draw_batch(
+                    ctx,
+                    GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/current_pos.svg")
+                        .centered_on(Pt2D::new(p * phase_width, 7.5)),
+                ));
+            }
+        }
+        icons_geom.push(GeomBatch::load_svg(
+            ctx.prerender,
+            match p.phase_type {
+                TripPhaseType::Driving => "system/assets/timeline/driving.svg",
+                TripPhaseType::Walking => "system/assets/timeline/walking.svg",
+                TripPhaseType::Biking => "system/assets/timeline/biking.svg",
+                TripPhaseType::Parking => "system/assets/timeline/parking.svg",
+                TripPhaseType::WaitingForBus(_, _) => "system/assets/timeline/waiting_for_bus.svg",
+                TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
+                TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
+                TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
+                // TODO What icon should represent this?
+                TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
+            },
+        ));
+        msgs.push(format!(
+            "  {}% of trip percentage",
+            (100.0 * percent_duration) as usize
+        ));
+
+        msgs.push(format!(
+            "  Total delayed time {}",
+            app.primary.sim.trip_blocked_time(trip_id)
+        ));
+        let mut sum_phase_dist = Distance::ZERO;
+        if let Some((_, step_list)) = &p.path {
+            let mut norm_distance = Distance::meters(0.0);
+            for step in step_list.get_steps() {
+                match step {
+                    PathStep::Lane(id) | PathStep::ContraflowLane(id) => {
+                        let lane_detail = map.get_l(*id);
+                        sum_phase_dist += lane_detail.length();
+                        if let Some(avg_speed) = lane_speeds.get(id) {
+                            segments.push((
+                                norm_distance,
+                                norm_color,
+                                build_text(&msgs, &norm_distance),
+                            ));
+                            let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
+                            display_txt.add(Line(format!(
+                                "  Road: {}",
+                                map.get_r(lane_detail.parent)
+                                    .get_name(app.opts.language.as_ref())
+                            )));
+                            display_txt.add(Line(format!("  Lane ID: {}", id)));
+                            display_txt.add(Line(format!(
+                                "  Lane distance: {}",
+                                lane_detail.length().describe_rounded()
+                            )));
+                            display_txt.add(Line(format!("  Average speed: {}", avg_speed)));
+                            segments.push((lane_detail.length(), Color::RED, display_txt));
+                            norm_distance = Distance::meters(0.0);
+                        } else {
+                            norm_distance += lane_detail.length();
+                        }
+                    }
+                    PathStep::Turn(id) => {
+                        let turn_details = map.get_t(*id);
+                        sum_phase_dist += turn_details.geom.length();
+                        if let Some(delay) = intersection_delays.get(id) {
+                            segments.push((
+                                norm_distance,
+                                norm_color,
+                                build_text(&msgs, &norm_distance),
+                            ));
+
+                            let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
+                            display_txt.add(Line(format!("  Intersection: {}", id.parent)));
+                            display_txt.add(Line(format!(
+                                "  Delay: {}",
+                                Duration::seconds(*delay as f64)
+                            )));
+                            segments.push((
+                                // To make sure that the hotspot isn't too small
+                                if 0.05 < (turn_details.geom.length() / sum_phase_dist) {
+                                    turn_details.geom.length()
+                                } else {
+                                    sum_phase_dist += sum_phase_dist * 0.05;
+                                    sum_phase_dist -= turn_details.geom.length();
+                                    sum_phase_dist * 0.05
+                                },
+                                Color::RED,
+                                display_txt,
+                            ));
+                            norm_distance = Distance::meters(0.0);
+                        } else {
+                            norm_distance += turn_details.geom.length();
+                        }
+                    }
+                }
+            }
+            segments.push((norm_distance, norm_color, build_text(&msgs, &norm_distance)));
+        } else {
+            // TODO Think of something to do instead
+            error!("No path for {}", trip_id)
+        }
+        icon_pos.push(sum_phase_dist / 2.0);
+        total_dist += sum_phase_dist;
+    }
+    let mut timeline = Vec::new();
+    assert_eq!(icons_geom.len(), icon_pos.len());
+    let mut offset = 0.0;
+    for index in 0..icon_pos.len() {
+        let pos = box_width * (*icon_pos.get(index).unwrap() / total_dist);
+        let img = icons_geom.get(index).unwrap().to_owned();
+        let img_size = img.get_dims();
+        icons.push(Widget::draw_batch(
+            ctx,
+            img.centered_on(
+                // TODO Hardcoded layouting...
+                Pt2D::new(pos + offset, 15.0),
+            ),
+        ));
+        offset += (pos * 2.0) - img_size.width;
+    }
+    for seg in segments {
+        let seg_percent = seg.0 / total_dist;
+        let seg_with = seg_percent * box_width;
+        let rect = Polygon::rectangle(seg_with, 15.0);
+        let batch = GeomBatch::from(vec![(seg.1, rect.clone())]);
+        timeline.push(
+            DrawWithTooltips::new(
+                ctx,
+                batch,
+                vec![(rect, seg.2)],
+                Box::new(|_| GeomBatch::new()),
+            )
+            .centered_vert(),
+        );
+    }
+    Widget::custom_col(vec![
+        Widget::custom_row(icons),
+        Widget::custom_row(timeline),
+    ])
+}
+
+/// Builds the timeline widget
+/// And draws the route on the map
 fn make_timeline(
     ctx: &mut EventCtx,
     app: &App,
@@ -491,90 +812,11 @@ fn make_timeline(
         .build(ctx, format!("jump to goal of {}", trip_id), None)
     };
 
-    let total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - trip.departure;
-
-    let total_width = 0.22 * ctx.canvas.window_width;
-    let mut timeline = Vec::new();
-    let num_phases = phases.len();
+    let timeline = make_bar(ctx, app, trip_id, &phases, progress_along_path);
     let mut elevation = Vec::new();
     let mut path_impossible = false;
     for (idx, p) in phases.into_iter().enumerate() {
         let color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
-
-        let mut txt = Text::from(Line(&p.phase_type.describe(map)));
-        txt.add(Line(format!(
-            "  Started at {}",
-            p.start_time.ampm_tostring()
-        )));
-        let duration = if let Some(t2) = p.end_time {
-            let d = t2 - p.start_time;
-            txt.add(Line(format!(
-                "  Ended at {} (duration: {})",
-                t2.ampm_tostring(),
-                d
-            )));
-            d
-        } else {
-            let d = sim.time() - p.start_time;
-            txt.add(Line(format!("  Ongoing (duration so far: {})", d)));
-            d
-        };
-        // TODO Problems when this is really low?
-        let percent_duration = if total_duration_so_far == Duration::ZERO {
-            0.0
-        } else {
-            duration / total_duration_so_far
-        };
-        txt.add(Line(format!(
-            "  {}% of trip duration",
-            (100.0 * percent_duration) as usize
-        )));
-
-        let phase_width = total_width * percent_duration;
-        let rect = Polygon::rectangle(phase_width, 15.0);
-        let mut batch = GeomBatch::from(vec![(color, rect.clone())]);
-        if idx == num_phases - 1 {
-            if let Some(p) = progress_along_path {
-                batch.append(
-                    GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/current_pos.svg")
-                        .centered_on(Pt2D::new(p * phase_width, 7.5)),
-                );
-            }
-        }
-        batch.append(
-            GeomBatch::load_svg(
-                ctx.prerender,
-                match p.phase_type {
-                    TripPhaseType::Driving => "system/assets/timeline/driving.svg",
-                    TripPhaseType::Walking => "system/assets/timeline/walking.svg",
-                    TripPhaseType::Biking => "system/assets/timeline/biking.svg",
-                    TripPhaseType::Parking => "system/assets/timeline/parking.svg",
-                    TripPhaseType::WaitingForBus(_, _) => {
-                        "system/assets/timeline/waiting_for_bus.svg"
-                    }
-                    TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
-                    TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
-                    TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
-                    // TODO What icon should represent this?
-                    TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
-                },
-            )
-            .centered_on(
-                // TODO Hardcoded layouting...
-                Pt2D::new(0.5 * phase_width, -20.0),
-            ),
-        );
-
-        timeline.push(
-            DrawWithTooltips::new(
-                ctx,
-                batch,
-                vec![(rect, txt)],
-                Box::new(|_| GeomBatch::new()),
-            )
-            .centered_vert(),
-        );
-
         if let Some((dist, ref path)) = p.path {
             if app.opts.dev
                 && (p.phase_type == TripPhaseType::Walking || p.phase_type == TripPhaseType::Biking)
@@ -617,7 +859,7 @@ fn make_timeline(
     }
 
     let mut col = vec![
-        Widget::custom_row(vec![start_btn, Widget::custom_row(timeline), goal_btn])
+        Widget::custom_row(vec![start_btn, timeline, goal_btn])
             .evenly_spaced()
             .margin_above(25),
         Widget::row(vec![
@@ -682,6 +924,8 @@ fn make_timeline(
     if false {
         col.extend(elevation);
     }
+    highlight_slow_intersections(ctx, app, details, trip_id);
+    highlight_slow_lanes(ctx, app, details, trip_id);
     Widget::col(col)
 }
 

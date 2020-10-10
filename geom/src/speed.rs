@@ -2,7 +2,7 @@ use std::{fmt, ops};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{trim_f64, Distance, Duration, EPSILON_DIST};
+use crate::{Distance, Duration, EPSILON_DIST, trim_f64};
 
 /// In meters per second. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -76,6 +76,14 @@ impl ops::Sub for Speed {
 
     fn sub(self, other: Speed) -> Speed {
         Speed::meters_per_second(self.0 - other.0)
+    }
+}
+
+impl ops::Div for Speed {
+    type Output = f64;
+
+    fn div(self, other: Speed) -> f64 {
+        self.0 / other.0
     }
 }
 

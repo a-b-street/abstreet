@@ -936,7 +936,10 @@ impl TripManager {
         let t = &self.trips[id.0];
         Some((t.finished_at? - t.info.departure, t.total_blocked_time))
     }
-
+    pub fn trip_blocked_time(&self, id: TripID) -> Duration {
+        let t = &self.trips[id.0];
+        t.total_blocked_time
+    }
     pub fn bldg_to_people(&self, b: BuildingID) -> Vec<PersonID> {
         let mut people = Vec::new();
         for p in &self.people {

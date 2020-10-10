@@ -2,20 +2,20 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
+use abstutil::{deserialize_multimap, MultiMap, serialize_multimap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathStep, Traversable,
-    SIDEWALK_THICKNESS,
+    BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathStep, SIDEWALK_THICKNESS,
+    Traversable,
 };
 
-use crate::sim::Ctx;
 use crate::{
     AgentID, AgentProperties, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
     DrawPedestrianInput, Event, IntersectionSimState, ParkedCar, ParkingSpot, PedCrowdLocation,
     PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState,
     TripID, TripManager, UnzoomedAgent,
 };
+use crate::sim::Ctx;
 
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
@@ -243,6 +243,12 @@ impl WalkingSimState {
                     ctx.scheduler
                         .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     ped.total_blocked_time += now - blocked_since;
+                    self.events.push(Event::TripIntersectionDelay(
+                        ped.trip,
+                        ped.path.current_step().as_turn(),
+                        AgentID::Pedestrian(id),
+                        now - blocked_since,
+                    ));
                 }
             }
             PedState::LeavingBuilding(b, _) => {

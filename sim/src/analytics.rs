@@ -6,10 +6,12 @@ use abstutil::Counter;
 use geom::{Distance, Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable,
+    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID,
 };
 
-use crate::{AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType};
+use crate::{
+    AgentID, AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType,
+};
 
 /// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
 /// organizing and storing some information from them. The UI queries Analytics to draw time-series
@@ -42,6 +44,16 @@ pub struct Analytics {
     // TODO Hack: No TripMode means cancelled
     /// Finish time, ID, mode, trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
+
+    // Records how long was spent waiting at each turn (Intersection) for a given trip
+    // Over a certain threshold
+    // TripID, [(TurnID, Time Waiting In Seconds)]
+    pub trip_intersection_delays: BTreeMap<TripID, BTreeMap<TurnID, u8>>,
+    // Records the average speed/maximum speed for each lane
+    // If it is over a certain threshold (<95% of max speed)
+    // TripID, [(LaneID, Percent of maximum speed as an integer (0-100)]
+    pub lane_speed_percentage: BTreeMap<TripID, BTreeMap<LaneID, u8>>,
+
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, TripPhaseType)>,
 
@@ -73,6 +85,8 @@ impl Analytics {
             passengers_alighting: BTreeMap::new(),
             started_trips: BTreeMap::new(),
             finished_trips: Vec::new(),
+            trip_intersection_delays: BTreeMap::new(),
+            lane_speed_percentage: BTreeMap::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
             parking_lane_changes: BTreeMap::new(),
@@ -177,6 +191,39 @@ impl Analytics {
         } else if let Event::TripCancelled(id) = ev {
             self.started_trips.entry(id).or_insert(time);
             self.finished_trips.push((time, id, None, Duration::ZERO));
+        }
+
+        // Trip Intersection delay
+        if let Event::TripIntersectionDelay(trip_id, turn_id, agent, delay) = ev {
+            match agent {
+                AgentID::Car(_) => {
+                    if delay > Duration::seconds(30.0) {
+                        self.trip_intersection_delays
+                            .entry(trip_id)
+                            .or_insert_with(BTreeMap::new)
+                            .insert(turn_id, delay.inner_seconds() as u8);
+                    }
+                }
+                AgentID::Pedestrian(_) => {
+                    if delay > Duration::seconds(15.0) {
+                        self.trip_intersection_delays
+                            .entry(trip_id)
+                            .or_insert_with(BTreeMap::new)
+                            .insert(turn_id, delay.inner_seconds() as u8);
+                    }
+                }
+                AgentID::BusPassenger(_, _) => {}
+            }
+        }
+        // Lane Speed
+        if let Event::LaneSpeedPercentage(trip_id, lane_id, avg_speed, max_speed) = ev {
+            let speed_percent: u8 = ((avg_speed / max_speed) * 100.0) as u8;
+            if speed_percent < 95 {
+                self.lane_speed_percentage
+                    .entry(trip_id)
+                    .or_insert_with(BTreeMap::new)
+                    .insert(lane_id, speed_percent);
+            }
         }
 
         // Intersection delays

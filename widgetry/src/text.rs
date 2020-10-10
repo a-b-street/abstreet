@@ -2,12 +2,12 @@ use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
 use std::hash::Hasher;
 
-use geom::{PolyLine, Polygon};
+use geom::{Polygon, PolyLine};
 
-use crate::assets::Assets;
 use crate::{
-    svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, Widget,
+    Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, svg, Widget,
 };
+use crate::assets::Assets;
 
 // Same as body()
 pub const DEFAULT_FONT: Font = Font::OverpassRegular;
@@ -530,7 +530,7 @@ impl TextSpan {
             self.fg_color.to_hex(),
             start_offset,
         )
-        .unwrap();
+            .unwrap();
 
         write!(
             &mut svg,

@@ -19,10 +19,15 @@ use map_model::{
     Path, PathConstraints, PathRequest, Position,
 };
 
+pub use crate::render::{
+    CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
+    PedCrowdLocation, UnzoomedAgent,
+};
+
 pub use self::analytics::{Analytics, TripPhase};
 pub(crate) use self::cap::CapSimState;
-pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
+pub(crate) use self::events::Event;
 pub use self::make::{
     BorderSpawnOverTime, ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip,
     OffMapLocation, OriginDestination, PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier,
@@ -39,10 +44,6 @@ pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{Person, PersonState, TripInfo, TripResult};
 pub use self::trips::{TripEndpoint, TripMode};
 pub(crate) use self::trips::{TripLeg, TripManager};
-pub use crate::render::{
-    CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
-    PedCrowdLocation, UnzoomedAgent,
-};
 
 mod analytics;
 mod cap;
@@ -528,7 +529,7 @@ impl SidewalkSpot {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct TimeInterval {
     // TODO Private fields
     pub start: Time,
@@ -561,7 +562,7 @@ impl TimeInterval {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct DistanceInterval {
     // TODO Private fields
     pub start: Distance,

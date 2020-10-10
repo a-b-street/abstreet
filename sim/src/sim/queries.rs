@@ -111,6 +111,10 @@ impl Sim {
     pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
         self.trips.finished_trip_time(id)
     }
+    // Returns the total time a trip was blocked for
+    pub fn trip_blocked_time(&self, id: TripID) -> Duration {
+        self.trips.trip_blocked_time(id)
+    }
 
     pub fn trip_to_person(&self, id: TripID) -> PersonID {
         self.trips.trip_to_person(id)
