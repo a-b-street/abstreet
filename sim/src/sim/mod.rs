@@ -73,16 +73,39 @@ pub struct Ctx<'a> {
 
 #[derive(Clone)]
 pub struct SimOptions {
+    /// Used to distinguish savestates for running the same scenario.
     pub run_name: String,
+    /// Ignore all stop signs and traffic signals, instead using a "freeform" policy to control
+    /// access to intersections. If a requested turn doesn't conflict with an already accepted one,
+    /// immediately accept it. FIFO ordering, no balancing between different movements.
     pub use_freeform_policy_everywhere: bool,
+    /// Prevent a vehicle from starting a turn if their target lane is already full, since this may
+    /// mean they'll get stuck blocking the intersection.
     pub dont_block_the_box: bool,
+    /// As a vehicle follows a route, opportunistically make small changes to use a different lane,
+    /// based on some score of "least-loaded" lane.
     pub recalc_lanechanging: bool,
+    /// If a cycle of vehicles depending on each other to turn is detected, temporarily allow
+    /// "blocking the box" to try to break gridlock.
     pub break_turn_conflict_cycles: bool,
+    /// Enable experimental handling for "uber-turns", sequences of turns through complex
+    /// intersections with short roads. "Locks" the entire movement before starting, and ignores
+    /// red lights after starting.
     pub handle_uber_turns: bool,
+    /// Enable an experimental SEIR pandemic model.
     pub enable_pandemic_model: Option<XorShiftRng>,
+    /// When a warning is encountered during simulation, specifies how to respond.
     pub alerts: AlertHandler,
+    /// At the beginning of the simulation, precompute the route for all trips for the entire
+    /// scenario.
     pub pathfinding_upfront: bool,
+    /// Ignore parking data in the map and instead treat every building as if it has unlimited
+    /// capacity for vehicles.
     pub infinite_parking: bool,
+    /// Allow all agents to immediately proceed into an intersection, even if they'd hit another
+    /// agent. Obviously this destroys realism of the simulation, but can be used to debug
+    /// gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.
+    pub disable_turn_conflicts: bool,
 }
 
 impl std::default::Default for SimOptions {
@@ -118,6 +141,7 @@ impl SimOptions {
                 .unwrap_or(AlertHandler::Print),
             pathfinding_upfront: args.enabled("--pathfinding_upfront"),
             infinite_parking: args.enabled("--infinite_parking"),
+            disable_turn_conflicts: args.enabled("--disable_turn_conflicts"),
         }
     }
 }
@@ -151,6 +175,7 @@ impl SimOptions {
             alerts: AlertHandler::Print,
             pathfinding_upfront: false,
             infinite_parking: false,
+            disable_turn_conflicts: false,
         }
     }
 }
@@ -163,14 +188,7 @@ impl Sim {
             driving: DrivingSimState::new(map, opts.recalc_lanechanging, opts.handle_uber_turns),
             parking: ParkingSimState::new(map, opts.infinite_parking, timer),
             walking: WalkingSimState::new(),
-            intersections: IntersectionSimState::new(
-                map,
-                &mut scheduler,
-                opts.use_freeform_policy_everywhere,
-                opts.dont_block_the_box,
-                opts.break_turn_conflict_cycles,
-                opts.handle_uber_turns,
-            ),
+            intersections: IntersectionSimState::new(map, &mut scheduler, &opts),
             transit: TransitSimState::new(map),
             cap: CapSimState::new(map),
             trips: TripManager::new(opts.pathfinding_upfront),

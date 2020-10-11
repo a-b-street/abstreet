@@ -11,7 +11,7 @@ use map_model::{
 
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
-use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, Speed};
+use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, SimOptions, Speed};
 
 const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.2);
@@ -31,6 +31,7 @@ pub struct IntersectionSimState {
     dont_block_the_box: bool,
     break_turn_conflict_cycles: bool,
     handle_uber_turns: bool,
+    disable_turn_conflicts: bool,
     // (x, y) means x is blocked by y. It's a many-to-many relationship. TODO Better data
     // structure.
     blocked_by: BTreeSet<(CarID, CarID)>,
@@ -68,23 +69,21 @@ struct Request {
 }
 
 impl IntersectionSimState {
-    pub fn new(
-        map: &Map,
-        scheduler: &mut Scheduler,
-        use_freeform_policy_everywhere: bool,
-        dont_block_the_box: bool,
-        break_turn_conflict_cycles: bool,
-        handle_uber_turns: bool,
-    ) -> IntersectionSimState {
+    pub fn new(map: &Map, scheduler: &mut Scheduler, opts: &SimOptions) -> IntersectionSimState {
         let mut sim = IntersectionSimState {
             state: BTreeMap::new(),
-            use_freeform_policy_everywhere,
-            dont_block_the_box,
-            break_turn_conflict_cycles,
-            handle_uber_turns,
+            use_freeform_policy_everywhere: opts.use_freeform_policy_everywhere,
+            dont_block_the_box: opts.dont_block_the_box,
+            break_turn_conflict_cycles: opts.break_turn_conflict_cycles,
+            handle_uber_turns: opts.handle_uber_turns,
+            disable_turn_conflicts: opts.disable_turn_conflicts,
             blocked_by: BTreeSet::new(),
             events: Vec::new(),
         };
+        if sim.disable_turn_conflicts {
+            sim.use_freeform_policy_everywhere = true;
+        }
+
         for i in map.all_intersections() {
             let mut state = State {
                 id: i.id,
@@ -93,7 +92,7 @@ impl IntersectionSimState {
                 reserved: BTreeSet::new(),
                 signal: None,
             };
-            if i.is_traffic_signal() && !use_freeform_policy_everywhere {
+            if i.is_traffic_signal() {
                 state.signal = Some(SignalState::new(i.id, Time::START_OF_DAY, map, scheduler));
             }
             sim.state.insert(i.id, state);
@@ -693,7 +692,7 @@ impl IntersectionSimState {
                     }
                 }
 
-                if !cycle_detected {
+                if !cycle_detected && !self.disable_turn_conflicts {
                     ok = false;
                 }
 
@@ -707,7 +706,7 @@ impl IntersectionSimState {
             return false;
         }
         for other in &self.state[&req.turn.parent].reserved {
-            if map.get_t(other.turn).conflicts_with(turn) {
+            if !self.disable_turn_conflicts && map.get_t(other.turn).conflicts_with(turn) {
                 return false;
             }
         }
