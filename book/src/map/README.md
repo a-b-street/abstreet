@@ -1,105 +1,130 @@
 # Map model
 
-A/B Street builds a rich representation of a city map using OpenStreetMap (OSM)
-and other sources. This chapter describes how.
+A/B Street transforms OpenStreetMap (OSM) data into a detailed geometric and
+semantic representation of the world for traffic simulation. This chapter
+describes that map model, with the hopes that it'll be useful for purposes
+beyond this project.
 
-TODO: Integrate pictures from
-[these slides](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing).
+## Overview
 
-[This recorded presentation](https://youtu.be/chYd5I-5oyc?t=439) covers some of
-this.
+A `Map` covers everything inside some hand-drawn boundary, usually scoped to a
+city or a few of a city's districts. Unlike OSM, it doesn't cover the entire
+world; it only has areas specifically extracted for some purpose.
 
-## The map
+A map consists of many objects. Mainly, there are roads, broken down into
+individual lanes, and intersections. A road is a single segment connecting
+exactly two intersections (as opposed to OSM, where a single "way" may span many
+intersections). Lanes within a road have a specific type, which dictates their
+direction of travel (or lack of travel, like on-street parking) and uses.
+Sidewalks are represented as bidirectional lanes. Roads connect at
+intersections, which contain an explicit set of turns, each linking a source
+lane to a destination lane.
 
-A single city is broken down into different pieces...
+Maps also contain parking lots and buildings, which connect to the nearest
+driveable lane and a sidewalk. Maps have water and park areas, only used for
+drawing. They also represent public transit stops and routes.
 
-A/B Street comes with a few maps, each defined by a bounding/clipping polygon
-for some portion of Seattle. Each map has these objects:
+## How is a map used?
 
-- **Roads**: A single road connects two intersections, carrying OSM metadata and
-  containing some child lanes.
-- **Lanes**: An individual lane of traffic. Driving (any vehicle), bus-only, and
-  bike-only lanes have a direction. On-street parking lanes don't allow any
-  movement, and they have some number of parking spots. Sidewalks are
-  bidirectional.
-- **Intersections**: An intersection has references to all of the incoming and
-  outgoing lanes. Most intersections have a stop sign or traffic signal policy
-  controlling movement through it.
-  - **Border** intersections on the edge of the map are special places where
-    agents may appear or disappear.
-- **Turns**: A turn connects one lane to another, via some intersection.
-  (Sidewalks are bidirectional, so specifying the intersection is necessary to
-  distinguish crosswalks at each end of a sidewalk.)
-- **Buildings**: A building has a position, OSM metadata, and a **front path**
-  connecting the edge of the building to the nearest sidewalk. Most trips in A/B
-  Street begin and end at buildings. Some buildings also contain a number of
-  off-street parking spots.
-- **Area**: An area has geometry and OSM metadata and represents a body of
-  water, forest, park, etc. They're just used for drawing.
-- **Bus stop**: A bus stop is placed some distance along a sidewalk, with a
-  pointer to the position on the adjacent driving or bus lane where a bus stops
-  for pick-up.
-- **Bus route**: A bus route has a name and a list of stops that buses will
-  cycle between. In the future, they'll include information about the
-  frequency/schedule of the route.
-- **Parking lot**: A parking lot is connected to a road, has a shape, and has
-  some internal driving "aisles." The number and position of individual parking
-  spots is auto-generated.
+Unlike some GIS systems, maps don't use any kind of database -- they're just a
+file, anywhere from 1 to ~500MB (depending on the size of their boundary). Once
+loaded into memory, different objects from the map can be accessed directly,
+along with a large API to perform various queries.
 
-## Coordinate system
+Most of the map's API is read-only; once built, a map doesn't change until
+user-created edits are applied.
 
-A/B Street converts (longitude, latitude) coordinates into a simpler form.
+The pipeline to import a map from OSM data (and also optional supplementary,
+city-specific data) is complex and may take a few minutes to run, but it happens
+once offline. Applications using maps just read the final file.
 
-- An (x, y) point starts with the top-left of the bounding polygon as the
-  origin. Note this is screen drawing order, not a Cartesian plane (with Y
-  increasing upwards) -- so angle calculations account for this.
-- The (x, y) values are f64's trimmed to a few decimal places, with way more
-  precision than is really needed. These might become actual fixed-point
-  integers later, but for now, a `Pt2D` skirts around Rust's limits on f64's by
-  guaranteeing no NaN's or infinities and thus providing the full `Eq` trait.
-- A few places in map conversion compare points using different thresholds,
-  usually below 1 meter. Ideally these epsilon comparisons could be eliminated
-  in favor of a fixed-point integer representation, but for now, explicit
-  thresholds are useful.
+## Features
 
-## Invariants
+Why use A/B Street's map model instead of processing OSM directly?
 
-Ideally, the finalized maps would satisfy a list of invariants, simplifying the
-traffic simulation and drawing code built on top. But the input data is quite
-messy and for now, most of these aren't quite guaranteed to be true.
+TODO: Order these better. For each one, show before/after pictures
 
-- Some minimum length for lanes and turns. Very small lanes can't be drawn, tend
-  to break intersection polygons, and may lead to gridlocked traffic.
-- Some guarantees that positions along adjacent lanes actually match up, even
-  though different lanes on the same road may have different lengths. Examples
-  include the position of a bus stop on the sidewalk and bus lane matching up.
-  - Additionally, parking lanes without an adjacent driving lane or bus stops
-    without any driving or bus lanes make no sense and should never occur.
-- Connectivity -- any sidewalk should be reachable from any other, and most
-  driving lanes should be accessible from any others. There are exceptions due
-  to border intersections -- if a car spawns on a highway along the border of
-  the map, it may be forced to disappear on the opposite border of the map, if
-  the highway happens to not have any exits within the map boundary.
+### Area clipping
 
-## Connectivity
+Bodies of water, forests, parks, and other areas are represented in OSM as
+relations, requiring the user to stitch together multiple polylines in undefined
+orders and handle inner holes. A/B Street maps handle all of that, and also clip
+the area's polygon to the boundary of the entire map -- including coastlines.
 
-For a single mode, each lane is connected to two intersections. Turns connect
-two lanes. There are no turns between sidewalks and driving/bike/bus lanes.
+### Road and intersection geometry
 
-All buildings and parking lots have driveways. This must connect to a sidewalk,
-allowing pedestrians to enter/exit that object. The driveway OPTIONALLY connects
-to the nearest driveable lane. This allows cars to enter/exit that object for
-parking.
+OSM represents roads as a polyline of the physical center of the road. A/B
+Street infers the number and type of lanes from OSM metadata, then creates
+individual lanes of appropriate width, each with a center-line and polygon for
+geometry. At intersections, the roads and lanes are "trimmed back" to avoid
+overlapping, and the "common area" becomes the intersection's polygon. This
+heuristic process is reasonably robust to complex shapes, with special treatment
+of highway on/off-ramps, although it does still have some bugs.
 
-Public transit stops are located somewhere on a sidewalk. They're associated
-with a driveable position where the bus or train stops. In the future, this will
-need to account for dedicated surface-level platforms and for underground
-transit stations, likely associated with a building.
+### Turns
 
-There's a concept of "parking blackholes." If you treat every road as
-bidirectional without access restrictions, then the graph is connected. But the
-more detailed view has to factor in one-way roads and things near the map
-border. These blackholes influence where cars will try to look for parking
-(since we don't want them entering a blackhole and getting stuck) and also, for
-temporary/unintentional reasons, where pedestrian<->bicycle transitions will
-happen.
+At each intersection, A/B Street infers all legal movements between vehicle
+lanes and sidewalks. This process makes use of OSM metadata about turn lanes,
+inferring reasonable defaults for multi-lane roads. OSM turn restriction
+relations, which may span a sequence of several roads to describe U-turns around
+complex intersections, are also used.
+
+### Parking lots
+
+OSM models parking lots as areas along with the driveable aisles. Usually the
+capacity of a lot isn't tagged. A/B Street automatically fills paring lots with
+individual stalls along the aisles, estimating the capacity just from this
+geometry.
+
+### Stop signs
+
+At unsignalized intersections, A/B Street infers which roads have to stop, and
+which have right-of-way.
+
+### Traffic signals
+
+OSM has no way to describe how traffic signals are configured. A/B Street models
+fixed-timer signals, automatically inferring the number of phases, their
+duration, and the movements that are prioritized and permitted during each
+phase.
+
+### Pathfinding
+
+A/B Street can determine routes along lanes and turns for vehicles and
+pedestrians. These routes obey OSM's turn restriction relations that span
+multiple road segments. They also avoid roads that're tagged as not allowing
+through-traffic, depending on the route's origin and destination and vehicle
+type. The pathfinding optionally makes use of contraction hierarchies to greatly
+speed up query performance, at the cost of a slower offline importing process.
+
+### Bridge z-ordering
+
+OSM tags bridges and tunnels, but the roads that happen to pass underneath
+bridges aren't mapped. A/B Street detects these and represents the z-order for
+drawing.
+
+### Buildings
+
+Similar to areas, A/B Street consolidates the geometry of OSM buildings, which
+may be split into multiple polygons. Each building is also associated with the
+nearest driveable lane and sidewalk, and metadata is used to infer a land-use
+(like residential and commercial) and commercial amenities available.
+
+### Experimental: public transit
+
+A/B Street uses bus stops and route relations from OSM to build a model of
+public transit routes. OSM makes few guarantees about how the specifics of the
+route are specified, but A/B Street produces specific paths, handling clipping
+to the map boundary.
+
+... All of this isn't the case yet, but it's a WIP!
+
+### Experimental: separated cyclepaths, tramways, and walking paths
+
+Some cyclepaths, tram lines, and footpaths in OSM are tagged as separate ways,
+with no association to a "main" road. Sometimes this is true -- they're
+independent trails that only occasionally cross roads. But often they run
+alongside a road. A/B Street attempts to detect these and "snap" them to the
+main road as extra lanes.
+
+... But this doesn't work yet at all.
