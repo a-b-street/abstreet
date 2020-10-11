@@ -2,7 +2,7 @@ use std::{cmp, f64, fmt, ops};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{trim_f64, Duration, Speed};
+use crate::{trim_f64, Duration, Speed, UnitFmt};
 
 /// In meters. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -61,14 +61,18 @@ impl Distance {
         self.0
     }
 
-    // TODO Store a bit in Maps to mark if they're in the US or not, plumb here to use meters
-    pub fn describe_rounded(self) -> String {
-        let feet = self.0 * 3.28084;
-        let miles = feet / 5280.0;
-        if miles >= 0.1 {
-            format!("{} miles", (miles * 10.0).round() / 10.0)
+    pub fn to_string(self, fmt: &UnitFmt) -> String {
+        if fmt.metric {
+            // TODO Round values to nearest meter, and km
+            format!("{}m", self.0)
         } else {
-            format!("{} ft", feet.round())
+            let feet = self.0 * 3.28084;
+            let miles = feet / 5280.0;
+            if miles >= 0.1 {
+                format!("{} miles", (miles * 10.0).round() / 10.0)
+            } else {
+                format!("{} ft", feet.round())
+            }
         }
     }
 

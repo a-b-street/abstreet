@@ -71,55 +71,52 @@ impl Renderable for DrawRoad {
         }
         g.redraw(draw_center_line.as_ref().unwrap());
 
-        if app.opts.label_roads {
-            // Lazily calculate
-            let mut label = self.label.borrow_mut();
-            if label.is_none() {
-                let mut batch = GeomBatch::new();
-                let r = app.primary.map.get_r(self.id);
-                if !r.is_light_rail() {
-                    let name = r.get_name(app.opts.language.as_ref());
-                    if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
-                        // TODO If it's definitely straddling bus/bike lanes, change the color? Or
-                        // even easier, just skip the center lines?
-                        let fg = if r.is_private() {
-                            app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
-                        } else {
-                            app.cs.road_center_line
-                        };
-                        let bg = if r.is_private() {
-                            app.cs
-                                .zoomed_road_surface(LaneType::Driving, r.get_rank())
-                                .lerp(app.cs.private_road, 0.5)
-                        } else {
-                            app.cs.zoomed_road_surface(LaneType::Driving, r.get_rank())
-                        };
+        // Lazily calculate
+        let mut label = self.label.borrow_mut();
+        if label.is_none() {
+            let mut batch = GeomBatch::new();
+            let r = app.primary.map.get_r(self.id);
+            if !r.is_light_rail() {
+                let name = r.get_name(app.opts.language.as_ref());
+                if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
+                    // TODO If it's definitely straddling bus/bike lanes, change the color? Or
+                    // even easier, just skip the center lines?
+                    let fg = if r.is_private() {
+                        app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
+                    } else {
+                        app.cs.road_center_line
+                    };
+                    let bg = if r.is_private() {
+                        app.cs
+                            .zoomed_road_surface(LaneType::Driving, r.get_rank())
+                            .lerp(app.cs.private_road, 0.5)
+                    } else {
+                        app.cs.zoomed_road_surface(LaneType::Driving, r.get_rank())
+                    };
 
-                        if false {
-                            // TODO Not ready yet
-                            batch.append(Line(name).fg(fg).render_curvey(
-                                g.prerender,
-                                &r.center_pts,
-                                0.1,
-                            ));
-                        } else {
-                            let txt = Text::from(Line(name).fg(fg)).bg(bg);
-                            let (pt, angle) =
-                                r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
-                            batch.append(
-                                txt.render_to_batch(g.prerender)
-                                    .scale(0.1)
-                                    .centered_on(pt)
-                                    .rotate(angle.reorient()),
-                            );
-                        }
+                    if false {
+                        // TODO Not ready yet
+                        batch.append(Line(name).fg(fg).render_curvey(
+                            g.prerender,
+                            &r.center_pts,
+                            0.1,
+                        ));
+                    } else {
+                        let txt = Text::from(Line(name).fg(fg)).bg(bg);
+                        let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
+                        batch.append(
+                            txt.render_to_batch(g.prerender)
+                                .scale(0.1)
+                                .centered_on(pt)
+                                .rotate(angle.reorient()),
+                        );
                     }
                 }
-                *label = Some(g.prerender.upload(batch));
             }
-            // TODO Covered up sometimes. We could fork and force a different z value...
-            g.redraw(label.as_ref().unwrap());
+            *label = Some(g.prerender.upload(batch));
         }
+        // TODO Covered up sometimes. We could fork and force a different z value...
+        g.redraw(label.as_ref().unwrap());
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {

@@ -71,6 +71,7 @@ pub struct Ctx<'a> {
     pub map: &'a Map,
 }
 
+/// Options controlling the traffic simulation.
 #[derive(Clone)]
 pub struct SimOptions {
     /// Used to distinguish savestates for running the same scenario.

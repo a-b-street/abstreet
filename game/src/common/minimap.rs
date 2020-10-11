@@ -285,15 +285,10 @@ impl Minimap {
 
         let mut cache = app.primary.draw_map.agents.borrow_mut();
         cache.draw_unzoomed_agents(
+            g,
             &app.primary.sim,
             &app.primary.map,
             &app.unzoomed_agents,
-            g,
-            if app.opts.large_unzoomed_agents {
-                Some(Distance::meters(2.0 + (self.zoom_lvl as f64)) / self.zoom)
-            } else {
-                None
-            },
             app.opts.debug_all_agents,
             &app.cs,
         );

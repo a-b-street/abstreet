@@ -117,7 +117,7 @@ impl BikeNetwork {
                 Line(format!("{} lanes", num_lanes)),
                 Line(format!(
                     "total distance of {}",
-                    total_dist.describe_rounded()
+                    total_dist.to_string(&app.opts.units)
                 )),
             ])
             .draw(ctx),

@@ -35,6 +35,21 @@ mod time;
 // About 0.4 inches... which is quite tiny on the scale of things. :)
 pub const EPSILON_DIST: Distance = Distance::const_meters(0.01);
 
+/// Reduce the precision of an f64. This helps ensure serialization is idempotent (everything is
+/// exacly the same before and after saving/loading). Ideally we'd use some kind of proper
+/// fixed-precision type instead of f64.
 pub fn trim_f64(x: f64) -> f64 {
     (x * 10_000.0).round() / 10_000.0
+}
+
+/// Specifies how to stringify different geom objects.
+// TODO Use for more units, and also maybe get rid of fmt::Display, to force everyone to opt in.
+// Except the default for logging should always be the full detail...
+#[derive(Clone)]
+pub struct UnitFmt {
+    /// Round `Duration`s to a whole number of seconds.
+    // TODO Actually use this
+    pub round_durations: bool,
+    /// Display in metric; US imperial otherwise.
+    pub metric: bool,
 }

@@ -80,8 +80,8 @@ pub fn ongoing(
                 .force_width_pct(ctx, col_width),
             Widget::col(vec![
                 Text::from_all(vec![
-                    Line(props.dist_crossed.describe_rounded()),
-                    Line(format!("/{}", props.total_dist.describe_rounded())).secondary(),
+                    Line(props.dist_crossed.to_string(&app.opts.units)),
+                    Line(format!("/{}", props.total_dist.to_string(&app.opts.units))).secondary(),
                 ])
                 .draw(ctx),
                 Text::from_all(vec![
@@ -488,14 +488,14 @@ fn highlight_slow_lanes(ctx: &EventCtx, app: &App, details: &mut Details, id: Tr
 
 /// Helper func for make_bar()
 /// Builds a default text overlay widget
-fn build_text(msgs: &Vec<String>, distance: &Distance) -> Text {
+fn build_text(app: &App, msgs: &Vec<String>, distance: Distance) -> Text {
     let mut display_txt = Text::new();
     for msg in msgs {
         display_txt.add(Line(msg));
     }
     display_txt.add(Line(format!(
         "  Distance covered: {}",
-        distance.describe_rounded()
+        distance.to_string(&app.opts.units)
     )));
     display_txt
 }
@@ -606,7 +606,7 @@ fn make_bar(
                             segments.push((
                                 norm_distance,
                                 norm_color,
-                                build_text(&msgs, &norm_distance),
+                                build_text(app, &msgs, norm_distance),
                             ));
                             let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
                             display_txt.add(Line(format!(
@@ -617,7 +617,7 @@ fn make_bar(
                             display_txt.add(Line(format!("  Lane ID: {}", id)));
                             display_txt.add(Line(format!(
                                 "  Lane distance: {}",
-                                lane_detail.length().describe_rounded()
+                                lane_detail.length().to_string(&app.opts.units)
                             )));
                             display_txt.add(Line(format!("  Average speed: {}", avg_speed)));
                             segments.push((lane_detail.length(), Color::RED, display_txt));
@@ -633,7 +633,7 @@ fn make_bar(
                             segments.push((
                                 norm_distance,
                                 norm_color,
-                                build_text(&msgs, &norm_distance),
+                                build_text(app, &msgs, norm_distance),
                             ));
 
                             let mut display_txt = Text::from(Line(&p.phase_type.describe(map)));
@@ -661,7 +661,11 @@ fn make_bar(
                     }
                 }
             }
-            segments.push((norm_distance, norm_color, build_text(&msgs, &norm_distance)));
+            segments.push((
+                norm_distance,
+                norm_color,
+                build_text(app, &msgs, norm_distance),
+            ));
         } else {
             // TODO Think of something to do instead
             error!("No path for {}", trip_id)

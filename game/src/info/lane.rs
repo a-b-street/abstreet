@@ -53,7 +53,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
         kv.push(("Speed limit", r.speed_limit.to_string()));
     }
 
-    kv.push(("Length", l.length().describe_rounded()));
+    kv.push(("Length", l.length().to_string(&app.opts.units)));
 
     rows.extend(make_table(ctx, kv));
 

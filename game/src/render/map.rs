@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use aabb_quadtree::QuadTree;
 
 use abstutil::Timer;
-use geom::{Bounds, Circle, Distance, Polygon, Pt2D, Time};
+use geom::{Bounds, Circle, Polygon, Pt2D, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
     NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
@@ -359,8 +359,7 @@ pub struct AgentCache {
     // This time applies to agents_per_on. unzoomed has its own possibly separate Time!
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
-    // agent radius also matters
-    unzoomed: Option<(Time, Option<Distance>, UnzoomedAgents, Drawable)>,
+    unzoomed: Option<(Time, UnzoomedAgents, Drawable)>,
 }
 
 impl AgentCache {
@@ -411,17 +410,16 @@ impl AgentCache {
     // simplify this.
     pub fn draw_unzoomed_agents(
         &mut self,
+        g: &mut GfxCtx,
         source: &dyn GetDrawAgents,
         map: &Map,
         color_agents: &UnzoomedAgents,
-        g: &mut GfxCtx,
-        maybe_radius: Option<Distance>,
         debug_all_agents: bool,
         cs: &ColorScheme,
     ) {
         let now = source.time();
-        if let Some((time, r, ref orig_agents, ref draw)) = self.unzoomed {
-            if now == time && maybe_radius == r && color_agents == orig_agents {
+        if let Some((time, ref orig_agents, ref draw)) = self.unzoomed {
+            if now == time && color_agents == orig_agents {
                 g.redraw(draw);
                 return;
             }
@@ -429,34 +427,24 @@ impl AgentCache {
 
         let mut batch = GeomBatch::new();
         // It's quite silly to produce triangles for the same circle over and over again. ;)
-        if let Some(r) = maybe_radius {
-            let circle = Circle::new(Pt2D::new(0.0, 0.0), r).to_polygon();
-            for agent in source.get_unzoomed_agents(map) {
-                if let Some(color) = color_agents.color(&agent) {
-                    batch.push(color, circle.translate(agent.pos.x(), agent.pos.y()));
-                }
-            }
-        } else {
-            // Lane thickness is a little hard to see, so double it. Most of the time, the circles
-            // don't leak out of the road too much.
-            let car_circle =
-                Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
-            let ped_circle =
-                Circle::new(Pt2D::new(0.0, 0.0), 4.0 * SIDEWALK_THICKNESS).to_polygon();
-            for agent in source.get_unzoomed_agents(map) {
-                if let Some(color) = color_agents.color(&agent) {
-                    if agent.vehicle_type.is_some() {
-                        batch.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
-                    } else {
-                        batch.push(color, ped_circle.translate(agent.pos.x(), agent.pos.y()));
-                    }
+        //
+        // Lane thickness is a little hard to see, so double it. Most of the time, the circles
+        // don't leak out of the road too much.
+        let car_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
+        let ped_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * SIDEWALK_THICKNESS).to_polygon();
+        for agent in source.get_unzoomed_agents(map) {
+            if let Some(color) = color_agents.color(&agent) {
+                if agent.vehicle_type.is_some() {
+                    batch.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
+                } else {
+                    batch.push(color, ped_circle.translate(agent.pos.x(), agent.pos.y()));
                 }
             }
         }
 
         let draw = g.upload(batch);
         g.redraw(&draw);
-        self.unzoomed = Some((now, maybe_radius, color_agents.clone(), draw));
+        self.unzoomed = Some((now, color_agents.clone(), draw));
 
         if debug_all_agents {
             let mut cnt = 0;
