@@ -887,7 +887,7 @@ impl Sim {
         path: String,
         map: &Map,
         timer: &mut Timer,
-    ) -> Result<Sim, std::io::Error> {
+    ) -> Result<Sim, Box<dyn std::error::Error>> {
         let mut sim: Sim = abstutil::maybe_read_binary(path, timer)?;
         sim.restore_paths(map, timer);
         Ok(sim)

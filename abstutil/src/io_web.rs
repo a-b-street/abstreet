@@ -1,11 +1,13 @@
 //! Since the local filesystem can't be read from a web browser, instead bundle system data files in
 //! the WASM binary using include_dir. For now, no support for saving files.
 
-pub use crate::io::*;
-use crate::Timer;
+use std::error::Error;
+
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::io::{Error, ErrorKind};
+
+pub use crate::io::*;
+use crate::Timer;
 
 // Bring in everything from data/system/ matching one of the prefixes -- aka, no scenarios, and
 // only the smallest map. Everything else has to be dynamically loaded over HTTP.
@@ -36,30 +38,22 @@ pub fn list_dir(dir: String) -> Vec<String> {
     results
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>, Error> {
+pub fn slurp_file(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())
     } else {
-        Err(Error::new(
-            ErrorKind::Other,
-            format!("Can't slurp_file {}, it doesn't exist", path),
-        ))
+        Err(format!("Can't slurp_file {}, it doesn't exist", path).into())
     }
 }
 
 pub fn maybe_read_binary<T: DeserializeOwned>(
     path: String,
     _timer: &mut Timer,
-) -> Result<T, Error> {
+) -> Result<T, Box<dyn Error>> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
-        let obj: T = bincode::deserialize(raw.contents())
-            .map_err(|err| Error::new(ErrorKind::Other, err))?;
-        Ok(obj)
+        bincode::deserialize(raw.contents()).map_err(|x| x.into())
     } else {
-        Err(Error::new(
-            ErrorKind::Other,
-            format!("Can't maybe_read_binary {}, it doesn't exist", path),
-        ))
+        Err(format!("Can't maybe_read_binary {}, it doesn't exist", path).into())
     }
 }
 

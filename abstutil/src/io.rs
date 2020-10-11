@@ -1,20 +1,22 @@
 use std::collections::BTreeMap;
-use std::io::{Error, ErrorKind};
+use std::error::Error;
 
 use serde::de::DeserializeOwned;
 
 use crate::{basename, list_dir, maybe_read_binary, parent_path, slurp_file, Timer};
 
-pub fn maybe_read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
+pub fn maybe_read_json<T: DeserializeOwned>(
+    path: String,
+    timer: &mut Timer,
+) -> Result<T, Box<dyn Error>> {
     if !path.ends_with(".json") && !path.ends_with(".geojson") {
         panic!("read_json needs {} to end with .json or .geojson", path);
     }
 
     timer.start(format!("parse {}", path));
     // TODO timer.read_file isn't working here. And we need to call stop() if there's no file.
-    let result: Result<T, Error> = slurp_file(&path).and_then(|raw| {
-        serde_json::from_slice(&raw).map_err(|err| Error::new(ErrorKind::Other, err))
-    });
+    let result: Result<T, Box<dyn Error>> =
+        slurp_file(&path).and_then(|raw| serde_json::from_slice(&raw).map_err(|x| x.into()));
     timer.stop(format!("parse {}", path));
     result
 }
@@ -33,7 +35,10 @@ pub fn read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
     }
 }
 
-pub fn read_object<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
+pub fn read_object<T: DeserializeOwned>(
+    path: String,
+    timer: &mut Timer,
+) -> Result<T, Box<dyn Error>> {
     if path.ends_with(".bin") {
         maybe_read_binary(path, timer)
     } else {

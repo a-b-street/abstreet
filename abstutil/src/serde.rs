@@ -4,18 +4,18 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cmp::Ord;
 use std::collections::BTreeMap;
 use std::convert::TryFrom;
-use std::io::{Error, ErrorKind};
+use std::error::Error;
 
 pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()
 }
 
-pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Error> {
-    serde_json::from_slice(raw).map_err(|err| Error::new(ErrorKind::Other, err))
+pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Box<dyn Error>> {
+    serde_json::from_slice(raw).map_err(|x| x.into())
 }
 
-pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Error> {
-    bincode::deserialize(raw).map_err(|err| Error::new(ErrorKind::Other, err))
+pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Box<dyn Error>> {
+    bincode::deserialize(raw).map_err(|x| x.into())
 }
 
 pub fn serialized_size_bytes<T: Serialize>(obj: &T) -> usize {

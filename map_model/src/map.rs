@@ -110,7 +110,7 @@ impl Map {
         self.edits = self.new_edits();
     }
 
-    pub fn corrupt_err(path: String, err: std::io::Error) {
+    pub fn corrupt_err(path: String, err: Box<dyn std::error::Error>) {
         println!("\nError loading {}: {}\n", path, err);
         if err.to_string().contains("No such file") {
             println!(

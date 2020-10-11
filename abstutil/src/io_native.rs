@@ -1,14 +1,17 @@
 //! Normal file IO using the filesystem
 
-pub use crate::io::*;
-use crate::time::{clear_current_line, prettyprint_time};
-use crate::{elapsed_seconds, prettyprint_usize, to_json, Timer, PROGRESS_FREQUENCY_SECONDS};
+use std::error::Error;
+use std::fs::File;
+use std::io::{stdout, BufReader, BufWriter, Read, Write};
+use std::path::Path;
+
 use instant::Instant;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::fs::File;
-use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
-use std::path::Path;
+
+pub use crate::io::*;
+use crate::time::{clear_current_line, prettyprint_time};
+use crate::{elapsed_seconds, prettyprint_usize, to_json, Timer, PROGRESS_FREQUENCY_SECONDS};
 
 pub fn file_exists<I: Into<String>>(path: I) -> bool {
     Path::new(&path.into()).exists()
@@ -23,33 +26,34 @@ pub fn list_dir(path: String) -> Vec<String> {
                 files.push(entry.unwrap().path().to_str().unwrap().to_string());
             }
         }
-        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
+        Err(ref e) if e.kind() == std::io::ErrorKind::NotFound => {}
         Err(e) => panic!("Couldn't read_dir {:?}: {}", path, e),
     };
     files.sort();
     files
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>, Error> {
+pub fn slurp_file(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let mut file = File::open(path)?;
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer)?;
     Ok(buffer)
 }
 
-pub fn maybe_read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
+pub fn maybe_read_binary<T: DeserializeOwned>(
+    path: String,
+    timer: &mut Timer,
+) -> Result<T, Box<dyn Error>> {
     if !path.ends_with(".bin") {
         panic!("read_binary needs {} to end with .bin", path);
     }
 
     timer.read_file(&path)?;
-    let obj: T =
-        bincode::deserialize_from(timer).map_err(|err| Error::new(ErrorKind::Other, err))?;
-    Ok(obj)
+    bincode::deserialize_from(timer).map_err(|x| x.into())
 }
 
 // TODO Idea: Have a wrapper type DotJSON(...) and DotBin(...) to distinguish raw path strings
-fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
+fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Box<dyn Error>> {
     if !path.ends_with(".json") {
         panic!("write_json needs {} to end with .json", path);
     }
@@ -68,7 +72,7 @@ pub fn write_json<T: Serialize>(path: String, obj: &T) {
     println!("Wrote {}", path);
 }
 
-fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
+fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Box<dyn Error>> {
     if !path.ends_with(".bin") {
         panic!("write_binary needs {} to end with .bin", path);
     }
@@ -77,7 +81,7 @@ fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
         .expect("Creating parent dir failed");
 
     let file = BufWriter::new(File::create(path)?);
-    bincode::serialize_into(file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
+    bincode::serialize_into(file, obj).map_err(|x| x.into())
 }
 
 pub fn write_binary<T: Serialize>(path: String, obj: &T) {
@@ -113,7 +117,7 @@ impl FileWithProgress {
     /// Also hands back a callback that'll add the final result to the timer. The caller must run
     /// it.
     // TODO It's really a FnOnce, but I don't understand the compiler error.
-    pub fn new(path: &str) -> Result<(FileWithProgress, Box<dyn Fn(&mut Timer)>), Error> {
+    pub fn new(path: &str) -> Result<(FileWithProgress, Box<dyn Fn(&mut Timer)>), Box<dyn Error>> {
         let file = File::open(path)?;
         let path_copy = path.to_string();
         let total_bytes = file.metadata()?.len() as usize;
@@ -144,7 +148,7 @@ impl FileWithProgress {
 }
 
 impl Read for FileWithProgress {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize, std::io::Error> {
         let bytes = self.inner.read(buf)?;
         self.processed_bytes += bytes;
         if self.processed_bytes > self.total_bytes {
