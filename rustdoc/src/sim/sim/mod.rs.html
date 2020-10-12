@@ -1049,6 +1049,25 @@
 <span id="1048">1048</span>
 <span id="1049">1049</span>
 <span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1123,18 +1142,42 @@
     <span class="kw">pub</span> <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>,
 }
 
+<span class="doccomment">/// Options controlling the traffic simulation.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimOptions</span> {
+    <span class="doccomment">/// Used to distinguish savestates for running the same scenario.</span>
     <span class="kw">pub</span> <span class="ident">run_name</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Ignore all stop signs and traffic signals, instead using a &quot;freeform&quot; policy to control</span>
+    <span class="doccomment">/// access to intersections. If a requested turn doesn&#39;t conflict with an already accepted one,</span>
+    <span class="doccomment">/// immediately accept it. FIFO ordering, no balancing between different movements.</span>
     <span class="kw">pub</span> <span class="ident">use_freeform_policy_everywhere</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Prevent a vehicle from starting a turn if their target lane is already full, since this may</span>
+    <span class="doccomment">/// mean they&#39;ll get stuck blocking the intersection.</span>
     <span class="kw">pub</span> <span class="ident">dont_block_the_box</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// As a vehicle follows a route, opportunistically make small changes to use a different lane,</span>
+    <span class="doccomment">/// based on some score of &quot;least-loaded&quot; lane.</span>
     <span class="kw">pub</span> <span class="ident">recalc_lanechanging</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// If a cycle of vehicles depending on each other to turn is detected, temporarily allow</span>
+    <span class="doccomment">/// &quot;blocking the box&quot; to try to break gridlock.</span>
     <span class="kw">pub</span> <span class="ident">break_turn_conflict_cycles</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Enable experimental handling for &quot;uber-turns&quot;, sequences of turns through complex</span>
+    <span class="doccomment">/// intersections with short roads. &quot;Locks&quot; the entire movement before starting, and ignores</span>
+    <span class="doccomment">/// red lights after starting.</span>
     <span class="kw">pub</span> <span class="ident">handle_uber_turns</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Enable an experimental SEIR pandemic model.</span>
     <span class="kw">pub</span> <span class="ident">enable_pandemic_model</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">XorShiftRng</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// When a warning is encountered during simulation, specifies how to respond.</span>
     <span class="kw">pub</span> <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
+    <span class="doccomment">/// At the beginning of the simulation, precompute the route for all trips for the entire</span>
+    <span class="doccomment">/// scenario.</span>
     <span class="kw">pub</span> <span class="ident">pathfinding_upfront</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Ignore parking data in the map and instead treat every building as if it has unlimited</span>
+    <span class="doccomment">/// capacity for vehicles.</span>
     <span class="kw">pub</span> <span class="ident">infinite_parking</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Allow all agents to immediately proceed into an intersection, even if they&#39;d hit another</span>
+    <span class="doccomment">/// agent. Obviously this destroys realism of the simulation, but can be used to debug</span>
+    <span class="doccomment">/// gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.</span>
+    <span class="kw">pub</span> <span class="ident">disable_turn_conflicts</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">default</span>::<span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SimOptions</span> {
@@ -1170,6 +1213,7 @@
                 .<span class="ident">unwrap_or</span>(<span class="ident">AlertHandler</span>::<span class="ident">Print</span>),
             <span class="ident">pathfinding_upfront</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pathfinding_upfront&quot;</span>),
             <span class="ident">infinite_parking</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--infinite_parking&quot;</span>),
+            <span class="ident">disable_turn_conflicts</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_turn_conflicts&quot;</span>),
         }
     }
 }
@@ -1203,6 +1247,7 @@
             <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>::<span class="ident">Print</span>,
             <span class="ident">pathfinding_upfront</span>: <span class="bool-val">false</span>,
             <span class="ident">infinite_parking</span>: <span class="bool-val">false</span>,
+            <span class="ident">disable_turn_conflicts</span>: <span class="bool-val">false</span>,
         }
     }
 }
@@ -1215,14 +1260,7 @@
             <span class="ident">driving</span>: <span class="ident">DrivingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">opts</span>.<span class="ident">recalc_lanechanging</span>, <span class="ident">opts</span>.<span class="ident">handle_uber_turns</span>),
             <span class="ident">parking</span>: <span class="ident">ParkingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">opts</span>.<span class="ident">infinite_parking</span>, <span class="ident">timer</span>),
             <span class="ident">walking</span>: <span class="ident">WalkingSimState</span>::<span class="ident">new</span>(),
-            <span class="ident">intersections</span>: <span class="ident">IntersectionSimState</span>::<span class="ident">new</span>(
-                <span class="ident">map</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">scheduler</span>,
-                <span class="ident">opts</span>.<span class="ident">use_freeform_policy_everywhere</span>,
-                <span class="ident">opts</span>.<span class="ident">dont_block_the_box</span>,
-                <span class="ident">opts</span>.<span class="ident">break_turn_conflict_cycles</span>,
-                <span class="ident">opts</span>.<span class="ident">handle_uber_turns</span>,
-            ),
+            <span class="ident">intersections</span>: <span class="ident">IntersectionSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">scheduler</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>),
             <span class="ident">transit</span>: <span class="ident">TransitSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>),
             <span class="ident">cap</span>: <span class="ident">CapSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>),
             <span class="ident">trips</span>: <span class="ident">TripManager</span>::<span class="ident">new</span>(<span class="ident">opts</span>.<span class="ident">pathfinding_upfront</span>),
@@ -1939,7 +1977,7 @@
         <span class="ident">path</span>: <span class="ident">String</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Sim</span>, <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Sim</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span>: <span class="ident">Sim</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>)<span class="question-mark">?</span>;
         <span class="ident">sim</span>.<span class="ident">restore_paths</span>(<span class="ident">map</span>, <span class="ident">timer</span>);
         <span class="prelude-val">Ok</span>(<span class="ident">sim</span>)

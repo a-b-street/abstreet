@@ -791,7 +791,7 @@
         <span class="self">self</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_edits</span>();
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">corrupt_err</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">err</span>: <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">corrupt_err</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">err</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span>) {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;\nError loading {}: {}\n&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>);
         <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">to_string</span>().<span class="ident">contains</span>(<span class="string">&quot;No such file&quot;</span>) {
             <span class="macro">println</span><span class="macro">!</span>(

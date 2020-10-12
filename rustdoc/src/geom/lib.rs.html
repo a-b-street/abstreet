@@ -39,6 +39,21 @@
 <span id="38">38</span>
 <span id="39">39</span>
 <span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">angle</span>::<span class="ident">Angle</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">bounds</span>::{<span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>};
@@ -77,8 +92,23 @@
 <span class="comment">// About 0.4 inches... which is quite tiny on the scale of things. :)</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">EPSILON_DIST</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">0.01</span>);
 
+<span class="doccomment">/// Reduce the precision of an f64. This helps ensure serialization is idempotent (everything is</span>
+<span class="doccomment">/// exacly the same before and after saving/loading). Ideally we&#39;d use some kind of proper</span>
+<span class="doccomment">/// fixed-precision type instead of f64.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_f64</span>(<span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
     (<span class="ident">x</span> <span class="op">*</span> <span class="number">10_000.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10_000.0</span>
+}
+
+<span class="doccomment">/// Specifies how to stringify different geom objects.</span>
+<span class="comment">// TODO Use for more units, and also maybe get rid of fmt::Display, to force everyone to opt in.</span>
+<span class="comment">// Except the default for logging should always be the full detail...</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnitFmt</span> {
+    <span class="doccomment">/// Round `Duration`s to a whole number of seconds.</span>
+    <span class="comment">// TODO Actually use this</span>
+    <span class="kw">pub</span> <span class="ident">round_durations</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Display in metric; US imperial otherwise.</span>
+    <span class="kw">pub</span> <span class="ident">metric</span>: <span class="ident">bool</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "geom";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

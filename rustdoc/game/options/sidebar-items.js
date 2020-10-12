@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CameraAngle",""],["TrafficSignalStyle",""]],"struct":[["Options",""],["OptionsPanel",""]]});
+initSidebarItems({"enum":[["CameraAngle",""],["TrafficSignalStyle","Different ways of drawing traffic signals. The names of these aren't super meaningful..."]],"struct":[["Options","Options controlling the UI."],["OptionsPanel",""]]});

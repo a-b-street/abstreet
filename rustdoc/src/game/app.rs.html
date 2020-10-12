@@ -706,11 +706,6 @@
 <span id="705">705</span>
 <span id="706">706</span>
 <span id="707">707</span>
-<span id="708">708</span>
-<span id="709">709</span>
-<span id="710">710</span>
-<span id="711">711</span>
-<span id="712">712</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -913,15 +908,10 @@
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>();
             <span class="ident">cache</span>.<span class="ident">draw_unzoomed_agents</span>(
+                <span class="ident">g</span>,
                 <span class="ident">source</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unzoomed_agents</span>,
-                <span class="ident">g</span>,
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">large_unzoomed_agents</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>) <span class="op">/</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                },
                 <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">debug_all_agents</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cs</span>,
             );

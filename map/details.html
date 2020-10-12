@@ -1,0 +1,317 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Details - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../howto/index.html"><strong aria-hidden="true">2.</strong> Instructions</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../howto/map_parking.html"><strong aria-hidden="true">2.1.</strong> How to map on-street parking</a></li><li class="chapter-item expanded "><a href="../howto/new_city.html"><strong aria-hidden="true">2.2.</strong> Importing a new city</a></li></ol></li><li class="chapter-item expanded "><a href="../how_it_works.html"><strong aria-hidden="true">3.</strong> How it works</a></li><li class="chapter-item expanded "><a href="../case_studies/index.html"><strong aria-hidden="true">4.</strong> Case studies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../case_studies/lake_wash.html"><strong aria-hidden="true">4.1.</strong> Lake Washington Blvd Stay Healthy Street</a></li><li class="chapter-item expanded "><a href="../case_studies/west_seattle.html"><strong aria-hidden="true">4.2.</strong> West Seattle mitigations</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="../dev/index.html"><strong aria-hidden="true">5.</strong> Developer guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../dev/misc_tricks.html"><strong aria-hidden="true">5.1.</strong> Misc developer tricks</a></li><li class="chapter-item expanded "><a href="../dev/api.html"><strong aria-hidden="true">5.2.</strong> API</a></li><li class="chapter-item expanded "><a href="../dev/testing.html"><strong aria-hidden="true">5.3.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">6.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/details.html" class="active"><strong aria-hidden="true">6.1.</strong> Details</a></li><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">6.2.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">6.2.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">6.2.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">6.2.3.</strong> The rest</a></li><li class="chapter-item expanded "><a href="../map/importing/misc.html"><strong aria-hidden="true">6.2.4.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">6.3.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/platform.html"><strong aria-hidden="true">6.4.</strong> Exporting</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">7.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">7.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">7.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">7.3.</strong> Gridlock</a></li><li class="chapter-item expanded "><a href="../trafficsim/trips.html"><strong aria-hidden="true">7.4.</strong> Multi-modal trips</a></li><li class="chapter-item expanded "><a href="../trafficsim/live_edits.html"><strong aria-hidden="true">7.5.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../trafficsim/parking.html"><strong aria-hidden="true">7.6.</strong> Parking</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="../project/index.html"><strong aria-hidden="true">8.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/roadmap.html"><strong aria-hidden="true">8.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../project/motivations.html"><strong aria-hidden="true">8.2.</strong> Motivations</a></li><li class="chapter-item expanded "><a href="../project/history/index.html"><strong aria-hidden="true">8.3.</strong> History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/history/backstory.html"><strong aria-hidden="true">8.3.1.</strong> Backstory</a></li><li class="chapter-item expanded "><a href="../project/history/year1.html"><strong aria-hidden="true">8.3.2.</strong> Year 1</a></li><li class="chapter-item expanded "><a href="../project/history/year2.html"><strong aria-hidden="true">8.3.3.</strong> Year 2</a></li><li class="chapter-item expanded "><a href="../project/history/year3.html"><strong aria-hidden="true">8.3.4.</strong> Year 3</a></li></ol></li><li class="chapter-item expanded "><a href="../project/CHANGELOG.html"><strong aria-hidden="true">8.4.</strong> Full CHANGELOG</a></li><li class="chapter-item expanded "><a href="../project/references.html"><strong aria-hidden="true">8.5.</strong> References</a></li><li class="chapter-item expanded "><a href="../project/collaborations.html"><strong aria-hidden="true">8.6.</strong> Collaborations</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#map-model-details" id="map-model-details">Map model details</a></h1>
+<p>A/B Street builds a rich representation of a city map using OpenStreetMap (OSM)
+and other sources. This chapter describes how.</p>
+<p>TODO: Integrate pictures from
+<a href="https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing">these slides</a>.</p>
+<p><a href="https://youtu.be/chYd5I-5oyc?t=439">This recorded presentation</a> covers some of
+this.</p>
+<h2><a class="header" href="#the-map" id="the-map">The map</a></h2>
+<p>A single city is broken down into different pieces...</p>
+<p>A/B Street comes with a few maps, each defined by a bounding/clipping polygon
+for some portion of Seattle. Each map has these objects:</p>
+<ul>
+<li><strong>Roads</strong>: A single road connects two intersections, carrying OSM metadata and
+containing some child lanes.</li>
+<li><strong>Lanes</strong>: An individual lane of traffic. Driving (any vehicle), bus-only, and
+bike-only lanes have a direction. On-street parking lanes don't allow any
+movement, and they have some number of parking spots. Sidewalks are
+bidirectional.</li>
+<li><strong>Intersections</strong>: An intersection has references to all of the incoming and
+outgoing lanes. Most intersections have a stop sign or traffic signal policy
+controlling movement through it.
+<ul>
+<li><strong>Border</strong> intersections on the edge of the map are special places where
+agents may appear or disappear.</li>
+</ul>
+</li>
+<li><strong>Turns</strong>: A turn connects one lane to another, via some intersection.
+(Sidewalks are bidirectional, so specifying the intersection is necessary to
+distinguish crosswalks at each end of a sidewalk.)</li>
+<li><strong>Buildings</strong>: A building has a position, OSM metadata, and a <strong>front path</strong>
+connecting the edge of the building to the nearest sidewalk. Most trips in A/B
+Street begin and end at buildings. Some buildings also contain a number of
+off-street parking spots.</li>
+<li><strong>Area</strong>: An area has geometry and OSM metadata and represents a body of
+water, forest, park, etc. They're just used for drawing.</li>
+<li><strong>Bus stop</strong>: A bus stop is placed some distance along a sidewalk, with a
+pointer to the position on the adjacent driving or bus lane where a bus stops
+for pick-up.</li>
+<li><strong>Bus route</strong>: A bus route has a name and a list of stops that buses will
+cycle between. In the future, they'll include information about the
+frequency/schedule of the route.</li>
+<li><strong>Parking lot</strong>: A parking lot is connected to a road, has a shape, and has
+some internal driving &quot;aisles.&quot; The number and position of individual parking
+spots is auto-generated.</li>
+</ul>
+<h2><a class="header" href="#coordinate-system" id="coordinate-system">Coordinate system</a></h2>
+<p>A/B Street converts (longitude, latitude) coordinates into a simpler form.</p>
+<ul>
+<li>An (x, y) point starts with the top-left of the bounding polygon as the
+origin. Note this is screen drawing order, not a Cartesian plane (with Y
+increasing upwards) -- so angle calculations account for this.</li>
+<li>The (x, y) values are f64's trimmed to a few decimal places, with way more
+precision than is really needed. These might become actual fixed-point
+integers later, but for now, a <code>Pt2D</code> skirts around Rust's limits on f64's by
+guaranteeing no NaN's or infinities and thus providing the full <code>Eq</code> trait.</li>
+<li>A few places in map conversion compare points using different thresholds,
+usually below 1 meter. Ideally these epsilon comparisons could be eliminated
+in favor of a fixed-point integer representation, but for now, explicit
+thresholds are useful.</li>
+</ul>
+<h2><a class="header" href="#invariants" id="invariants">Invariants</a></h2>
+<p>Ideally, the finalized maps would satisfy a list of invariants, simplifying the
+traffic simulation and drawing code built on top. But the input data is quite
+messy and for now, most of these aren't quite guaranteed to be true.</p>
+<ul>
+<li>Some minimum length for lanes and turns. Very small lanes can't be drawn, tend
+to break intersection polygons, and may lead to gridlocked traffic.</li>
+<li>Some guarantees that positions along adjacent lanes actually match up, even
+though different lanes on the same road may have different lengths. Examples
+include the position of a bus stop on the sidewalk and bus lane matching up.
+<ul>
+<li>Additionally, parking lanes without an adjacent driving lane or bus stops
+without any driving or bus lanes make no sense and should never occur.</li>
+</ul>
+</li>
+<li>Connectivity -- any sidewalk should be reachable from any other, and most
+driving lanes should be accessible from any others. There are exceptions due
+to border intersections -- if a car spawns on a highway along the border of
+the map, it may be forced to disappear on the opposite border of the map, if
+the highway happens to not have any exits within the map boundary.</li>
+</ul>
+<h2><a class="header" href="#connectivity" id="connectivity">Connectivity</a></h2>
+<p>For a single mode, each lane is connected to two intersections. Turns connect
+two lanes. There are no turns between sidewalks and driving/bike/bus lanes.</p>
+<p>All buildings and parking lots have driveways. This must connect to a sidewalk,
+allowing pedestrians to enter/exit that object. The driveway OPTIONALLY connects
+to the nearest driveable lane. This allows cars to enter/exit that object for
+parking.</p>
+<p>Public transit stops are located somewhere on a sidewalk. They're associated
+with a driveable position where the bus or train stops. In the future, this will
+need to account for dedicated surface-level platforms and for underground
+transit stations, likely associated with a building.</p>
+<p>There's a concept of &quot;parking blackholes.&quot; If you treat every road as
+bidirectional without access restrictions, then the graph is connected. But the
+more detailed view has to factor in one-way roads and things near the map
+border. These blackholes influence where cars will try to look for parking
+(since we don't want them entering a blackhole and getting stuck) and also, for
+temporary/unintentional reasons, where pedestrian&lt;-&gt;bicycle transitions will
+happen.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../map/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../map/importing/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../map/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../map/importing/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

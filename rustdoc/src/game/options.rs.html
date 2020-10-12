@@ -327,8 +327,26 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>,
     <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
@@ -339,24 +357,39 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawBuilding</span>, <span class="ident">DrawMap</span>};
 
+<span class="doccomment">/// Options controlling the UI.</span>
 <span class="comment">// TODO SimOptions stuff too</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
+    <span class="doccomment">/// Dev mode exposes experimental tools useful for debugging, but that&#39;d likely confuse most</span>
+    <span class="doccomment">/// players.</span>
     <span class="kw">pub</span> <span class="ident">dev</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Every time we draw, render all agents zoomed in. Extremely slow. Just used to flush out</span>
+    <span class="doccomment">/// drawing bugs.</span>
     <span class="kw">pub</span> <span class="ident">debug_all_agents</span>: <span class="ident">bool</span>,
 
-    <span class="kw">pub</span> <span class="ident">label_roads</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// How traffic signals should be rendered.</span>
     <span class="kw">pub</span> <span class="ident">traffic_signal_style</span>: <span class="ident">TrafficSignalStyle</span>,
+    <span class="doccomment">/// The color scheme for map elements, agents, and the UI.</span>
     <span class="kw">pub</span> <span class="ident">color_scheme</span>: <span class="ident">ColorSchemeChoice</span>,
+    <span class="doccomment">/// Map elements are drawn differently when unzoomed and zoomed. This specifies the canvas zoom</span>
+    <span class="doccomment">/// level where they switch.</span>
     <span class="kw">pub</span> <span class="ident">min_zoom_for_detail</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">large_unzoomed_agents</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Draw buildings in different perspectives</span>
     <span class="kw">pub</span> <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>,
 
+    <span class="doccomment">/// How much to advance the sim with one of the speed controls</span>
     <span class="kw">pub</span> <span class="ident">time_increment</span>: <span class="ident">Duration</span>,
+    <span class="doccomment">/// When time warping, don&#39;t draw to speed up simulation</span>
     <span class="kw">pub</span> <span class="ident">dont_draw_time_warp</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// The delay threshold to halt on when jumping to the next delay</span>
     <span class="kw">pub</span> <span class="ident">jump_to_delay</span>: <span class="ident">Duration</span>,
 
+    <span class="doccomment">/// Display roads and buildings in an alternate language, if possible. None means to use the</span>
+    <span class="doccomment">/// OSM native name.</span>
     <span class="kw">pub</span> <span class="ident">language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// How to render geometric units</span>
+    <span class="kw">pub</span> <span class="ident">units</span>: <span class="ident">UnitFmt</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Options</span> {
@@ -365,11 +398,9 @@
             <span class="ident">dev</span>: <span class="bool-val">false</span>,
             <span class="ident">debug_all_agents</span>: <span class="bool-val">false</span>,
 
-            <span class="ident">label_roads</span>: <span class="bool-val">true</span>,
             <span class="ident">traffic_signal_style</span>: <span class="ident">TrafficSignalStyle</span>::<span class="ident">BAP</span>,
             <span class="ident">color_scheme</span>: <span class="ident">ColorSchemeChoice</span>::<span class="ident">Standard</span>,
             <span class="ident">min_zoom_for_detail</span>: <span class="number">4.0</span>,
-            <span class="ident">large_unzoomed_agents</span>: <span class="bool-val">false</span>,
             <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>::<span class="ident">TopDown</span>,
 
             <span class="ident">time_increment</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">10</span>),
@@ -377,10 +408,16 @@
             <span class="ident">jump_to_delay</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
 
             <span class="ident">language</span>: <span class="prelude-val">None</span>,
+            <span class="ident">units</span>: <span class="ident">UnitFmt</span> {
+                <span class="ident">round_durations</span>: <span class="bool-val">true</span>,
+                <span class="comment">// TODO Should default be based on the map?</span>
+                <span class="ident">metric</span>: <span class="bool-val">false</span>,
+            },
         }
     }
 }
 
+<span class="doccomment">/// Different ways of drawing traffic signals. The names of these aren&#39;t super meaningful...</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TrafficSignalStyle</span> {
     <span class="ident">BAP</span>,
@@ -448,7 +485,6 @@
                 .<span class="ident">padding</span>(<span class="number">8</span>),
                 <span class="string">&quot;Appearance&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Draw road names&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">label_roads</span>),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Traffic signal rendering:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
@@ -505,12 +541,6 @@
                             ],
                         ),
                     ]),
-                    <span class="ident">Checkbox</span>::<span class="ident">checkbox</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;Draw enlarged unzoomed agents&quot;</span>,
-                        <span class="prelude-val">None</span>,
-                        <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">large_unzoomed_agents</span>,
-                    ),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Language&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;language&quot;</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">clone</span>(), {
@@ -522,6 +552,14 @@
                             <span class="ident">choices</span>
                         }),
                     ]),
+                    <span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;metric / imperial units&quot;</span>,
+                        <span class="string">&quot;metric&quot;</span>,
+                        <span class="string">&quot;imperial&quot;</span>,
+                        <span class="prelude-val">None</span>,
+                        <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>.<span class="ident">metric</span>,
+                    ),
                 ])
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">section_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">8</span>),
@@ -571,7 +609,6 @@
                     <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">edge_auto_panning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;autopan&quot;</span>);
                     <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;gui_scroll_speed&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>;
 
-                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">label_roads</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Draw road names&quot;</span>);
                     <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Traffic signal rendering&quot;</span>);
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">traffic_signal_style</span> <span class="op">!=</span> <span class="ident">style</span> {
                         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">traffic_signal_style</span> <span class="op">=</span> <span class="ident">style</span>;
@@ -630,8 +667,7 @@
                     }
 
                     <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;min zoom&quot;</span>);
-                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">large_unzoomed_agents</span> <span class="op">=</span>
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Draw enlarged unzoomed agents&quot;</span>);
+                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>.<span class="ident">metric</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;metric / imperial units&quot;</span>);
 
                     <span class="kw">let</span> <span class="ident">language</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;language&quot;</span>);
                     <span class="kw">if</span> <span class="ident">language</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span> {
