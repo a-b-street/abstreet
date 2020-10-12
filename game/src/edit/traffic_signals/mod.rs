@@ -454,7 +454,7 @@ impl State for TrafficSignalEditor {
             let mut opts = DrawOptions::new();
             opts.suppress_traffic_signal_details
                 .extend(self.members.clone());
-            app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
+            app.draw(g, opts, &ShowEverything::new());
         }
         g.redraw(&self.fade_irrelevant);
         g.redraw(&self.draw_current);

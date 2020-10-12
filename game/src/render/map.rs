@@ -10,7 +10,7 @@ use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
     NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
-use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
+use sim::{Sim, UnzoomedAgent, VehicleType};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 
 use crate::app::App;
@@ -374,21 +374,21 @@ impl AgentCache {
         &mut self,
         on: Traversable,
         map: &Map,
-        source: &dyn GetDrawAgents,
+        sim: &Sim,
         cs: &ColorScheme,
         prerender: &Prerender,
     ) {
-        let now = source.time();
+        let now = sim.time();
         if Some(now) == self.time && self.agents_per_on.contains_key(&on) {
             return;
         }
-        let step_count = source.step_count();
+        let step_count = sim.step_count();
 
         let mut list: Vec<Box<dyn Renderable>> = Vec::new();
-        for c in source.get_draw_cars(on, map).into_iter() {
+        for c in sim.get_draw_cars(on, map).into_iter() {
             list.push(draw_vehicle(c, map, prerender, cs));
         }
-        let (loners, crowds) = source.get_draw_peds(on, map);
+        let (loners, crowds) = sim.get_draw_peds(on, map);
         for p in loners {
             list.push(Box::new(DrawPedestrian::new(
                 p, step_count, map, prerender, cs,
@@ -406,20 +406,10 @@ impl AgentCache {
         self.agents_per_on.insert(on, list);
     }
 
-    // TODO GetDrawAgents indirection added for time traveling, but that's been removed. Maybe
-    // simplify this.
-    pub fn draw_unzoomed_agents(
-        &mut self,
-        g: &mut GfxCtx,
-        source: &dyn GetDrawAgents,
-        map: &Map,
-        color_agents: &UnzoomedAgents,
-        debug_all_agents: bool,
-        cs: &ColorScheme,
-    ) {
-        let now = source.time();
+    pub fn draw_unzoomed_agents(&mut self, g: &mut GfxCtx, app: &App) {
+        let now = app.primary.sim.time();
         if let Some((time, ref orig_agents, ref draw)) = self.unzoomed {
-            if now == time && color_agents == orig_agents {
+            if now == time && app.unzoomed_agents == orig_agents.clone() {
                 g.redraw(draw);
                 return;
             }
@@ -432,8 +422,8 @@ impl AgentCache {
         // don't leak out of the road too much.
         let car_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
         let ped_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * SIDEWALK_THICKNESS).to_polygon();
-        for agent in source.get_unzoomed_agents(map) {
-            if let Some(color) = color_agents.color(&agent) {
+        for agent in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+            if let Some(color) = app.unzoomed_agents.color(&agent) {
                 if agent.vehicle_type.is_some() {
                     batch.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
                 } else {
@@ -444,17 +434,17 @@ impl AgentCache {
 
         let draw = g.upload(batch);
         g.redraw(&draw);
-        self.unzoomed = Some((now, color_agents.clone(), draw));
+        self.unzoomed = Some((now, app.unzoomed_agents.clone(), draw));
 
-        if debug_all_agents {
+        if app.opts.debug_all_agents {
             let mut cnt = 0;
-            for input in source.get_all_draw_cars(map) {
+            for input in app.primary.sim.get_all_draw_cars(&app.primary.map) {
                 cnt += 1;
-                draw_vehicle(input, map, g.prerender, cs);
+                draw_vehicle(input, &app.primary.map, g.prerender, &app.cs);
             }
             println!(
                 "At {}, debugged {} cars",
-                source.time(),
+                app.primary.sim.time(),
                 abstutil::prettyprint_usize(cnt)
             );
             // Pedestrians aren't the ones crashing

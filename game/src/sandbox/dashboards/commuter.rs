@@ -5,7 +5,7 @@ use maplit::hashset;
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use geom::{Distance, PolyLine, Polygon, Time};
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
-use sim::{DontDrawAgents, TripEndpoint, TripInfo, TripMode};
+use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
     AreaSlider, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
     Key, Line, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
@@ -71,7 +71,10 @@ struct Filter {
 type BlockID = usize;
 
 impl CommuterPatterns {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+        assert!(app.primary.suspended_sim.is_none());
+        app.primary.suspended_sim = Some(app.primary.clear_sim());
+
         let (bldg_to_block, border_to_block, blocks) =
             ctx.loading_screen("group buildings into blocks", |_, _| group_bldgs(app));
 
@@ -345,6 +348,7 @@ impl State for CommuterPatterns {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
+                    app.primary.sim = app.primary.suspended_sim.take().unwrap();
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
@@ -442,12 +446,7 @@ impl State for CommuterPatterns {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        app.draw(
-            g,
-            DrawOptions::new(),
-            &DontDrawAgents {},
-            &ShowEverything::new(),
-        );
+        app.draw(g, DrawOptions::new(), &ShowEverything::new());
 
         g.redraw(&self.draw_all_blocks);
         g.redraw(&self.current_block.1);

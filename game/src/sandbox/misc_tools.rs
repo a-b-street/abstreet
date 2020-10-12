@@ -1,6 +1,6 @@
 use geom::{ArrowCap, Distance, Time};
 use map_model::{LaneID, TurnType};
-use sim::{AgentID, DontDrawAgents};
+use sim::AgentID;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, Text, TextExt, VerticalAlignment, Widget,
@@ -116,7 +116,7 @@ impl State for TurnExplorer {
             opts.suppress_traffic_signal_details.push(l.src_i);
             opts.suppress_traffic_signal_details.push(l.dst_i);
         }
-        app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
+        app.draw(g, opts, &ShowEverything::new());
 
         if self.idx == 0 {
             for turn in &app.primary.map.get_turns_from_lane(self.l) {

@@ -284,14 +284,7 @@ impl Minimap {
         }
 
         let mut cache = app.primary.draw_map.agents.borrow_mut();
-        cache.draw_unzoomed_agents(
-            g,
-            &app.primary.sim,
-            &app.primary.map,
-            &app.unzoomed_agents,
-            app.opts.debug_all_agents,
-            &app.cs,
-        );
+        cache.draw_unzoomed_agents(g, app);
 
         // The cursor
         let (x1, y1) = {

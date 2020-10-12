@@ -5,14 +5,15 @@ use std::collections::{BTreeMap, HashSet};
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position, TurnID,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
+    Traversable, TurnID,
 };
 
 use crate::analytics::Window;
 use crate::{
-    AgentID, AgentType, Analytics, CarID, GetDrawAgents, OrigPersonID, PandemicModel, ParkedCar,
-    ParkingSim, PedestrianID, Person, PersonID, PersonState, Scenario, Sim, TripID, TripInfo,
-    TripResult, VehicleType,
+    AgentID, AgentType, Analytics, CarID, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput,
+    OrigPersonID, PandemicModel, ParkedCar, ParkingSim, PedestrianID, Person, PersonID,
+    PersonState, Scenario, Sim, TripID, TripInfo, TripResult, UnzoomedAgent, VehicleType,
 };
 
 // TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.
@@ -377,6 +378,65 @@ impl Sim {
         self.walking.all_waiting_people(self.time, &mut delays);
         self.driving.all_waiting_people(self.time, &mut delays);
         delays
+    }
+}
+
+// Drawing
+impl Sim {
+    pub fn step_count(&self) -> usize {
+        self.step_count
+    }
+
+    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
+        self.parking.get_draw_car(id, map).or_else(|| {
+            self.driving
+                .get_single_draw_car(id, self.time, map, &self.transit)
+        })
+    }
+
+    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
+        self.walking.get_draw_ped(id, self.time, map)
+    }
+
+    pub fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
+        let mut results = Vec::new();
+        if let Traversable::Lane(l) = on {
+            if map.get_l(l).is_parking() {
+                return self.parking.get_draw_cars(l, map);
+            }
+            results.extend(self.parking.get_draw_cars_in_lots(l, map));
+        }
+        results.extend(
+            self.driving
+                .get_draw_cars_on(self.time, on, map, &self.transit),
+        );
+        results
+    }
+
+    pub fn get_draw_peds(
+        &self,
+        on: Traversable,
+        map: &Map,
+    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
+        self.walking.get_draw_peds_on(self.time, on, map)
+    }
+
+    pub fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
+        let mut result = self
+            .driving
+            .get_all_draw_cars(self.time, map, &self.transit);
+        result.extend(self.parking.get_all_draw_cars(map));
+        result
+    }
+
+    pub fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking.get_all_draw_peds(self.time, map)
+    }
+
+    pub fn get_unzoomed_agents(&self, map: &Map) -> Vec<UnzoomedAgent> {
+        let mut result = self.driving.get_unzoomed_agents(self.time, map);
+        result.extend(self.walking.get_unzoomed_agents(self.time, map));
+        result
     }
 }
 

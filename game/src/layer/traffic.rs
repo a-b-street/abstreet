@@ -5,7 +5,6 @@ use maplit::btreeset;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
-use sim::GetDrawAgents;
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,

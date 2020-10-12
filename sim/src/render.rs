@@ -1,7 +1,7 @@
 //! Intermediate structures so that sim and game crates don't have a cyclic dependency.
 
-use geom::{Angle, Distance, PolyLine, Pt2D, Time};
-use map_model::{BuildingID, Map, ParkingLotID, Traversable, TurnID};
+use geom::{Angle, Distance, PolyLine, Pt2D};
+use map_model::{BuildingID, ParkingLotID, Traversable, TurnID};
 
 use crate::{CarID, PedestrianID, PersonID, VehicleType};
 
@@ -62,60 +62,4 @@ pub struct UnzoomedAgent {
     /// True only for cars currently looking for parking. I don't want this struct to grow, but
     /// this is important enough to call out here.
     pub parking: bool,
-}
-
-// TODO Can we return borrows instead? Nice for time travel, not for main sim?
-// actually good for main sim too; we're constantly calculating stuff while sim is paused
-// otherwise? except we don't know what to calculate. maybe cache it?
-pub trait GetDrawAgents {
-    fn time(&self) -> Time;
-    /// Every time the time changes, this should increase. For smoothly animating stuff.
-    fn step_count(&self) -> usize;
-    fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
-    fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput>;
-    fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput>;
-    fn get_draw_peds(
-        &self,
-        on: Traversable,
-        map: &Map,
-    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>);
-    fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput>;
-    fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput>;
-    fn get_unzoomed_agents(&self, map: &Map) -> Vec<UnzoomedAgent>;
-}
-
-pub struct DontDrawAgents;
-
-impl GetDrawAgents for DontDrawAgents {
-    fn time(&self) -> Time {
-        Time::START_OF_DAY
-    }
-    fn step_count(&self) -> usize {
-        0
-    }
-    fn get_draw_car(&self, _: CarID, _: &Map) -> Option<DrawCarInput> {
-        None
-    }
-    fn get_draw_ped(&self, _: PedestrianID, _: &Map) -> Option<DrawPedestrianInput> {
-        None
-    }
-    fn get_draw_cars(&self, _: Traversable, _: &Map) -> Vec<DrawCarInput> {
-        Vec::new()
-    }
-    fn get_draw_peds(
-        &self,
-        _: Traversable,
-        _: &Map,
-    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
-        (Vec::new(), Vec::new())
-    }
-    fn get_all_draw_cars(&self, _: &Map) -> Vec<DrawCarInput> {
-        Vec::new()
-    }
-    fn get_all_draw_peds(&self, _: &Map) -> Vec<DrawPedestrianInput> {
-        Vec::new()
-    }
-    fn get_unzoomed_agents(&self, _: &Map) -> Vec<UnzoomedAgent> {
-        Vec::new()
-    }
 }

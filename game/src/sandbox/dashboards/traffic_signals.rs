@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
 use geom::{ArrowCap, Distance, Duration, Polygon, Time};
 use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
-use sim::{DontDrawAgents, TripEndpoint};
+use sim::TripEndpoint;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
@@ -26,6 +26,8 @@ pub struct TrafficSignalDemand {
 impl TrafficSignalDemand {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
         app.primary.current_selection = None;
+        assert!(app.primary.suspended_sim.is_none());
+        app.primary.suspended_sim = Some(app.primary.clear_sim());
 
         let all_demand = ctx.loading_screen("predict all demand", |_, timer| {
             Demand::all_demand(app, timer)
@@ -100,6 +102,7 @@ impl State for TrafficSignalDemand {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
+                    app.primary.sim = app.primary.suspended_sim.take().unwrap();
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
@@ -133,7 +136,7 @@ impl State for TrafficSignalDemand {
         let mut opts = DrawOptions::new();
         opts.suppress_traffic_signal_details
             .extend(self.all_demand.keys().cloned());
-        app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
+        app.draw(g, opts, &ShowEverything::new());
 
         g.redraw(&self.draw_all);
         if let Some((ref draw, ref count)) = self.selected {

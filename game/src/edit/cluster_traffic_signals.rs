@@ -72,7 +72,7 @@ impl State for ClusterTrafficSignalEditor {
             let mut opts = DrawOptions::new();
             opts.suppress_traffic_signal_details
                 .extend(self.members.clone());
-            app.draw(g, opts, &app.primary.sim, &ShowEverything::new());
+            app.draw(g, opts, &ShowEverything::new());
         }
 
         let mut batch = GeomBatch::new();

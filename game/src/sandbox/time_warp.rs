@@ -395,12 +395,7 @@ impl State for TimeWarpScreen {
         if app.opts.dont_draw_time_warp {
             g.clear(app.cs.section_bg);
         } else {
-            app.draw(
-                g,
-                DrawOptions::new(),
-                &app.primary.sim,
-                &ShowEverything::new(),
-            );
+            app.draw(g, DrawOptions::new(), &ShowEverything::new());
             State::grey_out_map(g, app);
         }
 

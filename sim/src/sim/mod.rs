@@ -17,13 +17,11 @@ use map_model::{
 
 pub use self::queries::AgentProperties;
 use crate::{
-    AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrawCarInput,
-    DrawPedCrowdInput, DrawPedestrianInput, DrivingSimState, Event, GetDrawAgents,
-    IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim, ParkingSimState,
-    ParkingSpot, PedestrianID, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    TransitSimState, TripID, TripManager, TripPhaseType, TripSpawner, UnzoomedAgent, Vehicle,
-    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
-    SPAWN_DIST,
+    AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
+    Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,
+    ParkingSimState, ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
+    TransitSimState, TripID, TripManager, TripPhaseType, TripSpawner, Vehicle, VehicleSpec,
+    VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 
 mod queries;
@@ -362,69 +360,6 @@ impl Sim {
 
     pub fn set_name(&mut self, name: String) {
         self.run_name = name;
-    }
-}
-
-// Drawing
-impl GetDrawAgents for Sim {
-    fn time(&self) -> Time {
-        self.time
-    }
-
-    fn step_count(&self) -> usize {
-        self.step_count
-    }
-
-    fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
-        self.parking.get_draw_car(id, map).or_else(|| {
-            self.driving
-                .get_single_draw_car(id, self.time, map, &self.transit)
-        })
-    }
-
-    fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
-        self.walking.get_draw_ped(id, self.time, map)
-    }
-
-    fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
-        let mut results = Vec::new();
-        if let Traversable::Lane(l) = on {
-            if map.get_l(l).is_parking() {
-                return self.parking.get_draw_cars(l, map);
-            }
-            results.extend(self.parking.get_draw_cars_in_lots(l, map));
-        }
-        results.extend(
-            self.driving
-                .get_draw_cars_on(self.time, on, map, &self.transit),
-        );
-        results
-    }
-
-    fn get_draw_peds(
-        &self,
-        on: Traversable,
-        map: &Map,
-    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
-        self.walking.get_draw_peds_on(self.time, on, map)
-    }
-
-    fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
-        let mut result = self
-            .driving
-            .get_all_draw_cars(self.time, map, &self.transit);
-        result.extend(self.parking.get_all_draw_cars(map));
-        result
-    }
-
-    fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking.get_all_draw_peds(self.time, map)
-    }
-
-    fn get_unzoomed_agents(&self, map: &Map) -> Vec<UnzoomedAgent> {
-        let mut result = self.driving.get_unzoomed_agents(self.time, map);
-        result.extend(self.walking.get_unzoomed_agents(self.time, map));
-        result
     }
 }
 

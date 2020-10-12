@@ -20,8 +20,8 @@ use map_model::{
 };
 
 pub use crate::render::{
-    CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents,
-    PedCrowdLocation, UnzoomedAgent,
+    CarStatus, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation,
+    UnzoomedAgent,
 };
 
 pub use self::analytics::{Analytics, TripPhase};

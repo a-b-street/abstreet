@@ -7,7 +7,7 @@ use rand::seq::SliceRandom;
 use abstutil::Timer;
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable};
-use sim::{Analytics, DontDrawAgents, GetDrawAgents, Sim, SimCallback, SimFlags};
+use sim::{Analytics, Sim, SimCallback, SimFlags};
 use widgetry::{EventCtx, GfxCtx, Prerender};
 
 use crate::challenges::HighScore;
@@ -138,13 +138,7 @@ impl App {
         )
     }
 
-    pub fn draw(
-        &self,
-        g: &mut GfxCtx,
-        opts: DrawOptions,
-        source: &dyn GetDrawAgents,
-        show_objs: &dyn ShowObject,
-    ) {
+    pub fn draw(&self, g: &mut GfxCtx, opts: DrawOptions, show_objs: &dyn ShowObject) {
         let mut sample_intersection: Option<String> = None;
 
         g.clear(self.cs.void_background);
@@ -198,21 +192,13 @@ impl App {
             }
 
             let mut cache = self.primary.draw_map.agents.borrow_mut();
-            cache.draw_unzoomed_agents(
-                g,
-                source,
-                &self.primary.map,
-                &self.unzoomed_agents,
-                self.opts.debug_all_agents,
-                &self.cs,
-            );
+            cache.draw_unzoomed_agents(g, self);
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(
                 g.get_screen_bounds(),
                 &g.prerender,
                 &mut cache,
-                source,
                 show_objs,
             );
 
@@ -259,54 +245,26 @@ impl App {
 
     /// Assumes some defaults.
     pub fn recalculate_current_selection(&mut self, ctx: &EventCtx) {
-        self.primary.current_selection = self.calculate_current_selection(
-            ctx,
-            &self.primary.sim,
-            &ShowEverything::new(),
-            false,
-            false,
-            false,
-        );
+        self.primary.current_selection =
+            self.calculate_current_selection(ctx, &ShowEverything::new(), false, false, false);
     }
 
     pub fn mouseover_unzoomed_roads_and_intersections(&self, ctx: &EventCtx) -> Option<ID> {
-        self.calculate_current_selection(
-            ctx,
-            &DontDrawAgents {},
-            &ShowEverything::new(),
-            false,
-            true,
-            false,
-        )
+        self.calculate_current_selection(ctx, &ShowEverything::new(), false, true, false)
     }
     pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
-        self.calculate_current_selection(
-            ctx,
-            &DontDrawAgents {},
-            &ShowEverything::new(),
-            false,
-            false,
-            true,
-        )
+        self.calculate_current_selection(ctx, &ShowEverything::new(), false, false, true)
     }
     pub fn mouseover_unzoomed_everything(&self, ctx: &EventCtx) -> Option<ID> {
-        self.calculate_current_selection(
-            ctx,
-            &DontDrawAgents {},
-            &ShowEverything::new(),
-            false,
-            true,
-            true,
-        )
+        self.calculate_current_selection(ctx, &ShowEverything::new(), false, true, true)
     }
     pub fn mouseover_debug_mode(&self, ctx: &EventCtx, show_objs: &dyn ShowObject) -> Option<ID> {
-        self.calculate_current_selection(ctx, &self.primary.sim, show_objs, true, false, false)
+        self.calculate_current_selection(ctx, show_objs, true, false, false)
     }
 
     fn calculate_current_selection(
         &self,
         ctx: &EventCtx,
-        source: &dyn GetDrawAgents,
         show_objs: &dyn ShowObject,
         debug_mode: bool,
         unzoomed_roads_and_intersections: bool,
@@ -326,7 +284,6 @@ impl App {
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
             &mut cache,
-            source,
             show_objs,
         );
         objects.reverse();
@@ -377,7 +334,6 @@ impl App {
         bounds: Bounds,
         prerender: &Prerender,
         agents: &'a mut AgentCache,
-        source: &dyn GetDrawAgents,
         show_objs: &dyn ShowObject,
     ) -> Vec<&'a (dyn Renderable + 'a)> {
         let map = &self.primary.map;
@@ -442,7 +398,7 @@ impl App {
         // Expand all of the Traversables into agents, populating the cache if needed.
         {
             for on in &agents_on {
-                agents.populate_if_needed(*on, map, source, &self.cs, prerender);
+                agents.populate_if_needed(*on, map, &self.primary.sim, &self.cs, prerender);
             }
         }
 

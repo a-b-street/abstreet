@@ -6,7 +6,7 @@ use map_model::{
     BuildingID, Map, OffstreetParking, ParkingLotID, PathConstraints, PathRequest, RoadID,
     NORMAL_LANE_THICKNESS,
 };
-use sim::{GetDrawAgents, ParkingSpot, Scenario, VehicleType};
+use sim::{ParkingSpot, Scenario, VehicleType};
 use widgetry::{
     Btn, Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, Text, TextExt, VerticalAlignment, Widget,

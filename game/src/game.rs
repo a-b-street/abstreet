@@ -150,23 +150,13 @@ impl GUI for Game {
 
         match state.draw_baselayer() {
             DrawBaselayer::DefaultMap => {
-                self.app.draw(
-                    g,
-                    DrawOptions::new(),
-                    &self.app.primary.sim,
-                    &ShowEverything::new(),
-                );
+                self.app.draw(g, DrawOptions::new(), &ShowEverything::new());
             }
             DrawBaselayer::Custom => {}
             DrawBaselayer::PreviousState => {
                 match self.states[self.states.len() - 2].draw_baselayer() {
                     DrawBaselayer::DefaultMap => {
-                        self.app.draw(
-                            g,
-                            DrawOptions::new(),
-                            &self.app.primary.sim,
-                            &ShowEverything::new(),
-                        );
+                        self.app.draw(g, DrawOptions::new(), &ShowEverything::new());
                     }
                     DrawBaselayer::Custom => {}
                     // Nope, don't recurse

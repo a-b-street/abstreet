@@ -2,7 +2,6 @@ use std::collections::BTreeSet;
 
 use geom::ArrowCap;
 use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
-use sim::DontDrawAgents;
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
@@ -271,7 +270,7 @@ impl State for UberTurnViewer {
         let mut opts = DrawOptions::new();
         opts.suppress_traffic_signal_details
             .extend(self.ic.members.clone());
-        app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
+        app.draw(g, opts, &ShowEverything::new());
 
         self.panel.draw(g);
         g.redraw(&self.draw);

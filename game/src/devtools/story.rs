@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
 use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
-use sim::DontDrawAgents;
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, RewriteColor, Text, VerticalAlignment, Widget,
@@ -272,7 +271,7 @@ impl State for StoryMapEditor {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         let mut opts = DrawOptions::new();
         opts.label_buildings = true;
-        app.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
+        app.draw(g, opts, &ShowEverything::new());
 
         match self.mode {
             Mode::PlacingMarker => {
