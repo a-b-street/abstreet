@@ -25,13 +25,14 @@ pub struct TrafficSignalDemand {
 
 impl TrafficSignalDemand {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+        let all_demand = ctx.loading_screen("predict all demand", |_, timer| {
+            Demand::all_demand(app, timer)
+        });
+
         app.primary.current_selection = None;
         assert!(app.primary.suspended_sim.is_none());
         app.primary.suspended_sim = Some(app.primary.clear_sim());
 
-        let all_demand = ctx.loading_screen("predict all demand", |_, timer| {
-            Demand::all_demand(app, timer)
-        });
         let hour = Time::START_OF_DAY;
         let draw_all = Demand::draw_demand(ctx, app, &all_demand, hour);
         Box::new(TrafficSignalDemand {

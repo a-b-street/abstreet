@@ -51,7 +51,7 @@ impl CommonState {
         if ctx.input.pressed(lctrl(Key::S)) {
             app.opts.dev = !app.opts.dev;
         }
-        if app.opts.dev && ctx.input.pressed(lctrl(Key::J)) {
+        if ctx.input.pressed(lctrl(Key::J)) {
             return Some(Transition::Push(warp::DebugWarp::new(ctx)));
         }
 
