@@ -73,7 +73,9 @@ impl Renderable for DrawBusStop {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
-        Circle::outline(self.center, RADIUS, OUTLINE_THICKNESS).expect("constants defined wrong")
+        Circle::new(self.center, RADIUS)
+            .to_outline(OUTLINE_THICKNESS)
+            .expect("constants defined wrong")
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {

@@ -125,6 +125,13 @@ impl Sim {
     pub fn agent_to_person(&self, id: AgentID) -> Option<PersonID> {
         self.agent_to_trip(id).map(|t| self.trip_to_person(t))
     }
+    pub fn person_to_agent(&self, id: PersonID) -> Option<AgentID> {
+        if let PersonState::Trip(t) = self.trips.get_person(id)?.state {
+            self.trip_to_agent(t).ok()
+        } else {
+            None
+        }
+    }
     pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
         self.driving
             .get_owner_of_car(id)

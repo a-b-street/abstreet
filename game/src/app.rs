@@ -8,14 +8,16 @@ use abstutil::Timer;
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{Analytics, Sim, SimCallback, SimFlags};
-use widgetry::{EventCtx, GfxCtx, Prerender};
+use widgetry::{Color, EventCtx, GfxCtx, Prerender};
 
 use crate::challenges::HighScore;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::layer::Layer;
 use crate::options::Options;
-use crate::render::{AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents};
+use crate::render::{
+    unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents,
+};
 use crate::sandbox::{GameplayMode, TutorialState};
 
 /// The top-level data that lasts through the entire game, no matter what state the game is in.
@@ -139,19 +141,22 @@ impl App {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, opts: DrawOptions, show_objs: &dyn ShowObject) {
+        let map = &self.primary.map;
+        let draw_map = &self.primary.draw_map;
+
         let mut sample_intersection: Option<String> = None;
 
         g.clear(self.cs.void_background);
-        g.redraw(&self.primary.draw_map.boundary_polygon);
+        g.redraw(&draw_map.boundary_polygon);
 
         if g.canvas.cam_zoom < self.opts.min_zoom_for_detail && !g.is_screencap() {
             // Unzoomed mode
             let layers = show_objs.layers();
             if layers.show_areas {
-                g.redraw(&self.primary.draw_map.draw_all_areas);
+                g.redraw(&draw_map.draw_all_areas);
             }
             if layers.show_parking_lots {
-                g.redraw(&self.primary.draw_map.draw_all_unzoomed_parking_lots);
+                g.redraw(&draw_map.draw_all_unzoomed_parking_lots);
             }
             if layers.show_intersections || layers.show_lanes {
                 g.redraw(
@@ -162,39 +167,43 @@ impl App {
                 );
             }
             if layers.show_buildings {
-                g.redraw(&self.primary.draw_map.draw_all_buildings);
+                g.redraw(&draw_map.draw_all_buildings);
                 // Not the building paths
             }
 
             // Still show some shape selection when zoomed out.
             // TODO Refactor! Ideally use get_obj
             if let Some(ID::Area(id)) = self.primary.current_selection {
-                g.draw_polygon(
-                    self.cs.selected,
-                    self.primary
-                        .draw_map
-                        .get_a(id)
-                        .get_outline(&self.primary.map),
-                );
+                g.draw_polygon(self.cs.selected, draw_map.get_a(id).get_outline(map));
             } else if let Some(ID::Road(id)) = self.primary.current_selection {
-                g.draw_polygon(
-                    self.cs.selected,
-                    self.primary
-                        .draw_map
-                        .get_r(id)
-                        .get_outline(&self.primary.map),
-                );
+                g.draw_polygon(self.cs.selected, draw_map.get_r(id).get_outline(map));
             } else if let Some(ID::Intersection(id)) = self.primary.current_selection {
                 // Actually, don't use get_outline here! Full polygon is easier to see.
-                g.draw_polygon(self.cs.selected, self.primary.map.get_i(id).polygon.clone());
+                g.draw_polygon(self.cs.selected, map.get_i(id).polygon.clone());
             } else if let Some(ID::Building(id)) = self.primary.current_selection {
-                g.draw_polygon(self.cs.selected, self.primary.map.get_b(id).polygon.clone());
+                g.draw_polygon(self.cs.selected, map.get_b(id).polygon.clone());
             }
 
             let mut cache = self.primary.draw_map.agents.borrow_mut();
             cache.draw_unzoomed_agents(g, self);
+
+            if let Some(a) = self
+                .primary
+                .current_selection
+                .as_ref()
+                .and_then(|id| id.agent_id())
+            {
+                if let Some(pt) = self.primary.sim.canonical_pt_for_agent(a, map) {
+                    // Usually we show selection with an outline, but no thickness/color is really
+                    // visible for these tiny crowded dots.
+                    g.draw_polygon(
+                        Color::CYAN,
+                        Circle::new(pt, unzoomed_agent_radius(a.to_vehicle_type())).to_polygon(),
+                    );
+                }
+            }
         } else {
-            let mut cache = self.primary.draw_map.agents.borrow_mut();
+            let mut cache = draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(
                 g.get_screen_bounds(),
                 &g.prerender,
@@ -211,15 +220,15 @@ impl App {
                 match obj.get_id() {
                     ID::Building(_) => {
                         if !drawn_all_buildings {
-                            g.redraw(&self.primary.draw_map.draw_all_building_paths);
-                            g.redraw(&self.primary.draw_map.draw_all_buildings);
-                            g.redraw(&self.primary.draw_map.draw_all_building_outlines);
+                            g.redraw(&draw_map.draw_all_building_paths);
+                            g.redraw(&draw_map.draw_all_buildings);
+                            g.redraw(&draw_map.draw_all_building_outlines);
                             drawn_all_buildings = true;
                         }
                     }
                     ID::Area(_) => {
                         if !drawn_all_areas {
-                            g.redraw(&self.primary.draw_map.draw_all_areas);
+                            g.redraw(&draw_map.draw_all_areas);
                             drawn_all_areas = true;
                         }
                     }
@@ -227,7 +236,7 @@ impl App {
                 };
 
                 if self.primary.current_selection == Some(obj.get_id()) {
-                    g.draw_polygon(self.cs.selected, obj.get_outline(&self.primary.map));
+                    g.draw_polygon(self.cs.selected, obj.get_outline(map));
                 }
 
                 if g.is_screencap() && sample_intersection.is_none() {

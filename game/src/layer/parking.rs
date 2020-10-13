@@ -4,7 +4,6 @@ use abstutil::{prettyprint_usize, Counter, Parallelism};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{
     BuildingID, Map, OffstreetParking, ParkingLotID, PathConstraints, PathRequest, RoadID,
-    NORMAL_LANE_THICKNESS,
 };
 use sim::{ParkingSpot, Scenario, VehicleType};
 use widgetry::{
@@ -15,6 +14,7 @@ use widgetry::{
 use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
+use crate::render::unzoomed_agent_radius;
 
 pub struct Occupancy {
     time: Time,
@@ -275,8 +275,11 @@ impl Occupancy {
 
         if looking_for_parking {
             // A bit of copied code from draw_unzoomed_agents
-            let car_circle =
-                Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
+            let car_circle = Circle::new(
+                Pt2D::new(0.0, 0.0),
+                unzoomed_agent_radius(Some(VehicleType::Car)),
+            )
+            .to_polygon();
             for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
                 if a.parking {
                     colorer.unzoomed.push(
