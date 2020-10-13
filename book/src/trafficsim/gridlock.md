@@ -4,11 +4,6 @@ Here "gridlock" refers to the general problem of trips getting permanently
 stuck, preventing the full simulation from completing. Most of the work is
 tracked [here](https://github.com/dabreegster/abstreet/issues/114).
 
-My general approach right now to get a map working is to cancel some percent of
-all trips, look for individual problems, fix them, and repeat. Once the full day
-works, cancel less trips. It's easier to isolate the root cause of problems when
-there are less of them erupting simultaneously.
-
 The general lesson is: you can't code your way around all edge cases. The data
 in OSM often needs manual fixes. It's often useful to spend coding effort on
 tools to detect and fix OSM problems.
@@ -84,6 +79,34 @@ Divide into implemented or not.
   - Group both stop sign and traffic signal intersections when looking for
     uber-turns. Even a single traffic signal surrounded by tiny roads with stop
     signs is causing problems.
+
+## Strategy for resolving
+
+Because there are so many different causes all tangled together, my approach is
+to simplify the simulation as much as possible. A problem is much easier to
+understand and fix when it's isolated. I've been trying this to get the downtown
+weekday scenario to complete. A list of different techniques to simplify, in no
+particular order:
+
+- Use the `--infinite_parking` flag to just let everyone park directly in their
+  destination buildings. This is useful since downtown has many large parking
+  garages with high capacity, but I don't have a data source describing them.
+- Use the `--disable_turn_conflicts` flag, which greatly reduces realism, but
+  lets conflicting turns happen simultaneously. (Even with this and other flags,
+  downtown still gridlocks!) It also disables traffic signals, so bad inferred
+  timing isn't an issue.
+- Use the `--disable_block_the_box` flag to workaround short roads.
+- If you notice problems forming from cars stacking up behind slower cyclists,
+  there's no over-taking implemented yet. Use the scenario modifiers to convert
+  all biking trip to driving.
+- If all else fails, use the scenario modifiers to bluntly cancel some
+  percentage of all trips.
+
+An example outcome of following all of this for the downtown map is to discover
+patterns in the Soundcast demand model. Lots of trips pour into Harborview in
+the morning, and with `--infinite_parking`, they still take a few seconds to
+enter the building through the driveway, causing lots of vehicles to stack up
+behind.
 
 ## Fixing data used in simulation
 
