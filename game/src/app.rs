@@ -8,7 +8,7 @@ use abstutil::Timer;
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{Analytics, Sim, SimCallback, SimFlags};
-use widgetry::{Color, EventCtx, GfxCtx, Prerender};
+use widgetry::{EventCtx, GfxCtx, Prerender};
 
 use crate::challenges::HighScore;
 use crate::colors::ColorScheme;
@@ -197,7 +197,7 @@ impl App {
                     // Usually we show selection with an outline, but no thickness/color is really
                     // visible for these tiny crowded dots.
                     g.draw_polygon(
-                        Color::CYAN,
+                        self.cs.selected,
                         Circle::new(pt, unzoomed_agent_radius(a.to_vehicle_type())).to_polygon(),
                     );
                 }

@@ -43,6 +43,8 @@ impl Ring {
         Ring::new(pts).unwrap()
     }
 
+    /// Draws the ring with some thickness, with half of it straddling the interor of the ring, and
+    /// half on the outside.
     pub fn to_outline(&self, thickness: Distance) -> Polygon {
         // TODO Has a weird corner. Use the polygon offset thing instead?
         PolyLine::unchecked_new(self.pts.clone()).make_polygons(thickness)
