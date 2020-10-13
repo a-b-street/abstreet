@@ -11,7 +11,9 @@ use crate::common::ColorLegend;
 use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
+/// Draws a preview of the path for the agent under the mouse cursor.
 pub struct RoutePreview {
+    // (the agent we're hovering on, the sim time, whether we're zoomed in, the drawn path)
     preview: Option<(AgentID, Time, bool, Drawable)>,
 }
 
@@ -38,6 +40,8 @@ impl RoutePreview {
                 .unwrap_or(true)
             {
                 let mut batch = GeomBatch::new();
+                // Only draw the preview when zoomed in. If we wanted to do this unzoomed, we'd
+                // want a different style; the dashed lines don't show up well.
                 if zoomed {
                     if let Some(trace) = app.primary.sim.trace_route(agent, &app.primary.map, None)
                     {

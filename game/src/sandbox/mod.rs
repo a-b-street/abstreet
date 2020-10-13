@@ -132,8 +132,8 @@ impl State for SandboxMode {
             }
         }
 
-        // We need to recalculate unzoomed agent mouseover when the mouse is still and time passes,
-        // or when the mouse moves.
+        // We need to recalculate unzoomed agent mouseover when the mouse is still and time passes
+        // (since something could move beneath the cursor), or when the mouse moves.
         if app.primary.current_selection.is_none()
             && ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail
         {

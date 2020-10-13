@@ -71,6 +71,7 @@ impl Circle {
         )
     }
 
+    /// Draws an outline around the circle, strictly contained with the circle's original radius.
     pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, String> {
         if self.radius <= thickness {
             return Err(format!(
