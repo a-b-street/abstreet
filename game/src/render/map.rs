@@ -8,7 +8,6 @@ use abstutil::Timer;
 use geom::{Bounds, Circle, Polygon, Pt2D, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
-    NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 use sim::{Sim, UnzoomedAgent, VehicleType};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
@@ -23,7 +22,9 @@ use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::parking_lot::DrawParkingLot;
 use crate::render::road::DrawRoad;
-use crate::render::{draw_vehicle, DrawArea, DrawPedCrowd, DrawPedestrian, Renderable};
+use crate::render::{
+    draw_vehicle, unzoomed_agent_radius, DrawArea, DrawPedCrowd, DrawPedestrian, Renderable,
+};
 
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,
@@ -417,11 +418,12 @@ impl AgentCache {
 
         let mut batch = GeomBatch::new();
         // It's quite silly to produce triangles for the same circle over and over again. ;)
-        //
-        // Lane thickness is a little hard to see, so double it. Most of the time, the circles
-        // don't leak out of the road too much.
-        let car_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
-        let ped_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * SIDEWALK_THICKNESS).to_polygon();
+        let car_circle = Circle::new(
+            Pt2D::new(0.0, 0.0),
+            unzoomed_agent_radius(Some(VehicleType::Car)),
+        )
+        .to_polygon();
+        let ped_circle = Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
         for agent in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
             if let Some(color) = app.unzoomed_agents.color(&agent) {
                 if agent.vehicle_type.is_some() {
@@ -480,7 +482,7 @@ impl UnzoomedAgents {
         }
     }
 
-    fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
+    pub fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
         match agent.vehicle_type {
             Some(VehicleType::Car) => {
                 if self.cars {

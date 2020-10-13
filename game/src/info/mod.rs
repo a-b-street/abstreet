@@ -412,7 +412,7 @@ impl InfoPanel {
                         app.cs.current_object.alpha(0.5),
                         Circle::new(bounds.center(), radius).to_polygon(),
                     );
-                    match Circle::outline(bounds.center(), radius, Distance::meters(0.3)) {
+                    match Circle::new(bounds.center(), radius).to_outline(Distance::meters(0.3)) {
                         Ok(poly) => {
                             details.unzoomed.push(app.cs.current_object, poly.clone());
                             details.zoomed.push(app.cs.current_object, poly.clone());

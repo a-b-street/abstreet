@@ -12,7 +12,7 @@ use crate::game::{DrawBaselayer, State, Transition};
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 pub struct RoutePreview {
-    preview: Option<(AgentID, Time, Drawable)>,
+    preview: Option<(AgentID, Time, bool, Drawable)>,
 }
 
 impl RoutePreview {
@@ -30,24 +30,28 @@ impl RoutePreview {
             .and_then(|id| id.agent_id())
         {
             let now = app.primary.sim.time();
+            let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
             if self
                 .preview
                 .as_ref()
-                .map(|(a, t, _)| agent != *a || now != *t)
+                .map(|(a, t, z, _)| agent != *a || now != *t || zoomed != *z)
                 .unwrap_or(true)
             {
-                if let Some(trace) = app.primary.sim.trace_route(agent, &app.primary.map, None) {
-                    let mut batch = GeomBatch::new();
-                    batch.extend(
-                        app.cs.route,
-                        trace.dashed_lines(
-                            Distance::meters(0.75),
-                            Distance::meters(1.0),
-                            Distance::meters(0.4),
-                        ),
-                    );
-                    self.preview = Some((agent, now, batch.upload(ctx)));
+                let mut batch = GeomBatch::new();
+                if zoomed {
+                    if let Some(trace) = app.primary.sim.trace_route(agent, &app.primary.map, None)
+                    {
+                        batch.extend(
+                            app.cs.route,
+                            trace.dashed_lines(
+                                Distance::meters(0.75),
+                                Distance::meters(1.0),
+                                Distance::meters(0.4),
+                            ),
+                        );
+                    }
                 }
+                self.preview = Some((agent, now, zoomed, batch.upload(ctx)));
             }
             return None;
         }
@@ -57,7 +61,7 @@ impl RoutePreview {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        if let Some((_, _, ref d)) = self.preview {
+        if let Some((_, _, _, ref d)) = self.preview {
             g.redraw(d);
         }
     }

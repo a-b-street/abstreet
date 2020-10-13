@@ -142,6 +142,14 @@ impl AgentID {
             AgentID::BusPassenger(_, _) => AgentType::TransitRider,
         }
     }
+
+    pub fn to_vehicle_type(self) -> Option<VehicleType> {
+        match self {
+            AgentID::Car(c) => Some(c.1),
+            AgentID::Pedestrian(_) => None,
+            AgentID::BusPassenger(_, _) => None,
+        }
+    }
 }
 
 impl fmt::Display for AgentID {

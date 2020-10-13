@@ -1,5 +1,5 @@
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{IntersectionID, Map};
+use map_model::{IntersectionID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use sim::{DrawCarInput, VehicleType};
 use widgetry::{GfxCtx, Prerender};
 
@@ -82,5 +82,15 @@ impl DrawOptions {
             suppress_traffic_signal_details: Vec::new(),
             label_buildings: false,
         }
+    }
+}
+
+pub fn unzoomed_agent_radius(vt: Option<VehicleType>) -> Distance {
+    // Lane thickness is a little hard to see, so double it. Most of the time, the circles don't
+    // leak out of the road too much.
+    if vt.is_some() {
+        4.0 * NORMAL_LANE_THICKNESS
+    } else {
+        4.0 * SIDEWALK_THICKNESS
     }
 }

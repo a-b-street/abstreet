@@ -71,16 +71,16 @@ impl Circle {
         )
     }
 
-    pub fn outline(center: Pt2D, radius: Distance, thickness: Distance) -> Result<Polygon, String> {
-        if radius <= thickness {
+    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, String> {
+        if self.radius <= thickness {
             return Err(format!(
                 "Can't make Circle outline with radius {} and thickness {}",
-                radius, thickness
+                self.radius, thickness
             ));
         }
 
-        let bigger = Circle::new(center, radius).to_ring();
-        let smaller = Circle::new(center, radius - thickness).to_ring();
+        let bigger = self.to_ring();
+        let smaller = Circle::new(self.center, self.radius - thickness).to_ring();
         Ok(Polygon::with_holes(bigger, vec![smaller]))
     }
 }

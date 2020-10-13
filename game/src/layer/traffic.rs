@@ -4,7 +4,8 @@ use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
-use map_model::{IntersectionID, Map, Traversable, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
+use map_model::{IntersectionID, Map, Traversable};
+use sim::VehicleType;
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
@@ -14,6 +15,7 @@ use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
 use crate::helpers::ID;
 use crate::layer::{Layer, LayerOutcome};
+use crate::render::unzoomed_agent_radius;
 
 pub struct Backpressure {
     time: Time,
@@ -553,8 +555,12 @@ impl Delay {
             app.primary.map.get_boundary_polygon().clone(),
         );
         // A bit of copied code from draw_unzoomed_agents
-        let car_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * NORMAL_LANE_THICKNESS).to_polygon();
-        let ped_circle = Circle::new(Pt2D::new(0.0, 0.0), 4.0 * SIDEWALK_THICKNESS).to_polygon();
+        let car_circle = Circle::new(
+            Pt2D::new(0.0, 0.0),
+            unzoomed_agent_radius(Some(VehicleType::Car)),
+        )
+        .to_polygon();
+        let ped_circle = Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
         for agent in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
             if let Some(delay) = agent.person.and_then(|p| delays.remove(&p)) {
                 let color = app
