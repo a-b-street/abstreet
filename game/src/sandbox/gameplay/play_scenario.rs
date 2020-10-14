@@ -233,6 +233,12 @@ impl State for EditScenarioModifiers {
                     return Transition::Pop;
                 }
                 "Apply" => {
+                    info!("To apply these modifiers in the future:");
+                    info!(
+                        "--scenario_modifiers='{}'",
+                        abstutil::to_json_terse(&self.modifiers)
+                    );
+
                     return Transition::Multi(vec![
                         Transition::Pop,
                         Transition::Replace(SandboxMode::new(
@@ -343,18 +349,6 @@ impl ChangeMode {
             panel: Panel::new(Widget::col(vec![
                 Line("Change trip mode").small_heading().draw(ctx),
                 Widget::row(vec![
-                    "Change to trip type:".draw_text(ctx),
-                    Widget::dropdown(
-                        ctx,
-                        "to_mode",
-                        TripMode::Bike,
-                        TripMode::all()
-                            .into_iter()
-                            .map(|m| Choice::new(m.ongoing_verb(), m))
-                            .collect(),
-                    ),
-                ]),
-                Widget::row(vec![
                     "Percent of people to modify:"
                         .draw_text(ctx)
                         .centered_vert(),
@@ -369,6 +363,19 @@ impl ChangeMode {
                 Widget::row(vec![
                     "Departing until:".draw_text(ctx),
                     AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
+                ]),
+                Widget::horiz_separator(ctx, 0.5),
+                Widget::row(vec![
+                    "Change to trip type:".draw_text(ctx),
+                    Widget::dropdown(
+                        ctx,
+                        "to_mode",
+                        TripMode::Bike,
+                        TripMode::all()
+                            .into_iter()
+                            .map(|m| Choice::new(m.ongoing_verb(), m))
+                            .collect(),
+                    ),
                 ]),
                 Widget::row(vec![
                     Btn::text_bg2("Apply").build_def(ctx, Key::Enter),

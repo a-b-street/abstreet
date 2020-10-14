@@ -98,7 +98,8 @@ particular order:
 - Use the `--disable_block_the_box` flag to workaround short roads.
 - If you notice problems forming from cars stacking up behind slower cyclists,
   there's no over-taking implemented yet. Use the scenario modifiers to convert
-  all biking trip to driving.
+  all biking trip to driving:
+  `--scenario_modifiers='[{"ChangeMode":{"to_mode":"Drive","pct_ppl":100,"departure_filter":[0.0,86400.0],"from_modes":["Bike"]}}]'`
 - If all else fails, use the scenario modifiers to bluntly cancel some
   percentage of all trips.
 

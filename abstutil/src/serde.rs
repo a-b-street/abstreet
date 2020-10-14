@@ -10,6 +10,10 @@ pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()
 }
 
+pub fn to_json_terse<T: Serialize>(obj: &T) -> String {
+    serde_json::to_string(obj).unwrap()
+}
+
 pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Box<dyn Error>> {
     serde_json::from_slice(raw).map_err(|x| x.into())
 }

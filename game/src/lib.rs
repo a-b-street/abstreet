@@ -3,7 +3,7 @@ extern crate log;
 
 use abstutil::{CmdArgs, Timer};
 use geom::Duration;
-use sim::SimFlags;
+use sim::{ScenarioModifier, SimFlags};
 
 use crate::app::Flags;
 
@@ -113,10 +113,15 @@ pub fn main() {
         let map_name = parts[parts.len() - 2].to_string();
         let scenario = abstutil::basename(parts[parts.len() - 1]);
         flags.sim_flags.load = abstutil::path_map(&map_name);
+
+        let modifiers: Vec<ScenarioModifier> = args
+            .optional_parse("--scenario_modifiers", |s| {
+                abstutil::from_json(&s.to_string().into_bytes())
+            })
+            .unwrap_or_else(Vec::new);
+
         mode = Some(sandbox::GameplayMode::PlayScenario(
-            map_name,
-            scenario,
-            Vec::new(),
+            map_name, scenario, modifiers,
         ));
     }
     let start_with_edits = args.optional("--edits");

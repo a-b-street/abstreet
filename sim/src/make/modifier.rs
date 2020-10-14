@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Duration, Time};
@@ -11,7 +11,7 @@ use map_model::Map;
 use crate::{IndividTrip, PersonID, Scenario, SpawnTrip, TripMode};
 
 /// Transforms an existing Scenario before instantiating it.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Deserialize)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
 pub enum ScenarioModifier {
     RepeatDays(usize),
     CancelPeople(usize),
