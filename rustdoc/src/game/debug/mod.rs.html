@@ -1530,7 +1530,7 @@
             <span class="ident">todo_maps</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="ident">to_string</span>(),
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
                 <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ScreenshotTest</span> {
-                    <span class="ident">todo_maps</span>: <span class="ident">todo_maps</span>.<span class="ident">clone</span>(),
+                    <span class="ident">todo_maps</span>,
                     <span class="ident">screenshot_done</span>: <span class="bool-val">false</span>,
                 }))
             }),

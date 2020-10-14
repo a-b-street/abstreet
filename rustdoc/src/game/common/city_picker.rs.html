@@ -186,6 +186,8 @@
 <span id="185">185</span>
 <span id="186">186</span>
 <span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
@@ -204,14 +206,15 @@
     <span class="comment">// In untranslated screen-space</span>
     <span class="ident">regions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Color</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
     <span class="ident">selected</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+    <span class="comment">// Wrapped in an Option just to make calling from event() work.</span>
+    <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">CityPicker</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
-        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
+        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
     ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
@@ -270,7 +273,7 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">CityPicker</span> {
             <span class="ident">regions</span>,
             <span class="ident">selected</span>: <span class="prelude-val">None</span>,
-            <span class="ident">on_load</span>,
+            <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -300,13 +303,11 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="ident">name</span> <span class="op">=&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span>
-                        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">on_load</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>));
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="ident">name</span>.<span class="ident">to_string</span>(),
-                        <span class="ident">on_load</span>,
+                        <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
                     ));
                 }
             },
@@ -341,9 +342,12 @@
                 .<span class="ident">per_obj</span>
                 .<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;switch to {}&quot;</span>, <span class="ident">nice_map_name</span>(<span class="ident">name</span>)))
             {
-                <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span>
-                    <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">on_load</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>));
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">on_load</span>));
+                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">name</span>.<span class="ident">to_string</span>(),
+                    <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
+                ));
             }
         }
 

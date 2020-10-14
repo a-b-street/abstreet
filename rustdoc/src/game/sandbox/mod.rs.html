@@ -704,9 +704,6 @@
 <span id="703">703</span>
 <span id="704">704</span>
 <span id="705">705</span>
-<span id="706">706</span>
-<span id="707">707</span>
-<span id="708">708</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -1328,15 +1325,12 @@
                         <span class="ident">ctx</span>,
                         <span class="ident">abstutil</span>::<span class="ident">path_prebaked_results</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">scenario_name</span>),
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">prebaked</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">scenario_name</span> <span class="op">=</span> <span class="ident">scenario_name</span>.<span class="ident">clone</span>();
                             <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                                 <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                                 <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
                                     <span class="kw">let</span> <span class="ident">loader</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxLoader</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                    <span class="ident">loader</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage</span>::<span class="ident">GotPrebaked</span>(
-                                        <span class="ident">scenario_name</span>.<span class="ident">clone</span>(),
-                                        <span class="ident">prebaked</span>,
-                                    ));
+                                    <span class="ident">loader</span>.<span class="ident">stage</span> <span class="op">=</span>
+                                        <span class="prelude-val">Some</span>(<span class="ident">LoadStage</span>::<span class="ident">GotPrebaked</span>(<span class="ident">scenario_name</span>, <span class="ident">prebaked</span>));
                                 })),
                             ])
                         }),
