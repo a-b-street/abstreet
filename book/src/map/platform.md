@@ -81,3 +81,41 @@ optional pieces, and probably loaded in as separate files.
 Depending what other open source projects are on board, the general idea is to
 start assembling an ecosystem of libraries/tooling to make it easier to build
 new things off of open GIS data.
+
+The end state might look like this. A few separate applications would exist, all
+running both natively and in the browser:
+
+- A/B Street the game, more or less in its current form
+- A new OpenStreetMap viewer, likely focused on visualizing roads and
+  points-of-interest in detail
+- The street parking OSM editor, and other OSM editors specialized for mapping
+  certain things
+- A new app focusing on 15-minute neighborhoods, using isochrones to show
+  amenities available nearby
+  - Ideally, allow editing current land use / zoning, to let people explore how
+    new policies might get closer to a 15-minute neighborhood.
+  - Possibly [GOAT](https://www.open-accessibility.org) does all of this
+    already, and this new thing shouldn't be built
+- A new app for creating story maps, showing events that occur over time, with
+  lots of detail about the surrounding environment
+
+All of these would make use of some common libraries, which should be extracted
+out cleanly from A/B Street today:
+
+- the map model and OSM importer
+- the widgetry UI library
+- some common code for specifically interacting with maps in widgetry
+- a tool to generate a traffic demand model from OSM data, optional census data,
+  etc
+  - This has been initially
+    [prototyped](https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#proletariat-robot)
+- the discrete-event traffic simulation that A/B Street uses today
+- core geometry/utility libraries
+
+But note only the first application would use things like the simulation
+library. The point of more cleanly modularizing these pieces is to make it
+easier for new people to build different pieces, without having to understand
+and be coupled to everything else. Also, as appropriate, these pieces should use
+common data formats (like
+[shared-row](https://github.com/d-wasserman/shared-row/)) to be interoperable
+with Streetmix, Complete Streets, etc.
