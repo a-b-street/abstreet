@@ -29,8 +29,8 @@ use map_model::{
     MovementID, PermanentMapEdits, RoadID, TurnID,
 };
 use sim::{
-    AgentID, AgentType, ExternalPerson, GetDrawAgents, PersonID, Scenario, ScenarioModifier, Sim,
-    SimFlags, SimOptions, TripID, TripMode, VehicleType,
+    AgentID, AgentType, ExternalPerson, PersonID, Scenario, ScenarioModifier, Sim, SimFlags,
+    SimOptions, TripID, TripMode, VehicleType,
 };
 
 lazy_static::lazy_static! {

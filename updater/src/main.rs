@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 use std::error::Error;
-use std::fs::{create_dir_all, remove_file, set_permissions, File, Permissions};
+use std::fs::{create_dir_all, remove_file, File};
 use std::io::{copy, BufRead, BufReader, Read, Write};
 use std::process::Command;
 
@@ -462,6 +462,7 @@ fn unzip(path: &str) {
         // Get and Set permissions
         #[cfg(unix)]
         {
+            use std::fs::{set_permissions, Permissions};
             use std::os::unix::fs::PermissionsExt;
 
             if let Some(mode) = file.unix_mode() {

@@ -15,6 +15,27 @@ See
 -- there are different experiments in Go and Python that automate running a
 simulation, measuring some metric, and making a change to improve the metric.
 
+## Control flow
+
+The `headless` API server that you run contains a single map and simulation at a
+time. Even though you can theoretically have multiple clients make requests to
+it simultaneously, the server will only execute one at a time. If you're trying
+to do something other than use one script to make API calls in sequence, please
+get in touch, so we can figure out something better suited to your use case.
+
+When you start the `headless` server, it always loads the `montlake` map with
+the `weekday` scenario. The only way you can change this is by calling
+`/sim/load`. For example:
+
+```
+curl http://localhost:1234/sim/load -d '{ "scenario": "data/system/scenarios/downtown/monday.bin", "modifiers": [], "edits": null }' -X POST`
+```
+
+You can also pass flags like `--infinite_parking` to the server to control
+[SimOptions](https://dabreegster.github.io/abstreet/rustdoc/sim/struct.SimOptions.html).
+These settings will apply for the entire lifetime of the server; you can't
+change them later.
+
 ## API details
 
 > **Under construction**: The API will keep changing. There are no backwards
