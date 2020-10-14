@@ -1859,6 +1859,49 @@ optional pieces, and probably loaded in as separate files.</p>
 <p>Depending what other open source projects are on board, the general idea is to
 start assembling an ecosystem of libraries/tooling to make it easier to build
 new things off of open GIS data.</p>
+<p>The end state might look like this. A few separate applications would exist, all
+running both natively and in the browser:</p>
+<ul>
+<li>A/B Street the game, more or less in its current form</li>
+<li>A new OpenStreetMap viewer, likely focused on visualizing roads and
+points-of-interest in detail</li>
+<li>The street parking OSM editor, and other OSM editors specialized for mapping
+certain things</li>
+<li>A new app focusing on 15-minute neighborhoods, using isochrones to show
+amenities available nearby
+<ul>
+<li>Ideally, allow editing current land use / zoning, to let people explore how
+new policies might get closer to a 15-minute neighborhood.</li>
+<li>Possibly <a href="https://www.open-accessibility.org">GOAT</a> does all of this
+already, and this new thing shouldn't be built</li>
+</ul>
+</li>
+<li>A new app for creating story maps, showing events that occur over time, with
+lots of detail about the surrounding environment</li>
+</ul>
+<p>All of these would make use of some common libraries, which should be extracted
+out cleanly from A/B Street today:</p>
+<ul>
+<li>the map model and OSM importer</li>
+<li>the widgetry UI library</li>
+<li>some common code for specifically interacting with maps in widgetry</li>
+<li>a tool to generate a traffic demand model from OSM data, optional census data,
+etc
+<ul>
+<li>This has been initially
+<a href="https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#proletariat-robot">prototyped</a></li>
+</ul>
+</li>
+<li>the discrete-event traffic simulation that A/B Street uses today</li>
+<li>core geometry/utility libraries</li>
+</ul>
+<p>But note only the first application would use things like the simulation
+library. The point of more cleanly modularizing these pieces is to make it
+easier for new people to build different pieces, without having to understand
+and be coupled to everything else. Also, as appropriate, these pieces should use
+common data formats (like
+<a href="https://github.com/d-wasserman/shared-row/">shared-row</a>) to be interoperable
+with Streetmix, Complete Streets, etc.</p>
 <h1><a class="header" href="#ab-streets-traffic-simulation" id="ab-streets-traffic-simulation">A/B Street's Traffic Simulation</a></h1>
 <p>This article describes how cars, bikes, buses, and pedestrians are modeled in
 A/B Street. All code lives in the <code>sim</code> crate.</p>
