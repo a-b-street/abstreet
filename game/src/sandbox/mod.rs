@@ -63,13 +63,13 @@ impl SandboxMode {
         _: &mut EventCtx,
         app: &mut App,
         mode: GameplayMode,
-        finalize: Box<dyn Fn(&mut EventCtx, &mut App) -> Vec<Transition>>,
+        finalize: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Vec<Transition>>,
     ) -> Box<dyn State> {
         app.primary.clear_sim();
         Box::new(SandboxLoader {
             stage: Some(LoadStage::LoadingMap),
             mode,
-            finalize,
+            finalize: Some(finalize),
         })
     }
 
@@ -518,7 +518,7 @@ struct SandboxLoader {
     // Always exists, just a way to avoid clones
     stage: Option<LoadStage>,
     mode: GameplayMode,
-    finalize: Box<dyn Fn(&mut EventCtx, &mut App) -> Vec<Transition>>,
+    finalize: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Vec<Transition>>>,
 }
 
 impl State for SandboxLoader {
@@ -694,7 +694,7 @@ impl State for SandboxLoader {
                     });
 
                     let mut transitions = vec![Transition::Replace(sandbox)];
-                    transitions.extend((self.finalize)(ctx, app));
+                    transitions.extend((self.finalize.take().unwrap())(ctx, app));
                     return Transition::Multi(transitions);
                 }
             }

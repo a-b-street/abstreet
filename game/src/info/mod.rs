@@ -527,30 +527,35 @@ impl InfoPanel {
                     let trip = *trip;
                     let time = *time;
                     let person = app.primary.sim.trip_to_person(trip);
+                    // When executed, this assumes the SandboxMode is the top of the stack. It'll
+                    // reopen the info panel, then launch the jump-to-time UI.
+                    let jump_to_time =
+                        Transition::ReplaceWithData(Box::new(move |state, ctx, app| {
+                            let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
 
+                            let mut actions = sandbox.contextual_actions();
+                            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+                                ctx,
+                                app,
+                                Tab::PersonTrips(person, OpenTrip::single(trip)),
+                                &mut actions,
+                            );
+
+                            vec![sandbox, TimeWarpScreen::new(ctx, app, time, None)]
+                        }));
+
+                    if time >= app.primary.sim.time() {
+                        return (false, Some(jump_to_time));
+                    }
+
+                    // We need to first rewind the simulation
                     (
                         false,
-                        Some(Transition::ReplaceWithData(Box::new(
-                            move |mut state, ctx, app| {
-                                if time < app.primary.sim.time() {
-                                    let gameplay =
-                                        state.downcast::<SandboxMode>().ok().unwrap().gameplay_mode;
-                                    state = ctx.loading_screen("rewind simulation", |ctx, _| {
-                                        SandboxMode::new(ctx, app, gameplay)
-                                    });
-                                }
-                                let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
-
-                                let mut actions = sandbox.contextual_actions();
-                                sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                                    ctx,
-                                    app,
-                                    Tab::PersonTrips(person, OpenTrip::single(trip)),
-                                    &mut actions,
-                                );
-
-                                vec![sandbox, TimeWarpScreen::new(ctx, app, time, None)]
-                            },
+                        Some(Transition::Replace(SandboxMode::async_new(
+                            ctx,
+                            app,
+                            ctx_actions.gameplay_mode(),
+                            Box::new(move |_, _| vec![jump_to_time]),
                         ))),
                     )
                 } else if let Some(url) = action.strip_prefix("open ") {
