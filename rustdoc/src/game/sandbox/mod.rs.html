@@ -704,6 +704,9 @@
 <span id="703">703</span>
 <span id="704">704</span>
 <span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -758,14 +761,17 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SandboxMode</span> {
-    <span class="comment">// TODO Audit all callers</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// If you don&#39;t need to chain any transitions after the SandboxMode that rely on its resources</span>
+    <span class="doccomment">/// being loaded, use this. Otherwise, see `async_new`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
         <span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Vec</span>::<span class="ident">new</span>()))
     }
 
     <span class="doccomment">/// This does not immediately initialize anything (like loading the correct map, instantiating</span>
     <span class="doccomment">/// the scenario, etc). That means if you&#39;re chaining this call with other transitions, you</span>
     <span class="doccomment">/// probably need to defer running them using `finalize`.</span>
+    <span class="comment">// TODO Remove the unused ctx param? It affects lots of downstream callers; maybe better to</span>
+    <span class="comment">// leave it here in case this monstrosity is refactored again.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">async_new</span>(
         <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,

@@ -749,7 +749,7 @@
                     } <span class="kw">else</span> {
                         <span class="string">&quot;home_to_work&quot;</span>
                     };
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
@@ -997,7 +997,7 @@
                             } <span class="kw">else</span> {
                                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span>
                                     <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
-                                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
+                                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
                                     <span class="ident">ctx</span>,
                                     <span class="ident">app</span>,
                                     <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(

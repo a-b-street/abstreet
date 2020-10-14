@@ -530,7 +530,7 @@
                             };
                             <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                                 <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)),
+                                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)),
                             ])
                         }),
                     )))
@@ -698,7 +698,7 @@
 
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
+                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>,
                             <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(

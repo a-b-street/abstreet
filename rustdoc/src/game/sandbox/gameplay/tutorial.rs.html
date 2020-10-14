@@ -1453,6 +1453,7 @@
 <span id="1452">1452</span>
 <span id="1453">1453</span>
 <span id="1454">1454</span>
+<span id="1455">1455</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1509,7 +1510,8 @@
 <span class="kw">impl</span> <span class="ident">Tutorial</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
+            <span class="comment">// Constructing the intro_story cutscene doesn&#39;t require the map/scenario to be loaded.</span>
+            <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(
@@ -2118,7 +2120,7 @@
 <span class="kw">fn</span> <span class="ident">transition</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">tut</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TutorialState</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
     <span class="ident">tut</span>.<span class="ident">reset_state</span>();
     <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="ident">tut</span>.<span class="ident">current</span>);
-    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>))
+    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>))
 }
 
 <span class="kw">impl</span> <span class="ident">TutorialState</span> {

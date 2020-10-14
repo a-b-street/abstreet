@@ -626,7 +626,7 @@
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">contents</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)));
                 }
                 <span class="string">&quot;try again&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
