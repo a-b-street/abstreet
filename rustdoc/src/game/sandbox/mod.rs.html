@@ -770,13 +770,13 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-        <span class="ident">finalize</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">finalize</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;&gt;</span>,
     ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">SandboxLoader</span> {
             <span class="ident">stage</span>: <span class="prelude-val">Some</span>(<span class="ident">LoadStage</span>::<span class="ident">LoadingMap</span>),
             <span class="ident">mode</span>,
-            <span class="ident">finalize</span>,
+            <span class="ident">finalize</span>: <span class="prelude-val">Some</span>(<span class="ident">finalize</span>),
         })
     }
 
@@ -1225,7 +1225,7 @@
     <span class="comment">// Always exists, just a way to avoid clones</span>
     <span class="ident">stage</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LoadStage</span><span class="op">&gt;</span>,
     <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    <span class="ident">finalize</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">SandboxLoader</span> {
@@ -1401,7 +1401,7 @@
                     });
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transitions</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">sandbox</span>)];
-                    <span class="ident">transitions</span>.<span class="ident">extend</span>((<span class="self">self</span>.<span class="ident">finalize</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="ident">transitions</span>.<span class="ident">extend</span>((<span class="self">self</span>.<span class="ident">finalize</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>));
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="ident">transitions</span>);
                 }
             }
