@@ -23,7 +23,7 @@ def main():
     # Load the map and find all buildings
     residential_building_ids = []
     commercial_building_ids = []
-    with open(args.map) as f:
+    with open(args.map, encoding='utf8') as f:
         map = json.load(f)
         for b in map['buildings']:
             # These categories are inferred from OpenStreetMap tags
