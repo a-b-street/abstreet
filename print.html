@@ -2232,7 +2232,8 @@ timing isn't an issue.</li>
 <li>Use the <code>--disable_block_the_box</code> flag to workaround short roads.</li>
 <li>If you notice problems forming from cars stacking up behind slower cyclists,
 there's no over-taking implemented yet. Use the scenario modifiers to convert
-all biking trip to driving.</li>
+all biking trip to driving:
+<code>--scenario_modifiers='[{&quot;ChangeMode&quot;:{&quot;to_mode&quot;:&quot;Drive&quot;,&quot;pct_ppl&quot;:100,&quot;departure_filter&quot;:[0.0,86400.0],&quot;from_modes&quot;:[&quot;Bike&quot;]}}]'</code></li>
 <li>If all else fails, use the scenario modifiers to bluntly cancel some
 percentage of all trips.</li>
 </ul>

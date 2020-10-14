@@ -447,6 +447,13 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -683,6 +690,12 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="string">&quot;Apply&quot;</span> <span class="op">=&gt;</span> {
+                    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;To apply these modifiers in the future:&quot;</span>);
+                    <span class="macro">info</span><span class="macro">!</span>(
+                        <span class="string">&quot;--scenario_modifiers=&#39;{}&#39;&quot;</span>,
+                        <span class="ident">abstutil</span>::<span class="ident">to_json_terse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">modifiers</span>)
+                    );
+
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                         <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">new</span>(
@@ -793,18 +806,6 @@
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Change trip mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Change to trip type:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;to_mode&quot;</span>,
-                        <span class="ident">TripMode</span>::<span class="ident">Bike</span>,
-                        <span class="ident">TripMode</span>::<span class="ident">all</span>()
-                            .<span class="ident">into_iter</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">m</span>.<span class="ident">ongoing_verb</span>(), <span class="ident">m</span>))
-                            .<span class="ident">collect</span>(),
-                    ),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Percent of people to modify:&quot;</span>
                         .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
@@ -819,6 +820,19 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Departing until:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                     <span class="ident">AreaSlider</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.3</span>).<span class="ident">named</span>(<span class="string">&quot;depart to&quot;</span>),
+                ]),
+                <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.5</span>),
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;Change to trip type:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;to_mode&quot;</span>,
+                        <span class="ident">TripMode</span>::<span class="ident">Bike</span>,
+                        <span class="ident">TripMode</span>::<span class="ident">all</span>()
+                            .<span class="ident">into_iter</span>()
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">m</span>.<span class="ident">ongoing_verb</span>(), <span class="ident">m</span>))
+                            .<span class="ident">collect</span>(),
+                    ),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),

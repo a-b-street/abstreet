@@ -149,7 +149,7 @@
 
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
@@ -158,7 +158,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">Scenario</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripMode</span>};
 
 <span class="doccomment">/// Transforms an existing Scenario before instantiating it.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ScenarioModifier</span> {
     <span class="ident">RepeatDays</span>(<span class="ident">usize</span>),
     <span class="ident">CancelPeople</span>(<span class="ident">usize</span>),
