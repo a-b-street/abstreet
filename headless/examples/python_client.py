@@ -2,7 +2,7 @@
 # This example will see how changing one traffic signal affects trip times.
 # Before running this script, start the API server:
 #
-# > cargo run --release --bin headless -- --port=1234 data/system/scenarios/montlake/weekday.bin
+# > cargo run --release --bin headless -- --port=1234
 
 import json
 # You may need to install https://requests.readthedocs.io

@@ -5,7 +5,7 @@ how many trips need to be cancelled to substantially speed up remaining ones.
 
 Before running this script, start the API server:
 
-> cargo run --release --bin headless -- --port=1234 data/system/scenarios/montlake/weekday.bin
+> cargo run --release --bin headless -- --port=1234
 */
 
 package main
