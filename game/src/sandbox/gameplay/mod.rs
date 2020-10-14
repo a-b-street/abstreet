@@ -270,7 +270,7 @@ impl State for FinalScore {
                 "Try again" => {
                     return Transition::Multi(vec![
                         Transition::Pop,
-                        Transition::Replace(SandboxMode::new(ctx, app, self.retry.clone())),
+                        Transition::Replace(SandboxMode::simple_new(ctx, app, self.retry.clone())),
                     ]);
                 }
                 "Next challenge" => {
@@ -320,7 +320,8 @@ impl State for FinalScore {
         if self.chose_next {
             return Transition::Clear(vec![
                 MainMenu::new(ctx, app),
-                SandboxMode::new(ctx, app, self.next_mode.clone().unwrap()),
+                // Constructing the cutscene doesn't require the map/scenario to be loaded.
+                SandboxMode::simple_new(ctx, app, self.next_mode.clone().unwrap()),
                 (Challenge::find(self.next_mode.as_ref().unwrap())
                     .0
                     .cutscene

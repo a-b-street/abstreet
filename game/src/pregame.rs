@@ -189,7 +189,7 @@ impl State for MainMenu {
                     } else {
                         "home_to_work"
                     };
-                    return Transition::Push(SandboxMode::new(
+                    return Transition::Push(SandboxMode::simple_new(
                         ctx,
                         app,
                         GameplayMode::PlayScenario(
@@ -437,7 +437,7 @@ impl State for Proposals {
                             } else {
                                 app.primary.layer =
                                     Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
-                                Transition::Replace(SandboxMode::new(
+                                Transition::Replace(SandboxMode::simple_new(
                                     ctx,
                                     app,
                                     GameplayMode::PlayScenario(

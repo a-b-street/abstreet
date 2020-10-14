@@ -73,7 +73,7 @@ impl GameplayState for PlayScenario {
                             };
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::Replace(SandboxMode::new(ctx, app, mode)),
+                                Transition::Replace(SandboxMode::simple_new(ctx, app, mode)),
                             ])
                         }),
                     )))
@@ -241,7 +241,7 @@ impl State for EditScenarioModifiers {
 
                     return Transition::Multi(vec![
                         Transition::Pop,
-                        Transition::Replace(SandboxMode::new(
+                        Transition::Replace(SandboxMode::simple_new(
                             ctx,
                             app,
                             GameplayMode::PlayScenario(

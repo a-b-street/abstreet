@@ -257,7 +257,8 @@ impl State for ChallengesPicker {
                 }
                 "Start!" => {
                     let challenge = self.challenge.take().unwrap();
-                    let sandbox = SandboxMode::new(ctx, app, challenge.gameplay.clone());
+                    // Constructing the cutscene doesn't require the map/scenario to be loaded
+                    let sandbox = SandboxMode::simple_new(ctx, app, challenge.gameplay.clone());
                     if let Some(cutscene) = challenge.cutscene {
                         Transition::Multi(vec![
                             Transition::Replace(sandbox),

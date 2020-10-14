@@ -218,7 +218,7 @@ impl GameplayState for FixTrafficSignals {
                     return Some(Transition::Push(FYI::new(ctx, contents, app.cs.panel_bg)));
                 }
                 "try again" => {
-                    return Some(Transition::Replace(SandboxMode::new(
+                    return Some(Transition::Replace(SandboxMode::simple_new(
                         ctx,
                         app,
                         self.mode.clone(),

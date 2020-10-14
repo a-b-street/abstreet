@@ -50,7 +50,7 @@ impl GameplayState for Freeform {
                     Box::new(|ctx, app| {
                         Transition::Multi(vec![
                             Transition::Pop,
-                            Transition::Replace(SandboxMode::new(
+                            Transition::Replace(SandboxMode::simple_new(
                                 ctx,
                                 app,
                                 GameplayMode::Freeform(app.primary.map.get_name().clone()),
@@ -192,7 +192,7 @@ pub fn make_change_traffic(
         Box::new(|scenario_name, ctx, app| {
             Transition::Multi(vec![
                 Transition::Pop,
-                Transition::Replace(SandboxMode::new(
+                Transition::Replace(SandboxMode::simple_new(
                     ctx,
                     app,
                     if scenario_name == "none" {

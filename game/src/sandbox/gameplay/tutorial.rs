@@ -53,7 +53,8 @@ impl TutorialPointer {
 impl Tutorial {
     pub fn start(ctx: &mut EventCtx, app: &mut App) -> Transition {
         Transition::Multi(vec![
-            Transition::Push(SandboxMode::new(
+            // Constructing the intro_story cutscene doesn't require the map/scenario to be loaded.
+            Transition::Push(SandboxMode::simple_new(
                 ctx,
                 app,
                 GameplayMode::Tutorial(
@@ -662,7 +663,7 @@ fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
 fn transition(ctx: &mut EventCtx, app: &mut App, tut: &mut TutorialState) -> Transition {
     tut.reset_state();
     let mode = GameplayMode::Tutorial(tut.current);
-    Transition::Replace(SandboxMode::new(ctx, app, mode))
+    Transition::Replace(SandboxMode::simple_new(ctx, app, mode))
 }
 
 impl TutorialState {

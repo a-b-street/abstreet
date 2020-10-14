@@ -87,10 +87,20 @@ impl State for JumpToTime {
                 "jump to time" => {
                     if self.target < app.primary.sim.time() {
                         if let Some(mode) = self.maybe_mode.take() {
-                            return Transition::Multi(vec![
-                                Transition::Replace(SandboxMode::new(ctx, app, mode)),
-                                Transition::Push(TimeWarpScreen::new(ctx, app, self.target, None)),
-                            ]);
+                            let target_time = self.target;
+                            return Transition::Replace(SandboxMode::async_new(
+                                ctx,
+                                app,
+                                mode,
+                                Box::new(move |ctx, app| {
+                                    vec![Transition::Push(TimeWarpScreen::new(
+                                        ctx,
+                                        app,
+                                        target_time,
+                                        None,
+                                    ))]
+                                }),
+                            ));
                         } else {
                             return Transition::Replace(PopupMsg::new(
                                 ctx,

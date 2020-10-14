@@ -70,7 +70,7 @@ impl Game {
         } else {
             let mode = maybe_mode
                 .unwrap_or_else(|| GameplayMode::Freeform(app.primary.map.get_name().clone()));
-            vec![SandboxMode::new(ctx, &mut app, mode)]
+            vec![SandboxMode::simple_new(ctx, &mut app, mode)]
         };
         if let Some(ss) = savestate {
             // TODO This is weird, we're left in Freeform mode with the wrong UI. Can't instantiate
