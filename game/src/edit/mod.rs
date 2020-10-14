@@ -101,11 +101,22 @@ impl EditMode {
                 app.primary.sim.handle_live_edits(&app.primary.map);
                 Transition::Pop
             } else {
-                app.primary.clear_sim();
+                let resume_time = old_sim.time();
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(SandboxMode::new(ctx, app, self.mode.clone())),
-                    Transition::Push(TimeWarpScreen::new(ctx, app, old_sim.time(), None)),
+                    Transition::Replace(SandboxMode::async_new(
+                        ctx,
+                        app,
+                        self.mode.clone(),
+                        Box::new(move |ctx, app| {
+                            vec![Transition::Push(TimeWarpScreen::new(
+                                ctx,
+                                app,
+                                resume_time,
+                                None,
+                            ))]
+                        }),
+                    )),
                 ])
             }
         })
