@@ -1060,6 +1060,21 @@ has everything you need to get started.</p>
 <a href="https://github.com/dabreegster/abstreet/tree/master/headless/examples">all example code</a>
 -- there are different experiments in Go and Python that automate running a
 simulation, measuring some metric, and making a change to improve the metric.</p>
+<h2><a class="header" href="#control-flow" id="control-flow">Control flow</a></h2>
+<p>The <code>headless</code> API server that you run contains a single map and simulation at a
+time. Even though you can theoretically have multiple clients make requests to
+it simultaneously, the server will only execute one at a time. If you're trying
+to do something other than use one script to make API calls in sequence, please
+get in touch, so we can figure out something better suited to your use case.</p>
+<p>When you start the <code>headless</code> server, it always loads the <code>montlake</code> map with
+the <code>weekday</code> scenario. The only way you can change this is by calling
+<code>/sim/load</code>. For example:</p>
+<pre><code>curl http://localhost:1234/sim/load -d '{ &quot;scenario&quot;: &quot;data/system/scenarios/downtown/monday.bin&quot;, &quot;modifiers&quot;: [], &quot;edits&quot;: null }' -X POST`
+</code></pre>
+<p>You can also pass flags like <code>--infinite_parking</code> to the server to control
+<a href="https://dabreegster.github.io/abstreet/rustdoc/sim/struct.SimOptions.html">SimOptions</a>.
+These settings will apply for the entire lifetime of the server; you can't
+change them later.</p>
 <h2><a class="header" href="#api-details" id="api-details">API details</a></h2>
 <blockquote>
 <p><strong>Under construction</strong>: The API will keep changing. There are no backwards
@@ -2112,10 +2127,6 @@ modify the mode for some people (change 50% of all driving trips between 7 and
 <p>Here &quot;gridlock&quot; refers to the general problem of trips getting permanently
 stuck, preventing the full simulation from completing. Most of the work is
 tracked <a href="https://github.com/dabreegster/abstreet/issues/114">here</a>.</p>
-<p>My general approach right now to get a map working is to cancel some percent of
-all trips, look for individual problems, fix them, and repeat. Once the full day
-works, cancel less trips. It's easier to isolate the root cause of problems when
-there are less of them erupting simultaneously.</p>
 <p>The general lesson is: you can't code your way around all edge cases. The data
 in OSM often needs manual fixes. It's often useful to spend coding effort on
 tools to detect and fix OSM problems.</p>
@@ -2204,6 +2215,32 @@ signs is causing problems.</li>
 </ul>
 </li>
 </ul>
+<h2><a class="header" href="#strategy-for-resolving" id="strategy-for-resolving">Strategy for resolving</a></h2>
+<p>Because there are so many different causes all tangled together, my approach is
+to simplify the simulation as much as possible. A problem is much easier to
+understand and fix when it's isolated. I've been trying this to get the downtown
+weekday scenario to complete. A list of different techniques to simplify, in no
+particular order:</p>
+<ul>
+<li>Use the <code>--infinite_parking</code> flag to just let everyone park directly in their
+destination buildings. This is useful since downtown has many large parking
+garages with high capacity, but I don't have a data source describing them.</li>
+<li>Use the <code>--disable_turn_conflicts</code> flag, which greatly reduces realism, but
+lets conflicting turns happen simultaneously. (Even with this and other flags,
+downtown still gridlocks!) It also disables traffic signals, so bad inferred
+timing isn't an issue.</li>
+<li>Use the <code>--disable_block_the_box</code> flag to workaround short roads.</li>
+<li>If you notice problems forming from cars stacking up behind slower cyclists,
+there's no over-taking implemented yet. Use the scenario modifiers to convert
+all biking trip to driving.</li>
+<li>If all else fails, use the scenario modifiers to bluntly cancel some
+percentage of all trips.</li>
+</ul>
+<p>An example outcome of following all of this for the downtown map is to discover
+patterns in the Soundcast demand model. Lots of trips pour into Harborview in
+the morning, and with <code>--infinite_parking</code>, they still take a few seconds to
+enter the building through the driveway, causing lots of vehicles to stack up
+behind.</p>
 <h2><a class="header" href="#fixing-data-used-in-simulation" id="fixing-data-used-in-simulation">Fixing data used in simulation</a></h2>
 <p>Give more examples of changesets.</p>
 <ul>

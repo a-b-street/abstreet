@@ -479,16 +479,6 @@
 <span id="478">478</span>
 <span id="479">479</span>
 <span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span>;
@@ -642,23 +632,13 @@
 
         <span class="kw">match</span> <span class="ident">state</span>.<span class="ident">draw_baselayer</span>() {
             <span class="ident">DrawBaselayer</span>::<span class="ident">DefaultMap</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">app</span>.<span class="ident">draw</span>(
-                    <span class="ident">g</span>,
-                    <span class="ident">DrawOptions</span>::<span class="ident">new</span>(),
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">ShowEverything</span>::<span class="ident">new</span>(),
-                );
+                <span class="self">self</span>.<span class="ident">app</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">DrawOptions</span>::<span class="ident">new</span>(), <span class="kw-2">&amp;</span><span class="ident">ShowEverything</span>::<span class="ident">new</span>());
             }
             <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span> <span class="op">=&gt;</span> {}
             <span class="ident">DrawBaselayer</span>::<span class="ident">PreviousState</span> <span class="op">=&gt;</span> {
                 <span class="kw">match</span> <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw_baselayer</span>() {
                     <span class="ident">DrawBaselayer</span>::<span class="ident">DefaultMap</span> <span class="op">=&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">app</span>.<span class="ident">draw</span>(
-                            <span class="ident">g</span>,
-                            <span class="ident">DrawOptions</span>::<span class="ident">new</span>(),
-                            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">ShowEverything</span>::<span class="ident">new</span>(),
-                        );
+                        <span class="self">self</span>.<span class="ident">app</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">DrawOptions</span>::<span class="ident">new</span>(), <span class="kw-2">&amp;</span><span class="ident">ShowEverything</span>::<span class="ident">new</span>());
                     }
                     <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span> <span class="op">=&gt;</span> {}
                     <span class="comment">// Nope, don&#39;t recurse</span>
