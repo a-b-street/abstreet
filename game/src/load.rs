@@ -22,10 +22,12 @@ impl MapLoader {
         ctx: &mut EventCtx,
         app: &App,
         name: String,
-        on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
     ) -> Box<dyn State> {
         if app.primary.map.get_name() == &name {
-            return Box::new(MapAlreadyLoaded { on_load });
+            return Box::new(MapAlreadyLoaded {
+                on_load: Some(on_load),
+            });
         }
 
         // TODO If we want to load montlake on the web, just pull from bundled data.
@@ -66,11 +68,11 @@ impl MapLoader {
 }
 
 struct MapAlreadyLoaded {
-    on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>>,
 }
 impl State for MapAlreadyLoaded {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        (self.on_load)(ctx, app)
+        (self.on_load.take().unwrap())(ctx, app)
     }
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
@@ -81,16 +83,21 @@ mod native_loader {
 
     pub struct FileLoader<T> {
         path: String,
-        on_load: Box<dyn Fn(&mut EventCtx, &mut App, Option<T>) -> Transition>,
+        // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
+        // if a caller fails to pop the FileLoader state in their transitions!
+        on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App, Option<T>) -> Transition>>,
     }
 
     impl<T: 'static + DeserializeOwned> FileLoader<T> {
         pub fn new(
             _: &mut EventCtx,
             path: String,
-            on_load: Box<dyn Fn(&mut EventCtx, &mut App, Option<T>) -> Transition>,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut App, Option<T>) -> Transition>,
         ) -> Box<dyn State> {
-            Box::new(FileLoader { path, on_load })
+            Box::new(FileLoader {
+                path,
+                on_load: Some(on_load),
+            })
         }
     }
 
@@ -98,7 +105,7 @@ mod native_loader {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
                 // Assumes a binary file
-                (self.on_load)(
+                (self.on_load.take().unwrap())(
                     ctx,
                     app,
                     abstutil::maybe_read_binary(self.path.clone(), timer).ok(),
@@ -130,7 +137,7 @@ mod wasm_loader {
     // compatible with winit's event loop.
     pub struct FileLoader<T> {
         response: oneshot::Receiver<Vec<u8>>,
-        on_load: Box<dyn Fn(&mut EventCtx, &mut App, Option<T>) -> Transition>,
+        on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App, Option<T>) -> Transition>>,
         panel: Panel,
         started: Instant,
         url: String,
@@ -140,7 +147,7 @@ mod wasm_loader {
         pub fn new(
             ctx: &mut EventCtx,
             path: String,
-            on_load: Box<dyn Fn(&mut EventCtx, &mut App, Option<T>) -> Transition>,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut App, Option<T>) -> Transition>,
         ) -> Box<dyn State> {
             let url = if cfg!(feature = "wasm_s3") {
                 format!(
@@ -177,7 +184,7 @@ mod wasm_loader {
 
             Box::new(FileLoader {
                 response: rx,
-                on_load,
+                on_load: Some(on_load),
                 panel: ctx.make_loading_screen(Text::from(Line(format!("Loading {}...", url)))),
                 started: Instant::now(),
                 url,
@@ -194,7 +201,7 @@ mod wasm_loader {
 
                 // TODO Plumb failures
                 let obj: T = abstutil::from_binary(&resp).unwrap();
-                return (self.on_load)(ctx, app, Some(obj));
+                return (self.on_load.take().unwrap())(ctx, app, Some(obj));
             }
 
             self.panel = ctx.make_loading_screen(Text::from_multiline(vec![

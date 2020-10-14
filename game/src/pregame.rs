@@ -417,10 +417,7 @@ impl State for Proposals {
                         Box::new(move |ctx, app| {
                             // Apply edits before setting up the sandbox, for simplicity
                             let maybe_err = ctx.loading_screen("apply edits", |ctx, mut timer| {
-                                match PermanentMapEdits::from_permanent(
-                                    edits.clone(),
-                                    &app.primary.map,
-                                ) {
+                                match PermanentMapEdits::from_permanent(edits, &app.primary.map) {
                                     Ok(edits) => {
                                         apply_map_edits(ctx, app, edits);
                                         app.primary

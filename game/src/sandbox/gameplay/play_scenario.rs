@@ -65,7 +65,7 @@ impl GameplayState for PlayScenario {
                             )) {
                                 GameplayMode::PlayScenario(
                                     app.primary.map.get_name().clone(),
-                                    scenario.clone(),
+                                    scenario,
                                     Vec::new(),
                                 )
                             } else {

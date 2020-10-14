@@ -618,15 +618,12 @@ impl State for SandboxLoader {
                         ctx,
                         abstutil::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
                         Box::new(move |_, _, prebaked| {
-                            let scenario_name = scenario_name.clone();
                             Transition::Multi(vec![
                                 Transition::Pop,
                                 Transition::ModifyState(Box::new(move |state, _, _| {
                                     let loader = state.downcast_mut::<SandboxLoader>().unwrap();
-                                    loader.stage = Some(LoadStage::GotPrebaked(
-                                        scenario_name.clone(),
-                                        prebaked,
-                                    ));
+                                    loader.stage =
+                                        Some(LoadStage::GotPrebaked(scenario_name, prebaked));
                                 })),
                             ])
                         }),

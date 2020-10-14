@@ -743,7 +743,7 @@ impl ScreenshotTest {
             todo_maps.pop().unwrap().to_string(),
             Box::new(move |_, _| {
                 Transition::Replace(Box::new(ScreenshotTest {
-                    todo_maps: todo_maps.clone(),
+                    todo_maps,
                     screenshot_done: false,
                 }))
             }),

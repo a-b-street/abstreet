@@ -15,14 +15,15 @@ pub struct CityPicker {
     // In untranslated screen-space
     regions: Vec<(String, Color, Polygon)>,
     selected: Option<usize>,
-    on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+    // Wrapped in an Option just to make calling from event() work.
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>>,
 }
 
 impl CityPicker {
     pub fn new(
         ctx: &mut EventCtx,
         app: &mut App,
-        on_load: Box<dyn Fn(&mut EventCtx, &mut App) -> Transition>,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
     ) -> Box<dyn State> {
         app.primary.current_selection = None;
 
@@ -81,7 +82,7 @@ impl CityPicker {
         Box::new(CityPicker {
             regions,
             selected: None,
-            on_load,
+            on_load: Some(on_load),
             panel: Panel::new(
                 Widget::col(vec![
                     Widget::row(vec![
@@ -111,13 +112,11 @@ impl State for CityPicker {
                     return Transition::Pop;
                 }
                 name => {
-                    let on_load =
-                        std::mem::replace(&mut self.on_load, Box::new(|_, _| Transition::Keep));
                     return Transition::Replace(MapLoader::new(
                         ctx,
                         app,
                         name.to_string(),
-                        on_load,
+                        self.on_load.take().unwrap(),
                     ));
                 }
             },
@@ -152,9 +151,12 @@ impl State for CityPicker {
                 .per_obj
                 .left_click(ctx, format!("switch to {}", nice_map_name(name)))
             {
-                let on_load =
-                    std::mem::replace(&mut self.on_load, Box::new(|_, _| Transition::Keep));
-                return Transition::Replace(MapLoader::new(ctx, app, name.to_string(), on_load));
+                return Transition::Replace(MapLoader::new(
+                    ctx,
+                    app,
+                    name.to_string(),
+                    self.on_load.take().unwrap(),
+                ));
             }
         }
 

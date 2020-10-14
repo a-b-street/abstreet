@@ -101,7 +101,6 @@ impl EditMode {
                 app.primary.sim.handle_live_edits(&app.primary.map);
                 Transition::Pop
             } else {
-                let resume_time = old_sim.time();
                 Transition::Multi(vec![
                     Transition::Pop,
                     Transition::Replace(SandboxMode::async_new(
@@ -112,7 +111,7 @@ impl EditMode {
                             vec![Transition::Push(TimeWarpScreen::new(
                                 ctx,
                                 app,
-                                resume_time,
+                                old_sim.time(),
                                 None,
                             ))]
                         }),
