@@ -730,6 +730,10 @@ fn mouseover_unzoomed_agent_circle(ctx: &mut EventCtx, app: &mut App) {
     // - We could build and cache a quadtree if we're paused
     // - We could always build the quadtree as we loop over unzoomed agents
     // - At least do this while we draw? Don't call twice.
+    if !app.opts.select_unzoomed_agents {
+        return;
+    }
+
     let cursor = if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
         pt
     } else {
