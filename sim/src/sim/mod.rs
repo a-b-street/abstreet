@@ -184,7 +184,7 @@ impl Sim {
     pub fn new(map: &Map, opts: SimOptions, timer: &mut Timer) -> Sim {
         let mut scheduler = Scheduler::new();
         Sim {
-            driving: DrivingSimState::new(map, opts.recalc_lanechanging, opts.handle_uber_turns),
+            driving: DrivingSimState::new(map, &opts),
             parking: ParkingSimState::new(map, opts.infinite_parking, timer),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map, &mut scheduler, &opts),

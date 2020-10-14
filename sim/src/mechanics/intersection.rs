@@ -158,9 +158,6 @@ impl IntersectionSimState {
     }
 
     fn wakeup_waiting(&self, now: Time, i: IntersectionID, scheduler: &mut Scheduler, map: &Map) {
-        /*if i == IntersectionID(64) {
-            println!("at {}: wakeup_waiting -----------------", now);
-        }*/
         let mut all: Vec<(Request, Time)> = self.state[&i]
             .waiting
             .iter()

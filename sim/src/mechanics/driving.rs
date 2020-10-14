@@ -12,15 +12,11 @@ use crate::sim::Ctx;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
     DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSimState, ParkingSpot,
-    PersonID, Scheduler, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
-    Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
+    PersonID, Scheduler, SimOptions, TimeInterval, TransitSimState, TripID, TripManager,
+    UnzoomedAgent, Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
 };
 
-const TIME_TO_UNPARK_ONSTRET: Duration = Duration::const_seconds(10.0);
-const TIME_TO_PARK_ONSTREET: Duration = Duration::const_seconds(15.0);
-const TIME_TO_UNPARK_OFFSTREET: Duration = Duration::const_seconds(5.0);
-const TIME_TO_PARK_OFFSTREET: Duration = Duration::const_seconds(5.0);
-const TIME_TO_WAIT_AT_STOP: Duration = Duration::const_seconds(10.0);
+const TIME_TO_WAIT_AT_BUS_STOP: Duration = Duration::const_seconds(10.0);
 
 // TODO Do something else.
 pub(crate) const BLIND_RETRY_TO_CREEP_FORWARDS: Duration = Duration::const_seconds(0.1);
@@ -43,17 +39,31 @@ pub struct DrivingSimState {
 
     recalc_lanechanging: bool,
     handle_uber_turns: bool,
+
+    time_to_unpark_onstreet: Duration,
+    time_to_park_onstreet: Duration,
+    time_to_unpark_offstreet: Duration,
+    time_to_park_offstreet: Duration,
 }
 
 impl DrivingSimState {
-    pub fn new(map: &Map, recalc_lanechanging: bool, handle_uber_turns: bool) -> DrivingSimState {
+    pub fn new(map: &Map, opts: &SimOptions) -> DrivingSimState {
         let mut sim = DrivingSimState {
             cars: BTreeMap::new(),
             queues: BTreeMap::new(),
             events: Vec::new(),
-            recalc_lanechanging,
-            handle_uber_turns,
+            recalc_lanechanging: opts.recalc_lanechanging,
+            handle_uber_turns: opts.handle_uber_turns,
+
+            time_to_unpark_onstreet: Duration::seconds(10.0),
+            time_to_park_onstreet: Duration::seconds(15.0),
+            time_to_unpark_offstreet: Duration::seconds(5.0),
+            time_to_park_offstreet: Duration::seconds(5.0),
         };
+        if opts.infinite_parking {
+            sim.time_to_unpark_offstreet = Duration::seconds(0.1);
+            sim.time_to_park_offstreet = Duration::seconds(0.1);
+        }
 
         for l in map.all_lanes() {
             if l.lane_type.is_for_moving_vehicles() {
@@ -105,9 +115,9 @@ impl DrivingSimState {
             };
             if let Some(p) = params.maybe_parked_car {
                 let delay = match p.spot {
-                    ParkingSpot::Onstreet(_, _) => TIME_TO_UNPARK_ONSTRET,
+                    ParkingSpot::Onstreet(_, _) => self.time_to_unpark_onstreet,
                     ParkingSpot::Offstreet(_, _) | ParkingSpot::Lot(_, _) => {
-                        TIME_TO_UNPARK_OFFSTREET
+                        self.time_to_unpark_offstreet
                     }
                 };
                 car.state = CarState::Unparking(
@@ -503,9 +513,9 @@ impl DrivingSimState {
                     Some(ActionAtEnd::StartParking(spot)) => {
                         car.total_blocked_time += now - blocked_since;
                         let delay = match spot {
-                            ParkingSpot::Onstreet(_, _) => TIME_TO_PARK_ONSTREET,
+                            ParkingSpot::Onstreet(_, _) => self.time_to_park_onstreet,
                             ParkingSpot::Offstreet(_, _) | ParkingSpot::Lot(_, _) => {
-                                TIME_TO_PARK_OFFSTREET
+                                self.time_to_park_offstreet
                             }
                         };
                         car.state =
@@ -542,7 +552,7 @@ impl DrivingSimState {
                         if transit.bus_arrived_at_stop(now, car.vehicle.id, trips, walking, ctx) {
                             car.state = CarState::IdlingAtStop(
                                 our_dist,
-                                TimeInterval::new(now, now + TIME_TO_WAIT_AT_STOP),
+                                TimeInterval::new(now, now + TIME_TO_WAIT_AT_BUS_STOP),
                             );
                             ctx.scheduler
                                 .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));

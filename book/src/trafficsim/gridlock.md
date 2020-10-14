@@ -103,12 +103,6 @@ particular order:
 - If all else fails, use the scenario modifiers to bluntly cancel some
   percentage of all trips.
 
-An example outcome of following all of this for the downtown map is to discover
-patterns in the Soundcast demand model. Lots of trips pour into Harborview in
-the morning, and with `--infinite_parking`, they still take a few seconds to
-enter the building through the driveway, causing lots of vehicles to stack up
-behind.
-
 ## Fixing data used in simulation
 
 Give more examples of changesets.
