@@ -41,6 +41,11 @@ convert that geojson to the
 [Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
 required by osmconvert.
 
+Note that you may hit problems if you use JOSM to download additional data to a
+.osm file. Unless it updates the `<bounds/>` element, A/B Street will clip out
+anything extra. The best approach is to explicitly specify the boundary with
+`--oneshot_clip`.
+
 ## Including the city to A/B street more permanently
 
 Follow this guide to add a new city to A/B street by default so other users can
