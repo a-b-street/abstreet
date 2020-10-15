@@ -297,10 +297,10 @@ impl DrivingSimState {
             }
             CarState::Unparking(front, _, _) => {
                 if car.router.last_step() {
-                    // Actually, we need to do this first. Ignore the answer -- if we're
-                    // doing something weird like vanishing or re-parking immediately
-                    // (quite unlikely), the next loop will pick that up. Just trigger the
-                    // side effect of choosing an end_dist.
+                    // Actually, we need to do this first. Ignore the answer -- if we're doing
+                    // something weird like vanishing or re-parking immediately (quite unlikely),
+                    // the next loop will pick that up. Just trigger the side effect of choosing an
+                    // end_dist.
                     car.router.maybe_handle_end(
                         front,
                         &car.vehicle,
@@ -351,8 +351,7 @@ impl DrivingSimState {
                         }
                         CarState::WaitingToAdvance { .. } => unreachable!(),
                         // They weren't blocked. Note that there's no way the Crossing state could
-                        // jump forwards here; the leader is still in front
-                        // of them.
+                        // jump forwards here; the leader is still in front of them.
                         CarState::Crossing(_, _)
                         | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)
@@ -428,9 +427,8 @@ impl DrivingSimState {
                 car.last_steps.push_front(last_step);
 
                 // Optimistically assume we'll be out of the way ASAP.
-                // This is update, not push, because we might've scheduled a blind retry too
-                // late, and the car actually crosses an entire new traversable in the
-                // meantime.
+                // This is update, not push, because we might've scheduled a blind retry too late,
+                // and the car actually crosses an entire new traversable in the meantime.
                 ctx.scheduler.update(
                     car.crossing_state_with_end_dist(
                         DistanceInterval::new_driving(
@@ -520,9 +518,9 @@ impl DrivingSimState {
                         };
                         car.state =
                             CarState::Parking(our_dist, spot, TimeInterval::new(now, now + delay));
-                        // If we don't do this, then we might have another car creep up
-                        // behind, see the spot free, and start parking too. This can
-                        // happen with multiple lanes and certain vehicle lengths.
+                        // If we don't do this, then we might have another car creep up behind, see
+                        // the spot free, and start parking too. This can happen with multiple
+                        // lanes and certain vehicle lengths.
                         ctx.parking.reserve_spot(spot);
                         ctx.scheduler
                             .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
@@ -667,9 +665,9 @@ impl DrivingSimState {
         if idx != dists.len() - 1 {
             let (follower_id, follower_dist) = dists[idx + 1];
             let mut follower = self.cars.get_mut(&follower_id).unwrap();
-            // TODO If the leader vanished at a border node, this still jumps a bit -- the
-            // lead car's back is still sticking out. Need to still be bound by them, even
-            // though they don't exist! If the leader just parked, then we're fine.
+            // TODO If the leader vanished at a border node, this still jumps a bit -- the lead
+            // car's back is still sticking out. Need to still be bound by them, even though they
+            // don't exist! If the leader just parked, then we're fine.
             match follower.state {
                 CarState::Queued { blocked_since } => {
                     // Prevent them from jumping forwards.
@@ -681,9 +679,8 @@ impl DrivingSimState {
                     );
                 }
                 CarState::Crossing(_, _) => {
-                    // If the follower was still Crossing, they might not've been blocked
-                    // by leader yet. In that case, recalculating their Crossing state is a
-                    // no-op.
+                    // If the follower was still Crossing, they might not've been blocked by leader
+                    // yet. In that case, recalculating their Crossing state is a no-op.
                     follower.state = follower.crossing_state(follower_dist, now, ctx.map);
                     ctx.scheduler.update(
                         follower.state.get_end_time(),
@@ -805,8 +802,8 @@ impl DrivingSimState {
                             // right behind us.
                             if !follower.router.last_step() {
                                 // The follower has been smoothly following while the laggy head
-                                // gets out of the way. So
-                                // immediately promote them to WaitingToAdvance.
+                                // gets out of the way. So immediately promote them to
+                                // WaitingToAdvance.
                                 follower.state = CarState::WaitingToAdvance { blocked_since };
                                 if self.recalc_lanechanging {
                                     follower.router.opportunistically_lanechange(
@@ -820,9 +817,8 @@ impl DrivingSimState {
                             }
                         }
                         CarState::WaitingToAdvance { .. } => unreachable!(),
-                        // They weren't blocked. Note that there's no way the Crossing state
-                        // could jump forwards here; the leader
-                        // vanished from the end of the traversable.
+                        // They weren't blocked. Note that there's no way the Crossing state could
+                        // jump forwards here; the leader vanished from the end of the traversable.
                         CarState::Crossing(_, _)
                         | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)
@@ -830,8 +826,8 @@ impl DrivingSimState {
                     }
                 }
             } else {
-                // Only the last step we cleared could possibly have cars. Any intermediates,
-                // this car was previously completely blocking them.
+                // Only the last step we cleared could possibly have cars. Any intermediates, this
+                // car was previously completely blocking them.
                 assert!(old_queue.cars.is_empty());
             }
         }

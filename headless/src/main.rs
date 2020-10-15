@@ -325,6 +325,16 @@ fn handle_command(
                 &map.edit_road_cmd(r, |_| {}).to_perma(map),
             ))
         }
+        // Debug
+        "/debug/start-profiler" => {
+            // You have to build with --features abstutil/profiler
+            abstutil::start_profiler();
+            Ok("started".to_string())
+        }
+        "/debug/stop-profiler" => {
+            abstutil::stop_profiler();
+            Ok("stopped".to_string())
+        }
         _ => Err("Unknown command".into()),
     }
 }
