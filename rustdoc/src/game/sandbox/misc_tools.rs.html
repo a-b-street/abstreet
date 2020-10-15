@@ -255,6 +255,14 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">TurnType</span>};
@@ -269,8 +277,10 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">BIG_ARROW_THICKNESS</span>};
 
+<span class="doccomment">/// Draws a preview of the path for the agent under the mouse cursor.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutePreview</span> {
-    <span class="ident">preview</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">Time</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
+    <span class="comment">// (the agent we&#39;re hovering on, the sim time, whether we&#39;re zoomed in, the drawn path)</span>
+    <span class="ident">preview</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">Time</span>, <span class="ident">bool</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RoutePreview</span> {
@@ -288,24 +298,30 @@
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">agent_id</span>())
         {
             <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>();
+            <span class="kw">let</span> <span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>;
             <span class="kw">if</span> <span class="self">self</span>
                 .<span class="ident">preview</span>
                 .<span class="ident">as_ref</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">agent</span> <span class="op">!=</span> <span class="kw-2">*</span><span class="ident">a</span> <span class="op">||</span> <span class="ident">now</span> <span class="op">!=</span> <span class="kw-2">*</span><span class="ident">t</span>)
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="ident">t</span>, <span class="ident">z</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">agent</span> <span class="op">!=</span> <span class="kw-2">*</span><span class="ident">a</span> <span class="op">||</span> <span class="ident">now</span> <span class="op">!=</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">||</span> <span class="ident">zoomed</span> <span class="op">!=</span> <span class="kw-2">*</span><span class="ident">z</span>)
                 .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
             {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trace</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trace_route</span>(<span class="ident">agent</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="prelude-val">None</span>) {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-                    <span class="ident">batch</span>.<span class="ident">extend</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">route</span>,
-                        <span class="ident">trace</span>.<span class="ident">dashed_lines</span>(
-                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.75</span>),
-                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>),
-                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.4</span>),
-                        ),
-                    );
-                    <span class="self">self</span>.<span class="ident">preview</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">agent</span>, <span class="ident">now</span>, <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>)));
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                <span class="comment">// Only draw the preview when zoomed in. If we wanted to do this unzoomed, we&#39;d</span>
+                <span class="comment">// want a different style; the dashed lines don&#39;t show up well.</span>
+                <span class="kw">if</span> <span class="ident">zoomed</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trace</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trace_route</span>(<span class="ident">agent</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="prelude-val">None</span>)
+                    {
+                        <span class="ident">batch</span>.<span class="ident">extend</span>(
+                            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">route</span>,
+                            <span class="ident">trace</span>.<span class="ident">dashed_lines</span>(
+                                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.75</span>),
+                                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>),
+                                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.4</span>),
+                            ),
+                        );
+                    }
                 }
+                <span class="self">self</span>.<span class="ident">preview</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">agent</span>, <span class="ident">now</span>, <span class="ident">zoomed</span>, <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>)));
             }
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -315,7 +331,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">d</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">preview</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">d</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">preview</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">d</span>);
         }
     }

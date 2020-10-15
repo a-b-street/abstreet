@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["CONFLICTING_TURN",""],["CURRENT_TURN",""]],"fn":[["color_turn_type",""]],"struct":[["RoutePreview",""],["TurnExplorer",""]]});
+initSidebarItems({"constant":[["CONFLICTING_TURN",""],["CURRENT_TURN",""]],"fn":[["color_turn_type",""]],"struct":[["RoutePreview","Draws a preview of the path for the agent under the mouse cursor."],["TurnExplorer",""]]});

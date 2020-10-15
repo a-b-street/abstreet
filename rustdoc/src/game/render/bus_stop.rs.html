@@ -85,6 +85,8 @@
 <span id="84">84</span>
 <span id="85">85</span>
 <span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BusStop</span>, <span class="ident">BusStopID</span>, <span class="ident">Map</span>};
@@ -161,7 +163,9 @@
     }
 
     <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
-        <span class="ident">Circle</span>::<span class="ident">outline</span>(<span class="self">self</span>.<span class="ident">center</span>, <span class="ident">RADIUS</span>, <span class="ident">OUTLINE_THICKNESS</span>).<span class="ident">expect</span>(<span class="string">&quot;constants defined wrong&quot;</span>)
+        <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">center</span>, <span class="ident">RADIUS</span>)
+            .<span class="ident">to_outline</span>(<span class="ident">OUTLINE_THICKNESS</span>)
+            .<span class="ident">expect</span>(<span class="string">&quot;constants defined wrong&quot;</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {

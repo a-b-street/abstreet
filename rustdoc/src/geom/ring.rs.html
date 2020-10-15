@@ -160,6 +160,8 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -206,6 +208,8 @@
         <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>()
     }
 
+    <span class="doccomment">/// Draws the ring with some thickness, with half of it straddling the interor of the ring, and</span>
+    <span class="doccomment">/// half on the outside.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
         <span class="comment">// TODO Has a weird corner. Use the polygon offset thing instead?</span>
         <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
