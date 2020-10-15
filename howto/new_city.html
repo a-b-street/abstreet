@@ -186,6 +186,10 @@ region you want to simulate and save the geojson locally. Use
 convert that geojson to the
 <a href="https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format">Osmosis format</a>
 required by osmconvert.</p>
+<p>Note that you may hit problems if you use JOSM to download additional data to a
+.osm file. Unless it updates the <code>&lt;bounds/&gt;</code> element, A/B Street will clip out
+anything extra. The best approach is to explicitly specify the boundary with
+<code>--oneshot_clip</code>.</p>
 <h2><a class="header" href="#including-the-city-to-ab-street-more-permanently" id="including-the-city-to-ab-street-more-permanently">Including the city to A/B street more permanently</a></h2>
 <p>Follow this guide to add a new city to A/B street by default so other users can
 use it as well.</p>
