@@ -25,11 +25,7 @@ pub(crate) const BLIND_RETRY_TO_REACH_END_DIST: Duration = Duration::const_secon
 /// Simulates vehicles!
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DrivingSimState {
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    cars: BTreeMap<CarID, Car>,
+    cars: FixedMap,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -49,7 +45,7 @@ pub struct DrivingSimState {
 impl DrivingSimState {
     pub fn new(map: &Map, opts: &SimOptions) -> DrivingSimState {
         let mut sim = DrivingSimState {
-            cars: BTreeMap::new(),
+            cars: FixedMap::new(),
             queues: BTreeMap::new(),
             events: Vec::new(),
             recalc_lanechanging: opts.recalc_lanechanging,
@@ -1077,5 +1073,56 @@ impl DrivingSimState {
                 }
             }
         }
+    }
+}
+
+/// A drop-in for a `BTreeMap<CarID, Car>`. Behaves the same, but theoretically more efficient at
+/// the most common operations (on individual cars), because it's a simple array indexing, instead
+/// of a BTreeMap search. This works because CarIDs are assigned sequentially using `new_car_id`,
+/// and the highest index is bounded by the number of people in the simulation.
+#[derive(Serialize, Deserialize, Clone)]
+pub struct FixedMap {
+    // Indexed by the numeric part of the CarID
+    inner: Vec<Option<Car>>,
+}
+
+impl FixedMap {
+    pub fn new() -> FixedMap {
+        FixedMap { inner: Vec::new() }
+    }
+
+    pub fn insert(&mut self, id: CarID, car: Car) {
+        if id.0 >= self.inner.len() {
+            self.inner.resize(id.0 + 1, None);
+        }
+        self.inner[id.0] = Some(car);
+    }
+
+    pub fn get(&self, id: &CarID) -> Option<&Car> {
+        self.inner[id.0].as_ref()
+    }
+
+    pub fn get_mut(&mut self, id: &CarID) -> Option<&mut Car> {
+        self.inner[id.0].as_mut()
+    }
+
+    pub fn contains_key(&self, id: &CarID) -> bool {
+        self.inner[id.0].is_some()
+    }
+
+    pub fn remove(&mut self, id: &CarID) -> Option<Car> {
+        self.inner[id.0].take()
+    }
+
+    pub fn values(&self) -> std::iter::Flatten<std::slice::Iter<'_, std::option::Option<Car>>> {
+        self.inner.iter().flatten()
+    }
+}
+
+impl std::ops::Index<&CarID> for FixedMap {
+    type Output = Car;
+
+    fn index(&self, id: &CarID) -> &Self::Output {
+        self.inner[id.0].as_ref().unwrap()
     }
 }

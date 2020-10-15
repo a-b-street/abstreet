@@ -10,6 +10,7 @@ use map_model::{
 };
 
 use crate::mechanics::car::Car;
+use crate::mechanics::driving::FixedMap;
 use crate::mechanics::Queue;
 use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, SimOptions, Speed};
 
@@ -286,11 +287,7 @@ impl IntersectionSimState {
         now: Time,
         map: &Map,
         scheduler: &mut Scheduler,
-        maybe_cars_and_queues: Option<(
-            &Car,
-            &BTreeMap<CarID, Car>,
-            &mut BTreeMap<Traversable, Queue>,
-        )>,
+        maybe_cars_and_queues: Option<(&Car, &FixedMap, &mut BTreeMap<Traversable, Queue>)>,
     ) -> bool {
         let req = Request { agent, turn };
         self.state
@@ -660,7 +657,7 @@ impl IntersectionSimState {
         &mut self,
         req: &Request,
         map: &Map,
-        maybe_cars_and_queues: Option<(&BTreeMap<CarID, Car>, &BTreeMap<Traversable, Queue>)>,
+        maybe_cars_and_queues: Option<(&FixedMap, &BTreeMap<Traversable, Queue>)>,
     ) -> bool {
         let turn = map.get_t(req.turn);
         let mut cycle_detected = false;
@@ -713,7 +710,7 @@ impl IntersectionSimState {
     fn detect_conflict_cycle(
         &self,
         car: CarID,
-        pair: (&BTreeMap<CarID, Car>, &BTreeMap<Traversable, Queue>),
+        pair: (&FixedMap, &BTreeMap<Traversable, Queue>),
     ) -> Option<HashSet<CarID>> {
         let (cars, queues) = pair;
 

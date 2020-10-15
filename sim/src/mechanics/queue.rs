@@ -6,6 +6,7 @@ use geom::{Distance, Time};
 use map_model::{Map, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
+use crate::mechanics::driving::FixedMap;
 use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 
 /// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where
@@ -42,7 +43,7 @@ impl Queue {
     pub fn get_car_positions(
         &self,
         now: Time,
-        cars: &BTreeMap<CarID, Car>,
+        cars: &FixedMap,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Vec<(CarID, Distance)> {
         self.inner_get_car_positions(now, cars, queues, &mut BTreeSet::new())
@@ -51,7 +52,7 @@ impl Queue {
     fn inner_get_car_positions(
         &self,
         now: Time,
-        cars: &BTreeMap<CarID, Car>,
+        cars: &FixedMap,
         queues: &BTreeMap<Traversable, Queue>,
         recursed_queues: &mut BTreeSet<Traversable>,
     ) -> Vec<(CarID, Distance)> {
@@ -169,7 +170,7 @@ impl Queue {
         start_dist: Distance,
         vehicle_len: Distance,
         now: Time,
-        cars: &BTreeMap<CarID, Car>,
+        cars: &FixedMap,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Option<usize> {
         if self.laggy_head.is_none() && self.cars.is_empty() {
@@ -255,7 +256,7 @@ impl Queue {
 
 fn validate_positions(
     dists: Vec<(CarID, Distance)>,
-    cars: &BTreeMap<CarID, Car>,
+    cars: &FixedMap,
     now: Time,
     id: Traversable,
 ) -> Vec<(CarID, Distance)> {
@@ -271,12 +272,7 @@ fn validate_positions(
     dists
 }
 
-fn dump_cars(
-    dists: &Vec<(CarID, Distance)>,
-    cars: &BTreeMap<CarID, Car>,
-    id: Traversable,
-    now: Time,
-) {
+fn dump_cars(dists: &Vec<(CarID, Distance)>, cars: &FixedMap, id: Traversable, now: Time) {
     println!("\nOn {} at {}...", id, now);
     for (id, dist) in dists {
         let car = &cars[id];
