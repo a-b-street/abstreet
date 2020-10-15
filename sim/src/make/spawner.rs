@@ -206,10 +206,6 @@ impl TripSpawner {
         timer: &mut Timer,
     ) {
         let pathfinding_upfront = trips.pathfinding_upfront;
-        let profile = false;
-        if profile {
-            abstutil::start_profiler();
-        }
         let paths = timer.parallelize(
             "calculate paths",
             Parallelism::Fastest,
@@ -227,9 +223,6 @@ impl TripSpawner {
                 )
             },
         );
-        if profile {
-            abstutil::stop_profiler();
-        }
 
         timer.start_iter("spawn trips", paths.len());
         for (

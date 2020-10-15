@@ -4,12 +4,8 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
-[features]
-profiler = ["cpuprofiler"]
-
 [dependencies]
 bincode = "1.3.1"
-cpuprofiler = { version = "0.0.4", optional = true }
 instant = "0.1.7"
 itertools = "0.9.0"
 lazy_static = "1.4.0"

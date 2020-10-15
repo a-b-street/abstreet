@@ -159,7 +159,6 @@ impl<G: GUI> State<G> {
 
 pub struct Settings {
     window_title: String,
-    profiling_enabled: bool,
     dump_raw_events: bool,
     scale_factor: Option<f64>,
     window_icon: Option<String>,
@@ -170,17 +169,11 @@ impl Settings {
     pub fn new(window_title: &str) -> Settings {
         Settings {
             window_title: window_title.to_string(),
-            profiling_enabled: false,
             dump_raw_events: false,
             scale_factor: None,
             window_icon: None,
             loading_tips: None,
         }
-    }
-
-    pub fn enable_profiling(&mut self) {
-        assert!(!self.profiling_enabled);
-        self.profiling_enabled = true;
     }
 
     pub fn dump_raw_events(&mut self) {
@@ -242,11 +235,6 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
 
     let mut state = State { canvas, gui, style };
 
-    if settings.profiling_enabled {
-        abstutil::start_profiler();
-    }
-
-    let profiling_enabled = settings.profiling_enabled;
     let dump_raw_events = settings.dump_raw_events;
 
     let mut running = true;
@@ -263,9 +251,6 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 // ControlFlow::Exit cleanly shuts things down, meaning on larger maps, lots of
                 // GPU stuff is dropped. Better to just abort violently and let the OS clean
                 // up.
-                if profiling_enabled {
-                    abstutil::stop_profiler();
-                }
                 state.gui.before_quit(&state.canvas);
                 std::process::exit(0);
             }

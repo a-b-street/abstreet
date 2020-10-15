@@ -76,9 +76,6 @@ pub fn main() {
     }
     let mut settings = widgetry::Settings::new("A/B Street");
     settings.window_icon(abstutil::path("system/assets/pregame/icon.png"));
-    if args.enabled("--enable_profiler") {
-        settings.enable_profiling();
-    }
     if args.enabled("--dump_raw_events") {
         settings.dump_raw_events();
     }

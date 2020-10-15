@@ -172,3 +172,8 @@ There are still many places calling `println!`, but we're trying to clean these
 up.
 
 See the [testing strategy](testing.md) page.
+
+## Profiling
+
+Use <https://github.com/flamegraph-rs/flamegraph>, just running it on the
+binaries you build normally.
