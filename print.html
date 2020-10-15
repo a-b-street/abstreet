@@ -955,6 +955,9 @@ startup-time and be noticed by somebody developing before a player gets to it.</
 There are still many places calling <code>println!</code>, but we're trying to clean these
 up.</p>
 <p>See the <a href="dev/testing.html">testing strategy</a> page.</p>
+<h2><a class="header" href="#profiling" id="profiling">Profiling</a></h2>
+<p>Use <a href="https://github.com/flamegraph-rs/flamegraph">https://github.com/flamegraph-rs/flamegraph</a>, just running it on the
+binaries you build normally.</p>
 <h1><a class="header" href="#development-notes" id="development-notes">Development notes</a></h1>
 <p>Find packages to upgrade: <code>cargo outdated -R</code></p>
 <p>Deal with compile tile: <code>cargo bloat --time</code></p>
@@ -968,18 +971,6 @@ qapitrace game.trace
 apitrace dump game.trace
 </code></pre>
 <p>Understand XML: just use firefox</p>
-<h2><a class="header" href="#profiling" id="profiling">Profiling</a></h2>
-<p>Actually, <a href="https://github.com/flamegraph-rs/flamegraph">https://github.com/flamegraph-rs/flamegraph</a> is pretty cool too.</p>
-<p><code>apt-get install google-perftools libgoogle-perftools-dev</code></p>
-<p>Follow Usage from <a href="https://crates.io/crates/cpuprofiler">https://crates.io/crates/cpuprofiler</a></p>
-<p>Modify <code>game/Cargo.toml</code> to include the <code>abstutil/profiler</code> feature. Then run
-game or headless with <code>--enable_profiler</code></p>
-<pre><code>google-pprof --no_strip_temp ../target/debug/game profile
-google-pprof --no_strip_temp ../target/release/headless profile
-top30 --cum
-</code></pre>
-<p>Why aren't the columns labelled?
-<a href="https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ">https://groups.google.com/d/msg/golang-nuts/qkDWqFKj8og/tWfYAaWRYqkJ</a></p>
 <h2><a class="header" href="#building-releases" id="building-releases">Building releases</a></h2>
 <p>Cross-compilation notes: <a href="https://github.com/rust-embedded/cross">https://github.com/rust-embedded/cross</a> Or use
 <a href="https://github.com/japaric/trust">https://github.com/japaric/trust</a></p>

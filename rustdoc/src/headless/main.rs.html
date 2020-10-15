@@ -417,16 +417,6 @@
 <span id="416">416</span>
 <span id="417">417</span>
 <span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -754,16 +744,6 @@
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(
                 <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> {}).<span class="ident">to_perma</span>(<span class="ident">map</span>),
             ))
-        }
-        <span class="comment">// Debug</span>
-        <span class="string">&quot;/debug/start-profiler&quot;</span> <span class="op">=&gt;</span> {
-            <span class="comment">// You have to build with --features abstutil/profiler</span>
-            <span class="ident">abstutil</span>::<span class="ident">start_profiler</span>();
-            <span class="prelude-val">Ok</span>(<span class="string">&quot;started&quot;</span>.<span class="ident">to_string</span>())
-        }
-        <span class="string">&quot;/debug/stop-profiler&quot;</span> <span class="op">=&gt;</span> {
-            <span class="ident">abstutil</span>::<span class="ident">stop_profiler</span>();
-            <span class="prelude-val">Ok</span>(<span class="string">&quot;stopped&quot;</span>.<span class="ident">to_string</span>())
         }
         <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Unknown command&quot;</span>.<span class="ident">into</span>()),
     }

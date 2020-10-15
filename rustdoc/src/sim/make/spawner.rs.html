@@ -439,13 +439,6 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/dabreegster/abstreet/issues/258</span>
@@ -655,10 +648,6 @@
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) {
         <span class="kw">let</span> <span class="ident">pathfinding_upfront</span> <span class="op">=</span> <span class="ident">trips</span>.<span class="ident">pathfinding_upfront</span>;
-        <span class="kw">let</span> <span class="ident">profile</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">if</span> <span class="ident">profile</span> {
-            <span class="ident">abstutil</span>::<span class="ident">start_profiler</span>();
-        }
         <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(
             <span class="string">&quot;calculate paths&quot;</span>,
             <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
@@ -676,9 +665,6 @@
                 )
             },
         );
-        <span class="kw">if</span> <span class="ident">profile</span> {
-            <span class="ident">abstutil</span>::<span class="ident">stop_profiler</span>();
-        }
 
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;spawn trips&quot;</span>, <span class="ident">paths</span>.<span class="ident">len</span>());
         <span class="kw">for</span> (

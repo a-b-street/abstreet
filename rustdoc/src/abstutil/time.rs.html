@@ -607,30 +607,6 @@
 <span id="606">606</span>
 <span id="607">607</span>
 <span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">stdout</span>, <span class="ident">BufReader</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
@@ -1239,30 +1215,6 @@
 
         <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)
     }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;profiler&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_profiler</span>() {
-    <span class="ident">cpuprofiler</span>::<span class="ident">PROFILER</span>
-        .<span class="ident">lock</span>()
-        .<span class="ident">unwrap</span>()
-        .<span class="ident">start</span>(<span class="string">&quot;./profile&quot;</span>)
-        .<span class="ident">unwrap</span>();
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;profiler&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_profiler</span>() {
-    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;abstutil/profiler feature not enabled in Cargo.toml&quot;</span>);
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;profiler&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop_profiler</span>() {
-    <span class="ident">cpuprofiler</span>::<span class="ident">PROFILER</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>().<span class="ident">stop</span>().<span class="ident">unwrap</span>();
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;profiler&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop_profiler</span>() {
-    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;abstutil/profiler feature not enabled in Cargo.toml&quot;</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "abstutil";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
