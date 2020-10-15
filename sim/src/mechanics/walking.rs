@@ -25,8 +25,7 @@ const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 /// overlapping. They're simply grouped together into a DrawPedCrowdInput for rendering.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct WalkingSimState {
-    // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
-    peds: BTreeMap<PedestrianID, Pedestrian>,
+    peds: FixedMap,
     #[serde(
         serialize_with = "serialize_multimap",
         deserialize_with = "deserialize_multimap"
@@ -38,7 +37,7 @@ pub struct WalkingSimState {
 impl WalkingSimState {
     pub fn new() -> WalkingSimState {
         WalkingSimState {
-            peds: BTreeMap::new(),
+            peds: FixedMap::new(),
             peds_per_traversable: MultiMap::new(),
             events: Vec::new(),
         }
@@ -801,4 +800,52 @@ fn find_crowds(
     }
 
     (loners, crowds)
+}
+
+// TODO Make generic
+#[derive(Serialize, Deserialize, Clone)]
+struct FixedMap {
+    // Indexed by the numeric part of the PedestrianID
+    inner: Vec<Option<Pedestrian>>,
+}
+
+impl FixedMap {
+    fn new() -> FixedMap {
+        FixedMap { inner: Vec::new() }
+    }
+
+    fn insert(&mut self, id: PedestrianID, ped: Pedestrian) {
+        if id.0 >= self.inner.len() {
+            self.inner.resize(id.0 + 1, None);
+        }
+        self.inner[id.0] = Some(ped);
+    }
+
+    fn get(&self, id: &PedestrianID) -> Option<&Pedestrian> {
+        self.inner[id.0].as_ref()
+    }
+
+    fn get_mut(&mut self, id: &PedestrianID) -> Option<&mut Pedestrian> {
+        self.inner[id.0].as_mut()
+    }
+
+    fn contains_key(&self, id: &PedestrianID) -> bool {
+        self.inner[id.0].is_some()
+    }
+
+    fn remove(&mut self, id: &PedestrianID) -> Option<Pedestrian> {
+        self.inner[id.0].take()
+    }
+
+    fn values(&self) -> std::iter::Flatten<std::slice::Iter<'_, std::option::Option<Pedestrian>>> {
+        self.inner.iter().flatten()
+    }
+}
+
+impl std::ops::Index<&PedestrianID> for FixedMap {
+    type Output = Pedestrian;
+
+    fn index(&self, id: &PedestrianID) -> &Self::Output {
+        self.inner[id.0].as_ref().unwrap()
+    }
 }
