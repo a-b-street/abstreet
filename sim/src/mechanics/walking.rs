@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
+use abstutil::{deserialize_multimap, serialize_multimap, FixedMap, IndexableKey, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathStep, Traversable,
@@ -25,8 +25,7 @@ const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 /// overlapping. They're simply grouped together into a DrawPedCrowdInput for rendering.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct WalkingSimState {
-    // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
-    peds: BTreeMap<PedestrianID, Pedestrian>,
+    peds: FixedMap<PedestrianID, Pedestrian>,
     #[serde(
         serialize_with = "serialize_multimap",
         deserialize_with = "deserialize_multimap"
@@ -38,7 +37,7 @@ pub struct WalkingSimState {
 impl WalkingSimState {
     pub fn new() -> WalkingSimState {
         WalkingSimState {
-            peds: BTreeMap::new(),
+            peds: FixedMap::new(),
             peds_per_traversable: MultiMap::new(),
             events: Vec::new(),
         }
@@ -801,4 +800,10 @@ fn find_crowds(
     }
 
     (loners, crowds)
+}
+
+impl IndexableKey for PedestrianID {
+    fn index(&self) -> usize {
+        self.0
+    }
 }

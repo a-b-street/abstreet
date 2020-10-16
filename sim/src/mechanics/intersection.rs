@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, FixedMap};
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, Traversable,
@@ -288,7 +288,7 @@ impl IntersectionSimState {
         scheduler: &mut Scheduler,
         maybe_cars_and_queues: Option<(
             &Car,
-            &BTreeMap<CarID, Car>,
+            &FixedMap<CarID, Car>,
             &mut BTreeMap<Traversable, Queue>,
         )>,
     ) -> bool {
@@ -660,7 +660,7 @@ impl IntersectionSimState {
         &mut self,
         req: &Request,
         map: &Map,
-        maybe_cars_and_queues: Option<(&BTreeMap<CarID, Car>, &BTreeMap<Traversable, Queue>)>,
+        maybe_cars_and_queues: Option<(&FixedMap<CarID, Car>, &BTreeMap<Traversable, Queue>)>,
     ) -> bool {
         let turn = map.get_t(req.turn);
         let mut cycle_detected = false;
@@ -713,7 +713,7 @@ impl IntersectionSimState {
     fn detect_conflict_cycle(
         &self,
         car: CarID,
-        pair: (&BTreeMap<CarID, Car>, &BTreeMap<Traversable, Queue>),
+        pair: (&FixedMap<CarID, Car>, &BTreeMap<Traversable, Queue>),
     ) -> Option<HashSet<CarID>> {
         let (cars, queues) = pair;
 

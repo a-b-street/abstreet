@@ -1,5 +1,6 @@
 use std::cmp::Ord;
 use std::collections::{BTreeMap, BTreeSet};
+use std::marker::PhantomData;
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -242,5 +243,69 @@ impl Tags {
     // TODO Really just iter()
     pub fn inner(&self) -> &BTreeMap<String, String> {
         &self.0
+    }
+}
+
+/// Use with `FixedMap`. From a particular key, extract a `usize`. These values should be
+/// roughly contiguous; the space used by the `FixedMap` will be `O(n)` with respect to the largest
+/// value returned here.
+pub trait IndexableKey {
+    fn index(&self) -> usize;
+}
+
+/// A drop-in replacement for `BTreeMap`, where the keys have the property of being array indices.
+/// Some values may be missing. Much more efficient at operations on individual objects, because
+/// it just becomes a simple array lookup.
+#[derive(Serialize, Deserialize, Clone)]
+pub struct FixedMap<K: IndexableKey, V> {
+    inner: Vec<Option<V>>,
+    key_type: PhantomData<K>,
+}
+
+impl<K: IndexableKey, V> FixedMap<K, V> {
+    pub fn new() -> FixedMap<K, V> {
+        FixedMap {
+            inner: Vec::new(),
+            key_type: PhantomData,
+        }
+    }
+
+    pub fn insert(&mut self, key: K, value: V) {
+        let idx = key.index();
+        // Depending on the order of calls, this could wind up pushing one value at a time. It may
+        // be more efficient to resize less times and allocate more, but it'll require the caller
+        // to know about how many values it'll need.
+        if idx >= self.inner.len() {
+            self.inner.resize_with(idx + 1, || None);
+        }
+        self.inner[idx] = Some(value);
+    }
+
+    pub fn get(&self, key: &K) -> Option<&V> {
+        self.inner[key.index()].as_ref()
+    }
+
+    pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+        self.inner[key.index()].as_mut()
+    }
+
+    pub fn contains_key(&self, key: &K) -> bool {
+        self.inner[key.index()].is_some()
+    }
+
+    pub fn remove(&mut self, key: &K) -> Option<V> {
+        self.inner[key.index()].take()
+    }
+
+    pub fn values(&self) -> std::iter::Flatten<std::slice::Iter<'_, std::option::Option<V>>> {
+        self.inner.iter().flatten()
+    }
+}
+
+impl<K: IndexableKey, V> std::ops::Index<&K> for FixedMap<K, V> {
+    type Output = V;
+
+    fn index(&self, key: &K) -> &Self::Output {
+        self.inner[key.index()].as_ref().unwrap()
     }
 }

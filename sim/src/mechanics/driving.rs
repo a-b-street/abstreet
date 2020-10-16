@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap, FixedMap, IndexableKey};
 use geom::{Distance, Duration, PolyLine, Speed, Time};
 use map_model::{LaneID, Map, Path, PathStep, Traversable};
 
@@ -25,11 +25,11 @@ pub(crate) const BLIND_RETRY_TO_REACH_END_DIST: Duration = Duration::const_secon
 /// Simulates vehicles!
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DrivingSimState {
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    cars: BTreeMap<CarID, Car>,
+    // This spends some space to save time. If a simulation contains 1 million cars over the course
+    // of a day, but only 100,000 are ever active simultaneously, we store 900,000 `None`s. But we
+    // gain much faster lookup, which has shown dramatic speedups in the scenarios being run so
+    // far.
+    cars: FixedMap<CarID, Car>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -49,7 +49,7 @@ pub struct DrivingSimState {
 impl DrivingSimState {
     pub fn new(map: &Map, opts: &SimOptions) -> DrivingSimState {
         let mut sim = DrivingSimState {
-            cars: BTreeMap::new(),
+            cars: FixedMap::new(),
             queues: BTreeMap::new(),
             events: Vec::new(),
             recalc_lanechanging: opts.recalc_lanechanging,
@@ -1077,5 +1077,11 @@ impl DrivingSimState {
                 }
             }
         }
+    }
+}
+
+impl IndexableKey for CarID {
+    fn index(&self) -> usize {
+        self.0
     }
 }

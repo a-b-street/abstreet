@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
+use abstutil::FixedMap;
 use geom::{Distance, Time};
 use map_model::{Map, Traversable};
 
@@ -42,7 +43,7 @@ impl Queue {
     pub fn get_car_positions(
         &self,
         now: Time,
-        cars: &BTreeMap<CarID, Car>,
+        cars: &FixedMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Vec<(CarID, Distance)> {
         self.inner_get_car_positions(now, cars, queues, &mut BTreeSet::new())
@@ -51,7 +52,7 @@ impl Queue {
     fn inner_get_car_positions(
         &self,
         now: Time,
-        cars: &BTreeMap<CarID, Car>,
+        cars: &FixedMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
         recursed_queues: &mut BTreeSet<Traversable>,
     ) -> Vec<(CarID, Distance)> {
@@ -169,7 +170,7 @@ impl Queue {
         start_dist: Distance,
         vehicle_len: Distance,
         now: Time,
-        cars: &BTreeMap<CarID, Car>,
+        cars: &FixedMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Option<usize> {
         if self.laggy_head.is_none() && self.cars.is_empty() {
@@ -255,7 +256,7 @@ impl Queue {
 
 fn validate_positions(
     dists: Vec<(CarID, Distance)>,
-    cars: &BTreeMap<CarID, Car>,
+    cars: &FixedMap<CarID, Car>,
     now: Time,
     id: Traversable,
 ) -> Vec<(CarID, Distance)> {
@@ -273,7 +274,7 @@ fn validate_positions(
 
 fn dump_cars(
     dists: &Vec<(CarID, Distance)>,
-    cars: &BTreeMap<CarID, Car>,
+    cars: &FixedMap<CarID, Car>,
     id: Traversable,
     now: Time,
 ) {
