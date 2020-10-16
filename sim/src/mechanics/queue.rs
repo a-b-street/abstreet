@@ -162,7 +162,11 @@ impl Queue {
 
             result.push((*id, front));
         }
-        validate_positions(result, cars, now, self.id)
+        // Enable to detect possible bugs, but save time otherwise
+        if false {
+            validate_positions(&result, cars, now, self.id)
+        }
+        result
     }
 
     pub fn get_idx_to_insert_car(
@@ -255,11 +259,11 @@ impl Queue {
 }
 
 fn validate_positions(
-    dists: Vec<(CarID, Distance)>,
+    dists: &Vec<(CarID, Distance)>,
     cars: &FixedMap<CarID, Car>,
     now: Time,
     id: Traversable,
-) -> Vec<(CarID, Distance)> {
+) {
     for pair in dists.windows(2) {
         if pair[0].1 - cars[&pair[0].0].vehicle.length - FOLLOWING_DISTANCE < pair[1].1 {
             dump_cars(&dists, cars, id, now);
@@ -269,7 +273,6 @@ fn validate_positions(
             );
         }
     }
-    dists
 }
 
 fn dump_cars(
