@@ -803,12 +803,17 @@
 <span id="802">802</span>
 <span id="803">803</span>
 <span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">FixedMap</span>, <span class="ident">IndexableKey</span>, <span class="ident">MultiMap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">Traversable</span>,
@@ -831,8 +836,7 @@
 <span class="doccomment">/// overlapping. They&#39;re simply grouped together into a DrawPedCrowdInput for rendering.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WalkingSimState</span> {
-    <span class="comment">// BTreeMap not for deterministic simulation, but to make serialized things easier to compare.</span>
-    <span class="ident">peds</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PedestrianID</span>, <span class="ident">Pedestrian</span><span class="op">&gt;</span>,
+    <span class="ident">peds</span>: <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">PedestrianID</span>, <span class="ident">Pedestrian</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">serde</span>(
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_multimap&quot;</span>,
         <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_multimap&quot;</span>
@@ -844,7 +848,7 @@
 <span class="kw">impl</span> <span class="ident">WalkingSimState</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">WalkingSimState</span> {
         <span class="ident">WalkingSimState</span> {
-            <span class="ident">peds</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+            <span class="ident">peds</span>: <span class="ident">FixedMap</span>::<span class="ident">new</span>(),
             <span class="ident">peds_per_traversable</span>: <span class="ident">MultiMap</span>::<span class="ident">new</span>(),
             <span class="ident">events</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
         }
@@ -1607,6 +1611,12 @@
     }
 
     (<span class="ident">loners</span>, <span class="ident">crowds</span>)
+}
+
+<span class="kw">impl</span> <span class="ident">IndexableKey</span> <span class="kw">for</span> <span class="ident">PedestrianID</span> {
+    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="number">0</span>
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "sim";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
