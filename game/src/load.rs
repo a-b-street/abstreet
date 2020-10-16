@@ -35,33 +35,21 @@ impl MapLoader {
             ctx,
             abstutil::path_map(&name),
             Box::new(move |ctx, app, map| {
-                if let Some(mut map) = map {
-                    // Kind of a hack. We can't generically call Map::new with the FileLoader.
-                    map.map_loaded_directly();
+                // TODO corrupt_err
+                let mut map = map.unwrap();
 
-                    ctx.loading_screen("finish loading map", |ctx, timer| {
-                        let sim = Sim::new(
-                            &map,
-                            app.primary.current_flags.sim_flags.opts.clone(),
-                            timer,
-                        );
-                        app.map_switched(ctx, map, sim, timer);
-                    });
-                    (on_load)(ctx, app)
-                } else {
-                    // TODO Some kind of UI for running the updater from here!
-                    // TODO On the web, this shouldn't happen; display a different error message
-                    Transition::Replace(crate::game::PopupMsg::new(
-                        ctx,
-                        "Missing data",
-                        vec![
-                            format!("{} is missing", abstutil::path_map(&name)),
-                            "You need to opt into this by modifying data/config and running the \
-                             updater"
-                                .to_string(),
-                        ],
-                    ))
-                }
+                // Kind of a hack. We can't generically call Map::new with the FileLoader.
+                map.map_loaded_directly();
+
+                ctx.loading_screen("finish loading map", |ctx, timer| {
+                    let sim = Sim::new(
+                        &map,
+                        app.primary.current_flags.sim_flags.opts.clone(),
+                        timer,
+                    );
+                    app.map_switched(ctx, map, sim, timer);
+                });
+                (on_load)(ctx, app)
             }),
         )
     }

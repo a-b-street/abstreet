@@ -7,7 +7,7 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 pub use crate::io::*;
-use crate::Timer;
+use crate::{Manifest, Timer};
 
 // Bring in everything from data/system/ matching one of the prefixes -- aka, no scenarios, and
 // only the smallest map. Everything else has to be dynamically loaded over HTTP.
@@ -20,10 +20,17 @@ static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     "proposals/"
 );
 
+// For file_exists and list_dir only, also check if the file is in the Manifest. The caller has to
+// know when to load this remotely, though.
+
 pub fn file_exists<I: Into<String>>(path: I) -> bool {
+    let path = path.into();
     SYSTEM_DATA
-        .get_file(path.into().trim_start_matches("../data/system/"))
+        .get_file(path.trim_start_matches("../data/system/"))
         .is_some()
+        || Manifest::load()
+            .entries
+            .contains_key(path.trim_start_matches("../"))
 }
 
 pub fn list_dir(dir: String) -> Vec<String> {
@@ -35,6 +42,16 @@ pub fn list_dir(dir: String) -> Vec<String> {
     } else {
         error!("Can't list_dir({})", dir);
     }
+
+    // Merge with remote files
+    let dir = dir.trim_start_matches("../");
+    for f in Manifest::load().entries.keys() {
+        if f.starts_with(dir) {
+            results.push(format!("../{}", f));
+        }
+    }
+    results.sort();
+
     results
 }
 
