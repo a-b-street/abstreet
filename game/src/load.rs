@@ -199,9 +199,15 @@ mod wasm_loader {
                 // while. Any way to make it still be nonblockingish? Maybe put some of the work
                 // inside that spawn_local?
 
-                // TODO Plumb failures
-                let obj: T = abstutil::from_binary(&resp).unwrap();
-                return (self.on_load.take().unwrap())(ctx, app, Some(obj));
+                match abstutil::from_binary(&resp) {
+                    Ok(obj) => {
+                        return (self.on_load.take().unwrap())(ctx, app, Some(obj));
+                    }
+                    Err(err) => {
+                        error!("{}: {}", self.url, err);
+                        return (self.on_load.take().unwrap())(ctx, app, None);
+                    }
+                }
             }
 
             self.panel = ctx.make_loading_screen(Text::from_multiline(vec![
