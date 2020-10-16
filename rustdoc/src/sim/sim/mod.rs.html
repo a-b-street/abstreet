@@ -1003,6 +1003,15 @@
 <span id="1002">1002</span>
 <span id="1003">1003</span>
 <span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1436,70 +1445,79 @@
                     .<span class="ident">start_trip</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">id</span>, <span class="ident">trip_spec</span>, <span class="ident">maybe_req</span>, <span class="ident">maybe_path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
             }
             <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="ident">create_car</span>, <span class="ident">retry_if_no_room</span>) <span class="op">=&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">start_car_on_lane</span>(
+                <span class="comment">// create_car contains a Path, which is expensive to clone. We need different parts</span>
+                <span class="comment">// of create_car after attempting start_car_on_lane. Make copies just of those</span>
+                <span class="comment">// here. In no case do we ever clone the path.</span>
+                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>;
+                <span class="kw">let</span> <span class="ident">maybe_route</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">maybe_route</span>;
+                <span class="kw">let</span> <span class="ident">trip_and_person</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">trip_and_person</span>;
+                <span class="kw">let</span> <span class="ident">maybe_parked_car</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">maybe_parked_car</span>.<span class="ident">clone</span>();
+                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">req</span>.<span class="ident">clone</span>();
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">create_car</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">start_car_on_lane</span>(
                     <span class="self">self</span>.<span class="ident">time</span>,
-                    <span class="ident">create_car</span>.<span class="ident">clone</span>(),
+                    <span class="ident">create_car</span>,
                     <span class="ident">map</span>,
                     <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>,
                     <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                 ) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="ident">person</span>)) <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">trip_and_person</span> {
-                        <span class="self">self</span>.<span class="ident">trips</span>
-                            .<span class="ident">agent_starting_trip_leg</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>), <span class="ident">trip</span>);
+                    <span class="comment">// Starting the car failed for some reason.</span>
+                    <span class="kw">if</span> <span class="ident">retry_if_no_room</span> {
+                        <span class="comment">// TODO Record this in the trip log</span>
+                        <span class="self">self</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
+                            <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span> <span class="ident">BLIND_RETRY_TO_SPAWN</span>,
+                            <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="ident">create_car</span>, <span class="ident">retry_if_no_room</span>),
+                        );
+                    } <span class="kw">else</span> {
+                        <span class="comment">// Buses don&#39;t use Command::SpawnCar, so this must exist.</span>
+                        <span class="kw">let</span> (<span class="ident">trip</span>, <span class="ident">person</span>) <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">trip_and_person</span>.<span class="ident">unwrap</span>();
+                        <span class="comment">// Have to redeclare for the borrow checker</span>
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
+                            <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
+                            <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
+                            <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
+                            <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
+                            <span class="ident">map</span>,
+                        };
+                        <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
+                            <span class="self">self</span>.<span class="ident">time</span>,
+                            <span class="ident">trip</span>,
+                            <span class="macro">format</span><span class="macro">!</span>(
+                                <span class="string">&quot;no room to spawn car for {} by {}, not retrying&quot;</span>,
+                                <span class="ident">trip</span>, <span class="ident">person</span>
+                            ),
+                            <span class="prelude-val">Some</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>),
+                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
+                        );
+                    }
+                } <span class="kw">else</span> {
+                    <span class="comment">// Creating the car succeeded.</span>
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="ident">person</span>)) <span class="op">=</span> <span class="ident">trip_and_person</span> {
+                        <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">agent_starting_trip_leg</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">id</span>), <span class="ident">trip</span>);
                         <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripPhaseStarting</span>(
                             <span class="ident">trip</span>,
                             <span class="ident">person</span>,
-                            <span class="prelude-val">Some</span>(<span class="ident">create_car</span>.<span class="ident">req</span>.<span class="ident">clone</span>()),
-                            <span class="kw">if</span> <span class="ident">create_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">VehicleType</span>::<span class="ident">Car</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">req</span>),
+                            <span class="kw">if</span> <span class="ident">id</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">VehicleType</span>::<span class="ident">Car</span> {
                                 <span class="ident">TripPhaseType</span>::<span class="ident">Driving</span>
                             } <span class="kw">else</span> {
                                 <span class="ident">TripPhaseType</span>::<span class="ident">Biking</span>
                             },
                         ));
                     }
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>) <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">maybe_parked_car</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>) <span class="op">=</span> <span class="ident">maybe_parked_car</span> {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">parked_car</span>.<span class="ident">spot</span> {
                             <span class="comment">// Buses don&#39;t start in parking garages, so trip must exist</span>
-                            <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">PersonLeavesBuilding</span>(
-                                <span class="ident">create_car</span>.<span class="ident">trip_and_person</span>.<span class="ident">unwrap</span>().<span class="number">1</span>,
-                                <span class="ident">b</span>,
-                            ));
+                            <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">PersonLeavesBuilding</span>(<span class="ident">trip_and_person</span>.<span class="ident">unwrap</span>().<span class="number">1</span>, <span class="ident">b</span>));
                         }
                         <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">remove_parked_car</span>(<span class="ident">parked_car</span>);
                     }
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">route</span>) <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">maybe_route</span> {
-                        <span class="self">self</span>.<span class="ident">transit</span>.<span class="ident">bus_created</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">route</span>);
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">route</span>) <span class="op">=</span> <span class="ident">maybe_route</span> {
+                        <span class="self">self</span>.<span class="ident">transit</span>.<span class="ident">bus_created</span>(<span class="ident">id</span>, <span class="ident">route</span>);
                     }
                     <span class="self">self</span>.<span class="ident">analytics</span>
-                        .<span class="ident">record_demand</span>(<span class="ident">create_car</span>.<span class="ident">router</span>.<span class="ident">get_path</span>(), <span class="ident">map</span>);
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">retry_if_no_room</span> {
-                    <span class="comment">// TODO Record this in the trip log</span>
-                    <span class="self">self</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
-                        <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span> <span class="ident">BLIND_RETRY_TO_SPAWN</span>,
-                        <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="ident">create_car</span>, <span class="ident">retry_if_no_room</span>),
-                    );
-                } <span class="kw">else</span> {
-                    <span class="comment">// Buses don&#39;t use Command::SpawnCar, so this must exist.</span>
-                    <span class="kw">let</span> (<span class="ident">trip</span>, <span class="ident">person</span>) <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">trip_and_person</span>.<span class="ident">unwrap</span>();
-                    <span class="comment">// Have to redeclare for the borrow checker</span>
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
-                        <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
-                        <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
-                        <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
-                        <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
-                        <span class="ident">map</span>,
-                    };
-                    <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
-                        <span class="self">self</span>.<span class="ident">time</span>,
-                        <span class="ident">trip</span>,
-                        <span class="macro">format</span><span class="macro">!</span>(
-                            <span class="string">&quot;no room to spawn car for {} by {}, not retrying&quot;</span>,
-                            <span class="ident">trip</span>, <span class="ident">person</span>
-                        ),
-                        <span class="prelude-val">Some</span>(<span class="ident">create_car</span>.<span class="ident">vehicle</span>),
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
-                    );
+                        .<span class="ident">record_demand</span>(<span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">get_path</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>(), <span class="ident">map</span>);
                 }
             }
             <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="ident">create_ped</span>) <span class="op">=&gt;</span> {

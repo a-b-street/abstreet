@@ -1086,6 +1086,8 @@
 <span id="1085">1085</span>
 <span id="1086">1086</span>
 <span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1170,20 +1172,20 @@
         <span class="ident">sim</span>
     }
 
-    <span class="doccomment">/// True if it worked</span>
+    <span class="doccomment">/// None if it worked, otherwise returns the CreateCar unmodified for possible retry.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_car_on_lane</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">params</span>: <span class="ident">CreateCar</span>,
+        <span class="kw-2">mut</span> <span class="ident">params</span>: <span class="ident">CreateCar</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="ident">IntersectionSimState</span>,
         <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="ident">ParkingSimState</span>,
         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CreateCar</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">first_lane</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>();
 
         <span class="kw">if</span> <span class="op">!</span><span class="ident">intersections</span>.<span class="ident">nobody_headed_towards</span>(<span class="ident">first_lane</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">first_lane</span>).<span class="ident">src_i</span>) {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">params</span>);
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">first_lane</span>)].<span class="ident">get_idx_to_insert_car</span>(
             <span class="ident">params</span>.<span class="ident">start_dist</span>,
@@ -1245,7 +1247,9 @@
                             <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">get_end_dist</span>(),
                             <span class="ident">first_lane</span>
                         );
-                        <span class="kw">return</span> <span class="bool-val">false</span>;
+                        <span class="ident">params</span>.<span class="ident">router</span> <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>;
+                        <span class="ident">params</span>.<span class="ident">vehicle</span> <span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>;
+                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">params</span>);
                     }
                 }
 
@@ -1260,9 +1264,9 @@
                 <span class="ident">queue</span>.<span class="ident">reserved_length</span> <span class="op">+=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>;
             }
             <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">insert</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">car</span>);
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
-        <span class="bool-val">false</span>
+        <span class="prelude-val">Some</span>(<span class="ident">params</span>)
     }
     <span class="doccomment">/// State transitions for this car:</span>
     <span class="doccomment">///</span>
