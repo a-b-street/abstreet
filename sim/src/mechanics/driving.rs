@@ -81,20 +81,20 @@ impl DrivingSimState {
         sim
     }
 
-    /// True if it worked
+    /// None if it worked, otherwise returns the CreateCar unmodified for possible retry.
     pub fn start_car_on_lane(
         &mut self,
         now: Time,
-        params: CreateCar,
+        mut params: CreateCar,
         map: &Map,
         intersections: &IntersectionSimState,
         parking: &ParkingSimState,
         scheduler: &mut Scheduler,
-    ) -> bool {
+    ) -> Option<CreateCar> {
         let first_lane = params.router.head().as_lane();
 
         if !intersections.nobody_headed_towards(first_lane, map.get_l(first_lane).src_i) {
-            return false;
+            return Some(params);
         }
         if let Some(idx) = self.queues[&Traversable::Lane(first_lane)].get_idx_to_insert_car(
             params.start_dist,
@@ -156,7 +156,9 @@ impl DrivingSimState {
                             car.router.get_end_dist(),
                             first_lane
                         );
-                        return false;
+                        params.router = car.router;
+                        params.vehicle = car.vehicle;
+                        return Some(params);
                     }
                 }
 
@@ -171,9 +173,9 @@ impl DrivingSimState {
                 queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
             }
             self.cars.insert(car.vehicle.id, car);
-            return true;
+            return None;
         }
-        false
+        Some(params)
     }
     /// State transitions for this car:
     ///
