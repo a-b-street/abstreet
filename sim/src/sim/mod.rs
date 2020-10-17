@@ -105,6 +105,9 @@ pub struct SimOptions {
     /// agent. Obviously this destroys realism of the simulation, but can be used to debug
     /// gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.
     pub disable_turn_conflicts: bool,
+    /// If present, cancel any driving trips who will pass through a road currently experiencing
+    /// delays beyond this threshold.
+    pub cancel_drivers_delay_threshold: Option<Duration>,
 }
 
 impl std::default::Default for SimOptions {
@@ -141,6 +144,8 @@ impl SimOptions {
             pathfinding_upfront: args.enabled("--pathfinding_upfront"),
             infinite_parking: args.enabled("--infinite_parking"),
             disable_turn_conflicts: args.enabled("--disable_turn_conflicts"),
+            cancel_drivers_delay_threshold: args
+                .optional_parse("--cancel_drivers_delay_threshold", Duration::parse),
         }
     }
 }
@@ -175,6 +180,7 @@ impl SimOptions {
             pathfinding_upfront: false,
             infinite_parking: false,
             disable_turn_conflicts: false,
+            cancel_drivers_delay_threshold: None,
         }
     }
 }
@@ -189,7 +195,7 @@ impl Sim {
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map, &mut scheduler, &opts),
             transit: TransitSimState::new(map),
-            cap: CapSimState::new(map),
+            cap: CapSimState::new(map, &opts),
             trips: TripManager::new(opts.pathfinding_upfront),
             pandemic: if let Some(rng) = opts.enable_pandemic_model {
                 Some(PandemicModel::new(rng))

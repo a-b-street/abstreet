@@ -298,6 +298,7 @@ impl TripManager {
                 now,
                 parked_car.vehicle.id,
                 &mut trip.info.capped,
+                ctx.intersections,
                 ctx.map,
             )
         }) {
@@ -1046,6 +1047,7 @@ impl TripManager {
                         now,
                         vehicle.id,
                         &mut self.trips[trip.0].info.capped,
+                        ctx.intersections,
                         ctx.map,
                     )
                 }) {

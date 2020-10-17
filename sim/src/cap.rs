@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use geom::{Duration, Time};
 use map_model::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep};
 
-use crate::{CarID, VehicleType};
+use crate::mechanics::IntersectionSimState;
+use crate::{CarID, SimOptions, VehicleType};
 
 // Note this only indexes into the zones we track here, not all of them in the map.
 type ZoneIdx = usize;
@@ -16,6 +17,7 @@ type ZoneIdx = usize;
 pub struct CapSimState {
     lane_to_zone: BTreeMap<LaneID, ZoneIdx>,
     zones: Vec<Zone>,
+    avoid_congestion: Option<AvoidCongestion>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -27,10 +29,13 @@ struct Zone {
 }
 
 impl CapSimState {
-    pub fn new(map: &Map) -> CapSimState {
+    pub fn new(map: &Map, opts: &SimOptions) -> CapSimState {
         let mut sim = CapSimState {
             lane_to_zone: BTreeMap::new(),
             zones: Vec::new(),
+            avoid_congestion: opts
+                .cancel_drivers_delay_threshold
+                .map(|delay_threshold| AvoidCongestion { delay_threshold }),
         };
         for z in map.all_zones() {
             if let Some(cap) = z.restrictions.cap_vehicles_per_hour {
@@ -53,7 +58,7 @@ impl CapSimState {
     }
 
     fn allow_trip(&mut self, now: Time, car: CarID, path: &Path) -> bool {
-        if car.1 != VehicleType::Car {
+        if car.1 != VehicleType::Car || self.lane_to_zone.is_empty() {
             return true;
         }
         for step in path.get_steps() {
@@ -87,8 +92,17 @@ impl CapSimState {
         now: Time,
         car: CarID,
         capped: &mut bool,
+        intersections: &IntersectionSimState,
         map: &Map,
     ) -> Option<Path> {
+        if let Some(ref avoid) = self.avoid_congestion {
+            if avoid.path_crosses_delay(now, &path, intersections, map) {
+                *capped = true;
+                // TODO More responses
+                return None;
+            }
+        }
+
         if self.allow_trip(now, car, &path) {
             return Some(path);
         }
@@ -106,7 +120,7 @@ impl CapSimState {
                 avoid_lanes.insert(*l);
             }
         }
-        map.pathfind_avoiding_zones(req.clone(), avoid_lanes)
+        map.pathfind_avoiding_lanes(req.clone(), avoid_lanes)
     }
 
     pub fn get_cap_counter(&self, l: LaneID) -> usize {
@@ -115,5 +129,49 @@ impl CapSimState {
         } else {
             0
         }
+    }
+}
+
+/// Before the driving portion of a trip begins, check that the desired path doesn't pass through
+/// any road with agents currently experiencing some delay.
+#[derive(Serialize, Deserialize, Clone)]
+struct AvoidCongestion {
+    delay_threshold: Duration,
+}
+
+impl AvoidCongestion {
+    fn path_crosses_delay(
+        &self,
+        now: Time,
+        path: &Path,
+        intersections: &IntersectionSimState,
+        map: &Map,
+    ) -> bool {
+        for step in path.get_steps() {
+            if let PathStep::Lane(l) = step {
+                let lane = map.get_l(*l);
+                for (agent, turn, start) in intersections.get_waiting_agents(lane.dst_i) {
+                    if now - start < self.delay_threshold {
+                        continue;
+                    }
+                    if agent.to_vehicle_type() != Some(VehicleType::Car) {
+                        continue;
+                    }
+                    if map.get_l(turn.src).parent != lane.parent {
+                        continue;
+                    }
+                    // TODO Should we make sure the delayed agent is also trying to go the same
+                    // direction? For example, people turning left somewhere might be delayed, while
+                    // people going straight are fine. But then the presence of a turn lane matters.
+                    debug!(
+                        "Someone's path crosses a delay of {} at {}",
+                        now - start,
+                        turn
+                    );
+                    return true;
+                }
+            }
+        }
+        false
     }
 }

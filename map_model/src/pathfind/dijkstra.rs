@@ -34,7 +34,7 @@ pub fn pathfind(req: PathRequest, map: &Map) -> Option<Path> {
     calc_path(graph, req, map)
 }
 
-pub fn pathfind_avoiding_zones(
+pub fn pathfind_avoiding_lanes(
     req: PathRequest,
     avoid: BTreeSet<LaneID>,
     map: &Map,

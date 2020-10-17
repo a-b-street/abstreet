@@ -537,13 +537,13 @@ impl Map {
         assert!(!self.pathfinder_dirty);
         self.pathfinder.pathfind(req, self)
     }
-    pub fn pathfind_avoiding_zones(
+    pub fn pathfind_avoiding_lanes(
         &self,
         req: PathRequest,
         avoid: BTreeSet<LaneID>,
     ) -> Option<Path> {
         assert!(!self.pathfinder_dirty);
-        self.pathfinder.pathfind_avoiding_zones(req, avoid, self)
+        self.pathfinder.pathfind_avoiding_lanes(req, avoid, self)
     }
 
     pub fn should_use_transit(

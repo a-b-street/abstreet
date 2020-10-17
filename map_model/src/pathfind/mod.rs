@@ -606,13 +606,13 @@ impl Pathfinder {
             Pathfinder::CH(ref p) => p.pathfind(req, map),
         }
     }
-    pub fn pathfind_avoiding_zones(
+    pub fn pathfind_avoiding_lanes(
         &self,
         req: PathRequest,
         avoid: BTreeSet<LaneID>,
         map: &Map,
     ) -> Option<Path> {
-        dijkstra::pathfind_avoiding_zones(req, avoid, map)
+        dijkstra::pathfind_avoiding_lanes(req, avoid, map)
     }
 
     pub fn should_use_transit(
