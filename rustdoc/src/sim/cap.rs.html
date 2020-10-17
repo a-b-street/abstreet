@@ -172,17 +172,13 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">TurnID</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">IntersectionSimState</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">SimOptions</span>, <span class="ident">VehicleType</span>};
@@ -273,17 +269,17 @@
         <span class="ident">capped</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
         <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="ident">IntersectionSimState</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">avoid</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">avoid_congestion</span> {
-            <span class="kw">if</span> <span class="ident">avoid</span>.<span class="ident">path_crosses_delay</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">intersections</span>, <span class="ident">map</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">turn</span>, <span class="ident">delay</span>)) <span class="op">=</span> <span class="ident">avoid</span>.<span class="ident">path_crosses_delay</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">intersections</span>, <span class="ident">map</span>) {
                 <span class="kw-2">*</span><span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="comment">// TODO More responses</span>
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;path crosses delay of {} at {}&quot;</span>, <span class="ident">delay</span>, <span class="ident">turn</span>));
             }
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">allow_trip</span>(<span class="ident">now</span>, <span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>);
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">path</span>);
         }
         <span class="kw-2">*</span><span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
@@ -300,6 +296,7 @@
             }
         }
         <span class="ident">map</span>.<span class="ident">pathfind_avoiding_lanes</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">avoid_lanes</span>)
+            .<span class="ident">ok_or_else</span>(<span class="op">||</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no path avoiding caps: {}&quot;</span>, <span class="ident">req</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cap_counter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
@@ -325,7 +322,7 @@
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
         <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="ident">IntersectionSimState</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TurnID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span> {
                 <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>);
@@ -342,16 +339,11 @@
                     <span class="comment">// TODO Should we make sure the delayed agent is also trying to go the same</span>
                     <span class="comment">// direction? For example, people turning left somewhere might be delayed, while</span>
                     <span class="comment">// people going straight are fine. But then the presence of a turn lane matters.</span>
-                    <span class="macro">debug</span><span class="macro">!</span>(
-                        <span class="string">&quot;Someone&#39;s path crosses a delay of {} at {}&quot;</span>,
-                        <span class="ident">now</span> <span class="op">-</span> <span class="ident">start</span>,
-                        <span class="ident">turn</span>
-                    );
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">turn</span>, <span class="ident">now</span> <span class="op">-</span> <span class="ident">start</span>));
                 }
             }
         }
-        <span class="bool-val">false</span>
+        <span class="prelude-val">None</span>
     }
 }
 </pre></div>
