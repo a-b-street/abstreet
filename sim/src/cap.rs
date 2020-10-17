@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 
 use geom::{Duration, Time};
-use map_model::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep};
+use map_model::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
 
 use crate::mechanics::IntersectionSimState;
 use crate::{CarID, SimOptions, VehicleType};
@@ -94,17 +94,17 @@ impl CapSimState {
         capped: &mut bool,
         intersections: &IntersectionSimState,
         map: &Map,
-    ) -> Option<Path> {
+    ) -> Result<Path, String> {
         if let Some(ref avoid) = self.avoid_congestion {
-            if avoid.path_crosses_delay(now, &path, intersections, map) {
+            if let Some((turn, delay)) = avoid.path_crosses_delay(now, &path, intersections, map) {
                 *capped = true;
                 // TODO More responses
-                return None;
+                return Err(format!("path crosses delay of {} at {}", delay, turn));
             }
         }
 
         if self.allow_trip(now, car, &path) {
-            return Some(path);
+            return Ok(path);
         }
         *capped = true;
 
@@ -121,6 +121,7 @@ impl CapSimState {
             }
         }
         map.pathfind_avoiding_lanes(req.clone(), avoid_lanes)
+            .ok_or_else(|| format!("no path avoiding caps: {}", req))
     }
 
     pub fn get_cap_counter(&self, l: LaneID) -> usize {
@@ -146,7 +147,7 @@ impl AvoidCongestion {
         path: &Path,
         intersections: &IntersectionSimState,
         map: &Map,
-    ) -> bool {
+    ) -> Option<(TurnID, Duration)> {
         for step in path.get_steps() {
             if let PathStep::Lane(l) = step {
                 let lane = map.get_l(*l);
@@ -163,15 +164,10 @@ impl AvoidCongestion {
                     // TODO Should we make sure the delayed agent is also trying to go the same
                     // direction? For example, people turning left somewhere might be delayed, while
                     // people going straight are fine. But then the presence of a turn lane matters.
-                    debug!(
-                        "Someone's path crosses a delay of {} at {}",
-                        now - start,
-                        turn
-                    );
-                    return true;
+                    return Some((turn, now - start));
                 }
             }
         }
-        false
+        None
     }
 }

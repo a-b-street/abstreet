@@ -291,18 +291,22 @@ impl TripManager {
             constraints: PathConstraints::Car,
         };
 
-        match ctx.map.pathfind(req.clone()).and_then(|path| {
-            ctx.cap.validate_path(
-                &req,
-                path,
-                now,
-                parked_car.vehicle.id,
-                &mut trip.info.capped,
-                ctx.intersections,
-                ctx.map,
-            )
-        }) {
-            Some(path) => {
+        match ctx
+            .map
+            .pathfind(req.clone())
+            .ok_or_else(|| format!("no path to drive from {} to {}", start, end))
+            .and_then(|path| {
+                ctx.cap.validate_path(
+                    &req,
+                    path,
+                    now,
+                    parked_car.vehicle.id,
+                    &mut trip.info.capped,
+                    ctx.intersections,
+                    ctx.map,
+                )
+            }) {
+            Ok(path) => {
                 let router = drive_to.make_router(parked_car.vehicle.id, path, ctx.map);
                 ctx.scheduler.push(
                     now,
@@ -319,18 +323,11 @@ impl TripManager {
                     ),
                 );
             }
-            None => {
+            Err(err) => {
                 // Move the car to the destination...
                 ctx.parking.remove_parked_car(parked_car.clone());
                 let trip = trip.id;
-                // TODO The reason might be exceeding the cap
-                self.cancel_trip(
-                    now,
-                    trip,
-                    format!("no path to drive from {} to {}", start, end),
-                    Some(parked_car.vehicle),
-                    ctx,
-                );
+                self.cancel_trip(now, trip, err, Some(parked_car.vehicle), ctx);
             }
         }
     }
@@ -1040,18 +1037,25 @@ impl TripManager {
                 assert!(ctx.parking.lookup_parked_car(vehicle.id).is_none());
                 let req = maybe_req.unwrap();
                 let person = person.id;
-                match maybe_path.and_then(|path| {
-                    ctx.cap.validate_path(
-                        &req,
-                        path,
-                        now,
-                        vehicle.id,
-                        &mut self.trips[trip.0].info.capped,
-                        ctx.intersections,
-                        ctx.map,
-                    )
-                }) {
-                    Some(path) => {
+                match maybe_path
+                    .ok_or_else(|| {
+                        format!(
+                            "VehicleAppearing trip couldn't find the first path: {}",
+                            req
+                        )
+                    })
+                    .and_then(|path| {
+                        ctx.cap.validate_path(
+                            &req,
+                            path,
+                            now,
+                            vehicle.id,
+                            &mut self.trips[trip.0].info.capped,
+                            ctx.intersections,
+                            ctx.map,
+                        )
+                    }) {
+                    Ok(path) => {
                         let router = goal.make_router(vehicle.id, path, ctx.map);
                         ctx.scheduler.push(
                             now,
@@ -1063,18 +1067,8 @@ impl TripManager {
                             ),
                         );
                     }
-                    None => {
-                        // TODO Reason might be related to cap
-                        self.cancel_trip(
-                            now,
-                            trip,
-                            format!(
-                                "VehicleAppearing trip couldn't find the first path: {}",
-                                req
-                            ),
-                            Some(vehicle),
-                            ctx,
-                        );
+                    Err(err) => {
+                        self.cancel_trip(now, trip, err, Some(vehicle), ctx);
                     }
                 }
             }
