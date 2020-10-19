@@ -700,18 +700,18 @@ impl DrivingSimState {
 
     pub fn update_laggy_head(&mut self, id: CarID, now: Time, ctx: &mut Ctx) {
         let currently_on = self.cars[&id].router.head();
-        let current_dists =
-            self.queues[&currently_on].get_car_positions(now, &self.cars, &self.queues);
         // This car must be the tail.
         let dist_along_last = {
-            let (last_id, dist) = current_dists.last().unwrap();
-            if id != *last_id {
+            let (last_id, dist) = self.queues[&currently_on]
+                .get_last_car_position(now, &self.cars, &self.queues)
+                .unwrap();
+            if id != last_id {
                 panic!(
                     "At {} on {:?}, laggy head {} isn't the last on the lane; it's {}",
                     now, currently_on, id, last_id
                 );
             }
-            *dist
+            dist
         };
 
         // Trim off as many of the oldest last_steps as we've made distance.

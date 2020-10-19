@@ -39,6 +39,134 @@ impl Queue {
         }
     }
 
+    pub fn get_last_car_position(
+        &self,
+        now: Time,
+        cars: &FixedMap<CarID, Car>,
+        queues: &BTreeMap<Traversable, Queue>,
+    ) -> Option<(CarID, Distance)> {
+        self.inner_get_last_car_position(now, cars, queues, &mut BTreeSet::new())
+    }
+
+    fn inner_get_last_car_position(
+        &self,
+        now: Time,
+        cars: &FixedMap<CarID, Car>,
+        queues: &BTreeMap<Traversable, Queue>,
+        recursed_queues: &mut BTreeSet<Traversable>,
+    ) -> Option<(CarID, Distance)> {
+        if self.cars.is_empty() {
+            return None;
+        }
+
+        let mut previous: Option<(CarID, Distance)> = None;
+        for id in &self.cars {
+            let bound = match previous.as_ref() {
+                Some((leader, last_dist)) => {
+                    *last_dist - cars[leader].vehicle.length - FOLLOWING_DISTANCE
+                }
+                None => match self.laggy_head {
+                    Some(id) => {
+                        // The simple but broken version:
+                        //self.geom_len - cars[&id].vehicle.length - FOLLOWING_DISTANCE
+
+                        // The expensive case. We need to figure out exactly where the laggy head
+                        // is on their queue.
+                        let leader = &cars[&id];
+
+                        // But don't create a cycle!
+                        let recurse_to = leader.router.head();
+                        if recursed_queues.contains(&recurse_to) {
+                            // See the picture in
+                            // https://github.com/dabreegster/abstreet/issues/30. We have two
+                            // extremes to break the cycle.
+                            //
+                            // 1) Hope that the last person in this queue isn't bounded by the
+                            //    agent in front of them yet. geom_len
+                            // 2) Assume the leader has advanced minimally into the next lane.
+                            //    geom_len - laggy head's length - FOLLOWING_DISTANCE.
+                            //
+                            // For now, optimistically assume 1. If we're wrong, consequences could
+                            // be queue spillover (we're too optimistic about the number of
+                            // vehicles that can fit on a lane) or cars jumping positions slightly
+                            // while the cycle occurs.
+                            self.geom_len
+                        } else {
+                            recursed_queues.insert(recurse_to);
+
+                            let (head, head_dist) = queues[&leader.router.head()]
+                                .inner_get_last_car_position(now, cars, queues, recursed_queues)
+                                .unwrap();
+                            assert_eq!(head, id);
+
+                            let mut dist_away_from_this_queue = head_dist;
+                            for on in &leader.last_steps {
+                                if *on == self.id {
+                                    break;
+                                }
+                                dist_away_from_this_queue += queues[on].geom_len;
+                            }
+                            // They might actually be out of the way, but laggy_head hasn't been
+                            // updated yet.
+                            if dist_away_from_this_queue
+                                < leader.vehicle.length + FOLLOWING_DISTANCE
+                            {
+                                self.geom_len
+                                    - (cars[&id].vehicle.length - dist_away_from_this_queue)
+                                    - FOLLOWING_DISTANCE
+                            } else {
+                                self.geom_len
+                            }
+                        }
+                    }
+                    None => self.geom_len,
+                },
+            };
+
+            // There's spillover and a car shouldn't have been able to enter yet.
+            if bound < Distance::ZERO {
+                // dump_cars(&result, cars, self.id, now);
+                panic!(
+                    "Queue has spillover on {} at {} -- can't draw {}, bound is {}. Laggy head is \
+                     {:?}. This is usually a geometry bug; check for duplicate roads going \
+                     between the same intersections.",
+                    self.id, now, id, bound, self.laggy_head
+                );
+            }
+
+            let car = &cars[id];
+            let front = match car.state {
+                CarState::Queued { .. } => {
+                    if car.router.last_step() {
+                        car.router.get_end_dist().min(bound)
+                    } else {
+                        bound
+                    }
+                }
+                CarState::WaitingToAdvance { .. } => {
+                    assert_eq!(bound, self.geom_len);
+                    self.geom_len
+                }
+                CarState::Crossing(ref time_int, ref dist_int) => {
+                    // TODO Why percent_clamp_end? We process car updates in any order, so we might
+                    // calculate this before moving this car from Crossing to another state.
+                    dist_int.lerp(time_int.percent_clamp_end(now)).min(bound)
+                }
+                CarState::Unparking(front, _, _) => front,
+                CarState::Parking(front, _, _) => front,
+                CarState::IdlingAtStop(front, _) => front,
+            };
+
+            previous = Some((*id, front));
+        }
+        // Enable to detect possible bugs, but save time otherwise
+        //if false {
+        //    validate_positions(&result, cars, now, self.id)
+        //}
+
+        previous
+    }
+
     /// Farthest along (greatest distance) is first.
     pub fn get_car_positions(
         &self,
