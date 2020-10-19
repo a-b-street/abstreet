@@ -657,7 +657,7 @@ impl Sim {
                     "- After {}, the sim is at {}. {} live agents",
                     Duration::realtime_elapsed(start),
                     self.time,
-                    prettyprint_usize(self.trips.num_active_agents()),
+                    prettyprint_usize(self.num_active_agents()),
                 );
                 last_update = Instant::now();
             }

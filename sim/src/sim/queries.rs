@@ -93,6 +93,9 @@ impl Sim {
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.trips.active_agents()
     }
+    pub fn num_active_agents(&self) -> usize {
+        self.trips.num_active_agents()
+    }
 
     pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
         self.trips.agent_to_trip(id)
