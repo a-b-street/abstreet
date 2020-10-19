@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
-use std::collections::btree_map::Entry;
-use std::collections::{BTreeMap, BinaryHeap};
+use std::collections::hash_map::Entry;
+use std::collections::{BinaryHeap, HashMap};
 
 use serde::{Deserialize, Serialize};
 
@@ -38,7 +38,7 @@ impl Command {
         }
     }
 
-    pub fn to_type(&self) -> CommandType {
+    fn to_type(&self) -> CommandType {
         match self {
             Command::SpawnCar(ref create, _) => CommandType::Car(create.vehicle.id),
             Command::SpawnPed(ref create) => CommandType::Ped(create.id),
@@ -57,8 +57,8 @@ impl Command {
 
 /// A smaller version of Command that satisfies many more properties. Only one Command per
 /// CommandType may exist at a time.
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
-pub enum CommandType {
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord, Clone, Debug)]
+enum CommandType {
     StartTrip(TripID),
     Car(CarID),
     CarLaggyHead(CarID),
@@ -100,7 +100,7 @@ impl Ord for Item {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Scheduler {
     items: BinaryHeap<Item>,
-    queued_commands: BTreeMap<CommandType, (Command, Time)>,
+    queued_commands: HashMap<CommandType, (Command, Time)>,
 
     latest_time: Time,
     last_time: Time,
@@ -112,7 +112,7 @@ impl Scheduler {
     pub fn new() -> Scheduler {
         Scheduler {
             items: BinaryHeap::new(),
-            queued_commands: BTreeMap::new(),
+            queued_commands: HashMap::new(),
             latest_time: Time::START_OF_DAY,
             last_time: Time::START_OF_DAY,
             delta_times: Histogram::new(),
@@ -172,17 +172,6 @@ impl Scheduler {
     pub fn cancel(&mut self, cmd: Command) {
         // It's fine if a previous command hasn't actually been scheduled.
         self.queued_commands.remove(&cmd.to_type());
-    }
-
-    // TODO Should panic if a command of this type isn't scheduled. But currently failing
-    // unexpectedly.
-    pub fn must_cancel_by_type(&mut self, cmd: CommandType) {
-        if self.queued_commands.remove(&cmd).is_none() {
-            println!(
-                "must_cancel_by_type({:?}) didn't find a matching command",
-                cmd
-            );
-        }
     }
 
     /// This next command might've actually been rescheduled to a later time; the caller won't know

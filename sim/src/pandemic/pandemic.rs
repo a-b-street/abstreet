@@ -29,7 +29,7 @@ pub struct PandemicModel {
 }
 
 // You can schedule callbacks in the future by doing scheduler.push(future time, one of these)
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord, Clone, Debug)]
 pub enum Cmd {
     BecomeHospitalized(PersonID),
     BecomeQuarantined(PersonID),

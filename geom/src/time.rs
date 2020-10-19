@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::{cmp, ops};
 
+use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 
 use crate::{trim_f64, Duration};
@@ -14,6 +15,12 @@ impl Eq for Time {}
 impl Ord for Time {
     fn cmp(&self, other: &Time) -> cmp::Ordering {
         self.partial_cmp(other).unwrap()
+    }
+}
+
+impl std::hash::Hash for Time {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        NotNan::new(self.0).unwrap().hash(state);
     }
 }
 
