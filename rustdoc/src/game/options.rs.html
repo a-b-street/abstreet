@@ -349,6 +349,8 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -440,6 +442,7 @@
     <span class="ident">IsometricNW</span>,
     <span class="ident">IsometricSE</span>,
     <span class="ident">IsometricSW</span>,
+    <span class="ident">Abstract</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OptionsPanel</span> {
@@ -521,6 +524,7 @@
                                 <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Isometric (northwest)&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">IsometricNW</span>),
                                 <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Isometric (southeast)&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">IsometricSE</span>),
                                 <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Isometric (southwest)&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">IsometricSW</span>),
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Abstract (just symbols)&quot;</span>, <span class="ident">CameraAngle</span>::<span class="ident">Abstract</span>),
                             ],
                         ),
                     ]),

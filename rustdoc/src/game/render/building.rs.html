@@ -255,6 +255,19 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
@@ -322,13 +335,24 @@
                     );
                 }
             }
+            <span class="ident">CameraAngle</span>::<span class="ident">Abstract</span> <span class="op">=&gt;</span> {
+                <span class="comment">// TODO The hitbox needs to change too</span>
+                <span class="ident">bldg_batch</span>.<span class="ident">push</span>(
+                    <span class="ident">bldg_color</span>,
+                    <span class="ident">Polygon</span>::<span class="ident">rectangle_centered</span>(
+                        <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">center</span>(),
+                        <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>),
+                        <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>),
+                    ),
+                );
+            }
             <span class="ident">x</span> <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
                     <span class="ident">CameraAngle</span>::<span class="ident">IsometricNE</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="op">-</span><span class="number">45.0</span>),
                     <span class="ident">CameraAngle</span>::<span class="ident">IsometricNW</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="op">-</span><span class="number">135.0</span>),
                     <span class="ident">CameraAngle</span>::<span class="ident">IsometricSE</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="number">45.0</span>),
                     <span class="ident">CameraAngle</span>::<span class="ident">IsometricSW</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="number">135.0</span>),
-                    <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    <span class="ident">CameraAngle</span>::<span class="ident">TopDown</span> <span class="op">|</span> <span class="ident">CameraAngle</span>::<span class="ident">Abstract</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                 };
 
                 <span class="kw">let</span> <span class="ident">bldg_height_per_level</span> <span class="op">=</span> <span class="number">3.5</span>;
@@ -349,7 +373,7 @@
                         <span class="ident">CameraAngle</span>::<span class="ident">IsometricNW</span> <span class="op">=&gt;</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">map_width</span>, <span class="ident">map_height</span>),
                         <span class="ident">CameraAngle</span>::<span class="ident">IsometricSE</span> <span class="op">=&gt;</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
                         <span class="ident">CameraAngle</span>::<span class="ident">IsometricSW</span> <span class="op">=&gt;</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">map_width</span>, <span class="number">0.0</span>),
-                        <span class="ident">CameraAngle</span>::<span class="ident">TopDown</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                        <span class="ident">CameraAngle</span>::<span class="ident">TopDown</span> <span class="op">|</span> <span class="ident">CameraAngle</span>::<span class="ident">Abstract</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                     };
 
                     <span class="kw">let</span> <span class="ident">abs_pt</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(
@@ -448,13 +472,15 @@
                 }
             }
         }
-        <span class="ident">paths_batch</span>.<span class="ident">push</span>(
-            <span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(
-                <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>,
-                <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">bldg</span>.<span class="ident">sidewalk</span>()).<span class="ident">get_rank</span>(),
-            ),
-            <span class="ident">driveway</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>),
-        );
+        <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">camera_angle</span> <span class="op">!=</span> <span class="ident">CameraAngle</span>::<span class="ident">Abstract</span> {
+            <span class="ident">paths_batch</span>.<span class="ident">push</span>(
+                <span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(
+                    <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>,
+                    <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">bldg</span>.<span class="ident">sidewalk</span>()).<span class="ident">get_rank</span>(),
+                ),
+                <span class="ident">driveway</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>),
+            );
+        }
 
         <span class="ident">DrawBuilding</span> {
             <span class="ident">id</span>: <span class="ident">bldg</span>.<span class="ident">id</span>,
