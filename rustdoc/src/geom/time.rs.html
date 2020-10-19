@@ -207,10 +207,18 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">ops</span>};
 
+<span class="kw">use</span> <span class="ident">ordered_float</span>::<span class="ident">NotNan</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Duration</span>};
@@ -224,6 +232,12 @@
 <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Time</span> {
     <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Time</span>) <span class="op">-&gt;</span> <span class="ident">cmp</span>::<span class="ident">Ordering</span> {
         <span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">Time</span> {
+    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) {
+        <span class="ident">NotNan</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">hash</span>(<span class="ident">state</span>);
     }
 }
 

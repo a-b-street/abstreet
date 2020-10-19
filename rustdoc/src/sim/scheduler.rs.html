@@ -273,21 +273,10 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">btree_map</span>::<span class="ident">Entry</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BinaryHeap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">Entry</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -325,7 +314,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">CommandType</span> {
+    <span class="kw">fn</span> <span class="ident">to_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">CommandType</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="ident">create</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Car</span>(<span class="ident">create</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
             <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="ident">create</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Ped</span>(<span class="ident">create</span>.<span class="ident">id</span>),
@@ -344,8 +333,8 @@
 
 <span class="doccomment">/// A smaller version of Command that satisfies many more properties. Only one Command per</span>
 <span class="doccomment">/// CommandType may exist at a time.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CommandType</span> {
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">enum</span> <span class="ident">CommandType</span> {
     <span class="ident">StartTrip</span>(<span class="ident">TripID</span>),
     <span class="ident">Car</span>(<span class="ident">CarID</span>),
     <span class="ident">CarLaggyHead</span>(<span class="ident">CarID</span>),
@@ -387,7 +376,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Scheduler</span> {
     <span class="ident">items</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">&gt;</span>,
-    <span class="ident">queued_commands</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CommandType</span>, (<span class="ident">Command</span>, <span class="ident">Time</span>)<span class="op">&gt;</span>,
+    <span class="ident">queued_commands</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">CommandType</span>, (<span class="ident">Command</span>, <span class="ident">Time</span>)<span class="op">&gt;</span>,
 
     <span class="ident">latest_time</span>: <span class="ident">Time</span>,
     <span class="ident">last_time</span>: <span class="ident">Time</span>,
@@ -399,7 +388,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">Scheduler</span> {
         <span class="ident">Scheduler</span> {
             <span class="ident">items</span>: <span class="ident">BinaryHeap</span>::<span class="ident">new</span>(),
-            <span class="ident">queued_commands</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+            <span class="ident">queued_commands</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">latest_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
             <span class="ident">last_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
             <span class="ident">delta_times</span>: <span class="ident">Histogram</span>::<span class="ident">new</span>(),
@@ -459,17 +448,6 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="ident">Command</span>) {
         <span class="comment">// It&#39;s fine if a previous command hasn&#39;t actually been scheduled.</span>
         <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>.<span class="ident">to_type</span>());
-    }
-
-    <span class="comment">// TODO Should panic if a command of this type isn&#39;t scheduled. But currently failing</span>
-    <span class="comment">// unexpectedly.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_cancel_by_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="ident">CommandType</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>).<span class="ident">is_none</span>() {
-            <span class="macro">println</span><span class="macro">!</span>(
-                <span class="string">&quot;must_cancel_by_type({:?}) didn&#39;t find a matching command&quot;</span>,
-                <span class="ident">cmd</span>
-            );
-        }
     }
 
     <span class="doccomment">/// This next command might&#39;ve actually been rescheduled to a later time; the caller won&#39;t know</span>
