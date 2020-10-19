@@ -45,42 +45,33 @@ impl DrawLane {
                 self.polygon.clone(),
             );
         }
+        let general_road_marking = app.cs.general_road_marking(road.get_rank());
         match lane.lane_type {
             LaneType::Sidewalk => {
-                draw.extend(app.cs.sidewalk_lines, calculate_sidewalk_lines(lane));
+                if let Some(c) = app.cs.sidewalk_lines {
+                    draw.extend(c, calculate_sidewalk_lines(lane));
+                }
             }
             LaneType::Shoulder => {}
             LaneType::Parking => {
-                draw.extend(
-                    app.cs.general_road_marking,
-                    calculate_parking_lines(lane, map),
-                );
+                draw.extend(general_road_marking, calculate_parking_lines(lane, map));
             }
             LaneType::Driving | LaneType::Bus => {
-                draw.extend(
-                    app.cs.general_road_marking,
-                    calculate_driving_lines(lane, road),
-                );
-                draw.extend(
-                    app.cs.general_road_marking,
-                    calculate_turn_markings(map, lane),
-                );
-                draw.extend(
-                    app.cs.general_road_marking,
-                    calculate_one_way_markings(lane, road),
-                );
+                draw.extend(general_road_marking, calculate_driving_lines(lane, road));
+                draw.extend(general_road_marking, calculate_turn_markings(map, lane));
+                draw.extend(general_road_marking, calculate_one_way_markings(lane, road));
             }
             LaneType::Biking => {}
             LaneType::SharedLeftTurn => {
                 let thickness = Distance::meters(0.25);
                 draw.push(
-                    app.cs.road_center_line,
+                    app.cs.road_center_line(road.get_rank()),
                     lane.lane_center_pts
                         .must_shift_right((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),
                 );
                 draw.push(
-                    app.cs.road_center_line,
+                    app.cs.road_center_line(road.get_rank()),
                     lane.lane_center_pts
                         .must_shift_left((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),

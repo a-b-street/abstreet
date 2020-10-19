@@ -42,10 +42,11 @@ impl Renderable for DrawRoad {
         if draw_center_line.is_none() {
             let mut batch = GeomBatch::new();
             let r = app.primary.map.get_r(self.id);
+            let center_color = app.cs.road_center_line(r.get_rank());
             let color = if r.is_private() {
-                app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
+                center_color.lerp(app.cs.private_road, 0.5)
             } else {
-                app.cs.road_center_line
+                center_color
             };
 
             // Draw a center line every time two driving/bike/bus lanes of opposite direction are
@@ -81,10 +82,11 @@ impl Renderable for DrawRoad {
                 if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
                     // TODO If it's definitely straddling bus/bike lanes, change the color? Or
                     // even easier, just skip the center lines?
+                    let center_color = app.cs.road_center_line(r.get_rank());
                     let fg = if r.is_private() {
-                        app.cs.road_center_line.lerp(app.cs.private_road, 0.5)
+                        center_color.lerp(app.cs.private_road, 0.5)
                     } else {
-                        app.cs.road_center_line
+                        center_color
                     };
                     let bg = if r.is_private() {
                         app.cs

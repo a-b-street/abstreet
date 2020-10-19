@@ -67,14 +67,13 @@ impl Renderable for DrawParkingLot {
             let mut batch = GeomBatch::new();
             // TODO This isn't getting clipped to the parking lot boundary properly, so just stick
             // this on the lowest order for now.
+            let rank = app
+                .primary
+                .map
+                .get_parent(lot.sidewalk_pos.lane())
+                .get_rank();
             batch.push(
-                app.cs.zoomed_road_surface(
-                    LaneType::Sidewalk,
-                    app.primary
-                        .map
-                        .get_parent(lot.sidewalk_pos.lane())
-                        .get_rank(),
-                ),
+                app.cs.zoomed_road_surface(LaneType::Sidewalk, rank),
                 front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
             );
             batch.push(app.cs.parking_lot, lot.polygon.clone());
@@ -93,7 +92,7 @@ impl Renderable for DrawParkingLot {
                 let right = pt.project_away(width / 2.0, angle.rotate_degs(-90.0));
 
                 batch.push(
-                    app.cs.general_road_marking,
+                    app.cs.general_road_marking(rank),
                     PolyLine::must_new(vec![
                         left.project_away(height, *angle),
                         left,
