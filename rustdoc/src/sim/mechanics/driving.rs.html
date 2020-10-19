@@ -1791,18 +1791,18 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_laggy_head</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>) {
         <span class="kw">let</span> <span class="ident">currently_on</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">router</span>.<span class="ident">head</span>();
-        <span class="kw">let</span> <span class="ident">current_dists</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">currently_on</span>].<span class="ident">get_car_positions</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>);
         <span class="comment">// This car must be the tail.</span>
         <span class="kw">let</span> <span class="ident">dist_along_last</span> <span class="op">=</span> {
-            <span class="kw">let</span> (<span class="ident">last_id</span>, <span class="ident">dist</span>) <span class="op">=</span> <span class="ident">current_dists</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">id</span> <span class="op">!=</span> <span class="kw-2">*</span><span class="ident">last_id</span> {
+            <span class="kw">let</span> (<span class="ident">last_id</span>, <span class="ident">dist</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">currently_on</span>]
+                .<span class="ident">get_last_car_position</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>)
+                .<span class="ident">unwrap</span>();
+            <span class="kw">if</span> <span class="ident">id</span> <span class="op">!=</span> <span class="ident">last_id</span> {
                 <span class="macro">panic</span><span class="macro">!</span>(
                     <span class="string">&quot;At {} on {:?}, laggy head {} isn&#39;t the last on the lane; it&#39;s {}&quot;</span>,
                     <span class="ident">now</span>, <span class="ident">currently_on</span>, <span class="ident">id</span>, <span class="ident">last_id</span>
                 );
             }
-            <span class="kw-2">*</span><span class="ident">dist</span>
+            <span class="ident">dist</span>
         };
 
         <span class="comment">// Trim off as many of the oldest last_steps as we&#39;ve made distance.</span>
