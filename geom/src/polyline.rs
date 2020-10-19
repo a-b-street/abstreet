@@ -177,12 +177,10 @@ impl PolyLine {
         self.pts
     }
 
-    // Makes a copy :\
-    pub fn lines(&self) -> Vec<Line> {
+    pub fn lines(&self) -> impl Iterator<Item = Line> + '_ {
         self.pts
             .windows(2)
             .map(|pair| Line::must_new(pair[0], pair[1]))
-            .collect()
     }
 
     pub fn length(&self) -> Distance {
@@ -212,7 +210,7 @@ impl PolyLine {
         let mut result: Vec<Pt2D> = Vec::new();
         let mut dist_so_far = Distance::ZERO;
 
-        for line in self.lines().iter() {
+        for line in self.lines() {
             let length = line.length();
 
             // Does this line contain the first point of the slice?
@@ -307,7 +305,7 @@ impl PolyLine {
 
         let mut dist_left = dist_along;
         let mut length_remeasured = Distance::ZERO;
-        for (idx, l) in self.lines().iter().enumerate() {
+        for (idx, l) in self.lines().enumerate() {
             let length = l.length();
             length_remeasured += length;
             let epsilon = if idx == self.pts.len() - 2 {
@@ -660,7 +658,7 @@ impl PolyLine {
             return None;
         }
 
-        if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
+        if let Some(idx) = self.lines().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
             pts.truncate(idx + 1);
             // Make sure the last line isn't too tiny
@@ -683,7 +681,7 @@ impl PolyLine {
             return None;
         }
 
-        if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
+        if let Some(idx) = self.lines().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
             pts = pts.split_off(idx + 1);
             if pt != pts[0] {
@@ -773,7 +771,7 @@ fn fix_angles(orig: &PolyLine, result: PolyLine) -> Result<PolyLine, String> {
     let mut pts = result.pts.clone();
 
     // Check that the angles roughly match up between the original and shifted line
-    for (idx, (orig_l, shifted_l)) in orig.lines().iter().zip(result.lines().iter()).enumerate() {
+    for (idx, (orig_l, shifted_l)) in orig.lines().zip(result.lines()).enumerate() {
         let orig_angle = orig_l.angle();
         let shifted_angle = shifted_l.angle();
 
