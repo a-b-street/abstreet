@@ -35,7 +35,11 @@ def main():
     results2 = None
     for pct in range(100, 0, -10):
         start = time.time()
-        results = abst_helpers.run_sim(args, modifiers=[{'CancelPeople': pct}])
+        results = abst_helpers.run_sim(args, modifiers=[{"ChangeMode": {
+            "pct_ppl": pct,
+            "departure_filter": [0.0, 86400.0],
+            "from_modes":["Walk", "Bike", "Transit", "Drive"],
+            "to_mode":None}}])
         print('{}% of people cancelled: {:,} trips cancelled, {:,} trips succeeded. Simulation took {:.1f}s'.format(
             pct, results.num_cancelled, len(results.trip_times), time.time() - start))
         if len(results.trip_times) < num_succeeded_last:

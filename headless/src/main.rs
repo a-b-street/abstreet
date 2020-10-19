@@ -404,9 +404,8 @@ impl LoadSim {
             map.recalculate_pathfinding_after_edits(timer);
         }
 
-        let mut modifier_rng = XorShiftRng::from_seed([self.rng_seed; 16]);
         for m in &self.modifiers {
-            scenario = m.apply(&map, scenario, &mut modifier_rng);
+            scenario = m.apply(&map, scenario);
         }
 
         let mut rng = XorShiftRng::from_seed([self.rng_seed; 16]);

@@ -100,9 +100,8 @@ impl SimFlags {
 
             let map = Map::new(abstutil::path_map(&scenario.map_name), timer);
 
-            let mut modifier_rng = self.make_rng();
             for m in &self.modifiers {
-                scenario = m.apply(&map, scenario, &mut modifier_rng);
+                scenario = m.apply(&map, scenario);
             }
 
             if opts.run_name == "unnamed" {

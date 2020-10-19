@@ -91,8 +91,13 @@ func run(pct int64) (*results, error) {
 	start := time.Now()
 
 	_, err := post("sim/load", LoadSim{
-		Scenario:  fmt.Sprintf("data/system/scenarios/%v/weekday.bin", *mapName),
-		Modifiers: []ScenarioModifier{{CancelPeople: pct}},
+		Scenario: fmt.Sprintf("data/system/scenarios/%v/weekday.bin", *mapName),
+		Modifiers: []ScenarioModifier{{ChangeMode: ChangeMode{
+			PctPpl:          uint64(pct),
+			DepartureFilter: []float64{0.0, 86400.0},
+			FromModes:       []string{"Walk", "Bike", "Transit", "Drive"},
+			ToMode:          nil,
+		}}},
 	})
 	if err != nil {
 		return nil, err
@@ -180,7 +185,15 @@ type LoadSim struct {
 }
 
 type ScenarioModifier struct {
-	CancelPeople int64
+	ChangeMode ChangeMode
+}
+
+type ChangeMode struct {
+	PctPpl          uint64    `json:"pct_ppl"`
+	DepartureFilter []float64 `json:"departure_filter"`
+	FromModes       []string  `json:"from_modes"'`
+	// TODO Need to test this
+	ToMode *string `json:"to_mode"`
 }
 
 type FinishedTrip struct {

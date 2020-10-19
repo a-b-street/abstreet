@@ -603,9 +603,8 @@ impl State for SandboxLoader {
                     let scenario_name = scenario.scenario_name.clone();
                     ctx.loading_screen("instantiate scenario", |_, mut timer| {
                         if let GameplayMode::PlayScenario(_, _, ref modifiers) = self.mode {
-                            let mut rng = app.primary.current_flags.sim_flags.make_rng();
                             for m in modifiers {
-                                scenario = m.apply(&app.primary.map, scenario, &mut rng);
+                                scenario = m.apply(&app.primary.map, scenario);
                             }
                         }
 

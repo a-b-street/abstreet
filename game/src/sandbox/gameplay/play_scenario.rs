@@ -192,21 +192,13 @@ impl EditScenarioModifiers {
                 .outline(2.0, Color::WHITE),
             );
         }
-        rows.push(
-            Widget::row(vec![
-                Btn::text_bg2("Change trip mode").build_def(ctx, None),
-                Btn::text_bg2("Add extra new trips").build_def(ctx, None),
-            ])
-            .centered(),
-        );
+        rows.push(Btn::text_bg2("Change trip mode").build_def(ctx, None));
+        rows.push(Btn::text_bg2("Add extra new trips").build_def(ctx, None));
         rows.push(Widget::row(vec![
             Spinner::new(ctx, (2, 14), 2).named("repeat_days"),
             Btn::text_bg2("Repeat schedule multiple days").build_def(ctx, None),
         ]));
-        rows.push(Widget::row(vec![
-            Spinner::new(ctx, (1, 100), 1).named("cancel_pct"),
-            Btn::text_bg2("Cancel all trips for some percent of people").build_def(ctx, None),
-        ]));
+        rows.push(Widget::horiz_separator(ctx, 0.5));
         rows.push(
             Widget::row(vec![
                 Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
@@ -295,16 +287,6 @@ impl State for EditScenarioModifiers {
                         self.modifiers.clone(),
                     ));
                 }
-                "Cancel all trips for some percent of people" => {
-                    self.modifiers.push(ScenarioModifier::CancelPeople(
-                        self.panel.spinner("cancel_pct") as usize,
-                    ));
-                    return Transition::Replace(EditScenarioModifiers::new(
-                        ctx,
-                        self.scenario_name.clone(),
-                        self.modifiers.clone(),
-                    ));
-                }
                 x => {
                     if let Some(x) = x.strip_prefix("delete modifier ") {
                         self.modifiers.remove(x.parse::<usize>().unwrap() - 1);
@@ -367,15 +349,13 @@ impl ChangeMode {
                 Widget::horiz_separator(ctx, 0.5),
                 Widget::row(vec![
                     "Change to trip type:".draw_text(ctx),
-                    Widget::dropdown(
-                        ctx,
-                        "to_mode",
-                        TripMode::Bike,
-                        TripMode::all()
-                            .into_iter()
-                            .map(|m| Choice::new(m.ongoing_verb(), m))
-                            .collect(),
-                    ),
+                    Widget::dropdown(ctx, "to_mode", Some(TripMode::Bike), {
+                        let mut choices = vec![Choice::new("cancel trip", None)];
+                        for m in TripMode::all() {
+                            choices.push(Choice::new(m.ongoing_verb(), Some(m)));
+                        }
+                        choices
+                    }),
                 ]),
                 Widget::row(vec![
                     Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
@@ -395,7 +375,7 @@ impl State for ChangeMode {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Discard changes" => Transition::Pop,
                 "Apply" => {
-                    let to_mode = self.panel.dropdown_value::<TripMode, _>("to_mode");
+                    let to_mode = self.panel.dropdown_value::<Option<TripMode>, _>("to_mode");
                     let pct_ppl = self.panel.spinner("pct_ppl") as usize;
                     let (p1, p2) = (
                         self.panel.area_slider("depart from").get_percent(),
@@ -409,7 +389,9 @@ impl State for ChangeMode {
                         .into_iter()
                         .filter(|m| self.panel.is_checked(m.ongoing_verb()))
                         .collect::<BTreeSet<_>>();
-                    from_modes.remove(&to_mode);
+                    if let Some(ref m) = to_mode {
+                        from_modes.remove(m);
+                    }
 
                     if from_modes.is_empty() {
                         return Transition::Push(PopupMsg::new(

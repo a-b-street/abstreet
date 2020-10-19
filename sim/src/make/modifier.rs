@@ -1,7 +1,5 @@
 use std::collections::BTreeSet;
 
-use rand::Rng;
-use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
@@ -14,12 +12,12 @@ use crate::{IndividTrip, PersonID, Scenario, SpawnTrip, TripMode};
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
 pub enum ScenarioModifier {
     RepeatDays(usize),
-    CancelPeople(usize),
     ChangeMode {
-        to_mode: TripMode,
         pct_ppl: usize,
         departure_filter: (Time, Time),
         from_modes: BTreeSet<TripMode>,
+        /// If `None`, then just cancel the trip.
+        to_mode: Option<TripMode>,
     },
     /// Scenario name
     AddExtraTrips(String),
@@ -28,19 +26,20 @@ pub enum ScenarioModifier {
 impl ScenarioModifier {
     /// If this modifies scenario_name, then that means prebaked results don't match up and
     /// shouldn't be used.
-    pub fn apply(&self, map: &Map, mut s: Scenario, rng: &mut XorShiftRng) -> Scenario {
+    pub fn apply(&self, map: &Map, mut s: Scenario) -> Scenario {
         match self {
             ScenarioModifier::RepeatDays(n) => repeat_days(s, *n),
-            ScenarioModifier::CancelPeople(pct) => cancel_people(s, *pct),
             ScenarioModifier::ChangeMode {
-                to_mode,
                 pct_ppl,
                 departure_filter,
                 from_modes,
+                to_mode,
             } => {
-                let pct_ppl = (*pct_ppl as f64) / 100.0;
-                for person in &mut s.people {
-                    if !rng.gen_bool(pct_ppl) {
+                for (idx, person) in s.people.iter_mut().enumerate() {
+                    // This is "stable" as percentage increases. If you modify 10% of people in one
+                    // run, then modify 11% in another, the modified people in the 11% run will be
+                    // a strict superset of the 10% run.
+                    if idx % 100 > *pct_ppl {
                         continue;
                     }
                     for trip in &mut person.trips {
@@ -50,11 +49,19 @@ impl ScenarioModifier {
                         if !from_modes.contains(&trip.trip.mode()) {
                             continue;
                         }
-                        if let Some(new) =
-                            SpawnTrip::new(trip.trip.start(map), trip.trip.end(map), *to_mode, map)
-                        {
+                        if let Some(to_mode) = *to_mode {
+                            if let Some(new) = SpawnTrip::new(
+                                trip.trip.start(map),
+                                trip.trip.end(map),
+                                to_mode,
+                                map,
+                            ) {
+                                trip.modified = true;
+                                trip.trip = new;
+                            }
+                        } else {
                             trip.modified = true;
-                            trip.trip = new;
+                            trip.cancelled = true;
                         }
                     }
                 }
@@ -80,21 +87,19 @@ impl ScenarioModifier {
     pub fn describe(&self) -> String {
         match self {
             ScenarioModifier::RepeatDays(n) => format!("repeat the entire day {} times", n),
-            ScenarioModifier::CancelPeople(pct) => {
-                format!("cancel all trips for {}% of people", pct)
-            }
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 to_mode,
                 departure_filter,
                 from_modes,
             } => format!(
-                "change all trips for {}% of people of types {:?} leaving between {} and {} to {}",
+                "change all trips for {}% of people of types {:?} leaving between {} and {} to \
+                 {:?}",
                 pct_ppl,
                 from_modes,
                 departure_filter.0.ampm_tostring(),
                 departure_filter.1.ampm_tostring(),
-                to_mode.verb()
+                to_mode.map(|m| m.verb())
             ),
             ScenarioModifier::AddExtraTrips(name) => format!("Add extra trips from {}", name),
         }
@@ -124,22 +129,6 @@ fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
             offset += Duration::hours(24);
         }
         person.trips = trips;
-    }
-    s
-}
-
-// This is "stable" as percentage increases. If you cancel 10% of people in one run, then cancel 9%
-// in another, the surviving people in the 9% run will be a strict superset of the 10% run.
-fn cancel_people(mut s: Scenario, pct: usize) -> Scenario {
-    for (idx, person) in s.people.iter_mut().enumerate() {
-        if idx % 100 <= pct {
-            // TODO It's not obvious how to cancel individual trips. How are later trips affected?
-            // What if a car doesn't get moved to another place?
-            for trip in &mut person.trips {
-                trip.modified = true;
-                trip.cancelled = true;
-            }
-        }
     }
     s
 }
