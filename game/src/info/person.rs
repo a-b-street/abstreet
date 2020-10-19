@@ -124,7 +124,9 @@ pub fn trips(
                 (
                     "cancelled",
                     Color::hex("#EB3223"),
-                    open_trips.get(t).map(|_| trip::cancelled(ctx, app, *t)),
+                    open_trips
+                        .get_mut(t)
+                        .map(|open_trip| trip::cancelled(ctx, app, *t, open_trip, details)),
                 )
             }
             TripResult::TripDoesntExist => unreachable!(),

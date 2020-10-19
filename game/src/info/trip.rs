@@ -183,55 +183,17 @@ pub fn future(
             None,
         ));
     } else {
-        // TODO Warp buttons. make_table is showing its age.
-        let (id1, _, name1) = endpoint(&trip.start, app);
-        let (id2, _, name2) = endpoint(&trip.end, app);
-        details
-            .warpers
-            .insert(format!("jump to start of {}", id), id1);
-        details
-            .warpers
-            .insert(format!("jump to goal of {}", id), id2);
-        if details.can_jump_to_time {
-            details
-                .time_warpers
-                .insert(format!("wait for {}", id), (id, trip.departure));
-        }
+        col.extend(make_table(ctx, vec![("Purpose", trip.purpose.to_string())]));
 
-        col.push(
-            Widget::row(vec![
-                Btn::svg(
-                    "system/assets/timeline/start_pos.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip(Text::from(Line(name1)))
-                .build(ctx, format!("jump to start of {}", id), None),
-                if details.can_jump_to_time {
-                    Btn::text_bg2("Wait for trip")
-                        .tooltip(Text::from(Line(format!(
-                            "This will advance the simulation to {}",
-                            trip.departure.ampm_tostring()
-                        ))))
-                        .build(ctx, format!("wait for {}", id), None)
-                } else {
-                    Widget::nothing()
-                },
-                Btn::svg(
-                    "system/assets/timeline/goal_pos.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip(Text::from(Line(name2)))
-                .build(ctx, format!("jump to goal of {}", id), None),
-            ])
-            .evenly_spaced(),
-        );
-
-        col.extend(make_table(
+        col.push(make_trip_details(
             ctx,
-            vec![
-                ("Departure", trip.departure.ampm_tostring()),
-                ("Purpose", trip.purpose.to_string()),
-            ],
+            app,
+            id,
+            open_trip,
+            details,
+            Vec::new(),
+            &app.primary.map,
+            None,
         ));
     }
 
@@ -359,7 +321,13 @@ pub fn finished(
     Widget::col(col)
 }
 
-pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
+pub fn cancelled(
+    ctx: &mut EventCtx,
+    app: &App,
+    id: TripID,
+    open_trip: &mut OpenTrip,
+    details: &mut Details,
+) -> Widget {
     let trip = app.primary.sim.trip_info(id);
 
     let mut col = vec![Text::from(Line(format!(
@@ -369,17 +337,17 @@ pub fn cancelled(ctx: &mut EventCtx, app: &App, id: TripID) -> Widget {
     .wrap_to_pct(ctx, 20)
     .draw(ctx)];
 
-    // TODO Warp buttons. make_table is showing its age.
-    let (_, _, name1) = endpoint(&trip.start, app);
-    let (_, _, name2) = endpoint(&trip.end, app);
-    col.extend(make_table(
+    col.extend(make_table(ctx, vec![("Purpose", trip.purpose.to_string())]));
+
+    col.push(make_trip_details(
         ctx,
-        vec![
-            ("Departure", trip.departure.ampm_tostring()),
-            ("From", name1),
-            ("To", name2),
-            ("Purpose", trip.purpose.to_string()),
-        ],
+        app,
+        id,
+        open_trip,
+        details,
+        Vec::new(),
+        &app.primary.map,
+        None,
     ));
 
     Widget::col(col)
