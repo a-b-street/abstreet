@@ -88,6 +88,7 @@ pub enum CameraAngle {
     IsometricNW,
     IsometricSE,
     IsometricSW,
+    Abstract,
 }
 
 pub struct OptionsPanel {
@@ -169,6 +170,7 @@ impl OptionsPanel {
                                 Choice::new("Isometric (northwest)", CameraAngle::IsometricNW),
                                 Choice::new("Isometric (southeast)", CameraAngle::IsometricSE),
                                 Choice::new("Isometric (southwest)", CameraAngle::IsometricSW),
+                                Choice::new("Abstract (just symbols)", CameraAngle::Abstract),
                             ],
                         ),
                     ]),

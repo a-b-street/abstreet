@@ -64,13 +64,24 @@ impl DrawBuilding {
                     );
                 }
             }
+            CameraAngle::Abstract => {
+                // TODO The hitbox needs to change too
+                bldg_batch.push(
+                    bldg_color,
+                    Polygon::rectangle_centered(
+                        bldg.polygon.center(),
+                        Distance::meters(5.0),
+                        Distance::meters(5.0),
+                    ),
+                );
+            }
             x => {
                 let angle = match x {
                     CameraAngle::IsometricNE => Angle::new_degs(-45.0),
                     CameraAngle::IsometricNW => Angle::new_degs(-135.0),
                     CameraAngle::IsometricSE => Angle::new_degs(45.0),
                     CameraAngle::IsometricSW => Angle::new_degs(135.0),
-                    _ => unreachable!(),
+                    CameraAngle::TopDown | CameraAngle::Abstract => unreachable!(),
                 };
 
                 let bldg_height_per_level = 3.5;
@@ -91,7 +102,7 @@ impl DrawBuilding {
                         CameraAngle::IsometricNW => Pt2D::new(map_width, map_height),
                         CameraAngle::IsometricSE => Pt2D::new(0.0, 0.0),
                         CameraAngle::IsometricSW => Pt2D::new(map_width, 0.0),
-                        CameraAngle::TopDown => unreachable!(),
+                        CameraAngle::TopDown | CameraAngle::Abstract => unreachable!(),
                     };
 
                     let abs_pt = Pt2D::new(
@@ -190,13 +201,15 @@ impl DrawBuilding {
                 }
             }
         }
-        paths_batch.push(
-            cs.zoomed_road_surface(
-                LaneType::Sidewalk,
-                map.get_parent(bldg.sidewalk()).get_rank(),
-            ),
-            driveway.make_polygons(NORMAL_LANE_THICKNESS),
-        );
+        if opts.camera_angle != CameraAngle::Abstract {
+            paths_batch.push(
+                cs.zoomed_road_surface(
+                    LaneType::Sidewalk,
+                    map.get_parent(bldg.sidewalk()).get_rank(),
+                ),
+                driveway.make_polygons(NORMAL_LANE_THICKNESS),
+            );
+        }
 
         DrawBuilding {
             id: bldg.id,
