@@ -39,6 +39,15 @@ impl Queue {
         }
     }
 
+    pub fn get_last_car_position(
+        &self,
+        now: Time,
+        cars: &FixedMap<CarID, Car>,
+        queues: &BTreeMap<Traversable, Queue>,
+    ) -> Option<(CarID, Distance)> {
+        self.inner_get_last_car_position(now, cars, queues, &mut BTreeSet::new(), None)
+    }
+
     /// Farthest along (greatest distance) is first.
     pub fn get_car_positions(
         &self,
@@ -46,26 +55,34 @@ impl Queue {
         cars: &FixedMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Vec<(CarID, Distance)> {
-        self.inner_get_car_positions(now, cars, queues, &mut BTreeSet::new())
+        let mut all_cars = vec![];
+        self.inner_get_last_car_position(
+            now,
+            cars,
+            queues,
+            &mut BTreeSet::new(),
+            Some(&mut all_cars),
+        );
+        all_cars
     }
 
-    fn inner_get_car_positions(
+    fn inner_get_last_car_position(
         &self,
         now: Time,
         cars: &FixedMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
         recursed_queues: &mut BTreeSet<Traversable>,
-    ) -> Vec<(CarID, Distance)> {
+        mut intermediate_results: Option<&mut Vec<(CarID, Distance)>>,
+    ) -> Option<(CarID, Distance)> {
         if self.cars.is_empty() {
-            return Vec::new();
+            return None;
         }
 
-        let mut result: Vec<(CarID, Distance)> = Vec::new();
-
+        let mut previous: Option<(CarID, Distance)> = None;
         for id in &self.cars {
-            let bound = match result.last() {
+            let bound = match previous {
                 Some((leader, last_dist)) => {
-                    *last_dist - cars[leader].vehicle.length - FOLLOWING_DISTANCE
+                    last_dist - cars[&leader].vehicle.length - FOLLOWING_DISTANCE
                 }
                 None => match self.laggy_head {
                     Some(id) => {
@@ -96,9 +113,14 @@ impl Queue {
                         } else {
                             recursed_queues.insert(recurse_to);
 
-                            let (head, head_dist) = *queues[&leader.router.head()]
-                                .inner_get_car_positions(now, cars, queues, recursed_queues)
-                                .last()
+                            let (head, head_dist) = queues[&leader.router.head()]
+                                .inner_get_last_car_position(
+                                    now,
+                                    cars,
+                                    queues,
+                                    recursed_queues,
+                                    None,
+                                )
                                 .unwrap();
                             assert_eq!(head, id);
 
@@ -128,7 +150,9 @@ impl Queue {
 
             // There's spillover and a car shouldn't have been able to enter yet.
             if bound < Distance::ZERO {
-                dump_cars(&result, cars, self.id, now);
+                if let Some(intermediate_results) = intermediate_results {
+                    dump_cars(intermediate_results, cars, self.id, now);
+                }
                 panic!(
                     "Queue has spillover on {} at {} -- can't draw {}, bound is {}. Laggy head is \
                      {:?}. This is usually a geometry bug; check for duplicate roads going \
@@ -160,13 +184,18 @@ impl Queue {
                 CarState::IdlingAtStop(front, _) => front,
             };
 
-            result.push((*id, front));
+            if let Some(ref mut intermediate_results) = intermediate_results {
+                intermediate_results.push((*id, front));
+            }
+            previous = Some((*id, front));
         }
         // Enable to detect possible bugs, but save time otherwise
         if false {
-            validate_positions(&result, cars, now, self.id)
+            if let Some(intermediate_results) = intermediate_results {
+                validate_positions(intermediate_results, cars, now, self.id)
+            }
         }
-        result
+        previous
     }
 
     pub fn get_idx_to_insert_car(
