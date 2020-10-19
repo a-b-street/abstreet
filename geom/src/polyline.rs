@@ -623,15 +623,23 @@ impl PolyLine {
 
         // There could be several collisions. Pick the "first" from self's perspective.
         let mut closest_intersection: Option<(Pt2D, Angle)> = None;
-        let mut closest_intersection_distance = None;
+        let mut closest_intersection_distance: Option<Distance> = None;
 
         for l1 in self.lines() {
             for l2 in other.lines() {
                 if let Some(pt) = l1.intersection(&l2) {
-                    let distance = self.get_slice_ending_at(pt).map(|pl| pl.length());
-                    if distance < closest_intersection_distance {
-                        closest_intersection = Some((pt, l1.angle()));
-                        closest_intersection_distance = distance;
+                    if let Some(new_distance) = self.get_slice_ending_at(pt).map(|pl| pl.length()) {
+                        match closest_intersection_distance {
+                            None => {
+                                closest_intersection = Some((pt, l1.angle()));
+                                closest_intersection_distance = Some(new_distance);
+                            }
+                            Some(existing_distance) if existing_distance > new_distance => {
+                                closest_intersection = Some((pt, l1.angle()));
+                                closest_intersection_distance = Some(new_distance);
+                            }
+                            _ => {}
+                        }
                     }
                 }
             }
