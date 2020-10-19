@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
-use geom::{ArrowCap, Distance, Duration, Percent, PolyLine, Polygon, Pt2D, Time};
+use geom::{Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
@@ -658,17 +658,6 @@ fn make_trip_details(
         details
             .warpers
             .insert(format!("jump to start of {}", trip_id), id);
-        if let TripEndpoint::Border(_, ref loc) = trip.start {
-            if let Some(loc) = loc {
-                if let Ok(pl) =
-                    PolyLine::new(vec![Pt2D::from_gps(loc.gps, map.get_gps_bounds()), center])
-                {
-                    let arrow = pl.make_arrow(Distance::meters(5.0), ArrowCap::Triangle);
-                    details.unzoomed.push(Color::GREEN, arrow.clone());
-                    details.zoomed.push(Color::GREEN, arrow.clone());
-                }
-            }
-        }
 
         details.unzoomed.append(
             GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/start_pos.svg")
@@ -703,17 +692,6 @@ fn make_trip_details(
         details
             .warpers
             .insert(format!("jump to goal of {}", trip_id), id);
-        if let TripEndpoint::Border(_, ref loc) = trip.end {
-            if let Some(loc) = loc {
-                if let Ok(pl) =
-                    PolyLine::new(vec![center, Pt2D::from_gps(loc.gps, map.get_gps_bounds())])
-                {
-                    let arrow = pl.make_arrow(Distance::meters(5.0), ArrowCap::Triangle);
-                    details.unzoomed.push(Color::GREEN, arrow.clone());
-                    details.zoomed.push(Color::GREEN, arrow.clone());
-                }
-            }
-        }
 
         details.unzoomed.append(
             GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
