@@ -383,15 +383,6 @@
 <span id="382">382</span>
 <span id="383">383</span>
 <span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -440,42 +431,33 @@
                 <span class="self">self</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
             );
         }
+        <span class="kw">let</span> <span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">general_road_marking</span>(<span class="ident">road</span>.<span class="ident">get_rank</span>());
         <span class="kw">match</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> {
             <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=&gt;</span> {
-                <span class="ident">draw</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">sidewalk_lines</span>, <span class="ident">calculate_sidewalk_lines</span>(<span class="ident">lane</span>));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> {
+                    <span class="ident">draw</span>.<span class="ident">extend</span>(<span class="ident">c</span>, <span class="ident">calculate_sidewalk_lines</span>(<span class="ident">lane</span>));
+                }
             }
             <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=&gt;</span> {}
             <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=&gt;</span> {
-                <span class="ident">draw</span>.<span class="ident">extend</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">general_road_marking</span>,
-                    <span class="ident">calculate_parking_lines</span>(<span class="ident">lane</span>, <span class="ident">map</span>),
-                );
+                <span class="ident">draw</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_parking_lines</span>(<span class="ident">lane</span>, <span class="ident">map</span>));
             }
             <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=&gt;</span> {
-                <span class="ident">draw</span>.<span class="ident">extend</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">general_road_marking</span>,
-                    <span class="ident">calculate_driving_lines</span>(<span class="ident">lane</span>, <span class="ident">road</span>),
-                );
-                <span class="ident">draw</span>.<span class="ident">extend</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">general_road_marking</span>,
-                    <span class="ident">calculate_turn_markings</span>(<span class="ident">map</span>, <span class="ident">lane</span>),
-                );
-                <span class="ident">draw</span>.<span class="ident">extend</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">general_road_marking</span>,
-                    <span class="ident">calculate_one_way_markings</span>(<span class="ident">lane</span>, <span class="ident">road</span>),
-                );
+                <span class="ident">draw</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_driving_lines</span>(<span class="ident">lane</span>, <span class="ident">road</span>));
+                <span class="ident">draw</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_turn_markings</span>(<span class="ident">map</span>, <span class="ident">lane</span>));
+                <span class="ident">draw</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_one_way_markings</span>(<span class="ident">lane</span>, <span class="ident">road</span>));
             }
             <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=&gt;</span> {}
             <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>);
                 <span class="ident">draw</span>.<span class="ident">push</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">road_center_line</span>,
+                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">road_center_line</span>(<span class="ident">road</span>.<span class="ident">get_rank</span>()),
                     <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
                         .<span class="ident">must_shift_right</span>((<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>)
                         .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
                 );
                 <span class="ident">draw</span>.<span class="ident">push</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">road_center_line</span>,
+                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">road_center_line</span>(<span class="ident">road</span>.<span class="ident">get_rank</span>()),
                     <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
                         .<span class="ident">must_shift_left</span>((<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>)
                         .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),

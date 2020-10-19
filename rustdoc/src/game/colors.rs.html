@@ -505,6 +505,46 @@
 <span id="504">504</span>
 <span id="505">505</span>
 <span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>::<span class="ident">RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">LaneType</span>;
@@ -584,9 +624,9 @@
     <span class="ident">parking_lane</span>: <span class="ident">Color</span>,
     <span class="ident">bike_lane</span>: <span class="ident">Color</span>,
     <span class="ident">sidewalk</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">sidewalk_lines</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">general_road_marking</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">road_center_line</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">sidewalk_lines</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
+    <span class="ident">general_road_marking</span>: <span class="ident">Color</span>,
+    <span class="ident">road_center_line</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">light_rail_track</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">private_road</span>: <span class="ident">Color</span>,
     <span class="ident">unzoomed_highway</span>: <span class="ident">Color</span>,
@@ -703,7 +743,7 @@
             <span class="ident">parking_lane</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.2</span>),
             <span class="ident">bike_lane</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">15</span>, <span class="number">125</span>, <span class="number">75</span>),
             <span class="ident">sidewalk</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.8</span>),
-            <span class="ident">sidewalk_lines</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.7</span>),
+            <span class="ident">sidewalk_lines</span>: <span class="prelude-val">Some</span>(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.7</span>)),
             <span class="ident">general_road_marking</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
             <span class="ident">road_center_line</span>: <span class="ident">Color</span>::<span class="ident">YELLOW</span>,
             <span class="ident">light_rail_track</span>: <span class="ident">hex</span>(<span class="string">&quot;#844204&quot;</span>),
@@ -812,10 +852,16 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoomed_road_surface</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneType</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) <span class="op">-&gt;</span> <span class="ident">Color</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">scheme</span> {
-            <span class="ident">ColorSchemeChoice</span>::<span class="ident">FadedZoom</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">rank</span> {
-                <span class="ident">RoadRank</span>::<span class="ident">Highway</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#BEB2C0&quot;</span>),
-                <span class="ident">RoadRank</span>::<span class="ident">Arterial</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#B6BDC5&quot;</span>),
-                <span class="ident">RoadRank</span>::<span class="ident">Local</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#C6CDD5&quot;</span>),
+            <span class="ident">ColorSchemeChoice</span>::<span class="ident">FadedZoom</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">lane</span> {
+                <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">rank</span> {
+                    <span class="ident">RoadRank</span>::<span class="ident">Highway</span> <span class="op">|</span> <span class="ident">RoadRank</span>::<span class="ident">Arterial</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
+                    <span class="ident">RoadRank</span>::<span class="ident">Local</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#DBDDE5&quot;</span>),
+                },
+                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">rank</span> {
+                    <span class="ident">RoadRank</span>::<span class="ident">Highway</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#F89E59&quot;</span>),
+                    <span class="ident">RoadRank</span>::<span class="ident">Arterial</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#F2D163&quot;</span>),
+                    <span class="ident">RoadRank</span>::<span class="ident">Local</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#FFFFFF&quot;</span>),
+                },
             },
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">NegativeSpace</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">BLACK</span>,
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">lane</span> {
@@ -834,6 +880,28 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">scheme</span> {
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">FadedZoom</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>, <span class="ident">rank</span>),
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">normal_intersection</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">road_center_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) <span class="op">-&gt;</span> <span class="ident">Color</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">scheme</span> {
+            <span class="ident">ColorSchemeChoice</span>::<span class="ident">FadedZoom</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">rank</span> {
+                <span class="ident">RoadRank</span>::<span class="ident">Highway</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#60564D&quot;</span>),
+                <span class="ident">RoadRank</span>::<span class="ident">Arterial</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#585858&quot;</span>),
+                <span class="ident">RoadRank</span>::<span class="ident">Local</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#1C1C1C&quot;</span>),
+            },
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">road_center_line</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">general_road_marking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) <span class="op">-&gt;</span> <span class="ident">Color</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">scheme</span> {
+            <span class="ident">ColorSchemeChoice</span>::<span class="ident">FadedZoom</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">rank</span> {
+                <span class="ident">RoadRank</span>::<span class="ident">Highway</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#FFFFFF&quot;</span>),
+                <span class="ident">RoadRank</span>::<span class="ident">Arterial</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#FFFFFF&quot;</span>),
+                <span class="ident">RoadRank</span>::<span class="ident">Local</span> <span class="op">=&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#BABBBF&quot;</span>),
+            },
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">general_road_marking</span>,
         }
     }
 }
@@ -906,7 +974,7 @@
         <span class="ident">cs</span>.<span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#384173&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">parking_lane</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#4B5485&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#89ABD9&quot;</span>);
-        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#4B5485&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">hex</span>(<span class="string">&quot;#4B5485&quot;</span>));
         <span class="ident">cs</span>.<span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#89ABD9&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#589D54&quot;</span>).<span class="ident">into</span>(); <span class="comment">// #153F14</span>
         <span class="ident">cs</span>.<span class="ident">ped_crowd</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#DD5444&quot;</span>);
@@ -932,7 +1000,7 @@
         <span class="ident">cs</span>.<span class="ident">road_center_line</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#DB952E&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#D6D6D6&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">general_road_marking</span>;
-        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#707070&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">hex</span>(<span class="string">&quot;#707070&quot;</span>));
         <span class="ident">cs</span>.<span class="ident">bike_lane</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#72CE36&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">bus_lane</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#AD302D&quot;</span>);
         <span class="ident">cs</span>
@@ -977,7 +1045,7 @@
         <span class="ident">cs</span>.<span class="ident">bike_lane</span> <span class="op">=</span> <span class="ident">road</span>;
         <span class="ident">cs</span>.<span class="ident">bus_lane</span> <span class="op">=</span> <span class="ident">road</span>;
         <span class="ident">cs</span>.<span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.3</span>);
-        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="ident">road</span>;
+        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">road</span>);
         <span class="ident">cs</span>.<span class="ident">normal_intersection</span> <span class="op">=</span> <span class="ident">road</span>;
         <span class="ident">cs</span>.<span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">building_outline</span>;
         <span class="ident">cs</span>.<span class="ident">road_center_line</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">general_road_marking</span>;
@@ -987,7 +1055,19 @@
     }
 
     <span class="kw">fn</span> <span class="ident">faded_zoom</span>() <span class="op">-&gt;</span> <span class="ident">ColorScheme</span> {
-        <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">standard</span>();
+        <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F89E59&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F2D163&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#FFFFFF&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+        <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#E5E4E1&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#B6E59E&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#75CFF0&quot;</span>).<span class="ident">into</span>();
+
+        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#DCD9D6&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">commerical_building</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">residential_building</span>;
+
         <span class="ident">cs</span>
     }
 
@@ -1003,7 +1083,7 @@
         <span class="ident">cs</span>.<span class="ident">road_center_line</span> <span class="op">=</span> <span class="ident">nonempty_space</span>;
         <span class="ident">cs</span>.<span class="ident">stop_sign</span> <span class="op">=</span> <span class="ident">nonempty_space</span>;
         <span class="ident">cs</span>.<span class="ident">stop_sign_pole</span> <span class="op">=</span> <span class="ident">nonempty_space</span>;
-        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="ident">nonempty_space</span>;
+        <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">nonempty_space</span>);
         <span class="ident">cs</span>.<span class="ident">parking_lot</span> <span class="op">=</span> <span class="ident">nonempty_space</span>;
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">nonempty_space</span>.<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">nonempty_space</span>.<span class="ident">into</span>();
