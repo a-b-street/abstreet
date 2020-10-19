@@ -622,23 +622,22 @@ impl PolyLine {
         assert_ne!(self, other);
 
         // There could be several collisions. Pick the "first" from self's perspective.
+        let mut closest_intersection: Option<(Pt2D, Angle)> = None;
+        let mut closest_intersection_distance = None;
+
         for l1 in self.lines() {
-            let mut hits: Vec<(Pt2D, Angle)> = Vec::new();
             for l2 in other.lines() {
                 if let Some(pt) = l1.intersection(&l2) {
-                    hits.push((pt, l1.angle()));
+                    let distance = self.get_slice_ending_at(pt).map(|pl| pl.length());
+                    if distance < closest_intersection_distance {
+                        closest_intersection = Some((pt, l1.angle()));
+                        closest_intersection_distance = distance;
+                    }
                 }
             }
-
-            if let Some(hit) = hits.into_iter().min_by_key(|(pt, _)| {
-                self.get_slice_ending_at(*pt)
-                    .map(|pl| pl.length())
-                    .unwrap_or(Distance::ZERO)
-            }) {
-                return Some(hit);
-            }
         }
-        None
+
+        closest_intersection
     }
 
     // TODO Also distance along
