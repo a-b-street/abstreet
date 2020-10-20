@@ -126,14 +126,14 @@ impl DrawLane {
                         GeomBatch::load_svg(g.prerender, "system/assets/map/bus_only.svg")
                             .scale(0.06)
                             .centered_on(pt)
-                            .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
+                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
                     );
                 } else if lane.is_biking() {
                     draw.append(
                         GeomBatch::load_svg(g.prerender, "system/assets/meters/bike.svg")
                             .scale(0.06)
                             .centered_on(pt)
-                            .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
+                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
                     );
                 } else if lane.lane_type == LaneType::SharedLeftTurn {
                     draw.append(
@@ -141,7 +141,7 @@ impl DrawLane {
                             .autocrop()
                             .scale(0.003)
                             .centered_on(pt)
-                            .rotate(angle.shortest_rotation_towards(Angle::new_degs(-90.0))),
+                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
                     );
                 } else if lane.lane_type == LaneType::Construction {
                     // TODO Still not quite centered right, but close enough
@@ -152,7 +152,7 @@ impl DrawLane {
                         )
                         .scale(0.05)
                         .rotate_around_batch_center(
-                            angle.shortest_rotation_towards(Angle::new_degs(-90.0)),
+                            angle.shortest_rotation_towards(Angle::degrees(-90.0)),
                         )
                         .autocrop()
                         .centered_on(pt),

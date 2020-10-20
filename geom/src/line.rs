@@ -5,50 +5,63 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 
-/// Segment, technically. Should rename.
+/// A line segment.
+// TODO Rename?
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {
+    /// Creates a line segment between two points. None if the points are the same.
     pub fn new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
         if pt1.dist_to(pt2) <= EPSILON_DIST {
             return None;
         }
         Some(Line(pt1, pt2))
     }
-    // Just to be more clear at the call-site
+
+    /// Equivalent to `Line::new(pt1, pt2).unwrap()`. Use this to effectively document an assertion
+    /// at the call-site.
     pub fn must_new(pt1: Pt2D, pt2: Pt2D) -> Line {
         Line::new(pt1, pt2).unwrap()
     }
 
+    /// Returns an infinite line passing through this line's two points.
     pub fn infinite(&self) -> InfiniteLine {
         InfiniteLine(self.0, self.1)
     }
 
+    /// Returns the first point in this line segment.
     pub fn pt1(&self) -> Pt2D {
         self.0
     }
 
+    /// Returns the second point in this line segment.
     pub fn pt2(&self) -> Pt2D {
         self.1
     }
 
+    /// Returns the two points in this line segment.
     pub fn points(&self) -> Vec<Pt2D> {
         vec![self.0, self.1]
     }
 
+    /// Returns a polyline containing these two points.
     pub fn to_polyline(&self) -> PolyLine {
         PolyLine::must_new(self.points())
     }
 
+    /// Returns a thick line segment.
     pub fn make_polygons(&self, thickness: Distance) -> Polygon {
         self.to_polyline().make_polygons(thickness)
     }
 
+    /// Length of the line segment
     pub fn length(&self) -> Distance {
         self.pt1().dist_to(self.pt2())
     }
 
+    /// If two line segments intersect -- including endpoints -- return the point where they hit.
+    /// Undefined if the two lines have more than one intersection point!
     // TODO Also return the distance along self
     pub fn intersection(&self, other: &Line) -> Option<Pt2D> {
         // From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
@@ -74,7 +87,7 @@ impl Line {
         }
     }
 
-    /// An intersection that isn't just two endpoints touching
+    /// Determine if two line segments intersect, but more so than just two endpoints touching.
     pub fn crosses(&self, other: &Line) -> bool {
         if self.pt1() == other.pt1()
             || self.pt1() == other.pt2()
@@ -86,6 +99,9 @@ impl Line {
         self.intersection(other).is_some()
     }
 
+    /// If the line segment intersects with an infinite line -- including endpoints -- return the
+    /// point where they hit. Undefined if the segment and infinite line intersect at more than one
+    /// point!
     // TODO Also return the distance along self
     pub fn intersection_infinite(&self, other: &InfiniteLine) -> Option<Pt2D> {
         let hit = self.infinite().intersection(other)?;
@@ -96,6 +112,7 @@ impl Line {
         }
     }
 
+    /// Perpendicularly shifts the line over to the right. Width must be non-negative.
     pub fn shift_right(&self, width: Distance) -> Line {
         assert!(width >= Distance::ZERO);
         let angle = self.angle().rotate_degs(90.0);
@@ -105,6 +122,7 @@ impl Line {
         )
     }
 
+    /// Perpendicularly shifts the line over to the left. Width must be non-negative.
     pub fn shift_left(&self, width: Distance) -> Line {
         assert!(width >= Distance::ZERO);
         let angle = self.angle().rotate_degs(-90.0);
@@ -114,6 +132,7 @@ impl Line {
         )
     }
 
+    /// Perpendicularly shifts the line to the right if positive or left if negative.
     pub fn shift_either_direction(&self, width: Distance) -> Line {
         if width >= Distance::ZERO {
             self.shift_right(width)
@@ -122,14 +141,17 @@ impl Line {
         }
     }
 
+    /// Returns a reversed line segment
     pub fn reverse(&self) -> Line {
         Line::must_new(self.pt2(), self.pt1())
     }
 
+    /// The angle of the line segment, from the first to the second point
     pub fn angle(&self) -> Angle {
         self.pt1().angle_to(self.pt2())
     }
 
+    /// Returns a point along the line segment, unless the distance exceeds the segment's length.
     pub fn dist_along(&self, dist: Distance) -> Option<Pt2D> {
         let len = self.length();
         if dist < Distance::ZERO || dist > len {
@@ -137,6 +159,8 @@ impl Line {
         }
         self.percent_along(dist / len)
     }
+    /// Equivalent to `self.dist_along(dist).unwrap()`. Use this to document an assertion at the
+    /// call-site.
     pub fn must_dist_along(&self, dist: Distance) -> Pt2D {
         self.dist_along(dist).unwrap()
     }

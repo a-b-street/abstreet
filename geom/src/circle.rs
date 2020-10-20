@@ -6,6 +6,7 @@ use crate::{Angle, Bounds, Distance, Polygon, Pt2D, Ring};
 
 const TRIANGLES_PER_CIRCLE: usize = 60;
 
+/// A circle, defined by a center and radius.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Circle {
     pub center: Pt2D,
@@ -13,16 +14,19 @@ pub struct Circle {
 }
 
 impl Circle {
+    /// Creates a circle.
     pub fn new(center: Pt2D, radius: Distance) -> Circle {
         Circle { center, radius }
     }
 
+    /// True if the point is inside the circle.
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
         // avoid sqrt by squaring radius instead
         (pt.x() - self.center.x()).powi(2) + (pt.y() - self.center.y()).powi(2)
             < self.radius.inner_meters().powi(2)
     }
 
+    /// Get the boundary containing this circle.
     pub fn get_bounds(&self) -> Bounds {
         Bounds {
             min_x: self.center.x() - self.radius.inner_meters(),
@@ -32,17 +36,20 @@ impl Circle {
         }
     }
 
+    /// Renders the circle as a polygon.
     pub fn to_polygon(&self) -> Polygon {
         self.to_partial_polygon(1.0)
     }
 
+    /// Renders some percent, between [0, 1], of the circle as a polygon. The polygon starts from 0
+    /// degrees.
     pub fn to_partial_polygon(&self, percent_full: f64) -> Polygon {
         let mut pts = vec![self.center];
         let mut indices = Vec::new();
         for i in 0..TRIANGLES_PER_CIRCLE {
             pts.push(self.center.project_away(
                 self.radius,
-                Angle::new_degs((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * percent_full * 360.0),
+                Angle::degrees((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * percent_full * 360.0),
             ));
             indices.push(0);
             indices.push(i + 1);
@@ -58,20 +65,21 @@ impl Circle {
         Polygon::precomputed(pts, indices)
     }
 
+    /// Returns the ring around the circle.
     fn to_ring(&self) -> Ring {
         Ring::must_new(
             (0..=TRIANGLES_PER_CIRCLE)
                 .map(|i| {
                     self.center.project_away(
                         self.radius,
-                        Angle::new_degs((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * 360.0),
+                        Angle::degrees((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * 360.0),
                     )
                 })
                 .collect(),
         )
     }
 
-    /// Draws an outline around the circle, strictly contained with the circle's original radius.
+    /// Creates an outline around the circle, strictly contained with the circle's original radius.
     pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, String> {
         if self.radius <= thickness {
             return Err(format!(

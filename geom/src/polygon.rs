@@ -242,7 +242,7 @@ impl Polygon {
         const RESOLUTION: usize = 5;
         let mut arc = |center: Pt2D, angle1_degs: f64, angle2_degs: f64| {
             for i in 0..=RESOLUTION {
-                let angle = Angle::new_degs(
+                let angle = Angle::degrees(
                     angle1_degs + (angle2_degs - angle1_degs) * ((i as f64) / (RESOLUTION as f64)),
                 );
                 pts.push(center.project_away(Distance::meters(r), angle.invert_y()));

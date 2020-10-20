@@ -47,8 +47,8 @@ impl DrawBusStop {
         batch.push(
             cs.stop_sign_pole,
             Line::new(
-                center.project_away(RADIUS, Angle::new_degs(90.0)),
-                center.project_away(1.5 * RADIUS, Angle::new_degs(90.0)),
+                center.project_away(RADIUS, Angle::degrees(90.0)),
+                center.project_away(1.5 * RADIUS, Angle::degrees(90.0)),
             )
             .unwrap()
             .make_polygons(Distance::meters(0.3)),

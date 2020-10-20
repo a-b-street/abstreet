@@ -10,6 +10,7 @@ use crate::{Bounds, Distance, Pt2D};
 
 // TODO Maybe use https://crates.io/crates/spatial-join proximity maps
 
+/// A quad-tree to quickly find the closest points to some polylines.
 pub struct FindClosest<K> {
     // TODO maybe any type of geo:: thing
     geometries: BTreeMap<K, geo::LineString<f64>>,
@@ -20,6 +21,7 @@ impl<K> FindClosest<K>
 where
     K: Clone + Ord + std::fmt::Debug,
 {
+    /// Creates the quad-tree, limited to points contained in the boundary.
     pub fn new(bounds: &Bounds) -> FindClosest<K> {
         FindClosest {
             geometries: BTreeMap::new(),
@@ -27,12 +29,15 @@ where
         }
     }
 
+    /// Add an object to the quadtree, remembering some key associated with the points.
     pub fn add(&mut self, key: K, pts: &Vec<Pt2D>) {
         self.geometries.insert(key.clone(), pts_to_line_string(pts));
         self.quadtree
             .insert_with_box(key, Bounds::from(pts).as_bbox());
     }
 
+    /// For every object within some distance of a query point, return the (object's key, point on
+    /// the object's polyline, distance away).
     pub fn all_close_pts(
         &self,
         query_pt: Pt2D,

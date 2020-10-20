@@ -8,7 +8,7 @@ use abstutil::elapsed_seconds;
 
 use crate::{trim_f64, Distance, Speed};
 
-/// In seconds. Can be negative.
+/// A duration, in seconds. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Duration(f64);
 
@@ -24,6 +24,7 @@ impl Duration {
     pub const ZERO: Duration = Duration::const_seconds(0.0);
     const EPSILON: Duration = Duration::const_seconds(0.0001);
 
+    /// Creates a duration in seconds.
     pub fn seconds(value: f64) -> Duration {
         if !value.is_finite() {
             panic!("Bad Duration {}", value);
@@ -32,14 +33,17 @@ impl Duration {
         Duration(trim_f64(value))
     }
 
+    /// Creates a duration in minutes.
     pub fn minutes(mins: usize) -> Duration {
         Duration::seconds((mins as f64) * 60.0)
     }
 
+    /// Creates a duration in hours.
     pub fn hours(hours: usize) -> Duration {
         Duration::seconds((hours as f64) * 3600.0)
     }
 
+    /// Creates a duration in minutes.
     pub fn f64_minutes(mins: f64) -> Duration {
         Duration::seconds(mins * 60.0)
     }
@@ -56,13 +60,14 @@ impl Duration {
         (x as f64) * Duration::EPSILON
     }
 
+    /// Returns the duration in seconds. Prefer working in typesafe `Duration`s.
     // TODO Remove if possible.
     pub fn inner_seconds(self) -> f64 {
         self.0
     }
 
+    /// Splits the duration into (hours, minutes, seconds, centiseconds).
     // TODO Could share some of this with Time -- the representations are the same
-    // (hours, minutes, seconds, centiseconds)
     fn get_parts(self) -> (usize, usize, usize, usize) {
         // Force positive
         let mut remainder = self.inner_seconds().abs();
@@ -82,6 +87,7 @@ impl Duration {
         )
     }
 
+    /// Parses a duration such as "3:00" to `Duration::minutes(3)`.
     // TODO This is NOT the inverse of Display!
     pub fn parse(string: &str) -> Result<Duration, Box<dyn Error>> {
         let parts: Vec<&str> = string.split(':').collect();
@@ -128,10 +134,12 @@ impl Duration {
         }
     }
 
+    /// Returns the duration elapsed from this moment in real time.
     pub fn realtime_elapsed(since: Instant) -> Duration {
         Duration::seconds(elapsed_seconds(since))
     }
 
+    /// Rounds a duration up to the nearest whole number multiple.
     pub fn round_up(self, multiple: Duration) -> Duration {
         let remainder = self % multiple;
         if remainder == Duration::ZERO {
@@ -141,6 +149,7 @@ impl Duration {
         }
     }
 
+    /// Returns the duration as a number of minutes, rounded up.
     pub fn num_minutes_rounded_up(self) -> usize {
         let (hrs, mins, secs, rem) = self.get_parts();
         let mut result = mins + 60 * hrs;

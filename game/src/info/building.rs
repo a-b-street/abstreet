@@ -243,7 +243,7 @@ pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: O
                     // Lies
                     id: PedestrianID(person.0),
                     pos,
-                    facing: Angle::new_degs(90.0),
+                    facing: Angle::degrees(90.0),
                     waiting_for_turn: None,
                     preparing_bike: false,
                     // Both hands and feet!

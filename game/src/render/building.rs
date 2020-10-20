@@ -77,10 +77,10 @@ impl DrawBuilding {
             }
             x => {
                 let angle = match x {
-                    CameraAngle::IsometricNE => Angle::new_degs(-45.0),
-                    CameraAngle::IsometricNW => Angle::new_degs(-135.0),
-                    CameraAngle::IsometricSE => Angle::new_degs(45.0),
-                    CameraAngle::IsometricSW => Angle::new_degs(135.0),
+                    CameraAngle::IsometricNE => Angle::degrees(-45.0),
+                    CameraAngle::IsometricNW => Angle::degrees(-135.0),
+                    CameraAngle::IsometricSE => Angle::degrees(45.0),
+                    CameraAngle::IsometricSW => Angle::degrees(135.0),
                     CameraAngle::TopDown | CameraAngle::Abstract => unreachable!(),
                 };
 

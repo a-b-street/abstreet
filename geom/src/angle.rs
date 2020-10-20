@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-/// Stores in radians
+/// An angle, stored in radians.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct Angle(f64);
 
@@ -15,10 +15,12 @@ impl Angle {
         Angle((rads * 10_000_000.0).round() / 10_000_000.0)
     }
 
-    pub fn new_degs(degs: f64) -> Angle {
+    /// Create an angle in degrees.
+    pub fn degrees(degs: f64) -> Angle {
         Angle::new_rads(degs.to_radians())
     }
 
+    /// Invert the direction of this angle.
     pub fn opposite(self) -> Angle {
         Angle::new_rads(self.0 + std::f64::consts::PI)
     }
@@ -27,18 +29,22 @@ impl Angle {
         Angle::new_rads(2.0 * std::f64::consts::PI - self.0)
     }
 
+    /// Rotates this angle by some degrees.
     pub fn rotate_degs(self, degrees: f64) -> Angle {
         Angle::new_rads(self.0 + degrees.to_radians())
     }
 
+    /// Returns [0, 2pi)
     pub fn normalized_radians(self) -> f64 {
         if self.0 < 0.0 {
+            // TODO Be more careful about how we store the angle, to make sure this works
             self.0 + (2.0 * std::f64::consts::PI)
         } else {
             self.0
         }
     }
 
+    /// Returns [0, 360)
     pub fn normalized_degrees(self) -> f64 {
         self.normalized_radians().to_degrees()
     }
@@ -47,11 +53,12 @@ impl Angle {
     /// normalize to be [0, 360].
     pub fn shortest_rotation_towards(self, other: Angle) -> Angle {
         // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
-        Angle::new_degs(
+        Angle::degrees(
             ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0,
         )
     }
 
+    /// True if this angle is within some degrees of another, accounting for rotation
     pub fn approx_eq(self, other: Angle, within_degrees: f64) -> bool {
         // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
         // This yields [-180, 180]

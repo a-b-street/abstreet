@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{trim_f64, Duration, Speed, UnitFmt};
 
-/// In meters. Can be negative.
+/// A distance, in meters. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Distance(f64);
 
@@ -19,6 +19,7 @@ impl Ord for Distance {
 impl Distance {
     pub const ZERO: Distance = Distance::const_meters(0.0);
 
+    /// Creates a distance in meters.
     pub fn meters(value: f64) -> Distance {
         if !value.is_finite() {
             panic!("Bad Distance {}", value);
@@ -32,18 +33,22 @@ impl Distance {
         Distance(value)
     }
 
+    /// Creates a distance in inches.
     pub fn inches(value: f64) -> Distance {
         Distance::meters(0.0254 * value)
     }
 
+    /// Creates a distance in miles.
     pub fn miles(value: f64) -> Distance {
         Distance::meters(1609.34 * value)
     }
 
+    /// Creates a distance in centimeters.
     pub fn centimeters(value: usize) -> Distance {
         Distance::meters((value as f64) / 100.0)
     }
 
+    /// Returns the absolute value of this distance.
     pub fn abs(self) -> Distance {
         if self.0 > 0.0 {
             self
@@ -52,15 +57,18 @@ impl Distance {
         }
     }
 
+    /// Returns the square root of this distance.
     pub fn sqrt(self) -> Distance {
         Distance::meters(self.0.sqrt())
     }
 
+    /// Returns the distance in meters. Prefer to work with type-safe `Distance`s.
     // TODO Remove if possible.
     pub fn inner_meters(self) -> f64 {
         self.0
     }
 
+    /// Describes the distance according to formatting rules.
     pub fn to_string(self, fmt: &UnitFmt) -> String {
         if fmt.metric {
             // TODO Round values to nearest meter, and km
@@ -76,6 +84,7 @@ impl Distance {
         }
     }
 
+    /// Returns the largest of the two inputs.
     pub fn max(self, other: Distance) -> Distance {
         if self >= other {
             self
@@ -84,6 +93,7 @@ impl Distance {
         }
     }
 
+    /// Returns the smallest of the two inputs.
     pub fn min(self, other: Distance) -> Distance {
         if self <= other {
             self
@@ -95,7 +105,6 @@ impl Distance {
 
 impl fmt::Display for Distance {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // TODO This is harder to localize
         write!(f, "{}m", self.0)
     }
 }

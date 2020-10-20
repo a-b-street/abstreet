@@ -262,7 +262,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
             .render_to_batch(&ctx.prerender)
             .scale(2.0)
             .centered_on(Pt2D::new(600.0, 500.0))
-            .rotate(Angle::new_degs(-30.0)),
+            .rotate(Angle::degrees(-30.0)),
     );
 
     let mut rng = if cfg!(target_arch = "wasm32") {

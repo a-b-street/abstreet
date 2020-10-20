@@ -4,6 +4,7 @@ use aabb_quadtree::geom::{Point, Rect};
 
 use crate::{LonLat, Polygon, Pt2D, Ring};
 
+/// Represents a rectangular boundary of `Pt2D` points.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Bounds {
     pub min_x: f64,
@@ -13,6 +14,7 @@ pub struct Bounds {
 }
 
 impl Bounds {
+    /// A boundary including no points.
     pub fn new() -> Bounds {
         Bounds {
             min_x: f64::MAX,
@@ -22,6 +24,7 @@ impl Bounds {
         }
     }
 
+    /// Create a boundary covering some points.
     pub fn from(pts: &Vec<Pt2D>) -> Bounds {
         let mut b = Bounds::new();
         for pt in pts {
@@ -30,6 +33,7 @@ impl Bounds {
         b
     }
 
+    /// Update the boundary to include this point.
     pub fn update(&mut self, pt: Pt2D) {
         self.min_x = self.min_x.min(pt.x());
         self.max_x = self.max_x.max(pt.x());
@@ -37,15 +41,18 @@ impl Bounds {
         self.max_y = self.max_y.max(pt.y());
     }
 
+    /// Unions two boundaries.
     pub fn union(&mut self, other: Bounds) {
         self.update(Pt2D::new(other.min_x, other.min_y));
         self.update(Pt2D::new(other.max_x, other.max_y));
     }
 
+    /// True if the point is within the boundary.
     pub fn contains(&self, pt: Pt2D) -> bool {
         pt.x() >= self.min_x && pt.x() <= self.max_x && pt.y() >= self.min_y && pt.y() <= self.max_y
     }
 
+    /// Converts the boundary to the format used by `aabb_quadtree`.
     pub fn as_bbox(&self) -> Rect {
         Rect {
             top_left: Point {
@@ -59,6 +66,7 @@ impl Bounds {
         }
     }
 
+    /// Creates a rectangle covering this boundary.
     pub fn get_rectangle(&self) -> Polygon {
         Ring::must_new(vec![
             Pt2D::new(self.min_x, self.min_y),
@@ -70,13 +78,18 @@ impl Bounds {
         .to_polygon()
     }
 
+    /// The width of this boundary.
     // TODO Really should be Distance
     pub fn width(&self) -> f64 {
         self.max_x - self.min_x
     }
+
+    /// The height of this boundary.
     pub fn height(&self) -> f64 {
         self.max_y - self.min_y
     }
+
+    /// The center point of this boundary.
     pub fn center(&self) -> Pt2D {
         Pt2D::new(
             self.min_x + self.width() / 2.0,
@@ -85,6 +98,9 @@ impl Bounds {
     }
 }
 
+/// Represents a rectangular boundary of `LonLat` points. After building one of these, `LonLat`s
+/// can be transformed into `Pt2D`s, treating the top-left of the boundary as (0, 0), and growing
+/// to the right and down (screen-drawing order, not Cartesian) in meters.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GPSBounds {
     pub(crate) min_lon: f64,
@@ -94,6 +110,7 @@ pub struct GPSBounds {
 }
 
 impl GPSBounds {
+    /// A boundary including no points.
     pub fn new() -> GPSBounds {
         GPSBounds {
             min_lon: f64::MAX,
@@ -103,6 +120,7 @@ impl GPSBounds {
         }
     }
 
+    /// Create a boundary covering some points.
     pub fn from(pts: Vec<LonLat>) -> GPSBounds {
         let mut b = GPSBounds::new();
         for pt in pts {
@@ -111,6 +129,7 @@ impl GPSBounds {
         b
     }
 
+    /// Update the boundary to include this point.
     pub fn update(&mut self, pt: LonLat) {
         self.min_lon = self.min_lon.min(pt.x());
         self.max_lon = self.max_lon.max(pt.x());
@@ -118,6 +137,7 @@ impl GPSBounds {
         self.max_lat = self.max_lat.max(pt.y());
     }
 
+    /// True if the point is within the boundary.
     pub fn contains(&self, pt: LonLat) -> bool {
         pt.x() >= self.min_lon
             && pt.x() <= self.max_lon
@@ -125,15 +145,17 @@ impl GPSBounds {
             && pt.y() <= self.max_lat
     }
 
+    /// The bottom-right corner of the boundary, in map-space.
     // TODO cache this
     pub fn get_max_world_pt(&self) -> Pt2D {
         let width = LonLat::new(self.min_lon, self.min_lat)
-            .gps_dist_meters(LonLat::new(self.max_lon, self.min_lat));
+            .gps_dist(LonLat::new(self.max_lon, self.min_lat));
         let height = LonLat::new(self.min_lon, self.min_lat)
-            .gps_dist_meters(LonLat::new(self.min_lon, self.max_lat));
+            .gps_dist(LonLat::new(self.min_lon, self.max_lat));
         Pt2D::new(width.inner_meters(), height.inner_meters())
     }
 
+    /// Converts the boundary to map-space.
     pub fn to_bounds(&self) -> Bounds {
         let mut b = Bounds::new();
         b.update(Pt2D::new(0.0, 0.0));
@@ -141,7 +163,7 @@ impl GPSBounds {
         b
     }
 
-    /// Fails if points are out-of-bounds.
+    /// Convert all points to map-space, failing if any points are outside this boundary.
     pub fn try_convert(&self, pts: &Vec<LonLat>) -> Option<Vec<Pt2D>> {
         let mut result = Vec::new();
         for pt in pts {
@@ -153,18 +175,14 @@ impl GPSBounds {
         Some(result)
     }
 
-    /// Results can be out-of-bounds.
+    /// Convert all points to map-space. The points may be outside this boundary.
     pub fn convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
         pts.iter().map(|pt| Pt2D::from_gps(*pt, self)).collect()
     }
 
+    /// Convert map-space points back to `LonLat`s. This is only valid if the `GPSBounds` used
+    /// is the same as the one used to originally produce the `Pt2D`s.
     pub fn convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
         pts.iter().map(|pt| pt.to_gps(self)).collect()
-    }
-
-    pub fn approx_eq(&self, other: &GPSBounds) -> bool {
-        LonLat::new(self.min_lon, self.min_lat).approx_eq(LonLat::new(other.min_lon, other.min_lat))
-            && LonLat::new(self.max_lon, self.max_lat)
-                .approx_eq(LonLat::new(other.max_lon, other.max_lat))
     }
 }

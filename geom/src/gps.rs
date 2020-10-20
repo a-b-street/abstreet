@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::Distance;
 
-/// longitude is x, latitude is y
+/// Represents a (longitude, latitude) point.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 pub struct LonLat {
     longitude: NotNan<f64>,
@@ -16,6 +16,7 @@ pub struct LonLat {
 }
 
 impl LonLat {
+    /// Note the order of arguments!
     pub fn new(lon: f64, lat: f64) -> LonLat {
         LonLat {
             longitude: NotNan::new(lon).unwrap(),
@@ -23,16 +24,18 @@ impl LonLat {
         }
     }
 
+    /// Returns the longitude of this point.
     pub fn x(self) -> f64 {
         self.longitude.into_inner()
     }
 
+    /// Returns the latitude of this point.
     pub fn y(self) -> f64 {
         self.latitude.into_inner()
     }
 
-    pub fn gps_dist_meters(self, other: LonLat) -> Distance {
-        // Haversine distance
+    /// Returns the Haversine distance to another point.
+    pub(crate) fn gps_dist(self, other: LonLat) -> Distance {
         let earth_radius_m = 6_371_000.0;
         let lon1 = self.x().to_radians();
         let lon2 = other.x().to_radians();
@@ -53,11 +56,8 @@ impl LonLat {
         NotNan::new((self.x() - other.x()).powi(2) + (self.y() - other.y()).powi(2)).unwrap()
     }
 
-    pub(crate) fn approx_eq(self, other: LonLat) -> bool {
-        let epsilon = 1e-8;
-        (self.x() - other.x()).abs() < epsilon && (self.y() - other.y()).abs() < epsilon
-    }
-
+    /// Parses a file in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
+    /// and returns all points.
     pub fn read_osmosis_polygon(path: String) -> Result<Vec<LonLat>, Box<dyn Error>> {
         let f = File::open(&path)?;
         let mut pts = Vec::new();

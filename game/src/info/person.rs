@@ -209,7 +209,7 @@ pub fn trips(
                 .scale(1.5);
 
                 if !open_trips.contains_key(t) {
-                    icon = icon.rotate(Angle::new_degs(180.0));
+                    icon = icon.rotate(Angle::degrees(180.0));
                 }
 
                 icon.batch().container().align_right().margin_right(10)
