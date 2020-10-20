@@ -169,6 +169,24 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -176,6 +194,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
+<span class="doccomment">/// Represents a rectangular boundary of `Pt2D` points.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Bounds</span> {
     <span class="kw">pub</span> <span class="ident">min_x</span>: <span class="ident">f64</span>,
@@ -185,6 +204,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Bounds</span> {
+    <span class="doccomment">/// A boundary including no points.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">Bounds</span> {
         <span class="ident">Bounds</span> {
             <span class="ident">min_x</span>: <span class="ident">f64</span>::<span class="ident">MAX</span>,
@@ -194,6 +214,7 @@
         }
     }
 
+    <span class="doccomment">/// Create a boundary covering some points.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Bounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
@@ -202,6 +223,7 @@
         <span class="ident">b</span>
     }
 
+    <span class="doccomment">/// Update the boundary to include this point.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) {
         <span class="self">self</span>.<span class="ident">min_x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_x</span>.<span class="ident">min</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
         <span class="self">self</span>.<span class="ident">max_x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_x</span>.<span class="ident">max</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
@@ -209,15 +231,18 @@
         <span class="self">self</span>.<span class="ident">max_y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_y</span>.<span class="ident">max</span>(<span class="ident">pt</span>.<span class="ident">y</span>());
     }
 
+    <span class="doccomment">/// Unions two boundaries.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Bounds</span>) {
         <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">other</span>.<span class="ident">min_x</span>, <span class="ident">other</span>.<span class="ident">min_y</span>));
         <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">other</span>.<span class="ident">max_x</span>, <span class="ident">other</span>.<span class="ident">max_y</span>));
     }
 
+    <span class="doccomment">/// True if the point is within the boundary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&gt;=</span> <span class="self">self</span>.<span class="ident">min_x</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&lt;=</span> <span class="self">self</span>.<span class="ident">max_x</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&gt;=</span> <span class="self">self</span>.<span class="ident">min_y</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&lt;=</span> <span class="self">self</span>.<span class="ident">max_y</span>
     }
 
+    <span class="doccomment">/// Converts the boundary to the format used by `aabb_quadtree`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bbox</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Rect</span> {
         <span class="ident">Rect</span> {
             <span class="ident">top_left</span>: <span class="ident">Point</span> {
@@ -231,6 +256,7 @@
         }
     }
 
+    <span class="doccomment">/// Creates a rectangle covering this boundary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_rectangle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
         <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">min_x</span>, <span class="self">self</span>.<span class="ident">min_y</span>),
@@ -242,13 +268,18 @@
         .<span class="ident">to_polygon</span>()
     }
 
+    <span class="doccomment">/// The width of this boundary.</span>
     <span class="comment">// TODO Really should be Distance</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">max_x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">min_x</span>
     }
+
+    <span class="doccomment">/// The height of this boundary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">max_y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">min_y</span>
     }
+
+    <span class="doccomment">/// The center point of this boundary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(
             <span class="self">self</span>.<span class="ident">min_x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>,
@@ -257,6 +288,9 @@
     }
 }
 
+<span class="doccomment">/// Represents a rectangular boundary of `LonLat` points. After building one of these, `LonLat`s</span>
+<span class="doccomment">/// can be transformed into `Pt2D`s, treating the top-left of the boundary as (0, 0), and growing</span>
+<span class="doccomment">/// to the right and down (screen-drawing order, not Cartesian) in meters.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GPSBounds</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">min_lon</span>: <span class="ident">f64</span>,
@@ -266,6 +300,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">GPSBounds</span> {
+    <span class="doccomment">/// A boundary including no points.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">GPSBounds</span> {
         <span class="ident">GPSBounds</span> {
             <span class="ident">min_lon</span>: <span class="ident">f64</span>::<span class="ident">MAX</span>,
@@ -275,6 +310,7 @@
         }
     }
 
+    <span class="doccomment">/// Create a boundary covering some points.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">GPSBounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">GPSBounds</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
@@ -283,6 +319,7 @@
         <span class="ident">b</span>
     }
 
+    <span class="doccomment">/// Update the boundary to include this point.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">LonLat</span>) {
         <span class="self">self</span>.<span class="ident">min_lon</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_lon</span>.<span class="ident">min</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
         <span class="self">self</span>.<span class="ident">max_lon</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_lon</span>.<span class="ident">max</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
@@ -290,6 +327,7 @@
         <span class="self">self</span>.<span class="ident">max_lat</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_lat</span>.<span class="ident">max</span>(<span class="ident">pt</span>.<span class="ident">y</span>());
     }
 
+    <span class="doccomment">/// True if the point is within the boundary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">LonLat</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&gt;=</span> <span class="self">self</span>.<span class="ident">min_lon</span>
             <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&lt;=</span> <span class="self">self</span>.<span class="ident">max_lon</span>
@@ -297,15 +335,17 @@
             <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&lt;=</span> <span class="self">self</span>.<span class="ident">max_lat</span>
     }
 
+    <span class="doccomment">/// The bottom-right corner of the boundary, in map-space.</span>
     <span class="comment">// TODO cache this</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_max_world_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>)
-            .<span class="ident">gps_dist_meters</span>(<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">max_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>));
+            .<span class="ident">gps_dist</span>(<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">max_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>));
         <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>)
-            .<span class="ident">gps_dist_meters</span>(<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">max_lat</span>));
+            .<span class="ident">gps_dist</span>(<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">max_lat</span>));
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">width</span>.<span class="ident">inner_meters</span>(), <span class="ident">height</span>.<span class="ident">inner_meters</span>())
     }
 
+    <span class="doccomment">/// Converts the boundary to map-space.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Bounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds</span>::<span class="ident">new</span>();
         <span class="ident">b</span>.<span class="ident">update</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>));
@@ -313,7 +353,7 @@
         <span class="ident">b</span>
     }
 
-    <span class="doccomment">/// Fails if points are out-of-bounds.</span>
+    <span class="doccomment">/// Convert all points to map-space, failing if any points are outside this boundary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
@@ -325,19 +365,15 @@
         <span class="prelude-val">Some</span>(<span class="ident">result</span>)
     }
 
-    <span class="doccomment">/// Results can be out-of-bounds.</span>
+    <span class="doccomment">/// Convert all points to map-space. The points may be outside this boundary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">from_gps</span>(<span class="kw-2">*</span><span class="ident">pt</span>, <span class="self">self</span>)).<span class="ident">collect</span>()
     }
 
+    <span class="doccomment">/// Convert map-space points back to `LonLat`s. This is only valid if the `GPSBounds` used</span>
+    <span class="doccomment">/// is the same as the one used to originally produce the `Pt2D`s.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> {
         <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_gps</span>(<span class="self">self</span>)).<span class="ident">collect</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>).<span class="ident">approx_eq</span>(<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">other</span>.<span class="ident">min_lon</span>, <span class="ident">other</span>.<span class="ident">min_lat</span>))
-            <span class="op">&amp;&amp;</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">max_lon</span>, <span class="self">self</span>.<span class="ident">max_lat</span>)
-                .<span class="ident">approx_eq</span>(<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">other</span>.<span class="ident">max_lon</span>, <span class="ident">other</span>.<span class="ident">max_lat</span>))
     }
 }
 </pre></div>

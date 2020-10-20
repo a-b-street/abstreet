@@ -121,12 +121,19 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="doccomment">/// Stores in radians</span>
+<span class="doccomment">/// An angle, stored in radians.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Angle</span>(<span class="ident">f64</span>);
 
@@ -139,10 +146,12 @@
         <span class="ident">Angle</span>((<span class="ident">rads</span> <span class="op">*</span> <span class="number">10_000_000.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10_000_000.0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_degs</span>(<span class="ident">degs</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
+    <span class="doccomment">/// Create an angle in degrees.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">degrees</span>(<span class="ident">degs</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
         <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="ident">degs</span>.<span class="ident">to_radians</span>())
     }
 
+    <span class="doccomment">/// Invert the direction of this angle.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">opposite</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
         <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">PI</span>)
     }
@@ -151,18 +160,22 @@
         <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">PI</span> <span class="op">-</span> <span class="self">self</span>.<span class="number">0</span>)
     }
 
+    <span class="doccomment">/// Rotates this angle by some degrees.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_degs</span>(<span class="self">self</span>, <span class="ident">degrees</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
         <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">degrees</span>.<span class="ident">to_radians</span>())
     }
 
+    <span class="doccomment">/// Returns [0, 2pi)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normalized_radians</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
+            <span class="comment">// TODO Be more careful about how we store the angle, to make sure this works</span>
             <span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> (<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">PI</span>)
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="number">0</span>
         }
     }
 
+    <span class="doccomment">/// Returns [0, 360)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normalized_degrees</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">normalized_radians</span>().<span class="ident">to_degrees</span>()
     }
@@ -171,11 +184,12 @@
     <span class="doccomment">/// normalize to be [0, 360].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shortest_rotation_towards</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
         <span class="comment">// https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle</span>
-        <span class="ident">Angle</span>::<span class="ident">new_degs</span>(
+        <span class="ident">Angle</span>::<span class="ident">degrees</span>(
             ((<span class="self">self</span>.<span class="ident">normalized_degrees</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">normalized_degrees</span>() <span class="op">+</span> <span class="number">540.0</span>) <span class="op">%</span> <span class="number">360.0</span>) <span class="op">-</span> <span class="number">180.0</span>,
         )
     }
 
+    <span class="doccomment">/// True if this angle is within some degrees of another, accounting for rotation</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>, <span class="ident">within_degrees</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="comment">// https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle</span>
         <span class="comment">// This yields [-180, 180]</span>

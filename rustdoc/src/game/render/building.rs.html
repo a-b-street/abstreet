@@ -348,10 +348,10 @@
             }
             <span class="ident">x</span> <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
-                    <span class="ident">CameraAngle</span>::<span class="ident">IsometricNE</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="op">-</span><span class="number">45.0</span>),
-                    <span class="ident">CameraAngle</span>::<span class="ident">IsometricNW</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="op">-</span><span class="number">135.0</span>),
-                    <span class="ident">CameraAngle</span>::<span class="ident">IsometricSE</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="number">45.0</span>),
-                    <span class="ident">CameraAngle</span>::<span class="ident">IsometricSW</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="number">135.0</span>),
+                    <span class="ident">CameraAngle</span>::<span class="ident">IsometricNE</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">45.0</span>),
+                    <span class="ident">CameraAngle</span>::<span class="ident">IsometricNW</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">135.0</span>),
+                    <span class="ident">CameraAngle</span>::<span class="ident">IsometricSE</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">45.0</span>),
+                    <span class="ident">CameraAngle</span>::<span class="ident">IsometricSW</span> <span class="op">=&gt;</span> <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">135.0</span>),
                     <span class="ident">CameraAngle</span>::<span class="ident">TopDown</span> <span class="op">|</span> <span class="ident">CameraAngle</span>::<span class="ident">Abstract</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                 };
 

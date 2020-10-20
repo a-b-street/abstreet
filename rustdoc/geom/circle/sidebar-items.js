@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["TRIANGLES_PER_CIRCLE",""]],"struct":[["Circle",""]]});
+initSidebarItems({"constant":[["TRIANGLES_PER_CIRCLE",""]],"struct":[["Circle","A circle, defined by a center and radius."]]});

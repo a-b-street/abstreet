@@ -204,6 +204,15 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">f64</span>, <span class="ident">fmt</span>, <span class="ident">ops</span>};
 
@@ -211,7 +220,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>, <span class="ident">UnitFmt</span>};
 
-<span class="doccomment">/// In meters. Can be negative.</span>
+<span class="doccomment">/// A distance, in meters. Can be negative.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Distance</span>(<span class="ident">f64</span>);
 
@@ -226,6 +235,7 @@
 <span class="kw">impl</span> <span class="ident">Distance</span> {
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">0.0</span>);
 
+    <span class="doccomment">/// Creates a distance in meters.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">meters</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">value</span>.<span class="ident">is_finite</span>() {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Bad Distance {}&quot;</span>, <span class="ident">value</span>);
@@ -239,18 +249,22 @@
         <span class="ident">Distance</span>(<span class="ident">value</span>)
     }
 
+    <span class="doccomment">/// Creates a distance in inches.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inches</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.0254</span> <span class="op">*</span> <span class="ident">value</span>)
     }
 
+    <span class="doccomment">/// Creates a distance in miles.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">miles</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1609.34</span> <span class="op">*</span> <span class="ident">value</span>)
     }
 
+    <span class="doccomment">/// Creates a distance in centimeters.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">centimeters</span>(<span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>((<span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>)
     }
 
+    <span class="doccomment">/// Returns the absolute value of this distance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abs</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
             <span class="self">self</span>
@@ -259,15 +273,18 @@
         }
     }
 
+    <span class="doccomment">/// Returns the square root of this distance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sqrt</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">sqrt</span>())
     }
 
+    <span class="doccomment">/// Returns the distance in meters. Prefer to work with type-safe `Distance`s.</span>
     <span class="comment">// TODO Remove if possible.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_meters</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
 
+    <span class="doccomment">/// Describes the distance according to formatting rules.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="ident">UnitFmt</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">if</span> <span class="ident">fmt</span>.<span class="ident">metric</span> {
             <span class="comment">// TODO Round values to nearest meter, and km</span>
@@ -283,6 +300,7 @@
         }
     }
 
+    <span class="doccomment">/// Returns the largest of the two inputs.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="kw">if</span> <span class="self">self</span> <span class="op">&gt;=</span> <span class="ident">other</span> {
             <span class="self">self</span>
@@ -291,6 +309,7 @@
         }
     }
 
+    <span class="doccomment">/// Returns the smallest of the two inputs.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="kw">if</span> <span class="self">self</span> <span class="op">&lt;=</span> <span class="ident">other</span> {
             <span class="self">self</span>
@@ -302,7 +321,6 @@
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Distance</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="comment">// TODO This is harder to localize</span>
         <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}m&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }

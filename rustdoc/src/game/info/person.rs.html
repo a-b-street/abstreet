@@ -888,7 +888,7 @@
                 .<span class="ident">scale</span>(<span class="number">1.5</span>);
 
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
-                    <span class="ident">icon</span> <span class="op">=</span> <span class="ident">icon</span>.<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="number">180.0</span>));
+                    <span class="ident">icon</span> <span class="op">=</span> <span class="ident">icon</span>.<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">180.0</span>));
                 }
 
                 <span class="ident">icon</span>.<span class="ident">batch</span>().<span class="ident">container</span>().<span class="ident">align_right</span>().<span class="ident">margin_right</span>(<span class="number">10</span>)

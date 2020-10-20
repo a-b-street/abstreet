@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Bounds",""],["GPSBounds",""]]});
+initSidebarItems({"struct":[["Bounds","Represents a rectangular boundary of `Pt2D` points."],["GPSBounds","Represents a rectangular boundary of `LonLat` points. After building one of these, `LonLat`s can be transformed into `Pt2D`s, treating the top-left of the boundary as (0, 0), and growing to the right and down (screen-drawing order, not Cartesian) in meters."]]});

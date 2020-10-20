@@ -273,6 +273,48 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">Entry</span>;
@@ -280,6 +322,7 @@
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Histogram</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>};
 
@@ -329,6 +372,22 @@
             <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="ident">r</span>, <span class="ident">t</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">StartBus</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">*</span><span class="ident">t</span>),
         }
     }
+
+    <span class="kw">fn</span> <span class="ident">to_simple_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">SimpleCommandType</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Car</span>,
+            <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Ped</span>,
+            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartTrip</span>,
+            <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Car</span>,
+            <span class="ident">Command</span>::<span class="ident">UpdateLaggyHead</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">CarLaggyHead</span>,
+            <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Ped</span>,
+            <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Intersection</span>,
+            <span class="ident">Command</span>::<span class="ident">Callback</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Callback</span>,
+            <span class="ident">Command</span>::<span class="ident">Pandemic</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Pandemic</span>,
+            <span class="ident">Command</span>::<span class="ident">FinishRemoteTrip</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">FinishRemoteTrip</span>,
+            <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartBus</span>,
+        }
+    }
 }
 
 <span class="doccomment">/// A smaller version of Command that satisfies many more properties. Only one Command per</span>
@@ -344,6 +403,20 @@
     <span class="ident">Pandemic</span>(<span class="ident">pandemic</span>::<span class="ident">Cmd</span>),
     <span class="ident">FinishRemoteTrip</span>(<span class="ident">TripID</span>),
     <span class="ident">StartBus</span>(<span class="ident">BusRouteID</span>, <span class="ident">Time</span>),
+}
+
+<span class="doccomment">/// A more compressed form of CommandType, just used for keeping stats on event processing.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Ord</span>, <span class="ident">PartialOrd</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">enum</span> <span class="ident">SimpleCommandType</span> {
+    <span class="ident">StartTrip</span>,
+    <span class="ident">Car</span>,
+    <span class="ident">CarLaggyHead</span>,
+    <span class="ident">Ped</span>,
+    <span class="ident">Intersection</span>,
+    <span class="ident">Callback</span>,
+    <span class="ident">Pandemic</span>,
+    <span class="ident">FinishRemoteTrip</span>,
+    <span class="ident">StartBus</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -382,6 +455,8 @@
     <span class="ident">last_time</span>: <span class="ident">Time</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">delta_times</span>: <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
+    <span class="ident">cmd_type_counts</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">SimpleCommandType</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Scheduler</span> {
@@ -392,6 +467,7 @@
             <span class="ident">latest_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
             <span class="ident">last_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
             <span class="ident">delta_times</span>: <span class="ident">Histogram</span>::<span class="ident">new</span>(),
+            <span class="ident">cmd_type_counts</span>: <span class="ident">Counter</span>::<span class="ident">new</span>(),
         }
     }
 
@@ -404,6 +480,7 @@
         }
         <span class="self">self</span>.<span class="ident">last_time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_time</span>.<span class="ident">max</span>(<span class="ident">time</span>);
         <span class="self">self</span>.<span class="ident">delta_times</span>.<span class="ident">add</span>(<span class="ident">time</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">latest_time</span>);
+        <span class="self">self</span>.<span class="ident">cmd_type_counts</span>.<span class="ident">inc</span>(<span class="ident">cmd</span>.<span class="ident">to_simple_type</span>());
 
         <span class="kw">let</span> <span class="ident">cmd_type</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">to_type</span>();
 
@@ -485,7 +562,14 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delta times for events: {}&quot;</span>, <span class="self">self</span>.<span class="ident">delta_times</span>.<span class="ident">describe</span>())
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stats</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delta times for events: {}&quot;</span>, <span class="self">self</span>.<span class="ident">delta_times</span>.<span class="ident">describe</span>()),
+            <span class="string">&quot;count for each command type:&quot;</span>.<span class="ident">to_string</span>(),
+        ];
+        <span class="kw">for</span> (<span class="ident">cmd</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">cmd_type_counts</span>.<span class="ident">borrow</span>() {
+            <span class="ident">stats</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}: {}&quot;</span>, <span class="ident">cmd</span>, <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="kw-2">*</span><span class="ident">cnt</span>)));
+        }
+        <span class="ident">stats</span>.<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>)
     }
 
     <span class="doccomment">/// It&#39;s much more efficient to save without the paths, and to recalculate them when loading</span>

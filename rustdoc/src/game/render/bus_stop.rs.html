@@ -137,8 +137,8 @@
         <span class="ident">batch</span>.<span class="ident">push</span>(
             <span class="ident">cs</span>.<span class="ident">stop_sign_pole</span>,
             <span class="ident">Line</span>::<span class="ident">new</span>(
-                <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">RADIUS</span>, <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="number">90.0</span>)),
-                <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="number">1.5</span> <span class="op">*</span> <span class="ident">RADIUS</span>, <span class="ident">Angle</span>::<span class="ident">new_degs</span>(<span class="number">90.0</span>)),
+                <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">RADIUS</span>, <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">90.0</span>)),
+                <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="number">1.5</span> <span class="op">*</span> <span class="ident">RADIUS</span>, <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">90.0</span>)),
             )
             .<span class="ident">unwrap</span>()
             .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.3</span>)),

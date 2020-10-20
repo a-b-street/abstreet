@@ -464,6 +464,10 @@
 <span id="463">463</span>
 <span id="464">464</span>
 <span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -855,6 +859,10 @@
         <span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">all_waiting_people</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">delays</span>);
         <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">all_waiting_people</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">delays</span>);
         <span class="ident">delays</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_scheduler_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="self">self</span>.<span class="ident">scheduler</span>.<span class="ident">describe_stats</span>()
     }
 }
 

@@ -258,6 +258,30 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -266,50 +290,63 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">EPSILON_DIST</span>};
 
-<span class="doccomment">/// Segment, technically. Should rename.</span>
+<span class="doccomment">/// A line segment.</span>
+<span class="comment">// TODO Rename?</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Line</span>(<span class="ident">Pt2D</span>, <span class="ident">Pt2D</span>);
 
 <span class="kw">impl</span> <span class="ident">Line</span> {
+    <span class="doccomment">/// Creates a line segment between two points. None if the points are the same.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Line</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">pt1</span>.<span class="ident">dist_to</span>(<span class="ident">pt2</span>) <span class="op">&lt;=</span> <span class="ident">EPSILON_DIST</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(<span class="ident">Line</span>(<span class="ident">pt1</span>, <span class="ident">pt2</span>))
     }
-    <span class="comment">// Just to be more clear at the call-site</span>
+
+    <span class="doccomment">/// Equivalent to `Line::new(pt1, pt2).unwrap()`. Use this to effectively document an assertion</span>
+    <span class="doccomment">/// at the call-site.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_new</span>(<span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
         <span class="ident">Line</span>::<span class="ident">new</span>(<span class="ident">pt1</span>, <span class="ident">pt2</span>).<span class="ident">unwrap</span>()
     }
 
+    <span class="doccomment">/// Returns an infinite line passing through this line&#39;s two points.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">infinite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">InfiniteLine</span> {
         <span class="ident">InfiniteLine</span>(<span class="self">self</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="number">1</span>)
     }
 
+    <span class="doccomment">/// Returns the first point in this line segment.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pt1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
 
+    <span class="doccomment">/// Returns the second point in this line segment.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pt2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="self">self</span>.<span class="number">1</span>
     }
 
+    <span class="doccomment">/// Returns the two points in this line segment.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">points</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="number">1</span>]
     }
 
+    <span class="doccomment">/// Returns a polyline containing these two points.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_polyline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
         <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">points</span>())
     }
 
+    <span class="doccomment">/// Returns a thick line segment.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
         <span class="self">self</span>.<span class="ident">to_polyline</span>().<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
     }
 
+    <span class="doccomment">/// Length of the line segment</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
         <span class="self">self</span>.<span class="ident">pt1</span>().<span class="ident">dist_to</span>(<span class="self">self</span>.<span class="ident">pt2</span>())
     }
 
+    <span class="doccomment">/// If two line segments intersect -- including endpoints -- return the point where they hit.</span>
+    <span class="doccomment">/// Undefined if the two lines have more than one intersection point!</span>
     <span class="comment">// TODO Also return the distance along self</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Line</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="comment">// From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/</span>
@@ -335,7 +372,7 @@
         }
     }
 
-    <span class="doccomment">/// An intersection that isn&#39;t just two endpoints touching</span>
+    <span class="doccomment">/// Determine if two line segments intersect, but more so than just two endpoints touching.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crosses</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Line</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pt1</span>() <span class="op">==</span> <span class="ident">other</span>.<span class="ident">pt1</span>()
             <span class="op">||</span> <span class="self">self</span>.<span class="ident">pt1</span>() <span class="op">==</span> <span class="ident">other</span>.<span class="ident">pt2</span>()
@@ -347,6 +384,9 @@
         <span class="self">self</span>.<span class="ident">intersection</span>(<span class="ident">other</span>).<span class="ident">is_some</span>()
     }
 
+    <span class="doccomment">/// If the line segment intersects with an infinite line -- including endpoints -- return the</span>
+    <span class="doccomment">/// point where they hit. Undefined if the segment and infinite line intersect at more than one</span>
+    <span class="doccomment">/// point!</span>
     <span class="comment">// TODO Also return the distance along self</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection_infinite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">InfiniteLine</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">hit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">infinite</span>().<span class="ident">intersection</span>(<span class="ident">other</span>)<span class="question-mark">?</span>;
@@ -357,6 +397,7 @@
         }
     }
 
+    <span class="doccomment">/// Perpendicularly shifts the line over to the right. Width must be non-negative.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_right</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">width</span> <span class="op">&gt;=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>);
         <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">angle</span>().<span class="ident">rotate_degs</span>(<span class="number">90.0</span>);
@@ -366,6 +407,7 @@
         )
     }
 
+    <span class="doccomment">/// Perpendicularly shifts the line over to the left. Width must be non-negative.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_left</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">width</span> <span class="op">&gt;=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>);
         <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">angle</span>().<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>);
@@ -375,6 +417,7 @@
         )
     }
 
+    <span class="doccomment">/// Perpendicularly shifts the line to the right if positive or left if negative.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_either_direction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
         <span class="kw">if</span> <span class="ident">width</span> <span class="op">&gt;=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
             <span class="self">self</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>)
@@ -383,14 +426,17 @@
         }
     }
 
+    <span class="doccomment">/// Returns a reversed line segment</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
         <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">pt2</span>(), <span class="self">self</span>.<span class="ident">pt1</span>())
     }
 
+    <span class="doccomment">/// The angle of the line segment, from the first to the second point</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">angle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Angle</span> {
         <span class="self">self</span>.<span class="ident">pt1</span>().<span class="ident">angle_to</span>(<span class="self">self</span>.<span class="ident">pt2</span>())
     }
 
+    <span class="doccomment">/// Returns a point along the line segment, unless the distance exceeds the segment&#39;s length.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">length</span>();
         <span class="kw">if</span> <span class="ident">dist</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> <span class="op">||</span> <span class="ident">dist</span> <span class="op">&gt;</span> <span class="ident">len</span> {
@@ -398,6 +444,8 @@
         }
         <span class="self">self</span>.<span class="ident">percent_along</span>(<span class="ident">dist</span> <span class="op">/</span> <span class="ident">len</span>)
     }
+    <span class="doccomment">/// Equivalent to `self.dist_along(dist).unwrap()`. Use this to document an assertion at the</span>
+    <span class="doccomment">/// call-site.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="self">self</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>).<span class="ident">unwrap</span>()
     }
