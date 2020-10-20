@@ -42,7 +42,12 @@ impl Renderable for DrawRoad {
         if draw_center_line.is_none() {
             let mut batch = GeomBatch::new();
             let r = app.primary.map.get_r(self.id);
-            let center_color = app.cs.road_center_line(r.get_rank());
+            // TODO Need to detangle how road_center_line is used.
+            let center_color = if app.cs.solid_road_center() {
+                app.cs.general_road_marking(r.get_rank())
+            } else {
+                app.cs.road_center_line(r.get_rank())
+            };
             let color = if r.is_private() {
                 center_color.lerp(app.cs.private_road, 0.5)
             } else {
@@ -56,16 +61,19 @@ impl Renderable for DrawRoad {
                 let ((l1, dir1, lt1), (_, dir2, lt2)) = (pair[0], pair[1]);
                 width += app.primary.map.get_l(l1).width;
                 if dir1 != dir2 && lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
-                    batch.extend(
-                        color,
-                        r.get_left_side(&app.primary.map)
-                            .must_shift_right(width)
-                            .dashed_lines(
+                    let pl = r.get_left_side(&app.primary.map).must_shift_right(width);
+                    if app.cs.solid_road_center() {
+                        batch.push(color, pl.make_polygons(Distance::meters(0.25)));
+                    } else {
+                        batch.extend(
+                            color,
+                            pl.dashed_lines(
                                 Distance::meters(0.25),
                                 Distance::meters(2.0),
                                 Distance::meters(1.0),
                             ),
-                    );
+                        );
+                    }
                 }
             }
             *draw_center_line = Some(g.prerender.upload(batch));

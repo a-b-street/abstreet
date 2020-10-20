@@ -349,12 +349,16 @@ impl ColorScheme {
     pub fn general_road_marking(&self, rank: RoadRank) -> Color {
         match self.scheme {
             ColorSchemeChoice::FadedZoom => match rank {
-                RoadRank::Highway => hex("#FFFFFF"),
+                RoadRank::Highway => hex("#60564D"),
                 RoadRank::Arterial => hex("#FFFFFF"),
                 RoadRank::Local => hex("#BABBBF"),
             },
             _ => self.general_road_marking,
         }
+    }
+
+    pub fn solid_road_center(&self) -> bool {
+        self.scheme == ColorSchemeChoice::FadedZoom
     }
 }
 
