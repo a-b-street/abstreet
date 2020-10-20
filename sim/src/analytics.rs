@@ -74,7 +74,7 @@ pub struct Analytics {
 }
 
 impl Analytics {
-    pub fn new() -> Analytics {
+    pub fn new(record_anything: bool) -> Analytics {
         Analytics {
             road_thruput: TimeSeriesCount::new(),
             intersection_thruput: TimeSeriesCount::new(),
@@ -92,7 +92,7 @@ impl Analytics {
             parking_lane_changes: BTreeMap::new(),
             parking_lot_changes: BTreeMap::new(),
             alerts: Vec::new(),
-            record_anything: true,
+            record_anything,
         }
     }
 
@@ -503,9 +503,7 @@ impl Analytics {
 
 impl Default for Analytics {
     fn default() -> Analytics {
-        let mut a = Analytics::new();
-        a.record_anything = false;
-        a
+        Analytics::new(false)
     }
 }
 

@@ -108,6 +108,9 @@ pub struct SimOptions {
     /// If present, cancel any driving trips who will pass through a road currently experiencing
     /// delays beyond this threshold.
     pub cancel_drivers_delay_threshold: Option<Duration>,
+    /// Don't collect any analytics. Only useful for benchmarking and debugging gridlock more
+    /// quickly.
+    pub skip_analytics: bool,
 }
 
 impl std::default::Default for SimOptions {
@@ -146,6 +149,7 @@ impl SimOptions {
             disable_turn_conflicts: args.enabled("--disable_turn_conflicts"),
             cancel_drivers_delay_threshold: args
                 .optional_parse("--cancel_drivers_delay_threshold", Duration::parse),
+            skip_analytics: args.enabled("--skip_analytics"),
         }
     }
 }
@@ -181,6 +185,7 @@ impl SimOptions {
             infinite_parking: false,
             disable_turn_conflicts: false,
             cancel_drivers_delay_threshold: None,
+            skip_analytics: false,
         }
     }
 }
@@ -211,7 +216,7 @@ impl Sim {
             step_count: 0,
             alerts: opts.alerts,
 
-            analytics: Analytics::new(),
+            analytics: Analytics::new(!opts.skip_analytics),
         }
     }
 
