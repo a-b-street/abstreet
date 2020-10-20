@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 
@@ -289,7 +289,7 @@ impl IntersectionSimState {
         maybe_cars_and_queues: Option<(
             &Car,
             &FixedMap<CarID, Car>,
-            &mut BTreeMap<Traversable, Queue>,
+            &mut HashMap<Traversable, Queue>,
         )>,
     ) -> bool {
         let req = Request { agent, turn };
@@ -660,7 +660,7 @@ impl IntersectionSimState {
         &mut self,
         req: &Request,
         map: &Map,
-        maybe_cars_and_queues: Option<(&FixedMap<CarID, Car>, &BTreeMap<Traversable, Queue>)>,
+        maybe_cars_and_queues: Option<(&FixedMap<CarID, Car>, &HashMap<Traversable, Queue>)>,
     ) -> bool {
         let turn = map.get_t(req.turn);
         let mut cycle_detected = false;
@@ -713,7 +713,7 @@ impl IntersectionSimState {
     fn detect_conflict_cycle(
         &self,
         car: CarID,
-        pair: (&FixedMap<CarID, Car>, &BTreeMap<Traversable, Queue>),
+        pair: (&FixedMap<CarID, Car>, &HashMap<Traversable, Queue>),
     ) -> Option<HashSet<CarID>> {
         let (cars, queues) = pair;
 

@@ -1,7 +1,7 @@
 //! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically
 //! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.
 
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -334,7 +334,7 @@ impl Router {
 
     pub fn opportunistically_lanechange(
         &mut self,
-        queues: &BTreeMap<Traversable, Queue>,
+        queues: &HashMap<Traversable, Queue>,
         map: &Map,
         handle_uber_turns: bool,
     ) {

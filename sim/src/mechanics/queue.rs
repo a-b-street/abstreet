@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
@@ -43,7 +43,7 @@ impl Queue {
         &self,
         now: Time,
         cars: &FixedMap<CarID, Car>,
-        queues: &BTreeMap<Traversable, Queue>,
+        queues: &HashMap<Traversable, Queue>,
     ) -> Option<(CarID, Distance)> {
         self.inner_get_last_car_position(now, cars, queues, &mut BTreeSet::new(), None)
     }
@@ -53,7 +53,7 @@ impl Queue {
         &self,
         now: Time,
         cars: &FixedMap<CarID, Car>,
-        queues: &BTreeMap<Traversable, Queue>,
+        queues: &HashMap<Traversable, Queue>,
     ) -> Vec<(CarID, Distance)> {
         let mut all_cars = vec![];
         self.inner_get_last_car_position(
@@ -70,7 +70,7 @@ impl Queue {
         &self,
         now: Time,
         cars: &FixedMap<CarID, Car>,
-        queues: &BTreeMap<Traversable, Queue>,
+        queues: &HashMap<Traversable, Queue>,
         recursed_queues: &mut BTreeSet<Traversable>,
         mut intermediate_results: Option<&mut Vec<(CarID, Distance)>>,
     ) -> Option<(CarID, Distance)> {
@@ -204,7 +204,7 @@ impl Queue {
         vehicle_len: Distance,
         now: Time,
         cars: &FixedMap<CarID, Car>,
-        queues: &BTreeMap<Traversable, Queue>,
+        queues: &HashMap<Traversable, Queue>,
     ) -> Option<usize> {
         if self.laggy_head.is_none() && self.cars.is_empty() {
             return Some(0);

@@ -1,8 +1,8 @@
-use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap, FixedMap, IndexableKey};
+use abstutil::{deserialize_hashmap, serialize_hashmap, FixedMap, IndexableKey};
 use geom::{Distance, Duration, PolyLine, Speed, Time};
 use map_model::{LaneID, Map, Path, PathStep, Traversable};
 
@@ -30,11 +30,14 @@ pub struct DrivingSimState {
     // gain much faster lookup, which has shown dramatic speedups in the scenarios being run so
     // far.
     cars: FixedMap<CarID, Car>,
+    // Note this uses a HashMap for faster lookup. Although the order of iterating over the HashMap
+    // is random, determinism in the simulation is preserved, because nothing iterates over
+    // everything.
     #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
+        serialize_with = "serialize_hashmap",
+        deserialize_with = "deserialize_hashmap"
     )]
-    queues: BTreeMap<Traversable, Queue>,
+    queues: HashMap<Traversable, Queue>,
     events: Vec<Event>,
 
     recalc_lanechanging: bool,
@@ -50,7 +53,7 @@ impl DrivingSimState {
     pub fn new(map: &Map, opts: &SimOptions) -> DrivingSimState {
         let mut sim = DrivingSimState {
             cars: FixedMap::new(),
-            queues: BTreeMap::new(),
+            queues: HashMap::new(),
             events: Vec::new(),
             recalc_lanechanging: opts.recalc_lanechanging,
             handle_uber_turns: opts.handle_uber_turns,
@@ -217,7 +220,7 @@ impl DrivingSimState {
 
         if !need_distances {
             // We need to mutate two different cars in one case. To avoid fighting the borrow
-            // checker, temporarily move one of them out of the BTreeMap.
+            // checker, temporarily move one of them out of the map.
             let mut car = self.cars.remove(&id).unwrap();
             // Responsibility of update_car to manage scheduling stuff!
             need_distances = self.update_car_without_distances(&mut car, now, ctx, transit);
@@ -234,7 +237,7 @@ impl DrivingSimState {
             let idx = dists.iter().position(|(c, _)| *c == id).unwrap();
 
             // We need to mutate two different cars in some cases. To avoid fighting the borrow
-            // checker, temporarily move one of them out of the BTreeMap.
+            // checker, temporarily move one of them out of the map.
             let mut car = self.cars.remove(&id).unwrap();
             // Responsibility of update_car_with_distances to manage scheduling stuff!
             if self
@@ -835,6 +838,7 @@ impl DrivingSimState {
         }
     }
 
+    /// Note the ordering of results is non-deterministic!
     pub fn get_unzoomed_agents(&self, now: Time, map: &Map) -> Vec<UnzoomedAgent> {
         let mut result = Vec::new();
 
@@ -867,6 +871,7 @@ impl DrivingSimState {
         self.cars.contains_key(&id)
     }
 
+    /// Note the ordering of results is non-deterministic!
     pub fn get_all_draw_cars(
         &self,
         now: Time,
