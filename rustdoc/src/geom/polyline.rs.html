@@ -809,6 +809,11 @@
 <span id="808">808</span>
 <span id="809">809</span>
 <span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -989,12 +994,10 @@
         <span class="self">self</span>.<span class="ident">pts</span>
     }
 
-    <span class="comment">// Makes a copy :\</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Line</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Line</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
         <span class="self">self</span>.<span class="ident">pts</span>
             .<span class="ident">windows</span>(<span class="number">2</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
-            .<span class="ident">collect</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
@@ -1024,7 +1027,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_so_far</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
 
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">iter</span>() {
+        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>() {
             <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">length</span>();
 
             <span class="comment">// Does this line contain the first point of the slice?</span>
@@ -1119,7 +1122,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_left</span> <span class="op">=</span> <span class="ident">dist_along</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">length_remeasured</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">length</span>();
             <span class="ident">length_remeasured</span> <span class="op">+=</span> <span class="ident">length</span>;
             <span class="kw">let</span> <span class="ident">epsilon</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span> {
@@ -1436,23 +1439,30 @@
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">other</span>);
 
         <span class="comment">// There could be several collisions. Pick the &quot;first&quot; from self&#39;s perspective.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_intersection</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_intersection_distance</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
         <span class="kw">for</span> <span class="ident">l1</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hits</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
             <span class="kw">for</span> <span class="ident">l2</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">lines</span>() {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">l2</span>) {
-                    <span class="ident">hits</span>.<span class="ident">push</span>((<span class="ident">pt</span>, <span class="ident">l1</span>.<span class="ident">angle</span>()));
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_distance</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_slice_ending_at</span>(<span class="ident">pt</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">length</span>()) {
+                        <span class="kw">match</span> <span class="ident">closest_intersection_distance</span> {
+                            <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
+                                <span class="ident">closest_intersection</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">l1</span>.<span class="ident">angle</span>()));
+                                <span class="ident">closest_intersection_distance</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_distance</span>);
+                            }
+                            <span class="prelude-val">Some</span>(<span class="ident">existing_distance</span>) <span class="kw">if</span> <span class="ident">existing_distance</span> <span class="op">&gt;</span> <span class="ident">new_distance</span> <span class="op">=&gt;</span> {
+                                <span class="ident">closest_intersection</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">l1</span>.<span class="ident">angle</span>()));
+                                <span class="ident">closest_intersection_distance</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_distance</span>);
+                            }
+                            <span class="kw">_</span> <span class="op">=&gt;</span> {}
+                        }
+                    }
                 }
             }
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hit</span>) <span class="op">=</span> <span class="ident">hits</span>.<span class="ident">into_iter</span>().<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="ident">pt</span>, <span class="kw">_</span>)<span class="op">|</span> {
-                <span class="self">self</span>.<span class="ident">get_slice_ending_at</span>(<span class="kw-2">*</span><span class="ident">pt</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">length</span>())
-                    .<span class="ident">unwrap_or</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>)
-            }) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">hit</span>);
-            }
         }
-        <span class="prelude-val">None</span>
+
+        <span class="ident">closest_intersection</span>
     }
 
     <span class="comment">// TODO Also distance along</span>
@@ -1472,7 +1482,7 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
             <span class="ident">pts</span>.<span class="ident">truncate</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
             <span class="comment">// Make sure the last line isn&#39;t too tiny</span>
@@ -1495,7 +1505,7 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
             <span class="ident">pts</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">split_off</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
             <span class="kw">if</span> <span class="ident">pt</span> <span class="op">!=</span> <span class="ident">pts</span>[<span class="number">0</span>] {
@@ -1585,7 +1595,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
 
     <span class="comment">// Check that the angles roughly match up between the original and shifted line</span>
-    <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">orig_l</span>, <span class="ident">shifted_l</span>)) <span class="kw">in</span> <span class="ident">orig</span>.<span class="ident">lines</span>().<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">result</span>.<span class="ident">lines</span>().<span class="ident">iter</span>()).<span class="ident">enumerate</span>() {
+    <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">orig_l</span>, <span class="ident">shifted_l</span>)) <span class="kw">in</span> <span class="ident">orig</span>.<span class="ident">lines</span>().<span class="ident">zip</span>(<span class="ident">result</span>.<span class="ident">lines</span>()).<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">orig_angle</span> <span class="op">=</span> <span class="ident">orig_l</span>.<span class="ident">angle</span>();
         <span class="kw">let</span> <span class="ident">shifted_angle</span> <span class="op">=</span> <span class="ident">shifted_l</span>.<span class="ident">angle</span>();
 
