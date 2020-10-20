@@ -45,10 +45,14 @@ impl DrawIntersection {
         let mut default_geom = GeomBatch::new();
         let rank = i.get_rank(map);
         default_geom.push(app.cs.zoomed_intersection_surface(rank), i.polygon.clone());
-        default_geom.extend(
-            app.cs.zoomed_road_surface(LaneType::Sidewalk, rank),
-            calculate_corners(i, map),
-        );
+        if app.cs.sidewalk_lines.is_some() {
+            default_geom.extend(
+                app.cs.zoomed_road_surface(LaneType::Sidewalk, rank),
+                calculate_corners(i, map),
+            );
+        } else {
+            calculate_corners_with_borders(&mut default_geom, app, i);
+        }
 
         for turn in map.get_turns_in_intersection(i.id) {
             // Avoid double-rendering
@@ -141,7 +145,7 @@ impl Renderable for DrawIntersection {
 
     fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
         // Lazily calculate, because these are expensive to all do up-front, and most players won't
-        // exhaustively see every lane during a single session
+        // exhaustively see every intersection during a single session
         let mut draw = self.draw_default.borrow_mut();
         if draw.is_none() {
             *draw = Some(self.render(g, app));
@@ -238,6 +242,42 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     }
 
     corners
+}
+
+// calculate_corners smooths edges, but we don't want to do that when drawing explicit borders.
+fn calculate_corners_with_borders(batch: &mut GeomBatch, app: &App, i: &Intersection) {
+    let map = &app.primary.map;
+    let rank = i.get_rank(map);
+    let surface_color = app.cs.zoomed_road_surface(LaneType::Sidewalk, rank);
+    let border_color = app.cs.general_road_marking(rank);
+
+    for turn in map.get_turns_in_intersection(i.id) {
+        if turn.turn_type != TurnType::SharedSidewalkCorner {
+            continue;
+        }
+        // Avoid double-rendering
+        if map.get_l(turn.id.src).dst_i != i.id {
+            continue;
+        }
+        let width = map
+            .get_l(turn.id.src)
+            .width
+            .min(map.get_l(turn.id.dst).width);
+
+        // TODO This leaves gaps.
+        batch.push(surface_color, turn.geom.make_polygons(width));
+
+        let thickness = Distance::meters(0.2);
+        let shift = (width - thickness) / 2.0;
+        batch.push(
+            border_color,
+            turn.geom.must_shift_right(shift).make_polygons(thickness),
+        );
+        batch.push(
+            border_color,
+            turn.geom.must_shift_left(shift).make_polygons(thickness),
+        );
+    }
 }
 
 // TODO This assumes the lanes change direction only at one point. A two-way cycletrack right at

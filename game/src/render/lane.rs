@@ -50,6 +50,22 @@ impl DrawLane {
             LaneType::Sidewalk => {
                 if let Some(c) = app.cs.sidewalk_lines {
                     draw.extend(c, calculate_sidewalk_lines(lane));
+                } else {
+                    // Otherwise, draw a border at both edges
+                    let width = Distance::meters(0.2);
+                    let shift = (lane.width - width) / 2.0;
+                    draw.push(
+                        general_road_marking,
+                        lane.lane_center_pts
+                            .must_shift_right(shift)
+                            .make_polygons(width),
+                    );
+                    draw.push(
+                        general_road_marking,
+                        lane.lane_center_pts
+                            .must_shift_left(shift)
+                            .make_polygons(width),
+                    );
                 }
             }
             LaneType::Shoulder => {}
