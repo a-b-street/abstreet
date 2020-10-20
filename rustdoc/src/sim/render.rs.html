@@ -63,14 +63,13 @@
 <span id="62">62</span>
 <span id="63">63</span>
 <span id="64">64</span>
-<span id="65">65</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures so that sim and game crates don&#39;t have a cyclic dependency.</span>
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">VehicleType</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawPedestrianInput</span> {
@@ -121,8 +120,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnzoomedAgent</span> {
-    <span class="doccomment">/// None means a pedestrian.</span>
-    <span class="kw">pub</span> <span class="ident">vehicle_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VehicleType</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">AgentID</span>,
     <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">Pt2D</span>,
     <span class="doccomment">/// None means a bus.</span>
     <span class="kw">pub</span> <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,

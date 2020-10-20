@@ -219,9 +219,6 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
@@ -275,9 +272,6 @@
     <span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--dev&quot;</span>);
     <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--lowzoom&quot;</span>) {
         <span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">1.0</span>;
-    }
-    <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--select_unzoomed_agents&quot;</span>) {
-        <span class="ident">opts</span>.<span class="ident">select_unzoomed_agents</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--color_scheme&quot;</span>) {

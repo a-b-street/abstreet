@@ -754,13 +754,14 @@
 <span id="753">753</span>
 <span id="754">754</span>
 <span id="755">755</span>
+<span id="756">756</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time_warp</span>::<span class="ident">TimeWarpScreen</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentType</span>, <span class="ident">Analytics</span>, <span class="ident">Scenario</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
@@ -1482,30 +1483,31 @@
 }
 
 <span class="kw">fn</span> <span class="ident">mouseover_unzoomed_agent_circle</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
-    <span class="comment">// TODO How do we make this efficient?</span>
-    <span class="comment">// - We could build and cache a quadtree if we&#39;re paused</span>
-    <span class="comment">// - We could always build the quadtree as we loop over unzoomed agents</span>
-    <span class="comment">// - At least do this while we draw? Don&#39;t call twice.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">select_unzoomed_agents</span> {
-        <span class="kw">return</span>;
-    }
-
     <span class="kw">let</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
         <span class="ident">pt</span>
     } <span class="kw">else</span> {
         <span class="kw">return</span>;
     };
 
-    <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_unzoomed_agents</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-        <span class="comment">// Some circles are filtered out</span>
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">color</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>).<span class="ident">is_some</span>() {
-            <span class="kw">if</span> <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">a</span>.<span class="ident">pos</span>, <span class="ident">unzoomed_agent_radius</span>(<span class="ident">a</span>.<span class="ident">vehicle_type</span>)).<span class="ident">contains_pt</span>(<span class="ident">cursor</span>) {
-                <span class="comment">// TODO We have Option&lt;Person&gt;, we want an agent. This mapping will fail for</span>
-                <span class="comment">// buses.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">person</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">person_to_agent</span>(<span class="ident">p</span>)) {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">from_agent</span>(<span class="ident">a</span>));
-                }
-                <span class="kw">break</span>;
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">app</span>
+        .<span class="ident">primary</span>
+        .<span class="ident">draw_map</span>
+        .<span class="ident">agents</span>
+        .<span class="ident">borrow_mut</span>()
+        .<span class="ident">calculate_unzoomed_agents</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
+        .<span class="ident">query</span>(
+            <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">cursor</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>))
+                .<span class="ident">get_bounds</span>()
+                .<span class="ident">as_bbox</span>(),
+        )
+    {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">app</span>
+            .<span class="ident">primary</span>
+            .<span class="ident">sim</span>
+            .<span class="ident">canonical_pt_for_agent</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+        {
+            <span class="kw">if</span> <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">pt</span>, <span class="ident">unzoomed_agent_radius</span>(<span class="ident">id</span>.<span class="ident">to_vehicle_type</span>())).<span class="ident">contains_pt</span>(<span class="ident">cursor</span>) {
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">from_agent</span>(<span class="kw-2">*</span><span class="ident">id</span>));
             }
         }
     }

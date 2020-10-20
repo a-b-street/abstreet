@@ -1180,7 +1180,7 @@
 
         <span class="kw">for</span> <span class="ident">ped</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">values</span>() {
             <span class="ident">peds</span>.<span class="ident">push</span>(<span class="ident">UnzoomedAgent</span> {
-                <span class="ident">vehicle_type</span>: <span class="prelude-val">None</span>,
+                <span class="ident">id</span>: <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">ped</span>.<span class="ident">id</span>),
                 <span class="ident">pos</span>: <span class="ident">ped</span>.<span class="ident">get_draw_ped</span>(<span class="ident">now</span>, <span class="ident">map</span>).<span class="ident">pos</span>,
                 <span class="ident">person</span>: <span class="prelude-val">Some</span>(<span class="ident">ped</span>.<span class="ident">person</span>),
                 <span class="ident">parking</span>: <span class="bool-val">false</span>,

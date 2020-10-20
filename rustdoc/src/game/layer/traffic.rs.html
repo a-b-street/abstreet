@@ -1164,7 +1164,7 @@
                     .<span class="ident">cs</span>
                     .<span class="ident">good_to_bad_red</span>
                     .<span class="ident">eval</span>((<span class="ident">delay</span> <span class="op">/</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">15</span>)).<span class="ident">min</span>(<span class="number">1.0</span>));
-                <span class="kw">if</span> <span class="ident">agent</span>.<span class="ident">vehicle_type</span>.<span class="ident">is_some</span>() {
+                <span class="kw">if</span> <span class="ident">agent</span>.<span class="ident">id</span>.<span class="ident">to_vehicle_type</span>().<span class="ident">is_some</span>() {
                     <span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">car_circle</span>.<span class="ident">translate</span>(<span class="ident">agent</span>.<span class="ident">pos</span>.<span class="ident">x</span>(), <span class="ident">agent</span>.<span class="ident">pos</span>.<span class="ident">y</span>()));
                 } <span class="kw">else</span> {
                     <span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">ped_circle</span>.<span class="ident">translate</span>(<span class="ident">agent</span>.<span class="ident">pos</span>.<span class="ident">x</span>(), <span class="ident">agent</span>.<span class="ident">pos</span>.<span class="ident">y</span>()));

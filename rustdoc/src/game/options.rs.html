@@ -347,10 +347,6 @@
 <span id="346">346</span>
 <span id="347">347</span>
 <span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -383,9 +379,6 @@
     <span class="kw">pub</span> <span class="ident">min_zoom_for_detail</span>: <span class="ident">f64</span>,
     <span class="doccomment">/// Draw buildings in different perspectives</span>
     <span class="kw">pub</span> <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>,
-    <span class="doccomment">/// Allow selecting agents when unzoomed. Flagged off by default because the implementation is</span>
-    <span class="doccomment">/// too slow.</span>
-    <span class="kw">pub</span> <span class="ident">select_unzoomed_agents</span>: <span class="ident">bool</span>,
 
     <span class="doccomment">/// How much to advance the sim with one of the speed controls</span>
     <span class="kw">pub</span> <span class="ident">time_increment</span>: <span class="ident">Duration</span>,
@@ -411,7 +404,6 @@
             <span class="ident">color_scheme</span>: <span class="ident">ColorSchemeChoice</span>::<span class="ident">Standard</span>,
             <span class="ident">min_zoom_for_detail</span>: <span class="number">4.0</span>,
             <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>::<span class="ident">TopDown</span>,
-            <span class="ident">select_unzoomed_agents</span>: <span class="bool-val">false</span>,
 
             <span class="ident">time_increment</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">10</span>),
             <span class="ident">dont_draw_time_warp</span>: <span class="bool-val">false</span>,
