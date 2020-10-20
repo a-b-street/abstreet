@@ -42,7 +42,14 @@ impl ScenarioModifier {
                     if idx % 100 > *pct_ppl {
                         continue;
                     }
+                    let mut cancel_rest = false;
                     for trip in &mut person.trips {
+                        if cancel_rest {
+                            trip.modified = true;
+                            trip.cancelled = true;
+                            continue;
+                        }
+
                         if trip.depart < departure_filter.0 || trip.depart > departure_filter.1 {
                             continue;
                         }
@@ -62,6 +69,9 @@ impl ScenarioModifier {
                         } else {
                             trip.modified = true;
                             trip.cancelled = true;
+                            // The next trip assumes we're at the destination of this cancelled
+                            // trip, and so on. Have to cancel the rest.
+                            cancel_rest = true;
                         }
                     }
                 }
