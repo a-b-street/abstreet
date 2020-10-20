@@ -1088,12 +1088,17 @@
 <span id="1087">1087</span>
 <span id="1088">1088</span>
 <span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">FixedMap</span>, <span class="ident">IndexableKey</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_hashmap</span>, <span class="ident">serialize_hashmap</span>, <span class="ident">FixedMap</span>, <span class="ident">IndexableKey</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">Traversable</span>};
 
@@ -1121,11 +1126,14 @@
     <span class="comment">// gain much faster lookup, which has shown dramatic speedups in the scenarios being run so</span>
     <span class="comment">// far.</span>
     <span class="ident">cars</span>: <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>,
+    <span class="comment">// Note this uses a HashMap for faster lookup. Although the order of iterating over the HashMap</span>
+    <span class="comment">// is random, determinism in the simulation is preserved, because nothing iterates over</span>
+    <span class="comment">// everything.</span>
     <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
+        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_hashmap&quot;</span>,
+        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_hashmap&quot;</span>
     )]</span>
-    <span class="ident">queues</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
+    <span class="ident">queues</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
     <span class="ident">events</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
 
     <span class="ident">recalc_lanechanging</span>: <span class="ident">bool</span>,
@@ -1141,7 +1149,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">SimOptions</span>) <span class="op">-&gt;</span> <span class="ident">DrivingSimState</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">DrivingSimState</span> {
             <span class="ident">cars</span>: <span class="ident">FixedMap</span>::<span class="ident">new</span>(),
-            <span class="ident">queues</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+            <span class="ident">queues</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">events</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">recalc_lanechanging</span>: <span class="ident">opts</span>.<span class="ident">recalc_lanechanging</span>,
             <span class="ident">handle_uber_turns</span>: <span class="ident">opts</span>.<span class="ident">handle_uber_turns</span>,
@@ -1308,7 +1316,7 @@
 
         <span class="kw">if</span> <span class="op">!</span><span class="ident">need_distances</span> {
             <span class="comment">// We need to mutate two different cars in one case. To avoid fighting the borrow</span>
-            <span class="comment">// checker, temporarily move one of them out of the BTreeMap.</span>
+            <span class="comment">// checker, temporarily move one of them out of the map.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">car</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
             <span class="comment">// Responsibility of update_car to manage scheduling stuff!</span>
             <span class="ident">need_distances</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">update_car_without_distances</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">car</span>, <span class="ident">now</span>, <span class="ident">ctx</span>, <span class="ident">transit</span>);
@@ -1325,7 +1333,7 @@
             <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">dists</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span>(<span class="ident">c</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">==</span> <span class="ident">id</span>).<span class="ident">unwrap</span>();
 
             <span class="comment">// We need to mutate two different cars in some cases. To avoid fighting the borrow</span>
-            <span class="comment">// checker, temporarily move one of them out of the BTreeMap.</span>
+            <span class="comment">// checker, temporarily move one of them out of the map.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">car</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
             <span class="comment">// Responsibility of update_car_with_distances to manage scheduling stuff!</span>
             <span class="kw">if</span> <span class="self">self</span>
@@ -1926,6 +1934,7 @@
         }
     }
 
+    <span class="doccomment">/// Note the ordering of results is non-deterministic!</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_unzoomed_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UnzoomedAgent</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
@@ -1958,6 +1967,7 @@
         <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
     }
 
+    <span class="doccomment">/// Note the ordering of results is non-deterministic!</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all_draw_cars</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,

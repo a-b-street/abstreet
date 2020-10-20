@@ -801,7 +801,7 @@
 <span id="800">800</span>
 <span id="801">801</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -1092,7 +1092,7 @@
         <span class="ident">maybe_cars_and_queues</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(
             <span class="kw-2">&amp;</span><span class="ident">Car</span>,
             <span class="kw-2">&amp;</span><span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>,
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
         )<span class="op">&gt;</span>,
     ) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request</span> { <span class="ident">agent</span>, <span class="ident">turn</span> };
@@ -1463,7 +1463,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">Request</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">maybe_cars_and_queues</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+        <span class="ident">maybe_cars_and_queues</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
     ) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">req</span>.<span class="ident">turn</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cycle_detected</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -1516,7 +1516,7 @@
     <span class="kw">fn</span> <span class="ident">detect_conflict_cycle</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">car</span>: <span class="ident">CarID</span>,
-        <span class="ident">pair</span>: (<span class="kw-2">&amp;</span><span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>),
+        <span class="ident">pair</span>: (<span class="kw-2">&amp;</span><span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Car</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>),
     ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> (<span class="ident">cars</span>, <span class="ident">queues</span>) <span class="op">=</span> <span class="ident">pair</span>;
 

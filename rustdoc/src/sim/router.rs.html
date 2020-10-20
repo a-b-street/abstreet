@@ -453,7 +453,7 @@
 <span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
 <span class="doccomment">//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -786,7 +786,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">opportunistically_lanechange</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">queues</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
+        <span class="ident">queues</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">handle_uber_turns</span>: <span class="ident">bool</span>,
     ) {
