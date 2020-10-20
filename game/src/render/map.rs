@@ -9,7 +9,7 @@ use geom::{Bounds, Circle, Polygon, Pt2D, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
 };
-use sim::{Sim, UnzoomedAgent, VehicleType};
+use sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
 
 use crate::app::App;
@@ -360,7 +360,9 @@ pub struct AgentCache {
     // This time applies to agents_per_on. unzoomed has its own possibly separate Time!
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
-    unzoomed: Option<(Time, UnzoomedAgents, Drawable)>,
+    // when either of (time, unzoomed agent filters) change, recalculate (a quadtree of all agents,
+    // draw all agents)
+    unzoomed: Option<(Time, UnzoomedAgents, QuadTree<AgentID>, Drawable)>,
 }
 
 impl AgentCache {
@@ -407,36 +409,56 @@ impl AgentCache {
         self.agents_per_on.insert(on, list);
     }
 
-    pub fn draw_unzoomed_agents(&mut self, g: &mut GfxCtx, app: &App) {
+    /// If the sim time has changed or the unzoomed agent filters have been modified, recalculate
+    /// the quadtree and drawable for all unzoomed agents.
+    pub fn calculate_unzoomed_agents<P: AsRef<Prerender>>(
+        &mut self,
+        prerender: &mut P,
+        app: &App,
+    ) -> &QuadTree<AgentID> {
         let now = app.primary.sim.time();
-        if let Some((time, ref orig_agents, ref draw)) = self.unzoomed {
+        let mut recalc = true;
+        if let Some((time, ref orig_agents, _, _)) = self.unzoomed {
             if now == time && app.unzoomed_agents == orig_agents.clone() {
-                g.redraw(draw);
-                return;
+                recalc = false;
             }
         }
 
-        let mut batch = GeomBatch::new();
-        // It's quite silly to produce triangles for the same circle over and over again. ;)
-        let car_circle = Circle::new(
-            Pt2D::new(0.0, 0.0),
-            unzoomed_agent_radius(Some(VehicleType::Car)),
-        )
-        .to_polygon();
-        let ped_circle = Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
-        for agent in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
-            if let Some(color) = app.unzoomed_agents.color(&agent) {
-                if agent.vehicle_type.is_some() {
-                    batch.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
-                } else {
-                    batch.push(color, ped_circle.translate(agent.pos.x(), agent.pos.y()));
+        if recalc {
+            let mut batch = GeomBatch::new();
+            let mut quadtree = QuadTree::default(app.primary.map.get_bounds().as_bbox());
+            // It's quite silly to produce triangles for the same circle over and over again. ;)
+            let car_circle = Circle::new(
+                Pt2D::new(0.0, 0.0),
+                unzoomed_agent_radius(Some(VehicleType::Car)),
+            )
+            .to_polygon();
+            let ped_circle =
+                Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
+
+            for agent in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+                if let Some(color) = app.unzoomed_agents.color(&agent) {
+                    let circle = if agent.id.to_vehicle_type().is_some() {
+                        car_circle.translate(agent.pos.x(), agent.pos.y())
+                    } else {
+                        ped_circle.translate(agent.pos.x(), agent.pos.y())
+                    };
+                    quadtree.insert_with_box(agent.id, circle.get_bounds().as_bbox());
+                    batch.push(color, circle);
                 }
             }
+
+            let draw = prerender.as_ref().upload(batch);
+
+            self.unzoomed = Some((now, app.unzoomed_agents.clone(), quadtree, draw));
         }
 
-        let draw = g.upload(batch);
-        g.redraw(&draw);
-        self.unzoomed = Some((now, app.unzoomed_agents.clone(), draw));
+        &self.unzoomed.as_ref().unwrap().2
+    }
+
+    pub fn draw_unzoomed_agents(&mut self, g: &mut GfxCtx, app: &App) {
+        self.calculate_unzoomed_agents(g, app);
+        g.redraw(&self.unzoomed.as_ref().unwrap().3);
 
         if app.opts.debug_all_agents {
             let mut cnt = 0;
@@ -483,7 +505,7 @@ impl UnzoomedAgents {
     }
 
     pub fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
-        match agent.vehicle_type {
+        match agent.id.to_vehicle_type() {
             Some(VehicleType::Car) => {
                 if self.cars {
                     Some(self.car_color)

@@ -369,7 +369,7 @@ impl WalkingSimState {
 
         for ped in self.peds.values() {
             peds.push(UnzoomedAgent {
-                vehicle_type: None,
+                id: AgentID::Pedestrian(ped.id),
                 pos: ped.get_draw_ped(now, map).pos,
                 person: Some(ped.person),
                 parking: false,

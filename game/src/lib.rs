@@ -51,9 +51,6 @@ pub fn main() {
     if args.enabled("--lowzoom") {
         opts.min_zoom_for_detail = 1.0;
     }
-    if args.enabled("--select_unzoomed_agents") {
-        opts.select_unzoomed_agents = true;
-    }
 
     if let Some(x) = args.optional("--color_scheme") {
         let mut ok = false;

@@ -3,7 +3,7 @@
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use map_model::{BuildingID, ParkingLotID, Traversable, TurnID};
 
-use crate::{CarID, PedestrianID, PersonID, VehicleType};
+use crate::{AgentID, CarID, PedestrianID, PersonID};
 
 #[derive(Clone)]
 pub struct DrawPedestrianInput {
@@ -54,8 +54,7 @@ pub enum CarStatus {
 }
 
 pub struct UnzoomedAgent {
-    /// None means a pedestrian.
-    pub vehicle_type: Option<VehicleType>,
+    pub id: AgentID,
     pub pos: Pt2D,
     /// None means a bus.
     pub person: Option<PersonID>,

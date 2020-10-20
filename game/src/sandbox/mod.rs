@@ -3,7 +3,7 @@ use maplit::btreeset;
 pub use speed::{SpeedControls, TimePanel};
 pub use time_warp::TimeWarpScreen;
 
-use geom::{Circle, Time};
+use geom::{Circle, Distance, Time};
 use sim::{AgentType, Analytics, Scenario};
 use widgetry::{
     lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
@@ -725,30 +725,31 @@ impl State for SandboxLoader {
 }
 
 fn mouseover_unzoomed_agent_circle(ctx: &mut EventCtx, app: &mut App) {
-    // TODO How do we make this efficient?
-    // - We could build and cache a quadtree if we're paused
-    // - We could always build the quadtree as we loop over unzoomed agents
-    // - At least do this while we draw? Don't call twice.
-    if !app.opts.select_unzoomed_agents {
-        return;
-    }
-
     let cursor = if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
         pt
     } else {
         return;
     };
 
-    for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
-        // Some circles are filtered out
-        if app.unzoomed_agents.color(&a).is_some() {
-            if Circle::new(a.pos, unzoomed_agent_radius(a.vehicle_type)).contains_pt(cursor) {
-                // TODO We have Option<Person>, we want an agent. This mapping will fail for
-                // buses.
-                if let Some(a) = a.person.and_then(|p| app.primary.sim.person_to_agent(p)) {
-                    app.primary.current_selection = Some(ID::from_agent(a));
-                }
-                break;
+    for (id, _, _) in app
+        .primary
+        .draw_map
+        .agents
+        .borrow_mut()
+        .calculate_unzoomed_agents(ctx, app)
+        .query(
+            Circle::new(cursor, Distance::meters(3.0))
+                .get_bounds()
+                .as_bbox(),
+        )
+    {
+        if let Some(pt) = app
+            .primary
+            .sim
+            .canonical_pt_for_agent(*id, &app.primary.map)
+        {
+            if Circle::new(pt, unzoomed_agent_radius(id.to_vehicle_type())).contains_pt(cursor) {
+                app.primary.current_selection = Some(ID::from_agent(*id));
             }
         }
     }

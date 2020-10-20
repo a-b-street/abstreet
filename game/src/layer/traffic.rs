@@ -567,7 +567,7 @@ impl Delay {
                     .cs
                     .good_to_bad_red
                     .eval((delay / Duration::minutes(15)).min(1.0));
-                if agent.vehicle_type.is_some() {
+                if agent.id.to_vehicle_type().is_some() {
                     unzoomed.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
                 } else {
                     unzoomed.push(color, ped_circle.translate(agent.pos.x(), agent.pos.y()));

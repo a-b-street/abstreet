@@ -29,9 +29,6 @@ pub struct Options {
     pub min_zoom_for_detail: f64,
     /// Draw buildings in different perspectives
     pub camera_angle: CameraAngle,
-    /// Allow selecting agents when unzoomed. Flagged off by default because the implementation is
-    /// too slow.
-    pub select_unzoomed_agents: bool,
 
     /// How much to advance the sim with one of the speed controls
     pub time_increment: Duration,
@@ -57,7 +54,6 @@ impl Options {
             color_scheme: ColorSchemeChoice::Standard,
             min_zoom_for_detail: 4.0,
             camera_angle: CameraAngle::TopDown,
-            select_unzoomed_agents: false,
 
             time_increment: Duration::minutes(10),
             dont_draw_time_warp: false,

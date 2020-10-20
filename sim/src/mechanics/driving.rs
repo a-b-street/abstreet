@@ -846,7 +846,7 @@ impl DrivingSimState {
             for (c, dist) in queue.get_car_positions(now, &self.cars, &self.queues) {
                 let car = &self.cars[&c];
                 result.push(UnzoomedAgent {
-                    vehicle_type: Some(car.vehicle.vehicle_type),
+                    id: AgentID::Car(car.vehicle.id),
                     pos: match queue.id.dist_along(dist, map) {
                         Ok((pt, _)) => pt,
                         Err(err) => panic!(

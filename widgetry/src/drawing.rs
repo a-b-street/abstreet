@@ -5,7 +5,8 @@ use geom::{Bounds, Polygon, Pt2D};
 use crate::assets::Assets;
 use crate::backend::{GfxCtxInnards, PrerenderInnards};
 use crate::{
-    Canvas, Color, Drawable, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Style, Text,
+    Canvas, Color, Drawable, EventCtx, GeomBatch, ScreenDims, ScreenPt, ScreenRectangle, Style,
+    Text,
 };
 
 // We organize major layers of the app with whole number z values, with lower values being more on
@@ -275,5 +276,17 @@ impl Prerender {
 
     pub(crate) fn window_resized(&self, new_size: ScreenDims) {
         self.inner.window_resized(new_size, self.get_scale_factor())
+    }
+}
+
+impl std::convert::AsRef<Prerender> for GfxCtx<'_> {
+    fn as_ref(&self) -> &Prerender {
+        &self.prerender
+    }
+}
+
+impl std::convert::AsRef<Prerender> for EventCtx<'_> {
+    fn as_ref(&self) -> &Prerender {
+        &self.prerender
     }
 }
