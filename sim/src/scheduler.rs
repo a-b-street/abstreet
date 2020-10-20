@@ -4,6 +4,7 @@ use std::collections::{BinaryHeap, HashMap};
 
 use serde::{Deserialize, Serialize};
 
+use abstutil::Counter;
 use geom::{Duration, Histogram, Time};
 use map_model::{BusRouteID, IntersectionID, Path, PathRequest};
 
@@ -53,6 +54,22 @@ impl Command {
             Command::StartBus(r, t) => CommandType::StartBus(*r, *t),
         }
     }
+
+    fn to_simple_type(&self) -> SimpleCommandType {
+        match self {
+            Command::SpawnCar(_, _) => SimpleCommandType::Car,
+            Command::SpawnPed(_) => SimpleCommandType::Ped,
+            Command::StartTrip(_, _, _, _) => SimpleCommandType::StartTrip,
+            Command::UpdateCar(_) => SimpleCommandType::Car,
+            Command::UpdateLaggyHead(_) => SimpleCommandType::CarLaggyHead,
+            Command::UpdatePed(_) => SimpleCommandType::Ped,
+            Command::UpdateIntersection(_) => SimpleCommandType::Intersection,
+            Command::Callback(_) => SimpleCommandType::Callback,
+            Command::Pandemic(_) => SimpleCommandType::Pandemic,
+            Command::FinishRemoteTrip(_) => SimpleCommandType::FinishRemoteTrip,
+            Command::StartBus(_, _) => SimpleCommandType::StartBus,
+        }
+    }
 }
 
 /// A smaller version of Command that satisfies many more properties. Only one Command per
@@ -68,6 +85,20 @@ enum CommandType {
     Pandemic(pandemic::Cmd),
     FinishRemoteTrip(TripID),
     StartBus(BusRouteID, Time),
+}
+
+/// A more compressed form of CommandType, just used for keeping stats on event processing.
+#[derive(PartialEq, Eq, Ord, PartialOrd, Clone, Debug)]
+enum SimpleCommandType {
+    StartTrip,
+    Car,
+    CarLaggyHead,
+    Ped,
+    Intersection,
+    Callback,
+    Pandemic,
+    FinishRemoteTrip,
+    StartBus,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -106,6 +137,8 @@ pub struct Scheduler {
     last_time: Time,
     #[serde(skip_serializing, skip_deserializing)]
     delta_times: Histogram<Duration>,
+    #[serde(skip_serializing, skip_deserializing)]
+    cmd_type_counts: Counter<SimpleCommandType>,
 }
 
 impl Scheduler {
@@ -116,6 +149,7 @@ impl Scheduler {
             latest_time: Time::START_OF_DAY,
             last_time: Time::START_OF_DAY,
             delta_times: Histogram::new(),
+            cmd_type_counts: Counter::new(),
         }
     }
 
@@ -128,6 +162,7 @@ impl Scheduler {
         }
         self.last_time = self.last_time.max(time);
         self.delta_times.add(time - self.latest_time);
+        self.cmd_type_counts.inc(cmd.to_simple_type());
 
         let cmd_type = cmd.to_type();
 
@@ -209,7 +244,14 @@ impl Scheduler {
     }
 
     pub fn describe_stats(&self) -> String {
-        format!("delta times for events: {}", self.delta_times.describe())
+        let mut stats = vec![
+            format!("delta times for events: {}", self.delta_times.describe()),
+            "count for each command type:".to_string(),
+        ];
+        for (cmd, cnt) in self.cmd_type_counts.borrow() {
+            stats.push(format!("{:?}: {}", cmd, abstutil::prettyprint_usize(*cnt)));
+        }
+        stats.join("\n")
     }
 
     /// It's much more efficient to save without the paths, and to recalculate them when loading

@@ -389,6 +389,10 @@ impl Sim {
         self.driving.all_waiting_people(self.time, &mut delays);
         delays
     }
+
+    pub fn describe_scheduler_stats(&self) -> String {
+        self.scheduler.describe_stats()
+    }
 }
 
 // Drawing

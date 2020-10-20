@@ -41,8 +41,9 @@ fn main() {
                 return;
             }
         }
-        println!("Interrupting at {}", sim.time());
+        println!("\n\nInterrupting at {}", sim.time());
         sim.save();
+        println!("{}", sim.describe_scheduler_stats());
     } else {
         sim.timed_step(
             &mut map,
