@@ -133,6 +133,16 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -178,7 +188,14 @@
                     <span class="kw">if</span> <span class="ident">idx</span> <span class="op">%</span> <span class="number">100</span> <span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">pct_ppl</span> {
                         <span class="kw">continue</span>;
                     }
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cancel_rest</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">person</span>.<span class="ident">trips</span> {
+                        <span class="kw">if</span> <span class="ident">cancel_rest</span> {
+                            <span class="ident">trip</span>.<span class="ident">modified</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                            <span class="ident">trip</span>.<span class="ident">cancelled</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                            <span class="kw">continue</span>;
+                        }
+
                         <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">depart</span> <span class="op">&lt;</span> <span class="ident">departure_filter</span>.<span class="number">0</span> <span class="op">||</span> <span class="ident">trip</span>.<span class="ident">depart</span> <span class="op">&gt;</span> <span class="ident">departure_filter</span>.<span class="number">1</span> {
                             <span class="kw">continue</span>;
                         }
@@ -198,6 +215,9 @@
                         } <span class="kw">else</span> {
                             <span class="ident">trip</span>.<span class="ident">modified</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             <span class="ident">trip</span>.<span class="ident">cancelled</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                            <span class="comment">// The next trip assumes we&#39;re at the destination of this cancelled</span>
+                            <span class="comment">// trip, and so on. Have to cancel the rest.</span>
+                            <span class="ident">cancel_rest</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         }
                     }
                 }
