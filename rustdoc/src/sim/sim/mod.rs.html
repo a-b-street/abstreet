@@ -1934,7 +1934,6 @@
         <span class="kw">for</span> (<span class="ident">agent</span>, <span class="ident">trip</span>) <span class="kw">in</span> <span class="ident">affected</span> {
             <span class="kw">match</span> <span class="ident">agent</span> {
                 <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>) <span class="op">=&gt;</span> {
-                    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Nuking {}&quot;</span>, <span class="ident">car</span>);
                     <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">delete_car</span>(<span class="ident">car</span>, <span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
                     <span class="comment">// TODO Plumb more info about the reason</span>
                     <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
@@ -1959,6 +1958,7 @@
             }
         }
 
+        <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">handle_live_edits</span>(<span class="ident">map</span>);
         <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">handle_live_edits</span>(<span class="ident">map</span>);
     }
 
