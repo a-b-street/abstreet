@@ -636,6 +636,13 @@
 <span id="635">635</span>
 <span id="636">636</span>
 <span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -942,6 +949,13 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PathStep</span> {
         <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">1</span>]
+    }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_next_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_last_step</span>() {
+            <span class="prelude-val">None</span>
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">next_step</span>())
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PathStep</span> {
