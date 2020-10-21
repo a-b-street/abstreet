@@ -44,7 +44,7 @@ pub struct Sim {
     scheduler: Scheduler,
     time: Time,
 
-    // TODO Reconsider these
+    // These're needed to load from a savestate.
     pub(crate) map_name: String,
     pub(crate) edits_name: String,
     // Some tests deliberately set different scenario names for comparisons.
@@ -886,6 +886,8 @@ impl Sim {
     }
 
     pub fn handle_live_edits(&mut self, map: &Map) {
+        self.edits_name = map.get_edits().edits_name.clone();
+
         let affected = self.find_trips_affected_by_live_edits(map);
 
         // V1: Just cancel every trip crossing an affected area.

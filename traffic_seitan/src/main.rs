@@ -19,15 +19,21 @@ fn main() {
     let sim_flags = SimFlags::from_args(&mut args);
     args.done();
 
-    let mut timer = Timer::new("cause mass chaos");
+    let mut timer = Timer::throwaway();
     let (mut map, mut sim, mut rng) = sim_flags.load(&mut timer);
+
+    // Set the edits name up-front, so that the savestates get named reasonably too.
+    {
+        let mut edits = map.get_edits().clone();
+        edits.edits_name = "traffic_seitan".to_string();
+        map.must_apply_edits(edits, &mut timer);
+        map.recalculate_pathfinding_after_edits(&mut timer);
+        sim.handle_live_edits(&map);
+    }
 
     if let Err(err) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         run(&mut map, &mut sim, &mut rng, &mut timer);
     })) {
-        let mut edits = map.get_edits().clone();
-        edits.edits_name = "traffic_seitan_crash".to_string();
-        map.must_apply_edits(edits, &mut timer);
         map.save_edits();
 
         println!("Crashed at {}", sim.time());
@@ -40,11 +46,11 @@ fn run(map: &mut Map, sim: &mut Sim, rng: &mut XorShiftRng, timer: &mut Timer) {
     let edit_frequency = Duration::minutes(5);
 
     while !sim.is_done() {
+        println!("");
         sim.timed_step(map, edit_frequency, &mut None, timer);
         sim.save();
 
         let mut edits = map.get_edits().clone();
-        edits.edits_name = "chaos".to_string();
         nuke_random_parking(map, rng, &mut edits);
         alter_turn_destinations(sim, map, rng, &mut edits);
 
