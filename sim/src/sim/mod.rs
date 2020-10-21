@@ -903,7 +903,6 @@ impl Sim {
         for (agent, trip) in affected {
             match agent {
                 AgentID::Car(car) => {
-                    info!("Nuking {}", car);
                     let vehicle = self.driving.delete_car(car, self.time, &mut ctx);
                     // TODO Plumb more info about the reason
                     self.trips.cancel_trip(
@@ -928,6 +927,7 @@ impl Sim {
             }
         }
 
+        self.driving.handle_live_edits(map);
         self.intersections.handle_live_edits(map);
     }
 

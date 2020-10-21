@@ -1078,6 +1078,43 @@ impl DrivingSimState {
         affected
     }
 
+    pub fn handle_live_edits(&mut self, map: &Map) {
+        // Calculate all queues that should exist now.
+        let mut new_queues = HashSet::new();
+        for l in map.all_lanes() {
+            if l.lane_type.is_for_moving_vehicles() {
+                new_queues.insert(Traversable::Lane(l.id));
+            }
+        }
+        for t in map.all_turns().values() {
+            if !t.between_sidewalks() {
+                new_queues.insert(Traversable::Turn(t.id));
+            }
+        }
+
+        // Delete any old queues.
+        self.queues.retain(|k, v| {
+            if new_queues.remove(k) {
+                // No changes
+                true
+            } else {
+                // Make sure it's empty!
+                if v.laggy_head.is_some() || !v.cars.is_empty() {
+                    panic!(
+                        "After live map edits, deleted queue {} still has vehicles!",
+                        k
+                    );
+                }
+                false
+            }
+        });
+
+        // Create any new queues
+        for key in new_queues {
+            self.queues.insert(key, Queue::new(key, map));
+        }
+    }
+
     pub fn all_waiting_people(&self, now: Time, delays: &mut BTreeMap<PersonID, Duration>) {
         for c in self.cars.values() {
             if let Some((_, person)) = c.trip_and_person {
