@@ -818,6 +818,38 @@
 <span id="817">817</span>
 <span id="818">818</span>
 <span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -832,10 +864,10 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sim</span>::<span class="ident">Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">Command</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">DistanceInterval</span>, <span class="ident">DrawPedCrowdInput</span>,
-    <span class="ident">DrawPedestrianInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedCrowdLocation</span>,
-    <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>,
-    <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>,
+    <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">Command</span>, <span class="ident">CommutersVehiclesCounts</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">DistanceInterval</span>,
+    <span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSpot</span>,
+    <span class="ident">PedCrowdLocation</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TimeInterval</span>,
+    <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>,
 };
 
 <span class="kw">const</span> <span class="ident">TIME_TO_START_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">30.0</span>);
@@ -892,6 +924,7 @@
             <span class="ident">total_blocked_time</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
             <span class="ident">started_at</span>: <span class="ident">now</span>,
             <span class="ident">path</span>: <span class="ident">params</span>.<span class="ident">path</span>,
+            <span class="ident">start</span>: <span class="ident">params</span>.<span class="ident">start</span>.<span class="ident">clone</span>(),
             <span class="ident">goal</span>: <span class="ident">params</span>.<span class="ident">goal</span>,
             <span class="ident">trip</span>: <span class="ident">params</span>.<span class="ident">trip</span>,
             <span class="ident">person</span>: <span class="ident">params</span>.<span class="ident">person</span>,
@@ -1350,6 +1383,36 @@
             }
         }
     }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">populate_commuter_counts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cnts</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommutersVehiclesCounts</span>) {
+        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">values</span>() {
+            <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">goal</span>.<span class="ident">connection</span> {
+                <span class="ident">SidewalkPOI</span>::<span class="ident">ParkingSpot</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">SidewalkPOI</span>::<span class="ident">DeferredParkingSpot</span> <span class="op">=&gt;</span> {
+                    <span class="ident">cnts</span>.<span class="ident">walking_to_from_car</span> <span class="op">+=</span> <span class="number">1</span>;
+                }
+                <span class="ident">SidewalkPOI</span>::<span class="ident">BusStop</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
+                    <span class="ident">cnts</span>.<span class="ident">walking_to_from_transit</span> <span class="op">+=</span> <span class="number">1</span>;
+                }
+                <span class="ident">SidewalkPOI</span>::<span class="ident">BikeRack</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
+                    <span class="ident">cnts</span>.<span class="ident">walking_to_from_bike</span> <span class="op">+=</span> <span class="number">1</span>;
+                }
+                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">start</span>.<span class="ident">connection</span> {
+                    <span class="ident">SidewalkPOI</span>::<span class="ident">ParkingSpot</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">SidewalkPOI</span>::<span class="ident">DeferredParkingSpot</span> <span class="op">=&gt;</span> {
+                        <span class="ident">cnts</span>.<span class="ident">walking_to_from_car</span> <span class="op">+=</span> <span class="number">1</span>;
+                    }
+                    <span class="ident">SidewalkPOI</span>::<span class="ident">BusStop</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
+                        <span class="ident">cnts</span>.<span class="ident">walking_to_from_transit</span> <span class="op">+=</span> <span class="number">1</span>;
+                    }
+                    <span class="ident">SidewalkPOI</span>::<span class="ident">BikeRack</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
+                        <span class="ident">cnts</span>.<span class="ident">walking_to_from_bike</span> <span class="op">+=</span> <span class="number">1</span>;
+                    }
+                    <span class="kw">_</span> <span class="op">=&gt;</span> {
+                        <span class="ident">cnts</span>.<span class="ident">walking_commuters</span> <span class="op">+=</span> <span class="number">1</span>;
+                    }
+                },
+            }
+        }
+    }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
@@ -1362,6 +1425,7 @@
     <span class="ident">started_at</span>: <span class="ident">Time</span>,
 
     <span class="ident">path</span>: <span class="ident">Path</span>,
+    <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>,
     <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>,
     <span class="ident">trip</span>: <span class="ident">TripID</span>,
     <span class="ident">person</span>: <span class="ident">PersonID</span>,

@@ -468,6 +468,10 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -482,9 +486,9 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">Analytics</span>, <span class="ident">CarID</span>, <span class="ident">DrawCarInput</span>, <span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>,
-    <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">PedestrianID</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>,
-    <span class="ident">PersonState</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripResult</span>, <span class="ident">UnzoomedAgent</span>, <span class="ident">VehicleType</span>,
+    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">Analytics</span>, <span class="ident">CarID</span>, <span class="ident">CommutersVehiclesCounts</span>, <span class="ident">DrawCarInput</span>, <span class="ident">DrawPedCrowdInput</span>,
+    <span class="ident">DrawPedestrianInput</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">PedestrianID</span>, <span class="ident">Person</span>,
+    <span class="ident">PersonID</span>, <span class="ident">PersonState</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripResult</span>, <span class="ident">UnzoomedAgent</span>, <span class="ident">VehicleType</span>,
 };
 
 <span class="comment">// TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.</span>
@@ -507,6 +511,10 @@
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">AgentType</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">num_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit</span>)
+    }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_commuters_vehicles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">CommutersVehiclesCounts</span> {
+        <span class="self">self</span>.<span class="ident">trips</span>
+            .<span class="ident">num_commuters_vehicles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">walking</span>)
     }
     <span class="doccomment">/// (total number of people, just in buildings, just off map)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_ppl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {

@@ -1701,6 +1701,73 @@
 <span id="1700">1700</span>
 <span id="1701">1701</span>
 <span id="1702">1702</span>
+<span id="1703">1703</span>
+<span id="1704">1704</span>
+<span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
+<span id="1754">1754</span>
+<span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
+<span id="1758">1758</span>
+<span id="1759">1759</span>
+<span id="1760">1760</span>
+<span id="1761">1761</span>
+<span id="1762">1762</span>
+<span id="1763">1763</span>
+<span id="1764">1764</span>
+<span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -2607,6 +2674,56 @@
         <span class="ident">cnt</span>.<span class="ident">add</span>(<span class="ident">AgentType</span>::<span class="ident">Train</span>, <span class="ident">trains</span>);
         <span class="ident">cnt</span>
     }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_commuters_vehicles</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">transit</span>: <span class="kw-2">&amp;</span><span class="ident">TransitSimState</span>,
+        <span class="ident">walking</span>: <span class="kw-2">&amp;</span><span class="ident">WalkingSimState</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">CommutersVehiclesCounts</span> {
+        <span class="kw">let</span> (<span class="ident">buses</span>, <span class="ident">trains</span>) <span class="op">=</span> <span class="ident">transit</span>.<span class="ident">active_vehicles</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">CommutersVehiclesCounts</span> {
+            <span class="ident">walking_commuters</span>: <span class="number">0</span>,
+            <span class="ident">walking_to_from_transit</span>: <span class="number">0</span>,
+            <span class="ident">walking_to_from_car</span>: <span class="number">0</span>,
+            <span class="ident">walking_to_from_bike</span>: <span class="number">0</span>,
+
+            <span class="ident">cyclists</span>: <span class="number">0</span>,
+
+            <span class="ident">sov_drivers</span>: <span class="number">0</span>,
+
+            <span class="ident">buses</span>,
+            <span class="ident">trains</span>,
+            <span class="ident">bus_riders</span>: <span class="number">0</span>,
+            <span class="ident">train_riders</span>: <span class="number">0</span>,
+        };
+
+        <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">keys</span>() {
+            <span class="kw">match</span> <span class="ident">a</span> {
+                <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="number">1</span> {
+                    <span class="ident">VehicleType</span>::<span class="ident">Car</span> <span class="op">=&gt;</span> {
+                        <span class="ident">cnt</span>.<span class="ident">sov_drivers</span> <span class="op">+=</span> <span class="number">1</span>;
+                    }
+                    <span class="ident">VehicleType</span>::<span class="ident">Bike</span> <span class="op">=&gt;</span> {
+                        <span class="ident">cnt</span>.<span class="ident">cyclists</span> <span class="op">+=</span> <span class="number">1</span>;
+                    }
+                    <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">VehicleType</span>::<span class="ident">Train</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                },
+                <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="ident">c</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="number">1</span> {
+                    <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">=&gt;</span> {
+                        <span class="ident">cnt</span>.<span class="ident">bus_riders</span> <span class="op">+=</span> <span class="number">1</span>;
+                    }
+                    <span class="ident">VehicleType</span>::<span class="ident">Train</span> <span class="op">=&gt;</span> {
+                        <span class="ident">cnt</span>.<span class="ident">train_riders</span> <span class="op">+=</span> <span class="number">1</span>;
+                    }
+                    <span class="ident">VehicleType</span>::<span class="ident">Car</span> <span class="op">|</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                },
+                <span class="comment">// These&#39;re counted separately</span>
+                <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {}
+            }
+        }
+        <span class="ident">walking</span>.<span class="ident">populate_commuter_counts</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cnt</span>);
+
+        <span class="ident">cnt</span>
+    }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_ppl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ppl_in_bldg</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ppl_off_map</span> <span class="op">=</span> <span class="number">0</span>;
@@ -3403,6 +3520,23 @@
             ),
         }
     }
+}
+
+<span class="doccomment">/// The number of active vehicles and commuters, broken into different categories.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CommutersVehiclesCounts</span> {
+    <span class="kw">pub</span> <span class="ident">walking_commuters</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">walking_to_from_transit</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">walking_to_from_car</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">walking_to_from_bike</span>: <span class="ident">usize</span>,
+
+    <span class="kw">pub</span> <span class="ident">cyclists</span>: <span class="ident">usize</span>,
+
+    <span class="kw">pub</span> <span class="ident">sov_drivers</span>: <span class="ident">usize</span>,
+
+    <span class="kw">pub</span> <span class="ident">buses</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">trains</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">bus_riders</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">train_riders</span>: <span class="ident">usize</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "sim";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

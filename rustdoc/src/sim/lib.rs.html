@@ -665,6 +665,10 @@
 <span id="664">664</span>
 <span id="665">665</span>
 <span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also</span>
 <span class="doccomment">//! https://dabreegster.github.io/abstreet/trafficsim/index.html.</span>
@@ -672,6 +676,10 @@
 <span class="doccomment">//! The simulation is very roughly layered into two pieces: the low-level &quot;mechanics&quot; of simulating</span>
 <span class="doccomment">//! individual agents over time, and higher-level systems like TripManager and TransitSimState that</span>
 <span class="doccomment">//! glue together individual goals executed by the agents.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Helpful terminology:</span>
+<span class="doccomment">//! - sov = single occupancy vehicle, a car with just a driver and no passengers. (Car passengers</span>
+<span class="doccomment">//!   are not currently modelled)</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
@@ -709,7 +717,7 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">scheduler</span>::{<span class="ident">Command</span>, <span class="ident">Scheduler</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">sim</span>::{<span class="ident">AgentProperties</span>, <span class="ident">AlertHandler</span>, <span class="ident">Sim</span>, <span class="ident">SimCallback</span>, <span class="ident">SimOptions</span>};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">transit</span>::<span class="ident">TransitSimState</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">trips</span>::{<span class="ident">Person</span>, <span class="ident">PersonState</span>, <span class="ident">TripInfo</span>, <span class="ident">TripResult</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">trips</span>::{<span class="ident">CommutersVehiclesCounts</span>, <span class="ident">Person</span>, <span class="ident">PersonState</span>, <span class="ident">TripInfo</span>, <span class="ident">TripResult</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">trips</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">trips</span>::{<span class="ident">TripLeg</span>, <span class="ident">TripManager</span>};
 
