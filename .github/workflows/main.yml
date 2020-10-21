@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.46.0
+          rust-version: 1.47.0
       - name: Cache build
         uses: actions/cache@v2
         with:
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.46.0
+          rust-version: 1.47.0
       - name: Cache build
         uses: actions/cache@v2
         with:
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.46.0
+          rust-version: 1.47.0
       - name: Update apt
         run: sudo apt-get update
       - name: Install dependencies
@@ -101,7 +101,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.46.0
+          rust-version: 1.47.0
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Cache build

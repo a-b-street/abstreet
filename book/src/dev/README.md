@@ -4,7 +4,7 @@
 
 You will first need:
 
-- Stable Rust, at least 1.46. <https://www.rust-lang.org/tools/install>.
+- Stable Rust, at least 1.47. <https://www.rust-lang.org/tools/install>.
   - On Windows, you may need
     [Visual Studio 2019](https://visualstudio.microsoft.com/de/downloads/).
 - On Linux, `sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev`
