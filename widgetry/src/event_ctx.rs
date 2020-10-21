@@ -183,7 +183,7 @@ impl<'a> EventCtx<'a> {
     }
 }
 
-pub struct LoadingScreen<'a> {
+struct LoadingScreen<'a> {
     canvas: Canvas,
     style: Style,
     prerender: &'a Prerender,
@@ -194,7 +194,7 @@ pub struct LoadingScreen<'a> {
 }
 
 impl<'a> LoadingScreen<'a> {
-    pub fn new(
+    fn new(
         prerender: &'a Prerender,
         style: Style,
         initial_size: ScreenDims,

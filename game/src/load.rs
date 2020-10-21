@@ -3,6 +3,7 @@
 
 use serde::de::DeserializeOwned;
 
+use abstutil::Timer;
 use sim::Sim;
 use widgetry::{Color, EventCtx, GfxCtx};
 
@@ -34,21 +35,20 @@ impl MapLoader {
         FileLoader::<map_model::Map>::new(
             ctx,
             abstutil::path_map(&name),
-            Box::new(move |ctx, app, map| {
+            Box::new(move |ctx, app, timer, map| {
                 // TODO corrupt_err
                 let mut map = map.unwrap();
 
                 // Kind of a hack. We can't generically call Map::new with the FileLoader.
                 map.map_loaded_directly();
 
-                ctx.loading_screen("finish loading map", |ctx, timer| {
-                    let sim = Sim::new(
-                        &map,
-                        app.primary.current_flags.sim_flags.opts.clone(),
-                        timer,
-                    );
-                    app.map_switched(ctx, map, sim, timer);
-                });
+                let sim = Sim::new(
+                    &map,
+                    app.primary.current_flags.sim_flags.opts.clone(),
+                    timer,
+                );
+                app.map_switched(ctx, map, sim, timer);
+
                 (on_load)(ctx, app)
             }),
         )
@@ -73,14 +73,15 @@ mod native_loader {
         path: String,
         // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
         // if a caller fails to pop the FileLoader state in their transitions!
-        on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App, Option<T>) -> Transition>>,
+        on_load:
+            Option<Box<dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Option<T>) -> Transition>>,
     }
 
     impl<T: 'static + DeserializeOwned> FileLoader<T> {
         pub fn new(
             _: &mut EventCtx,
             path: String,
-            on_load: Box<dyn FnOnce(&mut EventCtx, &mut App, Option<T>) -> Transition>,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Option<T>) -> Transition>,
         ) -> Box<dyn State> {
             Box::new(FileLoader {
                 path,
@@ -93,11 +94,8 @@ mod native_loader {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
                 // Assumes a binary file
-                (self.on_load.take().unwrap())(
-                    ctx,
-                    app,
-                    abstutil::maybe_read_binary(self.path.clone(), timer).ok(),
-                )
+                let file = abstutil::maybe_read_binary(self.path.clone(), timer).ok();
+                (self.on_load.take().unwrap())(ctx, app, timer, file)
             })
         }
 
@@ -125,7 +123,8 @@ mod wasm_loader {
     // compatible with winit's event loop.
     pub struct FileLoader<T> {
         response: oneshot::Receiver<Vec<u8>>,
-        on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App, Option<T>) -> Transition>>,
+        on_load:
+            Option<Box<dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Option<T>) -> Transition>>,
         panel: Panel,
         started: Instant,
         url: String,
@@ -135,7 +134,7 @@ mod wasm_loader {
         pub fn new(
             ctx: &mut EventCtx,
             path: String,
-            on_load: Box<dyn FnOnce(&mut EventCtx, &mut App, Option<T>) -> Transition>,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Option<T>) -> Transition>,
         ) -> Box<dyn State> {
             let url = if cfg!(feature = "wasm_s3") {
                 format!(
@@ -187,13 +186,14 @@ mod wasm_loader {
                 // while. Any way to make it still be nonblockingish? Maybe put some of the work
                 // inside that spawn_local?
 
+                let mut timer = Timer::new(format!("Loading {}...", self.url));
                 match abstutil::from_binary(&resp) {
                     Ok(obj) => {
-                        return (self.on_load.take().unwrap())(ctx, app, Some(obj));
+                        return (self.on_load.take().unwrap())(ctx, app, &mut timer, Some(obj));
                     }
                     Err(err) => {
                         error!("{}: {}", self.url, err);
-                        return (self.on_load.take().unwrap())(ctx, app, None);
+                        return (self.on_load.take().unwrap())(ctx, app, &mut timer, None);
                     }
                 }
             }

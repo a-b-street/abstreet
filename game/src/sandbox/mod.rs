@@ -583,7 +583,7 @@ impl State for SandboxLoader {
                             return Transition::Push(FileLoader::<Scenario>::new(
                                 ctx,
                                 path,
-                                Box::new(|_, _, scenario| {
+                                Box::new(|_, _, _, scenario| {
                                     // TODO Handle corrupt files
                                     let scenario = scenario.unwrap();
                                     Transition::Multi(vec![
@@ -636,7 +636,7 @@ impl State for SandboxLoader {
                     return Transition::Push(FileLoader::<Analytics>::new(
                         ctx,
                         abstutil::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
-                        Box::new(move |_, _, prebaked| {
+                        Box::new(move |_, _, _, prebaked| {
                             Transition::Multi(vec![
                                 Transition::Pop,
                                 Transition::ModifyState(Box::new(move |state, _, _| {
