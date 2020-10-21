@@ -903,6 +903,7 @@ impl Sim {
         for (agent, trip) in affected {
             match agent {
                 AgentID::Car(car) => {
+                    info!("Nuking {}", car);
                     let vehicle = self.driving.delete_car(car, self.time, &mut ctx);
                     // TODO Plumb more info about the reason
                     self.trips.cancel_trip(
@@ -914,7 +915,7 @@ impl Sim {
                     );
                 }
                 AgentID::Pedestrian(ped) => {
-                    self.walking.delete_ped(ped, ctx.scheduler);
+                    self.walking.delete_ped(ped, &mut ctx);
                     self.trips.cancel_trip(
                         self.time,
                         trip,

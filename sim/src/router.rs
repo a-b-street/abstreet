@@ -120,11 +120,7 @@ impl Router {
     }
 
     pub fn maybe_next(&self) -> Option<Traversable> {
-        if self.last_step() {
-            None
-        } else {
-            Some(self.path.next_step().as_traversable())
-        }
+        self.path.maybe_next_step().map(|s| s.as_traversable())
     }
 
     pub fn last_step(&self) -> bool {

@@ -612,6 +612,8 @@ impl DrivingSimState {
         }
     }
 
+    /// Abruptly remove a vehicle from the simulation. They may be in any arbitrary state, like in
+    /// the middle of a turn or parking.
     pub fn delete_car(&mut self, c: CarID, now: Time, ctx: &mut Ctx) -> Vehicle {
         let dists = self.queues[&self.cars[&c].router.head()].get_car_positions(
             now,
@@ -622,9 +624,10 @@ impl DrivingSimState {
         let mut car = self.cars.remove(&c).unwrap();
 
         // Hacks to delete cars that're mid-turn
-        if let Traversable::Turn(_) = car.router.head() {
+        if let Traversable::Turn(t) = car.router.head() {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
             queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
+            ctx.intersections.agent_deleted_mid_turn(AgentID::Car(c), t);
         }
         if let Some(Traversable::Turn(t)) = car.router.maybe_next() {
             ctx.intersections.cancel_request(AgentID::Car(c), t);

@@ -304,6 +304,13 @@ impl Path {
     pub fn next_step(&self) -> PathStep {
         self.steps[1]
     }
+    pub fn maybe_next_step(&self) -> Option<PathStep> {
+        if self.is_last_step() {
+            None
+        } else {
+            Some(self.next_step())
+        }
+    }
 
     pub fn last_step(&self) -> PathStep {
         self.steps[self.steps.len() - 1]

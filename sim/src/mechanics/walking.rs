@@ -310,11 +310,21 @@ impl WalkingSimState {
         };
     }
 
-    pub fn delete_ped(&mut self, id: PedestrianID, scheduler: &mut Scheduler) {
+    /// Abruptly remove a pedestrian from the simulation. They may be in any arbitrary state, like
+    /// in the middle of a turn.
+    pub fn delete_ped(&mut self, id: PedestrianID, ctx: &mut Ctx) {
         let ped = self.peds.remove(&id).unwrap();
         self.peds_per_traversable
             .remove(ped.path.current_step().as_traversable(), id);
-        scheduler.cancel(Command::UpdatePed(id));
+        ctx.scheduler.cancel(Command::UpdatePed(id));
+
+        if let PathStep::Turn(t) = ped.path.current_step() {
+            ctx.intersections
+                .agent_deleted_mid_turn(AgentID::Pedestrian(id), t);
+        }
+        if let Some(PathStep::Turn(t)) = ped.path.maybe_next_step() {
+            ctx.intersections.cancel_request(AgentID::Pedestrian(id), t);
+        }
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {

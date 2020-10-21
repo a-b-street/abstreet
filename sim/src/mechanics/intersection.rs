@@ -163,6 +163,12 @@ impl IntersectionSimState {
         retain_btreeset(&mut self.blocked_by, |(c1, c2)| *c1 != car && *c2 != car);
     }
 
+    pub fn agent_deleted_mid_turn(&mut self, agent: AgentID, turn: TurnID) {
+        let state = self.state.get_mut(&turn.parent).unwrap();
+        assert!(state.accepted.remove(&Request { agent, turn }));
+        state.reserved.remove(&Request { agent, turn });
+    }
+
     fn wakeup_waiting(&self, now: Time, i: IntersectionID, scheduler: &mut Scheduler, map: &Map) {
         let mut all: Vec<(Request, Time)> = self.state[&i]
             .waiting
