@@ -120,7 +120,13 @@ impl IntersectionSimState {
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
         state.reserved.remove(&Request { agent, turn });
-        if map.get_t(turn).turn_type != TurnType::SharedSidewalkCorner {
+        // maybe_get_t to handle live edits; an agent could be deleted in the middle of a deleted
+        // turn.
+        if map
+            .maybe_get_t(turn)
+            .map(|t| t.turn_type != TurnType::SharedSidewalkCorner)
+            .unwrap_or(true)
+        {
             self.wakeup_waiting(now, turn.parent, scheduler, map);
         }
         if self.break_turn_conflict_cycles {

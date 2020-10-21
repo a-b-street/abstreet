@@ -805,7 +805,7 @@ impl Sim {
     pub fn save(&mut self) -> String {
         let restore = self.scheduler.before_savestate();
 
-        if true {
+        if false {
             println!("sim savestate breakdown:");
             println!(
                 "- driving: {} bytes",

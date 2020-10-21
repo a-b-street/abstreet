@@ -30,6 +30,8 @@ fn main() {
         map.must_apply_edits(edits, &mut timer);
         map.save_edits();
 
+        println!("Crashed at {}", sim.time());
+
         std::panic::resume_unwind(err)
     }
 }
@@ -39,13 +41,17 @@ fn run(map: &mut Map, sim: &mut Sim, rng: &mut XorShiftRng, timer: &mut Timer) {
 
     while !sim.is_done() {
         sim.timed_step(map, edit_frequency, &mut None, timer);
+        sim.save();
 
         let mut edits = map.get_edits().clone();
         edits.edits_name = "chaos".to_string();
         nuke_random_parking(map, rng, &mut edits);
         alter_turn_destinations(sim, map, rng, &mut edits);
+
         map.must_apply_edits(edits, timer);
         map.recalculate_pathfinding_after_edits(timer);
+        sim.handle_live_edited_traffic_signals(&map);
+        sim.handle_live_edits(&map);
     }
 }
 
