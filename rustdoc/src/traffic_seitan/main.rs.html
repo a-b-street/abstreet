@@ -111,12 +111,14 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
 <span class="comment">// live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
-<span class="comment">//</span>
-<span class="comment">// TODO When something does crash, we&#39;ll need to repro in the GUI. Savestate and give instructions</span>
-<span class="comment">// how to make the last edit at a time?</span>
 <span class="comment">//</span>
 <span class="comment">// TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.</span>
 
@@ -196,11 +198,19 @@
     <span class="ident">active_destinations</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
 
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">active_destinations</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">num_edits</span>) {
-        <span class="comment">// TODO Also need to change all parking lanes on the road; otherwise we might wind up</span>
-        <span class="comment">// making an edit that the UI blocks the player from doing.</span>
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
         <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
             <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>)].<span class="number">0</span> <span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span>;
+
+            <span class="comment">// If we&#39;re getting rid of the last driving lane, also remove any parking lanes. This</span>
+            <span class="comment">// mimics the check that the UI does.</span>
+            <span class="kw">if</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">!=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span>) {
+                <span class="kw">for</span> (<span class="ident">lt</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span> {
+                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span> {
+                        <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span>;
+                    }
+                }
+            }
         }));
     }
 }
