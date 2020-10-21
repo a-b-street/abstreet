@@ -3,7 +3,7 @@ extern crate log;
 
 use abstutil::{CmdArgs, Timer};
 use geom::Duration;
-use sim::{ScenarioModifier, SimFlags};
+use sim::SimFlags;
 
 use crate::app::Flags;
 
@@ -104,18 +104,17 @@ pub fn main() {
             sandbox::TutorialPointer::new(n - 1, 0),
         ));
     }
+
+    // Don't keep the scenario modifiers in the original sim_flags; they shouldn't apply to
+    // other scenarios loaed in the UI later.
+    let modifiers = flags.sim_flags.modifiers.drain(..).collect();
+
     if mode.is_none() && flags.sim_flags.load.contains("scenarios/") {
         // TODO regex
         let parts = flags.sim_flags.load.split("/").collect::<Vec<_>>();
         let map_name = parts[parts.len() - 2].to_string();
         let scenario = abstutil::basename(parts[parts.len() - 1]);
         flags.sim_flags.load = abstutil::path_map(&map_name);
-
-        let modifiers: Vec<ScenarioModifier> = args
-            .optional_parse("--scenario_modifiers", |s| {
-                abstutil::from_json(&s.to_string().into_bytes())
-            })
-            .unwrap_or_else(Vec::new);
 
         mode = Some(sandbox::GameplayMode::PlayScenario(
             map_name, scenario, modifiers,

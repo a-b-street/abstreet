@@ -26,11 +26,16 @@ impl SimFlags {
         let rng_seed = args
             .optional_parse("--rng_seed", |s| s.parse())
             .unwrap_or(SimFlags::RNG_SEED);
+        let modifiers: Vec<ScenarioModifier> = args
+            .optional_parse("--scenario_modifiers", |s| {
+                abstutil::from_json(&s.to_string().into_bytes())
+            })
+            .unwrap_or_else(Vec::new);
         SimFlags {
             load: args
                 .optional_free()
                 .unwrap_or_else(|| abstutil::path_map("montlake")),
-            modifiers: Vec::new(),
+            modifiers,
             rng_seed,
             opts: SimOptions::from_args(args, rng_seed),
         }

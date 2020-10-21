@@ -43,6 +43,7 @@ impl App {
         ctx.set_style(cs.gui_style.clone());
 
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
+            assert!(flags.sim_flags.modifiers.is_empty());
             let (map, sim, _) = flags.sim_flags.load(timer);
             PerMap::map_loaded(map, sim, splash, flags, &opts, &cs, ctx, &mut timer)
         });
