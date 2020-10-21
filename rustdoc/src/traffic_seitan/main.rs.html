@@ -107,6 +107,10 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
 <span class="comment">// live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
@@ -144,6 +148,9 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">AssertUnwindSafe</span>(<span class="op">||</span> {
         <span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
     })) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+        <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="string">&quot;traffic_seitan_crash&quot;</span>.<span class="ident">to_string</span>();
+        <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
         <span class="ident">map</span>.<span class="ident">save_edits</span>();
 
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Crashed at {}&quot;</span>, <span class="ident">sim</span>.<span class="ident">time</span>());
@@ -159,6 +166,7 @@
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;&quot;</span>);
         <span class="ident">sim</span>.<span class="ident">timed_step</span>(<span class="ident">map</span>, <span class="ident">edit_frequency</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>, <span class="ident">timer</span>);
         <span class="ident">sim</span>.<span class="ident">save</span>();
+        <span class="ident">map</span>.<span class="ident">save_edits</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
         <span class="ident">nuke_random_parking</span>(<span class="ident">map</span>, <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">edits</span>);
