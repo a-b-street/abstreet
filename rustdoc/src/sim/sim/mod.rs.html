@@ -1028,6 +1028,9 @@
 <span id="1027">1027</span>
 <span id="1028">1028</span>
 <span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1943,6 +1946,7 @@
                         <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>),
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
                     );
+                    <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">trip_abruptly_cancelled</span>(<span class="ident">trip</span>, <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>));
                 }
                 <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">ped</span>) <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">delete_ped</span>(<span class="ident">ped</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
@@ -1953,6 +1957,8 @@
                         <span class="prelude-val">None</span>,
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
                     );
+                    <span class="self">self</span>.<span class="ident">trips</span>
+                        .<span class="ident">trip_abruptly_cancelled</span>(<span class="ident">trip</span>, <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">ped</span>));
                 }
                 <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             }
