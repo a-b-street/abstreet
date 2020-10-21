@@ -12,11 +12,16 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     // TODO If people are hitting problems with context not matching what their GPU provides, dig up
     // backend_glium.rs from git and bring the fallback behavior here. (Ideally, there'd be
     // something in glutin to directly express this.) multisampling: 2 looks bad, 4 looks fine
-    let context = glutin::ContextBuilder::new()
+    let context = match glutin::ContextBuilder::new()
         .with_multisampling(4)
         .with_depth_buffer(2)
         .build_windowed(window, &event_loop)
-        .unwrap();
+    {
+        Ok(ctx) => ctx,
+        Err(err) => {
+            panic!("Your videocard doesn't support the OpenGL mode requested. This is a common issue when running inside a virtual machine; please run natively if possible. See https://github.com/dabreegster/abstreet/issues/103 for more info, and feel free to ask for help using that issue.\n\nError: {}", err);
+        }
+    };
     let windowed_context = unsafe { context.make_current().unwrap() };
     let gl = unsafe {
         glow::Context::from_loader_function(|s| windowed_context.get_proc_address(s) as *const _)
