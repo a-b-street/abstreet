@@ -526,7 +526,7 @@ impl DrivingSimState {
                         // If we don't do this, then we might have another car creep up behind, see
                         // the spot free, and start parking too. This can happen with multiple
                         // lanes and certain vehicle lengths.
-                        ctx.parking.reserve_spot(spot);
+                        ctx.parking.reserve_spot(spot, car.vehicle.id);
                         ctx.scheduler
                             .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
                         true

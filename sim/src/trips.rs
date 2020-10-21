@@ -793,7 +793,7 @@ impl TripManager {
                                 person, spot
                             ),
                         ));
-                        ctx.parking.reserve_spot(spot);
+                        ctx.parking.reserve_spot(spot, vehicle.id);
                         ctx.parking.add_parked_car(ParkedCar {
                             vehicle,
                             spot,

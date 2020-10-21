@@ -4,8 +4,8 @@ use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{
-    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
-    Timer,
+    deserialize_btreemap, deserialize_multimap, retain_btreemap, serialize_btreemap,
+    serialize_multimap, MultiMap, Timer,
 };
 use geom::{Distance, PolyLine, Pt2D};
 use map_model::{
@@ -21,12 +21,13 @@ use crate::{CarID, CarStatus, DrawCarInput, Event, ParkedCar, ParkingSpot, Perso
 ///   ignored
 #[enum_dispatch(ParkingSimState)]
 pub trait ParkingSim {
-    // Returns any cars that got very abruptly evicted from existence
-    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> Vec<ParkedCar>;
+    /// Returns any cars that got very abruptly evicted from existence, and also cars actively
+    /// moving into a deleted spot.
+    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>);
     fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot>;
     fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot>;
     fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot>;
-    fn reserve_spot(&mut self, spot: ParkingSpot);
+    fn reserve_spot(&mut self, spot: ParkingSpot, car: CarID);
     fn remove_parked_car(&mut self, p: ParkedCar);
     fn add_parked_car(&mut self, p: ParkedCar);
     fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput>;
@@ -108,7 +109,11 @@ pub struct NormalParkingSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     occupants: BTreeMap<ParkingSpot, CarID>,
-    reserved_spots: BTreeSet<ParkingSpot>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    reserved_spots: BTreeMap<ParkingSpot, CarID>,
 
     // On-street
     onstreet_lanes: BTreeMap<LaneID, ParkingLane>,
@@ -144,7 +149,7 @@ impl NormalParkingSimState {
         let mut sim = NormalParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
-            reserved_spots: BTreeSet::new(),
+            reserved_spots: BTreeMap::new(),
 
             onstreet_lanes: BTreeMap::new(),
             driving_to_parking_lanes: MultiMap::new(),
@@ -185,7 +190,7 @@ impl NormalParkingSimState {
 }
 
 impl ParkingSim for NormalParkingSimState {
-    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> Vec<ParkedCar> {
+    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>) {
         let (filled_before, _) = self.get_all_parking_spots();
         let new = NormalParkingSimState::new(map, timer);
         let (_, avail_after) = new.get_all_parking_spots();
@@ -209,14 +214,17 @@ impl ParkingSim for NormalParkingSimState {
             }
         }
 
-        // TODO How do we handle reserved_spots?
-        self.reserved_spots = self
-            .reserved_spots
-            .difference(&avail_after)
-            .cloned()
-            .collect();
+        let mut moving_into_deleted_spot = Vec::new();
+        retain_btreemap(&mut self.reserved_spots, |spot, car| {
+            if avail_after.contains(spot) {
+                true
+            } else {
+                moving_into_deleted_spot.push(*car);
+                false
+            }
+        });
 
-        evicted
+        (evicted, moving_into_deleted_spot)
     }
 
     fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
@@ -253,9 +261,9 @@ impl ParkingSim for NormalParkingSimState {
         spots
     }
 
-    fn reserve_spot(&mut self, spot: ParkingSpot) {
+    fn reserve_spot(&mut self, spot: ParkingSpot, car: CarID) {
         assert!(self.is_free(spot));
-        self.reserved_spots.insert(spot);
+        self.reserved_spots.insert(spot, car);
 
         // Sanity check the spot exists
         match spot {
@@ -286,7 +294,7 @@ impl ParkingSim for NormalParkingSimState {
         self.events
             .push(Event::CarReachedParkingSpot(p.vehicle.id, p.spot));
 
-        assert!(self.reserved_spots.remove(&p.spot));
+        assert_eq!(self.reserved_spots.remove(&p.spot), Some(p.vehicle.id));
 
         assert!(!self.occupants.contains_key(&p.spot));
         self.occupants.insert(p.spot, p.vehicle.id);
@@ -389,7 +397,7 @@ impl ParkingSim for NormalParkingSimState {
     }
 
     fn is_free(&self, spot: ParkingSpot) -> bool {
-        !self.occupants.contains_key(&spot) && !self.reserved_spots.contains(&spot)
+        !self.occupants.contains_key(&spot) && !self.reserved_spots.contains_key(&spot)
     }
 
     fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar> {
@@ -680,7 +688,11 @@ pub struct InfiniteParkingSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     occupants: BTreeMap<ParkingSpot, CarID>,
-    reserved_spots: BTreeSet<ParkingSpot>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    reserved_spots: BTreeMap<ParkingSpot, CarID>,
 
     // Cache dist_along
     #[serde(
@@ -700,7 +712,7 @@ impl InfiniteParkingSimState {
         let mut sim = InfiniteParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
-            reserved_spots: BTreeSet::new(),
+            reserved_spots: BTreeMap::new(),
 
             driving_to_offstreet: MultiMap::new(),
             blackholed_building_redirects: BTreeMap::new(),
@@ -762,13 +774,13 @@ impl InfiniteParkingSimState {
 }
 
 impl ParkingSim for InfiniteParkingSimState {
-    fn handle_live_edits(&mut self, map: &Map, _: &mut Timer) -> Vec<ParkedCar> {
+    fn handle_live_edits(&mut self, map: &Map, _: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>) {
         // Can live edits possibly affect anything?
         let new = InfiniteParkingSimState::new(map);
         self.driving_to_offstreet = new.driving_to_offstreet;
         self.blackholed_building_redirects = new.blackholed_building_redirects;
 
-        Vec::new()
+        (Vec::new(), Vec::new())
     }
 
     fn get_free_onstreet_spots(&self, _: LaneID) -> Vec<ParkingSpot> {
@@ -784,9 +796,9 @@ impl ParkingSim for InfiniteParkingSimState {
         Vec::new()
     }
 
-    fn reserve_spot(&mut self, spot: ParkingSpot) {
+    fn reserve_spot(&mut self, spot: ParkingSpot, car: CarID) {
         assert!(self.is_free(spot));
-        self.reserved_spots.insert(spot);
+        self.reserved_spots.insert(spot, car);
     }
 
     fn remove_parked_car(&mut self, p: ParkedCar) {
@@ -804,7 +816,7 @@ impl ParkingSim for InfiniteParkingSimState {
         self.events
             .push(Event::CarReachedParkingSpot(p.vehicle.id, p.spot));
 
-        assert!(self.reserved_spots.remove(&p.spot));
+        assert_eq!(self.reserved_spots.remove(&p.spot), Some(p.vehicle.id));
 
         assert!(!self.occupants.contains_key(&p.spot));
         self.occupants.insert(p.spot, p.vehicle.id);
@@ -838,7 +850,7 @@ impl ParkingSim for InfiniteParkingSimState {
     }
 
     fn is_free(&self, spot: ParkingSpot) -> bool {
-        !self.occupants.contains_key(&spot) && !self.reserved_spots.contains(&spot)
+        !self.occupants.contains_key(&spot) && !self.reserved_spots.contains_key(&spot)
     }
 
     fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar> {

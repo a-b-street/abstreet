@@ -143,9 +143,9 @@ pub fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {
     &vec[idx as usize]
 }
 
-pub fn retain_btreemap<K: Ord + Clone, V, F: Fn(&K, &V) -> bool>(
+pub fn retain_btreemap<K: Ord + Clone, V, F: FnMut(&K, &V) -> bool>(
     map: &mut BTreeMap<K, V>,
-    keep: F,
+    mut keep: F,
 ) {
     let mut remove_keys: Vec<K> = Vec::new();
     for (k, v) in map.iter() {

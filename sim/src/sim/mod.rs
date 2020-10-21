@@ -309,7 +309,7 @@ impl Sim {
         self.trips.random_person(ped_speed, vehicle_specs)
     }
     pub(crate) fn seed_parked_car(&mut self, vehicle: Vehicle, spot: ParkingSpot) {
-        self.parking.reserve_spot(spot);
+        self.parking.reserve_spot(spot, vehicle.id);
         self.parking.add_parked_car(ParkedCar {
             vehicle,
             spot,
@@ -965,8 +965,13 @@ impl Sim {
         }
 
         {
-            let evicted_cars = self.parking.handle_live_edits(map, &mut Timer::throwaway());
+            let (evicted_cars, cars_parking_in_the_void) =
+                self.parking.handle_live_edits(map, &mut Timer::throwaway());
             affected.extend(self.walking.find_trips_to_parking(evicted_cars));
+            for car in cars_parking_in_the_void {
+                let a = AgentID::Car(car);
+                affected.push((a, self.agent_to_trip(a).unwrap()));
+            }
 
             if !self.parking.is_infinite() {
                 let (filled, avail) = self.parking.get_all_parking_spots();
