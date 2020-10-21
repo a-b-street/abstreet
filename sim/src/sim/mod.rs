@@ -912,6 +912,7 @@ impl Sim {
                         Some(vehicle),
                         &mut ctx,
                     );
+                    self.trips.trip_abruptly_cancelled(trip, AgentID::Car(car));
                 }
                 AgentID::Pedestrian(ped) => {
                     self.walking.delete_ped(ped, &mut ctx);
@@ -922,6 +923,8 @@ impl Sim {
                         None,
                         &mut ctx,
                     );
+                    self.trips
+                        .trip_abruptly_cancelled(trip, AgentID::Pedestrian(ped));
                 }
                 AgentID::BusPassenger(_, _) => unreachable!(),
             }

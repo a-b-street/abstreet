@@ -823,6 +823,10 @@ impl TripManager {
         self.person_finished_trip(now, person, ctx);
     }
 
+    pub fn trip_abruptly_cancelled(&mut self, trip: TripID, agent: AgentID) {
+        assert_eq!(self.active_trip_mode.remove(&agent), Some(trip));
+    }
+
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }
