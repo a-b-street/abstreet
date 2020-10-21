@@ -1,9 +1,6 @@
 // This is a tool that runs a simulation, constantly interrupting to apply random map edits to the
 // live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.
 //
-// TODO When something does crash, we'll need to repro in the GUI. Savestate and give instructions
-// how to make the last edit at a time?
-//
 // TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.
 
 use rand::seq::SliceRandom;
@@ -82,11 +79,19 @@ fn alter_turn_destinations(sim: &Sim, map: &Map, rng: &mut XorShiftRng, edits: &
     active_destinations.shuffle(rng);
 
     for l in active_destinations.into_iter().take(num_edits) {
-        // TODO Also need to change all parking lanes on the road; otherwise we might wind up
-        // making an edit that the UI blocks the player from doing.
         let r = map.get_parent(l);
         edits.commands.push(map.edit_road_cmd(r.id, |new| {
             new.lanes_ltr[r.offset(l)].0 = LaneType::Construction;
+
+            // If we're getting rid of the last driving lane, also remove any parking lanes. This
+            // mimics the check that the UI does.
+            if new.lanes_ltr.iter().all(|(lt, _)| *lt != LaneType::Driving) {
+                for (lt, _) in &mut new.lanes_ltr {
+                    if *lt == LaneType::Parking {
+                        *lt = LaneType::Construction;
+                    }
+                }
+            }
         }));
     }
 }
