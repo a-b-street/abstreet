@@ -1662,7 +1662,7 @@
                         <span class="comment">// If we don&#39;t do this, then we might have another car creep up behind, see</span>
                         <span class="comment">// the spot free, and start parking too. This can happen with multiple</span>
                         <span class="comment">// lanes and certain vehicle lengths.</span>
-                        <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">reserve_spot</span>(<span class="ident">spot</span>);
+                        <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">reserve_spot</span>(<span class="ident">spot</span>, <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>);
                         <span class="ident">ctx</span>.<span class="ident">scheduler</span>
                             .<span class="ident">push</span>(<span class="ident">car</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>));
                         <span class="bool-val">true</span>

@@ -2497,7 +2497,7 @@
                                 <span class="ident">person</span>, <span class="ident">spot</span>
                             ),
                         ));
-                        <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">reserve_spot</span>(<span class="ident">spot</span>);
+                        <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">reserve_spot</span>(<span class="ident">spot</span>, <span class="ident">vehicle</span>.<span class="ident">id</span>);
                         <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">add_parked_car</span>(<span class="ident">ParkedCar</span> {
                             <span class="ident">vehicle</span>,
                             <span class="ident">spot</span>,
