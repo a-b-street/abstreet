@@ -4,6 +4,10 @@
 //! The simulation is very roughly layered into two pieces: the low-level "mechanics" of simulating
 //! individual agents over time, and higher-level systems like TripManager and TransitSimState that
 //! glue together individual goals executed by the agents.
+//!
+//! Helpful terminology:
+//! - sov = single occupancy vehicle, a car with just a driver and no passengers. (Car passengers
+//!   are not currently modelled)
 
 #[macro_use]
 extern crate log;
@@ -41,7 +45,7 @@ pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::{AgentProperties, AlertHandler, Sim, SimCallback, SimOptions};
 pub(crate) use self::transit::TransitSimState;
-pub use self::trips::{Person, PersonState, TripInfo, TripResult};
+pub use self::trips::{CommutersVehiclesCounts, Person, PersonState, TripInfo, TripResult};
 pub use self::trips::{TripEndpoint, TripMode};
 pub(crate) use self::trips::{TripLeg, TripManager};
 

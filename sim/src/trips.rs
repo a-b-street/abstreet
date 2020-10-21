@@ -903,6 +903,56 @@ impl TripManager {
         cnt.add(AgentType::Train, trains);
         cnt
     }
+    pub fn num_commuters_vehicles(
+        &self,
+        transit: &TransitSimState,
+        walking: &WalkingSimState,
+    ) -> CommutersVehiclesCounts {
+        let (buses, trains) = transit.active_vehicles();
+        let mut cnt = CommutersVehiclesCounts {
+            walking_commuters: 0,
+            walking_to_from_transit: 0,
+            walking_to_from_car: 0,
+            walking_to_from_bike: 0,
+
+            cyclists: 0,
+
+            sov_drivers: 0,
+
+            buses,
+            trains,
+            bus_riders: 0,
+            train_riders: 0,
+        };
+
+        for a in self.active_trip_mode.keys() {
+            match a {
+                AgentID::Car(c) => match c.1 {
+                    VehicleType::Car => {
+                        cnt.sov_drivers += 1;
+                    }
+                    VehicleType::Bike => {
+                        cnt.cyclists += 1;
+                    }
+                    VehicleType::Bus | VehicleType::Train => unreachable!(),
+                },
+                AgentID::BusPassenger(_, c) => match c.1 {
+                    VehicleType::Bus => {
+                        cnt.bus_riders += 1;
+                    }
+                    VehicleType::Train => {
+                        cnt.train_riders += 1;
+                    }
+                    VehicleType::Car | VehicleType::Bike => unreachable!(),
+                },
+                // These're counted separately
+                AgentID::Pedestrian(_) => {}
+            }
+        }
+        walking.populate_commuter_counts(&mut cnt);
+
+        cnt
+    }
     pub fn num_ppl(&self) -> (usize, usize, usize) {
         let mut ppl_in_bldg = 0;
         let mut ppl_off_map = 0;
@@ -1699,4 +1749,21 @@ impl TripEndpoint {
             ),
         }
     }
+}
+
+/// The number of active vehicles and commuters, broken into different categories.
+pub struct CommutersVehiclesCounts {
+    pub walking_commuters: usize,
+    pub walking_to_from_transit: usize,
+    pub walking_to_from_car: usize,
+    pub walking_to_from_bike: usize,
+
+    pub cyclists: usize,
+
+    pub sov_drivers: usize,
+
+    pub buses: usize,
+    pub trains: usize,
+    pub bus_riders: usize,
+    pub train_riders: usize,
 }

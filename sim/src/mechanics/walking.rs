@@ -11,10 +11,10 @@ use map_model::{
 
 use crate::sim::Ctx;
 use crate::{
-    AgentID, AgentProperties, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
-    DrawPedestrianInput, Event, IntersectionSimState, ParkedCar, ParkingSpot, PedCrowdLocation,
-    PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState,
-    TripID, TripManager, UnzoomedAgent,
+    AgentID, AgentProperties, Command, CommutersVehiclesCounts, CreatePedestrian, DistanceInterval,
+    DrawPedCrowdInput, DrawPedestrianInput, Event, IntersectionSimState, ParkedCar, ParkingSpot,
+    PedCrowdLocation, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval,
+    TransitSimState, TripID, TripManager, UnzoomedAgent,
 };
 
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
@@ -71,6 +71,7 @@ impl WalkingSimState {
             total_blocked_time: Duration::ZERO,
             started_at: now,
             path: params.path,
+            start: params.start.clone(),
             goal: params.goal,
             trip: params.trip,
             person: params.person,
@@ -529,6 +530,36 @@ impl WalkingSimState {
             }
         }
     }
+
+    pub fn populate_commuter_counts(&self, cnts: &mut CommutersVehiclesCounts) {
+        for p in self.peds.values() {
+            match p.goal.connection {
+                SidewalkPOI::ParkingSpot(_) | SidewalkPOI::DeferredParkingSpot => {
+                    cnts.walking_to_from_car += 1;
+                }
+                SidewalkPOI::BusStop(_) => {
+                    cnts.walking_to_from_transit += 1;
+                }
+                SidewalkPOI::BikeRack(_) => {
+                    cnts.walking_to_from_bike += 1;
+                }
+                _ => match p.start.connection {
+                    SidewalkPOI::ParkingSpot(_) | SidewalkPOI::DeferredParkingSpot => {
+                        cnts.walking_to_from_car += 1;
+                    }
+                    SidewalkPOI::BusStop(_) => {
+                        cnts.walking_to_from_transit += 1;
+                    }
+                    SidewalkPOI::BikeRack(_) => {
+                        cnts.walking_to_from_bike += 1;
+                    }
+                    _ => {
+                        cnts.walking_commuters += 1;
+                    }
+                },
+            }
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -541,6 +572,7 @@ struct Pedestrian {
     started_at: Time,
 
     path: Path,
+    start: SidewalkSpot,
     goal: SidewalkSpot,
     trip: TripID,
     person: PersonID,

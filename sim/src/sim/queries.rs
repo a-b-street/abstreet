@@ -11,9 +11,9 @@ use map_model::{
 
 use crate::analytics::Window;
 use crate::{
-    AgentID, AgentType, Analytics, CarID, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput,
-    OrigPersonID, PandemicModel, ParkedCar, ParkingSim, PedestrianID, Person, PersonID,
-    PersonState, Scenario, Sim, TripID, TripInfo, TripResult, UnzoomedAgent, VehicleType,
+    AgentID, AgentType, Analytics, CarID, CommutersVehiclesCounts, DrawCarInput, DrawPedCrowdInput,
+    DrawPedestrianInput, OrigPersonID, PandemicModel, ParkedCar, ParkingSim, PedestrianID, Person,
+    PersonID, PersonState, Scenario, Sim, TripID, TripInfo, TripResult, UnzoomedAgent, VehicleType,
 };
 
 // TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.
@@ -36,6 +36,10 @@ impl Sim {
     }
     pub fn num_agents(&self) -> Counter<AgentType> {
         self.trips.num_agents(&self.transit)
+    }
+    pub fn num_commuters_vehicles(&self) -> CommutersVehiclesCounts {
+        self.trips
+            .num_commuters_vehicles(&self.transit, &self.walking)
     }
     /// (total number of people, just in buildings, just off map)
     pub fn num_ppl(&self) -> (usize, usize, usize) {

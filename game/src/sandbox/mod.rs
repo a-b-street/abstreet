@@ -3,8 +3,9 @@ use maplit::btreeset;
 pub use speed::{SpeedControls, TimePanel};
 pub use time_warp::TimeWarpScreen;
 
+use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Time};
-use sim::{AgentType, Analytics, Scenario};
+use sim::{Analytics, Scenario};
 use widgetry::{
     lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
     TextExt, UpdateType, VerticalAlignment, Widget,
@@ -297,49 +298,100 @@ pub struct AgentMeter {
 
 impl AgentMeter {
     pub fn new(ctx: &mut EventCtx, app: &App) -> AgentMeter {
-        use abstutil::prettyprint_usize;
-
-        let (finished, unfinished) = app.primary.sim.num_trips();
-        let by_type = app.primary.sim.num_agents();
-
         let mut row = Vec::new();
-        for (agent_type, name) in vec![
-            (AgentType::Pedestrian, "pedestrian"),
-            (AgentType::Bike, "bike"),
-            (AgentType::Car, "car"),
-        ] {
-            let n = prettyprint_usize(by_type.get(agent_type));
-            row.push(Widget::custom_row(vec![
-                Widget::draw_svg_with_tooltip(
-                    ctx,
-                    format!("system/assets/meters/{}.svg", name),
-                    Text::from(Line(format!("{} {}", n, agent_type.plural_noun()))),
-                )
-                .margin_right(5),
-                n.draw_text(ctx),
-            ]));
-        }
+        let (finished, unfinished) = app.primary.sim.num_trips();
+        let counts = app.primary.sim.num_commuters_vehicles();
+
+        row.push(Widget::custom_row(vec![
+            Widget::draw_svg_with_tooltip(
+                ctx,
+                "system/assets/meters/pedestrian.svg",
+                Text::from_multiline(vec![
+                    Line("Pedestrians"),
+                    Line(format!(
+                        "Walking commuters: {}",
+                        prettyprint_usize(counts.walking_commuters)
+                    ))
+                    .secondary(),
+                    Line(format!(
+                        "To/from public transit: {}",
+                        prettyprint_usize(counts.walking_to_from_transit)
+                    ))
+                    .secondary(),
+                    Line(format!(
+                        "To/from a car: {}",
+                        prettyprint_usize(counts.walking_to_from_car)
+                    ))
+                    .secondary(),
+                    Line(format!(
+                        "To/from a bike: {}",
+                        prettyprint_usize(counts.walking_to_from_bike)
+                    ))
+                    .secondary(),
+                ]),
+            )
+            .margin_right(5),
+            prettyprint_usize(
+                counts.walking_commuters
+                    + counts.walking_to_from_transit
+                    + counts.walking_to_from_car
+                    + counts.walking_to_from_bike,
+            )
+            .draw_text(ctx),
+        ]));
+
+        row.push(Widget::custom_row(vec![
+            Widget::draw_svg_with_tooltip(
+                ctx,
+                "system/assets/meters/bike.svg",
+                Text::from_multiline(vec![
+                    Line("Cyclists"),
+                    Line(prettyprint_usize(counts.cyclists)).secondary(),
+                ]),
+            )
+            .margin_right(5),
+            prettyprint_usize(counts.cyclists).draw_text(ctx),
+        ]));
+
+        row.push(Widget::custom_row(vec![
+            Widget::draw_svg_with_tooltip(
+                ctx,
+                "system/assets/meters/car.svg",
+                Text::from_multiline(vec![
+                    Line("Cars"),
+                    Line(format!(
+                        "Single-occupancy vehicles: {}",
+                        prettyprint_usize(counts.sov_drivers)
+                    ))
+                    .secondary(),
+                ]),
+            )
+            .margin_right(5),
+            prettyprint_usize(counts.sov_drivers).draw_text(ctx),
+        ]));
+
         row.push(Widget::custom_row(vec![
             Widget::draw_svg_with_tooltip(
                 ctx,
                 "system/assets/meters/bus.svg",
                 Text::from_multiline(vec![
+                    Line("Public transit"),
                     Line(format!(
-                        "{} public transit passengers",
-                        prettyprint_usize(by_type.get(AgentType::TransitRider))
-                    )),
+                        "{} passengers on {} buses",
+                        prettyprint_usize(counts.bus_riders),
+                        prettyprint_usize(counts.buses)
+                    ))
+                    .secondary(),
                     Line(format!(
-                        "{} buses",
-                        prettyprint_usize(by_type.get(AgentType::Bus))
-                    )),
-                    Line(format!(
-                        "{} trains",
-                        prettyprint_usize(by_type.get(AgentType::Train))
-                    )),
+                        "{} passengers on {} trains",
+                        prettyprint_usize(counts.train_riders),
+                        prettyprint_usize(counts.trains)
+                    ))
+                    .secondary(),
                 ]),
             )
             .margin_right(5),
-            prettyprint_usize(by_type.get(AgentType::TransitRider)).draw_text(ctx),
+            prettyprint_usize(counts.bus_riders + counts.train_riders).draw_text(ctx),
         ]));
 
         let rows = vec![
