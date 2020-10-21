@@ -34,6 +34,9 @@ fn main() {
     if let Err(err) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         run(&mut map, &mut sim, &mut rng, &mut timer);
     })) {
+        let mut edits = map.get_edits().clone();
+        edits.edits_name = "traffic_seitan_crash".to_string();
+        map.must_apply_edits(edits, &mut timer);
         map.save_edits();
 
         println!("Crashed at {}", sim.time());
@@ -49,6 +52,7 @@ fn run(map: &mut Map, sim: &mut Sim, rng: &mut XorShiftRng, timer: &mut Timer) {
         println!("");
         sim.timed_step(map, edit_frequency, &mut None, timer);
         sim.save();
+        map.save_edits();
 
         let mut edits = map.get_edits().clone();
         nuke_random_parking(map, rng, &mut edits);

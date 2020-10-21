@@ -295,7 +295,7 @@ fn handle_command(
                 .get_unzoomed_agents(map)
                 .into_iter()
                 .map(|a| AgentPosition {
-                    vehicle_type: a.vehicle_type,
+                    vehicle_type: a.id.to_vehicle_type(),
                     pos: a.pos.to_gps(map.get_gps_bounds()),
                     person: a.person,
                 })

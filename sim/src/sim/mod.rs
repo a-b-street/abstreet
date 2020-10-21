@@ -926,6 +926,8 @@ impl Sim {
                 AgentID::BusPassenger(_, _) => unreachable!(),
             }
         }
+
+        self.intersections.handle_live_edits(map);
     }
 
     fn find_trips_affected_by_live_edits(&mut self, map: &Map) -> Vec<(AgentID, TripID)> {

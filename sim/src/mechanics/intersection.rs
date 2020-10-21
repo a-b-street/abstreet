@@ -549,6 +549,34 @@ impl IntersectionSimState {
             }
         }
     }
+
+    pub fn handle_live_edits(&self, map: &Map) {
+        // Just sanity check that we don't have any references to deleted turns
+        let mut errors = Vec::new();
+        for state in self.state.values() {
+            for req in &state.accepted {
+                if map.maybe_get_t(req.turn).is_none() {
+                    errors.push(format!("{} accepted for {}", req.agent, req.turn));
+                }
+            }
+            for req in state.waiting.keys() {
+                if map.maybe_get_t(req.turn).is_none() {
+                    errors.push(format!("{} waiting for {}", req.agent, req.turn));
+                }
+            }
+            for req in &state.reserved {
+                if map.maybe_get_t(req.turn).is_none() {
+                    errors.push(format!("{} has reserved {}", req.agent, req.turn));
+                }
+            }
+        }
+        if !errors.is_empty() {
+            for x in errors {
+                error!("{}", x);
+            }
+            panic!("After live map edits, intersection state refers to deleted turns!");
+        }
+    }
 }
 
 impl IntersectionSimState {
