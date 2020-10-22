@@ -23,6 +23,7 @@ mod objects;
 pub mod path_counter;
 mod polygons;
 pub mod shared_row;
+pub mod streetmix;
 
 pub struct DebugMode {
     panel: Panel,

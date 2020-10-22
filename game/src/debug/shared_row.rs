@@ -3,7 +3,7 @@ use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 
 use map_model::{Direction, Lane, LaneType, Map, RoadID};
 
-// Exports to https://github.com/d-wasserman/shared-row/, returns the filename
+/// Exports to https://github.com/d-wasserman/shared-row/, returns the filename
 pub fn export(roads: Vec<RoadID>, map: &Map) -> String {
     let path = format!(
         "shared_row_export_{}.json",

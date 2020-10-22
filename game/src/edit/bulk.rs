@@ -44,6 +44,7 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
                 selector.roads.len()
             ))
             .build(ctx, "export roads to shared-row", None),
+            Btn::text_fg("export one road to Streetmix").build_def(ctx, None),
             Btn::text_fg("Cancel").build_def(ctx, Key::Escape),
         ])
         .evenly_spaced(),
@@ -75,6 +76,21 @@ impl State for BulkSelect {
                         ctx,
                         "Roads exported",
                         vec![format!("Roads exported to shared-row format at {}", path)],
+                    ));
+                }
+                "export one road to Streetmix" => {
+                    let path = crate::debug::streetmix::export(
+                        *self.selector.roads.iter().next().unwrap(),
+                        &app.primary.map,
+                    );
+                    return Transition::Push(PopupMsg::new(
+                        ctx,
+                        "One road exported",
+                        vec![format!(
+                            "One arbitrary road from your selection exported to Streetmix format \
+                             at {}",
+                            path
+                        )],
                     ));
                 }
                 x => {
