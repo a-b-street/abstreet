@@ -1768,6 +1768,17 @@
 <span id="1767">1767</span>
 <span id="1768">1768</span>
 <span id="1769">1769</span>
+<span id="1770">1770</span>
+<span id="1771">1771</span>
+<span id="1772">1772</span>
+<span id="1773">1773</span>
+<span id="1774">1774</span>
+<span id="1775">1775</span>
+<span id="1776">1776</span>
+<span id="1777">1777</span>
+<span id="1778">1778</span>
+<span id="1779">1779</span>
+<span id="1780">1780</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -3029,6 +3040,17 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">walk_to</span>) <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">bike_rack</span>(<span class="ident">start</span>, <span class="ident">ctx</span>.<span class="ident">map</span>) {
                     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">maybe_req</span>.<span class="ident">unwrap</span>();
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">maybe_path</span> {
+                        <span class="comment">// Where we start biking may have slightly changed due to live map edits!</span>
+                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">legs</span>.<span class="ident">front_mut</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">spot</span>)) <span class="op">=&gt;</span> {
+                                <span class="kw">if</span> <span class="ident">spot</span>.<span class="ident">clone</span>() <span class="op">!=</span> <span class="ident">walk_to</span> {
+                                    <span class="comment">// We could assert both have a BikeRack connection, but eh</span>
+                                    <span class="kw-2">*</span><span class="ident">spot</span> <span class="op">=</span> <span class="ident">walk_to</span>.<span class="ident">clone</span>();
+                                }
+                            }
+                            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                        }
+
                         <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
                             <span class="ident">now</span>,
                             <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="ident">CreatePedestrian</span> {
