@@ -413,39 +413,13 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/dabreegster/abstreet/issues/258</span>
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
@@ -647,31 +621,8 @@
         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) {
-        <span class="kw">let</span> <span class="ident">pathfinding_upfront</span> <span class="op">=</span> <span class="ident">trips</span>.<span class="ident">pathfinding_upfront</span>;
-        <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(
-            <span class="string">&quot;calculate paths&quot;</span>,
-            <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
-            <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()),
-            <span class="op">|</span><span class="ident">tuple</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">tuple</span>.<span class="number">2</span>.<span class="ident">get_pathfinding_request</span>(<span class="ident">map</span>);
-                (
-                    <span class="ident">tuple</span>,
-                    <span class="ident">req</span>.<span class="ident">clone</span>(),
-                    <span class="kw">if</span> <span class="ident">pathfinding_upfront</span> {
-                        <span class="ident">req</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">r</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">None</span>
-                    },
-                )
-            },
-        );
-
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;spawn trips&quot;</span>, <span class="ident">paths</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> (
-            (<span class="ident">p</span>, <span class="ident">start_time</span>, <span class="ident">spec</span>, <span class="ident">trip_start</span>, <span class="ident">purpose</span>, <span class="ident">cancelled</span>, <span class="ident">modified</span>),
-            <span class="ident">maybe_req</span>,
-            <span class="ident">maybe_path</span>,
-        ) <span class="kw">in</span> <span class="ident">paths</span>
+        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;spawn trips&quot;</span>, <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>());
+        <span class="kw">for</span> (<span class="ident">p</span>, <span class="ident">start_time</span>, <span class="ident">spec</span>, <span class="ident">trip_start</span>, <span class="ident">purpose</span>, <span class="ident">cancelled</span>, <span class="ident">modified</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">drain</span>(..)
         {
             <span class="ident">timer</span>.<span class="ident">next</span>();
 
@@ -829,10 +780,7 @@
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;traffic pattern modifier cancelled this trip&quot;</span>),
                 );
             } <span class="kw">else</span> {
-                <span class="ident">scheduler</span>.<span class="ident">push</span>(
-                    <span class="ident">start_time</span>,
-                    <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="ident">trip</span>, <span class="ident">spec</span>, <span class="ident">maybe_req</span>, <span class="ident">maybe_path</span>),
-                );
+                <span class="ident">scheduler</span>.<span class="ident">push</span>(<span class="ident">start_time</span>, <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="ident">trip</span>, <span class="ident">spec</span>));
             }
         }
     }

@@ -335,7 +335,7 @@
     <span class="doccomment">/// If true, retry when there&#39;s no room to spawn somewhere</span>
     <span class="ident">SpawnCar</span>(<span class="ident">CreateCar</span>, <span class="ident">bool</span>),
     <span class="ident">SpawnPed</span>(<span class="ident">CreatePedestrian</span>),
-    <span class="ident">StartTrip</span>(<span class="ident">TripID</span>, <span class="ident">TripSpec</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>),
+    <span class="ident">StartTrip</span>(<span class="ident">TripID</span>, <span class="ident">TripSpec</span>),
     <span class="ident">UpdateCar</span>(<span class="ident">CarID</span>),
     <span class="doccomment">/// Distinguish this from UpdateCar to avoid confusing things</span>
     <span class="ident">UpdateLaggyHead</span>(<span class="ident">CarID</span>),
@@ -361,7 +361,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="ident">create</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Car</span>(<span class="ident">create</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
             <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="ident">create</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Ped</span>(<span class="ident">create</span>.<span class="ident">id</span>),
-            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">StartTrip</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="ident">id</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">StartTrip</span>(<span class="kw-2">*</span><span class="ident">id</span>),
             <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">id</span>),
             <span class="ident">Command</span>::<span class="ident">UpdateLaggyHead</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">CarLaggyHead</span>(<span class="kw-2">*</span><span class="ident">id</span>),
             <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Ped</span>(<span class="kw-2">*</span><span class="ident">id</span>),
@@ -377,7 +377,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Car</span>,
             <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Ped</span>,
-            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartTrip</span>,
+            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartTrip</span>,
             <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Car</span>,
             <span class="ident">Command</span>::<span class="ident">UpdateLaggyHead</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">CarLaggyHead</span>,
             <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Ped</span>,
