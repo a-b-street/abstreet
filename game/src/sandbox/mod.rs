@@ -19,7 +19,7 @@ use crate::edit::{
     apply_map_edits, can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor,
     TrafficSignalEditor,
 };
-use crate::game::{ChooseSomething, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, State, Transition};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
 use crate::load::{FileLoader, MapLoader};
@@ -411,7 +411,15 @@ impl AgentMeter {
                         prettyprint_usize(finished),
                         pct as usize
                     )));
-                    txt.draw(ctx)
+                    txt.draw(ctx).centered_vert()
+                },
+                if app.primary.dirty_from_edits {
+                    Btn::svg_def("system/assets/tools/warning.svg")
+                        .build(ctx, "see why results are tentative", None)
+                        .centered_vert()
+                        .align_right()
+                } else {
+                    Widget::nothing()
                 },
                 Btn::svg_def("system/assets/meters/trip_histogram.svg")
                     .build(ctx, "more data", Key::Q)
@@ -439,6 +447,19 @@ impl AgentMeter {
                 "more data" => {
                     return Some(Transition::Push(dashboards::FinishedTripTable::new(
                         ctx, app,
+                    )));
+                }
+                "see why results are tentative" => {
+                    return Some(Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Simulation results not finalized",
+                        vec![
+                            "You edited the map in the middle of the day.",
+                            "Some trips may have been interrupted, and others might have made \
+                             different decisions if they saw the new map from the start.",
+                            "To get final results, reset to midnight and test your proposal over \
+                             a full day.",
+                        ],
                     )));
                 }
                 _ => unreachable!(),
