@@ -885,10 +885,13 @@ impl Sim {
             .handle_live_edited_traffic_signals(self.time, map, &mut self.scheduler)
     }
 
-    pub fn handle_live_edits(&mut self, map: &Map) {
+    /// Respond to arbitrary map edits without resetting the simulation. Returns the number of
+    /// (trips cancelled, parked cars displaced).
+    pub fn handle_live_edits(&mut self, map: &Map) -> (usize, usize) {
         self.edits_name = map.get_edits().edits_name.clone();
 
-        let affected = self.find_trips_affected_by_live_edits(map);
+        let (affected, num_parked_cars) = self.find_trips_affected_by_live_edits(map);
+        let num_trips_cancelled = affected.len();
 
         // V1: Just cancel every trip crossing an affected area.
         // (V2 is probably rerouting everyone, only cancelling when that fails)
@@ -932,9 +935,12 @@ impl Sim {
 
         self.driving.handle_live_edits(map);
         self.intersections.handle_live_edits(map);
+
+        (num_trips_cancelled, num_parked_cars)
     }
 
-    fn find_trips_affected_by_live_edits(&mut self, map: &Map) -> Vec<(AgentID, TripID)> {
+    /// Returns (trips affected, number of parked cars displaced)
+    fn find_trips_affected_by_live_edits(&mut self, map: &Map) -> (Vec<(AgentID, TripID)>, usize) {
         let mut affected: Vec<(AgentID, TripID)> = Vec::new();
 
         // TODO Handle changes to access restrictions
@@ -964,9 +970,10 @@ impl Sim {
             }
         }
 
-        {
+        let num_evicted = {
             let (evicted_cars, cars_parking_in_the_void) =
                 self.parking.handle_live_edits(map, &mut Timer::throwaway());
+            let num_evicted = evicted_cars.len();
             affected.extend(self.walking.find_trips_to_parking(evicted_cars));
             for car in cars_parking_in_the_void {
                 let a = AgentID::Car(car);
@@ -980,9 +987,10 @@ impl Sim {
                 all_spots.extend(avail);
                 affected.extend(self.driving.find_trips_to_edited_parking(all_spots));
             }
-        }
+            num_evicted
+        };
 
-        affected
+        (affected, num_evicted)
     }
 }
 

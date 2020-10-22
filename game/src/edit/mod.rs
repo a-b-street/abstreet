@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use maplit::btreeset;
 
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, Timer};
 use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
@@ -98,8 +98,25 @@ impl EditMode {
                 app.primary
                     .sim
                     .handle_live_edited_traffic_signals(&app.primary.map);
-                app.primary.sim.handle_live_edits(&app.primary.map);
-                Transition::Pop
+                let (trips, parked_cars) = app.primary.sim.handle_live_edits(&app.primary.map);
+                if trips == 0 && parked_cars == 0 {
+                    Transition::Pop
+                } else {
+                    Transition::Replace(PopupMsg::new(
+                        ctx,
+                        "Map changes complete",
+                        vec![
+                            format!(
+                                "Your edits interrupted {} trips and displaced {} parked cars",
+                                prettyprint_usize(trips),
+                                prettyprint_usize(parked_cars)
+                            ),
+                            "Simulation results won't be finalized unless you restart from \
+                             midnight with your changes"
+                                .to_string(),
+                        ],
+                    ))
+                }
             } else {
                 Transition::Multi(vec![
                     Transition::Pop,
