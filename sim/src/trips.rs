@@ -1258,6 +1258,17 @@ impl TripManager {
                 if let Some(walk_to) = SidewalkSpot::bike_rack(start, ctx.map) {
                     let req = maybe_req.unwrap();
                     if let Some(path) = maybe_path {
+                        // Where we start biking may have slightly changed due to live map edits!
+                        match self.trips[trip.0].legs.front_mut() {
+                            Some(TripLeg::Walk(ref mut spot)) => {
+                                if spot.clone() != walk_to {
+                                    // We could assert both have a BikeRack connection, but eh
+                                    *spot = walk_to.clone();
+                                }
+                            }
+                            _ => unreachable!(),
+                        }
+
                         ctx.scheduler.push(
                             now,
                             Command::SpawnPed(CreatePedestrian {
