@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{Parallelism, Timer};
+use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
@@ -205,31 +205,8 @@ impl TripSpawner {
         scheduler: &mut Scheduler,
         timer: &mut Timer,
     ) {
-        let pathfinding_upfront = trips.pathfinding_upfront;
-        let paths = timer.parallelize(
-            "calculate paths",
-            Parallelism::Fastest,
-            std::mem::replace(&mut self.trips, Vec::new()),
-            |tuple| {
-                let req = tuple.2.get_pathfinding_request(map);
-                (
-                    tuple,
-                    req.clone(),
-                    if pathfinding_upfront {
-                        req.and_then(|r| map.pathfind(r))
-                    } else {
-                        None
-                    },
-                )
-            },
-        );
-
-        timer.start_iter("spawn trips", paths.len());
-        for (
-            (p, start_time, spec, trip_start, purpose, cancelled, modified),
-            maybe_req,
-            maybe_path,
-        ) in paths
+        timer.start_iter("spawn trips", self.trips.len());
+        for (p, start_time, spec, trip_start, purpose, cancelled, modified) in self.trips.drain(..)
         {
             timer.next();
 
@@ -387,10 +364,7 @@ impl TripSpawner {
                     format!("traffic pattern modifier cancelled this trip"),
                 );
             } else {
-                scheduler.push(
-                    start_time,
-                    Command::StartTrip(trip, spec, maybe_req, maybe_path),
-                );
+                scheduler.push(start_time, Command::StartTrip(trip, spec));
             }
         }
     }

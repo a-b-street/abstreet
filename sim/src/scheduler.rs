@@ -17,7 +17,7 @@ pub enum Command {
     /// If true, retry when there's no room to spawn somewhere
     SpawnCar(CreateCar, bool),
     SpawnPed(CreatePedestrian),
-    StartTrip(TripID, TripSpec, Option<PathRequest>, Option<Path>),
+    StartTrip(TripID, TripSpec),
     UpdateCar(CarID),
     /// Distinguish this from UpdateCar to avoid confusing things
     UpdateLaggyHead(CarID),
@@ -43,7 +43,7 @@ impl Command {
         match self {
             Command::SpawnCar(ref create, _) => CommandType::Car(create.vehicle.id),
             Command::SpawnPed(ref create) => CommandType::Ped(create.id),
-            Command::StartTrip(id, _, _, _) => CommandType::StartTrip(*id),
+            Command::StartTrip(id, _) => CommandType::StartTrip(*id),
             Command::UpdateCar(id) => CommandType::Car(*id),
             Command::UpdateLaggyHead(id) => CommandType::CarLaggyHead(*id),
             Command::UpdatePed(id) => CommandType::Ped(*id),
@@ -59,7 +59,7 @@ impl Command {
         match self {
             Command::SpawnCar(_, _) => SimpleCommandType::Car,
             Command::SpawnPed(_) => SimpleCommandType::Ped,
-            Command::StartTrip(_, _, _, _) => SimpleCommandType::StartTrip,
+            Command::StartTrip(_, _) => SimpleCommandType::StartTrip,
             Command::UpdateCar(_) => SimpleCommandType::Car,
             Command::UpdateLaggyHead(_) => SimpleCommandType::CarLaggyHead,
             Command::UpdatePed(_) => SimpleCommandType::Ped,

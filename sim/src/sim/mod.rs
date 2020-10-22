@@ -95,9 +95,6 @@ pub struct SimOptions {
     pub enable_pandemic_model: Option<XorShiftRng>,
     /// When a warning is encountered during simulation, specifies how to respond.
     pub alerts: AlertHandler,
-    /// At the beginning of the simulation, precompute the route for all trips for the entire
-    /// scenario.
-    pub pathfinding_upfront: bool,
     /// Ignore parking data in the map and instead treat every building as if it has unlimited
     /// capacity for vehicles.
     pub infinite_parking: bool,
@@ -144,7 +141,6 @@ impl SimOptions {
                     _ => panic!("Bad --alerts={}. Must be print|block|silence", x),
                 })
                 .unwrap_or(AlertHandler::Print),
-            pathfinding_upfront: args.enabled("--pathfinding_upfront"),
             infinite_parking: args.enabled("--infinite_parking"),
             disable_turn_conflicts: args.enabled("--disable_turn_conflicts"),
             cancel_drivers_delay_threshold: args
@@ -181,7 +177,6 @@ impl SimOptions {
             handle_uber_turns: true,
             enable_pandemic_model: None,
             alerts: AlertHandler::Print,
-            pathfinding_upfront: false,
             infinite_parking: false,
             disable_turn_conflicts: false,
             cancel_drivers_delay_threshold: None,
@@ -201,7 +196,7 @@ impl Sim {
             intersections: IntersectionSimState::new(map, &mut scheduler, &opts),
             transit: TransitSimState::new(map),
             cap: CapSimState::new(map, &opts),
-            trips: TripManager::new(opts.pathfinding_upfront),
+            trips: TripManager::new(),
             pandemic: if let Some(rng) = opts.enable_pandemic_model {
                 Some(PandemicModel::new(rng))
             } else {
@@ -436,9 +431,8 @@ impl Sim {
         };
 
         match cmd {
-            Command::StartTrip(id, trip_spec, maybe_req, maybe_path) => {
-                self.trips
-                    .start_trip(self.time, id, trip_spec, maybe_req, maybe_path, &mut ctx);
+            Command::StartTrip(id, trip_spec) => {
+                self.trips.start_trip(self.time, id, trip_spec, &mut ctx);
             }
             Command::SpawnCar(create_car, retry_if_no_room) => {
                 // create_car contains a Path, which is expensive to clone. We need different parts

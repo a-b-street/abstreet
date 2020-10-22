@@ -5,8 +5,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Duration, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
-    Position,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
 
 use crate::sim::Ctx;
@@ -35,7 +34,6 @@ pub struct TripManager {
     )]
     active_trip_mode: BTreeMap<AgentID, TripID>,
     unfinished_trips: usize,
-    pub pathfinding_upfront: bool,
 
     car_id_counter: usize,
 
@@ -43,7 +41,7 @@ pub struct TripManager {
 }
 
 impl TripManager {
-    pub fn new(pathfinding_upfront: bool) -> TripManager {
+    pub fn new() -> TripManager {
         TripManager {
             trips: Vec::new(),
             people: Vec::new(),
@@ -51,7 +49,6 @@ impl TripManager {
             unfinished_trips: 0,
             car_id_counter: 0,
             events: Vec::new(),
-            pathfinding_upfront,
         }
     }
 
@@ -1018,7 +1015,7 @@ impl TripManager {
         if person.delayed_trips.is_empty() {
             return;
         }
-        let (trip, spec, maybe_req, maybe_path) = person.delayed_trips.remove(0);
+        let (trip, spec) = person.delayed_trips.remove(0);
         if false {
             self.events.push(Event::Alert(
                 AlertLocation::Person(person.id),
@@ -1028,22 +1025,11 @@ impl TripManager {
                 ),
             ));
         }
-        self.start_trip(now, trip, spec, maybe_req, maybe_path, ctx);
+        self.start_trip(now, trip, spec, ctx);
     }
 
-    pub fn start_trip(
-        &mut self,
-        now: Time,
-        trip: TripID,
-        spec: TripSpec,
-        maybe_req: Option<PathRequest>,
-        mut maybe_path: Option<Path>,
-        ctx: &mut Ctx,
-    ) {
+    pub fn start_trip(&mut self, now: Time, trip: TripID, spec: TripSpec, ctx: &mut Ctx) {
         assert!(self.trips[trip.0].info.cancellation_reason.is_none());
-        if !self.pathfinding_upfront && maybe_path.is_none() && maybe_req.is_some() {
-            maybe_path = ctx.map.pathfind(maybe_req.clone().unwrap());
-        }
 
         let person = &mut self.people[self.trips[trip.0].person.0];
         if let PersonState::Trip(_) = person.state {
@@ -1057,9 +1043,7 @@ impl TripManager {
                     ),
                 ));
             }
-            person
-                .delayed_trips
-                .push((trip, spec, maybe_req, maybe_path));
+            person.delayed_trips.push((trip, spec));
             self.events.push(Event::TripPhaseStarting(
                 trip,
                 person.id,
@@ -1069,6 +1053,10 @@ impl TripManager {
             return;
         }
         self.trips[trip.0].started = true;
+
+        // Defer calculating the path until now, to handle live map edits.
+        let maybe_req = spec.get_pathfinding_request(ctx.map);
+        let maybe_path = maybe_req.clone().and_then(|req| ctx.map.pathfind(req));
 
         match spec {
             TripSpec::VehicleAppearing {
@@ -1146,9 +1134,6 @@ impl TripManager {
             } => {
                 assert_eq!(person.state, PersonState::Inside(start_bldg));
                 person.state = PersonState::Trip(trip);
-
-                // TODO For now, use the car we decided to statically. That makes sense in most
-                // cases.
 
                 if let Some(parked_car) = ctx.parking.lookup_parked_car(car).cloned() {
                     let start = SidewalkSpot::building(start_bldg, ctx.map);
@@ -1709,7 +1694,7 @@ pub struct Person {
     /// Both cars and bikes
     pub vehicles: Vec<Vehicle>,
 
-    delayed_trips: Vec<(TripID, TripSpec, Option<PathRequest>, Option<Path>)>,
+    delayed_trips: Vec<(TripID, TripSpec)>,
     on_bus: Option<CarID>,
 }
 

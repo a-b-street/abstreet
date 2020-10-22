@@ -22,14 +22,17 @@ more stages.
 
 ## TODO: Recalculating paths
 
-Many of the edits will influence routes. For trips that haven't started yet, as
-long as `pathfinding_upfront` is disabled (currently the default), there's
-nothing to do. For currently active trips, in some cases, rerouting would be
-ideal but not necessary (like if speed limits changed). In other cases -- like
-changing access restrictions, modifying lane types, closing intersections --
-the route must be recomputed. As a simple first attempt, we could just cancel
-all active trips whose path crosses an edited road or intersection. Later, we
-can figure out rerouting.
+Many of the edits will influence routes. For trips that haven't started yet,
+there's nothing to do immediately. Paths are calculated right before the trip
+starts, so slight changes to the start/end of the path due to map edits (like
+where somebody starts biking, for example) are captured naturally.
+
+For currently active trips, in some cases, rerouting would be ideal but not
+necessary (like if speed limits changed). In other cases -- like changing access
+restrictions, modifying lane types, closing intersections -- the route must be
+recomputed. As a simple first attempt, we could just cancel all active trips
+whose path crosses an edited road or intersection. Later, we can figure out
+rerouting.
 
 And actually, the only other case to handle is `ChangeRouteSchedule`, which
 should just be rescheduling the `StartBus` commands.
