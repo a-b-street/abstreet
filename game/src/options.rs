@@ -7,6 +7,7 @@ use widgetry::{
 use crate::app::App;
 use crate::colors::{ColorScheme, ColorSchemeChoice};
 use crate::game::{State, Transition};
+use crate::helpers::grey_out_map;
 use crate::render::{DrawBuilding, DrawMap};
 
 /// Options controlling the UI.
@@ -342,7 +343,7 @@ impl State for OptionsPanel {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }

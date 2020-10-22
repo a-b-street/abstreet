@@ -20,7 +20,7 @@ use crate::app::App;
 use crate::common::{tool_panel, ColorLegend, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{ChooseSomething, PopupMsg, State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{grey_out_map, ID};
 use crate::options::OptionsPanel;
 use crate::render::DrawMap;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
@@ -508,7 +508,7 @@ impl State for SaveEdits {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
@@ -628,7 +628,7 @@ impl State for LoadEdits {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }

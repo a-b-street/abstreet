@@ -1,4 +1,3 @@
-use geom::Polygon;
 use map_model::PermanentMapEdits;
 use widgetry::{
     hotkeys, Btn, Canvas, Choice, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -6,6 +5,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Flags, ShowEverything};
+use crate::helpers::grey_out_map;
 use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
@@ -239,19 +239,6 @@ pub trait State: downcast_rs::Downcast {
     // We don't need an on_enter -- the constructor for the state can just do it.
 }
 
-impl dyn State {
-    pub fn grey_out_map(g: &mut GfxCtx, app: &App) {
-        // Make it clear the map can't be interacted with right now.
-        g.fork_screenspace();
-        // TODO - OSD height
-        g.draw_polygon(
-            app.cs.fade_map_dark,
-            Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
-        );
-        g.unfork();
-    }
-}
-
 downcast_rs::impl_downcast!(State);
 
 pub enum Transition {
@@ -344,7 +331,7 @@ impl<T: 'static> State for ChooseSomething<T> {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
@@ -402,7 +389,7 @@ impl State for PromptInput {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
@@ -469,7 +456,7 @@ impl State for PopupMsg {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed);

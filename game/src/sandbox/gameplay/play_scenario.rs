@@ -12,7 +12,7 @@ use crate::app::App;
 use crate::common::CityPicker;
 use crate::edit::EditMode;
 use crate::game::{ChooseSomething, PopupMsg, State, Transition};
-use crate::helpers::{checkbox_per_mode, nice_map_name};
+use crate::helpers::{checkbox_per_mode, grey_out_map, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
@@ -307,7 +307,7 @@ impl State for EditScenarioModifiers {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
@@ -431,7 +431,7 @@ impl State for ChangeMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }

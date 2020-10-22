@@ -5,6 +5,7 @@ use widgetry::{
 
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
+use crate::helpers::grey_out_map;
 
 pub struct CutsceneBuilder {
     name: String,
@@ -318,7 +319,7 @@ impl State for FYI {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }

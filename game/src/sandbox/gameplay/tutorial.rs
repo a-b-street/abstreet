@@ -19,7 +19,7 @@ use crate::common::{tool_panel, Minimap, Warping};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
 use crate::game::{PopupMsg, State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
     maybe_exit_sandbox, spawn_agents_around, Actions, AgentMeter, SandboxControls, SandboxMode,
@@ -358,7 +358,7 @@ impl GameplayState for Tutorial {
         let tut = app.session.tutorial.as_ref().unwrap();
 
         if self.msg_panel.is_some() {
-            State::grey_out_map(g, app);
+            grey_out_map(g, app);
         }
 
         self.top_center.draw(g);

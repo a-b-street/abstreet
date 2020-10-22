@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 
-use geom::{Duration, Pt2D};
+use geom::{Duration, Polygon, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use sim::{AgentID, AgentType, CarID, PedestrianID, TripMode, TripPhaseType};
-use widgetry::{Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
+use widgetry::{Btn, Checkbox, Color, EventCtx, GfxCtx, Key, Line, Text, TextSpan, Widget};
 
 use crate::app::{App, PerMap};
 
@@ -301,4 +301,15 @@ pub fn loading_tips() -> Text {
         Line("- Support for bidirectional cycletracks"),
         Line("- An API to control A/B Street from any language"),
     ])
+}
+
+/// Make it clear the map can't be interacted with right now.
+pub fn grey_out_map(g: &mut GfxCtx, app: &App) {
+    g.fork_screenspace();
+    // TODO - OSD height
+    g.draw_polygon(
+        app.cs.fade_map_dark,
+        Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+    );
+    g.unfork();
 }

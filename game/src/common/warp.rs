@@ -8,7 +8,7 @@ use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, 
 use crate::app::{App, PerMap};
 use crate::common::Tab;
 use crate::game::{PopupMsg, State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{grey_out_map, ID};
 use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;
 
@@ -150,7 +150,7 @@ impl State for DebugWarp {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }

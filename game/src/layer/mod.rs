@@ -3,7 +3,7 @@ use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget
 use crate::app::App;
 use crate::common::HeatmapOptions;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::hotkey_btn;
+use crate::helpers::{grey_out_map, hotkey_btn};
 use crate::sandbox::dashboards;
 
 mod elevation;
@@ -251,7 +251,7 @@ impl State for PickLayer {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }

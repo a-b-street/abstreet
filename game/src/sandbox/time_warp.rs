@@ -10,7 +10,7 @@ use widgetry::{
 use crate::app::{App, FindDelayedIntersections, ShowEverything};
 use crate::common::Warping;
 use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{grey_out_map, ID};
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 
@@ -141,7 +141,7 @@ impl State for JumpToTime {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
@@ -236,7 +236,7 @@ impl State for JumpToDelay {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
@@ -406,7 +406,7 @@ impl State for TimeWarpScreen {
             g.clear(app.cs.section_bg);
         } else {
             app.draw(g, DrawOptions::new(), &ShowEverything::new());
-            State::grey_out_map(g, app);
+            grey_out_map(g, app);
         }
 
         self.panel.draw(g);

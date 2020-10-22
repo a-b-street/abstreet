@@ -6,7 +6,7 @@ use widgetry::{
 
 use crate::app::App;
 use crate::game::{DrawBaselayer, State, Transition};
-use crate::helpers::nice_map_name;
+use crate::helpers::{grey_out_map, nice_map_name};
 use crate::load::MapLoader;
 use crate::render::DrawArea;
 
@@ -168,7 +168,7 @@ impl State for CityPicker {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
 
         if let Some(idx) = self.selected {

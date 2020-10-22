@@ -9,7 +9,7 @@ use widgetry::{
 use crate::app::App;
 use crate::common::Warping;
 use crate::game::{State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{grey_out_map, ID};
 
 // TODO Canonicalize names, handling abbreviations like east/e and street/st
 pub struct Navigator {
@@ -72,7 +72,7 @@ impl State for Navigator {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
@@ -189,7 +189,7 @@ impl State for CrossStreet {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw);
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
@@ -285,7 +285,7 @@ impl State for SearchBuildings {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        State::grey_out_map(g, app);
+        grey_out_map(g, app);
         self.panel.draw(g);
     }
 }
