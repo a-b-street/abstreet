@@ -282,19 +282,22 @@ impl<K: IndexableKey, V> FixedMap<K, V> {
     }
 
     pub fn get(&self, key: &K) -> Option<&V> {
-        self.inner[key.index()].as_ref()
+        self.inner.get(key.index())?.as_ref()
     }
 
     pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
-        self.inner[key.index()].as_mut()
+        self.inner.get_mut(key.index())?.as_mut()
     }
 
     pub fn contains_key(&self, key: &K) -> bool {
-        self.inner[key.index()].is_some()
+        self.inner
+            .get(key.index())
+            .map(|x| x.is_some())
+            .unwrap_or(false)
     }
 
     pub fn remove(&mut self, key: &K) -> Option<V> {
-        self.inner[key.index()].take()
+        self.inner.get_mut(key.index())?.take()
     }
 
     pub fn values(&self) -> std::iter::Flatten<std::slice::Iter<'_, std::option::Option<V>>> {
