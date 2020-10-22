@@ -934,8 +934,11 @@ impl Sim {
     }
 
     /// Returns (trips affected, number of parked cars displaced)
-    fn find_trips_affected_by_live_edits(&mut self, map: &Map) -> (Vec<(AgentID, TripID)>, usize) {
-        let mut affected: Vec<(AgentID, TripID)> = Vec::new();
+    fn find_trips_affected_by_live_edits(
+        &mut self,
+        map: &Map,
+    ) -> (BTreeSet<(AgentID, TripID)>, usize) {
+        let mut affected: BTreeSet<(AgentID, TripID)> = BTreeSet::new();
 
         // TODO Handle changes to access restrictions
 
@@ -958,7 +961,7 @@ impl Sim {
                             Traversable::Turn(t) => closed_intersections.contains(&t.parent),
                         })
                     {
-                        affected.push((*a, *trip));
+                        affected.insert((*a, *trip));
                     }
                 }
             }
@@ -971,7 +974,7 @@ impl Sim {
             affected.extend(self.walking.find_trips_to_parking(evicted_cars));
             for car in cars_parking_in_the_void {
                 let a = AgentID::Car(car);
-                affected.push((a, self.agent_to_trip(a).unwrap()));
+                affected.insert((a, self.agent_to_trip(a).unwrap()));
             }
 
             if !self.parking.is_infinite() {

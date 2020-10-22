@@ -33,13 +33,13 @@ pub trait ParkingSim {
     fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput>;
     fn get_draw_cars_in_lots(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput>;
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
-    // There's no DrawCarInput for cars parked offstreet, so we need this.
+    /// There's no DrawCarInput for cars parked offstreet, so we need this.
     fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D>;
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput>;
     fn is_free(&self, spot: ParkingSpot) -> bool;
     fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar>;
-    // The vehicle's front is currently at the given driving_pos. Returns all valid spots and their
-    // driving position.
+    /// The vehicle's front is currently at the given driving_pos. Returns all valid spots and their
+    /// driving position.
     fn get_all_free_spots(
         &self,
         driving_pos: Position,
@@ -53,12 +53,12 @@ pub trait ParkingSim {
     fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, map: &Map) -> Position;
     fn get_owner_of_car(&self, id: CarID) -> Option<PersonID>;
     fn lookup_parked_car(&self, id: CarID) -> Option<&ParkedCar>;
-    // (Filled, available)
+    /// (Filled, available)
     fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>);
-    // Unrealistically assumes the driver has knowledge of currently free parking spots, even if
-    // they're far away. Since they don't reserve the spot in advance, somebody else can still beat
-    // them there, producing some nice, realistic churn if there's too much contention.
-    // The first PathStep is the turn after start, NOT PathStep::Lane(start).
+    /// Unrealistically assumes the driver has knowledge of currently free parking spots, even if
+    /// they're far away. Since they don't reserve the spot in advance, somebody else can still beat
+    /// them there, producing some nice, realistic churn if there's too much contention.
+    /// The first PathStep is the turn after start, NOT PathStep::Lane(start).
     fn path_to_free_parking_spot(
         &self,
         start: LaneID,
@@ -209,8 +209,11 @@ impl ParkingSim for NormalParkingSimState {
         let mut evicted = Vec::new();
         for spot in filled_before {
             if !avail_after.contains(&spot) {
-                let car = self.occupants.remove(&spot).unwrap();
-                evicted.push(self.parked_cars.remove(&car).unwrap());
+                // If the spot isn't occupied, it must be reserved; a car is in the process of
+                // parking in it. That'll be handled below.
+                if let Some(car) = self.occupants.remove(&spot) {
+                    evicted.push(self.parked_cars.remove(&car).unwrap());
+                }
             }
         }
 
