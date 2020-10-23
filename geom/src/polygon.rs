@@ -3,6 +3,7 @@ use std::fmt;
 
 use geo::algorithm::area::Area;
 use geo::algorithm::convex_hull::ConvexHull;
+use geo_booleanop::boolean::BooleanOp;
 use geo::algorithm::intersects::Intersects;
 use serde::{Deserialize, Serialize};
 
@@ -292,13 +293,7 @@ impl Polygon {
 
     // TODO Result won't be a nice Ring
     pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
-        let geo_polygon = to_geo(self.points());
-        let other_geo_polygon = to_geo(other.points());
-        if geo_polygon.intersects(&other_geo_polygon){
-            vec![self.clone(), other.clone()]
-        }else{
-            vec![]
-        }
+        from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
     }
 
     pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
