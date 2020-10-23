@@ -435,79 +435,114 @@ impl Sim {
                 self.trips.start_trip(self.time, id, trip_spec, &mut ctx);
             }
             Command::SpawnCar(create_car, retry_if_no_room) => {
-                // create_car contains a Path, which is expensive to clone. We need different parts
-                // of create_car after attempting start_car_on_lane. Make copies just of those
-                // here. In no case do we ever clone the path.
-                let id = create_car.vehicle.id;
-                let maybe_route = create_car.maybe_route;
-                let trip_and_person = create_car.trip_and_person;
-                let maybe_parked_car = create_car.maybe_parked_car.clone();
-                let req = create_car.req.clone();
-
-                if let Some(create_car) = self.driving.start_car_on_lane(
-                    self.time,
-                    create_car,
-                    map,
-                    &self.intersections,
-                    &self.parking,
-                    &mut self.scheduler,
-                ) {
-                    // Starting the car failed for some reason.
-                    if retry_if_no_room {
-                        // TODO Record this in the trip log
-                        self.scheduler.push(
-                            self.time + BLIND_RETRY_TO_SPAWN,
-                            Command::SpawnCar(create_car, retry_if_no_room),
-                        );
-                    } else {
-                        // Buses don't use Command::SpawnCar, so this must exist.
-                        let (trip, person) = create_car.trip_and_person.unwrap();
-                        // Have to redeclare for the borrow checker
-                        let mut ctx = Ctx {
-                            parking: &mut self.parking,
-                            intersections: &mut self.intersections,
-                            cap: &mut self.cap,
-                            scheduler: &mut self.scheduler,
-                            map,
-                        };
-                        self.trips.cancel_trip(
-                            self.time,
-                            trip,
-                            format!(
-                                "no room to spawn car for {} by {}, not retrying",
-                                trip, person
-                            ),
-                            Some(create_car.vehicle),
-                            &mut ctx,
-                        );
-                    }
-                } else {
-                    // Creating the car succeeded.
-                    if let Some((trip, person)) = trip_and_person {
-                        self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
-                        events.push(Event::TripPhaseStarting(
-                            trip,
-                            person,
-                            Some(req),
-                            if id.1 == VehicleType::Car {
-                                TripPhaseType::Driving
-                            } else {
-                                TripPhaseType::Biking
-                            },
-                        ));
-                    }
-                    if let Some(parked_car) = maybe_parked_car {
-                        if let ParkingSpot::Offstreet(b, _) = parked_car.spot {
-                            // Buses don't start in parking garages, so trip must exist
-                            events.push(Event::PersonLeavesBuilding(trip_and_person.unwrap().1, b));
+                // If this SpawnCar is being retried and the map was live-edited since the first
+                // attempt, the path might've become invalid. TODO Skip this check
+                // most of the time.
+                let constraints = create_car.vehicle.vehicle_type.to_constraints();
+                let mut ok = true;
+                for step in create_car.router.get_path().get_steps() {
+                    match step.as_traversable() {
+                        Traversable::Lane(l) => {
+                            if !constraints.can_use(ctx.map.get_l(l), ctx.map) {
+                                ok = false;
+                                break;
+                            }
                         }
-                        self.parking.remove_parked_car(parked_car);
+                        Traversable::Turn(t) => {
+                            if ctx.map.maybe_get_t(t).is_none() {
+                                ok = false;
+                                break;
+                            }
+                        }
                     }
-                    if let Some(route) = maybe_route {
-                        self.transit.bus_created(id, route);
+                }
+                if !ok {
+                    self.trips.cancel_trip(
+                        self.time,
+                        create_car.trip_and_person.unwrap().0,
+                        "path is no longer valid after map edits".to_string(),
+                        Some(create_car.vehicle),
+                        &mut ctx,
+                    );
+                } else {
+                    // create_car contains a Path, which is expensive to clone. We need different
+                    // parts of create_car after attempting start_car_on_lane.
+                    // Make copies just of those here. In no case do we ever
+                    // clone the path.
+                    let id = create_car.vehicle.id;
+                    let maybe_route = create_car.maybe_route;
+                    let trip_and_person = create_car.trip_and_person;
+                    let maybe_parked_car = create_car.maybe_parked_car.clone();
+                    let req = create_car.req.clone();
+
+                    if let Some(create_car) = self.driving.start_car_on_lane(
+                        self.time,
+                        create_car,
+                        map,
+                        &self.intersections,
+                        &self.parking,
+                        &mut self.scheduler,
+                    ) {
+                        // Starting the car failed for some reason.
+                        if retry_if_no_room {
+                            // TODO Record this in the trip log
+                            self.scheduler.push(
+                                self.time + BLIND_RETRY_TO_SPAWN,
+                                Command::SpawnCar(create_car, retry_if_no_room),
+                            );
+                        } else {
+                            // Buses don't use Command::SpawnCar, so this must exist.
+                            let (trip, person) = create_car.trip_and_person.unwrap();
+                            // Have to redeclare for the borrow checker
+                            let mut ctx = Ctx {
+                                parking: &mut self.parking,
+                                intersections: &mut self.intersections,
+                                cap: &mut self.cap,
+                                scheduler: &mut self.scheduler,
+                                map,
+                            };
+                            self.trips.cancel_trip(
+                                self.time,
+                                trip,
+                                format!(
+                                    "no room to spawn car for {} by {}, not retrying",
+                                    trip, person
+                                ),
+                                Some(create_car.vehicle),
+                                &mut ctx,
+                            );
+                        }
+                    } else {
+                        // Creating the car succeeded.
+                        if let Some((trip, person)) = trip_and_person {
+                            self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
+                            events.push(Event::TripPhaseStarting(
+                                trip,
+                                person,
+                                Some(req),
+                                if id.1 == VehicleType::Car {
+                                    TripPhaseType::Driving
+                                } else {
+                                    TripPhaseType::Biking
+                                },
+                            ));
+                        }
+                        if let Some(parked_car) = maybe_parked_car {
+                            if let ParkingSpot::Offstreet(b, _) = parked_car.spot {
+                                // Buses don't start in parking garages, so trip must exist
+                                events.push(Event::PersonLeavesBuilding(
+                                    trip_and_person.unwrap().1,
+                                    b,
+                                ));
+                            }
+                            self.parking.remove_parked_car(parked_car);
+                        }
+                        if let Some(route) = maybe_route {
+                            self.transit.bus_created(id, route);
+                        }
+                        self.analytics
+                            .record_demand(self.driving.get_path(id).unwrap(), map);
                     }
-                    self.analytics
-                        .record_demand(self.driving.get_path(id).unwrap(), map);
                 }
             }
             Command::SpawnPed(create_ped) => {
