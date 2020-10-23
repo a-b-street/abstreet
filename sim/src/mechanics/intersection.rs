@@ -116,17 +116,12 @@ impl IntersectionSimState {
         turn: TurnID,
         scheduler: &mut Scheduler,
         map: &Map,
+        handling_live_edits: bool,
     ) {
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
         state.reserved.remove(&Request { agent, turn });
-        // maybe_get_t to handle live edits; an agent could be deleted in the middle of a deleted
-        // turn.
-        if map
-            .maybe_get_t(turn)
-            .map(|t| t.turn_type != TurnType::SharedSidewalkCorner)
-            .unwrap_or(true)
-        {
+        if !handling_live_edits && map.get_t(turn).turn_type != TurnType::SharedSidewalkCorner {
             self.wakeup_waiting(now, turn.parent, scheduler, map);
         }
         if self.break_turn_conflict_cycles {
@@ -205,17 +200,13 @@ impl IntersectionSimState {
         } else if let Some(ref sign) = map.maybe_get_stop_sign(i) {
             for (req, _) in all {
                 match sign.get_priority(req.turn, map) {
-                    Some(TurnPriority::Protected) => {
+                    TurnPriority::Protected => {
                         protected.push(req);
                     }
-                    Some(TurnPriority::Yield) => {
+                    TurnPriority::Yield => {
                         yielding.push(req);
                     }
-                    Some(TurnPriority::Banned) => unreachable!(),
-                    // This may happen in the middle of resolving live edits. delete_car calls
-                    // space_freed, which gets here. Depending on the order we delete cars, we hit
-                    // this case.
-                    None => {}
+                    TurnPriority::Banned => unreachable!(),
                 }
             }
         } else {
@@ -601,7 +592,7 @@ impl IntersectionSimState {
         now: Time,
         scheduler: &mut Scheduler,
     ) -> bool {
-        let our_priority = sign.get_priority(req.turn, map).unwrap();
+        let our_priority = sign.get_priority(req.turn, map);
         assert!(our_priority != TurnPriority::Banned);
         let our_time = self.state[&req.turn.parent].waiting[req];
 

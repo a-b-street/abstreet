@@ -658,8 +658,10 @@ impl DrivingSimState {
                 Traversable::Lane(l) => ctx.map.get_l(l).src_i,
                 Traversable::Turn(t) => t.parent,
             };
-            ctx.intersections
-                .space_freed(now, i, ctx.scheduler, ctx.map);
+            if !ctx.handling_live_edits {
+                ctx.intersections
+                    .space_freed(now, i, ctx.scheduler, ctx.map);
+            }
         }
 
         ctx.intersections.vehicle_gone(car.vehicle.id);
@@ -788,16 +790,19 @@ impl DrivingSimState {
                         t,
                         ctx.scheduler,
                         ctx.map,
+                        ctx.handling_live_edits,
                     );
                 }
                 Traversable::Lane(l) => {
                     old_queue.free_reserved_space(car);
-                    ctx.intersections.space_freed(
-                        now,
-                        ctx.map.get_l(l).src_i,
-                        ctx.scheduler,
-                        ctx.map,
-                    );
+                    if !ctx.handling_live_edits {
+                        ctx.intersections.space_freed(
+                            now,
+                            ctx.map.get_l(l).src_i,
+                            ctx.scheduler,
+                            ctx.map,
+                        );
+                    }
                 }
             }
 

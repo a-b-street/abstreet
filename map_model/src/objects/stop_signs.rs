@@ -118,19 +118,18 @@ impl ControlStopSign {
     }
 
     /// Get the priority of a turn according to the stop sign -- either protected or yield, never
-    /// banned. The result is None if the turn doesn't exist -- this can happen in the middle of
-    /// resolving live map edits.
+    /// banned.
     // TODO Or cache
-    pub fn get_priority(&self, turn: TurnID, map: &Map) -> Option<TurnPriority> {
-        match map.maybe_get_t(turn)?.turn_type {
-            TurnType::SharedSidewalkCorner => Some(TurnPriority::Protected),
+    pub fn get_priority(&self, turn: TurnID, map: &Map) -> TurnPriority {
+        match map.get_t(turn).turn_type {
+            TurnType::SharedSidewalkCorner => TurnPriority::Protected,
             // TODO This actually feels like a policy bit that should be flippable.
-            TurnType::Crosswalk => Some(TurnPriority::Protected),
+            TurnType::Crosswalk => TurnPriority::Protected,
             _ => {
                 if self.roads[&map.get_l(turn.src).parent].must_stop {
-                    Some(TurnPriority::Yield)
+                    TurnPriority::Yield
                 } else {
-                    Some(TurnPriority::Protected)
+                    TurnPriority::Protected
                 }
             }
         }

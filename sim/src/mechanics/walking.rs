@@ -211,6 +211,7 @@ impl WalkingSimState {
                             t,
                             ctx.scheduler,
                             ctx.map,
+                            false,
                         );
                     }
 
