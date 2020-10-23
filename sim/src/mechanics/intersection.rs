@@ -204,11 +204,18 @@ impl IntersectionSimState {
             }
         } else if let Some(ref sign) = map.maybe_get_stop_sign(i) {
             for (req, _) in all {
-                // Banned is impossible
-                if sign.get_priority(req.turn, map) == TurnPriority::Protected {
-                    protected.push(req);
-                } else {
-                    yielding.push(req);
+                match sign.get_priority(req.turn, map) {
+                    Some(TurnPriority::Protected) => {
+                        protected.push(req);
+                    }
+                    Some(TurnPriority::Yield) => {
+                        yielding.push(req);
+                    }
+                    Some(TurnPriority::Banned) => unreachable!(),
+                    // This may happen in the middle of resolving live edits. delete_car calls
+                    // space_freed, which gets here. Depending on the order we delete cars, we hit
+                    // this case.
+                    None => {}
                 }
             }
         } else {
@@ -594,7 +601,7 @@ impl IntersectionSimState {
         now: Time,
         scheduler: &mut Scheduler,
     ) -> bool {
-        let our_priority = sign.get_priority(req.turn, map);
+        let our_priority = sign.get_priority(req.turn, map).unwrap();
         assert!(our_priority != TurnPriority::Banned);
         let our_time = self.state[&req.turn.parent].waiting[req];
 

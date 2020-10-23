@@ -978,7 +978,7 @@ impl Sim {
         // TODO Handle changes to access restrictions
 
         {
-            // Find every active trip whose path crosses a modified lane or closed intersection
+            // Find every active trip whose path crosses a modified lane or intersection
             let (edited_lanes, _) = map.get_edits().changed_lanes(map);
             let mut closed_intersections = HashSet::new();
             for i in map.get_edits().original_intersections.keys() {
@@ -993,7 +993,11 @@ impl Sim {
                         .iter()
                         .any(|step| match step.as_traversable() {
                             Traversable::Lane(l) => edited_lanes.contains(&l),
-                            Traversable::Turn(t) => closed_intersections.contains(&t.parent),
+                            Traversable::Turn(t) => {
+                                closed_intersections.contains(&t.parent)
+                                    || edited_lanes.contains(&t.src)
+                                    || edited_lanes.contains(&t.dst)
+                            }
                         })
                     {
                         affected.insert((*a, *trip));

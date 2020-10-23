@@ -1101,8 +1101,8 @@ impl DrivingSimState {
                 // Make sure it's empty!
                 if v.laggy_head.is_some() || !v.cars.is_empty() {
                     panic!(
-                        "After live map edits, deleted queue {} still has vehicles!",
-                        k
+                        "After live map edits, deleted queue {} still has vehicles! {:?}, {:?}",
+                        k, v.laggy_head, v.cars
                     );
                 }
                 false
