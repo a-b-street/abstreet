@@ -372,11 +372,15 @@ impl TripManager {
             end,
             constraints: PathConstraints::Bike,
         };
-        if let Some(router) = ctx
-            .map
-            .pathfind(req.clone())
-            .map(|path| drive_to.make_router(bike, path, ctx.map))
-        {
+        let maybe_router = if req.start == req.end {
+            // TODO Convert to a walking trip!
+            None
+        } else {
+            ctx.map
+                .pathfind(req.clone())
+                .map(|path| drive_to.make_router(bike, path, ctx.map))
+        };
+        if let Some(router) = maybe_router {
             ctx.scheduler.push(
                 now,
                 Command::SpawnCar(

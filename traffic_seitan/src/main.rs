@@ -6,7 +6,7 @@
 use rand::seq::SliceRandom;
 use rand_xorshift::XorShiftRng;
 
-use abstutil::{CmdArgs, Timer};
+use abstutil::{prettyprint_usize, CmdArgs, Timer};
 use geom::Duration;
 use map_model::{LaneID, LaneType, Map, MapEdits};
 use sim::{Sim, SimFlags};
@@ -60,6 +60,21 @@ fn run(map: &mut Map, sim: &mut Sim, rng: &mut XorShiftRng, timer: &mut Timer) {
         sim.handle_live_edited_traffic_signals(&map);
         sim.handle_live_edits(&map);
     }
+
+    let mut finished = 0;
+    let mut cancelled = 0;
+    for (_, _, maybe_mode, _) in &sim.get_analytics().finished_trips {
+        if maybe_mode.is_some() {
+            finished += 1;
+        } else {
+            cancelled += 1;
+        }
+    }
+    println!(
+        "\nDone! {} finished trips, {} cancelled",
+        prettyprint_usize(finished),
+        prettyprint_usize(cancelled)
+    );
 }
 
 fn alter_turn_destinations(sim: &Sim, map: &Map, rng: &mut XorShiftRng, edits: &mut MapEdits) {
@@ -96,8 +111,6 @@ fn alter_turn_destinations(sim: &Sim, map: &Map, rng: &mut XorShiftRng, edits: &
     }
 }
 
-// TODO This doesn't cause any interesting crash yet. Find somebody in the act of
-// parking/unparking/going to a spot, and nuke that instead.
 fn nuke_random_parking(map: &Map, rng: &mut XorShiftRng, edits: &mut MapEdits) {
     let num_edits = 5;
 

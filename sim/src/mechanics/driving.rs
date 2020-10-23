@@ -11,9 +11,9 @@ use crate::mechanics::Queue;
 use crate::sim::Ctx;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
-    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSimState, ParkingSpot,
-    PersonID, Scheduler, SimOptions, TimeInterval, TransitSimState, TripID, TripManager,
-    UnzoomedAgent, Vehicle, WalkingSimState, FOLLOWING_DISTANCE,
+    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSpot, PersonID,
+    SimOptions, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent, Vehicle,
+    WalkingSimState, FOLLOWING_DISTANCE,
 };
 
 const TIME_TO_WAIT_AT_BUS_STOP: Duration = Duration::const_seconds(10.0);
@@ -89,14 +89,14 @@ impl DrivingSimState {
         &mut self,
         now: Time,
         mut params: CreateCar,
-        map: &Map,
-        intersections: &IntersectionSimState,
-        parking: &ParkingSimState,
-        scheduler: &mut Scheduler,
+        ctx: &mut Ctx,
     ) -> Option<CreateCar> {
         let first_lane = params.router.head().as_lane();
 
-        if !intersections.nobody_headed_towards(first_lane, map.get_l(first_lane).src_i) {
+        if !ctx
+            .intersections
+            .nobody_headed_towards(first_lane, ctx.map.get_l(first_lane).src_i)
+        {
             return Some(params);
         }
         if let Some(idx) = self.queues[&Traversable::Lane(first_lane)].get_idx_to_insert_car(
@@ -134,8 +134,8 @@ impl DrivingSimState {
                     match car.router.maybe_handle_end(
                         params.start_dist,
                         &car.vehicle,
-                        parking,
-                        map,
+                        ctx.parking,
+                        ctx.map,
                         car.trip_and_person,
                         &mut self.events,
                     ) {
@@ -165,9 +165,10 @@ impl DrivingSimState {
                     }
                 }
 
-                car.state = car.crossing_state(params.start_dist, now, map);
+                car.state = car.crossing_state(params.start_dist, now, ctx.map);
             }
-            scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+            ctx.scheduler
+                .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
             {
                 let queue = self.queues.get_mut(&Traversable::Lane(first_lane)).unwrap();
                 queue.cars.insert(idx, car.vehicle.id);
@@ -180,6 +181,7 @@ impl DrivingSimState {
         }
         Some(params)
     }
+
     /// State transitions for this car:
     ///
     /// Crossing -> Queued or WaitingToAdvance

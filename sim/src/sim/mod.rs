@@ -475,14 +475,10 @@ impl Sim {
                     let maybe_parked_car = create_car.maybe_parked_car.clone();
                     let req = create_car.req.clone();
 
-                    if let Some(create_car) = self.driving.start_car_on_lane(
-                        self.time,
-                        create_car,
-                        map,
-                        &self.intersections,
-                        &self.parking,
-                        &mut self.scheduler,
-                    ) {
+                    if let Some(create_car) = self
+                        .driving
+                        .start_car_on_lane(self.time, create_car, &mut ctx)
+                    {
                         // Starting the car failed for some reason.
                         if retry_if_no_room {
                             // TODO Record this in the trip log
@@ -493,14 +489,6 @@ impl Sim {
                         } else {
                             // Buses don't use Command::SpawnCar, so this must exist.
                             let (trip, person) = create_car.trip_and_person.unwrap();
-                            // Have to redeclare for the borrow checker
-                            let mut ctx = Ctx {
-                                parking: &mut self.parking,
-                                intersections: &mut self.intersections,
-                                cap: &mut self.cap,
-                                scheduler: &mut self.scheduler,
-                                map,
-                            };
                             self.trips.cancel_trip(
                                 self.time,
                                 trip,
