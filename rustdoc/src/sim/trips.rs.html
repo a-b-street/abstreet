@@ -1764,6 +1764,10 @@
 <span id="1763">1763</span>
 <span id="1764">1764</span>
 <span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -2139,11 +2143,15 @@
             <span class="ident">end</span>,
             <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
         };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">router</span>) <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">map</span>
-            .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">drive_to</span>.<span class="ident">make_router</span>(<span class="ident">bike</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>))
-        {
+        <span class="kw">let</span> <span class="ident">maybe_router</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span> <span class="op">==</span> <span class="ident">req</span>.<span class="ident">end</span> {
+            <span class="comment">// TODO Convert to a walking trip!</span>
+            <span class="prelude-val">None</span>
+        } <span class="kw">else</span> {
+            <span class="ident">ctx</span>.<span class="ident">map</span>
+                .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">drive_to</span>.<span class="ident">make_router</span>(<span class="ident">bike</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>))
+        };
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">router</span>) <span class="op">=</span> <span class="ident">maybe_router</span> {
             <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
                 <span class="ident">now</span>,
                 <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(
