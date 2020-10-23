@@ -996,6 +996,11 @@ impl Sim {
                     }
                 }
             }
+
+            affected.extend(
+                self.driving
+                    .find_vehicles_affected_by_live_edits(&closed_intersections, &edited_lanes),
+            );
         }
 
         let num_evicted = {

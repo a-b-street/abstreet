@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_hashmap, serialize_hashmap, FixedMap, IndexableKey};
 use geom::{Distance, Duration, PolyLine, Speed, Time};
-use map_model::{LaneID, Map, Path, PathStep, Traversable};
+use map_model::{IntersectionID, LaneID, Map, Path, PathStep, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
@@ -1074,6 +1074,32 @@ impl DrivingSimState {
                 if !spots.contains(spot) {
                     // Buses don't park
                     affected.push((AgentID::Car(car.vehicle.id), car.trip_and_person.unwrap().0));
+                }
+            }
+        }
+        affected
+    }
+
+    /// Finds vehicles that're laggy heads on affected parts of the map.
+    pub fn find_vehicles_affected_by_live_edits(
+        &self,
+        closed_intersections: &HashSet<IntersectionID>,
+        edited_lanes: &BTreeSet<LaneID>,
+    ) -> Vec<(AgentID, TripID)> {
+        let mut affected = Vec::new();
+        for car in self.cars.values() {
+            if car.last_steps.iter().any(|step| match step {
+                Traversable::Lane(l) => edited_lanes.contains(&l),
+                Traversable::Turn(t) => {
+                    closed_intersections.contains(&t.parent)
+                        || edited_lanes.contains(&t.src)
+                        || edited_lanes.contains(&t.dst)
+                }
+            }) {
+                // TODO Buses aren't handled yet! Mostly not a big deal, because they're pretty
+                // much never created anyway.
+                if let Some((trip, _)) = car.trip_and_person {
+                    affected.push((AgentID::Car(car.vehicle.id), trip));
                 }
             }
         }
