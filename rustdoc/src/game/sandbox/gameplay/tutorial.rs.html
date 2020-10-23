@@ -1476,7 +1476,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">cutscene</span>::<span class="ident">CutsceneBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">grey_out_map</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{
     <span class="ident">maybe_exit_sandbox</span>, <span class="ident">spawn_agents_around</span>, <span class="ident">Actions</span>, <span class="ident">AgentMeter</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>,
@@ -1815,7 +1815,7 @@
         <span class="kw">let</span> <span class="ident">tut</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">msg_panel</span>.<span class="ident">is_some</span>() {
-            <span class="ident">State</span>::<span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+            <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
 
         <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
