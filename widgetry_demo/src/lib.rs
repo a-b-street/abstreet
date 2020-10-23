@@ -7,18 +7,23 @@ use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series,
-    Text, TextExt, Texture, UpdateType, VerticalAlignment, Widget, GUI,
+    SharedAppState, State, Text, TextExt, Texture, Transition, UpdateType, VerticalAlignment,
+    Widget,
 };
 
 pub fn main() {
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
     widgetry::run(widgetry::Settings::new("widgetry demo"), |ctx| {
-        App::new(ctx)
+        (App {}, vec![Box::new(Demo::new(ctx))])
     });
 }
 
-struct App {
+struct App {}
+
+impl SharedAppState for App {}
+
+struct Demo {
     controls: Panel,
     timeseries_panel: Option<(Duration, Panel)>,
     scrollable_canvas: Drawable,
@@ -26,9 +31,9 @@ struct App {
     elapsed: Duration,
 }
 
-impl App {
-    fn new(ctx: &mut EventCtx) -> App {
-        App {
+impl Demo {
+    fn new(ctx: &mut EventCtx) -> Demo {
+        Demo {
             controls: make_controls(ctx),
             timeseries_panel: None,
             scrollable_canvas: setup_scrollable_canvas(ctx),
@@ -124,8 +129,8 @@ impl App {
     }
 }
 
-impl GUI for App {
-    fn event(&mut self, ctx: &mut EventCtx) {
+impl State<App> for Demo {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition<App> {
         // Allow panning and zooming to work.
         ctx.canvas_movement();
 
@@ -194,9 +199,11 @@ impl GUI for App {
         if !self.controls.is_checked("paused") {
             ctx.request_update(UpdateType::Game);
         }
+
+        Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.clear(Color::BLACK);
 
         if self.controls.is_checked("Draw scrollable canvas") {

@@ -5,13 +5,14 @@ use geom::{Distance, Pt2D};
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use widgetry::{
-    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, Text, UpdateType, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, UpdateType, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
-use crate::game::{ChooseSomething, DrawBaselayer, PopupMsg, PromptInput, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, PromptInput, Transition};
 use crate::helpers::ID;
 use crate::load::MapLoader;
 use crate::options::OptionsPanel;
@@ -39,7 +40,7 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         Box::new(DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -111,7 +112,7 @@ impl DebugMode {
     }
 }
 
-impl State for DebugMode {
+impl State<App> for DebugMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
@@ -737,7 +738,7 @@ struct ScreenshotTest {
 }
 
 impl ScreenshotTest {
-    fn new(ctx: &mut EventCtx, app: &App, mut todo_maps: Vec<&'static str>) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App, mut todo_maps: Vec<&'static str>) -> Box<dyn State<App>> {
         MapLoader::new(
             ctx,
             app,
@@ -752,7 +753,7 @@ impl ScreenshotTest {
     }
 }
 
-impl State for ScreenshotTest {
+impl State<App> for ScreenshotTest {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if self.screenshot_done {
             if self.todo_maps.is_empty() {

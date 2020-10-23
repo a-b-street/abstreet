@@ -4,13 +4,13 @@ use geom::Speed;
 use map_model::{LaneType, RoadID};
 use widgetry::{
     hotkeys, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::edit::select::RoadSelector;
 use crate::edit::{apply_map_edits, speed_limit_choices, try_change_lt, ConfirmDiscard};
-use crate::game::{PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 
 pub struct BulkSelect {
     panel: Panel,
@@ -18,7 +18,7 @@ pub struct BulkSelect {
 }
 
 impl BulkSelect {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State<App>> {
         let selector = RoadSelector::new(ctx, app, btreeset! {start});
         let panel = make_select_panel(ctx, &selector);
         Box::new(BulkSelect { panel, selector })
@@ -53,7 +53,7 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
     .build(ctx)
 }
 
-impl State for BulkSelect {
+impl State<App> for BulkSelect {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -122,7 +122,7 @@ struct BulkEdit {
 }
 
 impl BulkEdit {
-    fn new(ctx: &mut EventCtx, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State<App>> {
         Box::new(BulkEdit {
             panel: Panel::new(Widget::col(vec![
                 Line(format!("Editing {} roads", roads.len()))
@@ -158,7 +158,7 @@ impl BulkEdit {
     }
 }
 
-impl State for BulkEdit {
+impl State<App> for BulkEdit {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
@@ -272,7 +272,7 @@ fn make_bulk_edits(
     roads: &Vec<RoadID>,
     speed_limit: Option<Speed>,
     lt_transformations: Vec<(Option<LaneType>, Option<LaneType>)>,
-) -> Box<dyn State> {
+) -> Box<dyn State<App>> {
     let mut speed_changes = 0;
     let mut lt_changes = 0;
     let mut errors = Vec::new();

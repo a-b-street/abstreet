@@ -3,10 +3,9 @@ use std::collections::{BTreeSet, HashMap};
 use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
 use sim::{TripEndpoint, TripID, TripMode};
-use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
+use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, State, Text, Widget};
 
 use crate::app::App;
-use crate::game::State;
 use crate::helpers::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::table::{Col, Filter, Table};
@@ -15,7 +14,7 @@ use crate::sandbox::dashboards::DashTab;
 pub struct FinishedTripTable;
 
 impl FinishedTripTable {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         GenericTripTable::new(
             ctx,
             app,
@@ -29,7 +28,7 @@ impl FinishedTripTable {
 pub struct CancelledTripTable;
 
 impl CancelledTripTable {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         GenericTripTable::new(
             ctx,
             app,
@@ -43,7 +42,7 @@ impl CancelledTripTable {
 pub struct UnfinishedTripTable;
 
 impl UnfinishedTripTable {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         GenericTripTable::new(
             ctx,
             app,

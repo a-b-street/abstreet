@@ -4,13 +4,14 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
 };
 use widgetry::{
-    Btn, Checkbox, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner, TextExt, Widget,
+    Btn, Checkbox, Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner,
+    State, TextExt, Widget,
 };
 
 use crate::app::App;
 use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
-use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
+use crate::game::{ChooseSomething, Transition};
 use crate::sandbox::GameplayMode;
 
 pub struct ChangeDuration {
@@ -19,7 +20,11 @@ pub struct ChangeDuration {
 }
 
 impl ChangeDuration {
-    pub fn new(ctx: &mut EventCtx, signal: &ControlTrafficSignal, idx: usize) -> Box<dyn State> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        signal: &ControlTrafficSignal,
+        idx: usize,
+    ) -> Box<dyn State<App>> {
         Box::new(ChangeDuration {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -70,7 +75,7 @@ impl ChangeDuration {
     }
 }
 
-impl State for ChangeDuration {
+impl State<App> for ChangeDuration {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -119,7 +124,7 @@ pub fn edit_entire_signal(
     i: IntersectionID,
     mode: GameplayMode,
     original: BundleEdits,
-) -> Box<dyn State> {
+) -> Box<dyn State<App>> {
     let has_sidewalks = app
         .primary
         .map

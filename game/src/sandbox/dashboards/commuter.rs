@@ -7,13 +7,14 @@ use geom::{Distance, PolyLine, Polygon, Time};
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
-    AreaSlider, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    AreaSlider, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything};
 use crate::common::{ColorLegend, CommonState};
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::helpers::checkbox_per_mode;
 use crate::render::DrawOptions;
 
@@ -71,7 +72,7 @@ struct Filter {
 type BlockID = usize;
 
 impl CommuterPatterns {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         assert!(app.primary.suspended_sim.is_none());
         app.primary.suspended_sim = Some(app.primary.clear_sim());
 
@@ -341,7 +342,7 @@ impl CommuterPatterns {
     }
 }
 
-impl State for CommuterPatterns {
+impl State<App> for CommuterPatterns {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 

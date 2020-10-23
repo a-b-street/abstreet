@@ -6,9 +6,9 @@ use rand::seq::SliceRandom;
 
 use abstutil::Timer;
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
-use map_model::{IntersectionID, Map, Traversable};
+use map_model::{IntersectionID, Map, PermanentMapEdits, Traversable};
 use sim::{Analytics, Sim, SimCallback, SimFlags};
-use widgetry::{EventCtx, GfxCtx, Prerender};
+use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState};
 
 use crate::challenges::HighScore;
 use crate::colors::ColorScheme;
@@ -669,5 +669,62 @@ impl SimCallback for FindDelayedIntersections {
         } else {
             false
         }
+    }
+}
+
+impl SharedAppState for App {
+    fn before_event(&mut self) {
+        self.per_obj.reset();
+    }
+
+    fn draw_default(&self, g: &mut GfxCtx) {
+        self.draw(g, DrawOptions::new(), &ShowEverything::new());
+    }
+
+    fn dump_before_abort(&self, canvas: &Canvas) {
+        println!();
+        println!(
+            "********************************************************************************"
+        );
+        canvas.save_camera_state(self.primary.map.get_name());
+        println!(
+            "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
+             all output.txt; at least everything starting from the stack trace above!"
+        );
+
+        println!();
+        self.primary.sim.dump_before_abort();
+
+        println!();
+        println!("Camera:");
+        println!(
+            r#"{{ "cam_x": {}, "cam_y": {}, "cam_zoom": {} }}"#,
+            canvas.cam_x, canvas.cam_y, canvas.cam_zoom
+        );
+
+        println!();
+        if self.primary.map.get_edits().commands.is_empty() {
+            println!("No edits");
+        } else {
+            abstutil::write_json(
+                "edits_during_crash.json".to_string(),
+                &PermanentMapEdits::to_permanent(self.primary.map.get_edits(), &self.primary.map),
+            );
+            println!("Please include edits_during_crash.json in your bug report.");
+        }
+
+        // Repeat, because it can be hard to see the top of the report if it's long
+        println!();
+        println!(
+            "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
+             all output.txt; at least everything above here until the start of the report!"
+        );
+        println!(
+            "********************************************************************************"
+        );
+    }
+
+    fn before_quit(&self, canvas: &Canvas) {
+        canvas.save_camera_state(self.primary.map.get_name());
     }
 }

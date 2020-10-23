@@ -1,14 +1,14 @@
 use abstutil::prettyprint_usize;
 use sim::Scenario;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
-    VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::{ColorDiscrete, CommonState};
 use crate::devtools::destinations::PopularDestinations;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 
 pub struct ScenarioManager {
     panel: Panel,
@@ -18,7 +18,7 @@ pub struct ScenarioManager {
 }
 
 impl ScenarioManager {
-    pub fn new(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(scenario: Scenario, ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut colorer = ColorDiscrete::new(
             app,
             vec![
@@ -85,7 +85,7 @@ impl ScenarioManager {
     }
 }
 
-impl State for ScenarioManager {
+impl State<App> for ScenarioManager {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

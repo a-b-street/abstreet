@@ -8,14 +8,14 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
 use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, TrafficSignalEditor};
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::render::DrawIntersection;
 use crate::sandbox::GameplayMode;
 
@@ -36,7 +36,7 @@ impl StopSignEditor {
         app: &mut App,
         id: IntersectionID,
         mode: GameplayMode,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
         let geom = app
             .primary
@@ -77,7 +77,7 @@ impl StopSignEditor {
     }
 }
 
-impl State for StopSignEditor {
+impl State<App> for StopSignEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 

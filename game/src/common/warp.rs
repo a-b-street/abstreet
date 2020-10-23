@@ -3,11 +3,13 @@ use std::collections::BTreeMap;
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
-use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Warper, Widget};
+use widgetry::{
+    Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Warper, Widget,
+};
 
 use crate::app::{App, PerMap};
 use crate::common::Tab;
-use crate::game::{PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;
@@ -26,7 +28,7 @@ impl Warping {
         target_cam_zoom: Option<f64>,
         id: Option<ID>,
         primary: &mut PerMap,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         primary.last_warped_from = Some((ctx.canvas.center_to_map_pt(), ctx.canvas.cam_zoom));
         Box::new(Warping {
             warper: Warper::new(ctx, pt, target_cam_zoom),
@@ -35,7 +37,7 @@ impl Warping {
     }
 }
 
-impl State for Warping {
+impl State<App> for Warping {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         if self.warper.event(ctx) {
             Transition::Keep
@@ -70,7 +72,7 @@ pub struct DebugWarp {
 }
 
 impl DebugWarp {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let c = ctx.style().hotkey_color;
         Box::new(DebugWarp {
             panel: Panel::new(Widget::col(vec![
@@ -124,7 +126,7 @@ impl DebugWarp {
     }
 }
 
-impl State for DebugWarp {
+impl State<App> for DebugWarp {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

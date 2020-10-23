@@ -5,10 +5,10 @@ use serde::de::DeserializeOwned;
 
 use abstutil::Timer;
 use sim::Sim;
-use widgetry::{Color, EventCtx, GfxCtx};
+use widgetry::{Color, EventCtx, GfxCtx, State};
 
 use crate::app::App;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use native_loader::FileLoader;
@@ -24,7 +24,7 @@ impl MapLoader {
         app: &App,
         name: String,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         if app.primary.map.get_name() == &name {
             return Box::new(MapAlreadyLoaded {
                 on_load: Some(on_load),
@@ -58,7 +58,7 @@ impl MapLoader {
 struct MapAlreadyLoaded {
     on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>>,
 }
-impl State for MapAlreadyLoaded {
+impl State<App> for MapAlreadyLoaded {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         (self.on_load.take().unwrap())(ctx, app)
     }
@@ -82,7 +82,7 @@ mod native_loader {
             _: &mut EventCtx,
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Option<T>) -> Transition>,
-        ) -> Box<dyn State> {
+        ) -> Box<dyn State<App>> {
             Box::new(FileLoader {
                 path,
                 on_load: Some(on_load),
@@ -90,7 +90,7 @@ mod native_loader {
         }
     }
 
-    impl<T: 'static + DeserializeOwned> State for FileLoader<T> {
+    impl<T: 'static + DeserializeOwned> State<App> for FileLoader<T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
                 // Assumes a binary file
@@ -114,7 +114,7 @@ mod wasm_loader {
     use web_sys::{Request, RequestInit, RequestMode, Response};
 
     use geom::Duration;
-    use widgetry::{Line, Panel, Text, UpdateType};
+    use widgetry::{DrawBaselayer, Line, Panel, State, Text, UpdateType};
 
     use super::*;
 
@@ -135,7 +135,7 @@ mod wasm_loader {
             ctx: &mut EventCtx,
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Option<T>) -> Transition>,
-        ) -> Box<dyn State> {
+        ) -> Box<dyn State<App>> {
             let url = if cfg!(feature = "wasm_s3") {
                 format!(
                     "http://abstreet.s3-website.us-east-2.amazonaws.com/{}",

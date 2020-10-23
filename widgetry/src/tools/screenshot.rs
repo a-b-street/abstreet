@@ -3,11 +3,11 @@ use std::{fs, process, thread, time};
 
 use abstutil::Timer;
 
-use crate::runner::{State, GUI};
-use crate::Prerender;
+use crate::runner::State;
+use crate::{Prerender, SharedAppState};
 
-pub(crate) fn screenshot_everything<G: GUI>(
-    state: &mut State<G>,
+pub(crate) fn screenshot_everything<A: SharedAppState>(
+    state: &mut State<A>,
     dir_path: &str,
     prerender: &Prerender,
     zoom: f64,

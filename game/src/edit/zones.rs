@@ -7,7 +7,7 @@ use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use sim::TripMode;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Spinner, Text, TextExt, VerticalAlignment, Widget,
+    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -15,7 +15,7 @@ use crate::common::ColorDiscrete;
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::edit::select::RoadSelector;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::{checkbox_per_mode, intersections_from_roads};
 
 pub struct ZoneEditor {
@@ -29,7 +29,7 @@ pub struct ZoneEditor {
 }
 
 impl ZoneEditor {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App, start: RoadID) -> Box<dyn State<App>> {
         let start = app.primary.map.get_r(start);
         let members = if let Some(z) = start.get_zone(&app.primary.map) {
             z.members.clone()
@@ -82,7 +82,7 @@ impl ZoneEditor {
 }
 
 // TODO Handle splitting/merging zones.
-impl State for ZoneEditor {
+impl State<App> for ZoneEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

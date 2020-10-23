@@ -7,14 +7,15 @@ use map_model::{
     TurnPriority,
 };
 use widgetry::{
-    lctrl, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    MultiButton, Outcome, Panel, RewriteColor, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, MultiButton, Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, ShowEverything};
 use crate::common::{CommonState, Warping};
 use crate::edit::{apply_map_edits, ConfirmDiscard};
-use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 use crate::options::TrafficSignalStyle;
 use crate::render::{traffic_signal, DrawMovement, DrawOptions};
 use crate::sandbox::GameplayMode;
@@ -60,7 +61,7 @@ impl TrafficSignalEditor {
         app: &mut App,
         members: BTreeSet<IntersectionID>,
         mode: GameplayMode,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
         let original = BundleEdits::get_current(app, &members);
@@ -176,7 +177,7 @@ impl TrafficSignalEditor {
     }
 }
 
-impl State for TrafficSignalEditor {
+impl State<App> for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if self.warn_changed {
             self.warn_changed = false;

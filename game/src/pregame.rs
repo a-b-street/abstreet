@@ -9,15 +9,15 @@ use geom::{Duration, Line, Percent, Pt2D, Speed};
 use map_model::PermanentMapEdits;
 use sim::ScenarioGenerator;
 use widgetry::{
-    hotkeys, Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor, Text,
-    UpdateType, Widget,
+    hotkeys, Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor,
+    State, Text, UpdateType, Widget,
 };
 
 use crate::app::App;
 use crate::challenges::ChallengesPicker;
 use crate::devtools::DevToolsMode;
 use crate::edit::apply_map_edits;
-use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 use crate::helpers::open_browser;
 use crate::load::MapLoader;
 use crate::sandbox::gameplay::Tutorial;
@@ -61,7 +61,7 @@ impl TitleScreen {
     }
 }
 
-impl State for TitleScreen {
+impl State<App> for TitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -89,7 +89,7 @@ pub struct MainMenu {
 }
 
 impl MainMenu {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
             Btn::svg_def("system/assets/pregame/quit.svg")
                 .build(ctx, "quit", Key::Escape)
@@ -169,7 +169,7 @@ impl MainMenu {
     }
 }
 
-impl State for MainMenu {
+impl State<App> for MainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -242,7 +242,7 @@ struct About {
 }
 
 impl About {
-    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
             Btn::svg_def("system/assets/pregame/back.svg")
                 .build(ctx, "back", Key::Escape)
@@ -289,7 +289,7 @@ impl About {
     }
 }
 
-impl State for About {
+impl State<App> for About {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -324,7 +324,7 @@ struct Proposals {
 }
 
 impl Proposals {
-    fn new(ctx: &mut EventCtx, app: &App, current: Option<String>) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App, current: Option<String>) -> Box<dyn State<App>> {
         let mut proposals = HashMap::new();
         let mut buttons = Vec::new();
         let mut current_tab = Vec::new();
@@ -400,7 +400,7 @@ impl Proposals {
     }
 }
 
-impl State for Proposals {
+impl State<App> for Proposals {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -531,7 +531,7 @@ impl Screensaver {
 #[cfg(not(target_arch = "wasm32"))]
 #[allow(unused)]
 mod built_info {
-    use widgetry::{Color, Line, Text};
+    use widgetry::{Color, DrawBaselayer, Line, State, Text};
 
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 

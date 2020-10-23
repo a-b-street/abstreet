@@ -1,12 +1,12 @@
 use geom::{Duration, UnitFmt};
 use widgetry::{
-    Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner,
+    Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
     TextExt, Widget,
 };
 
 use crate::app::App;
 use crate::colors::{ColorScheme, ColorSchemeChoice};
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::grey_out_map;
 use crate::render::{DrawBuilding, DrawMap};
 
@@ -93,7 +93,7 @@ pub struct OptionsPanel {
 }
 
 impl OptionsPanel {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(OptionsPanel {
             panel: Panel::new(Widget::col(vec![
                 Widget::custom_row(vec![
@@ -239,7 +239,7 @@ impl OptionsPanel {
     }
 }
 
-impl State for OptionsPanel {
+impl State<App> for OptionsPanel {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

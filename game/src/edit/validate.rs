@@ -2,11 +2,11 @@ use std::collections::BTreeSet;
 
 use abstutil::Timer;
 use map_model::{connectivity, EditCmd, LaneID, LaneType, Map, PathConstraints};
-use widgetry::{Color, EventCtx};
+use widgetry::{Color, EventCtx, State};
 
 use crate::app::App;
 use crate::common::ColorDiscrete;
-use crate::game::{PopupMsg, State};
+use crate::game::PopupMsg;
 
 // All of these take a candidate EditCmd to do, then see if it's valid. If they return None, it's
 // fine. They always leave the map in the original state without the new EditCmd.
@@ -16,7 +16,7 @@ pub fn check_sidewalk_connectivity(
     ctx: &mut EventCtx,
     app: &mut App,
     cmd: EditCmd,
-) -> Option<Box<dyn State>> {
+) -> Option<Box<dyn State<App>>> {
     let orig_edits = app.primary.map.get_edits().clone();
     let (_, disconnected_before) =
         connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
@@ -61,7 +61,11 @@ pub fn check_sidewalk_connectivity(
 
 #[allow(unused)]
 // Could be caused by closing intersections, changing lane types, or reversing lanes
-pub fn check_blackholes(ctx: &mut EventCtx, app: &mut App, cmd: EditCmd) -> Option<Box<dyn State>> {
+pub fn check_blackholes(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    cmd: EditCmd,
+) -> Option<Box<dyn State<App>>> {
     let orig_edits = app.primary.map.get_edits().clone();
     let mut driving_ok_originally = BTreeSet::new();
     let mut biking_ok_originally = BTreeSet::new();
@@ -120,7 +124,7 @@ pub fn try_change_lt(
     map: &mut Map,
     l: LaneID,
     new_lt: LaneType,
-) -> Result<EditCmd, Box<dyn State>> {
+) -> Result<EditCmd, Box<dyn State<App>>> {
     let orig_edits = map.get_edits().clone();
 
     let mut edits = orig_edits.clone();

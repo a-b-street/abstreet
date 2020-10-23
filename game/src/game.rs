@@ -1,23 +1,18 @@
-use map_model::PermanentMapEdits;
 use widgetry::{
-    hotkeys, Btn, Canvas, Choice, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, ScreenRectangle, Text, VerticalAlignment, Widget, GUI,
+    hotkeys, Btn, Choice, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Menu, Outcome, Panel, ScreenRectangle, State, Text,
+    VerticalAlignment, Widget,
 };
 
-use crate::app::{App, Flags, ShowEverything};
+use crate::app::{App, Flags};
 use crate::helpers::grey_out_map;
 use crate::options::Options;
 use crate::pregame::TitleScreen;
-use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 
-// This is the top-level of the GUI logic. This module should just manage interactions between the
-// top-level game states.
-pub struct Game {
-    // A stack of states
-    states: Vec<Box<dyn State>>,
-    app: App,
-}
+pub struct Game;
+
+pub type Transition = widgetry::Transition<App>;
 
 impl Game {
     pub fn new(
@@ -26,7 +21,7 @@ impl Game {
         start_with_edits: Option<String>,
         maybe_mode: Option<GameplayMode>,
         ctx: &mut EventCtx,
-    ) -> Game {
+    ) -> (App, Vec<Box<dyn State<App>>>) {
         let title = !opts.dev
             && !flags.sim_flags.load.contains("player/save")
             && !flags.sim_flags.load.contains("system/scenarios")
@@ -65,7 +60,7 @@ impl Game {
             app.primary.clear_sim();
         }
 
-        let states: Vec<Box<dyn State>> = if title {
+        let states: Vec<Box<dyn State<App>>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &mut app))]
         } else {
             let mode = maybe_mode
@@ -77,185 +72,9 @@ impl Game {
             // PlayScenario without clobbering.
             app.primary.sim = ss;
         }
-        Game { states, app }
+
+        (app, states)
     }
-
-    // If true, then the top-most state on the stack needs to be "woken up" with a fake mouseover
-    // event.
-    fn execute_transition(&mut self, ctx: &mut EventCtx, transition: Transition) -> bool {
-        match transition {
-            Transition::Keep => false,
-            Transition::KeepWithMouseover => true,
-            Transition::Pop => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                if self.states.is_empty() {
-                    self.before_quit(ctx.canvas);
-                    std::process::exit(0);
-                }
-                true
-            }
-            Transition::ModifyState(cb) => {
-                cb(self.states.last_mut().unwrap(), ctx, &mut self.app);
-                true
-            }
-            Transition::ReplaceWithData(cb) => {
-                let mut last = self.states.pop().unwrap();
-                last.on_destroy(ctx, &mut self.app);
-                let new_states = cb(last, ctx, &mut self.app);
-                self.states.extend(new_states);
-                true
-            }
-            Transition::Push(state) => {
-                self.states.push(state);
-                true
-            }
-            Transition::Replace(state) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                self.states.push(state);
-                true
-            }
-            Transition::Clear(states) => {
-                while !self.states.is_empty() {
-                    self.states.pop().unwrap().on_destroy(ctx, &mut self.app);
-                }
-                self.states.extend(states);
-                true
-            }
-            Transition::Multi(list) => {
-                // Always wake-up just the last state remaining after the sequence
-                for t in list {
-                    self.execute_transition(ctx, t);
-                }
-                true
-            }
-        }
-    }
-}
-
-impl GUI for Game {
-    fn event(&mut self, ctx: &mut EventCtx) {
-        self.app.per_obj.reset();
-
-        let transition = self.states.last_mut().unwrap().event(ctx, &mut self.app);
-        if self.execute_transition(ctx, transition) {
-            // Let the new state initialize with a fake event. Usually these just return
-            // Transition::Keep, but nothing stops them from doing whatever. (For example, entering
-            // tutorial mode immediately pushes on a Warper.) So just recurse.
-            ctx.no_op_event(true, |ctx| self.event(ctx));
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx) {
-        let state = self.states.last().unwrap();
-
-        match state.draw_baselayer() {
-            DrawBaselayer::DefaultMap => {
-                self.app.draw(g, DrawOptions::new(), &ShowEverything::new());
-            }
-            DrawBaselayer::Custom => {}
-            DrawBaselayer::PreviousState => {
-                match self.states[self.states.len() - 2].draw_baselayer() {
-                    DrawBaselayer::DefaultMap => {
-                        self.app.draw(g, DrawOptions::new(), &ShowEverything::new());
-                    }
-                    DrawBaselayer::Custom => {}
-                    // Nope, don't recurse
-                    DrawBaselayer::PreviousState => {}
-                }
-
-                self.states[self.states.len() - 2].draw(g, &self.app);
-            }
-        }
-        state.draw(g, &self.app);
-    }
-
-    fn dump_before_abort(&self, canvas: &Canvas) {
-        println!();
-        println!(
-            "********************************************************************************"
-        );
-        canvas.save_camera_state(self.app.primary.map.get_name());
-        println!(
-            "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
-             all output.txt; at least everything starting from the stack trace above!"
-        );
-
-        println!();
-        self.app.primary.sim.dump_before_abort();
-
-        println!();
-        println!("Camera:");
-        println!(
-            r#"{{ "cam_x": {}, "cam_y": {}, "cam_zoom": {} }}"#,
-            canvas.cam_x, canvas.cam_y, canvas.cam_zoom
-        );
-
-        println!();
-        if self.app.primary.map.get_edits().commands.is_empty() {
-            println!("No edits");
-        } else {
-            abstutil::write_json(
-                "edits_during_crash.json".to_string(),
-                &PermanentMapEdits::to_permanent(
-                    self.app.primary.map.get_edits(),
-                    &self.app.primary.map,
-                ),
-            );
-            println!("Please include edits_during_crash.json in your bug report.");
-        }
-
-        // Repeat, because it can be hard to see the top of the report if it's long
-        println!();
-        println!(
-            "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
-             all output.txt; at least everything above here until the start of the report!"
-        );
-        println!(
-            "********************************************************************************"
-        );
-    }
-
-    fn before_quit(&self, canvas: &Canvas) {
-        canvas.save_camera_state(self.app.primary.map.get_name());
-    }
-}
-
-pub enum DrawBaselayer {
-    DefaultMap,
-    Custom,
-    PreviousState,
-}
-
-pub trait State: downcast_rs::Downcast {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition;
-    fn draw(&self, g: &mut GfxCtx, app: &App);
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::DefaultMap
-    }
-
-    // Before this state is popped or replaced, call this.
-    fn on_destroy(&mut self, _: &mut EventCtx, _: &mut App) {}
-    // We don't need an on_enter -- the constructor for the state can just do it.
-}
-
-downcast_rs::impl_downcast!(State);
-
-pub enum Transition {
-    Keep,
-    KeepWithMouseover,
-    Pop,
-    // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
-    ModifyState(Box<dyn FnOnce(&mut Box<dyn State>, &mut EventCtx, &mut App)>),
-    // TODO This is like Replace + ModifyState, then returning a few Push's from the callback. Not
-    // sure how to express it in terms of the others without complicating ModifyState everywhere.
-    ReplaceWithData(
-        Box<dyn FnOnce(Box<dyn State>, &mut EventCtx, &mut App) -> Vec<Box<dyn State>>>,
-    ),
-    Push(Box<dyn State>),
-    Replace(Box<dyn State>),
-    Clear(Vec<Box<dyn State>>),
-    Multi(Vec<Transition>),
 }
 
 pub struct ChooseSomething<T> {
@@ -269,7 +88,7 @@ impl<T: 'static> ChooseSomething<T> {
         query: &str,
         choices: Vec<Choice<T>>,
         cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         Box::new(ChooseSomething {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -290,7 +109,7 @@ impl<T: 'static> ChooseSomething<T> {
         rect: &ScreenRectangle,
         choices: Vec<Choice<T>>,
         cb: Box<dyn Fn(T, &mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         Box::new(ChooseSomething {
             panel: Panel::new(Menu::new(ctx, choices).named("menu").container())
                 .aligned(
@@ -303,7 +122,7 @@ impl<T: 'static> ChooseSomething<T> {
     }
 }
 
-impl<T: 'static> State for ChooseSomething<T> {
+impl<T: 'static> State<App> for ChooseSomething<T> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -346,7 +165,7 @@ impl PromptInput {
         ctx: &mut EventCtx,
         query: &str,
         cb: Box<dyn Fn(String, &mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         Box::new(PromptInput {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -364,7 +183,7 @@ impl PromptInput {
     }
 }
 
-impl State for PromptInput {
+impl State<App> for PromptInput {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -401,7 +220,11 @@ pub struct PopupMsg {
 }
 
 impl PopupMsg {
-    pub fn new<I: Into<String>>(ctx: &mut EventCtx, title: &str, lines: Vec<I>) -> Box<dyn State> {
+    pub fn new<I: Into<String>>(
+        ctx: &mut EventCtx,
+        title: &str,
+        lines: Vec<I>,
+    ) -> Box<dyn State<App>> {
         PopupMsg::also_draw(
             ctx,
             title,
@@ -417,7 +240,7 @@ impl PopupMsg {
         lines: Vec<I>,
         unzoomed: Drawable,
         zoomed: Drawable,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let mut txt = Text::new();
         txt.add(Line(title).small_heading());
         for l in lines {
@@ -435,7 +258,7 @@ impl PopupMsg {
     }
 }
 
-impl State for PopupMsg {
+impl State<App> for PopupMsg {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

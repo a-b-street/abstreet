@@ -3,14 +3,15 @@ use std::collections::BTreeSet;
 use geom::ArrowCap;
 use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::edit::ClusterTrafficSignalEditor;
-use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
@@ -20,7 +21,7 @@ pub struct UberTurnPicker {
 }
 
 impl UberTurnPicker {
-    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, i: IntersectionID) -> Box<dyn State<App>> {
         let mut members = BTreeSet::new();
         if let Some(list) = IntersectionCluster::autodetect(i, &app.primary.map) {
             members.extend(list);
@@ -49,7 +50,7 @@ impl UberTurnPicker {
     }
 }
 
-impl State for UberTurnPicker {
+impl State<App> for UberTurnPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
@@ -145,7 +146,7 @@ impl UberTurnViewer {
         members: BTreeSet<IntersectionID>,
         idx: usize,
         legal_turns: bool,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
         let map = &app.primary.map;
 
@@ -218,7 +219,7 @@ impl UberTurnViewer {
     }
 }
 
-impl State for UberTurnViewer {
+impl State<App> for UberTurnViewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 

@@ -3,8 +3,8 @@ use std::collections::BTreeMap;
 use geom::{Duration, Time};
 use sim::{OrigPersonID, PersonID, TripID};
 use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, Text,
-    TextExt, VerticalAlignment, Widget,
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, RewriteColor, State,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -12,7 +12,7 @@ use crate::challenges::{Challenge, HighScore};
 use crate::common::Tab;
 use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::cmp_duration_shorter;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls};
@@ -74,7 +74,7 @@ impl OptimizeCommute {
         })
     }
 
-    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State> {
+    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State<App>> {
         CutsceneBuilder::new("Optimize one commute: part 1")
             .boss("Listen up, I've got a special job for you today.")
             .player("What is it? The scooter coalition back with demands for more valet parking?")
@@ -96,7 +96,7 @@ impl OptimizeCommute {
             .build(ctx, app, cutscene_task(mode))
     }
 
-    pub fn cutscene_pt2(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State> {
+    pub fn cutscene_pt2(ctx: &mut EventCtx, app: &App, mode: &GameplayMode) -> Box<dyn State<App>> {
         // TODO The person chosen for this currently has more of an issue needing PBLs, actually.
         CutsceneBuilder::new("Optimize one commute: part 2")
             .boss("I've got another, er, friend who's sick of this parking situation.")
@@ -259,7 +259,7 @@ fn final_score(
     before: Duration,
     after: Duration,
     goal: Duration,
-) -> Box<dyn State> {
+) -> Box<dyn State<App>> {
     let mut next_mode: Option<GameplayMode> = None;
 
     let msg = if before == after {

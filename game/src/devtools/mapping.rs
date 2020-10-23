@@ -8,12 +8,12 @@ use geom::{Distance, FindClosest, PolyLine, Polygon};
 use map_model::{osm, RoadID};
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Line, Menu, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::{CityPicker, ColorLegend};
-use crate::game::{PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 
 pub struct ParkingMapper {
@@ -43,7 +43,7 @@ pub enum Value {
 }
 
 impl ParkingMapper {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
         ParkingMapper::make(ctx, app, Show::TODO, BTreeMap::new())
     }
@@ -53,7 +53,7 @@ impl ParkingMapper {
         app: &mut App,
         show: Show,
         data: BTreeMap<WayID, Value>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         app.opts.min_zoom_for_detail = 2.0;
 
         let map = &app.primary.map;
@@ -186,7 +186,7 @@ impl ParkingMapper {
     }
 }
 
-impl State for ParkingMapper {
+impl State<App> for ParkingMapper {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let map = &app.primary.map;
 
@@ -397,7 +397,7 @@ impl ChangeWay {
         selected: &HashSet<RoadID>,
         show: Show,
         data: BTreeMap<WayID, Value>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let map = &app.primary.map;
         let osm_way_id = map
             .get_r(*selected.iter().next().unwrap())
@@ -457,7 +457,7 @@ impl ChangeWay {
     }
 }
 
-impl State for ChangeWay {
+impl State<App> for ChangeWay {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         match self.panel.event(ctx) {

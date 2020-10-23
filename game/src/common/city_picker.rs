@@ -1,11 +1,12 @@
 use geom::{Distance, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, Text, Widget,
+    Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt,
+    State, Text, Widget,
 };
 
 use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::helpers::{grey_out_map, nice_map_name};
 use crate::load::MapLoader;
 use crate::render::DrawArea;
@@ -24,7 +25,7 @@ impl CityPicker {
         ctx: &mut EventCtx,
         app: &mut App,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
         let mut batch = GeomBatch::new();
@@ -104,7 +105,7 @@ impl CityPicker {
     }
 }
 
-impl State for CityPicker {
+impl State<App> for CityPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

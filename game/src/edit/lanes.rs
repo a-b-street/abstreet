@@ -1,7 +1,7 @@
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
-    TextExt, VerticalAlignment, Widget,
+    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -10,7 +10,7 @@ use crate::edit::zones::ZoneEditor;
 use crate::edit::{
     apply_map_edits, can_edit_lane, maybe_edit_intersection, speed_limit_choices, try_change_lt,
 };
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
@@ -22,7 +22,12 @@ pub struct LaneEditor {
 }
 
 impl LaneEditor {
-    pub fn new(ctx: &mut EventCtx, app: &App, l: LaneID, mode: GameplayMode) -> Box<dyn State> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        l: LaneID,
+        mode: GameplayMode,
+    ) -> Box<dyn State<App>> {
         let mut row = Vec::new();
         let lt = app.primary.map.get_l(l).lane_type;
         for (icon, label, key, active) in vec![
@@ -105,7 +110,7 @@ impl LaneEditor {
     }
 }
 
-impl State for LaneEditor {
+impl State<App> for LaneEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         // Restrict what can be selected.

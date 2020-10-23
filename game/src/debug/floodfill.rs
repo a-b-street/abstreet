@@ -3,12 +3,12 @@ use std::collections::HashSet;
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use widgetry::{
     Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    TextExt, VerticalAlignment, Widget,
+    State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::ColorDiscrete;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 
 pub struct Floodfiller {
     panel: Panel,
@@ -18,11 +18,11 @@ pub struct Floodfiller {
 }
 
 impl Floodfiller {
-    pub fn floodfill(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State> {
+    pub fn floodfill(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State<App>> {
         let constraints = PathConstraints::from_lt(app.primary.map.get_l(l).lane_type);
         Floodfiller::new(ctx, app, Source::Floodfill(l), constraints)
     }
-    pub fn scc(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State> {
+    pub fn scc(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State<App>> {
         let constraints = PathConstraints::from_lt(app.primary.map.get_l(l).lane_type);
         Floodfiller::new(ctx, app, Source::SCC, constraints)
     }
@@ -32,7 +32,7 @@ impl Floodfiller {
         app: &App,
         source: Source,
         constraints: PathConstraints,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let (reachable_lanes, unreachable_lanes, title) =
             source.calculate(&app.primary.map, constraints);
         let mut colorer = ColorDiscrete::new(
@@ -80,7 +80,7 @@ impl Floodfiller {
     }
 }
 
-impl State for Floodfiller {
+impl State<App> for Floodfiller {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if ctx.redo_mouseover() {
             app.recalculate_current_selection(ctx);

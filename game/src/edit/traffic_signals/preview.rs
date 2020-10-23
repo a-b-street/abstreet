@@ -4,12 +4,12 @@ use abstutil::Timer;
 use geom::Duration;
 use map_model::IntersectionID;
 use widgetry::{
-    Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, TextExt, UpdateType,
-    VerticalAlignment, Widget,
+    Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
+    UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::game::{ChooseSomething, State, Transition};
+use crate::game::{ChooseSomething, Transition};
 use crate::sandbox::{spawn_agents_around, SpeedControls, TimePanel};
 
 // TODO Show diagram, auto-sync the stage.
@@ -21,7 +21,7 @@ struct PreviewTrafficSignal {
 }
 
 impl PreviewTrafficSignal {
-    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(PreviewTrafficSignal {
             panel: Panel::new(Widget::col(vec![
                 "Previewing traffic signal".draw_text(ctx),
@@ -35,7 +35,7 @@ impl PreviewTrafficSignal {
     }
 }
 
-impl State for PreviewTrafficSignal {
+impl State<App> for PreviewTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
@@ -76,7 +76,7 @@ pub fn make_previewer(
     app: &App,
     members: BTreeSet<IntersectionID>,
     stage: usize,
-) -> Box<dyn State> {
+) -> Box<dyn State<App>> {
     let random = "random agents around these intersections".to_string();
     let right_now = format!(
         "change the traffic signal live at {}",

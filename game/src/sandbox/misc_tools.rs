@@ -2,13 +2,13 @@ use geom::{ArrowCap, Distance, Time};
 use map_model::{LaneID, TurnType};
 use sim::AgentID;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything};
 use crate::common::ColorLegend;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 /// Draws a preview of the path for the agent under the mouse cursor.
@@ -79,7 +79,7 @@ pub struct TurnExplorer {
 }
 
 impl TurnExplorer {
-    pub fn new(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State<App>> {
         Box::new(TurnExplorer {
             l,
             idx: 0,
@@ -88,7 +88,7 @@ impl TurnExplorer {
     }
 }
 
-impl State for TurnExplorer {
+impl State<App> for TurnExplorer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 

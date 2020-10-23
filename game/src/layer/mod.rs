@@ -1,8 +1,10 @@
-use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget};
+use widgetry::{
+    Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
+};
 
 use crate::app::App;
 use crate::common::HeatmapOptions;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::helpers::{grey_out_map, hotkey_btn};
 use crate::sandbox::dashboards;
 
@@ -79,7 +81,7 @@ impl PickLayer {
         None
     }
 
-    pub fn pick(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn pick(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut col = vec![Widget::custom_row(vec![
             Line("Layers").small_heading().draw(ctx),
             Btn::plaintext("X")
@@ -155,7 +157,7 @@ impl PickLayer {
     }
 }
 
-impl State for PickLayer {
+impl State<App> for PickLayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

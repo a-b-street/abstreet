@@ -2,7 +2,7 @@ use geom::{Duration, Time};
 use map_model::IntersectionID;
 use widgetry::{
     Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
-    Text, VerticalAlignment, Widget,
+    State, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections};
@@ -10,7 +10,7 @@ use crate::challenges::HighScore;
 use crate::common::Warping;
 use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
@@ -55,7 +55,7 @@ impl FixTrafficSignals {
         })
     }
 
-    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, _: &GameplayMode) -> Box<dyn State> {
+    pub fn cutscene_pt1(ctx: &mut EventCtx, app: &App, _: &GameplayMode) -> Box<dyn State<App>> {
         CutsceneBuilder::new("Traffic signal survivor")
             .boss("I hope you've had your coffee. There's a huge mess downtown.")
             .player("Did two buses get tangled together again?")
@@ -330,7 +330,7 @@ fn final_score(
     app: &mut App,
     mode: GameplayMode,
     failed: bool,
-) -> Box<dyn State> {
+) -> Box<dyn State<App>> {
     let score = app.primary.sim.time() - Time::START_OF_DAY;
     HighScore {
         goal: format!(

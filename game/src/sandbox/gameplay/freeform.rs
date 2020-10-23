@@ -10,13 +10,13 @@ use sim::{
 };
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    ScreenRectangle, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    ScreenRectangle, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::{CityPicker, CommonState};
 use crate::edit::EditMode;
-use crate::game::{ChooseSomething, PopupMsg, PromptInput, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, PromptInput, Transition};
 use crate::helpers::{nice_map_name, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
@@ -146,7 +146,7 @@ pub fn make_change_traffic(
     app: &App,
     btn: ScreenRectangle,
     current: String,
-) -> Box<dyn State> {
+) -> Box<dyn State<App>> {
     let mut choices = Vec::new();
     for name in abstutil::list_all_objects(abstutil::path_all_scenarios(app.primary.map.get_name()))
     {
@@ -219,7 +219,7 @@ struct AgentSpawner {
 }
 
 impl AgentSpawner {
-    fn new(ctx: &mut EventCtx, start: Option<BuildingID>) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, start: Option<BuildingID>) -> Box<dyn State<App>> {
         let mut spawner = AgentSpawner {
             source: None,
             goal: None,
@@ -269,7 +269,7 @@ impl AgentSpawner {
     }
 }
 
-impl State for AgentSpawner {
+impl State<App> for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

@@ -2,13 +2,13 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
 use map_model::BusRouteID;
 use widgetry::{
-    Autocomplete, Btn, EventCtx, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions, Series,
-    TextExt, Widget,
+    Autocomplete, Btn, DrawBaselayer, EventCtx, GfxCtx, Line, LinePlot, Outcome, Panel,
+    PlotOptions, Series, State, TextExt, Widget,
 };
 
 use crate::app::App;
 use crate::common::Tab;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 
@@ -17,7 +17,7 @@ pub struct ActiveTraffic {
 }
 
 impl ActiveTraffic {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         // TODO Downsampling in the middle of the day and comparing to the downsampled entire day
         // doesn't work. For the same simulation, by end of day, the plots will be identical, but
         // until then, they'll differ. See https://github.com/dabreegster/abstreet/issues/85 for
@@ -54,7 +54,7 @@ impl ActiveTraffic {
     }
 }
 
-impl State for ActiveTraffic {
+impl State<App> for ActiveTraffic {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -110,7 +110,7 @@ pub struct TransitRoutes {
 }
 
 impl TransitRoutes {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         // Count totals per route
         let mut boardings = Counter::new();
         for list in app.primary.sim.get_analytics().passengers_boarding.values() {
@@ -195,7 +195,7 @@ impl TransitRoutes {
     }
 }
 
-impl State for TransitRoutes {
+impl State<App> for TransitRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let route = match self.panel.event(ctx) {
             Outcome::Clicked(x) => {

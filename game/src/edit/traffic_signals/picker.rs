@@ -3,13 +3,13 @@ use std::collections::BTreeSet;
 use map_model::IntersectionID;
 use widgetry::{
     hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, VerticalAlignment, Widget,
+    Panel, State, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::TrafficSignalEditor;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::ID;
 use crate::sandbox::gameplay::GameplayMode;
 
@@ -24,7 +24,7 @@ impl SignalPicker {
         ctx: &mut EventCtx,
         members: BTreeSet<IntersectionID>,
         mode: GameplayMode,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         Box::new(SignalPicker {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -45,7 +45,7 @@ impl SignalPicker {
     }
 }
 
-impl State for SignalPicker {
+impl State<App> for SignalPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {

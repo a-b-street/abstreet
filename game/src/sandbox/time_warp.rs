@@ -3,13 +3,13 @@ use instant::Instant;
 use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use widgetry::{
-    AreaSlider, Btn, Checkbox, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, Text, UpdateType, Widget,
+    AreaSlider, Btn, Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key,
+    Line, Outcome, Panel, State, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything};
 use crate::common::Warping;
-use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -22,7 +22,11 @@ pub struct JumpToTime {
 }
 
 impl JumpToTime {
-    pub fn new(ctx: &mut EventCtx, app: &App, maybe_mode: Option<GameplayMode>) -> Box<dyn State> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        maybe_mode: Option<GameplayMode>,
+    ) -> Box<dyn State<App>> {
         let target = app.primary.sim.time();
         let end_of_day = app.primary.sim.get_end_of_day();
         Box::new(JumpToTime {
@@ -77,7 +81,7 @@ impl JumpToTime {
     }
 }
 
-impl State for JumpToTime {
+impl State<App> for JumpToTime {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -152,7 +156,11 @@ struct JumpToDelay {
 }
 
 impl JumpToDelay {
-    pub fn new(ctx: &mut EventCtx, app: &App, maybe_mode: Option<GameplayMode>) -> Box<dyn State> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        maybe_mode: Option<GameplayMode>,
+    ) -> Box<dyn State<App>> {
         Box::new(JumpToDelay {
             maybe_mode,
             panel: Panel::new(Widget::col(vec![
@@ -195,7 +203,7 @@ impl JumpToDelay {
     }
 }
 
-impl State for JumpToDelay {
+impl State<App> for JumpToDelay {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -256,7 +264,7 @@ impl TimeWarpScreen {
         app: &mut App,
         target: Time,
         mut halt_upon_delay: Option<Duration>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         if let Some(halt_limit) = halt_upon_delay {
             if app.primary.sim_cb.is_none() {
                 app.primary.sim_cb = Some(Box::new(FindDelayedIntersections {
@@ -291,7 +299,7 @@ impl TimeWarpScreen {
     }
 }
 
-impl State for TimeWarpScreen {
+impl State<App> for TimeWarpScreen {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if ctx.input.nonblocking_is_update_event().is_some() {
             ctx.input.use_update_event();

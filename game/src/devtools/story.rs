@@ -2,13 +2,14 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use widgetry::{
-    lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, RewriteColor, Text, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::game::{ChooseSomething, DrawBaselayer, PromptInput, State, Transition};
+use crate::game::{ChooseSomething, PromptInput, Transition};
 use crate::render::DrawOptions;
 
 // TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio
@@ -37,7 +38,7 @@ enum Mode {
 }
 
 impl StoryMapEditor {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let story = StoryMap::new();
         let mode = Mode::View;
         let dirty = false;
@@ -55,7 +56,7 @@ impl StoryMapEditor {
     }
 }
 
-impl State for StoryMapEditor {
+impl State<App> for StoryMapEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.mode {
             Mode::View => {

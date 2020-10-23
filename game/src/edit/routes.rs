@@ -1,13 +1,13 @@
 use geom::{Duration, Time};
 use map_model::{BusRouteID, EditCmd};
 use widgetry::{
-    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, TextExt,
+    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State, TextExt,
     VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::edit::apply_map_edits;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 
 pub struct RouteEditor {
     panel: Panel,
@@ -15,7 +15,7 @@ pub struct RouteEditor {
 }
 
 impl RouteEditor {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, id: BusRouteID) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App, id: BusRouteID) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
         let route = app.primary.map.get_br(id);
@@ -42,7 +42,7 @@ impl RouteEditor {
     }
 }
 
-impl State for RouteEditor {
+impl State<App> for RouteEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 

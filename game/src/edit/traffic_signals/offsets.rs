@@ -7,13 +7,13 @@ use map_model::IntersectionID;
 use sim::Scenario;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    RewriteColor, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::traffic_signals::fade_irrelevant;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::ID;
 
 pub struct ShowAbsolute {
@@ -23,7 +23,11 @@ pub struct ShowAbsolute {
 }
 
 impl ShowAbsolute {
-    pub fn new(ctx: &mut EventCtx, app: &App, members: BTreeSet<IntersectionID>) -> Box<dyn State> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        members: BTreeSet<IntersectionID>,
+    ) -> Box<dyn State<App>> {
         let mut batch = fade_irrelevant(app, &members);
         for i in &members {
             batch.append(
@@ -58,7 +62,7 @@ impl ShowAbsolute {
     }
 }
 
-impl State for ShowAbsolute {
+impl State<App> for ShowAbsolute {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
@@ -117,7 +121,7 @@ impl ShowRelative {
         app: &App,
         base: IntersectionID,
         members: BTreeSet<IntersectionID>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let base_offset = app.primary.map.get_traffic_signal(base).offset;
         let mut batch = fade_irrelevant(app, &members);
         for i in &members {
@@ -160,7 +164,7 @@ impl ShowRelative {
     }
 }
 
-impl State for ShowRelative {
+impl State<App> for ShowRelative {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
@@ -220,7 +224,7 @@ impl TuneRelative {
         i1: IntersectionID,
         i2: IntersectionID,
         members: BTreeSet<IntersectionID>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let mut batch = fade_irrelevant(app, &btreeset! {i1, i2});
         let map = &app.primary.map;
         // TODO Colors aren't clear. Show directionality.
@@ -281,7 +285,7 @@ impl TuneRelative {
     }
 }
 
-impl State for TuneRelative {
+impl State<App> for TuneRelative {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         match self.panel.event(ctx) {

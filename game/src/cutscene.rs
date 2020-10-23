@@ -1,10 +1,10 @@
 use widgetry::{
-    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, RewriteColor,
-    Text, Widget,
+    hotkeys, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    RewriteColor, State, Text, Widget,
 };
 
 use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::helpers::grey_out_map;
 
 pub struct CutsceneBuilder {
@@ -65,7 +65,7 @@ impl CutsceneBuilder {
         ctx: &mut EventCtx,
         app: &App,
         make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         Box::new(CutscenePlayer {
             panel: make_panel(ctx, app, &self.name, &self.scenes, &make_task, 0),
             name: self.name,
@@ -84,7 +84,7 @@ struct CutscenePlayer {
     make_task: Box<dyn Fn(&mut EventCtx) -> Widget>,
 }
 
-impl State for CutscenePlayer {
+impl State<App> for CutscenePlayer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -288,7 +288,7 @@ pub struct FYI {
 }
 
 impl FYI {
-    pub fn new(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State<App>> {
         Box::new(FYI {
             panel: Panel::new(
                 Widget::custom_col(vec![
@@ -307,7 +307,7 @@ impl FYI {
     }
 }
 
-impl State for FYI {
+impl State<App> for FYI {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

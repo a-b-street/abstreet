@@ -3,12 +3,12 @@ use map_model::BuildingID;
 use sim::{Scenario, TripEndpoint};
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Text, VerticalAlignment, Widget,
+    Outcome, Panel, State, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::{make_heatmap, HeatmapOptions};
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::{amenity_type, ID};
 
 pub struct PopularDestinations {
@@ -18,7 +18,7 @@ pub struct PopularDestinations {
 }
 
 impl PopularDestinations {
-    pub fn new(ctx: &mut EventCtx, app: &App, scenario: &Scenario) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, scenario: &Scenario) -> Box<dyn State<App>> {
         let mut per_bldg = Counter::new();
         for p in &scenario.people {
             for trip in &p.trips {
@@ -35,7 +35,7 @@ impl PopularDestinations {
         app: &App,
         per_bldg: Counter<BuildingID>,
         opts: Option<HeatmapOptions>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let map = &app.primary.map;
         let mut batch = GeomBatch::new();
         let controls = if let Some(ref o) = opts {
@@ -108,7 +108,7 @@ impl PopularDestinations {
     }
 }
 
-impl State for PopularDestinations {
+impl State<App> for PopularDestinations {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {

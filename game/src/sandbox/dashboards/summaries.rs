@@ -6,12 +6,12 @@ use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 use sim::TripMode;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx,
-    Line, Outcome, Panel, Text, TextExt, Widget,
+    Btn, Checkbox, Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx,
+    GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
 
 use crate::app::App;
-use crate::game::{DrawBaselayer, PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 use crate::helpers::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 
@@ -20,7 +20,7 @@ pub struct TripSummaries {
 }
 
 impl TripSummaries {
-    pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
         let mut filters = vec!["Filters".draw_text(ctx)];
         for mode in TripMode::all() {
             filters.push(Checkbox::colored(
@@ -68,7 +68,7 @@ impl TripSummaries {
     }
 }
 
-impl State for TripSummaries {
+impl State<App> for TripSummaries {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

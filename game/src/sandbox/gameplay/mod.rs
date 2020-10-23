@@ -5,7 +5,8 @@ use geom::Duration;
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
-    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, TextExt, Widget,
+    lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt,
+    Widget,
 };
 
 pub use self::freeform::spawn_agents_around;
@@ -13,7 +14,7 @@ pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
 use crate::challenges::{Challenge, ChallengesPicker};
 use crate::edit::{apply_map_edits, SaveEdits};
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::pregame::MainMenu;
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
@@ -221,7 +222,7 @@ impl FinalScore {
         msg: String,
         mode: GameplayMode,
         next_mode: Option<GameplayMode>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         Box::new(FinalScore {
             panel: Panel::new(
                 Widget::custom_row(vec![
@@ -260,7 +261,7 @@ impl FinalScore {
     }
 }
 
-impl State for FinalScore {
+impl State<App> for FinalScore {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

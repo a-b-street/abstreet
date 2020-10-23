@@ -11,14 +11,14 @@ use sim::{
 };
 use widgetry::{
     hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RewriteColor, ScreenPt, Text, TextExt, VerticalAlignment, Widget,
+    RewriteColor, ScreenPt, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::{tool_panel, Minimap, Warping};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
-use crate::game::{PopupMsg, State, Transition};
+use crate::game::{PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
@@ -1408,7 +1408,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
     Transition::Push(response)
 }
 
-fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+fn intro_story(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
     CutsceneBuilder::new("Introduction")
         .boss(
             "Argh, the mayor's on my case again about the West Seattle bridge. This day couldn't \

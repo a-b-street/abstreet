@@ -7,7 +7,7 @@ use geom::Speed;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
@@ -19,7 +19,7 @@ pub use self::validate::{check_blackholes, check_sidewalk_connectivity, try_chan
 use crate::app::App;
 use crate::common::{tool_panel, ColorLegend, CommonState, Warping};
 use crate::debug::DebugMode;
-use crate::game::{ChooseSomething, PopupMsg, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::options::OptionsPanel;
 use crate::render::DrawMap;
@@ -53,7 +53,7 @@ pub struct EditMode {
 }
 
 impl EditMode {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State<App>> {
         let orig_dirty = app.primary.dirty_from_edits;
         assert!(app.primary.suspended_sim.is_none());
         app.primary.suspended_sim = Some(app.primary.clear_sim());
@@ -139,7 +139,7 @@ impl EditMode {
     }
 }
 
-impl State for EditMode {
+impl State<App> for EditMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         {
             let edits = app.primary.map.get_edits();
@@ -389,7 +389,7 @@ impl SaveEdits {
         discard: bool,
         cancel: Option<Transition>,
         on_success: Box<dyn Fn(&mut EventCtx, &mut App)>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let initial_name = if app.primary.map.unsaved_edits() {
             String::new()
         } else {
@@ -470,7 +470,7 @@ impl SaveEdits {
     }
 }
 
-impl State for SaveEdits {
+impl State<App> for SaveEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -519,7 +519,7 @@ struct LoadEdits {
 }
 
 impl LoadEdits {
-    fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State<App>> {
         let current_edits_name = &app.primary.map.get_edits().edits_name;
         let your_edits = vec![
             Line("Your proposals").small_heading().draw(ctx),
@@ -560,7 +560,7 @@ impl LoadEdits {
     }
 }
 
-impl State for LoadEdits {
+impl State<App> for LoadEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
@@ -733,7 +733,7 @@ pub fn maybe_edit_intersection(
     app: &mut App,
     id: IntersectionID,
     mode: &GameplayMode,
-) -> Option<Box<dyn State>> {
+) -> Option<Box<dyn State<App>>> {
     if app.primary.map.maybe_get_stop_sign(id).is_some()
         && mode.can_edit_stop_signs()
         && app.per_obj.left_click(ctx, "edit stop signs")
@@ -839,7 +839,7 @@ pub struct ConfirmDiscard {
 }
 
 impl ConfirmDiscard {
-    pub fn new(ctx: &mut EventCtx, discard: Box<dyn Fn(&mut App)>) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, discard: Box<dyn Fn(&mut App)>) -> Box<dyn State<App>> {
         Box::new(ConfirmDiscard {
             discard,
             panel: Panel::new(Widget::col(vec![
@@ -862,7 +862,7 @@ impl ConfirmDiscard {
     }
 }
 
-impl State for ConfirmDiscard {
+impl State<App> for ConfirmDiscard {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

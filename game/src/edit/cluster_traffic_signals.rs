@@ -3,12 +3,12 @@ use std::collections::BTreeSet;
 use geom::ArrowCap;
 use map_model::{IntersectionCluster, IntersectionID};
 use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, VerticalAlignment,
-    Widget,
+    Btn, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel,
+    State, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything};
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::render::{DrawOptions, DrawUberTurnGroup, BIG_ARROW_THICKNESS};
 
 pub struct ClusterTrafficSignalEditor {
@@ -20,7 +20,7 @@ pub struct ClusterTrafficSignalEditor {
 }
 
 impl ClusterTrafficSignalEditor {
-    pub fn new(ctx: &mut EventCtx, app: &mut App, ic: &IntersectionCluster) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App, ic: &IntersectionCluster) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
         Box::new(ClusterTrafficSignalEditor {
             panel: Panel::new(Widget::row(vec![
@@ -35,7 +35,7 @@ impl ClusterTrafficSignalEditor {
     }
 }
 
-impl State for ClusterTrafficSignalEditor {
+impl State<App> for ClusterTrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

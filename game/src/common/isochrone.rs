@@ -2,12 +2,12 @@ use geom::{Distance, Polygon};
 use map_model::{connectivity, BuildingID};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, VerticalAlignment, Widget,
+    Panel, State, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::heatmap::Grid;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 
 // TODO Move cursor live
 pub struct IsochroneViewer {
@@ -16,7 +16,7 @@ pub struct IsochroneViewer {
 }
 
 impl IsochroneViewer {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         let draw = make_isochrone(ctx, app, start);
         Box::new(IsochroneViewer {
             panel: Panel::new(Widget::col(vec![
@@ -35,7 +35,7 @@ impl IsochroneViewer {
     }
 }
 
-impl State for IsochroneViewer {
+impl State<App> for IsochroneViewer {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 

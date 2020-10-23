@@ -1,13 +1,13 @@
 use abstutil::Timer;
 use geom::{LonLat, Percent};
 use widgetry::{
-    lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, TextExt,
-    VerticalAlignment, Widget,
+    lctrl, Btn, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::CityPicker;
-use crate::game::{ChooseSomething, DrawBaselayer, State, Transition};
+use crate::game::{ChooseSomething, Transition};
 use crate::helpers::nice_map_name;
 
 mod destinations;
@@ -22,7 +22,7 @@ pub struct DevToolsMode {
 }
 
 impl DevToolsMode {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(DevToolsMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -54,7 +54,7 @@ impl DevToolsMode {
     }
 }
 
-impl State for DevToolsMode {
+impl State<App> for DevToolsMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

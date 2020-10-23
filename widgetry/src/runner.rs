@@ -7,28 +7,24 @@ use winit::window::Icon;
 
 use geom::Duration;
 
+use crate::app_state::App;
 use crate::assets::Assets;
 use crate::tools::screenshot::screenshot_everything;
-use crate::{Canvas, Event, EventCtx, GfxCtx, Key, Prerender, Style, Text, UpdateType, UserInput};
+use crate::{
+    Canvas, Event, EventCtx, GfxCtx, Key, Prerender, SharedAppState, Style, Text, UpdateType,
+    UserInput,
+};
 
 const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
 
-pub trait GUI {
-    fn event(&mut self, ctx: &mut EventCtx);
-    fn draw(&self, g: &mut GfxCtx);
-    // Will be called if event or draw panics.
-    fn dump_before_abort(&self, _canvas: &Canvas) {}
-    // Only before a normal exit, like window close
-    fn before_quit(&self, _canvas: &Canvas) {}
-}
-
-pub(crate) struct State<G: GUI> {
-    pub(crate) gui: G,
+// TODO Rename this GUI or something
+pub(crate) struct State<A: SharedAppState> {
+    pub(crate) app: App<A>,
     pub(crate) canvas: Canvas,
     style: Style,
 }
 
-impl<G: GUI> State<G> {
+impl<A: SharedAppState> State<A> {
     // The bool indicates if the input was actually used.
     fn event(&mut self, mut ev: Event, prerender: &Prerender) -> (Vec<UpdateType>, bool) {
         if let Event::MouseWheelScroll(dx, dy) = ev {
@@ -111,7 +107,7 @@ impl<G: GUI> State<G> {
                 style: &mut self.style,
                 updates_requested: vec![],
             };
-            self.gui.event(&mut ctx);
+            self.app.event(&mut ctx);
             // TODO We should always do has_been_consumed, but various hacks prevent this from being
             // true. For now, just avoid the specific annoying redraw case when a KeyRelease event
             // is unused.
@@ -123,7 +119,7 @@ impl<G: GUI> State<G> {
         })) {
             Ok(pair) => pair,
             Err(err) => {
-                self.gui.dump_before_abort(&self.canvas);
+                self.app.shared_app_state.dump_before_abort(&self.canvas);
                 panic::resume_unwind(err);
             }
         }
@@ -136,9 +132,9 @@ impl<G: GUI> State<G> {
         self.canvas.start_drawing();
 
         if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            self.gui.draw(&mut g);
+            self.app.draw(&mut g);
         })) {
-            self.gui.dump_before_abort(&self.canvas);
+            self.app.shared_app_state.dump_before_abort(&self.canvas);
             panic::resume_unwind(err);
         }
         let naming_hint = g.naming_hint.take();
@@ -194,7 +190,13 @@ impl Settings {
     }
 }
 
-pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) -> ! {
+pub fn run<
+    A: 'static + SharedAppState,
+    F: FnOnce(&mut EventCtx) -> (A, Vec<Box<dyn crate::app_state::State<A>>>),
+>(
+    settings: Settings,
+    make_app: F,
+) -> ! {
     let (prerender_innards, event_loop) = crate::backend::setup(&settings.window_title);
 
     if let Some(ref path) = settings.window_icon {
@@ -224,7 +226,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
     let mut canvas = Canvas::new(initial_size);
     prerender.window_resized(initial_size);
 
-    let gui = make_gui(&mut EventCtx {
+    let (shared_app_state, states) = make_app(&mut EventCtx {
         fake_mouseover: true,
         input: UserInput::new(Event::NoOp, &canvas),
         canvas: &mut canvas,
@@ -232,8 +234,12 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
         style: &mut style,
         updates_requested: vec![],
     });
+    let app = App {
+        shared_app_state,
+        states,
+    };
 
-    let mut state = State { canvas, gui, style };
+    let mut state = State { canvas, app, style };
 
     let dump_raw_events = settings.dump_raw_events;
 
@@ -251,7 +257,7 @@ pub fn run<G: 'static + GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, 
                 // ControlFlow::Exit cleanly shuts things down, meaning on larger maps, lots of
                 // GPU stuff is dropped. Better to just abort violently and let the OS clean
                 // up.
-                state.gui.before_quit(&state.canvas);
+                state.app.shared_app_state.before_quit(&state.canvas);
                 std::process::exit(0);
             }
             winit::event::Event::WindowEvent { event, .. } => {

@@ -3,13 +3,13 @@
 use abstutil::Counter;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
-    VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork, CommonState};
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::ID;
 
 pub struct PathCounter {
@@ -25,7 +25,7 @@ impl PathCounter {
         ctx: &mut EventCtx,
         app: &App,
         i: IntersectionID,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let map = &app.primary.map;
         let sim = &app.primary.sim;
         let mut cnt = Counter::new();
@@ -84,7 +84,7 @@ impl PathCounter {
     }
 }
 
-impl State for PathCounter {
+impl State<App> for PathCounter {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {

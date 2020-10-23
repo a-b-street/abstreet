@@ -5,13 +5,13 @@ use geom::{ArrowCap, Distance, Duration, Polygon, Time};
 use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
 use sim::TripEndpoint;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 
@@ -24,7 +24,7 @@ pub struct TrafficSignalDemand {
 }
 
 impl TrafficSignalDemand {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let all_demand = ctx.loading_screen("predict all demand", |_, timer| {
             Demand::all_demand(app, timer)
         });
@@ -68,7 +68,7 @@ impl TrafficSignalDemand {
     }
 }
 
-impl State for TrafficSignalDemand {
+impl State<App> for TrafficSignalDemand {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         // TODO DrawWithTooltips works great in screenspace; make a similar tool for mapspace?

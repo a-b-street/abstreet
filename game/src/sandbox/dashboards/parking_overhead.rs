@@ -1,9 +1,8 @@
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
-use widgetry::{Checkbox, EventCtx, Filler, Line, Panel, Text, Widget};
+use widgetry::{Checkbox, EventCtx, Filler, Line, Panel, State, Text, Widget};
 
 use crate::app::App;
-use crate::game::State;
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;
@@ -13,7 +12,7 @@ use crate::sandbox::dashboards::DashTab;
 pub struct ParkingOverhead;
 
 impl ParkingOverhead {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let table = make_table(app);
         GenericTripTable::new(ctx, app, DashTab::ParkingOverhead, table, make_panel)
     }

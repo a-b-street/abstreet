@@ -1,11 +1,11 @@
 use geom::{Polygon, Pt2D, Triangle};
 use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider, Text,
-    TextExt, VerticalAlignment, Widget,
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
+    State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 
 pub struct PolygonDebugger {
     panel: Panel,
@@ -26,7 +26,7 @@ impl PolygonDebugger {
         noun: &str,
         items: Vec<Item>,
         center: Option<Pt2D>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         Box::new(PolygonDebugger {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -55,7 +55,7 @@ impl PolygonDebugger {
     }
 }
 
-impl State for PolygonDebugger {
+impl State<App> for PolygonDebugger {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 

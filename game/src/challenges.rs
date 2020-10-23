@@ -4,10 +4,13 @@ use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, Percent, Time};
 use map_model::Map;
 use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
-use widgetry::{Btn, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Text, TextExt, Widget};
+use widgetry::{
+    Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
+    Widget,
+};
 
 use crate::app::App;
-use crate::game::{DrawBaselayer, State, Transition};
+use crate::game::Transition;
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 
@@ -17,7 +20,7 @@ pub struct Challenge {
     pub description: Vec<String>,
     pub alias: String,
     pub gameplay: GameplayMode,
-    pub cutscene: Option<fn(&mut EventCtx, &App, &GameplayMode) -> Box<dyn State>>,
+    pub cutscene: Option<fn(&mut EventCtx, &App, &GameplayMode) -> Box<dyn State<App>>>,
 }
 
 pub struct HighScore {
@@ -117,7 +120,7 @@ pub struct ChallengesPicker {
 }
 
 impl ChallengesPicker {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         ChallengesPicker::make(ctx, app, None)
     }
 
@@ -125,7 +128,7 @@ impl ChallengesPicker {
         ctx: &mut EventCtx,
         app: &App,
         challenge_and_stage: Option<(String, usize)>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let mut links = BTreeMap::new();
         let mut master_col = vec![
             Btn::svg_def("system/assets/pregame/back.svg")
@@ -244,7 +247,7 @@ impl ChallengesPicker {
     }
 }
 
-impl State for ChallengesPicker {
+impl State<App> for ChallengesPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

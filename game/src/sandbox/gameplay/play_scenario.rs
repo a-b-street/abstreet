@@ -5,13 +5,13 @@ use maplit::btreeset;
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
     lctrl, AreaSlider, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Spinner, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::CityPicker;
 use crate::edit::EditMode;
-use crate::game::{ChooseSomething, PopupMsg, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::{checkbox_per_mode, grey_out_map, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
@@ -165,7 +165,7 @@ impl EditScenarioModifiers {
         ctx: &mut EventCtx,
         scenario_name: String,
         modifiers: Vec<ScenarioModifier>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         let mut rows = vec![
             Line("Modify traffic patterns").small_heading().draw(ctx),
             Text::from_multiline(vec![
@@ -217,7 +217,7 @@ impl EditScenarioModifiers {
     }
 }
 
-impl State for EditScenarioModifiers {
+impl State<App> for EditScenarioModifiers {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -324,7 +324,7 @@ impl ChangeMode {
         app: &App,
         scenario_name: String,
         modifiers: Vec<ScenarioModifier>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         Box::new(ChangeMode {
             scenario_name,
             modifiers,
@@ -369,7 +369,7 @@ impl ChangeMode {
     }
 }
 
-impl State for ChangeMode {
+impl State<App> for ChangeMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

@@ -3,13 +3,13 @@ use std::io::{Error, Write};
 
 use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::common::CommonState;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 // Localized and internal, so don't put in ColorScheme.
@@ -27,7 +27,7 @@ pub struct PolygonEditor {
 }
 
 impl PolygonEditor {
-    pub fn new(ctx: &mut EventCtx, name: String, mut points: Vec<LonLat>) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, name: String, mut points: Vec<LonLat>) -> Box<dyn State<App>> {
         points.pop();
         Box::new(PolygonEditor {
             panel: Panel::new(Widget::col(vec![
@@ -49,7 +49,7 @@ impl PolygonEditor {
     }
 }
 
-impl State for PolygonEditor {
+impl State<App> for PolygonEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let gps_bounds = app.primary.map.get_gps_bounds();
 

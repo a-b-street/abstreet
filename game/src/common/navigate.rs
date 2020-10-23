@@ -3,12 +3,12 @@ use std::collections::HashSet;
 use map_model::RoadID;
 use widgetry::{
     Autocomplete, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    Text, Widget,
+    State, Text, Widget,
 };
 
 use crate::app::App;
 use crate::common::Warping;
-use crate::game::{State, Transition};
+use crate::game::Transition;
 use crate::helpers::{grey_out_map, ID};
 
 // TODO Canonicalize names, handling abbreviations like east/e and street/st
@@ -17,7 +17,7 @@ pub struct Navigator {
 }
 
 impl Navigator {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(Navigator {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -43,7 +43,7 @@ impl Navigator {
     }
 }
 
-impl State for Navigator {
+impl State<App> for Navigator {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -84,7 +84,7 @@ struct CrossStreet {
 }
 
 impl CrossStreet {
-    fn new(ctx: &mut EventCtx, app: &App, first: Vec<RoadID>) -> Box<dyn State> {
+    fn new(ctx: &mut EventCtx, app: &App, first: Vec<RoadID>) -> Box<dyn State<App>> {
         let map = &app.primary.map;
         let mut cross_streets = HashSet::new();
         let mut batch = GeomBatch::new();
@@ -134,7 +134,7 @@ impl CrossStreet {
     }
 }
 
-impl State for CrossStreet {
+impl State<App> for CrossStreet {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let map = &app.primary.map;
 
@@ -199,7 +199,7 @@ struct SearchBuildings {
 }
 
 impl SearchBuildings {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(SearchBuildings {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -249,7 +249,7 @@ impl SearchBuildings {
     }
 }
 
-impl State for SearchBuildings {
+impl State<App> for SearchBuildings {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

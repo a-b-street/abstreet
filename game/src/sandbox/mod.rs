@@ -7,8 +7,8 @@ use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Time};
 use sim::{Analytics, Scenario};
 use widgetry::{
-    lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Text,
-    TextExt, UpdateType, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 use self::misc_tools::{RoutePreview, TurnExplorer};
@@ -19,7 +19,7 @@ use crate::edit::{
     apply_map_edits, can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor,
     TrafficSignalEditor,
 };
-use crate::game::{ChooseSomething, PopupMsg, State, Transition};
+use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
 use crate::load::{FileLoader, MapLoader};
@@ -56,7 +56,11 @@ pub struct SandboxControls {
 impl SandboxMode {
     /// If you don't need to chain any transitions after the SandboxMode that rely on its resources
     /// being loaded, use this. Otherwise, see `async_new`.
-    pub fn simple_new(ctx: &mut EventCtx, app: &mut App, mode: GameplayMode) -> Box<dyn State> {
+    pub fn simple_new(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        mode: GameplayMode,
+    ) -> Box<dyn State<App>> {
         SandboxMode::async_new(ctx, app, mode, Box::new(|_, _| Vec::new()))
     }
 
@@ -70,7 +74,7 @@ impl SandboxMode {
         app: &mut App,
         mode: GameplayMode,
         finalize: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Vec<Transition>>,
-    ) -> Box<dyn State> {
+    ) -> Box<dyn State<App>> {
         app.primary.clear_sim();
         Box::new(SandboxLoader {
             stage: Some(LoadStage::LoadingMap),
@@ -94,7 +98,7 @@ impl SandboxMode {
     }
 }
 
-impl State for SandboxMode {
+impl State<App> for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         // Do this before gameplay
         if self.gameplay.can_move_canvas() {
@@ -273,7 +277,7 @@ pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
 
 struct BackToMainMenu;
 
-impl State for BackToMainMenu {
+impl State<App> for BackToMainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.loading_screen("reset map and sim", |ctx, mut timer| {
             // Always safe to do this
@@ -614,7 +618,7 @@ struct SandboxLoader {
     finalize: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Vec<Transition>>>,
 }
 
-impl State for SandboxLoader {
+impl State<App> for SandboxLoader {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         loop {
             match self.stage.take().unwrap() {

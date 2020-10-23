@@ -8,12 +8,12 @@ use kml::ExtraShapes;
 use map_model::BuildingID;
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::colors::ColorScheme;
-use crate::game::{ChooseSomething, State, Transition};
+use crate::game::{ChooseSomething, Transition};
 
 pub struct ViewKML {
     panel: Panel,
@@ -37,7 +37,7 @@ const RADIUS: Distance = Distance::const_meters(5.0);
 const THICKNESS: Distance = Distance::const_meters(2.0);
 
 impl ViewKML {
-    pub fn new(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State> {
+    pub fn new(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State<App>> {
         ctx.loading_screen("load kml", |ctx, mut timer| {
             let raw_shapes = if let Some(ref path) = path {
                 if path.ends_with(".kml") {
@@ -151,7 +151,7 @@ impl ViewKML {
     }
 }
 
-impl State for ViewKML {
+impl State<App> for ViewKML {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {

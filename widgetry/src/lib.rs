@@ -28,6 +28,7 @@
 #[macro_use]
 extern crate log;
 
+pub use crate::app_state::{DrawBaselayer, SharedAppState, State, Transition};
 pub use crate::backend::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::{Color, Fill, LinearGradient, Texture};
@@ -36,7 +37,7 @@ pub use crate::event::{hotkeys, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{EventCtx, UpdateType};
 pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
-pub use crate::runner::{run, Settings, GUI};
+pub use crate::runner::{run, Settings};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::style::Style;
 pub use crate::text::{Line, Text, TextExt, TextSpan};
@@ -60,6 +61,7 @@ pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
 
+mod app_state;
 mod assets;
 #[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
 mod backend_glow;
