@@ -1161,6 +1161,11 @@
 <span id="1160">1160</span>
 <span id="1161">1161</span>
 <span id="1162">1162</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+<span id="1167">1167</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1822,8 +1827,10 @@
                 <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=&gt;</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">src_i</span>,
                 <span class="ident">Traversable</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=&gt;</span> <span class="ident">t</span>.<span class="ident">parent</span>,
             };
-            <span class="ident">ctx</span>.<span class="ident">intersections</span>
-                .<span class="ident">space_freed</span>(<span class="ident">now</span>, <span class="ident">i</span>, <span class="ident">ctx</span>.<span class="ident">scheduler</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">handling_live_edits</span> {
+                <span class="ident">ctx</span>.<span class="ident">intersections</span>
+                    .<span class="ident">space_freed</span>(<span class="ident">now</span>, <span class="ident">i</span>, <span class="ident">ctx</span>.<span class="ident">scheduler</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
+            }
         }
 
         <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">vehicle_gone</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>);
@@ -1952,16 +1959,19 @@
                         <span class="ident">t</span>,
                         <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
                         <span class="ident">ctx</span>.<span class="ident">map</span>,
+                        <span class="ident">ctx</span>.<span class="ident">handling_live_edits</span>,
                     );
                 }
                 <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=&gt;</span> {
                     <span class="ident">old_queue</span>.<span class="ident">free_reserved_space</span>(<span class="ident">car</span>);
-                    <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">space_freed</span>(
-                        <span class="ident">now</span>,
-                        <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">src_i</span>,
-                        <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
-                        <span class="ident">ctx</span>.<span class="ident">map</span>,
-                    );
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">handling_live_edits</span> {
+                        <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">space_freed</span>(
+                            <span class="ident">now</span>,
+                            <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">src_i</span>,
+                            <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
+                            <span class="ident">ctx</span>.<span class="ident">map</span>,
+                        );
+                    }
                 }
             }
 

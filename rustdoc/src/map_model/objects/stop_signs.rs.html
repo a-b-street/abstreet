@@ -141,7 +141,6 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
-<span id="143">143</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -263,19 +262,18 @@
     }
 
     <span class="doccomment">/// Get the priority of a turn according to the stop sign -- either protected or yield, never</span>
-    <span class="doccomment">/// banned. The result is None if the turn doesn&#39;t exist -- this can happen in the middle of</span>
-    <span class="doccomment">/// resolving live map edits.</span>
+    <span class="doccomment">/// banned.</span>
     <span class="comment">// TODO Or cache</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_priority</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TurnPriority</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">turn</span>)<span class="question-mark">?</span>.<span class="ident">turn_type</span> {
-            <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Protected</span>),
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_priority</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">TurnPriority</span> {
+        <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">turn</span>).<span class="ident">turn_type</span> {
+            <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span> <span class="op">=&gt;</span> <span class="ident">TurnPriority</span>::<span class="ident">Protected</span>,
             <span class="comment">// TODO This actually feels like a policy bit that should be flippable.</span>
-            <span class="ident">TurnType</span>::<span class="ident">Crosswalk</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Protected</span>),
+            <span class="ident">TurnType</span>::<span class="ident">Crosswalk</span> <span class="op">=&gt;</span> <span class="ident">TurnPriority</span>::<span class="ident">Protected</span>,
             <span class="kw">_</span> <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">src</span>).<span class="ident">parent</span>].<span class="ident">must_stop</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Yield</span>)
+                    <span class="ident">TurnPriority</span>::<span class="ident">Yield</span>
                 } <span class="kw">else</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Protected</span>)
+                    <span class="ident">TurnPriority</span>::<span class="ident">Protected</span>
                 }
             }
         }
