@@ -2237,8 +2237,8 @@
                 <span class="comment">// Make sure it&#39;s empty!</span>
                 <span class="kw">if</span> <span class="ident">v</span>.<span class="ident">laggy_head</span>.<span class="ident">is_some</span>() <span class="op">||</span> <span class="op">!</span><span class="ident">v</span>.<span class="ident">cars</span>.<span class="ident">is_empty</span>() {
                     <span class="macro">panic</span><span class="macro">!</span>(
-                        <span class="string">&quot;After live map edits, deleted queue {} still has vehicles!&quot;</span>,
-                        <span class="ident">k</span>
+                        <span class="string">&quot;After live map edits, deleted queue {} still has vehicles! {:?}, {:?}&quot;</span>,
+                        <span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">laggy_head</span>, <span class="ident">v</span>.<span class="ident">cars</span>
                     );
                 }
                 <span class="bool-val">false</span>

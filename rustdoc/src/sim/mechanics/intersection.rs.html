@@ -840,6 +840,13 @@
 <span id="839">839</span>
 <span id="840">840</span>
 <span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1047,11 +1054,18 @@
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sign</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>) {
             <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
-                <span class="comment">// Banned is impossible</span>
-                <span class="kw">if</span> <span class="ident">sign</span>.<span class="ident">get_priority</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">map</span>) <span class="op">==</span> <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> {
-                    <span class="ident">protected</span>.<span class="ident">push</span>(<span class="ident">req</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">yielding</span>.<span class="ident">push</span>(<span class="ident">req</span>);
+                <span class="kw">match</span> <span class="ident">sign</span>.<span class="ident">get_priority</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">map</span>) {
+                    <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Protected</span>) <span class="op">=&gt;</span> {
+                        <span class="ident">protected</span>.<span class="ident">push</span>(<span class="ident">req</span>);
+                    }
+                    <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Yield</span>) <span class="op">=&gt;</span> {
+                        <span class="ident">yielding</span>.<span class="ident">push</span>(<span class="ident">req</span>);
+                    }
+                    <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Banned</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    <span class="comment">// This may happen in the middle of resolving live edits. delete_car calls</span>
+                    <span class="comment">// space_freed, which gets here. Depending on the order we delete cars, we hit</span>
+                    <span class="comment">// this case.</span>
+                    <span class="prelude-val">None</span> <span class="op">=&gt;</span> {}
                 }
             }
         } <span class="kw">else</span> {
@@ -1437,7 +1451,7 @@
         <span class="ident">now</span>: <span class="ident">Time</span>,
         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
     ) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">our_priority</span> <span class="op">=</span> <span class="ident">sign</span>.<span class="ident">get_priority</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">map</span>);
+        <span class="kw">let</span> <span class="ident">our_priority</span> <span class="op">=</span> <span class="ident">sign</span>.<span class="ident">get_priority</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">our_priority</span> <span class="op">!=</span> <span class="ident">TurnPriority</span>::<span class="ident">Banned</span>);
         <span class="kw">let</span> <span class="ident">our_time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">parent</span>].<span class="ident">waiting</span>[<span class="ident">req</span>];
 
