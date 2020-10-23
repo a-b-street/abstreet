@@ -577,13 +577,13 @@
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Spinner</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">ScreenRectangle</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">CityPicker</span>, <span class="ident">CommonState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">nice_map_name</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
@@ -713,7 +713,7 @@
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">btn</span>: <span class="ident">ScreenRectangle</span>,
     <span class="ident">current</span>: <span class="ident">String</span>,
-) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path_all_scenarios</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
     {
@@ -786,7 +786,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">AgentSpawner</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">AgentSpawner</span> {
             <span class="ident">source</span>: <span class="prelude-val">None</span>,
             <span class="ident">goal</span>: <span class="prelude-val">None</span>,
@@ -836,7 +836,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">AgentSpawner</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AgentSpawner</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {

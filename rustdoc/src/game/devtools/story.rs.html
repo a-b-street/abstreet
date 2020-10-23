@@ -584,18 +584,20 @@
 <span id="583">583</span>
 <span id="584">584</span>
 <span id="585">585</span>
+<span id="586">586</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">PromptInput</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PromptInput</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">DrawOptions</span>;
 
 <span class="comment">// TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio</span>
@@ -624,7 +626,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">StoryMapEditor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="ident">story</span> <span class="op">=</span> <span class="ident">StoryMap</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">View</span>;
         <span class="kw">let</span> <span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -642,7 +644,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">StoryMapEditor</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StoryMapEditor</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
             <span class="ident">Mode</span>::<span class="ident">View</span> <span class="op">=&gt;</span> {

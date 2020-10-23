@@ -174,13 +174,13 @@
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
 
 <span class="kw">const</span> <span class="ident">POINT_RADIUS</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">10.0</span>);
 <span class="comment">// Localized and internal, so don&#39;t put in ColorScheme.</span>
@@ -198,7 +198,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PolygonEditor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="ident">String</span>, <span class="kw-2">mut</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="ident">String</span>, <span class="kw-2">mut</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">points</span>.<span class="ident">pop</span>();
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PolygonEditor</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -220,7 +220,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">PolygonEditor</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PolygonEditor</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>();
 

@@ -371,8 +371,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>,
+    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -380,7 +380,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Tab</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">cutscene</span>::{<span class="ident">CutsceneBuilder</span>, <span class="ident">FYI</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">cmp_duration_shorter</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">challenge_header</span>, <span class="ident">FinalScore</span>, <span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>};
@@ -442,7 +442,7 @@
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">CutsceneBuilder</span>::<span class="ident">new</span>(<span class="string">&quot;Optimize one commute: part 1&quot;</span>)
             .<span class="ident">boss</span>(<span class="string">&quot;Listen up, I&#39;ve got a special job for you today.&quot;</span>)
             .<span class="ident">player</span>(<span class="string">&quot;What is it? The scooter coalition back with demands for more valet parking?&quot;</span>)
@@ -464,7 +464,7 @@
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">cutscene_task</span>(<span class="ident">mode</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt2</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt2</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="comment">// TODO The person chosen for this currently has more of an issue needing PBLs, actually.</span>
         <span class="ident">CutsceneBuilder</span>::<span class="ident">new</span>(<span class="string">&quot;Optimize one commute: part 2&quot;</span>)
             .<span class="ident">boss</span>(<span class="string">&quot;I&#39;ve got another, er, friend who&#39;s sick of this parking situation.&quot;</span>)
@@ -627,7 +627,7 @@
     <span class="ident">before</span>: <span class="ident">Duration</span>,
     <span class="ident">after</span>: <span class="ident">Duration</span>,
     <span class="ident">goal</span>: <span class="ident">Duration</span>,
-) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
     <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">==</span> <span class="ident">after</span> {

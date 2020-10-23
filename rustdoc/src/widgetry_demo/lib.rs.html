@@ -377,6 +377,13 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -387,18 +394,23 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">GUI</span>,
+    <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="comment">// Control flow surrendered here. App implements State, which has an event handler and a draw</span>
     <span class="comment">// callback.</span>
     <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;widgetry demo&quot;</span>), <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="ident">App</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)
+        (<span class="ident">App</span> {}, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Demo</span>::<span class="ident">new</span>(<span class="ident">ctx</span>))])
     });
 }
 
-<span class="kw">struct</span> <span class="ident">App</span> {
+<span class="kw">struct</span> <span class="ident">App</span> {}
+
+<span class="kw">impl</span> <span class="ident">SharedAppState</span> <span class="kw">for</span> <span class="ident">App</span> {}
+
+<span class="kw">struct</span> <span class="ident">Demo</span> {
     <span class="ident">controls</span>: <span class="ident">Panel</span>,
     <span class="ident">timeseries_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">Panel</span>)<span class="op">&gt;</span>,
     <span class="ident">scrollable_canvas</span>: <span class="ident">Drawable</span>,
@@ -406,9 +418,9 @@
     <span class="ident">elapsed</span>: <span class="ident">Duration</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">App</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">App</span> {
-        <span class="ident">App</span> {
+<span class="kw">impl</span> <span class="ident">Demo</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Demo</span> {
+        <span class="ident">Demo</span> {
             <span class="ident">controls</span>: <span class="ident">make_controls</span>(<span class="ident">ctx</span>),
             <span class="ident">timeseries_panel</span>: <span class="prelude-val">None</span>,
             <span class="ident">scrollable_canvas</span>: <span class="ident">setup_scrollable_canvas</span>(<span class="ident">ctx</span>),
@@ -504,8 +516,8 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">GUI</span> <span class="kw">for</span> <span class="ident">App</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Demo</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
         <span class="comment">// Allow panning and zooming to work.</span>
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
@@ -574,9 +586,11 @@
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">is_checked</span>(<span class="string">&quot;paused&quot;</span>) {
             <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">Game</span>);
         }
+
+        <span class="ident">Transition</span>::<span class="ident">Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Draw scrollable canvas&quot;</span>) {

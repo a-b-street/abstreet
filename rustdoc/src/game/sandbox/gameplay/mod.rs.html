@@ -345,6 +345,7 @@
 <span id="344">344</span>
 <span id="345">345</span>
 <span id="346">346</span>
+<span id="347">347</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
@@ -353,7 +354,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">ScenarioModifier</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">freeform</span>::<span class="ident">spawn_agents_around</span>;
@@ -361,7 +363,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::{<span class="ident">Challenge</span>, <span class="ident">ChallengesPicker</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">SaveEdits</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">MainMenu</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
 
@@ -569,7 +571,7 @@
         <span class="ident">msg</span>: <span class="ident">String</span>,
         <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
         <span class="ident">next_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FinalScore</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -608,7 +610,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">FinalScore</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FinalScore</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {

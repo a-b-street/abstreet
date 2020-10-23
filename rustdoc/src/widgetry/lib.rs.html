@@ -168,6 +168,8 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
@@ -199,6 +201,7 @@
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app_state</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend</span>::<span class="ident">Drawable</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">canvas</span>::{<span class="ident">Canvas</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">VerticalAlignment</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">color</span>::{<span class="ident">Color</span>, <span class="ident">Fill</span>, <span class="ident">LinearGradient</span>, <span class="ident">Texture</span>};
@@ -207,7 +210,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">event_ctx</span>::{<span class="ident">EventCtx</span>, <span class="ident">UpdateType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">geom</span>::{<span class="ident">GeomBatch</span>, <span class="ident">RewriteColor</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">input</span>::<span class="ident">UserInput</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runner</span>::{<span class="ident">run</span>, <span class="ident">Settings</span>, <span class="ident">GUI</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runner</span>::{<span class="ident">run</span>, <span class="ident">Settings</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">screen_geom</span>::{<span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">style</span>::<span class="ident">Style</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::{<span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>};
@@ -231,6 +234,7 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">text_box</span>::<span class="ident">TextBox</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::{<span class="ident">EdgeInsets</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>};
 
+<span class="kw">mod</span> <span class="ident">app_state</span>;
 <span class="kw">mod</span> <span class="ident">assets</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">backend_glow</span>;

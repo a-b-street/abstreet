@@ -267,17 +267,21 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Pt2D</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Warper</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Warper</span>, <span class="ident">Widget</span>,
+};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">PerMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Tab</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">grey_out_map</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::<span class="ident">OpenTrip</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">SandboxMode</span>;
@@ -296,7 +300,7 @@
         <span class="ident">target_cam_zoom</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
         <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
         <span class="ident">primary</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PerMap</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">primary</span>.<span class="ident">last_warped_from</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>(), <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>));
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Warping</span> {
             <span class="ident">warper</span>: <span class="ident">Warper</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>, <span class="ident">target_cam_zoom</span>),
@@ -305,7 +309,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">Warping</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Warping</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">warper</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Transition</span>::<span class="ident">Keep</span>
@@ -340,7 +344,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DebugWarp</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">hotkey_color</span>;
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DebugWarp</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -394,7 +398,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">DebugWarp</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DebugWarp</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {

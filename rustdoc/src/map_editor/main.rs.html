@@ -365,6 +365,18 @@
 <span id="364">364</span>
 <span id="365">365</span>
 <span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">model</span>::{<span class="ident">Model</span>, <span class="ident">ID</span>};
 
@@ -374,14 +386,31 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">GUI</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">SharedAppState</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">model</span>;
 <span class="kw">mod</span> <span class="ident">world</span>;
 
-<span class="kw">struct</span> <span class="ident">UI</span> {
+<span class="kw">struct</span> <span class="ident">App</span> {
     <span class="ident">model</span>: <span class="ident">Model</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">SharedAppState</span> <span class="kw">for</span> <span class="ident">App</span> {
+    <span class="kw">fn</span> <span class="ident">dump_before_abort</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">canvas</span>.<span class="ident">save_camera_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">before_quit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">canvas</span>.<span class="ident">save_camera_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
+        }
+    }
+}
+
+<span class="kw">struct</span> <span class="ident">MainState</span> {
     <span class="ident">state</span>: <span class="ident">State</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">popup</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>,
@@ -400,8 +429,8 @@
     <span class="ident">PreviewIntersection</span>(<span class="ident">Drawable</span>, <span class="ident">bool</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">UI</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">UI</span> {
+<span class="kw">impl</span> <span class="ident">MainState</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> (<span class="ident">App</span>, <span class="ident">MainState</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">load</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_free</span>();
         <span class="kw">let</span> <span class="ident">include_bldgs</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--bldgs&quot;</span>);
@@ -418,30 +447,32 @@
         }
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>();
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">map_dims</span> <span class="op">=</span> (<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
-        <span class="ident">UI</span> {
-            <span class="ident">model</span>,
-            <span class="ident">state</span>: <span class="ident">State</span>::<span class="ident">Viewing</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Map Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;quit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;save raw map&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;preview all intersections&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">G</span>),
-                ]),
-            ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">popup</span>: <span class="prelude-val">None</span>,
-            <span class="ident">info_key_held</span>: <span class="bool-val">false</span>,
+        (
+            <span class="ident">App</span> { <span class="ident">model</span> },
+            <span class="ident">MainState</span> {
+                <span class="ident">state</span>: <span class="ident">State</span>::<span class="ident">Viewing</span>,
+                <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;Map Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
+                    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;quit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;save raw map&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;preview all intersections&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">G</span>),
+                    ]),
+                ]))
+                .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+                .<span class="ident">build</span>(<span class="ident">ctx</span>),
+                <span class="ident">popup</span>: <span class="prelude-val">None</span>,
+                <span class="ident">info_key_held</span>: <span class="bool-val">false</span>,
 
-            <span class="ident">last_id</span>: <span class="prelude-val">None</span>,
-        }
+                <span class="ident">last_id</span>: <span class="prelude-val">None</span>,
+            },
+        )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">GUI</span> <span class="kw">for</span> <span class="ident">UI</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+<span class="kw">impl</span> <span class="ident">widgetry</span>::<span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MainState</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">info_key_held</span> {
             <span class="self">self</span>.<span class="ident">info_key_held</span> <span class="op">=</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key</span>::<span class="ident">LeftAlt</span>);
         } <span class="kw">else</span> {
@@ -450,7 +481,7 @@
 
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>();
@@ -470,32 +501,32 @@
                         <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">RoadPoint</span>(<span class="ident">r</span>, <span class="kw">_</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
                         <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
                     };
-                    <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
+                    <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
                         <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">RoadPoint</span>(<span class="ident">r</span>, <span class="kw">_</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
                         <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
                     };
                     <span class="kw">if</span> <span class="ident">before</span> <span class="op">!=</span> <span class="ident">after</span> {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">before</span> {
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">stop_showing_pts</span>(<span class="ident">id</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">stop_showing_pts</span>(<span class="ident">id</span>);
                         }
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">after</span> {
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">show_r_points</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">show_r_points</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         }
                     }
                 }
 
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
+                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=&gt;</span> {
                         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                             <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">MovingIntersection</span>(<span class="ident">i</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">R</span>) {
                             <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">CreatingRoad</span>(<span class="ident">i</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>) {
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">delete_i</span>(<span class="ident">i</span>);
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">intersection_geom</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">P</span>) {
-                            <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">preview_intersection</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">model</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_i</span>(<span class="ident">i</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">intersection_geom</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">P</span>) {
+                            <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">preview_intersection</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>, <span class="ident">ctx</span>);
                             <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">PreviewIntersection</span>(<span class="ident">draw</span>, <span class="bool-val">false</span>);
                         }
                     }
@@ -503,44 +534,44 @@
                         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                             <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">MovingBuilding</span>(<span class="ident">b</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>) {
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">delete_b</span>(<span class="ident">b</span>);
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_b</span>(<span class="ident">b</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         }
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=&gt;</span> {
                         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>) {
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">delete_r</span>(<span class="ident">r</span>);
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r</span>(<span class="ident">r</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cursor</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">P</span>) {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">insert_r_pt</span>(<span class="ident">r</span>, <span class="ident">cursor</span>.<span class="ident">unwrap</span>(), <span class="ident">ctx</span>) {
-                                <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">force_set_selection</span>(<span class="ident">id</span>);
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">insert_r_pt</span>(<span class="ident">r</span>, <span class="ident">cursor</span>.<span class="ident">unwrap</span>(), <span class="ident">ctx</span>) {
+                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">force_set_selection</span>(<span class="ident">id</span>);
                             }
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">X</span>) {
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">clear_r_pts</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">clear_r_pts</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
                         }
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">RoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>)) <span class="op">=&gt;</span> {
                         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                             <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">MovingRoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>) {
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">delete_r_pt</span>(<span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">ctx</span>);
-                            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r_pt</span>(<span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         }
                     }
                     <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
                         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
                             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                                 <span class="string">&quot;quit&quot;</span> <span class="op">=&gt;</span> {
-                                    <span class="self">self</span>.<span class="ident">before_quit</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>);
+                                    <span class="ident">app</span>.<span class="ident">before_quit</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>);
                                     <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">exit</span>(<span class="number">0</span>);
                                 }
                                 <span class="string">&quot;save raw map&quot;</span> <span class="op">=&gt;</span> {
                                     <span class="comment">// TODO Only do this for synthetic maps</span>
-                                    <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">export</span>();
+                                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">export</span>();
                                 }
                                 <span class="string">&quot;preview all intersections&quot;</span> <span class="op">=&gt;</span> {
-                                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">intersection_geom</span> {
-                                        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">preview_all_intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">model</span>, <span class="ident">ctx</span>);
+                                    <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">intersection_geom</span> {
+                                        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">preview_all_intersections</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>, <span class="ident">ctx</span>);
                                         <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">PreviewIntersection</span>(<span class="ident">draw</span>, <span class="bool-val">false</span>);
                                     }
                                 }
@@ -549,16 +580,16 @@
                             <span class="kw">_</span> <span class="op">=&gt;</span> {
                                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">I</span>) {
                                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                                        <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">create_i</span>(<span class="ident">pt</span>, <span class="ident">ctx</span>);
-                                        <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_i</span>(<span class="ident">pt</span>, <span class="ident">ctx</span>);
+                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                                     }
                                 <span class="comment">// TODO Silly bug: Mouseover doesn&#39;t actually work! I think the</span>
                                 <span class="comment">// cursor being dead-center messes</span>
                                 <span class="comment">// up the precomputed triangles.</span>
                                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">B</span>) {
                                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">create_b</span>(<span class="ident">pt</span>, <span class="ident">ctx</span>);
-                                        <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">force_set_selection</span>(<span class="ident">id</span>);
+                                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_b</span>(<span class="ident">pt</span>, <span class="ident">ctx</span>);
+                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">force_set_selection</span>(<span class="ident">id</span>);
                                     }
                                 }
                             }
@@ -568,7 +599,7 @@
             }
             <span class="ident">State</span>::<span class="ident">MovingIntersection</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">move_i</span>(<span class="ident">id</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
+                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_i</span>(<span class="ident">id</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
                     <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                         <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Viewing</span>;
                     }
@@ -576,7 +607,7 @@
             }
             <span class="ident">State</span>::<span class="ident">MovingBuilding</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">move_b</span>(<span class="ident">id</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
+                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_b</span>(<span class="ident">id</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
                     <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                         <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Viewing</span>;
                     }
@@ -584,7 +615,7 @@
             }
             <span class="ident">State</span>::<span class="ident">MovingRoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>) <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">move_r_pt</span>(<span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
+                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_r_pt</span>(<span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">pt</span>, <span class="ident">ctx</span>);
                     <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                         <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Viewing</span>;
                     }
@@ -593,12 +624,12 @@
             <span class="ident">State</span>::<span class="ident">CreatingRoad</span>(<span class="ident">i1</span>) <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>) {
                     <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Viewing</span>;
-                    <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i2</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
+                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i2</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
                     <span class="kw">if</span> <span class="ident">i1</span> <span class="op">!=</span> <span class="ident">i2</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">R</span>) {
-                        <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">create_r</span>(<span class="ident">i1</span>, <span class="ident">i2</span>, <span class="ident">ctx</span>);
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_r</span>(<span class="ident">i1</span>, <span class="ident">i2</span>, <span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Viewing</span>;
-                        <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                     }
                 }
             }
@@ -612,24 +643,26 @@
                 <span class="comment">// TODO Woops, not communicating this kind of thing anymore</span>
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">P</span>) {
                     <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Viewing</span>;
-                    <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                 }
             }
         }
 
         <span class="self">self</span>.<span class="ident">popup</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">info_key_held</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
-                <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">describe_obj</span>(<span class="ident">id</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
+                <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">describe_obj</span>(<span class="ident">id</span>);
                 <span class="comment">// TODO We used to display actions and hotkeys here</span>
                 <span class="self">self</span>.<span class="ident">popup</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">txt</span>.<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)));
             }
         }
 
-        <span class="self">self</span>.<span class="ident">last_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>();
+        <span class="self">self</span>.<span class="ident">last_id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>();
+
+        <span class="ident">Transition</span>::<span class="ident">Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
 
         <span class="comment">// It&#39;s useful to see the origin.</span>
@@ -638,20 +671,20 @@
 
         <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
             <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">242</span>, <span class="number">239</span>, <span class="number">233</span>),
-            <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>(),
+            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>(),
         );
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State</span>::<span class="ident">PreviewIntersection</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
+            <span class="ident">State</span>::<span class="ident">PreviewIntersection</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
                 <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">false</span>,
                 <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
             }),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>),
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
             <span class="ident">State</span>::<span class="ident">CreatingRoad</span>(<span class="ident">i1</span>) <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="ident">g</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>, <span class="ident">cursor</span>) {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">new</span>(<span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>, <span class="ident">cursor</span>) {
                         <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>, <span class="ident">l</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>)));
                     }
                 }
@@ -675,18 +708,6 @@
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">popup</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">popup</span> {
             <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">popup</span>);
-        }
-    }
-
-    <span class="kw">fn</span> <span class="ident">dump_before_abort</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">canvas</span>.<span class="ident">save_camera_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
-        }
-    }
-
-    <span class="kw">fn</span> <span class="ident">before_quit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">canvas</span>.<span class="ident">save_camera_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
         }
     }
 }
@@ -730,7 +751,10 @@
 }
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;RawMap editor&quot;</span>), <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="ident">UI</span>::<span class="ident">new</span>(<span class="ident">ctx</span>));
+    <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;RawMap editor&quot;</span>), <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+        <span class="kw">let</span> (<span class="ident">app</span>, <span class="ident">state</span>) <span class="op">=</span> <span class="ident">MainState</span>::<span class="ident">new</span>(<span class="ident">ctx</span>);
+        (<span class="ident">app</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">state</span>)])
+    });
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "map_editor";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

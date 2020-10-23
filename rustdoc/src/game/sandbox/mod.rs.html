@@ -828,6 +828,10 @@
 <span id="827">827</span>
 <span id="828">828</span>
 <span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -838,8 +842,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Analytics</span>, <span class="ident">Scenario</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
+    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">misc_tools</span>::{<span class="ident">RoutePreview</span>, <span class="ident">TurnExplorer</span>};
@@ -850,7 +854,7 @@
     <span class="ident">apply_map_edits</span>, <span class="ident">can_edit_lane</span>, <span class="ident">EditMode</span>, <span class="ident">LaneEditor</span>, <span class="ident">SaveEdits</span>, <span class="ident">StopSignEditor</span>,
     <span class="ident">TrafficSignalEditor</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">PickLayer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::{<span class="ident">FileLoader</span>, <span class="ident">MapLoader</span>};
@@ -887,7 +891,11 @@
 <span class="kw">impl</span> <span class="ident">SandboxMode</span> {
     <span class="doccomment">/// If you don&#39;t need to chain any transitions after the SandboxMode that rely on its resources</span>
     <span class="doccomment">/// being loaded, use this. Otherwise, see `async_new`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_new</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
+        <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Vec</span>::<span class="ident">new</span>()))
     }
 
@@ -901,7 +909,7 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
         <span class="ident">finalize</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;&gt;</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">SandboxLoader</span> {
             <span class="ident">stage</span>: <span class="prelude-val">Some</span>(<span class="ident">LoadStage</span>::<span class="ident">LoadingMap</span>),
@@ -925,7 +933,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">SandboxMode</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SandboxMode</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="comment">// Do this before gameplay</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">can_move_canvas</span>() {
@@ -1104,7 +1112,7 @@
 
 <span class="kw">struct</span> <span class="ident">BackToMainMenu</span>;
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">BackToMainMenu</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BackToMainMenu</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;reset map and sim&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
             <span class="comment">// Always safe to do this</span>
@@ -1445,7 +1453,7 @@
     <span class="ident">finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">SandboxLoader</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SandboxLoader</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stage</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>() {

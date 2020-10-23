@@ -228,10 +228,10 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">Sim</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">State</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">native_loader</span>::<span class="ident">FileLoader</span>;
@@ -247,7 +247,7 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">name</span>: <span class="ident">String</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">name</span> {
             <span class="kw">return</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MapAlreadyLoaded</span> {
                 <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
@@ -281,7 +281,7 @@
 <span class="kw">struct</span> <span class="ident">MapAlreadyLoaded</span> {
     <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;&gt;</span>,
 }
-<span class="kw">impl</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">MapAlreadyLoaded</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MapAlreadyLoaded</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
         (<span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>)
     }
@@ -305,7 +305,7 @@
             <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
             <span class="ident">path</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
-        ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+        ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FileLoader</span> {
                 <span class="ident">path</span>,
                 <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
@@ -313,7 +313,7 @@
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;load {}&quot;</span>, <span class="self">self</span>.<span class="ident">path</span>), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                 <span class="comment">// Assumes a binary file</span>
@@ -337,7 +337,7 @@
     <span class="kw">use</span> <span class="ident">web_sys</span>::{<span class="ident">Request</span>, <span class="ident">RequestInit</span>, <span class="ident">RequestMode</span>, <span class="ident">Response</span>};
 
     <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-    <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>};
+    <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -358,7 +358,7 @@
             <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
             <span class="ident">path</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span><span class="op">&gt;</span>,
-        ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&gt;</span> {
+        ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
             <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm_s3&quot;</span>) {
                 <span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/{}&quot;</span>,
