@@ -1953,7 +1953,7 @@
                                 <span class="comment">// gets out of the way. So immediately promote them to</span>
                                 <span class="comment">// WaitingToAdvance.</span>
                                 <span class="ident">follower</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">CarState</span>::<span class="ident">WaitingToAdvance</span> { <span class="ident">blocked_since</span> };
-                                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">recalc_lanechanging</span> {
+                                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">recalc_lanechanging</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">handling_live_edits</span> {
                                     <span class="ident">follower</span>.<span class="ident">router</span>.<span class="ident">opportunistically_lanechange</span>(
                                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>,
                                         <span class="ident">ctx</span>.<span class="ident">map</span>,
