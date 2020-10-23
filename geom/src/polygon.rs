@@ -2,8 +2,9 @@ use std::convert::TryFrom;
 use std::fmt;
 
 use geo::algorithm::area::Area;
-use geo::algorithm::convexhull::ConvexHull;
+use geo::algorithm::convex_hull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
+use geo::algorithm::intersects::Intersects;
 use serde::{Deserialize, Serialize};
 
 use crate::{Angle, Bounds, Distance, HashablePt2D, PolyLine, Pt2D, Ring};
@@ -301,7 +302,8 @@ impl Polygon {
     }
 
     pub fn polylabel(&self) -> Pt2D {
-        let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0).unwrap();
+        let polygon: geo::Polygon<_> = to_geo(&self.points());
+        let pt = polylabel::polylabel(&polygon, &1.0).unwrap(); 
         Pt2D::new(pt.x(), pt.y())
     }
 
@@ -313,9 +315,7 @@ impl Polygon {
             Ok(Polygon::union_all(
                 rings.iter().map(|r| r.to_outline(thickness)).collect(),
             ))
-        } else {
-            Ring::new(self.points.clone()).map(|r| r.to_outline(thickness))
-        }
+        } else { Ring::new(self.points.clone()).map(|r| r.to_outline(thickness)) }
     }
 
     /// Remove the internal rings used for to_outline. This is fine to do if the polygon is being
@@ -329,7 +329,7 @@ impl Polygon {
     /// Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
         // Polygon orientation messes this up sometimes
-        to_geo(&self.points()).area().abs()
+        to_geo(&self.points()).unsigned_area()
     }
 
     /// Doesn't handle multiple crossings in and out.
