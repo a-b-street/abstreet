@@ -1,14 +1,23 @@
-// TODO Lotsa docs needed
+//! A widgetry application splits its state into two pieces: global shared state that lasts for the
+//! entire lifetime of the application, and a stack of smaller states, only one of which is active
+//! at a time. For example, imagine an application to view a map. The shared state would include
+//! the map and pre-rendered geometry for it. The individual states might start with a splash
+//! screen or menu to choose a map, then a map viewer, then maybe a state to drill down into pieces
+//! of the map.
 
 use crate::{Canvas, EventCtx, GfxCtx};
 
+/// Any data that should last the entire lifetime of the application should be stored in the struct
+/// implementing this trait.
 pub trait SharedAppState {
+    /// Before `State::event` is called, call this.
     fn before_event(&mut self) {}
+    /// When DrawBaselayer::DefaultDraw is called, run this.
     fn draw_default(&self, _: &mut GfxCtx) {}
 
-    // Will be called if event or draw panics.
+    /// Will be called if `State::event` or `State::draw` panics.
     fn dump_before_abort(&self, _: &Canvas) {}
-    // Only before a normal exit, like window close
+    /// Called before a normal exit, like window close
     fn before_quit(&self, _: &Canvas) {}
 }
 
@@ -124,16 +133,26 @@ impl<A: SharedAppState> App<A> {
     }
 }
 
+/// Before `State::draw` is called, draw something else.
 pub enum DrawBaselayer {
+    /// Call `SharedAppState::draw_default`.
     DefaultDraw,
+    /// Don't draw anything.
     Custom,
+    /// Call the previous state's `draw`. This won't recurse, even if that state specifies
+    /// `PreviousState`.
     PreviousState,
 }
 
+/// A temporary state of an application. There's a stack of these, with the most recent being the
+/// active one.
 pub trait State<A>: downcast_rs::Downcast {
+    /// Respond to a UI event, such as input or time passing.
     fn event(&mut self, ctx: &mut EventCtx, shared_app_state: &mut A) -> Transition<A>;
+    /// Draw
     fn draw(&self, g: &mut GfxCtx, shared_app_state: &A);
 
+    /// Specifies what to draw before draw()
     fn draw_baselayer(&self) -> DrawBaselayer {
         DrawBaselayer::DefaultDraw
     }
@@ -145,19 +164,29 @@ pub trait State<A>: downcast_rs::Downcast {
 
 downcast_rs::impl_downcast!(State<A>);
 
+/// When a state responds to an event, it can specify some way to manipulate the stack of states.
 pub enum Transition<A> {
+    /// Don't do anything, keep the current state as the active one
     Keep,
+    /// Keep the current state as the active one, but immediately call `event` again with a mouse
+    /// moved event
     KeepWithMouseover,
+    /// Destroy the current state, and resume from the previous one
     Pop,
-    /// If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
+    /// If a state needs to pass data back to its parent, use this. In the callback, you have to
+    /// downcast the previous state to populate it with data.
     ModifyState(Box<dyn FnOnce(&mut Box<dyn State<A>>, &mut EventCtx, &mut A)>),
     // TODO This is like Replace + ModifyState, then returning a few Push's from the callback. Not
     // sure how to express it in terms of the others without complicating ModifyState everywhere.
     ReplaceWithData(
         Box<dyn FnOnce(Box<dyn State<A>>, &mut EventCtx, &mut A) -> Vec<Box<dyn State<A>>>>,
     ),
+    /// Push a new active state on the top of the stack.
     Push(Box<dyn State<A>>),
+    /// Replace the current state with a new one. Equivalent to Pop, then Push.
     Replace(Box<dyn State<A>>),
+    /// Replace the entire stack of states with this stack.
     Clear(Vec<Box<dyn State<A>>>),
+    /// Execute a sequence of transitions in order.
     Multi(Vec<Transition<A>>),
 }
