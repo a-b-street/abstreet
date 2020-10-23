@@ -815,7 +815,7 @@ impl DrivingSimState {
                                 // gets out of the way. So immediately promote them to
                                 // WaitingToAdvance.
                                 follower.state = CarState::WaitingToAdvance { blocked_since };
-                                if self.recalc_lanechanging {
+                                if self.recalc_lanechanging && !ctx.handling_live_edits {
                                     follower.router.opportunistically_lanechange(
                                         &self.queues,
                                         ctx.map,

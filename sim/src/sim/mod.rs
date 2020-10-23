@@ -67,6 +67,8 @@ pub struct Ctx<'a> {
     pub cap: &'a mut CapSimState,
     pub scheduler: &'a mut Scheduler,
     pub map: &'a Map,
+    /// If true, live map edits are being processed. Some regular work should maybe be skipped.
+    pub handling_live_edits: bool,
 }
 
 /// Options controlling the traffic simulation.
@@ -428,6 +430,7 @@ impl Sim {
             cap: &mut self.cap,
             scheduler: &mut self.scheduler,
             map,
+            handling_live_edits: false,
         };
 
         match cmd {
@@ -919,6 +922,7 @@ impl Sim {
             cap: &mut self.cap,
             scheduler: &mut self.scheduler,
             map,
+            handling_live_edits: true,
         };
         for (agent, trip) in affected {
             match agent {
@@ -1028,6 +1032,7 @@ impl Sim {
                 cap: &mut self.cap,
                 scheduler: &mut self.scheduler,
                 map,
+                handling_live_edits: false,
             };
             let vehicle = self.driving.delete_car(id, self.time, &mut ctx);
             self.trips.cancel_trip(
