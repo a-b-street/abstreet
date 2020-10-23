@@ -11,6 +11,7 @@ pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, Div
 pub use self::heatmap::{make_heatmap, HeatmapOptions};
 pub use self::isochrone::IsochroneViewer;
 pub use self::minimap::Minimap;
+pub use self::navigate::Navigator;
 pub use self::warp::Warping;
 use crate::app::App;
 use crate::game::Transition;

@@ -140,6 +140,7 @@ impl MainMenu {
                         txt
                     })
                     .build_def(ctx, Key::P),
+                Btn::text_bg2("OpenStreetMap viewer").build_def(ctx, Key::V),
                 Btn::text_bg2("Contribute parking data to OpenStreetMap")
                     .tooltip({
                         let mut txt =
@@ -210,6 +211,9 @@ impl State<App> for MainMenu {
                 }
                 "Community Proposals" => {
                     return Transition::Push(Proposals::new(ctx, app, None));
+                }
+                "OpenStreetMap viewer" => {
+                    return Transition::Push(crate::devtools::osm_viewer::Viewer::new(ctx, app));
                 }
                 "Contribute parking data to OpenStreetMap" => {
                     return Transition::Push(crate::devtools::mapping::ParkingMapper::new(

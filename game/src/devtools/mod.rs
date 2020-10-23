@@ -13,6 +13,7 @@ use crate::helpers::nice_map_name;
 mod destinations;
 mod kml;
 pub mod mapping;
+pub mod osm_viewer;
 mod polygon;
 mod scenario;
 mod story;

@@ -6,7 +6,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::{navigate, Warping};
+use crate::common::{Navigator, Warping};
 use crate::game::Transition;
 use crate::layer::PickLayer;
 
@@ -177,7 +177,7 @@ impl Minimap {
                     self.set_zoom(ctx, app, 3);
                 }
                 x if x == "search" => {
-                    return Some(Transition::Push(navigate::Navigator::new(ctx, app)));
+                    return Some(Transition::Push(Navigator::new(ctx, app)));
                 }
                 x if x == "zoom out fully" => {
                     return Some(Transition::Push(Warping::new(
