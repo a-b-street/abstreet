@@ -832,6 +832,7 @@
 <span id="831">831</span>
 <span id="832">832</span>
 <span id="833">833</span>
+<span id="834">834</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -846,7 +847,8 @@
     <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">misc_tools</span>::{<span class="ident">RoutePreview</span>, <span class="ident">TurnExplorer</span>};
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">misc_tools</span>::<span class="ident">RoutePreview</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">misc_tools</span>::<span class="ident">TurnExplorer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>, <span class="ident">ContextualActions</span>, <span class="ident">IsochroneViewer</span>, <span class="ident">Minimap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">debug</span>::<span class="ident">DebugMode</span>;

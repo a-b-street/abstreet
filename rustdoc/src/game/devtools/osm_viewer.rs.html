@@ -192,11 +192,97 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">ArrowCap</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -204,10 +290,12 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">OptionsPanel</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">BIG_ARROW_THICKNESS</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">TurnExplorer</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Viewer</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">object_fixed</span>: <span class="ident">bool</span>,
+    <span class="ident">fixed_object_outline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Viewer</span> {
@@ -247,20 +335,20 @@
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">exact_size_percent</span>(<span class="number">35</span>, <span class="number">80</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">object_fixed</span>: <span class="bool-val">false</span>,
+            <span class="ident">fixed_object_outline</span>: <span class="prelude-val">None</span>,
         })
     }
 
     <span class="kw">fn</span> <span class="ident">update_tags</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_some</span>() {
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click something else to examine it&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+        } <span class="kw">else</span> {
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click to examine&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+        }
+
         <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
             <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">object_fixed</span> {
-                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click something else to examine it&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
-                } <span class="kw">else</span> {
-                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click to examine&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
-                }
-
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM way {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>)).<span class="ident">build</span>(
@@ -285,23 +373,83 @@
                     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_SIDEWALKS</span>) <span class="op">&amp;&amp;</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">osm</span>::<span class="ident">SIDEWALK</span> {
                         <span class="kw">continue</span>;
                     }
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">object_fixed</span> {
-                        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Line</span>(<span class="ident">k</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="ident">v</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
-                        ]));
-                    } <span class="kw">else</span> {
-                        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Line</span>(<span class="ident">k</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="ident">v</span>).<span class="ident">secondary</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
-                        ]));
-                    }
+                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="ident">k</span>).<span class="ident">build</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, <span class="ident">k</span>),
+                            <span class="prelude-val">None</span>,
+                        ),
+                        <span class="ident">Line</span>(<span class="ident">v</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
+                    ]));
                 }
             }
-            <span class="kw">_</span> <span class="op">=&gt;</span> {
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Zoom in and select something to begin&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=&gt;</span> {
+                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
+                <span class="ident">col</span>.<span class="ident">push</span>(
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>)).<span class="ident">build</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>),
+                        <span class="prelude-val">None</span>,
+                    ),
+                );
             }
-        };
+            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)) <span class="op">=&gt;</span> {
+                <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
+                <span class="ident">col</span>.<span class="ident">push</span>(
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>.<span class="ident">inner</span>())).<span class="ident">build</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>),
+                        <span class="prelude-val">None</span>,
+                    ),
+                );
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Address: {}&quot;</span>, <span class="ident">b</span>.<span class="ident">address</span>)));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">names</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">name</span> {
+                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;Name: {}&quot;</span>,
+                        <span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()).<span class="ident">to_string</span>()
+                    )));
+                }
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
+                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;&quot;</span>));
+                    <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;1 amenity:&quot;</span>));
+                    } <span class="kw">else</span> {
+                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} amenities:&quot;</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>())));
+                    }
+                    <span class="kw">for</span> (<span class="ident">names</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
+                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                            <span class="string">&quot;  {} ({})&quot;</span>,
+                            <span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()),
+                            <span class="ident">amenity</span>
+                        )));
+                    }
+                }
+                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+            }
+            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">pl</span>)) <span class="op">=&gt;</span> {
+                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>);
+                <span class="ident">col</span>.<span class="ident">push</span>(
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>.<span class="ident">inner</span>())).<span class="ident">build</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>),
+                        <span class="prelude-val">None</span>,
+                    ),
+                );
+
+                <span class="ident">col</span>.<span class="ident">push</span>(
+                    <span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;Estimated parking spots: {}&quot;</span>,
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">pl</span>.<span class="ident">capacity</span>())
+                    )
+                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                );
+            }
+            <span class="kw">_</span> <span class="op">=&gt;</span> {
+                <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Zoom in and select something to begin&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>)];
+            }
+        }
         <span class="self">self</span>.<span class="ident">top_panel</span>
             .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;tags&quot;</span>, <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">named</span>(<span class="string">&quot;tags&quot;</span>));
     }
@@ -314,20 +462,37 @@
             <span class="kw">let</span> <span class="ident">old_id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>();
             <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
 
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">object_fixed</span> <span class="op">&amp;&amp;</span> <span class="ident">old_id</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">old_id</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
                 <span class="self">self</span>.<span class="ident">update_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">object_fixed</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="self">self</span>.<span class="ident">object_fixed</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="self">self</span>.<span class="ident">update_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>() {
+                <span class="comment">// get_obj must succeed, because we can only click static map elements.</span>
+                <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">app</span>
+                    .<span class="ident">primary</span>
+                    .<span class="ident">draw_map</span>
+                    .<span class="ident">get_obj</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>())
+                    .<span class="ident">unwrap</span>()
+                    .<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">perma_selected_object</span>, <span class="ident">outline</span>)]);
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+                    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_turns_from_lane</span>(<span class="ident">l</span>) {
+                        <span class="ident">batch</span>.<span class="ident">push</span>(
+                            <span class="ident">TurnExplorer</span>::<span class="ident">color_turn_type</span>(<span class="ident">turn</span>.<span class="ident">turn_type</span>),
+                            <span class="ident">turn</span>.<span class="ident">geom</span>
+                                .<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span>, <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>),
+                        );
+                    }
+                }
+
+                <span class="self">self</span>.<span class="ident">fixed_object_outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
+            } <span class="kw">else</span> {
+                <span class="self">self</span>.<span class="ident">fixed_object_outline</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             }
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="self">self</span>.<span class="ident">object_fixed</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="self">self</span>.<span class="ident">update_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            }
+            <span class="self">self</span>.<span class="ident">update_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -384,6 +549,9 @@
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">d</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span> {
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">d</span>);
+        }
     }
 }
 </pre></div>
