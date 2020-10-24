@@ -380,6 +380,22 @@
 <span id="379">379</span>
 <span id="380">380</span>
 <span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -544,6 +560,22 @@
                     }
                 }
                 <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
+
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">is_empty</span>() {
+                    <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">inner</span>() {
+                        <span class="kw">if</span> <span class="ident">k</span>.<span class="ident">starts_with</span>(<span class="string">&quot;abst:&quot;</span>) {
+                            <span class="kw">continue</span>;
+                        }
+                        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="ident">k</span>).<span class="ident">build</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, <span class="ident">k</span>),
+                                <span class="prelude-val">None</span>,
+                            ),
+                            <span class="ident">Line</span>(<span class="ident">v</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
+                        ]));
+                    }
+                }
             }
             <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">pl</span>)) <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>);

@@ -256,6 +256,18 @@
 <span id="255">255</span>
 <span id="256">256</span>
 <span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -364,6 +376,18 @@
 
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg1</span>(<span class="string">&quot;Open OSM&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>), <span class="prelude-val">None</span>));
+
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
+            <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">b</span>.<span class="ident">osm_tags</span>
+                    .<span class="ident">inner</span>()
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">to_string</span>()))
+                    .<span class="ident">collect</span>(),
+            ));
+        }
     }
 
     <span class="ident">rows</span>

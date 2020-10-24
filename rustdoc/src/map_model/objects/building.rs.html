@@ -202,6 +202,8 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -248,6 +250,8 @@
     <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">bldg_type</span>: <span class="ident">BuildingType</span>,
     <span class="kw">pub</span> <span class="ident">parking</span>: <span class="ident">OffstreetParking</span>,
+    <span class="doccomment">/// Depending on options while importing, these might be empty, to save file space.</span>
+    <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
 
     <span class="doccomment">/// The building&#39;s connection for pedestrians is immutable. For cars and bikes, it can change</span>
     <span class="doccomment">/// based on map edits, so don&#39;t cache it.</span>
