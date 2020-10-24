@@ -2361,7 +2361,7 @@
         <span class="comment">// The minimap is hidden at low zoom levels</span>
         <span class="kw">let</span> <span class="ident">orig_zoom</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>;
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">100.0</span>;
-        <span class="kw">let</span> <span class="ident">minimap</span> <span class="op">=</span> <span class="ident">Minimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">minimap</span> <span class="op">=</span> <span class="ident">Minimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">true</span>);
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">orig_zoom</span>;
 
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
