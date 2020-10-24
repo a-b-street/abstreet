@@ -380,10 +380,6 @@
 <span id="379">379</span>
 <span id="380">380</span>
 <span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -413,48 +409,54 @@
 <span class="kw">impl</span> <span class="ident">Viewer</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Viewer</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">viewer</span> <span class="op">=</span> <span class="ident">Viewer</span> {
             <span class="ident">fixed_object_outline</span>: <span class="prelude-val">None</span>,
             <span class="ident">minimap</span>: <span class="ident">Minimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>),
             <span class="ident">businesses</span>: <span class="prelude-val">None</span>,
-            <span class="ident">top_panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;OpenStreetMap viewer&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Change map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;change map&quot;</span>,
-                        <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
-                    ),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;settings&quot;</span>, <span class="prelude-val">None</span>),
-                    <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">build</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;search&quot;</span>,
-                        <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">F</span>),
-                    ),
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>),
-                <span class="string">&quot;Zoom in and select something to begin&quot;</span>
-                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;tags&quot;</span>),
-                <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Search for businesses&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>),
-            ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
-        })
+            <span class="ident">top_panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+        };
+        <span class="ident">viewer</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">viewer</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">update_tags</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="comment">// widgetry panels have a bug currently and don&#39;t detect changes to the dimensions of contents,</span>
+    <span class="comment">// so we can&#39;t use replace() without messing up scrollbars.</span>
+    <span class="kw">fn</span> <span class="ident">recalculate_top_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;OpenStreetMap viewer&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
+                    .<span class="ident">align_right</span>(),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="string">&quot;Change map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;change map&quot;</span>,
+                    <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
+                ),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;settings&quot;</span>, <span class="prelude-val">None</span>),
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">F</span>)),
+                <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>),
+            <span class="self">self</span>.<span class="ident">calculate_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>),
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span> {
+                <span class="ident">b</span>.<span class="ident">render</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;Search for businesses&quot;</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Search for businesses&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>)
+            },
+        ]))
+        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">top_panel</span>;
+    }
+
+    <span class="kw">fn</span> <span class="ident">calculate_tags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_some</span>() {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click something else to examine it&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
@@ -565,8 +567,7 @@
                 <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Zoom in and select something to begin&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>)];
             }
         }
-        <span class="self">self</span>.<span class="ident">top_panel</span>
-            .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;tags&quot;</span>, <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">named</span>(<span class="string">&quot;tags&quot;</span>));
+        <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>)
     }
 }
 
@@ -578,7 +579,7 @@
             <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">old_id</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="self">self</span>.<span class="ident">update_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
         }
 
@@ -607,7 +608,7 @@
             } <span class="kw">else</span> {
                 <span class="self">self</span>.<span class="ident">fixed_object_outline</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             }
-            <span class="self">self</span>.<span class="ident">update_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">minimap</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
@@ -653,22 +654,12 @@
                     ));
                 }
                 <span class="string">&quot;Search for businesses&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">businesses</span> <span class="op">=</span> <span class="ident">BusinessSearch</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">let</span> <span class="ident">search</span> <span class="op">=</span> <span class="ident">businesses</span>.<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="self">self</span>.<span class="ident">businesses</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">businesses</span>);
-                    <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">replace</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;Search for businesses&quot;</span>,
-                        <span class="ident">search</span>.<span class="ident">named</span>(<span class="string">&quot;Search for businesses&quot;</span>),
-                    );
+                    <span class="self">self</span>.<span class="ident">businesses</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BusinessSearch</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;Hide business search&quot;</span> <span class="op">=&gt;</span> {
                     <span class="self">self</span>.<span class="ident">businesses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">replace</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;Search for businesses&quot;</span>,
-                        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Search for businesses&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>),
-                    );
+                    <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="ident">x</span> <span class="op">=&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;open &quot;</span>) {
@@ -679,14 +670,11 @@
                 }
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
-                <span class="ident">b</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
-                <span class="kw">let</span> <span class="ident">search</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">replace</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;Search for businesses&quot;</span>,
-                    <span class="ident">search</span>.<span class="ident">named</span>(<span class="string">&quot;Search for businesses&quot;</span>),
-                );
+                <span class="self">self</span>.<span class="ident">businesses</span>
+                    .<span class="ident">as_mut</span>()
+                    .<span class="ident">unwrap</span>()
+                    .<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
+                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">KeepWithMouseover</span>;
             }
             <span class="kw">_</span> <span class="op">=&gt;</span> {}
         }
@@ -721,27 +709,42 @@
             }
         }
         <span class="kw">let</span> <span class="ident">show</span> <span class="op">=</span> <span class="ident">counts</span>.<span class="ident">borrow</span>().<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
-
-        <span class="ident">BusinessSearch</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">BusinessSearch</span> {
             <span class="ident">counts</span>,
             <span class="ident">show</span>,
             <span class="ident">highlight</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">new</span>()),
-        }
+        };
+
+        <span class="comment">// Initialize highlight</span>
+        <span class="kw">let</span> <span class="ident">tmp_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">s</span>.<span class="ident">render</span>(<span class="ident">ctx</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="ident">s</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">tmp_panel</span>);
+
+        <span class="ident">s</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
+    <span class="comment">// Also updates the highlighted buildings</span>
+    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
+        <span class="comment">// Update state from checkboxes</span>
         <span class="self">self</span>.<span class="ident">show</span>.<span class="ident">clear</span>();
         <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">borrow</span>().<span class="ident">keys</span>() {
             <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="ident">amenity</span>) {
                 <span class="self">self</span>.<span class="ident">show</span>.<span class="ident">insert</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>());
             }
         }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
+            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">any</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">amenity</span>)<span class="op">|</span> <span class="self">self</span>.<span class="ident">show</span>.<span class="ident">contains</span>(<span class="ident">amenity</span>))
+            {
+                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+            }
+        }
+        <span class="self">self</span>.<span class="ident">highlight</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
     }
 
-    <span class="comment">// Returns the panel and also updates the highlighted buildings</span>
-    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-
+    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Hide business search&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>));
         <span class="ident">col</span>.<span class="ident">push</span>(
@@ -755,18 +758,7 @@
                 <span class="prelude-val">None</span>,
                 <span class="self">self</span>.<span class="ident">show</span>.<span class="ident">contains</span>(<span class="ident">amenity</span>),
             ));
-
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show</span>.<span class="ident">contains</span>(<span class="ident">amenity</span>) {
-                <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-                    <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">category</span>)<span class="op">|</span> <span class="ident">category</span> <span class="op">==</span> <span class="ident">amenity</span>) {
-                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-                    }
-                }
-            }
         }
-
-        <span class="self">self</span>.<span class="ident">highlight</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
-
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>)
     }
 }
