@@ -396,6 +396,46 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -613,6 +653,14 @@
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">old_id</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
                 <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
+
+            <span class="kw">let</span> <span class="ident">maybe_amenity</span> <span class="op">=</span> <span class="ident">ctx</span>
+                .<span class="ident">canvas</span>
+                .<span class="ident">get_cursor_in_screen_space</span>()
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">currently_hovering</span>().<span class="ident">cloned</span>());
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span> {
+                <span class="ident">b</span>.<span class="ident">hovering_on_amenity</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_amenity</span>);
+            }
         }
 
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
@@ -722,6 +770,9 @@
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">highlight</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">d</span>)) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">hovering_on_amenity</span> {
+                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">d</span>);
+            }
         }
     }
 }
@@ -730,6 +781,7 @@
     <span class="ident">counts</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">show</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">highlight</span>: <span class="ident">Drawable</span>,
+    <span class="ident">hovering_on_amenity</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">BusinessSearch</span> {
@@ -745,6 +797,7 @@
             <span class="ident">counts</span>,
             <span class="ident">show</span>,
             <span class="ident">highlight</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">new</span>()),
+            <span class="ident">hovering_on_amenity</span>: <span class="prelude-val">None</span>,
         };
 
         <span class="comment">// Initialize highlight</span>
@@ -774,6 +827,33 @@
             }
         }
         <span class="self">self</span>.<span class="ident">highlight</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">hovering_on_amenity</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">amenity</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
+        <span class="kw">if</span> <span class="ident">amenity</span>.<span class="ident">is_none</span>() {
+            <span class="self">self</span>.<span class="ident">hovering_on_amenity</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">let</span> <span class="ident">amenity</span> <span class="op">=</span> <span class="ident">amenity</span>.<span class="ident">unwrap</span>();
+        <span class="kw">if</span> <span class="self">self</span>
+            .<span class="ident">hovering_on_amenity</span>
+            .<span class="ident">as_ref</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">current</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">current</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">amenity</span>)
+            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+        {
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">get</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>()) <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
+                <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">a</span>)<span class="op">|</span> <span class="ident">a</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">amenity</span>) {
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                }
+            }
+        }
+        <span class="self">self</span>.<span class="ident">hovering_on_amenity</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">amenity</span>, <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
     }
 
     <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
