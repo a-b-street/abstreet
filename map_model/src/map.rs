@@ -101,7 +101,7 @@ impl Map {
         }
 
         let raw: RawMap = abstutil::read_binary(path, timer);
-        Map::create_from_raw(raw, true, timer)
+        Map::create_from_raw(raw, true, false, timer)
     }
 
     /// If you have to deserialize a `Map` directly, call this after. Prefer using `Map::new`

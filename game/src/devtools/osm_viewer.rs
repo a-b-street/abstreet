@@ -161,6 +161,22 @@ impl Viewer {
                     }
                 }
                 col.push(txt.draw(ctx));
+
+                if !b.osm_tags.is_empty() {
+                    for (k, v) in b.osm_tags.inner() {
+                        if k.starts_with("abst:") {
+                            continue;
+                        }
+                        col.push(Widget::row(vec![
+                            Btn::plaintext(k).build(
+                                ctx,
+                                format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
+                                None,
+                            ),
+                            Line(v).draw(ctx).align_right(),
+                        ]));
+                    }
+                }
             }
             Some(ID::ParkingLot(pl)) => {
                 let pl = app.primary.map.get_pl(pl);

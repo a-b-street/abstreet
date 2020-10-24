@@ -42,7 +42,7 @@ fn import_map(path: String) -> Map {
         },
         &mut timer,
     );
-    let map = Map::create_from_raw(raw, true, &mut timer);
+    let map = Map::create_from_raw(raw, true, true, &mut timer);
     map
 }
 

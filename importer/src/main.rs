@@ -23,6 +23,7 @@ struct Job {
     scenario_everyone: bool,
 
     skip_ch: bool,
+    keep_bldg_tags: bool,
 
     only_map: Option<String>,
 
@@ -46,6 +47,8 @@ fn main() {
         // Skip the most expensive step of --map, building contraction hierarchies. The simulation
         // will use a slower method to pathfind.
         skip_ch: args.enabled("--skip_ch"),
+        // Preserve OSM tags for buildings, increasing the file size.
+        keep_bldg_tags: args.enabled("--keep_bldg_tags"),
 
         // Only process one map. If not specified, process all maps defined by clipping polygons in
         // data/input/$city/polygons/.
@@ -87,6 +90,7 @@ fn main() {
             job.oneshot_clip,
             !job.oneshot_drive_on_left,
             !job.skip_ch,
+            job.keep_bldg_tags,
         );
         return;
     }
@@ -137,7 +141,7 @@ fn main() {
         }
 
         let mut maybe_map = if job.raw_to_map {
-            let mut map = utils::raw_to_map(&name, !job.skip_ch, &mut timer);
+            let mut map = utils::raw_to_map(&name, !job.skip_ch, job.keep_bldg_tags, &mut timer);
 
             // Another strange step in the pipeline.
             if name == "berlin_center" {
@@ -197,7 +201,13 @@ fn main() {
     }
 }
 
-fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, build_ch: bool) {
+fn oneshot(
+    osm_path: String,
+    clip: Option<String>,
+    drive_on_right: bool,
+    build_ch: bool,
+    keep_bldg_tags: bool,
+) {
     let mut timer = abstutil::Timer::new("oneshot");
     println!("- Running convert_osm on {}", osm_path);
     let name = abstutil::basename(&osm_path);
@@ -227,7 +237,7 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, build_c
     );
     // Often helpful to save intermediate representation in case user wants to load into map_editor
     raw.save();
-    let map = map_model::Map::create_from_raw(raw, build_ch, &mut timer);
+    let map = map_model::Map::create_from_raw(raw, build_ch, keep_bldg_tags, &mut timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");

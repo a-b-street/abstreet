@@ -132,10 +132,15 @@ fn run(cmd: &mut Command) {
 }
 
 // Converts a RawMap to a Map.
-pub fn raw_to_map(name: &str, build_ch: bool, timer: &mut Timer) -> map_model::Map {
+pub fn raw_to_map(
+    name: &str,
+    build_ch: bool,
+    keep_bldg_tags: bool,
+    timer: &mut Timer,
+) -> map_model::Map {
     timer.start(format!("Raw->Map for {}", name));
     let raw: map_model::raw::RawMap = abstutil::read_binary(abstutil::path_raw_map(name), timer);
-    let map = map_model::Map::create_from_raw(raw, build_ch, timer);
+    let map = map_model::Map::create_from_raw(raw, build_ch, keep_bldg_tags, timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");

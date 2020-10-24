@@ -16,6 +16,7 @@ use crate::{
 pub fn make_all_buildings(
     input: &BTreeMap<osm::OsmID, RawBuilding>,
     map: &Map,
+    keep_bldg_tags: bool,
     timer: &mut Timer,
 ) -> Vec<Building> {
     timer.start("convert buildings");
@@ -93,6 +94,11 @@ pub fn make_all_buildings(
                         b.num_parking_spots,
                         b.osm_tags.is("building", "parking") || b.osm_tags.is("amenity", "parking"),
                     )
+                },
+                osm_tags: if keep_bldg_tags {
+                    b.osm_tags.clone()
+                } else {
+                    Tags::new(BTreeMap::new())
                 },
 
                 sidewalk_pos: *sidewalk_pos,

@@ -43,6 +43,8 @@ pub struct Building {
     pub amenities: BTreeSet<(NamePerLanguage, String)>,
     pub bldg_type: BuildingType,
     pub parking: OffstreetParking,
+    /// Depending on options while importing, these might be empty, to save file space.
+    pub osm_tags: Tags,
 
     /// The building's connection for pedestrians is immutable. For cars and bikes, it can change
     /// based on map edits, so don't cache it.

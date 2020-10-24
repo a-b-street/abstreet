@@ -128,7 +128,7 @@ pub fn ensure_popdat_exists(
     let huge_map = if abstutil::file_exists(abstutil::path_map("huge_seattle")) {
         map_model::Map::new(abstutil::path_map("huge_seattle"), timer)
     } else {
-        crate::utils::raw_to_map("huge_seattle", true, timer)
+        crate::utils::raw_to_map("huge_seattle", true, false, timer)
     };
 
     (crate::soundcast::import_data(&huge_map, timer), huge_map)

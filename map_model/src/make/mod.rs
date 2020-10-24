@@ -25,7 +25,12 @@ pub mod turns;
 mod walking_turns;
 
 impl Map {
-    pub fn create_from_raw(mut raw: RawMap, build_ch: bool, timer: &mut Timer) -> Map {
+    pub fn create_from_raw(
+        mut raw: RawMap,
+        build_ch: bool,
+        keep_bldg_tags: bool,
+        timer: &mut Timer,
+    ) -> Map {
         // Better to defer this and see RawMaps with more debug info in map_editor
         remove_disconnected::remove_disconnected_roads(&mut raw, timer);
 
@@ -199,7 +204,8 @@ impl Map {
                         .map(|x| x.ends_with("_link"))
                         .unwrap_or(false)
                     || road.osm_tags.is_any("railway", vec!["rail", "light_rail"])
-                    || road.osm_tags.is("junction", "roundabout"))
+                    || road.osm_tags.is("junction", "roundabout")
+                    || road.osm_tags.is("highway", "service"))
                 {
                     timer.warn(format!(
                         "{} has no name. Tags: {:?}",
@@ -267,7 +273,7 @@ impl Map {
         }
         timer.stop("find blackholes");
 
-        map.buildings = buildings::make_all_buildings(&raw.buildings, &map, timer);
+        map.buildings = buildings::make_all_buildings(&raw.buildings, &map, keep_bldg_tags, timer);
 
         map.parking_lots = parking_lots::make_all_parking_lots(
             &raw.parking_lots,

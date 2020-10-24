@@ -240,6 +240,10 @@ impl Tags {
         self.0.remove(k)
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     // TODO Really just iter()
     pub fn inner(&self) -> &BTreeMap<String, String> {
         &self.0

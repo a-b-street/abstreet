@@ -105,6 +105,18 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
 
     if app.opts.dev {
         rows.push(Btn::text_bg1("Open OSM").build(ctx, format!("open {}", b.orig_id), None));
+
+        if !b.osm_tags.is_empty() {
+            rows.push("Raw OpenStreetMap data".draw_text(ctx));
+            rows.extend(make_table(
+                ctx,
+                b.osm_tags
+                    .inner()
+                    .iter()
+                    .map(|(k, v)| (k, v.to_string()))
+                    .collect(),
+            ));
+        }
     }
 
     rows
