@@ -214,6 +214,14 @@ impl State<App> for Viewer {
             if self.fixed_object_outline.is_none() && old_id != app.primary.current_selection {
                 self.recalculate_top_panel(ctx, app);
             }
+
+            let maybe_amenity = ctx
+                .canvas
+                .get_cursor_in_screen_space()
+                .and_then(|_| self.top_panel.currently_hovering().cloned());
+            if let Some(ref mut b) = self.businesses {
+                b.hovering_on_amenity(ctx, app, maybe_amenity);
+            }
         }
 
         if ctx.canvas.get_cursor_in_map_space().is_some() && ctx.normal_left_click() {
@@ -323,6 +331,9 @@ impl State<App> for Viewer {
         }
         if let Some(ref b) = self.businesses {
             g.redraw(&b.highlight);
+            if let Some((_, ref d)) = b.hovering_on_amenity {
+                g.redraw(d);
+            }
         }
     }
 }
@@ -331,6 +342,7 @@ struct BusinessSearch {
     counts: Counter<String>,
     show: BTreeSet<String>,
     highlight: Drawable,
+    hovering_on_amenity: Option<(String, Drawable)>,
 }
 
 impl BusinessSearch {
@@ -346,6 +358,7 @@ impl BusinessSearch {
             counts,
             show,
             highlight: ctx.upload(GeomBatch::new()),
+            hovering_on_amenity: None,
         };
 
         // Initialize highlight
@@ -375,6 +388,33 @@ impl BusinessSearch {
             }
         }
         self.highlight = ctx.upload(batch);
+    }
+
+    fn hovering_on_amenity(&mut self, ctx: &mut EventCtx, app: &App, amenity: Option<String>) {
+        if amenity.is_none() {
+            self.hovering_on_amenity = None;
+            return;
+        }
+
+        let amenity = amenity.unwrap();
+        if self
+            .hovering_on_amenity
+            .as_ref()
+            .map(|(current, _)| current == &amenity)
+            .unwrap_or(false)
+        {
+            return;
+        }
+
+        let mut batch = GeomBatch::new();
+        if self.counts.get(amenity.clone()) > 0 {
+            for b in app.primary.map.all_buildings() {
+                if b.amenities.iter().any(|(_, a)| a == &amenity) {
+                    batch.push(Color::BLUE, b.polygon.clone());
+                }
+            }
+        }
+        self.hovering_on_amenity = Some((amenity, ctx.upload(batch)));
     }
 
     fn render(&self, ctx: &mut EventCtx) -> Widget {

@@ -12,8 +12,9 @@ use geom::{Distance, Percent, Polygon};
 use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::Panel;
 use crate::{
-    Button, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx, GeomBatch,
-    GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, TextBox,
+    Button, Checkbox, Choice, Color, DeferDraw, DrawWithTooltips, Drawable, Dropdown, EventCtx,
+    GeomBatch, GfxCtx, JustDraw, Menu, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    TextBox,
 };
 
 pub mod autocomplete;
@@ -616,6 +617,10 @@ impl Widget {
         if let Some(btn) = self.widget.downcast_ref::<Button>() {
             if btn.hovering {
                 return Some(&btn.action);
+            }
+        } else if let Some(checkbox) = self.widget.downcast_ref::<Checkbox>() {
+            if checkbox.btn.hovering {
+                return Some(&checkbox.btn.action);
             }
         } else if let Some(container) = self.widget.downcast_ref::<Container>() {
             for w in &container.members {

@@ -5,7 +5,7 @@ use crate::{
 
 pub struct Checkbox {
     pub(crate) enabled: bool,
-    btn: Button,
+    pub(crate) btn: Button,
     other_btn: Button,
 }
 
