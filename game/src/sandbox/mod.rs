@@ -11,7 +11,8 @@ use widgetry::{
     Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
-use self::misc_tools::{RoutePreview, TurnExplorer};
+use self::misc_tools::RoutePreview;
+pub use self::misc_tools::TurnExplorer;
 use crate::app::App;
 use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
 use crate::debug::DebugMode;

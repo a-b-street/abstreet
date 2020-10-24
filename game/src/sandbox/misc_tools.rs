@@ -129,7 +129,7 @@ impl State<App> for TurnExplorer {
         if self.idx == 0 {
             for turn in &app.primary.map.get_turns_from_lane(self.l) {
                 g.draw_polygon(
-                    color_turn_type(turn.turn_type).alpha(0.5),
+                    TurnExplorer::color_turn_type(turn.turn_type).alpha(0.5),
                     turn.geom
                         .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                 );
@@ -200,28 +200,28 @@ impl TurnExplorer {
             if app.primary.map.get_l(l).is_walkable() {
                 col.push(ColorLegend::row(
                     ctx,
-                    color_turn_type(TurnType::Crosswalk),
+                    TurnExplorer::color_turn_type(TurnType::Crosswalk),
                     "crosswalk",
                 ));
                 col.push(ColorLegend::row(
                     ctx,
-                    color_turn_type(TurnType::SharedSidewalkCorner),
+                    TurnExplorer::color_turn_type(TurnType::SharedSidewalkCorner),
                     "sidewalk connection",
                 ));
             } else {
                 col.push(ColorLegend::row(
                     ctx,
-                    color_turn_type(TurnType::Straight),
+                    TurnExplorer::color_turn_type(TurnType::Straight),
                     "straight",
                 ));
                 col.push(ColorLegend::row(
                     ctx,
-                    color_turn_type(TurnType::Right),
+                    TurnExplorer::color_turn_type(TurnType::Right),
                     "right turn",
                 ));
                 col.push(ColorLegend::row(
                     ctx,
-                    color_turn_type(TurnType::Left),
+                    TurnExplorer::color_turn_type(TurnType::Left),
                     "left turn",
                 ));
             }
@@ -247,16 +247,17 @@ impl TurnExplorer {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx)
     }
-}
 
-// Since this is extremely localized and probably changing, not going to put this in ColorScheme.
-fn color_turn_type(t: TurnType) -> Color {
-    match t {
-        TurnType::SharedSidewalkCorner => Color::BLACK,
-        TurnType::Crosswalk => Color::WHITE,
-        TurnType::Straight => Color::BLUE,
-        TurnType::Right => Color::GREEN,
-        TurnType::Left => Color::RED,
+    // Since this is extremely localized and probably changing, not going to put this in
+    // ColorScheme.
+    pub fn color_turn_type(t: TurnType) -> Color {
+        match t {
+            TurnType::SharedSidewalkCorner => Color::BLACK,
+            TurnType::Crosswalk => Color::WHITE,
+            TurnType::Straight => Color::BLUE,
+            TurnType::Right => Color::GREEN,
+            TurnType::Left => Color::RED,
+        }
     }
 }
 

@@ -1,7 +1,9 @@
+use abstutil::prettyprint_usize;
+use geom::ArrowCap;
 use map_model::osm;
 use widgetry::{
-    lctrl, Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
-    VerticalAlignment, Widget,
+    lctrl, Btn, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -9,10 +11,12 @@ use crate::common::{CityPicker, Navigator};
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 use crate::options::OptionsPanel;
+use crate::render::BIG_ARROW_THICKNESS;
+use crate::sandbox::TurnExplorer;
 
 pub struct Viewer {
     top_panel: Panel,
-    object_fixed: bool,
+    fixed_object_outline: Option<Drawable>,
 }
 
 impl Viewer {
@@ -52,20 +56,20 @@ impl Viewer {
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .exact_size_percent(35, 80)
             .build(ctx),
-            object_fixed: false,
+            fixed_object_outline: None,
         })
     }
 
     fn update_tags(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut col = Vec::new();
+        if self.fixed_object_outline.is_some() {
+            col.push("Click something else to examine it".draw_text(ctx));
+        } else {
+            col.push("Click to examine".draw_text(ctx));
+        }
+
         match app.primary.current_selection {
             Some(ID::Lane(l)) => {
-                if self.object_fixed {
-                    col.push("Click something else to examine it".draw_text(ctx));
-                } else {
-                    col.push("Click to examine".draw_text(ctx));
-                }
-
                 let r = app.primary.map.get_parent(l);
                 col.push(
                     Btn::text_bg2(format!("Open OSM way {}", r.orig_id.osm_way_id.0)).build(
@@ -90,23 +94,83 @@ impl Viewer {
                     if tags.contains_key(osm::INFERRED_SIDEWALKS) && k == osm::SIDEWALK {
                         continue;
                     }
-                    if self.object_fixed {
-                        col.push(Widget::row(vec![
-                            Line(k).draw(ctx),
-                            Line(v).draw(ctx).align_right(),
-                        ]));
-                    } else {
-                        col.push(Widget::row(vec![
-                            Line(k).secondary().draw(ctx),
-                            Line(v).secondary().draw(ctx).align_right(),
-                        ]));
-                    }
+                    col.push(Widget::row(vec![
+                        Btn::plaintext(k).build(
+                            ctx,
+                            format!("open https://wiki.openstreetmap.org/wiki/Key:{}", k),
+                            None,
+                        ),
+                        Line(v).draw(ctx).align_right(),
+                    ]));
                 }
             }
-            _ => {
-                col.push("Zoom in and select something to begin".draw_text(ctx));
+            Some(ID::Intersection(i)) => {
+                let i = app.primary.map.get_i(i);
+                col.push(
+                    Btn::text_bg2(format!("Open OSM node {}", i.orig_id.0)).build(
+                        ctx,
+                        format!("open {}", i.orig_id),
+                        None,
+                    ),
+                );
             }
-        };
+            Some(ID::Building(b)) => {
+                let b = app.primary.map.get_b(b);
+                col.push(
+                    Btn::text_bg2(format!("Open OSM ID {}", b.orig_id.inner())).build(
+                        ctx,
+                        format!("open {}", b.orig_id),
+                        None,
+                    ),
+                );
+
+                let mut txt = Text::new();
+                txt.add(Line(format!("Address: {}", b.address)));
+                if let Some(ref names) = b.name {
+                    txt.add(Line(format!(
+                        "Name: {}",
+                        names.get(app.opts.language.as_ref()).to_string()
+                    )));
+                }
+                if !b.amenities.is_empty() {
+                    txt.add(Line(""));
+                    if b.amenities.len() == 1 {
+                        txt.add(Line("1 amenity:"));
+                    } else {
+                        txt.add(Line(format!("{} amenities:", b.amenities.len())));
+                    }
+                    for (names, amenity) in &b.amenities {
+                        txt.add(Line(format!(
+                            "  {} ({})",
+                            names.get(app.opts.language.as_ref()),
+                            amenity
+                        )));
+                    }
+                }
+                col.push(txt.draw(ctx));
+            }
+            Some(ID::ParkingLot(pl)) => {
+                let pl = app.primary.map.get_pl(pl);
+                col.push(
+                    Btn::text_bg2(format!("Open OSM ID {}", pl.osm_id.inner())).build(
+                        ctx,
+                        format!("open {}", pl.osm_id),
+                        None,
+                    ),
+                );
+
+                col.push(
+                    format!(
+                        "Estimated parking spots: {}",
+                        prettyprint_usize(pl.capacity())
+                    )
+                    .draw_text(ctx),
+                );
+            }
+            _ => {
+                col = vec!["Zoom in and select something to begin".draw_text(ctx)];
+            }
+        }
         self.top_panel
             .replace(ctx, "tags", Widget::col(col).named("tags"));
     }
@@ -119,20 +183,37 @@ impl State<App> for Viewer {
             let old_id = app.primary.current_selection.clone();
             app.recalculate_current_selection(ctx);
 
-            if !self.object_fixed && old_id != app.primary.current_selection {
+            if self.fixed_object_outline.is_none() && old_id != app.primary.current_selection {
                 self.update_tags(ctx, app);
             }
         }
-        if self.object_fixed {
-            if ctx.canvas.get_cursor_in_map_space().is_some() && ctx.normal_left_click() {
-                self.object_fixed = false;
-                self.update_tags(ctx, app);
+
+        if ctx.canvas.get_cursor_in_map_space().is_some() && ctx.normal_left_click() {
+            if let Some(id) = app.primary.current_selection.clone() {
+                // get_obj must succeed, because we can only click static map elements.
+                let outline = app
+                    .primary
+                    .draw_map
+                    .get_obj(ctx, id, app, &mut app.primary.draw_map.agents.borrow_mut())
+                    .unwrap()
+                    .get_outline(&app.primary.map);
+                let mut batch = GeomBatch::from(vec![(app.cs.perma_selected_object, outline)]);
+
+                if let Some(ID::Lane(l)) = app.primary.current_selection {
+                    for turn in app.primary.map.get_turns_from_lane(l) {
+                        batch.push(
+                            TurnExplorer::color_turn_type(turn.turn_type),
+                            turn.geom
+                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
+                        );
+                    }
+                }
+
+                self.fixed_object_outline = Some(ctx.upload(batch));
+            } else {
+                self.fixed_object_outline = None;
             }
-        } else {
-            if ctx.canvas.get_cursor_in_map_space().is_some() && ctx.normal_left_click() {
-                self.object_fixed = true;
-                self.update_tags(ctx, app);
-            }
+            self.update_tags(ctx, app);
         }
 
         match self.top_panel.event(ctx) {
@@ -189,5 +270,8 @@ impl State<App> for Viewer {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_panel.draw(g);
+        if let Some(ref d) = self.fixed_object_outline {
+            g.redraw(d);
+        }
     }
 }
