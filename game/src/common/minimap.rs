@@ -12,6 +12,8 @@ use crate::layer::PickLayer;
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {
+    // Toggles for agents and layers
+    extra_controls: bool,
     dragging: bool,
     pub(crate) panel: Panel,
     // Update panel when other things change
@@ -27,14 +29,15 @@ pub struct Minimap {
 }
 
 impl Minimap {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Minimap {
+    pub fn new(ctx: &mut EventCtx, app: &App, extra_controls: bool) -> Minimap {
         // Initially pick a zoom to fit the smaller of the entire map's width or height in the
         // minimap. Arbitrary and probably pretty weird.
         let bounds = app.primary.map.get_bounds();
         let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height());
         let mut m = Minimap {
+            extra_controls,
             dragging: false,
-            panel: make_minimap_panel(ctx, app, 0),
+            panel: make_minimap_panel(ctx, app, 0, extra_controls),
             zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
             layer: app.primary.layer.is_none(),
 
@@ -64,7 +67,7 @@ impl Minimap {
         let zoom_speed: f64 = 2.0;
         self.zoom_lvl = zoom_lvl;
         self.zoom = self.base_zoom * zoom_speed.powi(self.zoom_lvl as i32);
-        self.panel = make_minimap_panel(ctx, app, self.zoom_lvl);
+        self.panel = make_minimap_panel(ctx, app, self.zoom_lvl, self.extra_controls);
 
         // Find the new offset
         let map_center = ctx.canvas.center_to_map_pt();
@@ -96,7 +99,7 @@ impl Minimap {
 
             self.zoomed = zoomed;
             self.layer = layer;
-            self.panel = make_minimap_panel(ctx, app, self.zoom_lvl);
+            self.panel = make_minimap_panel(ctx, app, self.zoom_lvl, self.extra_controls);
 
             if just_zoomed_in {
                 self.recenter(ctx, app);
@@ -210,7 +213,7 @@ impl Minimap {
                 if self.panel.has_widget("zorder") {
                     app.primary.show_zorder = self.panel.spinner("zorder");
                 }
-                self.panel = make_minimap_panel(ctx, app, self.zoom_lvl);
+                self.panel = make_minimap_panel(ctx, app, self.zoom_lvl, self.extra_controls);
             }
             _ => {}
         }
@@ -313,8 +316,18 @@ impl Minimap {
     }
 }
 
-fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Panel {
+fn make_minimap_panel(
+    ctx: &mut EventCtx,
+    app: &App,
+    zoom_lvl: usize,
+    extra_controls: bool,
+) -> Panel {
     if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+        if !extra_controls {
+            // A ghost panel!
+            return Panel::new(Widget::col(vec![])).build_custom(ctx);
+        }
+
         return Panel::new(Widget::row(vec![
             make_tool_panel(ctx, app).align_right(),
             make_vert_viz_panel(ctx, app)
@@ -386,10 +399,18 @@ fn make_minimap_panel(ctx: &mut EventCtx, app: &App, zoom_lvl: usize) -> Panel {
     ]);
 
     Panel::new(Widget::row(vec![
-        make_tool_panel(ctx, app),
+        if extra_controls {
+            make_tool_panel(ctx, app)
+        } else {
+            Widget::nothing()
+        },
         Widget::col(vec![
             Widget::row(vec![minimap_controls, zoom_col]),
-            make_horiz_viz_panel(ctx, app),
+            if extra_controls {
+                make_horiz_viz_panel(ctx, app)
+            } else {
+                Widget::nothing()
+            },
         ])
         .padding(16)
         .bg(app.cs.panel_bg),

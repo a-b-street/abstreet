@@ -781,7 +781,7 @@ impl State<App> for SandboxLoader {
                                 None
                             },
                             minimap: if gameplay.has_minimap() {
-                                Some(Minimap::new(ctx, app))
+                                Some(Minimap::new(ctx, app, true))
                             } else {
                                 None
                             },

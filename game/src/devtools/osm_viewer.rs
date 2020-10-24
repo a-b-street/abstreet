@@ -7,7 +7,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::{CityPicker, Navigator};
+use crate::common::{CityPicker, Minimap, Navigator};
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 use crate::options::OptionsPanel;
@@ -17,6 +17,7 @@ use crate::sandbox::TurnExplorer;
 pub struct Viewer {
     top_panel: Panel,
     fixed_object_outline: Option<Drawable>,
+    minimap: Minimap,
 }
 
 impl Viewer {
@@ -24,6 +25,8 @@ impl Viewer {
         app.primary.current_selection = None;
 
         Box::new(Viewer {
+            fixed_object_outline: None,
+            minimap: Minimap::new(ctx, app, false),
             top_panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("OpenStreetMap viewer").small_heading().draw(ctx),
@@ -53,10 +56,9 @@ impl Viewer {
                     .draw_text(ctx)
                     .named("tags"),
             ]))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .exact_size_percent(35, 80)
             .build(ctx),
-            fixed_object_outline: None,
         })
     }
 
@@ -216,6 +218,10 @@ impl State<App> for Viewer {
             self.update_tags(ctx, app);
         }
 
+        if let Some(t) = self.minimap.event(ctx, app) {
+            return t;
+        }
+
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -268,8 +274,9 @@ impl State<App> for Viewer {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
+        self.minimap.draw(g, app);
         if let Some(ref d) = self.fixed_object_outline {
             g.redraw(d);
         }
