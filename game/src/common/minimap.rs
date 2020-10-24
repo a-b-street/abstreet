@@ -324,8 +324,7 @@ fn make_minimap_panel(
 ) -> Panel {
     if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
         if !extra_controls {
-            // A ghost panel!
-            return Panel::new(Widget::col(vec![])).build_custom(ctx);
+            return Panel::empty(ctx);
         }
 
         return Panel::new(Widget::row(vec![

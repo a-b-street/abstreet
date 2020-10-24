@@ -37,6 +37,11 @@ impl Panel {
         }
     }
 
+    /// Returns an empty panel. `event` and `draw` will have no effect.
+    pub fn empty(ctx: &mut EventCtx) -> Panel {
+        Panel::new(Widget::col(vec![])).build_custom(ctx)
+    }
+
     fn update_container_dims_for_canvas_dims(&mut self, canvas_dims: ScreenDims) {
         let new_container_dims = match self.dims {
             Dims::MaxPercent(w, h) => ScreenDims::new(
@@ -435,13 +440,12 @@ impl Panel {
         ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
     }
 
-    // All margins/padding/etc from the previous widget are retained.
+    /// All margins/padding/etc from the previous widget are retained.
     pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, mut new: Widget) {
         let old = self.top_level.find_mut(id).unwrap();
         new.layout.style = old.layout.style;
         *old = new;
         self.recompute_layout(ctx, true);
-
         // TODO Same no_op_event as align_above? Should we always do this in recompute_layout?
     }
 
