@@ -1,9 +1,11 @@
-use abstutil::prettyprint_usize;
+use std::collections::BTreeSet;
+
+use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
 use map_model::osm;
 use widgetry::{
-    lctrl, Btn, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -18,6 +20,7 @@ pub struct Viewer {
     top_panel: Panel,
     fixed_object_outline: Option<Drawable>,
     minimap: Minimap,
+    businesses: Option<BusinessSearch>,
 }
 
 impl Viewer {
@@ -27,6 +30,7 @@ impl Viewer {
         Box::new(Viewer {
             fixed_object_outline: None,
             minimap: Minimap::new(ctx, app, false),
+            businesses: None,
             top_panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("OpenStreetMap viewer").small_heading().draw(ctx),
@@ -55,9 +59,10 @@ impl Viewer {
                 "Zoom in and select something to begin"
                     .draw_text(ctx)
                     .named("tags"),
+                Widget::horiz_separator(ctx, 0.3),
+                Btn::text_bg2("Search for businesses").build_def(ctx, Key::Tab),
             ]))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-            .exact_size_percent(35, 80)
             .build(ctx),
         })
     }
@@ -260,6 +265,24 @@ impl State<App> for Viewer {
                         ],
                     ));
                 }
+                "Search for businesses" => {
+                    let mut businesses = BusinessSearch::new(ctx, app);
+                    let search = businesses.render(ctx, app);
+                    self.businesses = Some(businesses);
+                    self.top_panel.replace(
+                        ctx,
+                        "Search for businesses",
+                        search.named("Search for businesses"),
+                    );
+                }
+                "Hide business search" => {
+                    self.businesses = None;
+                    self.top_panel.replace(
+                        ctx,
+                        "Search for businesses",
+                        Btn::text_bg2("Search for businesses").build_def(ctx, Key::Tab),
+                    );
+                }
                 x => {
                     if let Some(url) = x.strip_prefix("open ") {
                         open_browser(url.to_string());
@@ -268,6 +291,16 @@ impl State<App> for Viewer {
                     }
                 }
             },
+            Outcome::Changed => {
+                let mut b = self.businesses.as_mut().unwrap();
+                b.update(&self.top_panel);
+                let search = b.render(ctx, app);
+                self.top_panel.replace(
+                    ctx,
+                    "Search for businesses",
+                    search.named("Search for businesses"),
+                );
+            }
             _ => {}
         }
 
@@ -280,5 +313,73 @@ impl State<App> for Viewer {
         if let Some(ref d) = self.fixed_object_outline {
             g.redraw(d);
         }
+        if let Some(ref b) = self.businesses {
+            g.redraw(&b.highlight);
+        }
+    }
+}
+
+struct BusinessSearch {
+    counts: Counter<String>,
+    show: BTreeSet<String>,
+    highlight: Drawable,
+}
+
+impl BusinessSearch {
+    fn new(ctx: &mut EventCtx, app: &App) -> BusinessSearch {
+        let mut counts = Counter::new();
+        for b in app.primary.map.all_buildings() {
+            for (_, amenity) in &b.amenities {
+                counts.inc(amenity.clone());
+            }
+        }
+        let show = counts.borrow().keys().cloned().collect();
+
+        BusinessSearch {
+            counts,
+            show,
+            highlight: ctx.upload(GeomBatch::new()),
+        }
+    }
+
+    fn update(&mut self, panel: &Panel) {
+        self.show.clear();
+        for amenity in self.counts.borrow().keys() {
+            if panel.is_checked(amenity) {
+                self.show.insert(amenity.clone());
+            }
+        }
+    }
+
+    // Returns the panel and also updates the highlighted buildings
+    fn render(&mut self, ctx: &mut EventCtx, app: &App) -> Widget {
+        let mut batch = GeomBatch::new();
+
+        let mut col = Vec::new();
+        col.push(Btn::text_bg2("Hide business search").build_def(ctx, Key::Tab));
+        col.push(
+            format!("{} businesses total", prettyprint_usize(self.counts.sum())).draw_text(ctx),
+        );
+        for (amenity, cnt) in self.counts.borrow() {
+            col.push(Checkbox::custom_checkbox(
+                ctx,
+                amenity,
+                vec![Line(format!("{}: {}", amenity, prettyprint_usize(*cnt)))],
+                None,
+                self.show.contains(amenity),
+            ));
+
+            if self.show.contains(amenity) {
+                for b in app.primary.map.all_buildings() {
+                    if b.amenities.iter().any(|(_, category)| category == amenity) {
+                        batch.push(Color::RED, b.polygon.clone());
+                    }
+                }
+            }
+        }
+
+        self.highlight = ctx.upload(batch);
+
+        Widget::col(col)
     }
 }
