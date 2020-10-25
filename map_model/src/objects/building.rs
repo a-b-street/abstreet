@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
@@ -38,9 +38,7 @@ pub struct Building {
     /// Where a text label should be centered to have the best chances of being contained within
     /// the polygon.
     pub label_center: Pt2D,
-    // TODO Might fold these into BuildingType::Commercial
-    /// (Name, amenity)
-    pub amenities: BTreeSet<(NamePerLanguage, String)>,
+    pub amenities: Vec<Amenity>,
     pub bldg_type: BuildingType,
     pub parking: OffstreetParking,
     /// Depending on options while importing, these might be empty, to save file space.
@@ -51,6 +49,15 @@ pub struct Building {
     pub sidewalk_pos: Position,
     /// Goes from building to sidewalk
     pub driveway_geom: PolyLine,
+}
+
+/// A business located inside a building.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Amenity {
+    pub names: NamePerLanguage,
+    pub amenity_type: String,
+    /// Depending on options while importing, these might be empty, to save file space.
+    pub osm_tags: Tags,
 }
 
 /// Represent no parking as Private(0, false).

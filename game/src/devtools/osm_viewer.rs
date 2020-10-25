@@ -152,11 +152,11 @@ impl Viewer {
                     } else {
                         txt.add(Line(format!("{} amenities:", b.amenities.len())));
                     }
-                    for (names, amenity) in &b.amenities {
+                    for a in &b.amenities {
                         txt.add(Line(format!(
                             "  {} ({})",
-                            names.get(app.opts.language.as_ref()),
-                            amenity
+                            a.names.get(app.opts.language.as_ref()),
+                            a.amenity_type
                         )));
                     }
                 }
@@ -349,8 +349,8 @@ impl BusinessSearch {
     fn new(ctx: &mut EventCtx, app: &App) -> BusinessSearch {
         let mut counts = Counter::new();
         for b in app.primary.map.all_buildings() {
-            for (_, amenity) in &b.amenities {
-                counts.inc(amenity.clone());
+            for a in &b.amenities {
+                counts.inc(a.amenity_type.clone());
             }
         }
         let show = counts.borrow().keys().cloned().collect();
@@ -382,7 +382,7 @@ impl BusinessSearch {
         for b in app.primary.map.all_buildings() {
             if b.amenities
                 .iter()
-                .any(|(_, amenity)| self.show.contains(amenity))
+                .any(|a| self.show.contains(&a.amenity_type))
             {
                 batch.push(Color::RED, b.polygon.clone());
             }
@@ -409,7 +409,7 @@ impl BusinessSearch {
         let mut batch = GeomBatch::new();
         if self.counts.get(amenity.clone()) > 0 {
             for b in app.primary.map.all_buildings() {
-                if b.amenities.iter().any(|(_, a)| a == &amenity) {
+                if b.amenities.iter().any(|a| a.amenity_type == amenity) {
                     batch.push(Color::BLUE, b.polygon.clone());
                 }
             }

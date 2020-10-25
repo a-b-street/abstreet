@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, HashMap};
 
 use osm::{NodeID, OsmID, RelationID, WayID};
 
@@ -6,7 +6,7 @@ use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
-use map_model::{osm, AreaType, NamePerLanguage};
+use map_model::{osm, Amenity, AreaType, NamePerLanguage};
 
 use crate::reader::{Document, Relation};
 use crate::transit;
@@ -22,8 +22,8 @@ pub struct OsmExtract {
     pub simple_turn_restrictions: Vec<(RestrictionType, WayID, NodeID, WayID)>,
     /// (relation ID, from way ID, via way ID, to way ID)
     pub complicated_turn_restrictions: Vec<(RelationID, WayID, WayID, WayID)>,
-    /// (location, name, amenity type)
-    pub amenities: Vec<(Pt2D, NamePerLanguage, String)>,
+    /// (location, amenity)
+    pub amenities: Vec<(Pt2D, Amenity)>,
 }
 
 pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmExtract {
@@ -53,19 +53,8 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
             out.traffic_signals
                 .insert(node.pt.to_hashable(), !backwards);
         }
-        if let Some(amenity) = node.tags.get("amenity") {
-            out.amenities.push((
-                node.pt,
-                NamePerLanguage::new(&node.tags).unwrap_or_else(NamePerLanguage::unnamed),
-                amenity.clone(),
-            ));
-        }
-        if let Some(shop) = node.tags.get("shop") {
-            out.amenities.push((
-                node.pt,
-                NamePerLanguage::new(&node.tags).unwrap_or_else(NamePerLanguage::unnamed),
-                shop.clone(),
-            ));
+        for amenity in get_bldg_amenities(&node.tags) {
+            out.amenities.push((node.pt, amenity));
         }
     }
 
@@ -175,7 +164,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     let boundary = map.boundary_polygon.clone().into_ring();
 
-    let mut amenity_areas: Vec<(NamePerLanguage, String, Polygon)> = Vec::new();
+    let mut amenity_areas: Vec<(Polygon, Amenity)> = Vec::new();
     // Vehicle position (stop) -> pedestrian position (platform)
     let mut stop_areas: Vec<((osm::NodeID, Pt2D), Pt2D)> = Vec::new();
 
@@ -288,15 +277,18 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 timer,
             ));
         } else if rel.tags.is("type", "multipolygon") && rel.tags.contains_key("amenity") {
-            let names = NamePerLanguage::new(&rel.tags).unwrap_or_else(NamePerLanguage::unnamed);
-            let amenity = rel.tags.get("amenity").clone().unwrap();
+            let amenity = Amenity {
+                names: NamePerLanguage::new(&rel.tags).unwrap_or_else(NamePerLanguage::unnamed),
+                amenity_type: rel.tags.get("amenity").unwrap().clone(),
+                osm_tags: rel.tags.clone(),
+            };
             for (role, member) in &rel.members {
                 if role != "outer" {
                     continue;
                 }
                 if let OsmID::Way(w) = member {
                     if let Ok(ring) = Ring::new(doc.ways[w].pts.clone()) {
-                        amenity_areas.push((names.clone(), amenity.clone(), ring.to_polygon()));
+                        amenity_areas.push((ring.to_polygon(), amenity.clone()));
                     }
                 }
             }
@@ -352,11 +344,11 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
     }
 
     timer.start_iter("match buildings to amenity areas", amenity_areas.len());
-    for (names, amenity, poly) in amenity_areas {
+    for (poly, amenity) in amenity_areas {
         timer.next();
         for b in map.buildings.values_mut() {
             if poly.contains_pt(b.polygon.center()) {
-                b.amenities.insert((names.clone(), amenity.clone()));
+                b.amenities.push(amenity.clone());
             }
         }
     }
@@ -495,19 +487,16 @@ fn is_bldg(tags: &Tags) -> bool {
     tags.contains_key("building") && !tags.contains_key("abandoned:man_made")
 }
 
-fn get_bldg_amenities(tags: &Tags) -> BTreeSet<(NamePerLanguage, String)> {
-    let mut amenities = BTreeSet::new();
-    if let Some(amenity) = tags.get("amenity") {
-        amenities.insert((
-            NamePerLanguage::new(tags).unwrap_or_else(NamePerLanguage::unnamed),
-            amenity.clone(),
-        ));
-    }
-    if let Some(shop) = tags.get("shop") {
-        amenities.insert((
-            NamePerLanguage::new(tags).unwrap_or_else(NamePerLanguage::unnamed),
-            shop.clone(),
-        ));
+fn get_bldg_amenities(tags: &Tags) -> Vec<Amenity> {
+    let mut amenities = Vec::new();
+    for key in vec!["amenity", "shop"] {
+        if let Some(amenity) = tags.get(key) {
+            amenities.push(Amenity {
+                names: NamePerLanguage::new(tags).unwrap_or_else(NamePerLanguage::unnamed),
+                amenity_type: amenity.clone(),
+                osm_tags: tags.clone(),
+            });
+        }
     }
     amenities
 }

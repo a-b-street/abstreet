@@ -65,8 +65,8 @@ impl PopularDestinations {
         let mut by_type = Counter::new();
         for (b, cnt) in per_bldg.borrow() {
             let mut other = true;
-            for (_, amenity) in &map.get_b(*b).amenities {
-                if let Some(t) = amenity_type(amenity) {
+            for a in &map.get_b(*b).amenities {
+                if let Some(t) = amenity_type(&a.amenity_type) {
                     by_type.add(t, *cnt);
                     other = false;
                 }
@@ -154,11 +154,11 @@ impl State<App> for PopularDestinations {
                 "{} trips to here",
                 abstutil::prettyprint_usize(self.per_bldg.get(b))
             )));
-            for (names, amenity) in &app.primary.map.get_b(b).amenities {
+            for a in &app.primary.map.get_b(b).amenities {
                 txt.add(Line(format!(
                     "  {} ({})",
-                    names.get(app.opts.language.as_ref()),
-                    amenity
+                    a.names.get(app.opts.language.as_ref()),
+                    a.amenity_type
                 )));
             }
             g.draw_mouse_tooltip(txt);

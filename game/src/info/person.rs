@@ -387,7 +387,7 @@ pub fn schedule(
                     let list = b
                         .amenities
                         .iter()
-                        .map(|(names, _)| names.get(app.opts.language.as_ref()))
+                        .map(|a| a.names.get(app.opts.language.as_ref()))
                         .collect::<Vec<_>>();
                     format!("{} (at {})", list.choose(&mut rng).unwrap(), b.address)
                 }
@@ -416,7 +416,7 @@ pub fn schedule(
                 let list = b
                     .amenities
                     .iter()
-                    .map(|(names, _)| names.get(app.opts.language.as_ref()))
+                    .map(|a| a.names.get(app.opts.language.as_ref()))
                     .collect::<Vec<_>>();
                 format!("{} (at {})", list.choose(&mut rng).unwrap(), b.address)
             }

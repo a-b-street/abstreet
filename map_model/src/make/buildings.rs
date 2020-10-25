@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, HashSet};
 
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -9,7 +9,8 @@ use geom::{Distance, HashablePt2D, Line, Polygon};
 use crate::make::match_points_to_lanes;
 use crate::raw::RawBuilding;
 use crate::{
-    osm, Building, BuildingID, BuildingType, LaneID, Map, NamePerLanguage, OffstreetParking,
+    osm, Amenity, Building, BuildingID, BuildingType, LaneID, Map, NamePerLanguage,
+    OffstreetParking,
 };
 
 /// Finalize importing of buildings, mostly by matching them to the nearest sidewalk.
@@ -79,7 +80,18 @@ pub fn make_all_buildings(
                 name: NamePerLanguage::new(&b.osm_tags),
                 orig_id,
                 label_center: b.polygon.polylabel(),
-                amenities: b.amenities.clone(),
+                amenities: if keep_bldg_tags {
+                    b.amenities.clone()
+                } else {
+                    b.amenities
+                        .iter()
+                        .map(|a| {
+                            let mut a = a.clone();
+                            a.osm_tags = Tags::new(BTreeMap::new());
+                            a
+                        })
+                        .collect()
+                },
                 bldg_type: classify_bldg(
                     &b.osm_tags,
                     &b.amenities,
@@ -141,7 +153,7 @@ fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {
 
 fn classify_bldg(
     tags: &Tags,
-    amenities: &BTreeSet<(NamePerLanguage, String)>,
+    amenities: &Vec<Amenity>,
     levels: f64,
     ground_area_sq_meters: f64,
     rng: &mut XorShiftRng,
@@ -152,8 +164,7 @@ fn classify_bldg(
 
     let area_sq_meters = levels * ground_area_sq_meters;
 
-    // These are (name, amenity type) pairs, produced by get_bldg_amenities in
-    // convert_osm/src/osm_reader.rs.
+    // These are produced by get_bldg_amenities in convert_osm/src/osm_reader.rs.
     // TODO: is it safe to assume all amenities are commercial?
     // TODO: consider converting amenities to an enum - maybe with a catchall case for the long
     //       tail of rarely used enums.

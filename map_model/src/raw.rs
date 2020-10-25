@@ -2,7 +2,7 @@
 //! structure is useful to iterate quickly on parts of the map importing pipeline without having to
 //! constantly read .osm files, and to visualize the intermediate state with map_editor.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::fmt;
 
 use petgraph::graphmap::DiGraphMap;
@@ -13,7 +13,7 @@ use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
-    osm, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig, NamePerLanguage,
+    osm, Amenity, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -326,8 +326,7 @@ pub struct RawBuilding {
     pub osm_tags: Tags,
     pub public_garage_name: Option<String>,
     pub num_parking_spots: usize,
-    /// (Name, amenity type)
-    pub amenities: BTreeSet<(NamePerLanguage, String)>,
+    pub amenities: Vec<Amenity>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

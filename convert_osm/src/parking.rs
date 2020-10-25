@@ -204,7 +204,7 @@ fn apply_private_offstreet_parking(map: &mut RawMap, policy: &PrivateOffstreetPa
                         // 1 spot per 30m^2.
                         b.num_parking_spots = ((b.polygon.area() / 30.0) as usize) * levels;
                         // Not useful to list this
-                        abstutil::retain_btreeset(&mut b.amenities, |(_, a)| a != "parking");
+                        b.amenities.retain(|a| a.amenity_type != "parking");
                     } else {
                         b.num_parking_spots = *n;
                     }

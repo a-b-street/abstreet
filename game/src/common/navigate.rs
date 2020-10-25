@@ -227,11 +227,11 @@ impl SearchBuildings {
                                     b.id,
                                 ));
                             }
-                            for (names, _) in &b.amenities {
+                            for a in &b.amenities {
                                 results.push((
                                     format!(
                                         "{} (at {})",
-                                        names.get(app.opts.language.as_ref()),
+                                        a.names.get(app.opts.language.as_ref()),
                                         b.address
                                     ),
                                     b.id,

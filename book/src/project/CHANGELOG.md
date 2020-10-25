@@ -623,3 +623,13 @@ changes here.
 - fix by Michael for handling window resizing in panels
 - fix original routes on edited maps
 - internal code organization and documentation
+
+0.2.16
+
+- UI: click unzoomed agents, switch between metric/imperial units, show reason for cancelled trips, new "faded zoom" color scheme based on mapbox, more detailed agent counts in the top-right panel's tooltips
+- started a new dedicated OpenStreetMap viewer, will split out from A/B Street later
+- fix alpha colors on web
+- bugfixes for the new asynchronous map loading
+- some substantial simulation performance gains (168s to 90s on one benchmark!)
+- lots of progress towards editing the map without resetting the simulation to midnight. please test with --live_map_edits and report any issues
+- internal refactoring and code documentation

@@ -266,8 +266,8 @@ impl Static {
 
         for b in app.primary.map.all_buildings() {
             let mut other = false;
-            for (_, a) in &b.amenities {
-                if let Some(t) = amenity_type(a) {
+            for a in &b.amenities {
+                if let Some(t) = amenity_type(&a.amenity_type) {
                     colorer.add_b(b.id, t);
                 } else {
                     other = true;

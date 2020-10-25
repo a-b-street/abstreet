@@ -60,11 +60,11 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         } else {
             txt.add(Line(format!("{} amenities:", b.amenities.len())));
         }
-        for (names, amenity) in &b.amenities {
+        for a in &b.amenities {
             txt.add(Line(format!(
                 "  {} ({})",
-                names.get(app.opts.language.as_ref()),
-                amenity
+                a.names.get(app.opts.language.as_ref()),
+                a.amenity_type
             )));
         }
     }

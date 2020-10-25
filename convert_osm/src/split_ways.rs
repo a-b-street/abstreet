@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, Pt2D};
 use map_model::raw::{OriginalRoad, RawIntersection, RawMap};
-use map_model::{osm, IntersectionType, NamePerLanguage};
+use map_model::{osm, Amenity, IntersectionType};
 
 use crate::extract::OsmExtract;
 
@@ -13,10 +13,7 @@ pub fn split_up_roads(
     map: &mut RawMap,
     mut input: OsmExtract,
     timer: &mut Timer,
-) -> (
-    Vec<(Pt2D, NamePerLanguage, String)>,
-    HashMap<HashablePt2D, OriginalRoad>,
-) {
+) -> (Vec<(Pt2D, Amenity)>, HashMap<HashablePt2D, OriginalRoad>) {
     timer.start("splitting up roads");
 
     let mut pt_to_intersection: HashMap<HashablePt2D, osm::NodeID> = HashMap::new();
