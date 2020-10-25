@@ -421,7 +421,7 @@
                         <span class="comment">// 1 spot per 30m^2.</span>
                         <span class="ident">b</span>.<span class="ident">num_parking_spots</span> <span class="op">=</span> ((<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">area</span>() <span class="op">/</span> <span class="number">30.0</span>) <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">*</span> <span class="ident">levels</span>;
                         <span class="comment">// Not useful to list this</span>
-                        <span class="ident">abstutil</span>::<span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>.<span class="ident">amenities</span>, <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">a</span>)<span class="op">|</span> <span class="ident">a</span> <span class="op">!=</span> <span class="string">&quot;parking&quot;</span>);
+                        <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">amenity_type</span> <span class="op">!=</span> <span class="string">&quot;parking&quot;</span>);
                     } <span class="kw">else</span> {
                         <span class="ident">b</span>.<span class="ident">num_parking_spots</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">n</span>;
                     }

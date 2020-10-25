@@ -204,8 +204,15 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -245,9 +252,7 @@
     <span class="doccomment">/// Where a text label should be centered to have the best chances of being contained within</span>
     <span class="doccomment">/// the polygon.</span>
     <span class="kw">pub</span> <span class="ident">label_center</span>: <span class="ident">Pt2D</span>,
-    <span class="comment">// TODO Might fold these into BuildingType::Commercial</span>
-    <span class="doccomment">/// (Name, amenity)</span>
-    <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">NamePerLanguage</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Amenity</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">bldg_type</span>: <span class="ident">BuildingType</span>,
     <span class="kw">pub</span> <span class="ident">parking</span>: <span class="ident">OffstreetParking</span>,
     <span class="doccomment">/// Depending on options while importing, these might be empty, to save file space.</span>
@@ -258,6 +263,15 @@
     <span class="kw">pub</span> <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>,
     <span class="doccomment">/// Goes from building to sidewalk</span>
     <span class="kw">pub</span> <span class="ident">driveway_geom</span>: <span class="ident">PolyLine</span>,
+}
+
+<span class="doccomment">/// A business located inside a building.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Amenity</span> {
+    <span class="kw">pub</span> <span class="ident">names</span>: <span class="ident">NamePerLanguage</span>,
+    <span class="kw">pub</span> <span class="ident">amenity_type</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Depending on options while importing, these might be empty, to save file space.</span>
+    <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
 }
 
 <span class="doccomment">/// Represent no parking as Private(0, false).</span>

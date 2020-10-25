@@ -715,8 +715,8 @@
 
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">other</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">a</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">amenity_type</span>(<span class="ident">a</span>) {
+            <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">amenity_type</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">amenity_type</span>) {
                     <span class="ident">colorer</span>.<span class="ident">add_b</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">t</span>);
                 } <span class="kw">else</span> {
                     <span class="ident">other</span> <span class="op">=</span> <span class="bool-val">true</span>;
