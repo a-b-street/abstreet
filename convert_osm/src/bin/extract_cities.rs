@@ -9,12 +9,17 @@
 //! directory!
 
 use abstutil::{CmdArgs, Timer};
-use geom::{GPSBounds, LonLat, Polygon};
+use geom::{Circle, Distance, GPSBounds, LonLat, Polygon};
+use map_model::osm::OsmID;
 use std::process::Command;
 
 fn main() {
     let mut args = CmdArgs::new();
     let input = args.required_free();
+    let radius_around_label: Option<Distance> = args
+        .optional_parse("--radius_around_label_miles", |s| {
+            s.parse::<f64>().map(|x| Distance::miles(x))
+        });
     args.done();
     let mut timer = Timer::new(format!("extract cities from {}", input));
 
@@ -33,19 +38,40 @@ fn main() {
 
         println!("Found city relation for {}: {}", name, id);
 
-        let polygons = convert_osm::osm_geom::glue_multipolygon(
-            *id,
-            convert_osm::osm_geom::get_multipolygon_members(*id, rel, &doc),
-            None,
-            &mut timer,
-        );
-        println!(
-            "Extracted {} from {}, using the convex hull of {} polygons",
-            name,
-            id,
-            polygons.len(),
-        );
-        let clip = Polygon::convex_hull(polygons);
+        let clip = if let Some(radius) = radius_around_label {
+            // Just draw a circle around the relation's admin_centre or label
+            let mut center = None;
+            for (role, id) in &rel.members {
+                if role == "admin_centre" || role == "label" {
+                    if let OsmID::Node(n) = id {
+                        center = Some(doc.nodes[n].pt);
+                        break;
+                    }
+                }
+            }
+            if let Some(pt) = center {
+                Circle::new(pt, radius).to_polygon()
+            } else {
+                println!("... but it has no admin_centre or label member");
+                continue;
+            }
+        } else {
+            // Glue together the outer members of the relation
+            let polygons = convert_osm::osm_geom::glue_multipolygon(
+                *id,
+                convert_osm::osm_geom::get_multipolygon_members(*id, rel, &doc),
+                None,
+                &mut timer,
+            );
+            // Simplify the result (which often has thousands of points)
+            println!(
+                "Extracted {} from {}, using the convex hull of {} polygons",
+                name,
+                id,
+                polygons.len(),
+            );
+            Polygon::convex_hull(polygons)
+        };
 
         let clipping_polygon = format!("{}.poly", name);
         LonLat::write_osmosis_polygon(

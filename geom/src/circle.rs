@@ -38,11 +38,11 @@ impl Circle {
 
     /// Renders the circle as a polygon.
     pub fn to_polygon(&self) -> Polygon {
-        self.to_partial_polygon(1.0)
+        self.to_ring().to_polygon()
     }
 
     /// Renders some percent, between [0, 1], of the circle as a polygon. The polygon starts from 0
-    /// degrees.
+    /// degrees. Be warned the resulting polygon doesn't have a ring as its boundary!
     pub fn to_partial_polygon(&self, percent_full: f64) -> Polygon {
         let mut pts = vec![self.center];
         let mut indices = Vec::new();
