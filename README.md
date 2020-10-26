@@ -6,9 +6,9 @@ changes to a city affect the movement of drivers, cyclists, transit users, and
 pedestrians.
 
 - Play on
-  [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.15/abstreet_windows_v0_2_15.zip),
-  [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.15/abstreet_mac_v0_2_15.zip),
-  [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.15/abstreet_linux_v0_2_15.zip),
+  [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.16/abstreet_windows_v0_2_16.zip),
+  [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.16/abstreet_mac_v0_2_16.zip),
+  [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.16/abstreet_linux_v0_2_16.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/),
   [your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/), or
   [read all instructions](https://dabreegster.github.io/abstreet/howto/index.html)
