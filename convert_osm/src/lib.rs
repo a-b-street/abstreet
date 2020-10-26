@@ -5,8 +5,9 @@ use map_model::{osm, Amenity, MapConfig};
 
 mod clip;
 mod extract;
+pub mod osm_geom;
 mod parking;
-mod reader;
+pub mod reader;
 mod snappy;
 mod split_ways;
 mod srtm;
