@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["LAST_PLACED_POINT",""],["POINT_COLOR",""],["POINT_RADIUS",""],["POINT_TO_MOVE",""],["POLYGON_COLOR",""]],"fn":[["save_as_osmosis",""]],"struct":[["PolygonEditor",""]]});
+initSidebarItems({"constant":[["LAST_PLACED_POINT",""],["POINT_COLOR",""],["POINT_RADIUS",""],["POINT_TO_MOVE",""],["POLYGON_COLOR",""]],"struct":[["PolygonEditor",""]]});

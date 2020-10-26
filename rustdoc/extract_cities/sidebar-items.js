@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""],["run",""],["write_osmosis_polygon",""]]});
+initSidebarItems({"fn":[["main",""]]});
