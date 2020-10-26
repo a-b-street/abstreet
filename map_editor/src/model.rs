@@ -448,7 +448,7 @@ impl Model {
                 osm_tags: Tags::new(BTreeMap::new()),
                 public_garage_name: None,
                 num_parking_spots: 0,
-                amenities: BTreeSet::new(),
+                amenities: Vec::new(),
             },
         );
         self.bldg_added(id, ctx);
