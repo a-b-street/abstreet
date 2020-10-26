@@ -114,7 +114,7 @@ mod wasm_loader {
     use web_sys::{Request, RequestInit, RequestMode, Response};
 
     use geom::Duration;
-    use widgetry::{DrawBaselayer, Line, Panel, State, Text, UpdateType};
+    use widgetry::{Line, Panel, State, Text, UpdateType};
 
     use super::*;
 
@@ -179,7 +179,7 @@ mod wasm_loader {
         }
     }
 
-    impl<T: 'static + DeserializeOwned> State for FileLoader<T> {
+    impl<T: 'static + DeserializeOwned> State<App> for FileLoader<T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
             if let Some(resp) = self.response.try_recv().unwrap() {
                 // TODO We stop drawing and start blocking at this point. It can take a
