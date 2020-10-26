@@ -1,6 +1,3 @@
-use std::fs::File;
-use std::io::{Error, Write};
-
 use geom::{Circle, Distance, LonLat, Pt2D, Ring};
 use widgetry::{
     Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
@@ -73,7 +70,11 @@ impl State<App> for PolygonEditor {
                 }
                 "export as an Osmosis polygon filter" => {
                     if self.points.len() >= 3 {
-                        save_as_osmosis(&self.name, &self.points).unwrap();
+                        // Have to repeat the first point
+                        self.points.push(self.points[0]);
+                        LonLat::write_osmosis_polygon(&format!("{}.poly", self.name), &self.points)
+                            .unwrap();
+                        self.points.pop();
                     }
                 }
                 _ => unreachable!(),
@@ -145,25 +146,4 @@ impl State<App> for PolygonEditor {
             CommonState::draw_osd(g, app);
         }
     }
-}
-
-// https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
-fn save_as_osmosis(name: &str, pts: &Vec<LonLat>) -> Result<(), Error> {
-    let path = format!("{}.poly", name);
-    let mut f = File::create(&path)?;
-
-    writeln!(f, "{}", name)?;
-    writeln!(f, "1")?;
-    for gps in pts {
-        writeln!(f, "     {}    {}", gps.x(), gps.y())?;
-    }
-    // Have to repeat the first point
-    {
-        writeln!(f, "     {}    {}", pts[0].x(), pts[0].y())?;
-    }
-    writeln!(f, "END")?;
-    writeln!(f, "END")?;
-
-    println!("Exported {}", path);
-    Ok(())
 }

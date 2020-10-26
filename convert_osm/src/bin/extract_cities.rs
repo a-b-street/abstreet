@@ -9,9 +9,7 @@
 //! directory!
 
 use abstutil::{CmdArgs, Timer};
-use geom::{GPSBounds, LonLat};
-use std::fs::File;
-use std::io::{Error, Write};
+use geom::{GPSBounds, LonLat, Polygon};
 use std::process::Command;
 
 fn main() {
@@ -42,56 +40,26 @@ fn main() {
             &mut timer,
         );
         println!(
-            "Extracted {} polygons for {} from {}, keeping the largest",
-            polygons.len(),
+            "Extracted {} from {}, using the convex hull of {} polygons",
             name,
-            id
+            id,
+            polygons.len(),
         );
-        let largest = polygons
-            .into_iter()
-            .max_by_key(|p| p.area() as usize)
-            .unwrap();
+        let clip = Polygon::convex_hull(polygons);
 
         let clipping_polygon = format!("{}.poly", name);
-        write_osmosis_polygon(
+        LonLat::write_osmosis_polygon(
             &clipping_polygon,
-            doc.gps_bounds.convert_back(largest.points()),
+            &doc.gps_bounds.convert_back(clip.points()),
         )
         .unwrap();
 
-        run(Command::new("osmconvert")
-            .arg(&input)
-            .arg(format!("-B={}", clipping_polygon))
-            .arg("--complete-ways")
-            .arg(format!("-o={}.osm", name)));
-    }
-}
-
-// TODO Refactor with the devtools/polygon variant and the geojson_to_osmosis tool
-fn write_osmosis_polygon(path: &str, pts: Vec<LonLat>) -> Result<(), Error> {
-    let mut f = File::create(path)?;
-    writeln!(f, "boundary")?;
-    writeln!(f, "1")?;
-    for pt in pts {
-        writeln!(f, "     {}    {}", pt.x(), pt.y())?;
-    }
-    writeln!(f, "END")?;
-    writeln!(f, "END")?;
-    Ok(())
-}
-
-// TODO Refactor to abstutil
-// Runs a command, asserts success. STDOUT and STDERR aren't touched.
-fn run(cmd: &mut Command) {
-    println!("- Running {:?}", cmd);
-    match cmd.status() {
-        Ok(status) => {
-            if !status.success() {
-                panic!("{:?} failed", cmd);
-            }
-        }
-        Err(err) => {
-            panic!("Failed to run {:?}: {:?}", cmd, err);
-        }
+        abstutil::must_run_cmd(
+            Command::new("osmconvert")
+                .arg(&input)
+                .arg(format!("-B={}", clipping_polygon))
+                .arg("--complete-ways")
+                .arg(format!("-o={}.osm", name)),
+        );
     }
 }

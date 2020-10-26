@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt;
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write};
 
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
@@ -76,6 +76,21 @@ impl LonLat {
             ));
         }
         Ok(pts)
+    }
+
+    /// Writes a set of points to a file in the
+    /// https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format. The input should
+    /// be a closed ring, with the first and last point matching.
+    pub fn write_osmosis_polygon(path: &str, pts: &Vec<LonLat>) -> Result<(), Box<dyn Error>> {
+        let mut f = File::create(path)?;
+        writeln!(f, "boundary")?;
+        writeln!(f, "1")?;
+        for pt in pts {
+            writeln!(f, "     {}    {}", pt.x(), pt.y())?;
+        }
+        writeln!(f, "END")?;
+        writeln!(f, "END")?;
+        Ok(())
     }
 }
 

@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::process::Command;
 
-use abstutil::Timer;
+use abstutil::{must_run_cmd, Timer};
 
 use crate::configuration::ImporterConfiguration;
 
@@ -19,12 +19,14 @@ pub fn download(config: &ImporterConfiguration, output: &str, url: &str) {
 
     let tmp = "tmp_output";
     println!("- Missing {}, so downloading {}", output, url);
-    run(Command::new("curl")
-        .arg("--fail")
-        .arg("-L")
-        .arg("-o")
-        .arg(tmp)
-        .arg(url));
+    must_run_cmd(
+        Command::new("curl")
+            .arg("--fail")
+            .arg("-L")
+            .arg("-o")
+            .arg(tmp)
+            .arg(url),
+    );
 
     // Argh the Dropbox URL is .zip?dl=0
     if url.contains(".zip") {
@@ -34,7 +36,7 @@ pub fn download(config: &ImporterConfiguration, output: &str, url: &str) {
             Path::new(&output).parent().unwrap().display().to_string()
         };
         println!("- Unzipping into {}", unzip_to);
-        run(Command::new(&config.unzip).arg(tmp).arg("-d").arg(unzip_to));
+        must_run_cmd(Command::new(&config.unzip).arg(tmp).arg("-d").arg(unzip_to));
         std::fs::remove_file(tmp).unwrap();
     } else if url.ends_with(".gz") {
         println!("- Gunzipping");
@@ -44,7 +46,7 @@ pub fn download(config: &ImporterConfiguration, output: &str, url: &str) {
         for arg in config.gunzip_args.split_ascii_whitespace() {
             gunzip_cmd.arg(arg);
         }
-        run(gunzip_cmd.arg(format!("{}.gz", output)));
+        must_run_cmd(gunzip_cmd.arg(format!("{}.gz", output)));
     } else {
         std::fs::rename(tmp, output).unwrap();
     }
@@ -74,12 +76,14 @@ pub fn download_kml(
         std::fs::copy(output.replace(".bin", ".kml"), tmp).unwrap();
     } else {
         println!("- Missing {}, so downloading {}", output, url);
-        run(Command::new("curl")
-            .arg("--fail")
-            .arg("-L")
-            .arg("-o")
-            .arg(tmp)
-            .arg(url));
+        must_run_cmd(
+            Command::new("curl")
+                .arg("--fail")
+                .arg("-L")
+                .arg("-o")
+                .arg(tmp)
+                .arg(url),
+        );
     }
 
     println!("- Extracting KML data");
@@ -109,26 +113,13 @@ pub fn osmconvert(
     }
     println!("- Clipping {} to {}", input, clipping_polygon);
 
-    run(Command::new(&config.osmconvert)
-        .arg(input)
-        .arg(format!("-B={}", clipping_polygon))
-        .arg("--complete-ways")
-        .arg(format!("-o={}", output)));
-}
-
-// Runs a command, asserts success. STDOUT and STDERR aren't touched.
-fn run(cmd: &mut Command) {
-    println!("- Running {:?}", cmd);
-    match cmd.status() {
-        Ok(status) => {
-            if !status.success() {
-                panic!("{:?} failed", cmd);
-            }
-        }
-        Err(err) => {
-            panic!("Failed to run {:?}: {:?}", cmd, err);
-        }
-    }
+    must_run_cmd(
+        Command::new(&config.osmconvert)
+            .arg(input)
+            .arg(format!("-B={}", clipping_polygon))
+            .arg("--complete-ways")
+            .arg(format!("-o={}", output)),
+    );
 }
 
 // Converts a RawMap to a Map.
