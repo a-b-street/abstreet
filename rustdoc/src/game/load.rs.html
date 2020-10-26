@@ -337,7 +337,7 @@
     <span class="kw">use</span> <span class="ident">web_sys</span>::{<span class="ident">Request</span>, <span class="ident">RequestInit</span>, <span class="ident">RequestMode</span>, <span class="ident">Response</span>};
 
     <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-    <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>};
+    <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -402,7 +402,7 @@
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">resp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">response</span>.<span class="ident">try_recv</span>().<span class="ident">unwrap</span>() {
                 <span class="comment">// TODO We stop drawing and start blocking at this point. It can take a</span>
