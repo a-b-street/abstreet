@@ -15,6 +15,23 @@ pub struct CmdArgs {
 
 impl CmdArgs {
     pub fn new() -> CmdArgs {
+        let mut args = Vec::new();
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            args.extend(std::env::args().skip(1));
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            // Suppress compiler warnings
+            args.push(String::new());
+            args.pop();
+        }
+
+        CmdArgs::from_args(args)
+    }
+
+    pub fn from_args(raw: Vec<String>) -> CmdArgs {
         let mut args = CmdArgs {
             kv: HashMap::new(),
             bits: HashSet::new(),
@@ -30,28 +47,21 @@ impl CmdArgs {
             }))
             .unwrap();
             log::set_max_level(log::LevelFilter::Debug);
-
-            for arg in std::env::args().skip(1) {
-                let parts: Vec<&str> = arg.split('=').collect();
-                if parts.len() == 1 {
-                    if arg.starts_with("--") {
-                        args.bits.insert(arg);
-                    } else {
-                        args.free.push(arg);
-                    }
-                } else if parts.len() == 2 {
-                    args.kv.insert(parts[0].to_string(), parts[1].to_string());
-                } else {
-                    panic!("Weird argument {}", arg);
-                }
-            }
         }
 
-        #[cfg(target_arch = "wasm32")]
-        {
-            // Silence some compiler warnings
-            args.free.push(String::new());
-            args.free.pop();
+        for arg in raw {
+            let parts: Vec<&str> = arg.split('=').collect();
+            if parts.len() == 1 {
+                if arg.starts_with("--") {
+                    args.bits.insert(arg);
+                } else {
+                    args.free.push(arg);
+                }
+            } else if parts.len() == 2 {
+                args.kv.insert(parts[0].to_string(), parts[1].to_string());
+            } else {
+                panic!("Weird argument {}", arg);
+            }
         }
 
         args

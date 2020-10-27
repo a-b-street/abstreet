@@ -12,6 +12,8 @@ crate-type = ["cdylib", "lib"]
 
 [features]
 default = ["built", "widgetry/glow-backend", "reqwest"]
+# Just a marker to jump straight into the OSM viewer
+osm_viewer = []
 wasm = ["console_log", "futures", "futures-channel", "js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys", "widgetry/wasm-backend"]
 # Just a marker to not use localhost URLs
 wasm_s3 = []

@@ -29,9 +29,7 @@ mod pregame;
 mod render;
 mod sandbox;
 
-pub fn main() {
-    let mut args = CmdArgs::new();
-
+pub fn main(mut args: CmdArgs) {
     if args.enabled("--prebake") {
         challenges::prebake_all();
         return;
@@ -284,5 +282,9 @@ use wasm_bindgen::prelude::*;
 pub fn run() {
     console_log::init_with_level(log::Level::Debug).unwrap();
 
-    main();
+    if cfg!(feature = "osm_viewer") {
+        main(CmdArgs::from_args(vec!["--osm".to_string()]))
+    } else {
+        main(CmdArgs::new());
+    }
 }
