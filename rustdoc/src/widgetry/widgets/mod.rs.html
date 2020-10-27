@@ -741,6 +741,30 @@
 <span id="740">740</span>
 <span id="741">741</span>
 <span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1443,6 +1467,30 @@
         }
 
         <span class="prelude-val">None</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">to_string</span>()) {
+            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t take({}), it&#39;s a top-level widget&quot;</span>, <span class="ident">name</span>);
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">container</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">widget</span> <span class="kw">in</span> <span class="ident">container</span>.<span class="ident">members</span>.<span class="ident">drain</span>(..) {
+                <span class="kw">if</span> <span class="ident">widget</span>.<span class="ident">id</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">to_string</span>()) {
+                    <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">widget</span>);
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">widget</span>.<span class="ident">take</span>(<span class="ident">name</span>) {
+                    <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>);
+                    <span class="ident">members</span>.<span class="ident">push</span>(<span class="ident">widget</span>);
+                } <span class="kw">else</span> {
+                    <span class="ident">members</span>.<span class="ident">push</span>(<span class="ident">widget</span>);
+                }
+            }
+            <span class="ident">found</span>
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">take_btn</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Button</span> {
