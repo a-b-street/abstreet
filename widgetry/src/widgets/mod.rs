@@ -701,6 +701,30 @@ impl Widget {
         None
     }
 
+    fn take(&mut self, name: &str) -> Option<Widget> {
+        if self.id == Some(name.to_string()) {
+            panic!("Can't take({}), it's a top-level widget", name);
+        }
+
+        if let Some(container) = self.widget.downcast_mut::<Container>() {
+            let mut members = Vec::new();
+            let mut found = None;
+            for mut widget in container.members.drain(..) {
+                if widget.id == Some(name.to_string()) {
+                    found = Some(widget);
+                } else if let Some(w) = widget.take(name) {
+                    found = Some(w);
+                    members.push(widget);
+                } else {
+                    members.push(widget);
+                }
+            }
+            found
+        } else {
+            None
+        }
+    }
+
     pub(crate) fn take_btn(self) -> Button {
         *self.widget.downcast::<Button>().ok().unwrap()
     }

@@ -32,13 +32,18 @@ impl Viewer {
             businesses: None,
             top_panel: Panel::empty(ctx),
         };
-        viewer.recalculate_top_panel(ctx, app);
+        viewer.recalculate_top_panel(ctx, app, None);
         Box::new(viewer)
     }
 
     // widgetry panels have a bug currently and don't detect changes to the dimensions of contents,
     // so we can't use replace() without messing up scrollbars.
-    fn recalculate_top_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn recalculate_top_panel(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &App,
+        biz_search_panel: Option<Widget>,
+    ) {
         let top_panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("OpenStreetMap viewer").small_heading().draw(ctx),
@@ -63,7 +68,7 @@ impl Viewer {
             self.calculate_tags(ctx, app),
             Widget::horiz_separator(ctx, 0.3),
             if let Some(ref b) = self.businesses {
-                b.render(ctx).named("Search for businesses")
+                biz_search_panel.unwrap_or_else(|| b.render(ctx).named("Search for businesses"))
             } else {
                 Btn::text_bg2("Search for businesses").build_def(ctx, Key::Tab)
             },
@@ -212,7 +217,8 @@ impl State<App> for Viewer {
             app.recalculate_current_selection(ctx);
 
             if self.fixed_object_outline.is_none() && old_id != app.primary.current_selection {
-                self.recalculate_top_panel(ctx, app);
+                let biz_search = self.top_panel.take("Search for businesses");
+                self.recalculate_top_panel(ctx, app, Some(biz_search));
             }
 
             let maybe_amenity = ctx
@@ -249,7 +255,8 @@ impl State<App> for Viewer {
             } else {
                 self.fixed_object_outline = None;
             }
-            self.recalculate_top_panel(ctx, app);
+            let biz_search = self.top_panel.take("Search for businesses");
+            self.recalculate_top_panel(ctx, app, Some(biz_search));
         }
 
         if let Some(t) = self.minimap.event(ctx, app) {
@@ -296,11 +303,11 @@ impl State<App> for Viewer {
                 }
                 "Search for businesses" => {
                     self.businesses = Some(BusinessSearch::new(ctx, app));
-                    self.recalculate_top_panel(ctx, app);
+                    self.recalculate_top_panel(ctx, app, None);
                 }
                 "Hide business search" => {
                     self.businesses = None;
-                    self.recalculate_top_panel(ctx, app);
+                    self.recalculate_top_panel(ctx, app, None);
                 }
                 x => {
                     if let Some(url) = x.strip_prefix("open ") {
@@ -311,10 +318,16 @@ impl State<App> for Viewer {
                 }
             },
             Outcome::Changed => {
-                self.businesses
-                    .as_mut()
-                    .unwrap()
-                    .update(ctx, app, &self.top_panel);
+                let b = self.businesses.as_mut().unwrap();
+                // Update state from checkboxes
+                b.show.clear();
+                for amenity in b.counts.borrow().keys() {
+                    if self.top_panel.is_checked(amenity) {
+                        b.show.insert(amenity.clone());
+                    }
+                }
+                b.update(ctx, app);
+
                 return Transition::KeepWithMouseover;
             }
             _ => {}
@@ -362,22 +375,13 @@ impl BusinessSearch {
         };
 
         // Initialize highlight
-        let tmp_panel = Panel::new(s.render(ctx)).build(ctx);
-        s.update(ctx, app, &tmp_panel);
+        s.update(ctx, app);
 
         s
     }
 
-    // Also updates the highlighted buildings
-    fn update(&mut self, ctx: &mut EventCtx, app: &App, panel: &Panel) {
-        // Update state from checkboxes
-        self.show.clear();
-        for amenity in self.counts.borrow().keys() {
-            if panel.is_checked(amenity) {
-                self.show.insert(amenity.clone());
-            }
-        }
-
+    // Updates the highlighted buildings
+    fn update(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut batch = GeomBatch::new();
         for b in app.primary.map.all_buildings() {
             if b.amenities

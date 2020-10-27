@@ -446,6 +446,11 @@ impl Panel {
         // TODO Same no_op_event as align_above? Should we always do this in recompute_layout?
     }
 
+    /// Removes a widget from the panel. Does not recalculate layout!
+    pub fn take(&mut self, id: &str) -> Widget {
+        self.top_level.take(id).unwrap()
+    }
+
     pub fn clicked_outside(&self, ctx: &mut EventCtx) -> bool {
         // TODO No great way to populate OSD from here with "click to cancel"
         !self.top_level.rect.contains(ctx.canvas.get_cursor()) && ctx.normal_left_click()
