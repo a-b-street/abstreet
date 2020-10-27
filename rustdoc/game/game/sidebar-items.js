@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ChooseSomething",""],["Game",""],["PopupMsg",""],["PromptInput",""]],"type":[["Transition",""]]});
+initSidebarItems({"struct":[["ChooseSomething",""],["PopupMsg",""],["PromptInput",""]],"type":[["Transition",""]]});
