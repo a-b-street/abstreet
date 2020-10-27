@@ -26,10 +26,10 @@ fn main() {
     // Infer the boundary of the input from the <bounds> tag
     let doc = convert_osm::reader::read(&input, &GPSBounds::new(), &mut timer).unwrap();
     for (id, rel) in &doc.relations {
-        if !rel.tags.is("border_type", "city") {
+        if !rel.tags.is("border_type", "city") && !rel.tags.is("place", "city") {
             continue;
         }
-        let name = if let Some(name) = rel.tags.get("name") {
+        let name = if let Some(name) = rel.tags.get("name:en").or(rel.tags.get("name")) {
             name
         } else {
             println!("{} has no name?", id);
