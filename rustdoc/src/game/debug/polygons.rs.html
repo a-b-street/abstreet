@@ -144,30 +144,21 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Triangle</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Slider</span>,
-    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PolygonDebugger</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">noun</span>: <span class="ident">String</span>,
     <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">&gt;</span>,
+    <span class="ident">idx</span>: <span class="ident">usize</span>,
     <span class="ident">center</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
 }
 
@@ -184,6 +175,10 @@
         <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">&gt;</span>,
         <span class="ident">center</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
     ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
+        <span class="kw">if</span> <span class="ident">items</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="ident">PopupMsg</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="string">&quot;Woops&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;No {}, never mind&quot;</span>, <span class="ident">noun</span>)]);
+        }
+
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PolygonDebugger</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -199,14 +194,12 @@
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;next&quot;</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>),
                 ])
                 .<span class="ident">evenly_spaced</span>(),
-                <span class="ident">Slider</span>::<span class="ident">horizontal</span>(<span class="ident">ctx</span>, <span class="number">100.0</span>, <span class="number">25.0</span>, <span class="number">0.0</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;slider&quot;</span>)
-                    .<span class="ident">centered_horiz</span>(),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">noun</span>: <span class="ident">noun</span>.<span class="ident">to_string</span>(),
             <span class="ident">items</span>,
+            <span class="ident">idx</span>: <span class="number">0</span>,
             <span class="ident">center</span>,
         })
     }
@@ -222,34 +215,23 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="string">&quot;previous&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;slider&quot;</span>).<span class="ident">get_percent</span>()
-                        <span class="op">*</span> (<span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">usize</span>;
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!=</span> <span class="number">0</span> {
-                        <span class="self">self</span>.<span class="ident">panel</span>
-                            .<span class="ident">slider_mut</span>(<span class="string">&quot;slider&quot;</span>)
-                            .<span class="ident">set_percent</span>(<span class="ident">ctx</span>, (<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> (<span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">idx</span> <span class="op">!=</span> <span class="number">0</span> {
+                        <span class="self">self</span>.<span class="ident">idx</span> <span class="op">-=</span> <span class="number">1</span>;
                     }
                 }
                 <span class="string">&quot;next&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;slider&quot;</span>).<span class="ident">get_percent</span>()
-                        <span class="op">*</span> (<span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">usize</span>;
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!=</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                        <span class="self">self</span>.<span class="ident">panel</span>
-                            .<span class="ident">slider_mut</span>(<span class="string">&quot;slider&quot;</span>)
-                            .<span class="ident">set_percent</span>(<span class="ident">ctx</span>, (<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> (<span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">idx</span> <span class="op">!=</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+                        <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+=</span> <span class="number">1</span>;
                     }
                 }
                 <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
             <span class="kw">_</span> <span class="op">=&gt;</span> {}
         }
-        <span class="comment">// TODO Could be more efficient here</span>
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span>
-            (<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;slider&quot;</span>).<span class="ident">get_percent</span>() <span class="op">*</span> (<span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;pointer&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">noun</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>())
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">noun</span>, <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>())
                 .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                 .<span class="ident">named</span>(<span class="string">&quot;pointer&quot;</span>),
         );
@@ -261,12 +243,10 @@
         <span class="comment">// This is drawn in screen-space, so zooming doesn&#39;t affect the text size</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
 
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span>
-            (<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;slider&quot;</span>).<span class="ident">get_percent</span>() <span class="op">*</span> (<span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">items</span>[<span class="ident">idx</span>] {
+        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">items</span>[<span class="self">self</span>.<span class="ident">idx</span>] {
             <span class="ident">Item</span>::<span class="ident">Point</span>(<span class="ident">pt</span>) <span class="op">=&gt;</span> {
                 <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">idx</span>.<span class="ident">to_string</span>()))
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">idx</span>.<span class="ident">to_string</span>()))
                         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                         .<span class="ident">render</span>(<span class="ident">g</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">map_to_screen</span>(<span class="kw-2">*</span><span class="ident">pt</span>).<span class="ident">to_pt</span>()),
@@ -275,7 +255,7 @@
             <span class="ident">Item</span>::<span class="ident">Triangle</span>(<span class="kw-2">ref</span> <span class="ident">tri</span>) <span class="op">=&gt;</span> {
                 <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="ident">tri</span>.<span class="ident">pt1</span>, <span class="ident">tri</span>.<span class="ident">pt2</span>, <span class="ident">tri</span>.<span class="ident">pt3</span>] {
                     <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">idx</span>.<span class="ident">to_string</span>()))
+                        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">idx</span>.<span class="ident">to_string</span>()))
                             .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                             .<span class="ident">render</span>(<span class="ident">g</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">map_to_screen</span>(<span class="kw-2">*</span><span class="ident">pt</span>).<span class="ident">to_pt</span>()),
@@ -286,7 +266,7 @@
             <span class="ident">Item</span>::<span class="ident">Polygon</span>(<span class="kw-2">ref</span> <span class="ident">poly</span>) <span class="op">=&gt;</span> {
                 <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">poly</span>.<span class="ident">clone</span>());
                 <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">idx</span>.<span class="ident">to_string</span>()))
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">idx</span>.<span class="ident">to_string</span>()))
                         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                         .<span class="ident">render</span>(<span class="ident">g</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">map_to_screen</span>(<span class="ident">poly</span>.<span class="ident">center</span>()).<span class="ident">to_pt</span>()),
