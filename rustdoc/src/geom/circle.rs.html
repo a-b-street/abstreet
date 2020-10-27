@@ -141,11 +141,11 @@
 
     <span class="doccomment">/// Renders the circle as a polygon.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_polygon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
-        <span class="self">self</span>.<span class="ident">to_partial_polygon</span>(<span class="number">1.0</span>)
+        <span class="self">self</span>.<span class="ident">to_ring</span>().<span class="ident">to_polygon</span>()
     }
 
     <span class="doccomment">/// Renders some percent, between [0, 1], of the circle as a polygon. The polygon starts from 0</span>
-    <span class="doccomment">/// degrees.</span>
+    <span class="doccomment">/// degrees. Be warned the resulting polygon doesn&#39;t have a ring as its boundary!</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_partial_polygon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent_full</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">center</span>];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
