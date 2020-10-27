@@ -1,16 +1,17 @@
 use geom::{Polygon, Pt2D, Triangle};
 use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::game::Transition;
+use crate::game::{PopupMsg, Transition};
 
 pub struct PolygonDebugger {
     panel: Panel,
     noun: String,
     items: Vec<Item>,
+    idx: usize,
     center: Option<Pt2D>,
 }
 
@@ -27,6 +28,10 @@ impl PolygonDebugger {
         items: Vec<Item>,
         center: Option<Pt2D>,
     ) -> Box<dyn State<App>> {
+        if items.is_empty() {
+            return PopupMsg::new(ctx, "Woops", vec![format!("No {}, never mind", noun)]);
+        }
+
         Box::new(PolygonDebugger {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -42,14 +47,12 @@ impl PolygonDebugger {
                     Btn::text_fg(">").build(ctx, "next", Key::RightArrow),
                 ])
                 .evenly_spaced(),
-                Slider::horizontal(ctx, 100.0, 25.0, 0.0)
-                    .named("slider")
-                    .centered_horiz(),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             noun: noun.to_string(),
             items,
+            idx: 0,
             center,
         })
     }
@@ -65,34 +68,23 @@ impl State<App> for PolygonDebugger {
                     return Transition::Pop;
                 }
                 "previous" => {
-                    let idx = (self.panel.slider("slider").get_percent()
-                        * (self.items.len() - 1) as f64) as usize;
-                    if idx != 0 {
-                        self.panel
-                            .slider_mut("slider")
-                            .set_percent(ctx, (idx - 1) as f64 / (self.items.len() - 1) as f64);
+                    if self.idx != 0 {
+                        self.idx -= 1;
                     }
                 }
                 "next" => {
-                    let idx = (self.panel.slider("slider").get_percent()
-                        * (self.items.len() - 1) as f64) as usize;
-                    if idx != self.items.len() - 1 {
-                        self.panel
-                            .slider_mut("slider")
-                            .set_percent(ctx, (idx + 1) as f64 / (self.items.len() - 1) as f64);
+                    if self.idx != self.items.len() - 1 {
+                        self.idx += 1;
                     }
                 }
                 _ => unreachable!(),
             },
             _ => {}
         }
-        // TODO Could be more efficient here
-        let idx =
-            (self.panel.slider("slider").get_percent() * (self.items.len() - 1) as f64) as usize;
         self.panel.replace(
             ctx,
             "pointer",
-            format!("{} {}/{}", self.noun, idx + 1, self.items.len())
+            format!("{} {}/{}", self.noun, self.idx + 1, self.items.len())
                 .draw_text(ctx)
                 .named("pointer"),
         );
@@ -104,12 +96,10 @@ impl State<App> for PolygonDebugger {
         // This is drawn in screen-space, so zooming doesn't affect the text size
         let mut batch = GeomBatch::new();
 
-        let idx =
-            (self.panel.slider("slider").get_percent() * (self.items.len() - 1) as f64) as usize;
-        match &self.items[idx] {
+        match &self.items[self.idx] {
             Item::Point(pt) => {
                 batch.append(
-                    Text::from(Line(idx.to_string()))
+                    Text::from(Line(self.idx.to_string()))
                         .bg(app.cs.panel_bg)
                         .render(g)
                         .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
@@ -118,7 +108,7 @@ impl State<App> for PolygonDebugger {
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
                     batch.append(
-                        Text::from(Line(idx.to_string()))
+                        Text::from(Line(self.idx.to_string()))
                             .bg(app.cs.panel_bg)
                             .render(g)
                             .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
@@ -129,7 +119,7 @@ impl State<App> for PolygonDebugger {
             Item::Polygon(ref poly) => {
                 g.draw_polygon(app.cs.selected, poly.clone());
                 batch.append(
-                    Text::from(Line(idx.to_string()))
+                    Text::from(Line(self.idx.to_string()))
                         .bg(app.cs.panel_bg)
                         .render(g)
                         .centered_on(g.canvas.map_to_screen(poly.center()).to_pt()),

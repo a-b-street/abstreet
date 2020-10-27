@@ -118,7 +118,7 @@ impl Slider {
         (self.current_percent * (num_items as f64 - 1.0)) as usize
     }
 
-    pub fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
+    pub(crate) fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
         assert!(percent >= 0.0 && percent <= 1.0);
         self.current_percent = percent;
         self.recalc(ctx);
@@ -297,7 +297,7 @@ impl AreaSlider {
         self.current_percent
     }
 
-    pub fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
+    pub(crate) fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
         assert!(percent >= 0.0 && percent <= 1.0);
         self.current_percent = percent;
         self.recalc(ctx);
