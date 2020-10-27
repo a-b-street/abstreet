@@ -175,6 +175,16 @@
 <span id="174">174</span>
 <span id="175">175</span>
 <span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
@@ -193,6 +203,23 @@
 
 <span class="kw">impl</span> <span class="ident">CmdArgs</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">CmdArgs</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+        {
+            <span class="ident">args</span>.<span class="ident">extend</span>(<span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">args</span>().<span class="ident">skip</span>(<span class="number">1</span>));
+        }
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+        {
+            <span class="comment">// Suppress compiler warnings</span>
+            <span class="ident">args</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">new</span>());
+            <span class="ident">args</span>.<span class="ident">pop</span>();
+        }
+
+        <span class="ident">CmdArgs</span>::<span class="ident">from_args</span>(<span class="ident">args</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_args</span>(<span class="ident">raw</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">CmdArgs</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span> {
             <span class="ident">kv</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">bits</span>: <span class="ident">HashSet</span>::<span class="ident">new</span>(),
@@ -208,28 +235,21 @@
             }))
             .<span class="ident">unwrap</span>();
             <span class="ident">log</span>::<span class="ident">set_max_level</span>(<span class="ident">log</span>::<span class="ident">LevelFilter</span>::<span class="ident">Debug</span>);
-
-            <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">args</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
-                <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">arg</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>).<span class="ident">collect</span>();
-                <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-                    <span class="kw">if</span> <span class="ident">arg</span>.<span class="ident">starts_with</span>(<span class="string">&quot;--&quot;</span>) {
-                        <span class="ident">args</span>.<span class="ident">bits</span>.<span class="ident">insert</span>(<span class="ident">arg</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">args</span>.<span class="ident">free</span>.<span class="ident">push</span>(<span class="ident">arg</span>);
-                    }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
-                    <span class="ident">args</span>.<span class="ident">kv</span>.<span class="ident">insert</span>(<span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">to_string</span>(), <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">to_string</span>());
-                } <span class="kw">else</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Weird argument {}&quot;</span>, <span class="ident">arg</span>);
-                }
-            }
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-        {
-            <span class="comment">// Silence some compiler warnings</span>
-            <span class="ident">args</span>.<span class="ident">free</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">new</span>());
-            <span class="ident">args</span>.<span class="ident">free</span>.<span class="ident">pop</span>();
+        <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">raw</span> {
+            <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">arg</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>).<span class="ident">collect</span>();
+            <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                <span class="kw">if</span> <span class="ident">arg</span>.<span class="ident">starts_with</span>(<span class="string">&quot;--&quot;</span>) {
+                    <span class="ident">args</span>.<span class="ident">bits</span>.<span class="ident">insert</span>(<span class="ident">arg</span>);
+                } <span class="kw">else</span> {
+                    <span class="ident">args</span>.<span class="ident">free</span>.<span class="ident">push</span>(<span class="ident">arg</span>);
+                }
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
+                <span class="ident">args</span>.<span class="ident">kv</span>.<span class="ident">insert</span>(<span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">to_string</span>(), <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">to_string</span>());
+            } <span class="kw">else</span> {
+                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Weird argument {}&quot;</span>, <span class="ident">arg</span>);
+            }
         }
 
         <span class="ident">args</span>
