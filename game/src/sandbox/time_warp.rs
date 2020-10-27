@@ -3,8 +3,8 @@ use instant::Instant;
 use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use widgetry::{
-    AreaSlider, Btn, Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key,
-    Line, Outcome, Panel, State, Text, UpdateType, Widget,
+    Btn, Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, Slider, State, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything};
@@ -59,7 +59,7 @@ impl JumpToTime {
                     Widget::nothing()
                 },
                 // TODO Auto-fill width?
-                AreaSlider::new(
+                Slider::area(
                     ctx,
                     0.25 * ctx.canvas.window_width,
                     target.to_percent(end_of_day).min(1.0),
@@ -129,7 +129,7 @@ impl State<App> for JumpToTime {
             .primary
             .sim
             .get_end_of_day()
-            .percent_of(self.panel.area_slider("time slider").get_percent())
+            .percent_of(self.panel.slider("time slider").get_percent())
             .round_seconds(600.0);
         if target != self.target {
             self.target = target;

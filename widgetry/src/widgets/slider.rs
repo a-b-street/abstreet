@@ -10,14 +10,18 @@ pub struct Slider {
     mouse_on_slider: bool,
     dragging: bool,
 
-    horiz: bool,
-    main_bg_len: f64,
-    dragger_len: f64,
+    style: Style,
 
     draw: Drawable,
 
     top_left: ScreenPt,
     dims: ScreenDims,
+}
+
+enum Style {
+    Horizontal { main_bg_len: f64, dragger_len: f64 },
+    Vertical { main_bg_len: f64, dragger_len: f64 },
+    Area { width: f64 },
 }
 
 const BG_CROSS_AXIS_LEN: f64 = 20.0;
@@ -29,33 +33,38 @@ impl Slider {
         dragger_len: f64,
         current_percent: f64,
     ) -> Widget {
-        let mut s = Slider {
+        Slider::new(
+            ctx,
+            Style::Horizontal {
+                main_bg_len: width,
+                dragger_len,
+            },
             current_percent,
-            mouse_on_slider: false,
-            dragging: false,
-
-            horiz: true,
-            main_bg_len: width,
-            dragger_len,
-
-            draw: ctx.upload(GeomBatch::new()),
-
-            top_left: ScreenPt::new(0.0, 0.0),
-            dims: ScreenDims::new(0.0, 0.0),
-        };
-        s.recalc(ctx);
-        Widget::new(Box::new(s))
+        )
     }
 
     pub fn vertical(ctx: &EventCtx, height: f64, dragger_len: f64, current_percent: f64) -> Widget {
+        Slider::new(
+            ctx,
+            Style::Vertical {
+                main_bg_len: height,
+                dragger_len,
+            },
+            current_percent,
+        )
+    }
+
+    pub fn area(ctx: &EventCtx, width: f64, current_percent: f64) -> Widget {
+        Slider::new(ctx, Style::Area { width }, current_percent)
+    }
+
+    fn new(ctx: &EventCtx, style: Style, current_percent: f64) -> Widget {
         let mut s = Slider {
             current_percent,
             mouse_on_slider: false,
             dragging: false,
 
-            horiz: false,
-            main_bg_len: height,
-            dragger_len,
+            style,
 
             draw: ctx.upload(GeomBatch::new()),
 
@@ -67,46 +76,103 @@ impl Slider {
     }
 
     fn recalc(&mut self, ctx: &EventCtx) {
-        // Full dims
-        self.dims = if self.horiz {
-            ScreenDims::new(self.main_bg_len, BG_CROSS_AXIS_LEN)
-        } else {
-            ScreenDims::new(BG_CROSS_AXIS_LEN, self.main_bg_len)
-        };
-
         let mut batch = GeomBatch::new();
 
-        // The background
-        batch.push(
-            Color::WHITE,
-            Polygon::rectangle(self.dims.width, self.dims.height),
-        );
+        match self.style {
+            Style::Horizontal { .. } | Style::Vertical { .. } => {
+                // Full dims
+                self.dims = match self.style {
+                    Style::Horizontal { main_bg_len, .. } => {
+                        ScreenDims::new(main_bg_len, BG_CROSS_AXIS_LEN)
+                    }
+                    Style::Vertical { main_bg_len, .. } => {
+                        ScreenDims::new(BG_CROSS_AXIS_LEN, main_bg_len)
+                    }
+                    _ => unreachable!(),
+                };
 
-        // The draggy thing
-        batch.push(
-            if self.mouse_on_slider {
-                Color::grey(0.7).alpha(0.7)
-            } else {
-                Color::grey(0.7)
-            },
-            self.slider_geom(),
-        );
+                // The background
+                batch.push(
+                    Color::WHITE,
+                    Polygon::rectangle(self.dims.width, self.dims.height),
+                );
+
+                // The draggy thing
+                batch.push(
+                    if self.mouse_on_slider {
+                        Color::grey(0.7).alpha(0.7)
+                    } else {
+                        Color::grey(0.7)
+                    },
+                    self.slider_geom(),
+                );
+            }
+            Style::Area { width } => {
+                // Full dims
+                self.dims = ScreenDims::new(width, BG_CROSS_AXIS_LEN);
+
+                // The background
+                batch.push(
+                    Color::hex("#F2F2F2"),
+                    Polygon::rounded_rectangle(self.dims.width, self.dims.height, None),
+                );
+                // So far
+                batch.push(
+                    Color::hex("#F4DF4D"),
+                    Polygon::rounded_rectangle(
+                        self.current_percent * self.dims.width,
+                        self.dims.height,
+                        None,
+                    ),
+                );
+
+                // The circle dragger
+                batch.push(
+                    if self.mouse_on_slider {
+                        Color::WHITE.alpha(0.7)
+                    } else {
+                        Color::WHITE
+                    },
+                    self.slider_geom(),
+                );
+            }
+        }
 
         self.draw = ctx.upload(batch);
     }
 
     // Doesn't touch self.top_left
     fn slider_geom(&self) -> Polygon {
-        if self.horiz {
-            Polygon::rectangle(self.dragger_len, BG_CROSS_AXIS_LEN).translate(
-                self.current_percent * (self.main_bg_len - self.dragger_len),
-                0.0,
+        match self.style {
+            Style::Horizontal {
+                main_bg_len,
+                dragger_len,
+            } => Polygon::rectangle(dragger_len, BG_CROSS_AXIS_LEN)
+                .translate(self.current_percent * (main_bg_len - dragger_len), 0.0),
+            Style::Vertical {
+                main_bg_len,
+                dragger_len,
+            } => Polygon::rectangle(BG_CROSS_AXIS_LEN, dragger_len)
+                .translate(0.0, self.current_percent * (main_bg_len - dragger_len)),
+            Style::Area { width } => Circle::new(
+                Pt2D::new(self.current_percent * width, BG_CROSS_AXIS_LEN / 2.0),
+                Distance::meters(BG_CROSS_AXIS_LEN),
             )
-        } else {
-            Polygon::rectangle(BG_CROSS_AXIS_LEN, self.dragger_len).translate(
-                0.0,
-                self.current_percent * (self.main_bg_len - self.dragger_len),
-            )
+            .to_polygon(),
+        }
+    }
+
+    fn pt_to_percent(&self, pt: ScreenPt) -> f64 {
+        match self.style {
+            Style::Horizontal {
+                main_bg_len,
+                dragger_len,
+            } => (pt.x - self.top_left.x - (dragger_len / 2.0)) / (main_bg_len - dragger_len),
+            Style::Vertical {
+                main_bg_len,
+                dragger_len,
+            } => (pt.y - self.top_left.y - (dragger_len / 2.0)) / (main_bg_len - dragger_len),
+            Style::Area { width } => (pt.x - self.top_left.x) / width,
         }
     }
 
@@ -137,14 +203,10 @@ impl Slider {
     fn inner_event(&mut self, ctx: &mut EventCtx) -> bool {
         if self.dragging {
             if ctx.input.get_moved_mouse().is_some() {
-                let percent = if self.horiz {
-                    (ctx.canvas.get_cursor().x - self.top_left.x - (self.dragger_len / 2.0))
-                        / (self.main_bg_len - self.dragger_len)
-                } else {
-                    (ctx.canvas.get_cursor().y - self.top_left.y - (self.dragger_len / 2.0))
-                        / (self.main_bg_len - self.dragger_len)
-                };
-                self.current_percent = percent.min(1.0).max(0.0);
+                self.current_percent = self
+                    .pt_to_percent(ctx.canvas.get_cursor())
+                    .min(1.0)
+                    .max(0.0);
                 return true;
             }
             if ctx.input.left_mouse_button_released() {
@@ -178,14 +240,10 @@ impl Slider {
                     .translate(self.top_left.x, self.top_left.y)
                     .contains_pt(pt.to_pt())
                 {
-                    let percent = if self.horiz {
-                        (pt.x - self.top_left.x - (self.dragger_len / 2.0))
-                            / (self.main_bg_len - self.dragger_len)
-                    } else {
-                        (pt.y - self.top_left.y - (self.dragger_len / 2.0))
-                            / (self.main_bg_len - self.dragger_len)
-                    };
-                    self.current_percent = percent.min(1.0).max(0.0);
+                    self.current_percent = self
+                        .pt_to_percent(ctx.canvas.get_cursor())
+                        .min(1.0)
+                        .max(0.0);
                     self.mouse_on_slider = true;
                     self.dragging = true;
                     return true;
@@ -214,171 +272,8 @@ impl WidgetImpl for Slider {
     fn draw(&self, g: &mut GfxCtx) {
         g.redraw_at(self.top_left, &self.draw);
         // TODO Since the sliders in Panels are scrollbars outside of the clipping rectangle,
-        // this stays for now.
+        // this stays for now. It has no effect for other sliders.
         g.canvas
             .mark_covered_area(ScreenRectangle::top_left(self.top_left, self.dims));
-    }
-}
-
-// TODO Try to dedupe code maybe
-pub struct AreaSlider {
-    current_percent: f64,
-    mouse_on_slider: bool,
-    dragging: bool,
-
-    width: f64,
-    draw: Drawable,
-
-    top_left: ScreenPt,
-    dims: ScreenDims,
-}
-
-impl AreaSlider {
-    pub fn new(ctx: &EventCtx, width: f64, current_percent: f64) -> Widget {
-        let mut s = AreaSlider {
-            current_percent,
-            mouse_on_slider: false,
-            dragging: false,
-
-            width,
-            draw: ctx.upload(GeomBatch::new()),
-
-            top_left: ScreenPt::new(0.0, 0.0),
-            dims: ScreenDims::new(0.0, 0.0),
-        };
-        s.recalc(ctx);
-        Widget::new(Box::new(s))
-    }
-
-    fn recalc(&mut self, ctx: &EventCtx) {
-        // Full dims
-        self.dims = ScreenDims::new(self.width, BG_CROSS_AXIS_LEN);
-
-        let mut batch = GeomBatch::new();
-
-        // The background
-        batch.push(
-            Color::hex("#F2F2F2"),
-            Polygon::rounded_rectangle(self.dims.width, self.dims.height, None),
-        );
-        // So far
-        batch.push(
-            Color::hex("#F4DF4D"),
-            Polygon::rounded_rectangle(
-                self.current_percent * self.dims.width,
-                self.dims.height,
-                None,
-            ),
-        );
-
-        // The circle dragger
-        batch.push(
-            if self.mouse_on_slider {
-                Color::WHITE.alpha(0.7)
-            } else {
-                Color::WHITE
-            },
-            self.slider_geom(),
-        );
-
-        self.draw = ctx.upload(batch);
-    }
-
-    // Doesn't touch self.top_left
-    fn slider_geom(&self) -> Polygon {
-        Circle::new(
-            Pt2D::new(self.current_percent * self.width, BG_CROSS_AXIS_LEN / 2.0),
-            Distance::meters(BG_CROSS_AXIS_LEN),
-        )
-        .to_polygon()
-    }
-
-    pub fn get_percent(&self) -> f64 {
-        self.current_percent
-    }
-
-    pub(crate) fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
-        assert!(percent >= 0.0 && percent <= 1.0);
-        self.current_percent = percent;
-        self.recalc(ctx);
-        // Just reset dragging, to prevent chaos
-        self.dragging = false;
-        if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
-            self.mouse_on_slider = self
-                .slider_geom()
-                .translate(self.top_left.x, self.top_left.y)
-                .contains_pt(pt.to_pt());
-        } else {
-            self.mouse_on_slider = false;
-        }
-    }
-
-    fn inner_event(&mut self, ctx: &mut EventCtx) -> bool {
-        if self.dragging {
-            if ctx.input.get_moved_mouse().is_some() {
-                let percent = (ctx.canvas.get_cursor().x - self.top_left.x) / self.width;
-                self.current_percent = percent.min(1.0).max(0.0);
-                return true;
-            }
-            if ctx.input.left_mouse_button_released() {
-                self.dragging = false;
-                return true;
-            }
-            return false;
-        }
-
-        if ctx.redo_mouseover() {
-            let old = self.mouse_on_slider;
-            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
-                self.mouse_on_slider = self
-                    .slider_geom()
-                    .translate(self.top_left.x, self.top_left.y)
-                    .contains_pt(pt.to_pt());
-            } else {
-                self.mouse_on_slider = false;
-            }
-            return self.mouse_on_slider != old;
-        }
-        if ctx.input.left_mouse_button_pressed() {
-            if self.mouse_on_slider {
-                self.dragging = true;
-                return true;
-            }
-
-            // Did we click somewhere else on the bar?
-            if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
-                if Polygon::rectangle(self.dims.width, self.dims.height)
-                    .translate(self.top_left.x, self.top_left.y)
-                    .contains_pt(pt.to_pt())
-                {
-                    let percent = (pt.x - self.top_left.x) / self.width;
-                    self.current_percent = percent.min(1.0).max(0.0);
-                    self.mouse_on_slider = true;
-                    self.dragging = true;
-                    return true;
-                }
-            }
-        }
-        false
-    }
-}
-
-impl WidgetImpl for AreaSlider {
-    fn get_dims(&self) -> ScreenDims {
-        self.dims
-    }
-
-    fn set_pos(&mut self, top_left: ScreenPt) {
-        self.top_left = top_left;
-    }
-
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
-        if self.inner_event(ctx) {
-            self.recalc(ctx);
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx) {
-        g.redraw_at(self.top_left, &self.draw);
     }
 }

@@ -4,7 +4,6 @@
 //!
 //! TODO inline pictures of some of these
 //!
-//! * [`AreaSlider`] - slider with an associated area graph
 //! * [`Autocomplete`] - select predefined value by combining text entry with menus
 //! * [`Button`] - clickable buttons with keybindings and tooltips
 //! * [`Checkbox`] - toggle between two buttons
@@ -56,7 +55,7 @@ pub use crate::widgets::line_plot::{LinePlot, PlotOptions, Series};
 pub use crate::widgets::menu::Menu;
 pub use crate::widgets::persistent_split::PersistentSplit;
 pub use crate::widgets::scatter_plot::ScatterPlot;
-pub use crate::widgets::slider::{AreaSlider, Slider};
+pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput};

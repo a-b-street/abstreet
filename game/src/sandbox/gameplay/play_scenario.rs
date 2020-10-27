@@ -4,8 +4,8 @@ use maplit::btreeset;
 
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
-    lctrl, AreaSlider, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Slider, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -340,11 +340,11 @@ impl ChangeMode {
                 checkbox_per_mode(ctx, app, &btreeset! { TripMode::Drive }),
                 Widget::row(vec![
                     "Departing from:".draw_text(ctx),
-                    AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
+                    Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
                 ]),
                 Widget::row(vec![
                     "Departing until:".draw_text(ctx),
-                    AreaSlider::new(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
+                    Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
                 ]),
                 Widget::horiz_separator(ctx, 0.5),
                 Widget::row(vec![
@@ -378,8 +378,8 @@ impl State<App> for ChangeMode {
                     let to_mode = self.panel.dropdown_value::<Option<TripMode>, _>("to_mode");
                     let pct_ppl = self.panel.spinner("pct_ppl") as usize;
                     let (p1, p2) = (
-                        self.panel.area_slider("depart from").get_percent(),
-                        self.panel.area_slider("depart to").get_percent(),
+                        self.panel.slider("depart from").get_percent(),
+                        self.panel.slider("depart to").get_percent(),
                     );
                     let departure_filter = (
                         app.primary.sim.get_end_of_day().percent_of(p1),

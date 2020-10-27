@@ -7,8 +7,8 @@ use geom::{Distance, PolyLine, Polygon, Time};
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
-    AreaSlider, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt,
+    Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, Slider, State, Text, TextExt,
     VerticalAlignment, Widget,
 };
 
@@ -419,12 +419,12 @@ impl State<App> for CommuterPatterns {
                 .primary
                 .sim
                 .get_end_of_day()
-                .percent_of(self.panel.area_slider("depart from").get_percent()),
+                .percent_of(self.panel.slider("depart from").get_percent()),
             depart_until: app
                 .primary
                 .sim
                 .get_end_of_day()
-                .percent_of(self.panel.area_slider("depart until").get_percent()),
+                .percent_of(self.panel.slider("depart until").get_percent()),
             modes: BTreeSet::new(),
         };
         for m in TripMode::all() {
@@ -703,11 +703,11 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         Checkbox::switch(ctx, "include borders", None, true),
         Widget::row(vec![
             "Departing from:".draw_text(ctx).margin_right(20),
-            AreaSlider::new(ctx, 0.15 * ctx.canvas.window_width, 0.0).named("depart from"),
+            Slider::area(ctx, 0.15 * ctx.canvas.window_width, 0.0).named("depart from"),
         ]),
         Widget::row(vec![
             "Departing until:".draw_text(ctx).margin_right(20),
-            AreaSlider::new(ctx, 0.15 * ctx.canvas.window_width, 1.0).named("depart until"),
+            Slider::area(ctx, 0.15 * ctx.canvas.window_width, 1.0).named("depart until"),
         ]),
         checkbox_per_mode(ctx, app, &TripMode::all().into_iter().collect()),
         ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]).named("scale"),

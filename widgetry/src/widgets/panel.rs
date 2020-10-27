@@ -9,9 +9,9 @@ use geom::{Percent, Polygon};
 
 use crate::widgets::Container;
 use crate::{
-    AreaSlider, Autocomplete, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment,
-    Menu, Outcome, PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner,
-    TextBox, VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
+    Autocomplete, Checkbox, Color, Dropdown, EventCtx, GfxCtx, HorizontalAlignment, Menu, Outcome,
+    PersistentSplit, ScreenDims, ScreenPt, ScreenRectangle, Slider, Spinner, TextBox,
+    VerticalAlignment, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Panel {
@@ -329,9 +329,6 @@ impl Panel {
     }
     pub fn slider_mut(&mut self, name: &str) -> &mut Slider {
         self.find_mut(name)
-    }
-    pub fn area_slider(&self, name: &str) -> &AreaSlider {
-        self.find(name)
     }
 
     pub fn take_menu_choice<T: 'static>(&mut self, name: &str) -> T {
