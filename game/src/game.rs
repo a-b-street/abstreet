@@ -1,81 +1,15 @@
+//! Everything here should ideally be lifted to widgetry as common states.
+
 use widgetry::{
     hotkeys, Btn, Choice, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Menu, Outcome, Panel, ScreenRectangle, State, Text,
     VerticalAlignment, Widget,
 };
 
-use crate::app::{App, Flags};
+use crate::app::App;
 use crate::helpers::grey_out_map;
-use crate::options::Options;
-use crate::pregame::TitleScreen;
-use crate::sandbox::{GameplayMode, SandboxMode};
-
-pub struct Game;
 
 pub type Transition = widgetry::Transition<App>;
-
-impl Game {
-    pub fn new(
-        flags: Flags,
-        opts: Options,
-        start_with_edits: Option<String>,
-        maybe_mode: Option<GameplayMode>,
-        ctx: &mut EventCtx,
-    ) -> (App, Vec<Box<dyn State<App>>>) {
-        let title = !opts.dev
-            && !flags.sim_flags.load.contains("player/save")
-            && !flags.sim_flags.load.contains("system/scenarios")
-            && maybe_mode.is_none();
-        let mut app = App::new(flags, opts, ctx, title);
-
-        // Handle savestates
-        let savestate = if app
-            .primary
-            .current_flags
-            .sim_flags
-            .load
-            .contains("player/saves/")
-        {
-            assert!(maybe_mode.is_none());
-            Some(app.primary.clear_sim())
-        } else {
-            None
-        };
-
-        // Just apply this here, don't plumb to SimFlags or anything else. We recreate things using
-        // these flags later, but we don't want to keep applying the same edits.
-        if let Some(edits_name) = start_with_edits {
-            // TODO Maybe loading screen
-            let mut timer = abstutil::Timer::new("apply initial edits");
-            let edits = map_model::MapEdits::load(
-                &app.primary.map,
-                abstutil::path_edits(app.primary.map.get_name(), &edits_name),
-                &mut timer,
-            )
-            .unwrap();
-            crate::edit::apply_map_edits(ctx, &mut app, edits);
-            app.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut timer);
-            app.primary.clear_sim();
-        }
-
-        let states: Vec<Box<dyn State<App>>> = if title {
-            vec![Box::new(TitleScreen::new(ctx, &mut app))]
-        } else {
-            let mode = maybe_mode
-                .unwrap_or_else(|| GameplayMode::Freeform(app.primary.map.get_name().clone()));
-            vec![SandboxMode::simple_new(ctx, &mut app, mode)]
-        };
-        if let Some(ss) = savestate {
-            // TODO This is weird, we're left in Freeform mode with the wrong UI. Can't instantiate
-            // PlayScenario without clobbering.
-            app.primary.sim = ss;
-        }
-
-        (app, states)
-    }
-}
 
 pub struct ChooseSomething<T> {
     panel: Panel,
