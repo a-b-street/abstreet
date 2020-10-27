@@ -443,8 +443,8 @@
 
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ScenarioModifier</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">Slider</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -779,11 +779,11 @@
                 <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="macro">btreeset</span><span class="macro">!</span> { <span class="ident">TripMode</span>::<span class="ident">Drive</span> }),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Departing from:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">AreaSlider</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.0</span>).<span class="ident">named</span>(<span class="string">&quot;depart from&quot;</span>),
+                    <span class="ident">Slider</span>::<span class="ident">area</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.0</span>).<span class="ident">named</span>(<span class="string">&quot;depart from&quot;</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Departing until:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">AreaSlider</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.3</span>).<span class="ident">named</span>(<span class="string">&quot;depart to&quot;</span>),
+                    <span class="ident">Slider</span>::<span class="ident">area</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.3</span>).<span class="ident">named</span>(<span class="string">&quot;depart to&quot;</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.5</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -817,8 +817,8 @@
                     <span class="kw">let</span> <span class="ident">to_mode</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="string">&quot;to_mode&quot;</span>);
                     <span class="kw">let</span> <span class="ident">pct_ppl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;pct_ppl&quot;</span>) <span class="kw">as</span> <span class="ident">usize</span>;
                     <span class="kw">let</span> (<span class="ident">p1</span>, <span class="ident">p2</span>) <span class="op">=</span> (
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">area_slider</span>(<span class="string">&quot;depart from&quot;</span>).<span class="ident">get_percent</span>(),
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">area_slider</span>(<span class="string">&quot;depart to&quot;</span>).<span class="ident">get_percent</span>(),
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;depart from&quot;</span>).<span class="ident">get_percent</span>(),
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;depart to&quot;</span>).<span class="ident">get_percent</span>(),
                     );
                     <span class="kw">let</span> <span class="ident">departure_filter</span> <span class="op">=</span> (
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>().<span class="ident">percent_of</span>(<span class="ident">p1</span>),

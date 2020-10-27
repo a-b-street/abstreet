@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["BG_CROSS_AXIS_LEN",""]],"struct":[["AreaSlider",""],["Slider",""]]});
+initSidebarItems({"constant":[["BG_CROSS_AXIS_LEN",""]],"enum":[["Style",""]],"struct":[["Slider",""]]});

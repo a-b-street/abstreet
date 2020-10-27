@@ -483,8 +483,8 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">AreaSlider</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">FindDelayedIntersections</span>, <span class="ident">ShowEverything</span>};
@@ -539,7 +539,7 @@
                     <span class="ident">Widget</span>::<span class="ident">nothing</span>()
                 },
                 <span class="comment">// TODO Auto-fill width?</span>
-                <span class="ident">AreaSlider</span>::<span class="ident">new</span>(
+                <span class="ident">Slider</span>::<span class="ident">area</span>(
                     <span class="ident">ctx</span>,
                     <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>,
                     <span class="ident">target</span>.<span class="ident">to_percent</span>(<span class="ident">end_of_day</span>).<span class="ident">min</span>(<span class="number">1.0</span>),
@@ -609,7 +609,7 @@
             .<span class="ident">primary</span>
             .<span class="ident">sim</span>
             .<span class="ident">get_end_of_day</span>()
-            .<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">area_slider</span>(<span class="string">&quot;time slider&quot;</span>).<span class="ident">get_percent</span>())
+            .<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;time slider&quot;</span>).<span class="ident">get_percent</span>())
             .<span class="ident">round_seconds</span>(<span class="number">600.0</span>);
         <span class="kw">if</span> <span class="ident">target</span> <span class="op">!=</span> <span class="self">self</span>.<span class="ident">target</span> {
             <span class="self">self</span>.<span class="ident">target</span> <span class="op">=</span> <span class="ident">target</span>;
