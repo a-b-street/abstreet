@@ -67,16 +67,17 @@ impl Circle {
 
     /// Returns the ring around the circle.
     fn to_ring(&self) -> Ring {
-        Ring::must_new(
-            (0..=TRIANGLES_PER_CIRCLE)
-                .map(|i| {
-                    self.center.project_away(
-                        self.radius,
-                        Angle::degrees((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * 360.0),
-                    )
-                })
-                .collect(),
-        )
+        let mut pts: Vec<Pt2D> = (0..=TRIANGLES_PER_CIRCLE)
+            .map(|i| {
+                self.center.project_away(
+                    self.radius,
+                    Angle::degrees((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * 360.0),
+                )
+            })
+            .collect();
+        // With some radii, we get duplicate adjacent points
+        pts.dedup();
+        Ring::must_new(pts)
     }
 
     /// Creates an outline around the circle, strictly contained with the circle's original radius.
