@@ -386,12 +386,17 @@
 <span id="385">385</span>
 <span id="386">386</span>
 <span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{
     <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">Percent</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>,
+    <span class="ident">UnitFmt</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -682,7 +687,10 @@
         }
     }
     <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">to_string</span>()
+        <span class="self">self</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt</span> {
+            <span class="ident">metric</span>: <span class="bool-val">false</span>,
+            <span class="ident">round_durations</span>: <span class="bool-val">true</span>,
+        })
     }
     <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">f64</span>

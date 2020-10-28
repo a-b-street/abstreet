@@ -190,6 +190,14 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>};
@@ -321,22 +329,30 @@
     <span class="ident">table</span>.<span class="ident">static_col</span>(<span class="string">&quot;Trip ID&quot;</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">trip</span>.<span class="number">0</span>.<span class="ident">to_string</span>()));
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Total duration&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">total_duration</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span><span class="op">|</span> {
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">total_duration</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)
+        }),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">total_duration</span>))),
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Driving duration&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">driving_duration</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span><span class="op">|</span> {
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">driving_duration</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)
+        }),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">driving_duration</span>))),
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Parking duration&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">parking_duration</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span><span class="op">|</span> {
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">parking_duration</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)
+        }),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parking_duration</span>))),
     );
     <span class="ident">table</span>.<span class="ident">column</span>(
         <span class="string">&quot;Walking duration&quot;</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">walking_duration</span>.<span class="ident">to_string</span>())).<span class="ident">render</span>(<span class="ident">ctx</span>)),
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span><span class="op">|</span> {
+            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">walking_duration</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>)
+        }),
         <span class="ident">Col</span>::<span class="ident">Sortable</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">rows</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">walking_duration</span>))),
     );
     <span class="ident">table</span>.<span class="ident">column</span>(

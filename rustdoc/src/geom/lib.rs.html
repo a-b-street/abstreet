@@ -51,9 +51,6 @@
 <span id="50">50</span>
 <span id="51">51</span>
 <span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">angle</span>::<span class="ident">Angle</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">bounds</span>::{<span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>};
@@ -100,12 +97,9 @@
 }
 
 <span class="doccomment">/// Specifies how to stringify different geom objects.</span>
-<span class="comment">// TODO Use for more units, and also maybe get rid of fmt::Display, to force everyone to opt in.</span>
-<span class="comment">// Except the default for logging should always be the full detail...</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnitFmt</span> {
     <span class="doccomment">/// Round `Duration`s to a whole number of seconds.</span>
-    <span class="comment">// TODO Actually use this</span>
     <span class="kw">pub</span> <span class="ident">round_durations</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Display in metric; US imperial otherwise.</span>
     <span class="kw">pub</span> <span class="ident">metric</span>: <span class="ident">bool</span>,

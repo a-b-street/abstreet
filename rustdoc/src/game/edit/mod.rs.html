@@ -874,14 +874,6 @@
 <span id="873">873</span>
 <span id="874">874</span>
 <span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1594,23 +1586,15 @@
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>.<span class="ident">id</span>).<span class="ident">is_service</span>()
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">speed_limit_choices</span>() <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;&gt;</span> {
-    <span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;10 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;15 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">15.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;20 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">20.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;25 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">25.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;30 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;35 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">35.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;40 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;45 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">45.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;50 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">50.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;55 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">55.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;60 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">60.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;65 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">65.0</span>)),
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;70 mph&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">70.0</span>)),
-        <span class="comment">// Don&#39;t need anything higher. Though now I kind of miss 3am drives on TX-71...</span>
-    ]
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">speed_limit_choices</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;&gt;</span> {
+    <span class="comment">// Don&#39;t need anything higher than 70mph. Though now I kind of miss 3am drives on TX-71...</span>
+    (<span class="number">10</span>..<span class="op">=</span><span class="number">70</span>)
+        .<span class="ident">step_by</span>(<span class="number">5</span>)
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mph</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="ident">mph</span> <span class="kw">as</span> <span class="ident">f64</span>);
+            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">s</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>), <span class="ident">s</span>)
+        })
+        .<span class="ident">collect</span>()
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_edit_intersection</span>(

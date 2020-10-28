@@ -436,7 +436,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col3</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Quadratic&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>)];
         <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="number">0</span>..(<span class="self">self</span>.<span class="ident">elapsed</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">usize</span>) {
             <span class="ident">col1</span>.<span class="ident">push</span>(
-                <span class="ident">Line</span>(<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">to_string</span>())
+                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>)))
                     .<span class="ident">secondary</span>()
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
             );

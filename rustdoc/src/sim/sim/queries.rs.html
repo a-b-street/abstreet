@@ -467,11 +467,6 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -551,8 +546,6 @@
                 <span class="ident">total_waiting</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
                 <span class="ident">dist_crossed</span>: <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
                 <span class="ident">total_dist</span>: <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>),
-                <span class="ident">lanes_crossed</span>: <span class="number">0</span>,
-                <span class="ident">total_lanes</span>: <span class="number">0</span>,
             },
         }
     }
@@ -942,9 +935,6 @@
     <span class="comment">// TODO More continuous on a single lane</span>
     <span class="kw">pub</span> <span class="ident">dist_crossed</span>: <span class="ident">Distance</span>,
     <span class="kw">pub</span> <span class="ident">total_dist</span>: <span class="ident">Distance</span>,
-
-    <span class="kw">pub</span> <span class="ident">lanes_crossed</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">total_lanes</span>: <span class="ident">usize</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "sim";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

@@ -282,7 +282,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ampm_tostring</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">remainder</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
         <span class="kw">let</span> <span class="ident">next_day</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">hours</span> <span class="op">&gt;=</span> <span class="number">24</span> {
             <span class="kw">let</span> <span class="ident">days</span> <span class="op">=</span> <span class="ident">hours</span> <span class="op">/</span> <span class="number">24</span>;
             <span class="ident">hours</span> <span class="op">=</span> <span class="ident">hours</span> <span class="op">%</span> <span class="number">24</span>;
@@ -300,8 +300,8 @@
         }
 
         <span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;{:02}:{:02}:{:02}.{:01} {}{}&quot;</span>,
-            <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">remainder</span>, <span class="ident">suffix</span>, <span class="ident">next_day</span>
+            <span class="string">&quot;{:02}:{:02}:{:02} {}{}&quot;</span>,
+            <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">suffix</span>, <span class="ident">next_day</span>
         )
     }
 

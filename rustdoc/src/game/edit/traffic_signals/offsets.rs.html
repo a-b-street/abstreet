@@ -323,6 +323,10 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -358,7 +362,11 @@
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">members</span> {
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">offset</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">app</span>.<span class="ident">primary</span>
+                        .<span class="ident">map</span>
+                        .<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>)
+                        .<span class="ident">offset</span>
+                        .<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
                 ))
                 .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>)
                 .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
@@ -459,7 +467,7 @@
             } <span class="kw">else</span> {
                 <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">offset</span> <span class="op">-</span> <span class="ident">base_offset</span>;
                 <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">offset</span>.<span class="ident">to_string</span>()))
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">offset</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)))
                         .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>)
                         .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
                         .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAlpha</span>(<span class="number">0.8</span>))
