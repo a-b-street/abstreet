@@ -4,16 +4,17 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
 use map_model::osm;
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
-use crate::app::App;
+use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, Minimap, Navigator};
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 use crate::options::OptionsPanel;
-use crate::render::BIG_ARROW_THICKNESS;
+use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use crate::sandbox::TurnExplorer;
 
 pub struct Viewer {
@@ -334,7 +335,15 @@ impl State<App> for Viewer {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        let mut opts = DrawOptions::new();
+        opts.show_building_paths = false;
+        app.draw(g, opts, &ShowEverything::new());
+
         self.top_panel.draw(g);
         self.minimap.draw(g, app);
         if let Some(ref d) = self.fixed_object_outline {

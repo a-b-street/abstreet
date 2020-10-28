@@ -7,16 +7,14 @@ use geom::{Distance, PolyLine, Polygon, Time};
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
-    Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, Slider, State, Text, TextExt,
-    VerticalAlignment, Widget,
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, RewriteColor, Slider, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::{App, ShowEverything};
+use crate::app::App;
 use crate::common::{ColorLegend, CommonState};
 use crate::game::Transition;
 use crate::helpers::checkbox_per_mode;
-use crate::render::DrawOptions;
 
 pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
@@ -442,13 +440,7 @@ impl State<App> for CommuterPatterns {
         Transition::Keep
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        app.draw(g, DrawOptions::new(), &ShowEverything::new());
-
         g.redraw(&self.draw_all_blocks);
         g.redraw(&self.current_block.1);
 

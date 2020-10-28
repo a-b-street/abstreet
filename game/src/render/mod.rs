@@ -68,19 +68,23 @@ fn draw_vehicle(
     }
 }
 
-// TODO Borrow, don't clone, and fix up lots of places storing indirect things to populate
-// DrawOptions.
-#[derive(Clone)]
+/// Control how the map is drawn.
 pub struct DrawOptions {
+    /// Don't draw the current traffic signal state.
     pub suppress_traffic_signal_details: Vec<IntersectionID>,
+    /// Label every building.
     pub label_buildings: bool,
+    /// Draw building paths.
+    pub show_building_paths: bool,
 }
 
 impl DrawOptions {
+    /// Default options for drawing a map.
     pub fn new() -> DrawOptions {
         DrawOptions {
             suppress_traffic_signal_details: Vec::new(),
             label_buildings: false,
+            show_building_paths: true,
         }
     }
 }
