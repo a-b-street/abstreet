@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use widgetry::{
-    Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
     State, TextExt, VerticalAlignment, Widget,
 };
 
@@ -50,12 +50,7 @@ impl Floodfiller {
         let (unzoomed, zoomed, legend) = colorer.build(ctx);
         Box::new(Floodfiller {
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line(title).small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
-                ]),
+                Widget::row(vec![Line(title).small_heading().draw(ctx), Btn::close(ctx)]),
                 format!("{} unreachable lanes", num_unreachable).draw_text(ctx),
                 legend,
                 Widget::row(vec![

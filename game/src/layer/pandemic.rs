@@ -4,8 +4,8 @@ use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use sim::PersonState;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -179,9 +179,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         Widget::row(vec![
             Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
             "Pandemic model".draw_text(ctx),
-            Btn::plaintext("X")
-                .build(ctx, "close", Key::Escape)
-                .align_right(),
+            Btn::close(ctx),
         ]),
         Text::from_multiline(vec![
             Line(format!(

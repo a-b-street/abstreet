@@ -22,9 +22,7 @@ impl Navigator {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a street name").small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,
@@ -114,9 +112,7 @@ impl CrossStreet {
                         )));
                         txt.draw(ctx)
                     },
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,
@@ -206,9 +202,7 @@ impl SearchBuildings {
                     Line("Enter a business name or address")
                         .small_heading()
                         .draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,

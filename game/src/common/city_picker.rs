@@ -1,8 +1,8 @@
 use geom::{Distance, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt,
-    State, Text, Widget,
+    Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, ScreenPt, State,
+    Text, Widget,
 };
 
 use crate::app::App;
@@ -88,9 +88,7 @@ impl CityPicker {
                 Widget::col(vec![
                     Widget::row(vec![
                         Line("Select a region").small_heading().draw(ctx),
-                        Btn::plaintext("X")
-                            .build(ctx, "close", Key::Escape)
-                            .align_right(),
+                        Btn::close(ctx),
                     ]),
                     Widget::row(vec![
                         Widget::col(other_cities).centered_vert(),

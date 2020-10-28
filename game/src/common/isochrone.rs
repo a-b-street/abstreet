@@ -1,8 +1,8 @@
 use geom::{Distance, Polygon};
 use map_model::{connectivity, BuildingID};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
+    State, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -22,9 +22,7 @@ impl IsochroneViewer {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Isochrone").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 // TODO legend, mode picker
             ]))

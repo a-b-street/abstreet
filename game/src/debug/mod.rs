@@ -45,9 +45,7 @@ impl DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Debug Mode").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Text::new().draw(ctx).named("current info"),
                 Checkbox::switch(ctx, "show buildings", Key::Num1, true),

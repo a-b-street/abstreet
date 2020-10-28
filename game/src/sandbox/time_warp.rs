@@ -33,9 +33,7 @@ impl JumpToTime {
             target,
             maybe_mode,
             panel: Panel::new(Widget::col(vec![
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
                 Widget::custom_row(vec![
                     Btn::text_bg2("Jump to time").inactive(ctx),
                     Btn::text_bg2("Jump to delay").build_def(ctx, Key::D),
@@ -164,9 +162,7 @@ impl JumpToDelay {
         Box::new(JumpToDelay {
             maybe_mode,
             panel: Panel::new(Widget::col(vec![
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
                 Widget::custom_row(vec![
                     Btn::text_bg2("Jump to time").build_def(ctx, Key::T),
                     Btn::text_bg2("Jump to delay").inactive(ctx),

@@ -119,9 +119,7 @@ impl ViewKML {
                 panel: Panel::new(Widget::col(vec![
                     Widget::row(vec![
                         Line("KML viewer").small_heading().draw(ctx),
-                        Btn::text_fg("X")
-                            .build(ctx, "close", Key::Escape)
-                            .align_right(),
+                        Btn::close(ctx),
                     ]),
                     format!(
                         "{}: {} objects",

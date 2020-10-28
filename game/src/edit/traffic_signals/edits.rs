@@ -31,9 +31,7 @@ impl ChangeDuration {
                     Line("How long should this stage last?")
                         .small_heading()
                         .draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Widget::row(vec![
                     "Seconds:".draw_text(ctx),

@@ -494,7 +494,7 @@ impl InfoPanel {
                     }
                     *self = new;
                     (false, None)
-                } else if action == "close info" {
+                } else if action == "close" {
                     (true, None)
                 } else if action == "jump to object" {
                     // TODO Messy way of doing this
@@ -700,7 +700,7 @@ fn make_tabs(
 fn header_btns(ctx: &EventCtx) -> Widget {
     Widget::row(vec![
         Btn::svg_def("system/assets/tools/location.svg").build(ctx, "jump to object", Key::J),
-        Btn::plaintext("X").build(ctx, "close info", Key::Escape),
+        Btn::close(ctx),
     ])
     .align_right()
 }

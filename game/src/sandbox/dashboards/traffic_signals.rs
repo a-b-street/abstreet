@@ -45,9 +45,7 @@ impl TrafficSignalDemand {
                     Line("Traffic signal demand over time")
                         .small_heading()
                         .draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Text::from_all(vec![
                     Line("Press "),

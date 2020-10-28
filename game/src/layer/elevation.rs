@@ -1,6 +1,6 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, Text,
     TextExt, VerticalAlignment, Widget,
 };
 
@@ -91,9 +91,7 @@ impl Elevation {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Elevation change".draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
             ]),
             Text::from_multiline(vec![
                 Line(format!("Steepest road: {:.0}% grade", max * 100.0)),

@@ -7,7 +7,7 @@ use map_model::{
 };
 use sim::{ParkingSpot, Scenario, VehicleType};
 use widgetry::{
-    Btn, Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Btn, Checkbox, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
     Panel, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -114,9 +114,7 @@ impl Occupancy {
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                     "Parking occupancy".draw_text(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Text::from_multiline(vec![
                     Line(format!(
@@ -214,9 +212,7 @@ impl Occupancy {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Parking occupancy".draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
             ]),
             Text::from_multiline(vec![
                 Line(format!(
@@ -375,9 +371,7 @@ impl Efficiency {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Parking efficiency".draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
             ]),
             Text::from(Line("How far away are people parked? (minutes)").secondary())
                 .wrap_to_pct(ctx, 15)

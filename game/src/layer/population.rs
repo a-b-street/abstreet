@@ -4,7 +4,7 @@ use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use sim::PersonState;
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
     Outcome, Panel, VerticalAlignment, Widget,
 };
 
@@ -149,9 +149,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         Widget::row(vec![
             Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
             Line(format!("Population: {}", prettyprint_usize(total_ppl))).draw(ctx),
-            Btn::plaintext("X")
-                .build(ctx, "close", Key::Escape)
-                .align_right(),
+            Btn::close(ctx),
         ]),
         Widget::row(vec![
             Widget::row(vec![

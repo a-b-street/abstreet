@@ -52,9 +52,7 @@ impl ScenarioManager {
                     Line(format!("Scenario {}", scenario.scenario_name))
                         .small_heading()
                         .draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Btn::text_fg("popular destinations").build_def(ctx, Key::D),
                 Text::from_multiline(vec![

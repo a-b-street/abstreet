@@ -36,9 +36,7 @@ impl UberTurnPicker {
                     Line("Select multiple intersections")
                         .small_heading()
                         .draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Btn::text_fg("View uber-turns").build_def(ctx, Key::Enter),
                 Btn::text_fg("Edit").build_def(ctx, Key::E),
@@ -195,7 +193,7 @@ impl UberTurnViewer {
                     } else {
                         Btn::text_fg(">").build(ctx, "next uber-turn", Key::RightArrow)
                     },
-                    Btn::text_fg("X").build(ctx, "close", Key::Escape),
+                    Btn::close(ctx),
                 ]),
                 format!("driving_cost for a Car: {}", sum_cost).draw_text(ctx),
                 Widget::row(vec![

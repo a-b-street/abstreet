@@ -505,7 +505,7 @@ pub fn parked_car(
                     .to_btn(ctx)
                     .build(ctx, "unfollow (pause the simulation)", Key::F)
             },
-            Btn::plaintext("X").build(ctx, "close info", Key::Escape),
+            Btn::close(ctx),
         ])
         .align_right(),
     ]));
@@ -625,7 +625,7 @@ fn header(
                     .to_btn(ctx)
                     .build(ctx, "unfollow (pause the simulation)", Key::F)
             },
-            Btn::plaintext("X").build(ctx, "close info", Key::Escape),
+            Btn::close(ctx),
         ])
         .align_right(),
     ]));

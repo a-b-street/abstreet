@@ -25,12 +25,7 @@ impl<T: 'static> ChooseSomething<T> {
     ) -> Box<dyn State<App>> {
         Box::new(ChooseSomething {
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line(query).small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
-                ]),
+                Widget::row(vec![Line(query).small_heading().draw(ctx), Btn::close(ctx)]),
                 Menu::new(ctx, choices).named("menu"),
             ]))
             .build(ctx),
@@ -102,12 +97,7 @@ impl PromptInput {
     ) -> Box<dyn State<App>> {
         Box::new(PromptInput {
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line(query).small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
-                ]),
+                Widget::row(vec![Line(query).small_heading().draw(ctx), Btn::close(ctx)]),
                 Widget::text_entry(ctx, String::new(), true).named("input"),
                 Btn::text_fg("confirm").build_def(ctx, Key::Enter),
             ]))

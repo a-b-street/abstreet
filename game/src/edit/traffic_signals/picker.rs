@@ -31,9 +31,7 @@ impl SignalPicker {
                     Line("Select multiple traffic signals")
                         .small_heading()
                         .draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 make_btn(ctx, members.len()),
             ]))

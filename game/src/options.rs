@@ -98,9 +98,7 @@ impl OptionsPanel {
             panel: Panel::new(Widget::col(vec![
                 Widget::custom_row(vec![
                     Line("Settings").small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 "Camera controls".draw_text(ctx),
                 Widget::col(vec![

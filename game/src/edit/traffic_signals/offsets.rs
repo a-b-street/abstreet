@@ -52,9 +52,7 @@ impl ShowAbsolute {
                     Line(format!("Tuning offset for {} signals", members.len()))
                         .small_heading()
                         .draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 "Select an intersection as the base".draw_text(ctx),
             ]))
@@ -153,9 +151,7 @@ impl ShowRelative {
                     Line(format!("Tuning offset for {} signals", members.len()))
                         .small_heading()
                         .draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 "Select a second intersection to tune offset between the two".draw_text(ctx),
             ]))
@@ -253,9 +249,7 @@ impl TuneRelative {
                     Line(format!("Tuning offset between {} and {}", i1, i2))
                         .small_heading()
                         .draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Text::from_multiline(vec![
                     Line(format!("Distance: {}", dist_btwn)),

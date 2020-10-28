@@ -2,7 +2,7 @@ pub use commuter::CommuterPatterns;
 pub use traffic_signals::TrafficSignalDemand;
 pub use trip_table::FinishedTripTable;
 
-use widgetry::{Btn, Choice, EventCtx, Key, Line, Panel, TextExt, Widget};
+use widgetry::{Btn, Choice, EventCtx, Line, Panel, TextExt, Widget};
 
 use crate::app::App;
 use crate::game::Transition;
@@ -48,12 +48,10 @@ impl DashTab {
             Widget::draw_svg(ctx, "system/assets/meters/trip_histogram.svg"),
             Line("Data").big_heading_plain().draw(ctx),
             Widget::dropdown(ctx, "tab", self, choices),
-            format!("By {}", app.primary.sim.time())
+            format!("By {}", app.primary.sim.time().ampm_tostring())
                 .draw_text(ctx)
                 .centered_vert(),
-            Btn::plaintext("X")
-                .build(ctx, "close", Key::Escape)
-                .align_right(),
+            Btn::close(ctx),
         ])
     }
 

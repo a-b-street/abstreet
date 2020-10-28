@@ -547,9 +547,7 @@ impl LoadEdits {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Load proposal").small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Btn::text_fg("Start over with blank proposal").build_def(ctx, None),
                 Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
@@ -838,9 +836,7 @@ impl ConfirmDiscard {
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "system/assets/tools/alert.svg"),
                     Line("Alert").small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![

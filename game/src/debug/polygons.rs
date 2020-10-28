@@ -36,9 +36,7 @@ impl PolygonDebugger {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Geometry debugger").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Widget::row(vec![
                     // TODO inactive

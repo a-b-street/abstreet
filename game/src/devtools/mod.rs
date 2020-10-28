@@ -28,9 +28,7 @@ impl DevToolsMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Internal dev tools").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),

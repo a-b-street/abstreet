@@ -84,9 +84,7 @@ impl PickLayer {
     pub fn pick(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut col = vec![Widget::custom_row(vec![
             Line("Layers").small_heading().draw(ctx),
-            Btn::plaintext("X")
-                .build(ctx, "close", Key::Escape)
-                .align_right(),
+            Btn::close(ctx),
         ])];
 
         let current = match app.primary.layer {

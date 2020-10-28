@@ -227,9 +227,7 @@ impl AgentSpawner {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("New trip").small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 "Click a building or border to specify start"
                     .draw_text(ctx)

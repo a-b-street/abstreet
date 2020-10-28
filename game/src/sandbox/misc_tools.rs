@@ -194,7 +194,7 @@ impl TurnExplorer {
             } else {
                 Btn::text_fg(">").build(ctx, "next turn", Key::RightArrow)
             },
-            Btn::text_fg("X").build(ctx, "close", Key::Escape),
+            Btn::close(ctx),
         ])];
         if idx == 0 {
             if app.primary.map.get_l(l).is_walkable() {

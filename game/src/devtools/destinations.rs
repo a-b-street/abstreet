@@ -2,7 +2,7 @@ use abstutil::Counter;
 use map_model::BuildingID;
 use sim::{Scenario, TripEndpoint};
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
     Outcome, Panel, State, Text, VerticalAlignment, Widget,
 };
 
@@ -94,9 +94,7 @@ impl PopularDestinations {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Most popular destinations").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Checkbox::switch(ctx, "Show heatmap", None, opts.is_some()),
                 controls,

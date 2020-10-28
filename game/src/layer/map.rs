@@ -3,7 +3,7 @@ use geom::{Distance, Time};
 use map_model::{LaneType, PathConstraints};
 use sim::AgentType;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, Text, TextExt,
+    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, Text, TextExt,
     VerticalAlignment, Widget,
 };
 
@@ -109,9 +109,7 @@ impl BikeNetwork {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Bike network".draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
             ]),
             Text::from_multiline(vec![
                 Line(format!("{} lanes", num_lanes)),
@@ -193,9 +191,7 @@ impl Static {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 title.draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
             ]),
             extra,
             legend,
@@ -424,9 +420,7 @@ impl CongestionCaps {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Congestion caps".draw_text(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
             ]),
             format!("{} roads have caps", prettyprint_usize(num_roads)).draw_text(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["available", "full"]),

@@ -695,9 +695,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new(Widget::col(vec![
         Widget::row(vec![
             Line("Commute map by block").small_heading().draw(ctx),
-            Btn::text_fg("X")
-                .build(ctx, "close", Key::Escape)
-                .align_right(),
+            Btn::close(ctx),
         ]),
         Checkbox::toggle(ctx, "from / to this block", "from", "to", Key::Space, true),
         Checkbox::switch(ctx, "include borders", None, true),

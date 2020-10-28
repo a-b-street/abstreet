@@ -124,9 +124,7 @@ impl ParkingMapper {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Parking mapper").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
@@ -428,9 +426,7 @@ impl ChangeWay {
                     Line("What kind of parking does this road have?")
                         .small_heading()
                         .draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Menu::new(
                     ctx,

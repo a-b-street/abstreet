@@ -78,9 +78,7 @@ impl DebugWarp {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Warp to an object by ID").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 "Example: r42 is Road #42".draw_text(ctx),
                 // T

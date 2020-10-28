@@ -23,9 +23,7 @@ impl RouteEditor {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Route editor").small_heading().draw(ctx),
-                    Btn::plaintext("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Line(&route.full_name).draw(ctx),
                 // TODO This UI needs design, just something to start plumbing the edits

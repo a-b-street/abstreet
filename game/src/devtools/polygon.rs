@@ -30,9 +30,7 @@ impl PolygonEditor {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Polygon editor").small_heading().draw(ctx),
-                    Btn::text_fg("X")
-                        .build(ctx, "close", Key::Escape)
-                        .align_right(),
+                    Btn::close(ctx),
                 ]),
                 Btn::text_fg("export as an Osmosis polygon filter").build_def(ctx, Key::X),
             ]))

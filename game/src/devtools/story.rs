@@ -323,9 +323,7 @@ fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) ->
                     RewriteColor::ChangeAlpha(0.5),
                 )
             },
-            Btn::plaintext("X")
-                .build(ctx, "close", Key::Escape)
-                .align_right(),
+            Btn::close(ctx),
         ]),
         Widget::row(vec![
             if let Mode::PlacingMarker = mode {
@@ -507,9 +505,7 @@ impl Marker {
         Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("Editing marker").small_heading().draw(ctx),
-                Btn::plaintext("X")
-                    .build(ctx, "close", Key::Escape)
-                    .align_right(),
+                Btn::close(ctx),
             ]),
             Btn::text_fg("delete").build_def(ctx, None),
             Widget::text_entry(ctx, self.event.clone(), true).named("event"),
