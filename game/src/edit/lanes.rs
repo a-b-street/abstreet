@@ -86,10 +86,10 @@ impl LaneEditor {
             Widget::custom_row(row).centered(),
             Btn::text_fg("reverse direction").build_def(ctx, Key::F),
             {
-                let mut choices = speed_limit_choices();
+                let mut choices = speed_limit_choices(app);
                 if !choices.iter().any(|c| c.data == parent.speed_limit) {
                     choices.push(Choice::new(
-                        parent.speed_limit.to_string(),
+                        parent.speed_limit.to_string(&app.opts.units),
                         parent.speed_limit,
                     ));
                 }

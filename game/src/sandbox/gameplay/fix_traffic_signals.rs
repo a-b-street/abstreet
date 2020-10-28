@@ -291,7 +291,7 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
             Widget::row(vec![
                 Text::from_all(vec![
                     Line("Worst delay: "),
-                    Line(delay.to_string()).fg(if delay < Duration::minutes(5) {
+                    Line(delay.to_string(&app.opts.units)).fg(if delay < Duration::minutes(5) {
                         Color::hex("#F9EC51")
                     } else if delay < Duration::minutes(15) {
                         Color::hex("#EE702E")

@@ -71,8 +71,12 @@ impl Distance {
     /// Describes the distance according to formatting rules.
     pub fn to_string(self, fmt: &UnitFmt) -> String {
         if fmt.metric {
-            // TODO Round values to nearest meter, and km
-            format!("{}m", self.0)
+            if self.0 < 1000.0 {
+                format!("{}m", self.0.round())
+            } else {
+                let km = self.0 / 1000.0;
+                format!("{}km", (km * 10.0).round() / 10.0)
+            }
         } else {
             let feet = self.0 * 3.28084;
             let miles = feet / 5280.0;
@@ -188,7 +192,7 @@ impl ops::Div<Speed> for Distance {
 
     fn div(self, other: Speed) -> Duration {
         if other == Speed::ZERO {
-            panic!("Can't divide {} / {}", self, other);
+            panic!("Can't divide {} / 0 mph", self);
         }
         Duration::seconds(self.0 / other.inner_meters_per_second())
     }

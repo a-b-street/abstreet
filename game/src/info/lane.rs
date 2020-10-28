@@ -50,7 +50,7 @@ pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Vec
             ),
         ));
     } else {
-        kv.push(("Speed limit", r.speed_limit.to_string()));
+        kv.push(("Speed limit", r.speed_limit.to_string(&app.opts.units)));
     }
 
     kv.push(("Length", l.length().to_string(&app.opts.units)));

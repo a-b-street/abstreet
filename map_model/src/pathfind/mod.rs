@@ -176,16 +176,6 @@ impl Path {
     pub fn total_lanes(&self) -> usize {
         self.total_lanes
     }
-    pub fn lanes_crossed_so_far(&self) -> usize {
-        let mut remaining = 0;
-        for s in &self.steps {
-            match s {
-                PathStep::Lane(_) | PathStep::ContraflowLane(_) => remaining += 1,
-                _ => {}
-            };
-        }
-        self.total_lanes - remaining
-    }
 
     pub fn crossed_so_far(&self) -> Distance {
         self.crossed_so_far

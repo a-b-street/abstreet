@@ -49,7 +49,7 @@ impl Demo {
         let mut col3 = vec![Line("Quadratic").draw(ctx)];
         for s in 0..(self.elapsed.inner_seconds() as usize) {
             col1.push(
-                Line(Duration::seconds(s as f64).to_string())
+                Line(format!("{}", Duration::seconds(s as f64)))
                     .secondary()
                     .draw(ctx),
             );

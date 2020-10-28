@@ -352,8 +352,6 @@ impl WalkingSimState {
             total_waiting: p.total_blocked_time + time_spent_waiting,
             dist_crossed: p.path.crossed_so_far(),
             total_dist: p.path.total_length(),
-            lanes_crossed: p.path.lanes_crossed_so_far(),
-            total_lanes: p.path.total_lanes(),
         }
     }
 

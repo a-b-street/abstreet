@@ -65,7 +65,7 @@ impl Time {
     }
 
     pub fn ampm_tostring(self) -> String {
-        let (mut hours, minutes, seconds, remainder) = self.get_parts();
+        let (mut hours, minutes, seconds, _) = self.get_parts();
         let next_day = if hours >= 24 {
             let days = hours / 24;
             hours = hours % 24;
@@ -83,8 +83,8 @@ impl Time {
         }
 
         format!(
-            "{:02}:{:02}:{:02}.{:01} {}{}",
-            hours, minutes, seconds, remainder, suffix, next_day
+            "{:02}:{:02}:{:02} {}{}",
+            hours, minutes, seconds, suffix, next_day
         )
     }
 

@@ -76,8 +76,6 @@ impl Sim {
                 total_waiting: Duration::ZERO,
                 dist_crossed: Distance::ZERO,
                 total_dist: Distance::meters(0.1),
-                lanes_crossed: 0,
-                total_lanes: 0,
             },
         }
     }
@@ -467,7 +465,4 @@ pub struct AgentProperties {
     // TODO More continuous on a single lane
     pub dist_crossed: Distance,
     pub total_dist: Distance,
-
-    pub lanes_crossed: usize,
-    pub total_lanes: usize,
 }

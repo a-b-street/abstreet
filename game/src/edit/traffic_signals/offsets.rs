@@ -32,7 +32,11 @@ impl ShowAbsolute {
         for i in &members {
             batch.append(
                 Text::from(Line(
-                    app.primary.map.get_traffic_signal(*i).offset.to_string(),
+                    app.primary
+                        .map
+                        .get_traffic_signal(*i)
+                        .offset
+                        .to_string(&app.opts.units),
                 ))
                 .bg(Color::PURPLE)
                 .render_to_batch(ctx.prerender)
@@ -133,7 +137,7 @@ impl ShowRelative {
             } else {
                 let offset = app.primary.map.get_traffic_signal(*i).offset - base_offset;
                 batch.append(
-                    Text::from(Line(offset.to_string()))
+                    Text::from(Line(offset.to_string(&app.opts.units)))
                         .bg(Color::PURPLE)
                         .render_to_batch(ctx.prerender)
                         .color(RewriteColor::ChangeAlpha(0.8))

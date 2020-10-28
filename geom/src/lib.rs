@@ -43,12 +43,9 @@ pub fn trim_f64(x: f64) -> f64 {
 }
 
 /// Specifies how to stringify different geom objects.
-// TODO Use for more units, and also maybe get rid of fmt::Display, to force everyone to opt in.
-// Except the default for logging should always be the full detail...
 #[derive(Clone)]
 pub struct UnitFmt {
     /// Round `Duration`s to a whole number of seconds.
-    // TODO Actually use this
     pub round_durations: bool,
     /// Display in metric; US imperial otherwise.
     pub metric: bool,

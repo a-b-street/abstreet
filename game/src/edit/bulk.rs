@@ -63,6 +63,7 @@ impl State<App> for BulkSelect {
                 "edit roads" => {
                     return Transition::Replace(crate::edit::bulk::BulkEdit::new(
                         ctx,
+                        app,
                         self.selector.roads.iter().cloned().collect(),
                         self.selector.preview.take().unwrap(),
                     ));
@@ -122,7 +123,12 @@ struct BulkEdit {
 }
 
 impl BulkEdit {
-    fn new(ctx: &mut EventCtx, roads: Vec<RoadID>, preview: Drawable) -> Box<dyn State<App>> {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        roads: Vec<RoadID>,
+        preview: Drawable,
+    ) -> Box<dyn State<App>> {
         Box::new(BulkEdit {
             panel: Panel::new(Widget::col(vec![
                 Line(format!("Editing {} roads", roads.len()))
@@ -132,7 +138,7 @@ impl BulkEdit {
                 make_lt_switcher(ctx, vec![(None, None)]),
                 {
                     let mut choices = vec![Choice::new("don't change", None)];
-                    for c in speed_limit_choices() {
+                    for c in speed_limit_choices(app) {
                         choices.push(Choice::new(c.label, Some(c.data)));
                     }
                     Widget::row(vec![
@@ -333,7 +339,8 @@ fn make_bulk_edits(
     if let Some(speed) = speed_limit {
         results.push(format!(
             "Changed {} roads to have a speed limit of {}",
-            speed_changes, speed
+            speed_changes,
+            speed.to_string(&app.opts.units)
         ));
     }
     results.push(format!(

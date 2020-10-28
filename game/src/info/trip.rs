@@ -68,8 +68,13 @@ pub fn ongoing(
             Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
             Text::from_all(vec![
-                Line(props.total_time.to_string()),
-                Line(format!(" {} / {} this trip", activity, time_so_far)).secondary(),
+                Line(props.total_time.to_string(&app.opts.units)),
+                Line(format!(
+                    " {} / {} this trip",
+                    activity,
+                    time_so_far.to_string(&app.opts.units)
+                ))
+                .secondary(),
             ])
             .draw(ctx),
         ]));
@@ -78,18 +83,11 @@ pub fn ongoing(
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Distance").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
-            Widget::col(vec![
-                Text::from_all(vec![
-                    Line(props.dist_crossed.to_string(&app.opts.units)),
-                    Line(format!("/{}", props.total_dist.to_string(&app.opts.units))).secondary(),
-                ])
-                .draw(ctx),
-                Text::from_all(vec![
-                    Line(format!("{} lanes", props.lanes_crossed)),
-                    Line(format!("/{}", props.total_lanes)).secondary(),
-                ])
-                .draw(ctx),
-            ]),
+            Text::from_all(vec![
+                Line(props.dist_crossed.to_string(&app.opts.units)),
+                Line(format!("/{}", props.total_dist.to_string(&app.opts.units))).secondary(),
+            ])
+            .draw(ctx),
         ]));
     }
     {
@@ -100,7 +98,7 @@ pub fn ongoing(
                 .container()
                 .force_width_pct(ctx, col_width),
             Widget::col(vec![
-                format!("{} here", props.waiting_here).draw_text(ctx),
+                format!("{} here", props.waiting_here.to_string(&app.opts.units)).draw_text(ctx),
                 Text::from_all(vec![
                     if props.total_waiting != Duration::ZERO {
                         Line(format!(
@@ -152,7 +150,10 @@ pub fn future(
     if now > trip.departure {
         col.extend(make_table(
             ctx,
-            vec![("Start delayed", (now - trip.departure).to_string())],
+            vec![(
+                "Start delayed",
+                (now - trip.departure).to_string(&app.opts.units),
+            )],
         ));
     }
 
@@ -163,7 +164,10 @@ pub fn future(
         col.extend(make_table(
             ctx,
             vec![
-                ("Estimated trip time", estimated_trip_time.to_string()),
+                (
+                    "Estimated trip time",
+                    estimated_trip_time.to_string(&app.opts.units),
+                ),
                 ("Purpose", trip.purpose.to_string()),
             ],
         ));
@@ -291,14 +295,14 @@ pub fn finished(
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Trip time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
-            total_trip_time.to_string().draw_text(ctx),
+            total_trip_time.to_string(&app.opts.units).draw_text(ctx),
         ]));
 
         let (_, waiting) = app.primary.sim.finished_trip_time(id).unwrap();
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Total waiting time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),
-            waiting.to_string().draw_text(ctx),
+            waiting.to_string(&app.opts.units).draw_text(ctx),
         ]));
 
         col.push(Widget::custom_row(vec![
@@ -486,7 +490,10 @@ fn make_timeline(
             d
         } else {
             let d = sim.time() - p.start_time;
-            tooltip.push(format!("  Ongoing (duration so far: {})", d));
+            tooltip.push(format!(
+                "  Ongoing (duration so far: {})",
+                d.to_string(&app.opts.units)
+            ));
             d
         };
         // TODO Problems when this is really low?

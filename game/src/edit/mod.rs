@@ -709,23 +709,15 @@ pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
         && !app.primary.map.get_parent(l.id).is_service()
 }
 
-pub fn speed_limit_choices() -> Vec<Choice<Speed>> {
-    vec![
-        Choice::new("10 mph", Speed::miles_per_hour(10.0)),
-        Choice::new("15 mph", Speed::miles_per_hour(15.0)),
-        Choice::new("20 mph", Speed::miles_per_hour(20.0)),
-        Choice::new("25 mph", Speed::miles_per_hour(25.0)),
-        Choice::new("30 mph", Speed::miles_per_hour(30.0)),
-        Choice::new("35 mph", Speed::miles_per_hour(35.0)),
-        Choice::new("40 mph", Speed::miles_per_hour(40.0)),
-        Choice::new("45 mph", Speed::miles_per_hour(45.0)),
-        Choice::new("50 mph", Speed::miles_per_hour(50.0)),
-        Choice::new("55 mph", Speed::miles_per_hour(55.0)),
-        Choice::new("60 mph", Speed::miles_per_hour(60.0)),
-        Choice::new("65 mph", Speed::miles_per_hour(65.0)),
-        Choice::new("70 mph", Speed::miles_per_hour(70.0)),
-        // Don't need anything higher. Though now I kind of miss 3am drives on TX-71...
-    ]
+pub fn speed_limit_choices(app: &App) -> Vec<Choice<Speed>> {
+    // Don't need anything higher than 70mph. Though now I kind of miss 3am drives on TX-71...
+    (10..=70)
+        .step_by(5)
+        .map(|mph| {
+            let s = Speed::miles_per_hour(mph as f64);
+            Choice::new(s.to_string(&app.opts.units), s)
+        })
+        .collect()
 }
 
 pub fn maybe_edit_intersection(

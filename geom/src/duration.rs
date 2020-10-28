@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::elapsed_seconds;
 
-use crate::{trim_f64, Distance, Speed};
+use crate::{trim_f64, Distance, Speed, UnitFmt};
 
 /// A duration, in seconds. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -193,30 +193,47 @@ impl Duration {
         }
         (max, labels)
     }
+
+    /// Describes the duration according to formatting rules.
+    pub fn to_string(self, fmt: &UnitFmt) -> String {
+        if self == Duration::ZERO {
+            return "0s".to_string();
+        }
+
+        let mut s = String::new();
+        if self < Duration::ZERO {
+            s = "-".to_string();
+        }
+        let (hours, minutes, seconds, remainder) = self.get_parts();
+        if hours != 0 {
+            s = format!("{}{}h", s, hours);
+        }
+        if hours != 0 || minutes != 0 {
+            s = format!("{}{}m", s, minutes);
+        }
+        if remainder != 0 {
+            if fmt.round_durations {
+                s = format!("{}{}s", s, seconds);
+            } else {
+                s = format!("{}{}.{:01}s", s, seconds, remainder);
+            }
+        } else if seconds != 0 {
+            s = format!("{}{}s", s, seconds);
+        }
+        s
+    }
 }
 
 impl std::fmt::Display for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        if *self == Duration::ZERO {
-            write!(f, "0s")?;
-            return Ok(());
-        }
-        if *self < Duration::ZERO {
-            write!(f, "-")?;
-        }
-        let (hours, minutes, seconds, remainder) = self.get_parts();
-        if hours != 0 {
-            write!(f, "{}h", hours)?;
-        }
-        if hours != 0 || minutes != 0 {
-            write!(f, "{}m", minutes)?;
-        }
-        if remainder != 0 {
-            write!(f, "{}.{:01}s", seconds, remainder)?;
-        } else if seconds != 0 {
-            write!(f, "{}s", seconds)?;
-        }
-        Ok(())
+        write!(
+            f,
+            "{}",
+            (*self).to_string(&UnitFmt {
+                metric: false,
+                round_durations: false
+            })
+        )
     }
 }
 
@@ -320,5 +337,26 @@ impl std::iter::Sum for Duration {
 impl Default for Duration {
     fn default() -> Duration {
         Duration::ZERO
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn print_durations() {
+        let dont_round = UnitFmt {
+            metric: false,
+            round_durations: false,
+        };
+        let round = UnitFmt {
+            metric: false,
+            round_durations: true,
+        };
+
+        assert_eq!("0s", Duration::ZERO.to_string(&dont_round));
+        assert_eq!("1m30.1s", Duration::seconds(90.123).to_string(&dont_round));
+        assert_eq!("1m30s", Duration::seconds(90.123).to_string(&round));
     }
 }

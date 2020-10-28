@@ -63,7 +63,7 @@ impl OptimizeCommute {
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            meter: make_meter(ctx, Duration::ZERO, Duration::ZERO, 0, trips.len()),
+            meter: make_meter(ctx, app, Duration::ZERO, Duration::ZERO, 0, trips.len()),
             person,
             mode: GameplayMode::OptimizeCommute(orig_person, goal),
             goal,
@@ -146,7 +146,7 @@ impl GameplayState for OptimizeCommute {
             self.time = app.primary.sim.time();
 
             let (before, after, done) = get_score(app, &self.trips);
-            self.meter = make_meter(ctx, before, after, done, self.trips.len());
+            self.meter = make_meter(ctx, app, before, after, done, self.trips.len());
             self.meter.align_below(
                 ctx,
                 &controls.agent_meter.as_ref().unwrap().panel,
@@ -231,13 +231,14 @@ fn get_score(app: &App, trips: &Vec<TripID>) -> (Duration, Duration, usize) {
 
 fn make_meter(
     ctx: &mut EventCtx,
+    app: &App,
     before: Duration,
     after: Duration,
     done: usize,
     trips: usize,
 ) -> Panel {
     let mut txt = Text::from(Line(format!("Total time: {} (", after)));
-    txt.append_all(cmp_duration_shorter(after, before));
+    txt.append_all(cmp_duration_shorter(app, after, before));
     txt.append(Line(")"));
 
     Panel::new(Widget::col(vec![

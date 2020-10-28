@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use abstutil::prettyprint_usize;
 use geom::{
     Angle, Bounds, Circle, Distance, Duration, FindClosest, Percent, PolyLine, Polygon, Pt2D, Time,
+    UnitFmt,
 };
 
 use crate::{
@@ -293,7 +294,10 @@ impl Yvalue<Duration> for Duration {
         }
     }
     fn prettyprint(self) -> String {
-        self.to_string()
+        self.to_string(&UnitFmt {
+            metric: false,
+            round_durations: true,
+        })
     }
     fn to_f64(self) -> f64 {
         self.inner_seconds() as f64

@@ -105,17 +105,17 @@ pub fn nice_map_name(name: &str) -> &str {
 }
 
 // Shorter is better
-pub fn cmp_duration_shorter(after: Duration, before: Duration) -> Vec<TextSpan> {
+pub fn cmp_duration_shorter(app: &App, after: Duration, before: Duration) -> Vec<TextSpan> {
     if after.epsilon_eq(before) {
         vec![Line("same")]
     } else if after < before {
         vec![
-            Line((before - after).to_string()).fg(Color::GREEN),
+            Line((before - after).to_string(&app.opts.units)).fg(Color::GREEN),
             Line(" faster"),
         ]
     } else if after > before {
         vec![
-            Line((after - before).to_string()).fg(Color::RED),
+            Line((after - before).to_string(&app.opts.units)).fg(Color::RED),
             Line(" slower"),
         ]
     } else {

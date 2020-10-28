@@ -328,16 +328,22 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
     );
     table.column(
         "Duration",
-        Box::new(|ctx, _, x| Text::from(Line(x.duration_after.to_string())).render(ctx)),
+        Box::new(|ctx, app, x| {
+            Text::from(Line(x.duration_after.to_string(&app.opts.units))).render(ctx)
+        }),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_after))),
     );
 
     if app.has_prebaked().is_some() {
         table.column(
             "Comparison",
-            Box::new(|ctx, _, x| {
-                Text::from_all(cmp_duration_shorter(x.duration_after, x.duration_before))
-                    .render(ctx)
+            Box::new(|ctx, app, x| {
+                Text::from_all(cmp_duration_shorter(
+                    app,
+                    x.duration_after,
+                    x.duration_before,
+                ))
+                .render(ctx)
             }),
             Col::Sortable(Box::new(|rows| {
                 rows.sort_by_key(|x| x.duration_after - x.duration_before)
@@ -369,7 +375,7 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
 
     table.column(
         "Time spent waiting",
-        Box::new(|ctx, _, x| Text::from(Line(x.waiting.to_string())).render(ctx)),
+        Box::new(|ctx, app, x| Text::from(Line(x.waiting.to_string(&app.opts.units))).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.waiting))),
     );
     table.column(
@@ -456,7 +462,9 @@ fn make_table_cancelled_trips(app: &App) -> Table<CancelledTrip, Filters> {
     if app.has_prebaked().is_some() {
         table.column(
             "Estimated duration",
-            Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render(ctx)),
+            Box::new(|ctx, app, x| {
+                Text::from(Line(x.duration_before.to_string(&app.opts.units))).render(ctx)
+            }),
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );
     }
@@ -554,7 +562,9 @@ fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
     if app.has_prebaked().is_some() {
         table.column(
             "Estimated duration",
-            Box::new(|ctx, _, x| Text::from(Line(x.duration_before.to_string())).render(ctx)),
+            Box::new(|ctx, app, x| {
+                Text::from(Line(x.duration_before.to_string(&app.opts.units))).render(ctx)
+            }),
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );
     }

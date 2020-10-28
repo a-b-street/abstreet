@@ -1,8 +1,8 @@
-use std::{fmt, ops};
+use std::ops;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{trim_f64, Distance, Duration, EPSILON_DIST};
+use crate::{trim_f64, Distance, Duration, UnitFmt};
 
 /// In meters per second. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -10,12 +10,6 @@ pub struct Speed(f64);
 
 impl Speed {
     pub const ZERO: Speed = Speed::const_meters_per_second(0.0);
-
-    /// Is a speed effectively zero based on the timestep?
-    // TODO Probably better to tweak the rounding so that uselessly tiny speeds round to 0.
-    pub fn is_zero(self, timestep: Duration) -> bool {
-        self * timestep <= EPSILON_DIST
-    }
 
     pub fn meters_per_second(value: f64) -> Speed {
         if !value.is_finite() {
@@ -59,6 +53,15 @@ impl Speed {
             self
         } else {
             other
+        }
+    }
+
+    /// Describes the speed according to formatting rules.
+    pub fn to_string(self, fmt: &UnitFmt) -> String {
+        if fmt.metric {
+            format!("{} km/h", (self.0 * 3.6).round())
+        } else {
+            format!("{} mph", (self.0 * 2.23694).round())
         }
     }
 }
@@ -116,11 +119,5 @@ impl ops::Mul<Duration> for Speed {
 
     fn mul(self, other: Duration) -> Distance {
         Distance::meters(self.0 * other.inner_seconds())
-    }
-}
-
-impl fmt::Display for Speed {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} mph", (self.0 * 2.23694).round())
     }
 }

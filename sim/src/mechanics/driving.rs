@@ -957,8 +957,6 @@ impl DrivingSimState {
             total_waiting: car.total_blocked_time + time_spent_waiting,
             dist_crossed: path.crossed_so_far(),
             total_dist: path.total_length(),
-            lanes_crossed: path.lanes_crossed_so_far(),
-            total_lanes: path.total_lanes(),
         }
     }
 
