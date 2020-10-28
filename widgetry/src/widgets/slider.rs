@@ -8,7 +8,7 @@ use crate::{
 pub struct Slider {
     current_percent: f64,
     mouse_on_slider: bool,
-    dragging: bool,
+    pub(crate) dragging: bool,
 
     style: Style,
 
@@ -188,8 +188,6 @@ impl Slider {
         assert!(percent >= 0.0 && percent <= 1.0);
         self.current_percent = percent;
         self.recalc(ctx);
-        // Just reset dragging, to prevent chaos
-        self.dragging = false;
         if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
             self.mouse_on_slider = self
                 .slider_geom()

@@ -61,6 +61,8 @@ impl Panel {
         let old_scrollable_x = self.scrollable_x;
         let old_scrollable_y = self.scrollable_y;
         let old_scroll_offset = self.scroll_offset();
+        let mut was_dragging_x = false;
+        let mut was_dragging_y = false;
 
         self.scrollable_x = self.contents_dims.width > self.container_dims.width;
         self.scrollable_y = self.contents_dims.height > self.container_dims.height;
@@ -68,11 +70,21 @@ impl Panel {
         // Unwrap the main widget from any scrollable containers if necessary.
         if old_scrollable_y {
             let container = self.top_level.widget.downcast_mut::<Container>().unwrap();
+            was_dragging_y = container.members[1]
+                .widget
+                .downcast_ref::<Slider>()
+                .unwrap()
+                .dragging;
             self.top_level = container.members.remove(0);
         }
 
         if old_scrollable_x {
             let container = self.top_level.widget.downcast_mut::<Container>().unwrap();
+            was_dragging_x = container.members[1]
+                .widget
+                .downcast_ref::<Slider>()
+                .unwrap()
+                .dragging;
             self.top_level = container.members.remove(0);
         }
 
@@ -82,35 +94,40 @@ impl Panel {
 
         // Wrap the main widget in scrollable containers if necessary.
         if self.scrollable_x {
+            let mut slider = Slider::horizontal(
+                ctx,
+                self.container_dims.width,
+                self.container_dims.width * (self.container_dims.width / self.contents_dims.width),
+                0.0,
+            )
+            .named("horiz scrollbar")
+            .abs(top_left.x, top_left.y + self.container_dims.height);
+            // We constantly destroy and recreate the scrollbar slider while dragging it. Preserve
+            // the dragging property, so we can keep dragging it.
+            if was_dragging_x {
+                slider.widget.downcast_mut::<Slider>().unwrap().dragging = true;
+            }
+
             let old_top_level = std::mem::replace(&mut self.top_level, Widget::nothing());
-            self.top_level = Widget::custom_col(vec![
-                old_top_level,
-                Slider::horizontal(
-                    ctx,
-                    self.container_dims.width,
-                    self.container_dims.width
-                        * (self.container_dims.width / self.contents_dims.width),
-                    0.0,
-                )
-                .named("horiz scrollbar")
-                .abs(top_left.x, top_left.y + self.container_dims.height),
-            ]);
+            self.top_level = Widget::custom_col(vec![old_top_level, slider]);
         }
 
         if self.scrollable_y {
+            let mut slider = Slider::vertical(
+                ctx,
+                self.container_dims.height,
+                self.container_dims.height
+                    * (self.container_dims.height / self.contents_dims.height),
+                0.0,
+            )
+            .named("vert scrollbar")
+            .abs(top_left.x + self.container_dims.width, top_left.y);
+            if was_dragging_y {
+                slider.widget.downcast_mut::<Slider>().unwrap().dragging = true;
+            }
+
             let old_top_level = std::mem::replace(&mut self.top_level, Widget::nothing());
-            self.top_level = Widget::custom_row(vec![
-                old_top_level,
-                Slider::vertical(
-                    ctx,
-                    self.container_dims.height,
-                    self.container_dims.height
-                        * (self.container_dims.height / self.contents_dims.height),
-                    0.0,
-                )
-                .named("vert scrollbar")
-                .abs(top_left.x + self.container_dims.width, top_left.y),
-            ]);
+            self.top_level = Widget::custom_row(vec![old_top_level, slider]);
         }
 
         self.update_scroll_sliders(ctx, old_scroll_offset);
