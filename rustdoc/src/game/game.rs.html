@@ -213,16 +213,6 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything here should ideally be lifted to widgetry as common states.</span>
 
@@ -251,12 +241,7 @@
     ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChooseSomething</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
-                ]),
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>), <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>)]),
                 <span class="ident">Menu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">choices</span>).<span class="ident">named</span>(<span class="string">&quot;menu&quot;</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -328,12 +313,7 @@
     ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PromptInput</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
-                ]),
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="ident">query</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>), <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>)]),
                 <span class="ident">Widget</span>::<span class="ident">text_entry</span>(<span class="ident">ctx</span>, <span class="ident">String</span>::<span class="ident">new</span>(), <span class="bool-val">true</span>).<span class="ident">named</span>(<span class="string">&quot;input&quot;</span>),
                 <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;confirm&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
             ]))

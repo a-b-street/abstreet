@@ -136,12 +136,10 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathConstraints</span>, <span class="ident">PathStep</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -259,9 +257,7 @@
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/layers.svg&quot;</span>),
                 <span class="string">&quot;Transit network&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                    .<span class="ident">align_right</span>(),
+                <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show all routes&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_all_routes</span>),
             <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buses&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_buses</span>),

@@ -562,8 +562,6 @@
 <span id="561">561</span>
 <span id="562">562</span>
 <span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -794,9 +792,7 @@
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;New trip&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
+                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="string">&quot;Click a building or border to specify start&quot;</span>
                     .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)

@@ -131,16 +131,14 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// A state to count the number of trips that will cross different roads.</span>
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathStep</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
-    <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -204,9 +202,7 @@
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Paths across {}&quot;</span>, <span class="ident">i</span>))
                         .<span class="ident">small_heading</span>()
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
+                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">ColorLegend</span>::<span class="ident">gradient</span>(
                     <span class="ident">ctx</span>,

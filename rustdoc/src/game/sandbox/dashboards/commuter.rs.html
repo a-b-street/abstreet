@@ -715,8 +715,6 @@
 <span id="714">714</span>
 <span id="715">715</span>
 <span id="716">716</span>
-<span id="717">717</span>
-<span id="718">718</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1415,9 +1413,7 @@
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Commute map by block&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                .<span class="ident">align_right</span>(),
+            <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
         ]),
         <span class="ident">Checkbox</span>::<span class="ident">toggle</span>(<span class="ident">ctx</span>, <span class="string">&quot;from / to this block&quot;</span>, <span class="string">&quot;from&quot;</span>, <span class="string">&quot;to&quot;</span>, <span class="ident">Key</span>::<span class="ident">Space</span>, <span class="bool-val">true</span>),
         <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;include borders&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),

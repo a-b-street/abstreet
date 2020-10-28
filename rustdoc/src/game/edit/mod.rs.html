@@ -870,10 +870,6 @@
 <span id="869">869</span>
 <span id="870">870</span>
 <span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1424,9 +1420,7 @@
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Load proposal&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
+                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Start over with blank proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">your_edits</span>), <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">proposals</span>)]).<span class="ident">evenly_spaced</span>(),
@@ -1715,9 +1709,7 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;Alert&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
+                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="string">&quot;Are you sure you want to discard changes you made?&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[

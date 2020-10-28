@@ -117,8 +117,6 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">Scenario</span>;
@@ -174,9 +172,7 @@
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Scenario {}&quot;</span>, <span class="ident">scenario</span>.<span class="ident">scenario_name</span>))
                         .<span class="ident">small_heading</span>()
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
+                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;popular destinations&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
                 <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[

@@ -276,8 +276,6 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -317,9 +315,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Select multiple intersections&quot;</span>)
                         .<span class="ident">small_heading</span>()
                         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
+                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;View uber-turns&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
                 <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Edit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">E</span>),
@@ -476,7 +472,7 @@
                     } <span class="kw">else</span> {
                         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;next uber-turn&quot;</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>)
                     },
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
+                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;driving_cost for a Car: {}&quot;</span>, <span class="ident">sum_cost</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[

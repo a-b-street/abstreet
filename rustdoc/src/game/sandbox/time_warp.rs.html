@@ -473,10 +473,6 @@
 <span id="472">472</span>
 <span id="473">473</span>
 <span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 
@@ -513,9 +509,7 @@
             <span class="ident">target</span>,
             <span class="ident">maybe_mode</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                    .<span class="ident">align_right</span>(),
+                <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Jump to time&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Jump to delay&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
@@ -644,9 +638,7 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">JumpToDelay</span> {
             <span class="ident">maybe_mode</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                    .<span class="ident">align_right</span>(),
+                <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Jump to time&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">T</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Jump to delay&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>),

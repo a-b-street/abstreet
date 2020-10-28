@@ -241,8 +241,6 @@
 <span id="240">240</span>
 <span id="241">241</span>
 <span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -250,8 +248,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">PersonState</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -425,9 +423,7 @@
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/layers.svg&quot;</span>),
             <span class="string">&quot;Pandemic model&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                .<span class="ident">align_right</span>(),
+            <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
         ]),
         <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(

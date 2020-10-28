@@ -80,14 +80,12 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter</span>::<span class="ident">CommuterPatterns</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalDemand</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip_table</span>::<span class="ident">FinishedTripTable</span>;
 
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
@@ -133,12 +131,10 @@
             <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>),
             <span class="ident">Line</span>(<span class="string">&quot;Data&quot;</span>).<span class="ident">big_heading_plain</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;tab&quot;</span>, <span class="self">self</span>, <span class="ident">choices</span>),
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;By {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>())
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;By {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">ampm_tostring</span>())
                 .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>(),
-            <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;X&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                .<span class="ident">align_right</span>(),
+            <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
         ])
     }
 

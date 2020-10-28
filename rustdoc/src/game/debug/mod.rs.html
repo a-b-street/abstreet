@@ -784,8 +784,6 @@
 <span id="783">783</span>
 <span id="784">784</span>
 <span id="785">785</span>
-<span id="786">786</span>
-<span id="787">787</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -834,9 +832,7 @@
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Debug Mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_right</span>(),
+                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
                 <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buildings&quot;</span>, <span class="ident">Key</span>::<span class="ident">Num1</span>, <span class="bool-val">true</span>),

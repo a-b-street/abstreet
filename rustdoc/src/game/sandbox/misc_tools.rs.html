@@ -461,7 +461,7 @@
             } <span class="kw">else</span> {
                 <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;&gt;&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;next turn&quot;</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>)
             },
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;X&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
+            <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
         ])];
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">is_walkable</span>() {
