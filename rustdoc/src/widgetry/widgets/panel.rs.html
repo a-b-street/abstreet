@@ -546,6 +546,23 @@
 <span id="545">545</span>
 <span id="546">546</span>
 <span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -610,6 +627,8 @@
         <span class="kw">let</span> <span class="ident">old_scrollable_x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scrollable_x</span>;
         <span class="kw">let</span> <span class="ident">old_scrollable_y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scrollable_y</span>;
         <span class="kw">let</span> <span class="ident">old_scroll_offset</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scroll_offset</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">was_dragging_x</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">was_dragging_y</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="self">self</span>.<span class="ident">scrollable_x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>;
         <span class="self">self</span>.<span class="ident">scrollable_y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">height</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>;
@@ -617,11 +636,21 @@
         <span class="comment">// Unwrap the main widget from any scrollable containers if necessary.</span>
         <span class="kw">if</span> <span class="ident">old_scrollable_y</span> {
             <span class="kw">let</span> <span class="ident">container</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+            <span class="ident">was_dragging_y</span> <span class="op">=</span> <span class="ident">container</span>.<span class="ident">members</span>[<span class="number">1</span>]
+                .<span class="ident">widget</span>
+                .<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Slider</span><span class="op">&gt;</span>()
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">dragging</span>;
             <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">container</span>.<span class="ident">members</span>.<span class="ident">remove</span>(<span class="number">0</span>);
         }
 
         <span class="kw">if</span> <span class="ident">old_scrollable_x</span> {
             <span class="kw">let</span> <span class="ident">container</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+            <span class="ident">was_dragging_x</span> <span class="op">=</span> <span class="ident">container</span>.<span class="ident">members</span>[<span class="number">1</span>]
+                .<span class="ident">widget</span>
+                .<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Slider</span><span class="op">&gt;</span>()
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">dragging</span>;
             <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">container</span>.<span class="ident">members</span>.<span class="ident">remove</span>(<span class="number">0</span>);
         }
 
@@ -631,35 +660,40 @@
 
         <span class="comment">// Wrap the main widget in scrollable containers if necessary.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_x</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider</span>::<span class="ident">horizontal</span>(
+                <span class="ident">ctx</span>,
+                <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>,
+                <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>),
+                <span class="number">0.0</span>,
+            )
+            .<span class="ident">named</span>(<span class="string">&quot;horiz scrollbar&quot;</span>)
+            .<span class="ident">abs</span>(<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>);
+            <span class="comment">// We constantly destroy and recreate the scrollbar slider while dragging it. Preserve</span>
+            <span class="comment">// the dragging property, so we can keep dragging it.</span>
+            <span class="kw">if</span> <span class="ident">was_dragging_x</span> {
+                <span class="ident">slider</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Slider</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            }
+
             <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget</span>::<span class="ident">nothing</span>());
-            <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">old_top_level</span>,
-                <span class="ident">Slider</span>::<span class="ident">horizontal</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>,
-                    <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>
-                        <span class="op">*</span> (<span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>),
-                    <span class="number">0.0</span>,
-                )
-                .<span class="ident">named</span>(<span class="string">&quot;horiz scrollbar&quot;</span>)
-                .<span class="ident">abs</span>(<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>),
-            ]);
+            <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">old_top_level</span>, <span class="ident">slider</span>]);
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_y</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider</span>::<span class="ident">vertical</span>(
+                <span class="ident">ctx</span>,
+                <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>,
+                <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>
+                    <span class="op">*</span> (<span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">height</span>),
+                <span class="number">0.0</span>,
+            )
+            .<span class="ident">named</span>(<span class="string">&quot;vert scrollbar&quot;</span>)
+            .<span class="ident">abs</span>(<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>, <span class="ident">top_left</span>.<span class="ident">y</span>);
+            <span class="kw">if</span> <span class="ident">was_dragging_y</span> {
+                <span class="ident">slider</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Slider</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            }
+
             <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget</span>::<span class="ident">nothing</span>());
-            <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">old_top_level</span>,
-                <span class="ident">Slider</span>::<span class="ident">vertical</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>,
-                    <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>
-                        <span class="op">*</span> (<span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">height</span>),
-                    <span class="number">0.0</span>,
-                )
-                .<span class="ident">named</span>(<span class="string">&quot;vert scrollbar&quot;</span>)
-                .<span class="ident">abs</span>(<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>, <span class="ident">top_left</span>.<span class="ident">y</span>),
-            ]);
+            <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">old_top_level</span>, <span class="ident">slider</span>]);
         }
 
         <span class="self">self</span>.<span class="ident">update_scroll_sliders</span>(<span class="ident">ctx</span>, <span class="ident">old_scroll_offset</span>);
