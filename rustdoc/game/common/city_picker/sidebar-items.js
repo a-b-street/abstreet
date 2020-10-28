@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CityPicker",""]]});
+initSidebarItems({"struct":[["AllCityPicker",""],["CityPicker",""]]});
