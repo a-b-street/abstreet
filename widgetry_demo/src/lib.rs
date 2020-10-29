@@ -273,7 +273,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     );
 
     let mut rng = if cfg!(target_arch = "wasm32") {
-        XorShiftRng::from_seed([0; 16])
+        XorShiftRng::seed_from_u64(0)
     } else {
         XorShiftRng::from_entropy()
     };

@@ -7,8 +7,8 @@ use sim::ScenarioGenerator;
 
 fn main() {
     let mut args = CmdArgs::new();
-    let seed: u8 = args.required("--rng").parse().unwrap();
-    let mut rng = XorShiftRng::from_seed([seed; 16]);
+    let seed: u64 = args.required("--rng").parse().unwrap();
+    let mut rng = XorShiftRng::seed_from_u64(seed);
     let map = Map::new(args.required("--map"), &mut Timer::throwaway());
     args.done();
 

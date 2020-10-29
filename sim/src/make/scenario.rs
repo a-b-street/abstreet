@@ -276,7 +276,7 @@ impl Scenario {
     pub fn count_parked_cars_per_bldg(&self) -> Counter<BuildingID> {
         let mut per_bldg = Counter::new();
         // Pass in a dummy RNG
-        let mut rng = XorShiftRng::from_seed([0; 16]);
+        let mut rng = XorShiftRng::seed_from_u64(0);
         for p in &self.people {
             let (_, cars_initially_parked_at, _) = p.get_vehicles(&mut rng);
             for (_, b) in cars_initially_parked_at {

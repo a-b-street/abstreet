@@ -168,7 +168,7 @@ fn handle_command(
             scenario.people = ExternalPerson::import(map, vec![input])?;
             let id = PersonID(sim.get_all_people().len());
             scenario.people[0].id = id;
-            let mut rng = XorShiftRng::from_seed([load.rng_seed; 16]);
+            let mut rng = XorShiftRng::seed_from_u64(load.rng_seed);
             scenario.instantiate(sim, map, &mut rng, &mut Timer::throwaway());
             Ok(format!("{} created", id))
         }
@@ -388,7 +388,7 @@ struct LoadSim {
     edits: Option<PermanentMapEdits>,
     // These are fixed from the initial command line flags
     #[serde(skip_deserializing)]
-    rng_seed: u8,
+    rng_seed: u64,
     #[serde(skip_deserializing)]
     opts: SimOptions,
 }
@@ -408,7 +408,7 @@ impl LoadSim {
             scenario = m.apply(&map, scenario);
         }
 
-        let mut rng = XorShiftRng::from_seed([self.rng_seed; 16]);
+        let mut rng = XorShiftRng::seed_from_u64(self.rng_seed);
         let mut sim = Sim::new(&map, self.opts.clone(), timer);
         scenario.instantiate(&mut sim, &map, &mut rng, timer);
 

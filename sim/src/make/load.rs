@@ -15,12 +15,12 @@ pub struct SimFlags {
     /// - some kind of map: start an empty simulation on the map
     pub load: String,
     pub modifiers: Vec<ScenarioModifier>,
-    pub rng_seed: u8,
+    pub rng_seed: u64,
     pub opts: SimOptions,
 }
 
 impl SimFlags {
-    pub const RNG_SEED: u8 = 42;
+    pub const RNG_SEED: u64 = 42;
 
     pub fn from_args(args: &mut CmdArgs) -> SimFlags {
         let rng_seed = args
@@ -56,7 +56,7 @@ impl SimFlags {
     }
 
     pub fn make_rng(&self) -> XorShiftRng {
-        XorShiftRng::from_seed([self.rng_seed; 16])
+        XorShiftRng::seed_from_u64(self.rng_seed)
     }
 
     pub fn load(&self, timer: &mut abstutil::Timer) -> (Map, Sim, XorShiftRng) {

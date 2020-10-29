@@ -119,7 +119,7 @@ impl std::default::Default for SimOptions {
 }
 
 impl SimOptions {
-    pub fn from_args(args: &mut CmdArgs, rng_seed: u8) -> SimOptions {
+    pub fn from_args(args: &mut CmdArgs, rng_seed: u64) -> SimOptions {
         SimOptions {
             run_name: args
                 .optional("--run_name")
@@ -130,7 +130,7 @@ impl SimOptions {
             break_turn_conflict_cycles: !args.enabled("--disable_break_turn_conflict_cycles"),
             handle_uber_turns: !args.enabled("--disable_handle_uber_turns"),
             enable_pandemic_model: if args.enabled("--pandemic") {
-                Some(XorShiftRng::from_seed([rng_seed; 16]))
+                Some(XorShiftRng::seed_from_u64(rng_seed))
             } else {
                 None
             },
