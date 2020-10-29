@@ -1102,6 +1102,7 @@ dependencies = [
  "earcutr",
  "geo 0.15.0",
  "geo-booleanop",
+ "geojson",
  "histogram",
  "instant",
  "ordered-float",

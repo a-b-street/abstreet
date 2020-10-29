@@ -421,7 +421,7 @@ impl LoadSim {
 }
 
 fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
-    use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+    use geojson::{Feature, FeatureCollection, GeoJson};
 
     let i = map.get_i(i);
     // Translate all geometry to center around the intersection, with distances in meters.
@@ -433,13 +433,12 @@ fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
     props.insert("id".to_string(), i.orig_id.to_string().into());
     let mut features = vec![Feature {
         bbox: None,
-        geometry: Some(Geometry::new(Value::Polygon(vec![i
-            .polygon
-            .translate(-center.x(), -center.y())
-            .points()
-            .iter()
-            .map(|pt| vec![pt.x(), pt.y()])
-            .collect()]))),
+        geometry: Some(
+            i.polygon
+                .translate(-center.x(), -center.y())
+                .into_ring()
+                .to_geojson(None),
+        ),
         id: None,
         properties: Some(props),
         foreign_members: None,
@@ -453,14 +452,12 @@ fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
         props.insert("id".to_string(), r.orig_id.osm_way_id.to_string().into());
         features.push(Feature {
             bbox: None,
-            geometry: Some(Geometry::new(Value::Polygon(vec![r
-                .center_pts
-                .to_thick_ring(2.0 * r.get_half_width(map))
-                .into_points()
-                .into_iter()
-                .map(|pt| pt.offset(-center.x(), -center.y()))
-                .map(|pt| vec![pt.x(), pt.y()])
-                .collect()]))),
+            geometry: Some(
+                r.center_pts
+                    .to_thick_ring(2.0 * r.get_half_width(map))
+                    .translate(-center.x(), -center.y())
+                    .to_geojson(None),
+            ),
             id: None,
             properties: Some(props),
             foreign_members: None,

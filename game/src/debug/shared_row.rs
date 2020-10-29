@@ -1,5 +1,5 @@
 use geojson::feature::Id;
-use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+use geojson::{Feature, FeatureCollection, GeoJson};
 
 use map_model::{Direction, Lane, LaneType, Map, RoadID};
 
@@ -48,19 +48,9 @@ fn road(id: RoadID, map: &Map) -> Feature {
         serde_json::value::Value::Array(slices),
     );
 
-    let gps_bounds = map.get_gps_bounds();
     Feature {
         bbox: None,
-        geometry: Some(Geometry::new(Value::LineString(
-            r.center_pts
-                .points()
-                .iter()
-                .map(|pt| {
-                    let gps = pt.to_gps(gps_bounds);
-                    vec![gps.x(), gps.y()]
-                })
-                .collect(),
-        ))),
+        geometry: Some(r.center_pts.to_geojson(Some(map.get_gps_bounds()))),
         id: Some(Id::Number(id.0.into())),
         properties: Some(properties),
         foreign_members: None,

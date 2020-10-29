@@ -3,7 +3,7 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
+use crate::{Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
 
 /// Maybe a misnomer, but like a PolyLine, but closed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -149,6 +149,29 @@ impl Ring {
         PolyLine::unchecked_new(self.pts.clone())
             .dist_along_of_point(pt)
             .is_some()
+    }
+
+    /// Produces a GeoJSON polygon, optionally mapping the world-space points back to GPS.
+    pub fn to_geojson(&self, gps: Option<&GPSBounds>) -> geojson::Geometry {
+        let mut pts = Vec::new();
+        if let Some(ref gps) = gps {
+            for pt in gps.convert_back(&self.pts) {
+                pts.push(vec![pt.x(), pt.y()]);
+            }
+        } else {
+            for pt in &self.pts {
+                pts.push(vec![pt.x(), pt.y()]);
+            }
+        }
+        geojson::Geometry::new(geojson::Value::Polygon(vec![pts]))
+    }
+
+    /// Translates the ring by a fixed offset.
+    pub fn translate(mut self, dx: f64, dy: f64) -> Ring {
+        for pt in &mut self.pts {
+            *pt = pt.offset(dx, dy);
+        }
+        self
     }
 }
 

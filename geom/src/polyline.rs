@@ -4,7 +4,8 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, Ring, EPSILON_DIST,
+    Angle, Bounds, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, Ring,
+    EPSILON_DIST,
 };
 
 // TODO How to tune this?
@@ -95,15 +96,11 @@ impl PolyLine {
             return None;
         }
         let slice = self.exact_slice(boundary_width / 2.0, self.length() - boundary_width / 2.0);
-        let mut side1 =
-            slice.shift_with_sharp_angles((self_width - boundary_width) / 2.0, MITER_THRESHOLD);
-        let mut side2 =
-            slice.shift_with_sharp_angles(-(self_width - boundary_width) / 2.0, MITER_THRESHOLD);
-        side2.reverse();
-        side1.extend(side2);
-        side1.push(side1[0]);
-        side1.dedup();
-        Some(Ring::must_new(side1).to_outline(boundary_width))
+        Some(
+            slice
+                .to_thick_ring(self_width - boundary_width)
+                .to_outline(boundary_width),
+        )
     }
 
     pub fn reversed(&self) -> PolyLine {
@@ -760,6 +757,21 @@ impl PolyLine {
             pts.push(line.pt2().project_away(need_len, line.angle()));
             PolyLine::must_new(pts)
         }
+    }
+
+    /// Produces a GeoJSON linestring, optionally mapping the world-space points back to GPS.
+    pub fn to_geojson(&self, gps: Option<&GPSBounds>) -> geojson::Geometry {
+        let mut pts = Vec::new();
+        if let Some(ref gps) = gps {
+            for pt in gps.convert_back(&self.pts) {
+                pts.push(vec![pt.x(), pt.y()]);
+            }
+        } else {
+            for pt in &self.pts {
+                pts.push(vec![pt.x(), pt.y()]);
+            }
+        }
+        geojson::Geometry::new(geojson::Value::LineString(pts))
     }
 }
 
