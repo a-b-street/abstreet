@@ -75,13 +75,17 @@ impl<A: SharedAppState> App<A> {
             Transition::Keep => false,
             Transition::KeepWithMouseover => true,
             Transition::Pop => {
-                self.states
-                    .pop()
-                    .unwrap()
-                    .on_destroy(ctx, &mut self.shared_app_state);
+                let mut state = self.states.pop().unwrap();
+                state.on_destroy(ctx, &mut self.shared_app_state);
                 if self.states.is_empty() {
-                    self.shared_app_state.before_quit(ctx.canvas);
-                    std::process::exit(0);
+                    if cfg!(target_arch = "wasm32") {
+                        // Just kidding, don't actually leave.
+                        self.states.push(state);
+                    // TODO Once PopupMsg is lifted here, add an explanation
+                    } else {
+                        self.shared_app_state.before_quit(ctx.canvas);
+                        std::process::exit(0);
+                    }
                 }
                 true
             }
