@@ -833,6 +833,10 @@
 <span id="832">832</span>
 <span id="833">833</span>
 <span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -1444,7 +1448,7 @@
     <span class="comment">// Scenario name</span>
     <span class="ident">LoadingPrebaked</span>(<span class="ident">String</span>),
     <span class="comment">// Scenario name, maybe prebaked data</span>
-    <span class="ident">GotPrebaked</span>(<span class="ident">String</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Analytics</span><span class="op">&gt;</span>),
+    <span class="ident">GotPrebaked</span>(<span class="ident">String</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Analytics</span>, <span class="ident">String</span><span class="op">&gt;</span>),
     <span class="ident">Finalizing</span>,
 }
 
@@ -1563,21 +1567,25 @@
                     ));
                 }
                 <span class="ident">LoadStage</span>::<span class="ident">GotPrebaked</span>(<span class="ident">scenario_name</span>, <span class="ident">prebaked</span>) <span class="op">=&gt;</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prebaked</span>) <span class="op">=</span> <span class="ident">prebaked</span> {
-                        <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">Some</span>((
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                            <span class="ident">scenario_name</span>,
-                            <span class="ident">prebaked</span>,
-                        )));
-                    } <span class="kw">else</span> {
-                        <span class="macro">warn</span><span class="macro">!</span>(
-                            <span class="string">&quot;No prebaked simulation results for \&quot;{}\&quot; scenario on {} map. This \
-                             means trip dashboards can&#39;t compare current times to any kind of \
-                             baseline.&quot;</span>,
-                            <span class="ident">scenario_name</span>,
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()
-                        );
-                        <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
+                    <span class="kw">match</span> <span class="ident">prebaked</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">prebaked</span>) <span class="op">=&gt;</span> {
+                            <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">Some</span>((
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
+                                <span class="ident">scenario_name</span>,
+                                <span class="ident">prebaked</span>,
+                            )));
+                        }
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> {
+                            <span class="macro">warn</span><span class="macro">!</span>(
+                                <span class="string">&quot;No prebaked simulation results for \&quot;{}\&quot; scenario on {} map. \
+                                 This means trip dashboards can&#39;t compare current times to any \
+                                 kind of baseline: {}&quot;</span>,
+                                <span class="ident">scenario_name</span>,
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
+                                <span class="ident">err</span>
+                            );
+                            <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
+                        }
                     }
                     <span class="self">self</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage</span>::<span class="ident">Finalizing</span>);
                     <span class="kw">continue</span>;
