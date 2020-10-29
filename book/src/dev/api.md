@@ -90,6 +90,10 @@ are missing, etc. A summary of the commands available so far:
     `--edits=name_of_edits`.
   - **GET /map/get-edit-road-command?id=123**: Returns an object that can be
     modified and then added to map edits.
+  - **GET /map/get-intersection-geometry?id=123**: Returns a GeoJSON object with
+    one feature for the intersection and a feature for all connecting roads. The
+    polygon coordinates are measured in meters, with the origin centered at the
+    intersection's center.
 
 ## Working with the map model
 

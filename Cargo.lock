@@ -1278,6 +1278,7 @@ name = "headless"
 version = "0.1.0"
 dependencies = [
  "abstutil",
+ "geojson",
  "geom",
  "hyper",
  "lazy_static",
@@ -1286,6 +1287,7 @@ dependencies = [
  "rand",
  "rand_xorshift",
  "serde",
+ "serde_json",
  "sim",
  "tokio",
  "url",

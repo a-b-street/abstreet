@@ -325,6 +325,10 @@ fn handle_command(
                 &map.edit_road_cmd(r, |_| {}).to_perma(map),
             ))
         }
+        "/map/get-intersection-geometry" => {
+            let i = IntersectionID(params["id"].parse::<usize>()?);
+            Ok(abstutil::to_json(&export_geometry(map, i)))
+        }
         _ => Err("Unknown command".into()),
     }
 }
@@ -414,4 +418,58 @@ impl LoadSim {
 
         (map, sim)
     }
+}
+
+fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
+    use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+
+    let i = map.get_i(i);
+    // Translate all geometry to center around the intersection, with distances in meters.
+    let center = i.polygon.center();
+
+    // The intersection itself
+    let mut props = serde_json::Map::new();
+    props.insert("type".to_string(), "intersection".into());
+    props.insert("id".to_string(), i.orig_id.to_string().into());
+    let mut features = vec![Feature {
+        bbox: None,
+        geometry: Some(Geometry::new(Value::Polygon(vec![i
+            .polygon
+            .translate(-center.x(), -center.y())
+            .points()
+            .iter()
+            .map(|pt| vec![pt.x(), pt.y()])
+            .collect()]))),
+        id: None,
+        properties: Some(props),
+        foreign_members: None,
+    }];
+
+    // Each connected road
+    for r in &i.roads {
+        let r = map.get_r(*r);
+        let mut props = serde_json::Map::new();
+        props.insert("type".to_string(), "road".into());
+        props.insert("id".to_string(), r.orig_id.osm_way_id.to_string().into());
+        features.push(Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(Value::Polygon(vec![r
+                .center_pts
+                .to_thick_ring(2.0 * r.get_half_width(map))
+                .into_points()
+                .into_iter()
+                .map(|pt| pt.offset(-center.x(), -center.y()))
+                .map(|pt| vec![pt.x(), pt.y()])
+                .collect()]))),
+            id: None,
+            properties: Some(props),
+            foreign_members: None,
+        });
+    }
+
+    GeoJson::from(FeatureCollection {
+        bbox: None,
+        features,
+        foreign_members: None,
+    })
 }

@@ -75,6 +75,17 @@ impl PolyLine {
         PolyLine::new(pts)
     }
 
+    /// Like make_polygons, but make sure the points actually form a ring.
+    pub fn to_thick_ring(&self, width: Distance) -> Ring {
+        let mut side1 = self.shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD);
+        let mut side2 = self.shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD);
+        side2.reverse();
+        side1.extend(side2);
+        side1.push(side1[0]);
+        side1.dedup();
+        Ring::must_new(side1)
+    }
+
     pub fn to_thick_boundary(
         &self,
         self_width: Distance,
