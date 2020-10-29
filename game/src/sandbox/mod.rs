@@ -608,7 +608,7 @@ enum LoadStage {
     // Scenario name
     LoadingPrebaked(String),
     // Scenario name, maybe prebaked data
-    GotPrebaked(String, Option<Analytics>),
+    GotPrebaked(String, Result<Analytics, String>),
     Finalizing,
 }
 
@@ -727,21 +727,25 @@ impl State<App> for SandboxLoader {
                     ));
                 }
                 LoadStage::GotPrebaked(scenario_name, prebaked) => {
-                    if let Some(prebaked) = prebaked {
-                        app.set_prebaked(Some((
-                            app.primary.map.get_name().clone(),
-                            scenario_name,
-                            prebaked,
-                        )));
-                    } else {
-                        warn!(
-                            "No prebaked simulation results for \"{}\" scenario on {} map. This \
-                             means trip dashboards can't compare current times to any kind of \
-                             baseline.",
-                            scenario_name,
-                            app.primary.map.get_name()
-                        );
-                        app.set_prebaked(None);
+                    match prebaked {
+                        Ok(prebaked) => {
+                            app.set_prebaked(Some((
+                                app.primary.map.get_name().clone(),
+                                scenario_name,
+                                prebaked,
+                            )));
+                        }
+                        Err(err) => {
+                            warn!(
+                                "No prebaked simulation results for \"{}\" scenario on {} map. \
+                                 This means trip dashboards can't compare current times to any \
+                                 kind of baseline: {}",
+                                scenario_name,
+                                app.primary.map.get_name(),
+                                err
+                            );
+                            app.set_prebaked(None);
+                        }
                     }
                     self.stage = Some(LoadStage::Finalizing);
                     continue;
