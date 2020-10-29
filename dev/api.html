@@ -238,6 +238,10 @@ normally. You can also later run the <code>headless</code> server with
 <code>--edits=name_of_edits</code>.</li>
 <li><strong>GET /map/get-edit-road-command?id=123</strong>: Returns an object that can be
 modified and then added to map edits.</li>
+<li><strong>GET /map/get-intersection-geometry?id=123</strong>: Returns a GeoJSON object with
+one feature for the intersection and a feature for all connecting roads. The
+polygon coordinates are measured in meters, with the origin centered at the
+intersection's center.</li>
 </ul>
 </li>
 </ul>

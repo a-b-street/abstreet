@@ -814,6 +814,17 @@
 <span id="813">813</span>
 <span id="814">814</span>
 <span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -890,6 +901,17 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deduping_new</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
         <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">pts</span>)
+    }
+
+    <span class="doccomment">/// Like make_polygons, but make sure the points actually form a ring.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_thick_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Ring</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
+        <span class="ident">side2</span>.<span class="ident">reverse</span>();
+        <span class="ident">side1</span>.<span class="ident">extend</span>(<span class="ident">side2</span>);
+        <span class="ident">side1</span>.<span class="ident">push</span>(<span class="ident">side1</span>[<span class="number">0</span>]);
+        <span class="ident">side1</span>.<span class="ident">dedup</span>();
+        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">side1</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_thick_boundary</span>(
