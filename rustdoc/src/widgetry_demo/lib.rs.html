@@ -660,7 +660,7 @@
     );
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
-        <span class="ident">XorShiftRng</span>::<span class="ident">from_seed</span>([<span class="number">0</span>; <span class="number">16</span>])
+        <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="number">0</span>)
     } <span class="kw">else</span> {
         <span class="ident">XorShiftRng</span>::<span class="ident">from_entropy</span>()
     };

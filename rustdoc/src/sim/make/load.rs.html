@@ -143,12 +143,12 @@
     <span class="doccomment">/// - some kind of map: start an empty simulation on the map</span>
     <span class="kw">pub</span> <span class="ident">load</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">rng_seed</span>: <span class="ident">u8</span>,
+    <span class="kw">pub</span> <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
     <span class="kw">pub</span> <span class="ident">opts</span>: <span class="ident">SimOptions</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SimFlags</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RNG_SEED</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">42</span>;
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RNG_SEED</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">42</span>;
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_args</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdArgs</span>) <span class="op">-&gt;</span> <span class="ident">SimFlags</span> {
         <span class="kw">let</span> <span class="ident">rng_seed</span> <span class="op">=</span> <span class="ident">args</span>
@@ -184,7 +184,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_rng</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">XorShiftRng</span> {
-        <span class="ident">XorShiftRng</span>::<span class="ident">from_seed</span>([<span class="self">self</span>.<span class="ident">rng_seed</span>; <span class="number">16</span>])
+        <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="self">self</span>.<span class="ident">rng_seed</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>) <span class="op">-&gt;</span> (<span class="ident">Map</span>, <span class="ident">Sim</span>, <span class="ident">XorShiftRng</span>) {

@@ -587,7 +587,7 @@
             <span class="ident">scenario</span>.<span class="ident">people</span> <span class="op">=</span> <span class="ident">ExternalPerson</span>::<span class="ident">import</span>(<span class="ident">map</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">input</span>])<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="ident">sim</span>.<span class="ident">get_all_people</span>().<span class="ident">len</span>());
             <span class="ident">scenario</span>.<span class="ident">people</span>[<span class="number">0</span>].<span class="ident">id</span> <span class="op">=</span> <span class="ident">id</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">from_seed</span>([<span class="ident">load</span>.<span class="ident">rng_seed</span>; <span class="number">16</span>]);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">load</span>.<span class="ident">rng_seed</span>);
             <span class="ident">scenario</span>.<span class="ident">instantiate</span>(<span class="ident">sim</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
             <span class="prelude-val">Ok</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} created&quot;</span>, <span class="ident">id</span>))
         }
@@ -807,7 +807,7 @@
     <span class="ident">edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>,
     <span class="comment">// These are fixed from the initial command line flags</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_deserializing</span>)]</span>
-    <span class="ident">rng_seed</span>: <span class="ident">u8</span>,
+    <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">opts</span>: <span class="ident">SimOptions</span>,
 }
@@ -827,7 +827,7 @@
             <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">from_seed</span>([<span class="self">self</span>.<span class="ident">rng_seed</span>; <span class="number">16</span>]);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="self">self</span>.<span class="ident">rng_seed</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
         <span class="ident">scenario</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>);
 

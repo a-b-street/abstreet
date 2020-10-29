@@ -1200,7 +1200,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimOptions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_args</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdArgs</span>, <span class="ident">rng_seed</span>: <span class="ident">u8</span>) <span class="op">-&gt;</span> <span class="ident">SimOptions</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_args</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdArgs</span>, <span class="ident">rng_seed</span>: <span class="ident">u64</span>) <span class="op">-&gt;</span> <span class="ident">SimOptions</span> {
         <span class="ident">SimOptions</span> {
             <span class="ident">run_name</span>: <span class="ident">args</span>
                 .<span class="ident">optional</span>(<span class="string">&quot;--run_name&quot;</span>)
@@ -1211,7 +1211,7 @@
             <span class="ident">break_turn_conflict_cycles</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_break_turn_conflict_cycles&quot;</span>),
             <span class="ident">handle_uber_turns</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_handle_uber_turns&quot;</span>),
             <span class="ident">enable_pandemic_model</span>: <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pandemic&quot;</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">XorShiftRng</span>::<span class="ident">from_seed</span>([<span class="ident">rng_seed</span>; <span class="number">16</span>]))
+                <span class="prelude-val">Some</span>(<span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">rng_seed</span>))
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             },

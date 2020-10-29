@@ -26,8 +26,8 @@
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="ident">seed</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--rng&quot;</span>).<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">from_seed</span>([<span class="ident">seed</span>; <span class="number">16</span>]);
+    <span class="kw">let</span> <span class="ident">seed</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--rng&quot;</span>).<span class="ident">parse</span>().<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">seed</span>);
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--map&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
     <span class="ident">args</span>.<span class="ident">done</span>();
 
