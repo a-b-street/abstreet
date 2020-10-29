@@ -191,6 +191,10 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
 <span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
@@ -269,13 +273,17 @@
             <span class="ident">Transition</span>::<span class="ident">Keep</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
             <span class="ident">Transition</span>::<span class="ident">KeepWithMouseover</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
             <span class="ident">Transition</span>::<span class="ident">Pop</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">states</span>
-                    .<span class="ident">pop</span>()
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+                <span class="ident">state</span>.<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">is_empty</span>() {
-                    <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">before_quit</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>);
-                    <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">exit</span>(<span class="number">0</span>);
+                    <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
+                        <span class="comment">// Just kidding, don&#39;t actually leave.</span>
+                        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">state</span>);
+                    <span class="comment">// TODO Once PopupMsg is lifted here, add an explanation</span>
+                    } <span class="kw">else</span> {
+                        <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">before_quit</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>);
+                        <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">exit</span>(<span class="number">0</span>);
+                    }
                 }
                 <span class="bool-val">true</span>
             }
