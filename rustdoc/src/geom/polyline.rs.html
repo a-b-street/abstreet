@@ -825,6 +825,18 @@
 <span id="824">824</span>
 <span id="825">825</span>
 <span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -832,7 +844,8 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">InfiniteLine</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">EPSILON_DIST</span>,
+    <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">InfiniteLine</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>,
+    <span class="ident">EPSILON_DIST</span>,
 };
 
 <span class="comment">// TODO How to tune this?</span>
@@ -923,15 +936,11 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">boundary_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">boundary_width</span> <span class="op">/</span> <span class="number">2.0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side1</span> <span class="op">=</span>
-            <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>((<span class="ident">self_width</span> <span class="op">-</span> <span class="ident">boundary_width</span>) <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span>
-            <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span>(<span class="ident">self_width</span> <span class="op">-</span> <span class="ident">boundary_width</span>) <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
-        <span class="ident">side2</span>.<span class="ident">reverse</span>();
-        <span class="ident">side1</span>.<span class="ident">extend</span>(<span class="ident">side2</span>);
-        <span class="ident">side1</span>.<span class="ident">push</span>(<span class="ident">side1</span>[<span class="number">0</span>]);
-        <span class="ident">side1</span>.<span class="ident">dedup</span>();
-        <span class="prelude-val">Some</span>(<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">side1</span>).<span class="ident">to_outline</span>(<span class="ident">boundary_width</span>))
+        <span class="prelude-val">Some</span>(
+            <span class="ident">slice</span>
+                .<span class="ident">to_thick_ring</span>(<span class="ident">self_width</span> <span class="op">-</span> <span class="ident">boundary_width</span>)
+                .<span class="ident">to_outline</span>(<span class="ident">boundary_width</span>),
+        )
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reversed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
@@ -1588,6 +1597,21 @@
             <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">line</span>.<span class="ident">pt2</span>().<span class="ident">project_away</span>(<span class="ident">need_len</span>, <span class="ident">line</span>.<span class="ident">angle</span>()));
             <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>)
         }
+    }
+
+    <span class="doccomment">/// Produces a GeoJSON linestring, optionally mapping the world-space points back to GPS.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">geojson</span>::<span class="ident">Geometry</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
+            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">gps</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span>) {
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
+            }
+        } <span class="kw">else</span> {
+            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span> {
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
+            }
+        }
+        <span class="ident">geojson</span>::<span class="ident">Geometry</span>::<span class="ident">new</span>(<span class="ident">geojson</span>::<span class="ident">Value</span>::<span class="ident">LineString</span>(<span class="ident">pts</span>))
     }
 }
 

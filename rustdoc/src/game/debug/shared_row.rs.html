@@ -87,19 +87,9 @@
 <span id="86">86</span>
 <span id="87">87</span>
 <span id="88">88</span>
-<span id="89">89</span>
-<span id="90">90</span>
-<span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geojson</span>::<span class="ident">feature</span>::<span class="ident">Id</span>;
-<span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>, <span class="ident">Geometry</span>, <span class="ident">Value</span>};
+<span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>};
 
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">Lane</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>};
 
@@ -148,19 +138,9 @@
         <span class="ident">serde_json</span>::<span class="ident">value</span>::<span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">slices</span>),
     );
 
-    <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>();
     <span class="ident">Feature</span> {
         <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-        <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">Geometry</span>::<span class="ident">new</span>(<span class="ident">Value</span>::<span class="ident">LineString</span>(
-            <span class="ident">r</span>.<span class="ident">center_pts</span>
-                .<span class="ident">points</span>()
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">to_gps</span>(<span class="ident">gps_bounds</span>);
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">gps</span>.<span class="ident">x</span>(), <span class="ident">gps</span>.<span class="ident">y</span>()]
-                })
-                .<span class="ident">collect</span>(),
-        ))),
+        <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()))),
         <span class="ident">id</span>: <span class="prelude-val">Some</span>(<span class="ident">Id</span>::<span class="ident">Number</span>(<span class="ident">id</span>.<span class="number">0</span>.<span class="ident">into</span>())),
         <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">properties</span>),
         <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,

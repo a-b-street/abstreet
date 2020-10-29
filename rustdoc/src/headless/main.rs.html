@@ -471,9 +471,6 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -898,7 +895,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">export_geometry</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-&gt;</span> <span class="ident">geojson</span>::<span class="ident">GeoJson</span> {
-    <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>, <span class="ident">Geometry</span>, <span class="ident">Value</span>};
+    <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>};
 
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
     <span class="comment">// Translate all geometry to center around the intersection, with distances in meters.</span>
@@ -910,13 +907,12 @@
     <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Feature</span> {
         <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-        <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">Geometry</span>::<span class="ident">new</span>(<span class="ident">Value</span>::<span class="ident">Polygon</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">i</span>
-            .<span class="ident">polygon</span>
-            .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">center</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">center</span>.<span class="ident">y</span>())
-            .<span class="ident">points</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()])
-            .<span class="ident">collect</span>()]))),
+        <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(
+            <span class="ident">i</span>.<span class="ident">polygon</span>
+                .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">center</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">center</span>.<span class="ident">y</span>())
+                .<span class="ident">into_ring</span>()
+                .<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>),
+        ),
         <span class="ident">id</span>: <span class="prelude-val">None</span>,
         <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">props</span>),
         <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
@@ -930,14 +926,12 @@
         <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
         <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">Feature</span> {
             <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">Geometry</span>::<span class="ident">new</span>(<span class="ident">Value</span>::<span class="ident">Polygon</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">r</span>
-                .<span class="ident">center_pts</span>
-                .<span class="ident">to_thick_ring</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
-                .<span class="ident">into_points</span>()
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">center</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">center</span>.<span class="ident">y</span>()))
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()])
-                .<span class="ident">collect</span>()]))),
+            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(
+                <span class="ident">r</span>.<span class="ident">center_pts</span>
+                    .<span class="ident">to_thick_ring</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
+                    .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">center</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">center</span>.<span class="ident">y</span>())
+                    .<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>),
+            ),
             <span class="ident">id</span>: <span class="prelude-val">None</span>,
             <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">props</span>),
             <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
