@@ -88,8 +88,6 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
     }
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
-        assert!(self.chosen_values.is_none());
-
         self.tb.event(ctx, output);
         if self.tb.get_line() != self.current_line {
             self.current_line = self.tb.get_line();
@@ -100,24 +98,23 @@ impl<T: 'static + Clone> WidgetImpl for Autocomplete<T> {
             let mut tmp_output = WidgetOutput::new();
             self.menu.event(ctx, &mut tmp_output);
             if let Outcome::Clicked(ref choice) = tmp_output.outcome {
-                // Mutating choices is fine, because we're supposed to be consumed by the
-                // caller immediately after this.
                 if choice.starts_with("anything matching") {
                     let query = self.current_line.to_ascii_lowercase();
                     let mut matches = Vec::new();
-                    for (name, choices) in self.choices.drain(..) {
+                    for (name, choices) in &self.choices {
                         if name.to_ascii_lowercase().contains(&query) {
-                            matches.extend(choices);
+                            matches.extend(choices.clone());
                         }
                     }
                     self.chosen_values = Some(matches);
                 } else {
                     self.chosen_values = Some(
                         self.choices
-                            .drain(..)
+                            .iter()
                             .find(|(name, _)| name == choice)
                             .unwrap()
-                            .1,
+                            .1
+                            .clone(),
                     );
                 }
             }
