@@ -45,7 +45,10 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return vec![fwd(LaneType::LightRail)];
     }
-    if tags.is_any(osm::HIGHWAY, vec!["footway", "pedestrian", "steps"]) {
+    if tags.is_any(
+        osm::HIGHWAY,
+        vec!["cycleway", "footway", "path", "pedestrian", "steps"],
+    ) {
         return vec![fwd(LaneType::Sidewalk)];
     }
 
@@ -221,7 +224,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     if tags.is(osm::SIDEWALK, "both") {
         fwd_side.push(fwd(LaneType::Sidewalk));
         back_side.push(back(LaneType::Sidewalk));
-    } else if tags.is(osm::SIDEWALK, "separate") {
+    } else if tags.is(osm::SIDEWALK, "separate") && cfg.inferred_sidewalks {
         // TODO Need to snap separate sidewalks to ways. Until then, just do this.
         fwd_side.push(fwd(LaneType::Sidewalk));
         if !back_side.is_empty() {

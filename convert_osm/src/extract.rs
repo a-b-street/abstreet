@@ -408,10 +408,12 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     };
 
     if !vec![
+        "cycleway",
         "footway",
         "living_street",
         "motorway",
         "motorway_link",
+        "path",
         "primary",
         "primary_link",
         "residential",
@@ -430,7 +432,14 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
-    if (highway == "footway" || highway == "steps") && opts.map_config.inferred_sidewalks {
+    if (highway == "cycleway" || highway == "footway" || highway == "path" || highway == "steps")
+        && opts.map_config.inferred_sidewalks
+    {
+        return false;
+    }
+    if (highway == "cycleway" || highway == "path")
+        && !tags.is_any("foot", vec!["yes", "designated"])
+    {
         return false;
     }
 

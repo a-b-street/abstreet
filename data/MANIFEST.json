@@ -37,15 +37,15 @@
       "dropbox_url": "https://www.dropbox.com/s/g4km7xhshigwz8g/service_roads.bin.zip?dl=0"
     },
     "data/input/krakow/footways.bin": {
-      "checksum": "f27f171b1980886756f6b1b723ef1f9f",
+      "checksum": "b04c0b011e531d6d1396218523deef4a",
       "dropbox_url": "https://www.dropbox.com/s/lzh230whj83hp8k/footways.bin.zip?dl=0"
     },
     "data/input/krakow/krakow_center_separate_cycleways.bin": {
-      "checksum": "139004ebeed3e3242c84dac6d6788a08",
+      "checksum": "9bf6ea85f7a9fe7f9131b867ed82da18",
       "dropbox_url": "https://www.dropbox.com/s/dqrc5w5jxpv9nfc/krakow_center_separate_cycleways.bin.zip?dl=0"
     },
     "data/input/krakow/krakow_center_snapped_cycleways.bin": {
-      "checksum": "a2ff2610a98a58bf2dc8e3fb3c78ae46",
+      "checksum": "8eeb3343858a8a065cd0136ccef23b9c",
       "dropbox_url": "https://www.dropbox.com/s/03f9g4gubb9x3y3/krakow_center_snapped_cycleways.bin.zip?dl=0"
     },
     "data/input/krakow/osm/krakow_center.osm": {
@@ -101,8 +101,8 @@
       "dropbox_url": "https://www.dropbox.com/s/ji4kdc9rd1x57zf/huge_seattle.bin.zip?dl=0"
     },
     "data/input/raw_maps/krakow_center.bin": {
-      "checksum": "fe239e3e9f5b0b156dedecc0ae3f1551",
-      "dropbox_url": "https://www.dropbox.com/s/dirk0x1neatcr0d/krakow_center.bin.zip?dl=0"
+      "checksum": "d355436d13a89b6c6462a5aa4eb6720b",
+      "dropbox_url": "https://www.dropbox.com/s/98r45iy41vzpdbx/krakow_center.bin.zip?dl=0"
     },
     "data/input/raw_maps/lakeslice.bin": {
       "checksum": "895926104dc93d102324737d1c7a645c",
@@ -141,7 +141,7 @@
       "dropbox_url": "https://www.dropbox.com/s/qawd35wz62m2acl/downtown.zip.zip?dl=0"
     },
     "data/input/screenshots/krakow_center.zip": {
-      "checksum": "8a8d78bdb28fca9e5cab36f731cbc5d4",
+      "checksum": "86485a7b1e81cd7d8efdf87f54d62703",
       "dropbox_url": "https://www.dropbox.com/s/azea6v6mnxbe0vc/krakow_center.zip.zip?dl=0"
     },
     "data/input/screenshots/lakeslice.zip": {
@@ -413,8 +413,8 @@
       "dropbox_url": "https://www.dropbox.com/s/0k2z5seevlkltf1/huge_seattle.bin.zip?dl=0"
     },
     "data/system/maps/krakow_center.bin": {
-      "checksum": "d0bed4f4199939cd2684256392337602",
-      "dropbox_url": "https://www.dropbox.com/s/mwrt8353bdsu4k1/krakow_center.bin.zip?dl=0"
+      "checksum": "c5222753fd657a970bc5401be8279784",
+      "dropbox_url": "https://www.dropbox.com/s/b409sa7pvkn8tzk/krakow_center.bin.zip?dl=0"
     },
     "data/system/maps/lakeslice.bin": {
       "checksum": "71007da9100771577e45cc30ad94427f",
