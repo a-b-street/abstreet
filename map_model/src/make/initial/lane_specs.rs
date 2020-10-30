@@ -5,8 +5,8 @@ use abstutil::Tags;
 use geom::Distance;
 
 use crate::{
-    osm, Direction, DrivingSide, LaneType, NORMAL_LANE_THICKNESS, SERVICE_ROAD_LANE_THICKNESS,
-    SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
+    osm, Direction, DrivingSide, LaneType, MapConfig, NORMAL_LANE_THICKNESS,
+    SERVICE_ROAD_LANE_THICKNESS, SHOULDER_THICKNESS, SIDEWALK_THICKNESS,
 };
 
 #[derive(PartialEq)]
@@ -40,12 +40,12 @@ fn back(lt: LaneType) -> LaneSpec {
     }
 }
 
-pub fn get_lane_specs_ltr(tags: &Tags, driving_side: DrivingSide) -> Vec<LaneSpec> {
+pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     // Easy special cases first.
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return vec![fwd(LaneType::LightRail)];
     }
-    if tags.is(osm::HIGHWAY, "footway") {
+    if tags.is_any(osm::HIGHWAY, vec!["footway", "pedestrian", "steps"]) {
         return vec![fwd(LaneType::Sidewalk)];
     }
 
@@ -127,7 +127,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, driving_side: DrivingSide) -> Vec<LaneSpe
     }
 
     if driving_lane == LaneType::Construction {
-        return assemble_ltr(fwd_side, back_side, driving_side);
+        return assemble_ltr(fwd_side, back_side, cfg.driving_side);
     }
 
     let fwd_bus_spec = if let Some(s) = tags.get("bus:lanes:forward") {
@@ -228,13 +228,13 @@ pub fn get_lane_specs_ltr(tags: &Tags, driving_side: DrivingSide) -> Vec<LaneSpe
             back_side.push(back(LaneType::Sidewalk));
         }
     } else if tags.is(osm::SIDEWALK, "right") {
-        if driving_side == DrivingSide::Right {
+        if cfg.driving_side == DrivingSide::Right {
             fwd_side.push(fwd(LaneType::Sidewalk));
         } else {
             back_side.push(back(LaneType::Sidewalk));
         }
     } else if tags.is(osm::SIDEWALK, "left") {
-        if driving_side == DrivingSide::Right {
+        if cfg.driving_side == DrivingSide::Right {
             back_side.push(back(LaneType::Sidewalk));
         } else {
             fwd_side.push(fwd(LaneType::Sidewalk));
@@ -272,14 +272,16 @@ pub fn get_lane_specs_ltr(tags: &Tags, driving_side: DrivingSide) -> Vec<LaneSpe
         need_back_shoulder = false;
     }
 
-    if need_fwd_shoulder {
-        fwd_side.push(fwd(LaneType::Shoulder));
-    }
-    if need_back_shoulder {
-        back_side.push(back(LaneType::Shoulder));
+    if cfg.inferred_sidewalks {
+        if need_fwd_shoulder {
+            fwd_side.push(fwd(LaneType::Shoulder));
+        }
+        if need_back_shoulder {
+            back_side.push(back(LaneType::Shoulder));
+        }
     }
 
-    assemble_ltr(fwd_side, back_side, driving_side)
+    assemble_ltr(fwd_side, back_side, cfg.driving_side)
 }
 
 fn assemble_ltr(
@@ -428,7 +430,12 @@ mod tests {
                 "^^^",
             ),
         ] {
-            let actual = get_lane_specs_ltr(&tags(input.clone()), driving_side);
+            let cfg = MapConfig {
+                driving_side,
+                bikes_can_use_bus_lanes: true,
+                inferred_sidewalks: true,
+            };
+            let actual = get_lane_specs_ltr(&tags(input.clone()), &cfg);
             let actual_lt = actual
                 .iter()
                 .map(|s| lt_to_char(s.lt))

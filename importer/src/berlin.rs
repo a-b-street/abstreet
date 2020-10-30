@@ -72,6 +72,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
+                inferred_sidewalks: true,
             },
 
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,

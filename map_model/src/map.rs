@@ -22,6 +22,10 @@ pub struct MapConfig {
     /// (Australia).
     pub driving_side: DrivingSide,
     pub bikes_can_use_bus_lanes: bool,
+    /// If true, roads without explicitly tagged sidewalks may have sidewalks or shoulders. If
+    /// false, no sidewalks will be inferred if not tagged in OSM, and separate sidewalks will be
+    /// included.
+    pub inferred_sidewalks: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -158,6 +162,7 @@ impl Map {
             config: MapConfig {
                 driving_side: DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
+                inferred_sidewalks: true,
             },
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,

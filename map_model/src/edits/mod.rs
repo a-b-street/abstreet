@@ -13,7 +13,7 @@ use geom::{Speed, Time};
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
-    DrivingSide, IntersectionID, IntersectionType, LaneID, LaneType, Map, PathConstraints,
+    IntersectionID, IntersectionType, LaneID, LaneType, Map, MapConfig, PathConstraints,
     Pathfinder, Road, RoadID, TurnID, Zone,
 };
 
@@ -61,9 +61,9 @@ pub struct EditRoad {
 }
 
 impl EditRoad {
-    pub fn get_orig_from_osm(r: &Road, driving_side: DrivingSide) -> EditRoad {
+    pub fn get_orig_from_osm(r: &Road, cfg: &MapConfig) -> EditRoad {
         EditRoad {
-            lanes_ltr: get_lane_specs_ltr(&r.osm_tags, driving_side)
+            lanes_ltr: get_lane_specs_ltr(&r.osm_tags, cfg)
                 .into_iter()
                 .map(|spec| (spec.lt, spec.dir))
                 .collect(),
@@ -194,8 +194,7 @@ impl MapEdits {
         }
 
         retain_btreeset(&mut self.changed_roads, |r| {
-            map.get_r_edit(*r)
-                != EditRoad::get_orig_from_osm(map.get_r(*r), map.config.driving_side)
+            map.get_r_edit(*r) != EditRoad::get_orig_from_osm(map.get_r(*r), &map.config)
         });
         retain_btreemap(&mut self.original_intersections, |i, orig| {
             map.get_i_edit(*i) != orig.clone()
@@ -211,7 +210,7 @@ impl MapEdits {
         for r in &self.changed_roads {
             self.commands.push(EditCmd::ChangeRoad {
                 r: *r,
-                old: EditRoad::get_orig_from_osm(map.get_r(*r), map.config.driving_side),
+                old: EditRoad::get_orig_from_osm(map.get_r(*r), &map.config),
                 new: map.get_r_edit(*r),
             });
         }
@@ -238,7 +237,7 @@ impl MapEdits {
         let mut roads = BTreeSet::new();
         for r in &self.changed_roads {
             let r = map.get_r(*r);
-            let orig = EditRoad::get_orig_from_osm(r, map.get_config().driving_side);
+            let orig = EditRoad::get_orig_from_osm(r, map.get_config());
             // What exactly changed?
             if r.speed_limit != orig.speed_limit
                 || r.access_restrictions != orig.access_restrictions

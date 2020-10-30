@@ -9,8 +9,7 @@ use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, Restr
 use map_model::{osm, Amenity, AreaType, NamePerLanguage};
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
-use crate::transit;
-use crate::Options;
+use crate::{transit, Options};
 
 pub struct OsmExtract {
     /// Unsplit roads
@@ -409,6 +408,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     };
 
     if !vec![
+        "footway",
         "living_street",
         "motorway",
         "motorway_link",
@@ -418,6 +418,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         "secondary",
         "secondary_link",
         "service",
+        "steps",
         "tertiary",
         "tertiary_link",
         "trunk",
@@ -426,6 +427,10 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     ]
     .contains(&highway.as_ref())
     {
+        return false;
+    }
+
+    if (highway == "footway" || highway == "steps") && opts.map_config.inferred_sidewalks {
         return false;
     }
 
@@ -459,7 +464,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
 
     // If there's no sidewalk data in OSM already, then make an assumption and mark that
     // it's inferred.
-    if !tags.contains_key(osm::SIDEWALK) {
+    if !tags.contains_key(osm::SIDEWALK) && opts.map_config.inferred_sidewalks {
         tags.insert(osm::INFERRED_SIDEWALKS, "true");
         if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
             || tags.is("junction", "roundabout")

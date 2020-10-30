@@ -102,6 +102,7 @@ impl RawMap {
             config: MapConfig {
                 driving_side: DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
+                inferred_sidewalks: true,
             },
         }
     }
@@ -163,10 +164,7 @@ impl RawMap {
         };
         let mut roads = BTreeMap::new();
         for r in &i.roads {
-            roads.insert(
-                *r,
-                initial::Road::new(*r, &self.roads[r], self.config.driving_side),
-            );
+            roads.insert(*r, initial::Road::new(*r, &self.roads[r], &self.config));
         }
 
         let (poly, debug) = initial::intersection_polygon(&i, &mut roads, timer).unwrap();
@@ -262,12 +260,8 @@ pub struct RawRoad {
 
 impl RawRoad {
     /// Returns the corrected center and total width
-    pub fn get_geometry(
-        &self,
-        id: OriginalRoad,
-        driving_side: DrivingSide,
-    ) -> (PolyLine, Distance) {
-        let lane_specs = get_lane_specs_ltr(&self.osm_tags, driving_side);
+    pub fn get_geometry(&self, id: OriginalRoad, cfg: &MapConfig) -> (PolyLine, Distance) {
+        let lane_specs = get_lane_specs_ltr(&self.osm_tags, cfg);
         let mut total_width = Distance::ZERO;
         let mut sidewalk_right = None;
         let mut sidewalk_left = None;
@@ -303,7 +297,8 @@ impl RawRoad {
     }
 
     pub fn is_footway(&self) -> bool {
-        self.osm_tags.is(osm::HIGHWAY, "pedestrian")
+        self.osm_tags
+            .is_any(osm::HIGHWAY, vec!["footway", "pedestrian", "steps"])
     }
 
     pub fn is_service(&self) -> bool {

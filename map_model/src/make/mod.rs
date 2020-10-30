@@ -132,7 +132,8 @@ impl Map {
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
                 zorder: if let Some(layer) = raw.roads[&r.id].osm_tags.get("layer") {
-                    layer.parse::<isize>().unwrap()
+                    // Just drop .5 for now
+                    layer.parse::<f64>().unwrap() as isize
                 } else {
                     0
                 },

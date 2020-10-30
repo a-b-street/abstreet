@@ -225,6 +225,7 @@ fn oneshot(
                     map_model::DrivingSide::Left
                 },
                 bikes_can_use_bus_lanes: true,
+                inferred_sidewalks: true,
             },
 
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,
