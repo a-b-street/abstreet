@@ -31,7 +31,9 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: false,
-                inferred_sidewalks: true,
+                // This is experimental and will break many things, but Kraków is one of the best
+                // places to iterate on https://github.com/dabreegster/abstreet/issues/161.
+                inferred_sidewalks: false,
             },
 
             onstreet_parking: convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: 90 },

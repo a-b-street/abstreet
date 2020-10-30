@@ -44,7 +44,14 @@ impl DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
         let rank = i.get_rank(map);
-        default_geom.push(app.cs.zoomed_intersection_surface(rank), i.polygon.clone());
+        default_geom.push(
+            if i.is_footway(map) {
+                app.cs.zoomed_road_surface(LaneType::Sidewalk, rank)
+            } else {
+                app.cs.zoomed_intersection_surface(rank)
+            },
+            i.polygon.clone(),
+        );
         if app.cs.sidewalk_lines.is_some() {
             default_geom.extend(
                 app.cs.zoomed_road_surface(LaneType::Sidewalk, rank),

@@ -87,6 +87,10 @@ impl Intersection {
         self.roads.iter().all(|r| map.get_r(*r).is_private())
     }
 
+    pub fn is_footway(&self, map: &Map) -> bool {
+        self.roads.iter().all(|r| map.get_r(*r).is_footway())
+    }
+
     pub fn get_incoming_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
         self.incoming_lanes
             .iter()
