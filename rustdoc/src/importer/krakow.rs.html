@@ -46,6 +46,8 @@
 <span id="45">45</span>
 <span id="46">46</span>
 <span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">osmconvert</span>};
@@ -80,7 +82,9 @@
             <span class="ident">map_config</span>: <span class="ident">map_model</span>::<span class="ident">MapConfig</span> {
                 <span class="ident">driving_side</span>: <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">false</span>,
-                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
+                <span class="comment">// This is experimental and will break many things, but Kraków is one of the best</span>
+                <span class="comment">// places to iterate on https://github.com/dabreegster/abstreet/issues/161.</span>
+                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">false</span>,
             },
 
             <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">OnstreetParking</span>::<span class="ident">SomeAdditionalWhereNoData</span> { <span class="ident">pct</span>: <span class="number">90</span> },

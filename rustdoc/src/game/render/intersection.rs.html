@@ -467,6 +467,13 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
@@ -514,7 +521,14 @@
         <span class="comment">// Order matters... main polygon first, then sidewalk corners.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default_geom</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_rank</span>(<span class="ident">map</span>);
-        <span class="ident">default_geom</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">zoomed_intersection_surface</span>(<span class="ident">rank</span>), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="ident">default_geom</span>.<span class="ident">push</span>(
+            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_footway</span>(<span class="ident">map</span>) {
+                <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>, <span class="ident">rank</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">zoomed_intersection_surface</span>(<span class="ident">rank</span>)
+            },
+            <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
+        );
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">sidewalk_lines</span>.<span class="ident">is_some</span>() {
             <span class="ident">default_geom</span>.<span class="ident">extend</span>(
                 <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>, <span class="ident">rank</span>),
