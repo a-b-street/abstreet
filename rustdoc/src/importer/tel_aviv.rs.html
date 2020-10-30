@@ -44,6 +44,7 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
+<span id="46">46</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">osmconvert</span>};
@@ -78,6 +79,7 @@
             <span class="ident">map_config</span>: <span class="ident">map_model</span>::<span class="ident">MapConfig</span> {
                 <span class="ident">driving_side</span>: <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
+                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
             },
 
             <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">OnstreetParking</span>::<span class="ident">SomeAdditionalWhereNoData</span> { <span class="ident">pct</span>: <span class="number">50</span> },

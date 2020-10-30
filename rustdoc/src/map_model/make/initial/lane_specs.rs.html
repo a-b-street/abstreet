@@ -458,6 +458,13 @@
 <span id="457">457</span>
 <span id="458">458</span>
 <span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
@@ -466,8 +473,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SERVICE_ROAD_LANE_THICKNESS</span>,
-    <span class="ident">SHOULDER_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
+    <span class="ident">osm</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>,
+    <span class="ident">SERVICE_ROAD_LANE_THICKNESS</span>, <span class="ident">SHOULDER_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
@@ -501,12 +508,12 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_specs_ltr</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>, <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_specs_ltr</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>, <span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="ident">MapConfig</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
     <span class="comment">// Easy special cases first.</span>
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;railway&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;light_rail&quot;</span>, <span class="string">&quot;rail&quot;</span>]) {
         <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">LightRail</span>)];
     }
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;footway&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;footway&quot;</span>, <span class="string">&quot;pedestrian&quot;</span>, <span class="string">&quot;steps&quot;</span>]) {
         <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>)];
     }
 
@@ -588,7 +595,7 @@
     }
 
     <span class="kw">if</span> <span class="ident">driving_lane</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span> {
-        <span class="kw">return</span> <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">driving_side</span>);
+        <span class="kw">return</span> <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
     }
 
     <span class="kw">let</span> <span class="ident">fwd_bus_spec</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;bus:lanes:forward&quot;</span>) {
@@ -689,13 +696,13 @@
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>));
         }
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;right&quot;</span>) {
-        <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
+        <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
             <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>));
         } <span class="kw">else</span> {
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>));
         }
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;left&quot;</span>) {
-        <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
+        <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>));
         } <span class="kw">else</span> {
             <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>));
@@ -733,14 +740,16 @@
         <span class="ident">need_back_shoulder</span> <span class="op">=</span> <span class="bool-val">false</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">need_fwd_shoulder</span> {
-        <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
-    }
-    <span class="kw">if</span> <span class="ident">need_back_shoulder</span> {
-        <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
+    <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">inferred_sidewalks</span> {
+        <span class="kw">if</span> <span class="ident">need_fwd_shoulder</span> {
+            <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
+        }
+        <span class="kw">if</span> <span class="ident">need_back_shoulder</span> {
+            <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
+        }
     }
 
-    <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">driving_side</span>)
+    <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">assemble_ltr</span>(
@@ -889,7 +898,12 @@
                 <span class="string">&quot;^^^&quot;</span>,
             ),
         ] {
-            <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">tags</span>(<span class="ident">input</span>.<span class="ident">clone</span>()), <span class="ident">driving_side</span>);
+            <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">MapConfig</span> {
+                <span class="ident">driving_side</span>,
+                <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
+                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
+            };
+            <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">tags</span>(<span class="ident">input</span>.<span class="ident">clone</span>()), <span class="kw-2">&amp;</span><span class="ident">cfg</span>);
             <span class="kw">let</span> <span class="ident">actual_lt</span> <span class="op">=</span> <span class="ident">actual</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">lt_to_char</span>(<span class="ident">s</span>.<span class="ident">lt</span>))
