@@ -508,7 +508,6 @@
 <span id="507">507</span>
 <span id="508">508</span>
 <span id="509">509</span>
-<span id="510">510</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -815,8 +814,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">road_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) <span class="op">-&gt;</span> <span class="ident">Object</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">get_geometry</span>(<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>);
+        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">get_geometry</span>(<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">config</span>);
         <span class="ident">Object</span>::<span class="ident">new</span>(
             <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">id</span>),
             <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.8</span>),
