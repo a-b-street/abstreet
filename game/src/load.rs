@@ -175,9 +175,15 @@ mod wasm_loader {
                 match JsFuture::from(window.fetch_with_request(&request)).await {
                     Ok(resp_value) => {
                         let resp: Response = resp_value.dyn_into().unwrap();
-                        let buf = JsFuture::from(resp.array_buffer().unwrap()).await.unwrap();
-                        let array = js_sys::Uint8Array::new(&buf);
-                        tx.send(Ok(array.to_vec())).unwrap();
+                        if resp.ok() {
+                            let buf = JsFuture::from(resp.array_buffer().unwrap()).await.unwrap();
+                            let array = js_sys::Uint8Array::new(&buf);
+                            tx.send(Ok(array.to_vec())).unwrap();
+                        } else {
+                            let status = resp.status();
+                            let err = resp.status_text();
+                            tx.send(Err(format!("HTTP {}: {}", status, err))).unwrap();
+                        }
                     }
                     Err(err) => {
                         tx.send(Err(format!("{:?}", err))).unwrap();
