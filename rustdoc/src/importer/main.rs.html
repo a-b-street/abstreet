@@ -245,6 +245,10 @@
 <span id="244">244</span>
 <span id="245">245</span>
 <span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">configuration</span>::{<span class="ident">load_configuration</span>, <span class="ident">ImporterConfiguration</span>};
 <span class="kw">use</span> <span class="ident">dependencies</span>::<span class="ident">are_dependencies_callable</span>;
@@ -278,6 +282,7 @@
     <span class="ident">oneshot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">oneshot_clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">oneshot_drive_on_left</span>: <span class="ident">bool</span>,
+    <span class="ident">oneshot_dont_infer_sidewalks</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
@@ -306,6 +311,7 @@
         <span class="ident">oneshot</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--oneshot&quot;</span>),
         <span class="ident">oneshot_clip</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--oneshot_clip&quot;</span>),
         <span class="ident">oneshot_drive_on_left</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--oneshot_drive_on_left&quot;</span>),
+        <span class="ident">oneshot_dont_infer_sidewalks</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--oneshot_dont_infer_sidewalks&quot;</span>),
     };
     <span class="ident">args</span>.<span class="ident">done</span>();
     <span class="kw">if</span> <span class="op">!</span><span class="ident">job</span>.<span class="ident">osm_to_raw</span>
@@ -337,6 +343,7 @@
             <span class="ident">path</span>,
             <span class="ident">job</span>.<span class="ident">oneshot_clip</span>,
             <span class="op">!</span><span class="ident">job</span>.<span class="ident">oneshot_drive_on_left</span>,
+            <span class="op">!</span><span class="ident">job</span>.<span class="ident">oneshot_dont_infer_sidewalks</span>,
             <span class="op">!</span><span class="ident">job</span>.<span class="ident">skip_ch</span>,
             <span class="ident">job</span>.<span class="ident">keep_bldg_tags</span>,
         );
@@ -453,6 +460,7 @@
     <span class="ident">osm_path</span>: <span class="ident">String</span>,
     <span class="ident">clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">drive_on_right</span>: <span class="ident">bool</span>,
+    <span class="ident">inferred_sidewalks</span>: <span class="ident">bool</span>,
     <span class="ident">build_ch</span>: <span class="ident">bool</span>,
     <span class="ident">keep_bldg_tags</span>: <span class="ident">bool</span>,
 ) {
@@ -473,7 +481,7 @@
                     <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Left</span>
                 },
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
-                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
+                <span class="ident">inferred_sidewalks</span>,
             },
 
             <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">OnstreetParking</span>::<span class="ident">JustOSM</span>,
