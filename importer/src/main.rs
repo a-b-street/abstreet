@@ -30,6 +30,7 @@ struct Job {
     oneshot: Option<String>,
     oneshot_clip: Option<String>,
     oneshot_drive_on_left: bool,
+    oneshot_dont_infer_sidewalks: bool,
 }
 
 fn main() {
@@ -58,6 +59,7 @@ fn main() {
         oneshot: args.optional("--oneshot"),
         oneshot_clip: args.optional("--oneshot_clip"),
         oneshot_drive_on_left: args.enabled("--oneshot_drive_on_left"),
+        oneshot_dont_infer_sidewalks: args.enabled("--oneshot_dont_infer_sidewalks"),
     };
     args.done();
     if !job.osm_to_raw
@@ -89,6 +91,7 @@ fn main() {
             path,
             job.oneshot_clip,
             !job.oneshot_drive_on_left,
+            !job.oneshot_dont_infer_sidewalks,
             !job.skip_ch,
             job.keep_bldg_tags,
         );
@@ -205,6 +208,7 @@ fn oneshot(
     osm_path: String,
     clip: Option<String>,
     drive_on_right: bool,
+    inferred_sidewalks: bool,
     build_ch: bool,
     keep_bldg_tags: bool,
 ) {
@@ -225,7 +229,7 @@ fn oneshot(
                     map_model::DrivingSide::Left
                 },
                 bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
+                inferred_sidewalks,
             },
 
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,

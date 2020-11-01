@@ -35,7 +35,7 @@ function import {
 	# Then import each smaller .osm
 	for name in `ls mass_import/*.osm`; do
 		name=`basename -s .osm $name`
-		echo "./import.sh --oneshot=mass_import/$name.osm --oneshot_clip=mass_import/$name.poly --skip_ch > mass_import/import_$name.log 2>&1"
+		echo "./import.sh --oneshot=mass_import/$name.osm --oneshot_clip=mass_import/$name.poly --skip_ch --oneshot_dont_infer_sidewalks > mass_import/import_$name.log 2>&1"
 	done | parallel --bar -j4
 }
 
