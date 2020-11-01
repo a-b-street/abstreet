@@ -633,3 +633,10 @@ changes here.
 - some substantial simulation performance gains (168s to 90s on one benchmark!)
 - lots of progress towards editing the map without resetting the simulation to midnight. please test with --live_map_edits and report any issues
 - internal refactoring and code documentation
+
+0.2.17
+
+- tooling to automatically extract different shapes around cities without an explicit bounding polygon
+- imported many maps for an OSM viewer demo
+- misc bug fixes, UI tweaks, and perf improvements, especially for the web version
+- start using OSM sidewalks data properly in krakow -- more work needed, but better start
