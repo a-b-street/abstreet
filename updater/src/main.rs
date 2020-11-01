@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::error::Error;
-use std::fs::{create_dir_all, remove_file, File};
-use std::io::{copy, BufRead, BufReader, Read, Write};
+use std::fs::File;
+use std::io::{BufRead, BufReader, Read, Write};
 use std::process::Command;
 
 use walkdir::WalkDir;
@@ -9,7 +9,6 @@ use walkdir::WalkDir;
 use abstutil::{Entry, Manifest, Timer};
 
 const MD5_BUF_READ_SIZE: usize = 4096;
-const TMP_DOWNLOAD_NAME: &str = "tmp_download.zip";
 
 #[tokio::main]
 async fn main() {
@@ -53,16 +52,24 @@ async fn download() {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
             match curl(entry).await {
-                Ok(()) => {
-                    unzip(&path);
+                Ok(bytes) => {
+                    println!(
+                        "> decompress {}, which is {} bytes compressed",
+                        path,
+                        bytes.len()
+                    );
+                    let mut decoder = flate2::read::GzDecoder::new(&bytes[..]);
+                    let mut out = File::create(&path).unwrap();
+                    if let Err(err) = std::io::copy(&mut decoder, &mut out) {
+                        println!("{}, but continuing", err);
+                        failed.push(format!("{} failed: {}", path, err));
+                    }
                 }
                 Err(err) => {
                     println!("{}, but continuing", err);
                     failed.push(format!("{} failed: {}", path, err));
                 }
             };
-            // Whether or not download failed, still try to clean up tmp file
-            rm(TMP_DOWNLOAD_NAME);
         }
     }
     if !failed.is_empty() {
@@ -106,17 +113,25 @@ fn upload() {
     // Anything remote need deleting?
     for path in remote.entries.keys() {
         if !local.entries.contains_key(path) {
-            rm(&format!("{}/{}.zip", remote_base, path));
+            rm(&format!("{}/{}.gz", remote_base, path));
         }
     }
 
     // Anything missing or needing updating?
     for (path, entry) in &mut local.entries {
-        let remote_path = format!("{}/{}.zip", remote_base, path);
+        let remote_path = format!("{}/{}.gz", remote_base, path);
         let changed = remote.entries.get(path).map(|x| &x.checksum) != Some(&entry.checksum);
         if changed {
             std::fs::create_dir_all(std::path::Path::new(&remote_path).parent().unwrap()).unwrap();
-            run(Command::new("zip").arg(&remote_path).arg(&path));
+            println!("> compressing {}", path);
+            {
+                let mut input = BufReader::new(File::open(&path).unwrap());
+                let out = File::create(&remote_path).unwrap();
+                let mut encoder = flate2::write::GzEncoder::new(out, flate2::Compression::best());
+                std::io::copy(&mut input, &mut encoder).unwrap();
+                encoder.finish().unwrap();
+            }
+
             // Wait for the Dropbox client to sync
             loop {
                 std::thread::sleep(std::time::Duration::from_millis(1000));
@@ -376,7 +391,7 @@ fn run(cmd: &mut Command) -> String {
 
 fn rm(path: &str) {
     println!("> rm {}", path);
-    match remove_file(path) {
+    match std::fs::remove_file(path) {
         Ok(_) => {}
         Err(e) => match e.kind() {
             std::io::ErrorKind::NotFound => {
@@ -389,7 +404,7 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(entry: Entry) -> Result<(), Box<dyn Error>> {
+async fn curl(entry: Entry) -> Result<Vec<u8>, Box<dyn Error>> {
     let src = entry.dropbox_url.unwrap();
     // the ?dl=0 param at the end of each URL takes you to an interactive page
     // for viewing the folder in the browser. For some reason, curl and wget can
@@ -398,10 +413,9 @@ async fn curl(entry: Entry) -> Result<(), Box<dyn Error>> {
     // which redirects to a direct download link
     let src = &format!("{}{}", &src[..src.len() - 1], "1");
 
-    println!("> download {} to {}", src, TMP_DOWNLOAD_NAME);
+    let mut bytes = Vec::new();
 
-    let mut output =
-        File::create(TMP_DOWNLOAD_NAME).expect(&format!("unable to create {}", TMP_DOWNLOAD_NAME));
+    println!("> download {}", src);
 
     let mut resp = reqwest::get(src).await.unwrap();
 
@@ -413,61 +427,8 @@ async fn curl(entry: Entry) -> Result<(), Box<dyn Error>> {
         }
     };
     while let Some(chunk) = resp.chunk().await.unwrap() {
-        output.write_all(&chunk).unwrap();
+        bytes.write_all(&chunk).unwrap();
     }
 
-    Ok(())
-}
-
-fn unzip(path: &str) {
-    println!("> unzip {} {}", TMP_DOWNLOAD_NAME, path);
-
-    let file =
-        File::open(TMP_DOWNLOAD_NAME).expect(&format!("unable to open {}", TMP_DOWNLOAD_NAME));
-    let mut archive = zip::ZipArchive::new(file).unwrap();
-
-    for i in 0..archive.len() {
-        let mut file = archive.by_index(i).unwrap();
-        let outpath = file.sanitized_name();
-
-        {
-            let comment = file.comment();
-            if !comment.is_empty() {
-                println!(">  file {} comment: {}", i, comment);
-            }
-        }
-
-        if (&*file.name()).ends_with('/') {
-            println!(
-                ">   file {} extracted to \"{}\"",
-                i,
-                outpath.as_path().display()
-            );
-            create_dir_all(&outpath).unwrap();
-        } else {
-            println!(
-                ">   file {} extracted to \"{}\"",
-                i,
-                outpath.as_path().display(),
-            );
-            if let Some(p) = outpath.parent() {
-                if !p.exists() {
-                    create_dir_all(&p).unwrap();
-                }
-            }
-            let mut outfile = File::create(&outpath).unwrap();
-            copy(&mut file, &mut outfile).unwrap();
-        }
-
-        // Get and Set permissions
-        #[cfg(unix)]
-        {
-            use std::fs::{set_permissions, Permissions};
-            use std::os::unix::fs::PermissionsExt;
-
-            if let Some(mode) = file.unix_mode() {
-                set_permissions(&outpath, Permissions::from_mode(mode)).unwrap();
-            }
-        }
-    }
+    Ok(bytes)
 }

@@ -149,9 +149,11 @@ mod wasm_loader {
                 dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Result<T, String>) -> Transition,
             >,
         ) -> Box<dyn State<App>> {
+            // Note that files are only gzipepd on S3. When running locally, we just symlink the
+            // data/ directory, where files aren't compressed.
             let url = if cfg!(feature = "wasm_s3") {
                 format!(
-                    "http://abstreet.s3-website.us-east-2.amazonaws.com/{}",
+                    "http://abstreet.s3-website.us-east-2.amazonaws.com/{}.gz",
                     path.strip_prefix(&abstutil::path("")).unwrap()
                 )
             } else {
@@ -208,8 +210,14 @@ mod wasm_loader {
                 // while. Any way to make it still be nonblockingish? Maybe put some of the work
                 // inside that spawn_local?
                 let mut timer = Timer::new(format!("Loading {}...", self.url));
-                let result = maybe_resp
-                    .and_then(|resp| abstutil::from_binary(&resp).map_err(|err| err.to_string()));
+                let result = maybe_resp.and_then(|resp| {
+                    if self.url.ends_with(".gz") {
+                        let decoder = flate2::read::GzDecoder::new(&resp[..]);
+                        abstutil::from_binary_reader(decoder)
+                    } else {
+                        abstutil::from_binary(&&resp).map_err(|err| err.to_string())
+                    }
+                });
                 return (self.on_load.take().unwrap())(ctx, app, &mut timer, result);
             }
 

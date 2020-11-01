@@ -2,495 +2,495 @@
   "entries": {
     "data/input/berlin/EWR201812E_Matrix.csv": {
       "checksum": "7966d3e37c45e7ffa4ee26bb6c8cec28",
-      "dropbox_url": "https://www.dropbox.com/s/38fl51jxp5iwuz3/EWR201812E_Matrix.csv.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/6cmgk93bxcriu4b/EWR201812E_Matrix.csv.gz?dl=0"
     },
     "data/input/berlin/berlin_center_separate_cycleways.bin": {
       "checksum": "62c83165cd6ced4ad61d9ecc98ba04c4",
-      "dropbox_url": "https://www.dropbox.com/s/nas6r3pzesmrbdj/berlin_center_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/zb327re3zwry0g5/berlin_center_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/berlin/berlin_center_snapped_cycleways.bin": {
       "checksum": "2ff14b60c55ada6154bad1ce71f1ddb5",
-      "dropbox_url": "https://www.dropbox.com/s/n1kdzjv2iq4gewt/berlin_center_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/p8oqsltnfc7mtip/berlin_center_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/berlin/footways.bin": {
       "checksum": "19d6608e9bc85800706e004e4530a81b",
-      "dropbox_url": "https://www.dropbox.com/s/hkppvpmb8dltslc/footways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/oq1ns3g0qzauawr/footways.bin.gz?dl=0"
     },
     "data/input/berlin/osm/berlin-latest.osm.pbf": {
       "checksum": "8e7f5ecf37631bb975f062593c5add99",
-      "dropbox_url": "https://www.dropbox.com/s/ng5y83wrmrcq16x/berlin-latest.osm.pbf.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/6g190fpbbj22gc1/berlin-latest.osm.pbf.gz?dl=0"
     },
     "data/input/berlin/osm/berlin_center.osm": {
       "checksum": "7411c1f8e1e5ff792445a7cd575f5379",
-      "dropbox_url": "https://www.dropbox.com/s/kl78nzcyuijiji2/berlin_center.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/40c4itpinaogbip/berlin_center.osm.gz?dl=0"
     },
     "data/input/berlin/planning_areas.bin": {
       "checksum": "f1a3bd5118a0e4982b64c2307e01d82a",
-      "dropbox_url": "https://www.dropbox.com/s/pbovhfr6zw0s0ob/planning_areas.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/obddlwxjf7djvip/planning_areas.bin.gz?dl=0"
     },
     "data/input/berlin/planning_areas.kml": {
       "checksum": "1bfc2044f1f5f40acdcdded1a644ad22",
-      "dropbox_url": "https://www.dropbox.com/s/9bvbshrtjw14tm7/planning_areas.kml.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/qpe1i6k2h7xk8l5/planning_areas.kml.gz?dl=0"
     },
     "data/input/berlin/service_roads.bin": {
       "checksum": "be06e4b4136771f8e03a2ba7a5f9b8cd",
-      "dropbox_url": "https://www.dropbox.com/s/g4km7xhshigwz8g/service_roads.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/ybrr87nreq8g29q/service_roads.bin.gz?dl=0"
     },
     "data/input/krakow/footways.bin": {
       "checksum": "b04c0b011e531d6d1396218523deef4a",
-      "dropbox_url": "https://www.dropbox.com/s/lzh230whj83hp8k/footways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/sbk48ubt9jt3tn6/footways.bin.gz?dl=0"
     },
     "data/input/krakow/krakow_center_separate_cycleways.bin": {
       "checksum": "4a3a56819a46c320248bb967d19d0e9f",
-      "dropbox_url": "https://www.dropbox.com/s/dqrc5w5jxpv9nfc/krakow_center_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/vljil5rin981uwz/krakow_center_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/krakow/krakow_center_snapped_cycleways.bin": {
       "checksum": "8eeb3343858a8a065cd0136ccef23b9c",
-      "dropbox_url": "https://www.dropbox.com/s/03f9g4gubb9x3y3/krakow_center_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/endzjoyybhsv345/krakow_center_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/krakow/osm/krakow_center.osm": {
       "checksum": "b914bbcd42a7f769a40a90970cea35f2",
-      "dropbox_url": "https://www.dropbox.com/s/pf3avtszpw732jd/krakow_center.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/brj0x21w47gjocl/krakow_center.osm.gz?dl=0"
     },
     "data/input/krakow/osm/malopolskie-latest.osm.pbf": {
       "checksum": "9505917bbacc478177e36605e89b6d77",
-      "dropbox_url": "https://www.dropbox.com/s/vehjfvwx25v1qnd/malopolskie-latest.osm.pbf.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/jc1d06mjasim0c3/malopolskie-latest.osm.pbf.gz?dl=0"
     },
     "data/input/krakow/service_roads.bin": {
       "checksum": "a702f4fa6680793c7e1047668d8d0b69",
-      "dropbox_url": "https://www.dropbox.com/s/bz2aqd023jr3lhb/service_roads.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/cbg35iupffcfx58/service_roads.bin.gz?dl=0"
     },
     "data/input/london/footways.bin": {
       "checksum": "95816ac4d77d857c561a61830d1998a0",
-      "dropbox_url": "https://www.dropbox.com/s/sw8dnlv4h4jloai/footways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/gz716rytdlqw6nq/footways.bin.gz?dl=0"
     },
     "data/input/london/osm/greater-london-latest.osm.pbf": {
       "checksum": "ef110d0831b482bb7336c82e36b115ed",
-      "dropbox_url": "https://www.dropbox.com/s/wzwjgcd3wsc4sx1/greater-london-latest.osm.pbf.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/egx3g3jhvyd1l1n/greater-london-latest.osm.pbf.gz?dl=0"
     },
     "data/input/london/osm/southbank.osm": {
       "checksum": "b86babace41d69a9e5b8be2310a725ae",
-      "dropbox_url": "https://www.dropbox.com/s/qip39avqaijvxy6/southbank.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/xep4ucuuzg493vk/southbank.osm.gz?dl=0"
     },
     "data/input/london/service_roads.bin": {
       "checksum": "4f651a450d9d6b73618db015c34a03ad",
-      "dropbox_url": "https://www.dropbox.com/s/c477mruya21q9a0/service_roads.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/lvols45zgdbccuo/service_roads.bin.gz?dl=0"
     },
     "data/input/london/southbank_separate_cycleways.bin": {
       "checksum": "9b84c023ca9af0a4709407869709f250",
-      "dropbox_url": "https://www.dropbox.com/s/pahf7kbiuh1j2yr/southbank_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/wo2ri4wgixqcq8j/southbank_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/london/southbank_snapped_cycleways.bin": {
       "checksum": "6cbbe9d6c102a1d35c17ddd1acd7841a",
-      "dropbox_url": "https://www.dropbox.com/s/l4anoe33yuut4vs/southbank_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/9nihx0xtt9xjknq/southbank_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/raw_maps/ballard.bin": {
       "checksum": "9321228f47483f7a14b2747e5ea84885",
-      "dropbox_url": "https://www.dropbox.com/s/lsutjeo51vkovj9/ballard.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/cncmths47hqgev7/ballard.bin.gz?dl=0"
     },
     "data/input/raw_maps/berlin_center.bin": {
       "checksum": "0045c35aada8114ba1c2cf0113708b2f",
-      "dropbox_url": "https://www.dropbox.com/s/8w2nxh5cblzrfb4/berlin_center.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/5ivlbou6dk3uu6p/berlin_center.bin.gz?dl=0"
     },
     "data/input/raw_maps/downtown.bin": {
       "checksum": "a01147203819f1b6f4ea893af4300c44",
-      "dropbox_url": "https://www.dropbox.com/s/kxsfn9mkm488723/downtown.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/o2xd10fqopcik7l/downtown.bin.gz?dl=0"
     },
     "data/input/raw_maps/huge_seattle.bin": {
       "checksum": "77a10eb129d0d5ce61d79192bd55b996",
-      "dropbox_url": "https://www.dropbox.com/s/s45wtib3sucsfqx/huge_seattle.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/ldedc1ncxtydr3y/huge_seattle.bin.gz?dl=0"
     },
     "data/input/raw_maps/krakow_center.bin": {
       "checksum": "d355436d13a89b6c6462a5aa4eb6720b",
-      "dropbox_url": "https://www.dropbox.com/s/98r45iy41vzpdbx/krakow_center.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/bg61y1i1bjrtyfg/krakow_center.bin.gz?dl=0"
     },
     "data/input/raw_maps/lakeslice.bin": {
       "checksum": "5362657bbcdac16ac22aadf58f2a769c",
-      "dropbox_url": "https://www.dropbox.com/s/oxzowm5e4fv42rw/lakeslice.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/t6sdgj3r7jo78il/lakeslice.bin.gz?dl=0"
     },
     "data/input/raw_maps/montlake.bin": {
       "checksum": "60776c41875cad8f79354dff8c4d3d47",
-      "dropbox_url": "https://www.dropbox.com/s/x6l8mv3t9s1laus/montlake.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/xgb2m8dnl7osyzh/montlake.bin.gz?dl=0"
     },
     "data/input/raw_maps/south_seattle.bin": {
       "checksum": "e29c6adc12d97b5b2b8beb643271dcfd",
-      "dropbox_url": "https://www.dropbox.com/s/7eopx665mvwoyu9/south_seattle.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/cggt3o7mh4ulgaz/south_seattle.bin.gz?dl=0"
     },
     "data/input/raw_maps/southbank.bin": {
       "checksum": "a6e3939121a21b99518f481865ef7ee0",
-      "dropbox_url": "https://www.dropbox.com/s/tsoouny9yhzu0qd/southbank.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/czoli9fk078ppqf/southbank.bin.gz?dl=0"
     },
     "data/input/raw_maps/tel_aviv.bin": {
       "checksum": "b6faf60108d82d7308cc15e7edd26f30",
-      "dropbox_url": "https://www.dropbox.com/s/30jg0zq07szh863/tel_aviv.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/zc58fib1hrui960/tel_aviv.bin.gz?dl=0"
     },
     "data/input/raw_maps/udistrict.bin": {
       "checksum": "8dca7ce30cb5e6fa6417f8c2ce737fe2",
-      "dropbox_url": "https://www.dropbox.com/s/kjro4e9mhlg7w89/udistrict.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/1ybin4n8m4lhvw0/udistrict.bin.gz?dl=0"
     },
     "data/input/raw_maps/west_seattle.bin": {
       "checksum": "4ed2b3505bd9ce9ca8158c174b8925e7",
-      "dropbox_url": "https://www.dropbox.com/s/2y7iigvf36xkm85/west_seattle.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/7e5jomffotnt6yl/west_seattle.bin.gz?dl=0"
     },
     "data/input/raw_maps/xian.bin": {
       "checksum": "944535618cda403d0613ed485ef18072",
-      "dropbox_url": "https://www.dropbox.com/s/p5b72r998dd8kxb/xian.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/vgw6vfobljzaf1f/xian.bin.gz?dl=0"
     },
     "data/input/screenshots/downtown.zip": {
       "checksum": "2a1acf61b7711425a42196b6e8002f86",
-      "dropbox_url": "https://www.dropbox.com/s/qawd35wz62m2acl/downtown.zip.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/k1y8tqbgcyvaffd/downtown.zip.gz?dl=0"
     },
     "data/input/screenshots/krakow_center.zip": {
       "checksum": "86485a7b1e81cd7d8efdf87f54d62703",
-      "dropbox_url": "https://www.dropbox.com/s/azea6v6mnxbe0vc/krakow_center.zip.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/lq5313pjaj66904/krakow_center.zip.gz?dl=0"
     },
     "data/input/screenshots/lakeslice.zip": {
       "checksum": "ded10401be78ff8f4482ea75e58b9cee",
-      "dropbox_url": "https://www.dropbox.com/s/06mwgdt6orow3rk/lakeslice.zip.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/1uvs2xr334fzwjn/lakeslice.zip.gz?dl=0"
     },
     "data/input/screenshots/montlake.zip": {
       "checksum": "23fdc0f77af7c72141677055facc59aa",
-      "dropbox_url": "https://www.dropbox.com/s/59xtbot06ps0ab6/montlake.zip.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/yvg1hhjg4whybmh/montlake.zip.gz?dl=0"
     },
     "data/input/screenshots/southbank.zip": {
       "checksum": "575c2f0d07f0ab2689b4590c5309c7dd",
-      "dropbox_url": "https://www.dropbox.com/s/k3dzdsgpa6pac1h/southbank.zip.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/pzcnetuwolkv9kw/southbank.zip.gz?dl=0"
     },
     "data/input/screenshots/udistrict.zip": {
       "checksum": "fedf49cc360a18693418dd66fc9220dc",
-      "dropbox_url": "https://www.dropbox.com/s/efes2r6hwgcv38k/udistrict.zip.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/n3931wlwpikxz2c/udistrict.zip.gz?dl=0"
     },
     "data/input/seattle/N47W122.hgt": {
       "checksum": "0db4e23e51f7680538b0bbbc72208e07",
-      "dropbox_url": "https://www.dropbox.com/s/mmb4mgutwotijdw/N47W122.hgt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/gel850r7t7bdrct/N47W122.hgt.gz?dl=0"
     },
     "data/input/seattle/ballard_separate_cycleways.bin": {
       "checksum": "983e42dacf2136298652abd18332d38c",
-      "dropbox_url": "https://www.dropbox.com/s/yakofl1us2kdnic/ballard_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/jzbil2qr2r4bbgo/ballard_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/ballard_snapped_cycleways.bin": {
       "checksum": "67d84e6e231b62e6e3bd0c80a5580775",
-      "dropbox_url": "https://www.dropbox.com/s/fwfez964qnmgpqi/ballard_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/s1tafjt0db47kte/ballard_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/blockface.bin": {
       "checksum": "add872bab9040ae911366328a230f8b5",
-      "dropbox_url": "https://www.dropbox.com/s/rxd2care60tbe75/blockface.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/ok52innaee0zxsq/blockface.bin.gz?dl=0"
     },
     "data/input/seattle/blockface.kml": {
       "checksum": "350bd9e59bf2af4e885a7c0741e6ee6b",
-      "dropbox_url": "https://www.dropbox.com/s/ukknmpjdvilncq9/blockface.kml.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/umqszk08zub6g7z/blockface.kml.gz?dl=0"
     },
     "data/input/seattle/downtown_separate_cycleways.bin": {
       "checksum": "c07fb57444a0cf62e6d3b633c56dc701",
-      "dropbox_url": "https://www.dropbox.com/s/gyvwkjhyqkmqsdi/downtown_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/bndwgldr898thjg/downtown_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/downtown_snapped_cycleways.bin": {
       "checksum": "ece26188973856f10bcebe54b84b14da",
-      "dropbox_url": "https://www.dropbox.com/s/04udsnariucippl/downtown_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/g82ecr1fvxbukem/downtown_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/footways.bin": {
       "checksum": "09c6aca2ad37d007c6bd40b91886ed95",
-      "dropbox_url": "https://www.dropbox.com/s/u4i3138idj1ih7r/footways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/g7dmqbb9vpeih1e/footways.bin.gz?dl=0"
     },
     "data/input/seattle/google_transit/agency.txt": {
       "checksum": "75f564fcc06b1950b7b33acf9d61f696",
-      "dropbox_url": "https://www.dropbox.com/s/z0idqw556c8ouu0/agency.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/o0626nd98tse9li/agency.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/block.txt": {
       "checksum": "bc4926e7436fe46b2a48117e2d564c9c",
-      "dropbox_url": "https://www.dropbox.com/s/bemtme7l3sjmr8b/block.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/of4ktttrgj1tfgr/block.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/block_trip.txt": {
       "checksum": "8d3626586ddbb1a384931215580de078",
-      "dropbox_url": "https://www.dropbox.com/s/kuztkmujnt9pr1v/block_trip.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/kyr9mdaklxhk6os/block_trip.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/calendar.txt": {
       "checksum": "25572f0a15b93f1fcc2c40752cc3b7de",
-      "dropbox_url": "https://www.dropbox.com/s/z8pu7vfses7pkj0/calendar.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/8t55thp90dfim6c/calendar.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/calendar_dates.txt": {
       "checksum": "df39100d58ac380a4d530dba4bf511f3",
-      "dropbox_url": "https://www.dropbox.com/s/hs37015fsldze59/calendar_dates.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/qh2pptsbffmch6v/calendar_dates.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/fare_attributes.txt": {
       "checksum": "ca5a7569e1af41e0046fe5e8865cf733",
-      "dropbox_url": "https://www.dropbox.com/s/mihy6ptwz5y1vzb/fare_attributes.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/x0b2dwj1zwsv6q3/fare_attributes.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/fare_rules.txt": {
       "checksum": "ac9dbd2b81a25a144e762b059a7781a2",
-      "dropbox_url": "https://www.dropbox.com/s/w390pwjfdxayvfl/fare_rules.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/2flk3kn77iyswo9/fare_rules.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/routes.txt": {
       "checksum": "3cbe6f1230081c6dbbfab04e6ee5c628",
-      "dropbox_url": "https://www.dropbox.com/s/yw9v9lhmzodb4v4/routes.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/by5xoauma397zql/routes.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/shapes.txt": {
       "checksum": "aebada05d6d05c78551adb634b748e22",
-      "dropbox_url": "https://www.dropbox.com/s/gva92cfbfk8y14x/shapes.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/1ta45g2sxytg3wk/shapes.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/stop_times.txt": {
       "checksum": "1f1d148b266142b72ab24816d76a9cee",
-      "dropbox_url": "https://www.dropbox.com/s/zvg6o7olxagd3rt/stop_times.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/mxsc2lffrlrhixs/stop_times.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/stops.txt": {
       "checksum": "da1ff7000efdf2166d861479a69d80a4",
-      "dropbox_url": "https://www.dropbox.com/s/w4g0leglckiv4es/stops.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/8w0fvtq3fpd32wy/stops.txt.gz?dl=0"
     },
     "data/input/seattle/google_transit/trips.txt": {
       "checksum": "e8efe1d2e130e248942188284d88ab09",
-      "dropbox_url": "https://www.dropbox.com/s/lw0hhnqttns2h8z/trips.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/rtkawykjcr5cy5g/trips.txt.gz?dl=0"
     },
     "data/input/seattle/huge_seattle_separate_cycleways.bin": {
       "checksum": "744e46e61772fcb1e54a6433d96a014f",
-      "dropbox_url": "https://www.dropbox.com/s/8cqiy4cuodssx3o/huge_seattle_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/fdrbkxtkrzgm229/huge_seattle_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/huge_seattle_snapped_cycleways.bin": {
       "checksum": "2ee113099cf71c6b88d6155b302fc405",
-      "dropbox_url": "https://www.dropbox.com/s/n613496yq3f4kcq/huge_seattle_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/23b9jqfpljjmeqb/huge_seattle_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/lakeslice_separate_cycleways.bin": {
       "checksum": "7e1be794e04f6871c516795c782cfa84",
-      "dropbox_url": "https://www.dropbox.com/s/gy6ojoe4eph5thd/lakeslice_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/tykdoibm8uyn76v/lakeslice_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/lakeslice_snapped_cycleways.bin": {
       "checksum": "30916279d151f97fd7ff6653eaef8719",
-      "dropbox_url": "https://www.dropbox.com/s/5uf52oy8qubzzcl/lakeslice_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/orusz8jbdp3yhs8/lakeslice_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/montlake_separate_cycleways.bin": {
       "checksum": "7417ed41c89d4e5ae151fe9fd1e9c13f",
-      "dropbox_url": "https://www.dropbox.com/s/qzl6dm4nyzg0ztl/montlake_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/fsrn01extdzti8y/montlake_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/montlake_snapped_cycleways.bin": {
       "checksum": "bad5e9c0a0ca11b8e73d79e47ab903a2",
-      "dropbox_url": "https://www.dropbox.com/s/yqv2zvt66ceyaij/montlake_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/ylgw3c6oxx1wqio/montlake_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/offstreet_parking.bin": {
       "checksum": "a33c05e8962dfe10a7a14b9eb6413803",
-      "dropbox_url": "https://www.dropbox.com/s/7j2gwb18685kd5u/offstreet_parking.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/1gknl1417hopko3/offstreet_parking.bin.gz?dl=0"
     },
     "data/input/seattle/offstreet_parking.kml": {
       "checksum": "e24d1c308ca739df73621846c7b7847c",
-      "dropbox_url": "https://www.dropbox.com/s/dkkkpywob7cdo57/offstreet_parking.kml.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/mn22g1ekj32zxkp/offstreet_parking.kml.gz?dl=0"
     },
     "data/input/seattle/osm/ballard.osm": {
       "checksum": "f1fabfda271614393aee8c9aa4797afa",
-      "dropbox_url": "https://www.dropbox.com/s/8zj58c49mjcsvwc/ballard.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/kufho6vgj7fr5qw/ballard.osm.gz?dl=0"
     },
     "data/input/seattle/osm/downtown.osm": {
       "checksum": "390d049823a5be08b10eb62e8321d922",
-      "dropbox_url": "https://www.dropbox.com/s/h8uwqmpca37np5o/downtown.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/g3hkytisju10bm4/downtown.osm.gz?dl=0"
     },
     "data/input/seattle/osm/huge_seattle.osm": {
       "checksum": "b53c5c9d9ed5d3c0d08832471161abe5",
-      "dropbox_url": "https://www.dropbox.com/s/ml4q3k083l0s7qo/huge_seattle.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/869bqvgvj1gwthk/huge_seattle.osm.gz?dl=0"
     },
     "data/input/seattle/osm/lakeslice.osm": {
       "checksum": "dafae542f1f70fbb4111e56d79531c02",
-      "dropbox_url": "https://www.dropbox.com/s/ryj1km16zvrkfb8/lakeslice.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/8g8hceuhjkg2ybe/lakeslice.osm.gz?dl=0"
     },
     "data/input/seattle/osm/montlake.osm": {
       "checksum": "54d1a86b873ba135f3220ddd89899bb7",
-      "dropbox_url": "https://www.dropbox.com/s/yrxuk3oz8fxnlk8/montlake.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/5seo70crmep75lk/montlake.osm.gz?dl=0"
     },
     "data/input/seattle/osm/south_seattle.osm": {
       "checksum": "aeafea7b1d390389f0ea75a30954008e",
-      "dropbox_url": "https://www.dropbox.com/s/2218txoe568sdbh/south_seattle.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/zg6vuw5yh0682bw/south_seattle.osm.gz?dl=0"
     },
     "data/input/seattle/osm/udistrict.osm": {
       "checksum": "41d0109c61665a53b5cd1bd11acf0363",
-      "dropbox_url": "https://www.dropbox.com/s/o7gwp3vzgsrhbz8/udistrict.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/sw1usti80zi5l91/udistrict.osm.gz?dl=0"
     },
     "data/input/seattle/osm/washington-latest.osm.pbf": {
       "checksum": "948d49da8aae15d99bd36e95c7c27ef2",
-      "dropbox_url": "https://www.dropbox.com/s/b160fhf3tfo8ucn/washington-latest.osm.pbf.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/z8z0yjmb2gmd14e/washington-latest.osm.pbf.gz?dl=0"
     },
     "data/input/seattle/osm/west_seattle.osm": {
       "checksum": "d8a7e897774db567728f9a70337ef376",
-      "dropbox_url": "https://www.dropbox.com/s/wt578gwg42ml9ow/west_seattle.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/mnmmeeio3houmqi/west_seattle.osm.gz?dl=0"
     },
     "data/input/seattle/parcels.bin": {
       "checksum": "9cd91b7fa68b13634b21be7abfa0e654",
-      "dropbox_url": "https://www.dropbox.com/s/m454cixa7nbhq2m/parcels.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/zc8i4trb74lgrx5/parcels.bin.gz?dl=0"
     },
     "data/input/seattle/parcels_urbansim.txt": {
       "checksum": "db63d7d606e8702d12f9399e87e6a00f",
-      "dropbox_url": "https://www.dropbox.com/s/6g8rbsf200dssj3/parcels_urbansim.txt.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/f7a9dt3xtd00cqi/parcels_urbansim.txt.gz?dl=0"
     },
     "data/input/seattle/popdat.bin": {
       "checksum": "592592ec7bd0dadc7b09ee96a4d086a7",
-      "dropbox_url": "https://www.dropbox.com/s/fe8xsfhuan7w7dj/popdat.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/g6m6sjrx3lpo55a/popdat.bin.gz?dl=0"
     },
     "data/input/seattle/service_roads.bin": {
       "checksum": "550f1e72408b63781596ec26b6daa1d0",
-      "dropbox_url": "https://www.dropbox.com/s/0konam8z33ulepy/service_roads.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/2cyxiwagdi2bfkv/service_roads.bin.gz?dl=0"
     },
     "data/input/seattle/south_seattle_separate_cycleways.bin": {
       "checksum": "ac6d6bd1b39a3957d165ca14a289546d",
-      "dropbox_url": "https://www.dropbox.com/s/fk94a8knqhgoal8/south_seattle_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/spjj5x9m2ygy9p4/south_seattle_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/south_seattle_snapped_cycleways.bin": {
       "checksum": "92bb9e7d7b8d89e63ecb4d9fe54e3b7f",
-      "dropbox_url": "https://www.dropbox.com/s/lcu1u73kubxty9k/south_seattle_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/3ut3bcakvzjag9r/south_seattle_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/trips_2014.csv": {
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
-      "dropbox_url": "https://www.dropbox.com/s/5ppravwmk6bf20d/trips_2014.csv.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/cv5gycnstf1vr9o/trips_2014.csv.gz?dl=0"
     },
     "data/input/seattle/udistrict_separate_cycleways.bin": {
       "checksum": "a6601bffd72f805630b2a9ec2d983ff1",
-      "dropbox_url": "https://www.dropbox.com/s/xuirn6lg87am8st/udistrict_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/to0srtr35qsf83f/udistrict_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/udistrict_snapped_cycleways.bin": {
       "checksum": "937654a8be61da06486d3c5c5304132c",
-      "dropbox_url": "https://www.dropbox.com/s/zpznqax43fxl7xp/udistrict_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/9siwmoeahm55ug5/udistrict_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/west_seattle_separate_cycleways.bin": {
       "checksum": "59c16b61c4828d0dfadf0650bfc7297c",
-      "dropbox_url": "https://www.dropbox.com/s/6xj9gs5jld7peef/west_seattle_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/d4cfbqux3pz1pf6/west_seattle_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/seattle/west_seattle_snapped_cycleways.bin": {
       "checksum": "4a8e438b0795360aa7fec1ebacd64233",
-      "dropbox_url": "https://www.dropbox.com/s/f7dz2e4o6k4c2ix/west_seattle_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/x0qi1rxw14ccu8o/west_seattle_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/tel_aviv/footways.bin": {
       "checksum": "4fb70e32d0cc3ddeaa8924c240bc9d5b",
-      "dropbox_url": "https://www.dropbox.com/s/ka38f1kwjgm0fpo/footways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/02gtb03q5delie3/footways.bin.gz?dl=0"
     },
     "data/input/tel_aviv/osm/israel-and-palestine-latest.osm.pbf": {
       "checksum": "d5b0d6a26bfdedd32cc5c9c26e6fd426",
-      "dropbox_url": "https://www.dropbox.com/s/ehwhbhp03zuy1qn/israel-and-palestine-latest.osm.pbf.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/ccqhfnst4vm39q1/israel-and-palestine-latest.osm.pbf.gz?dl=0"
     },
     "data/input/tel_aviv/osm/tel_aviv.osm": {
       "checksum": "eeb7f3813a33f754eceed13766a3c236",
-      "dropbox_url": "https://www.dropbox.com/s/kqvn0iifhmmcjve/tel_aviv.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/wmiut0z40xkkd8q/tel_aviv.osm.gz?dl=0"
     },
     "data/input/tel_aviv/service_roads.bin": {
       "checksum": "216407d6f112683e81973fbb11af6403",
-      "dropbox_url": "https://www.dropbox.com/s/7rscshpat7dyzxv/service_roads.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/5sjdqemot922tkx/service_roads.bin.gz?dl=0"
     },
     "data/input/tel_aviv/tel_aviv_separate_cycleways.bin": {
       "checksum": "e93d116abd39463656d61ffa2a71ca07",
-      "dropbox_url": "https://www.dropbox.com/s/p62d1gum2e04rp9/tel_aviv_separate_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/t5m27jm9n95uvzg/tel_aviv_separate_cycleways.bin.gz?dl=0"
     },
     "data/input/tel_aviv/tel_aviv_snapped_cycleways.bin": {
       "checksum": "58bcaad6a593b6981c4f4cede45c8abb",
-      "dropbox_url": "https://www.dropbox.com/s/wq2oco1u22gzwou/tel_aviv_snapped_cycleways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/4qv8f33dexqalaf/tel_aviv_snapped_cycleways.bin.gz?dl=0"
     },
     "data/input/xian/footways.bin": {
       "checksum": "425becbab867631415fe49edcf8f9694",
-      "dropbox_url": "https://www.dropbox.com/s/6hf4t4ovk1m1wi3/footways.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/nyypqskbb95v29s/footways.bin.gz?dl=0"
     },
     "data/input/xian/osm/china-latest.osm.pbf": {
       "checksum": "0108807f1dc321d5de5579622ac3f4cf",
-      "dropbox_url": "https://www.dropbox.com/s/qewwxtioocbv3ld/china-latest.osm.pbf.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/n7clagxq06ppqit/china-latest.osm.pbf.gz?dl=0"
     },
     "data/input/xian/osm/xian.osm": {
       "checksum": "4084c665ad947bb40173a43cb33fdec8",
-      "dropbox_url": "https://www.dropbox.com/s/j5qwt33bs077sd2/xian.osm.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/ygv2ckeb0f7t5a1/xian.osm.gz?dl=0"
     },
     "data/input/xian/service_roads.bin": {
       "checksum": "c9a1a296817cfbd6c64dbe0d3389c40a",
-      "dropbox_url": "https://www.dropbox.com/s/wm4ga2kay4v4ija/service_roads.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/0a70c642858qbna/service_roads.bin.gz?dl=0"
     },
     "data/system/cities/seattle.bin": {
       "checksum": "b9e9b4e33104749dd14ffbcd746748fa",
-      "dropbox_url": "https://www.dropbox.com/s/hicb7s0v35r6xjc/seattle.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/6qmpjesv2juh2ui/seattle.bin.gz?dl=0"
     },
     "data/system/maps/ballard.bin": {
       "checksum": "ed117b0621390012b04a45a2f1ac8feb",
-      "dropbox_url": "https://www.dropbox.com/s/k3c7ui35lmqq5u8/ballard.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/zjavtq94i13rrmv/ballard.bin.gz?dl=0"
     },
     "data/system/maps/berlin_center.bin": {
       "checksum": "c40f03373d26e5ffc484dd95424d21d3",
-      "dropbox_url": "https://www.dropbox.com/s/0hpq5in7cbqax05/berlin_center.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/rp4yi43ivlyqoil/berlin_center.bin.gz?dl=0"
     },
     "data/system/maps/downtown.bin": {
       "checksum": "6be61fd8572298032a74cc08052af2a9",
-      "dropbox_url": "https://www.dropbox.com/s/vmws6o9bwjfd3ub/downtown.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/vzkif8hvqo2ep50/downtown.bin.gz?dl=0"
     },
     "data/system/maps/huge_seattle.bin": {
       "checksum": "c8c6233e513c7ce62bbf9b27112950db",
-      "dropbox_url": "https://www.dropbox.com/s/pzps0toxauarfmn/huge_seattle.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/fff3h6g06g9mirm/huge_seattle.bin.gz?dl=0"
     },
     "data/system/maps/krakow_center.bin": {
       "checksum": "c5222753fd657a970bc5401be8279784",
-      "dropbox_url": "https://www.dropbox.com/s/b409sa7pvkn8tzk/krakow_center.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/6l3iubvqz7uhmv5/krakow_center.bin.gz?dl=0"
     },
     "data/system/maps/lakeslice.bin": {
       "checksum": "47c1a0e4a13dbc015b265919cccaa2df",
-      "dropbox_url": "https://www.dropbox.com/s/6qhbexyyxn4b7wh/lakeslice.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/y2roopngq5yec2t/lakeslice.bin.gz?dl=0"
     },
     "data/system/maps/montlake.bin": {
       "checksum": "86ea849df7f406b6e9e72fb69bc16566",
-      "dropbox_url": "https://www.dropbox.com/s/bowb0vkfyhbc51i/montlake.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/clbkw35ltsr6dz5/montlake.bin.gz?dl=0"
     },
     "data/system/maps/south_seattle.bin": {
       "checksum": "92f3f243ab915dfe610e83a32f59043f",
-      "dropbox_url": "https://www.dropbox.com/s/6r5opuhtdh7vfh8/south_seattle.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/rouk8g6z0ec4jp3/south_seattle.bin.gz?dl=0"
     },
     "data/system/maps/southbank.bin": {
       "checksum": "4a86c5456b48b5f997ee14127c19993b",
-      "dropbox_url": "https://www.dropbox.com/s/166sm39dylmnziy/southbank.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/47zsurhkxxpw40c/southbank.bin.gz?dl=0"
     },
     "data/system/maps/tel_aviv.bin": {
       "checksum": "0e4a871d9a2f0c498231688d21629d91",
-      "dropbox_url": "https://www.dropbox.com/s/ezyfueg4g6am0ix/tel_aviv.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/6p68obas1fls56o/tel_aviv.bin.gz?dl=0"
     },
     "data/system/maps/udistrict.bin": {
       "checksum": "db35246fbfbfd0c0e674bb850befb66c",
-      "dropbox_url": "https://www.dropbox.com/s/3ax0tacyesc0z8n/udistrict.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/fmummxsjqd5ndos/udistrict.bin.gz?dl=0"
     },
     "data/system/maps/west_seattle.bin": {
       "checksum": "e86aac372286cfc073e9703cccaacbcd",
-      "dropbox_url": "https://www.dropbox.com/s/y3qct460y2a7kh3/west_seattle.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/15avdntkp82aivo/west_seattle.bin.gz?dl=0"
     },
     "data/system/maps/xian.bin": {
       "checksum": "f8961e14f4d83e0b954af2d7ba8c6b97",
-      "dropbox_url": "https://www.dropbox.com/s/ygyfwmmq0zzvuvq/xian.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/ftqotsj4bx96l9q/xian.bin.gz?dl=0"
     },
     "data/system/prebaked_results/lakeslice/weekday.bin": {
       "checksum": "b88f9345a2a45cf38d01e1a386ed9379",
-      "dropbox_url": "https://www.dropbox.com/s/svds555uyos3etq/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/73cjk9fgj8iimug/weekday.bin.gz?dl=0"
     },
     "data/system/prebaked_results/montlake/car vs bike contention.bin": {
       "checksum": "e602068a44a8c2e2aa6852013e54d752",
-      "dropbox_url": "https://www.dropbox.com/s/jefg0ikjy9dsrdd/car%20vs%20bike%20contention.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/hnhydaypg7dsgfe/car%20vs%20bike%20contention.bin.gz?dl=0"
     },
     "data/system/prebaked_results/montlake/weekday.bin": {
       "checksum": "b1edd2760b0e6e1956609e6472b95da7",
-      "dropbox_url": "https://www.dropbox.com/s/0jmesld15jhybn9/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/yjaxfy6j10if04k/weekday.bin.gz?dl=0"
     },
     "data/system/scenarios/ballard/weekday.bin": {
       "checksum": "ae0d591f1386da1067e9389ebdb58547",
-      "dropbox_url": "https://www.dropbox.com/s/nwl7o00ri4b37bt/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/7itcvm1oh5ft3bi/weekday.bin.gz?dl=0"
     },
     "data/system/scenarios/downtown/weekday.bin": {
       "checksum": "ab1f9132a4ed12641a27492586f154cb",
-      "dropbox_url": "https://www.dropbox.com/s/8l1izky0fkth9tx/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/n7lq3btuslji8sw/weekday.bin.gz?dl=0"
     },
     "data/system/scenarios/huge_seattle/weekday.bin": {
       "checksum": "16ebca93a10e77d5012eaa37c796f5db",
-      "dropbox_url": "https://www.dropbox.com/s/5abjeeadgjnvay2/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/eahbd3tghgdt9y6/weekday.bin.gz?dl=0"
     },
     "data/system/scenarios/lakeslice/weekday.bin": {
       "checksum": "c8f246737bdc077e1f16c889bc7a409b",
-      "dropbox_url": "https://www.dropbox.com/s/alhvwh89ldnoxsk/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/gpkwhvfscry09nt/weekday.bin.gz?dl=0"
     },
     "data/system/scenarios/montlake/weekday.bin": {
       "checksum": "9679c6c1469dbcdaaca867e7b4303623",
-      "dropbox_url": "https://www.dropbox.com/s/d4bzrt4w0fbatpc/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/dr03jf6oa7umylr/weekday.bin.gz?dl=0"
     },
     "data/system/scenarios/south_seattle/weekday.bin": {
       "checksum": "d9c28ce9d855eddbc3f5082b3f6d4401",
-      "dropbox_url": "https://www.dropbox.com/s/riqpem8y6ucdk00/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/gv787817n0aww7p/weekday.bin.gz?dl=0"
     },
     "data/system/scenarios/udistrict/weekday.bin": {
       "checksum": "f4d428ef447118f94e8f6b6c7ef6642b",
-      "dropbox_url": "https://www.dropbox.com/s/6npbtl1e2osbq2a/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/t4h56x0g3j4gi6t/weekday.bin.gz?dl=0"
     },
     "data/system/scenarios/west_seattle/weekday.bin": {
       "checksum": "11e7bfcbd8d56f9e71af5e122cb3d389",
-      "dropbox_url": "https://www.dropbox.com/s/xob10d16ayq8wyi/weekday.bin.zip?dl=0"
+      "dropbox_url": "https://www.dropbox.com/s/84qe0ut6175fyxo/weekday.bin.gz?dl=0"
     }
   }
 }

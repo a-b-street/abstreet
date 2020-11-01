@@ -26,6 +26,11 @@ pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Box<dyn Erro
     bincode::deserialize(raw).map_err(|x| x.into())
 }
 
+/// Deserializes an object from the bincode format, from a reader.
+pub fn from_binary_reader<R: std::io::Read, T: DeserializeOwned>(reader: R) -> Result<T, String> {
+    bincode::deserialize_from(reader).map_err(|x| x.to_string())
+}
+
 /// The number of bytes for an object serialized to bincode.
 pub fn serialized_size_bytes<T: Serialize>(obj: &T) -> usize {
     bincode::serialized_size(obj).unwrap() as usize
