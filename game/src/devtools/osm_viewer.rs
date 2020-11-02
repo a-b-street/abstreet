@@ -89,11 +89,22 @@ impl Viewer {
             Some(ID::Lane(l)) => {
                 let r = app.primary.map.get_parent(l);
                 col.push(
-                    Btn::text_bg2(format!("Open OSM way {}", r.orig_id.osm_way_id.0)).build(
-                        ctx,
-                        format!("open {}", r.orig_id.osm_way_id),
-                        None,
-                    ),
+                    Widget::row(vec![
+                        Btn::text_bg2(format!("Open OSM way {}", r.orig_id.osm_way_id.0)).build(
+                            ctx,
+                            format!("open {}", r.orig_id.osm_way_id),
+                            None,
+                        ),
+                        Btn::text_bg2("Edit OSM way").build(
+                            ctx,
+                            format!(
+                                "open https://www.openstreetmap.org/edit?way={}",
+                                r.orig_id.osm_way_id.0
+                            ),
+                            None,
+                        ),
+                    ])
+                    .evenly_spaced(),
                 );
 
                 let tags = &r.osm_tags;

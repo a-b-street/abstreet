@@ -1,8 +1,8 @@
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
-    Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome,
-    Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
+    Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -206,10 +206,12 @@ impl Minimap {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                app.unzoomed_agents.cars = self.panel.is_checked("Car");
-                app.unzoomed_agents.bikes = self.panel.is_checked("Bike");
-                app.unzoomed_agents.buses_and_trains = self.panel.is_checked("Bus");
-                app.unzoomed_agents.peds = self.panel.is_checked("Pedestrian");
+                if self.panel.has_widget("Car") {
+                    app.unzoomed_agents.cars = self.panel.is_checked("Car");
+                    app.unzoomed_agents.bikes = self.panel.is_checked("Bike");
+                    app.unzoomed_agents.buses_and_trains = self.panel.is_checked("Bus");
+                    app.unzoomed_agents.peds = self.panel.is_checked("Pedestrian");
+                }
                 if self.panel.has_widget("zorder") {
                     app.primary.show_zorder = self.panel.spinner("zorder");
                 }
@@ -368,10 +370,15 @@ fn make_minimap_panel(
         // Also, double column to avoid the background color stretching to the bottom of the row.
         Widget::custom_col(vec![
             Widget::custom_col(col).padding(10).bg(app.cs.inner_panel),
-            if app.opts.dev {
-                Spinner::new(ctx, app.primary.zorder_range, app.primary.show_zorder)
-                    .named("zorder")
-                    .margin_above(10)
+            // Enable the Z-order picker in dev mode or the OSM viewer (when the extra_controls for
+            // agents and layers are hidden).
+            if app.opts.dev || !extra_controls {
+                Widget::col(vec![
+                    Line("Z-order:").small().draw(ctx),
+                    Spinner::new(ctx, app.primary.zorder_range, app.primary.show_zorder)
+                        .named("zorder"),
+                ])
+                .margin_above(10)
             } else {
                 Widget::nothing()
             },

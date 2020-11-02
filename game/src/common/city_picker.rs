@@ -2,8 +2,8 @@ use abstutil::prettyprint_usize;
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    Autocomplete, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel,
-    ScreenPt, State, Text, TextExt, Widget,
+    Autocomplete, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, ScreenPt, State, Text, TextExt, Widget,
 };
 
 use crate::app::App;
@@ -88,7 +88,7 @@ impl CityPicker {
                 Btn::text_bg2(format!("{} more cities", prettyprint_usize(more_cities))).build(
                     ctx,
                     "more cities",
-                    None,
+                    Key::Tab,
                 ),
             );
         }
