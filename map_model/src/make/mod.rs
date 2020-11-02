@@ -196,24 +196,6 @@ impl Map {
                     biking_blackhole: false,
                 });
             }
-            if road.get_name(None) == "???" {
-                // Suppress the warning in some cases.
-                if !(road.osm_tags.is("noname", "yes")
-                    || road
-                        .osm_tags
-                        .get(osm::HIGHWAY)
-                        .map(|x| x.ends_with("_link"))
-                        .unwrap_or(false)
-                    || road.osm_tags.is_any("railway", vec!["rail", "light_rail"])
-                    || road.osm_tags.is("junction", "roundabout")
-                    || road.osm_tags.is("highway", "service"))
-                {
-                    timer.warn(format!(
-                        "{} has no name. Tags: {:?}",
-                        road.orig_id, road.osm_tags
-                    ));
-                }
-            }
             map.roads.push(road);
         }
 
@@ -249,7 +231,7 @@ impl Map {
             if i.is_border() || i.is_closed() {
                 continue;
             }
-            if i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty() {
+            if !i.is_footway(&map) && (i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty()) {
                 timer.warn(format!("{} is orphaned!", i.orig_id));
                 continue;
             }

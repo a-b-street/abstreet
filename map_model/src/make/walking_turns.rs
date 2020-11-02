@@ -10,6 +10,10 @@ use crate::{
 
 /// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns
 pub fn make_walking_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
+    if i.is_footway(map) {
+        return make_footway_turns(map, i);
+    }
+
     let driving_side = map.config.driving_side;
     let all_roads = map.all_roads();
     let lanes = map.all_lanes();
@@ -251,6 +255,45 @@ pub fn _make_walking_turns_v2(map: &Map, i: &Intersection, timer: &mut Timer) ->
     }
 
     result
+}
+
+/// At an intersection of footpaths only, just generate a turn between every pair of lanes.
+fn make_footway_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
+    let lanes = i
+        .incoming_lanes
+        .iter()
+        .chain(&i.outgoing_lanes)
+        .filter_map(|l| {
+            let l = map.get_l(*l);
+            if l.is_walkable() {
+                Some(l)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<&Lane>>();
+    let mut results = Vec::new();
+    for l1 in &lanes {
+        for l2 in &lanes {
+            if l1.id == l2.id {
+                continue;
+            }
+            let maybe_geom = PolyLine::new(vec![l1.endpoint(i.id), l2.endpoint(i.id)]);
+            let geom = maybe_geom.unwrap_or_else(|_| {
+                // TODO Gross! After improving intersection geometry where these cases are
+                // happening, if this still happens, maybe it's time to make turn geometry be
+                // optional.
+                PolyLine::must_new(vec![l1.endpoint(i.id), l1.endpoint(i.id).offset(0.1, 0.1)])
+            });
+            results.push(Turn {
+                id: turn_id(i.id, l1.id, l2.id),
+                turn_type: TurnType::SharedSidewalkCorner,
+                other_crosswalk_ids: BTreeSet::new(),
+                geom,
+            });
+        }
+    }
+    results
 }
 
 fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Option<Vec<Turn>> {

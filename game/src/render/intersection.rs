@@ -205,6 +205,10 @@ impl Renderable for DrawIntersection {
 
 // TODO Temporarily public for debugging.
 pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
+    if i.is_footway(map) {
+        return Vec::new();
+    }
+
     let mut corners = Vec::new();
 
     for turn in map.get_turns_in_intersection(i.id) {

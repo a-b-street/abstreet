@@ -10,8 +10,6 @@ use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
 
 /// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
 pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Turn> {
-    assert!(!i.is_border());
-
     let mut raw_turns: Vec<Turn> = Vec::new();
     raw_turns.extend(make_vehicle_turns(i, map, timer));
     raw_turns.extend(crate::make::walking_turns::make_walking_turns(
