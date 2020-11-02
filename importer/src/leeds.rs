@@ -4,35 +4,33 @@ use crate::utils::{download, osmconvert};
 fn input(config: &ImporterConfiguration) {
     download(
         config,
-        "input/krakow/osm/malopolskie-latest.osm.pbf",
-        "http://download.geofabrik.de/europe/poland/malopolskie-latest.osm.pbf",
+        "input/leeds/osm/west-yorkshire.osm.pbf",
+        "https://download.geofabrik.de/europe/great-britain/england/west-yorkshire-latest.osm.pbf",
     );
 }
 
 pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {
     input(config);
     osmconvert(
-        "input/krakow/osm/malopolskie-latest.osm.pbf",
-        format!("input/krakow/polygons/{}.poly", name),
-        format!("input/krakow/osm/{}.osm", name),
+        "input/leeds/osm/west-yorkshire-latest.osm.pbf",
+        format!("input/leeds/polygons/{}.poly", name),
+        format!("input/leeds/osm/{}.osm", name),
         config,
     );
 
     let map = convert_osm::convert(
         convert_osm::Options {
-            osm_input: abstutil::path(format!("input/krakow/osm/{}.osm", name)),
-            city_name: "krakow".to_string(),
+            osm_input: abstutil::path(format!("input/leeds/osm/{}.osm", name)),
+            city_name: "leeds".to_string(),
             name: name.to_string(),
 
             clip: Some(abstutil::path(format!(
-                "input/krakow/polygons/{}.poly",
+                "input/leeds/polygons/{}.poly",
                 name
             ))),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: false,
-                // This is experimental and will break many things, but Kraków is one of the best
-                // places to iterate on https://github.com/dabreegster/abstreet/issues/161.
                 inferred_sidewalks: false,
             },
 
