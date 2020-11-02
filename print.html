@@ -1159,7 +1159,7 @@ needed. If possible, it's simpler to create a Scenario as input.</p>
 <p>You can also generate different variations of one of the
 <a href="dev/../trafficsim/travel_demand.html#proletariat-robot">demand models</a> by specifying
 an RNG seed:</p>
-<pre><code>cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin &gt; data/system/scenarios/montlake/home_to_work.json
+<pre><code>cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin --scenario_name=home_to_work
 </code></pre>
 <p>You can also dump Scenarios (the file that defines all of the people and trips)
 to JSON:</p>

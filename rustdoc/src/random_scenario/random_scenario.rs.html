@@ -16,6 +16,9 @@
 <span id="15">15</span>
 <span id="16">16</span>
 <span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -29,10 +32,13 @@
     <span class="kw">let</span> <span class="ident">seed</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--rng&quot;</span>).<span class="ident">parse</span>().<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">seed</span>);
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--map&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
+    <span class="kw">let</span> <span class="ident">scenario_name</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--scenario_name&quot;</span>);
     <span class="ident">args</span>.<span class="ident">done</span>();
 
-    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">ScenarioGenerator</span>::<span class="ident">proletariat_robot</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
-    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span>
+        <span class="ident">ScenarioGenerator</span>::<span class="ident">proletariat_robot</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
+    <span class="ident">scenario</span>.<span class="ident">scenario_name</span> <span class="op">=</span> <span class="ident">scenario_name</span>;
+    <span class="ident">scenario</span>.<span class="ident">save</span>();
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "random_scenario";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
