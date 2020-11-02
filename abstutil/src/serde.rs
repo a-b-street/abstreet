@@ -21,6 +21,11 @@ pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Box<dyn Error>
     serde_json::from_slice(raw).map_err(|x| x.into())
 }
 
+/// Deserializes an object from JSON, from a reader.
+pub fn from_json_reader<R: std::io::Read, T: DeserializeOwned>(reader: R) -> Result<T, String> {
+    serde_json::from_reader(reader).map_err(|x| x.to_string())
+}
+
 /// Deserializes an object from the bincode format.
 pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Box<dyn Error>> {
     bincode::deserialize(raw).map_err(|x| x.into())

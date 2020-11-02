@@ -102,9 +102,12 @@ mod native_loader {
     impl<T: 'static + DeserializeOwned> State<App> for FileLoader<T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
-                // Assumes a binary file
-                let file = abstutil::maybe_read_binary(self.path.clone(), timer)
-                    .map_err(|err| err.to_string());
+                let file = if self.path.ends_with(".bin") {
+                    abstutil::maybe_read_binary(self.path.clone(), timer)
+                } else {
+                    abstutil::maybe_read_json(self.path.clone(), timer)
+                }
+                .map_err(|err| err.to_string());
                 (self.on_load.take().unwrap())(ctx, app, timer, file)
             })
         }
@@ -213,9 +216,15 @@ mod wasm_loader {
                 let result = maybe_resp.and_then(|resp| {
                     if self.url.ends_with(".gz") {
                         let decoder = flate2::read::GzDecoder::new(&resp[..]);
-                        abstutil::from_binary_reader(decoder)
-                    } else {
+                        if self.url.ends_with(".bin.gz") {
+                            abstutil::from_binary_reader(decoder)
+                        } else {
+                            abstutil::from_json_reader(decoder)
+                        }
+                    } else if self.url.ends_with(".bin") {
                         abstutil::from_binary(&&resp).map_err(|err| err.to_string())
+                    } else {
+                        abstutil::from_json(&&resp).map_err(|err| err.to_string())
                     }
                 });
                 return (self.on_load.take().unwrap())(ctx, app, &mut timer, result);
