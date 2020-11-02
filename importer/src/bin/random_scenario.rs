@@ -10,8 +10,11 @@ fn main() {
     let seed: u64 = args.required("--rng").parse().unwrap();
     let mut rng = XorShiftRng::seed_from_u64(seed);
     let map = Map::new(args.required("--map"), &mut Timer::throwaway());
+    let scenario_name = args.required("--scenario_name");
     args.done();
 
-    let scenario = ScenarioGenerator::proletariat_robot(&map, &mut rng, &mut Timer::throwaway());
-    println!("{}", abstutil::to_json(&scenario));
+    let mut scenario =
+        ScenarioGenerator::proletariat_robot(&map, &mut rng, &mut Timer::throwaway());
+    scenario.scenario_name = scenario_name;
+    scenario.save();
 }

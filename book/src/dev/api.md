@@ -125,7 +125,7 @@ You can also generate different variations of one of the
 an RNG seed:
 
 ```
-cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin > data/system/scenarios/montlake/home_to_work.json
+cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin --scenario_name=home_to_work
 ```
 
 You can also dump Scenarios (the file that defines all of the people and trips)
