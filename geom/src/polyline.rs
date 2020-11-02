@@ -653,6 +653,14 @@ impl PolyLine {
             }
         }
 
+        // TODO Why is any of this necessary? Found a test case at the intersection geometry for
+        // https://www.openstreetmap.org/node/274088813 where this made a huge difference!
+        if closest_intersection.is_none() {
+            if self.last_pt() == other.last_pt() {
+                return Some((self.last_pt(), self.last_line().angle()));
+            }
+        }
+
         closest_intersection
     }
 

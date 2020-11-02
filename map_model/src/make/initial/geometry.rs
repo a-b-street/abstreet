@@ -444,7 +444,7 @@ fn on_off_ramp(
                         .and_then(|trim_to| thin.center.get_slice_ending_at(trim_to))?;
 
                     // Do the same for the thick road
-                    let (_, angle) = thick_pl.dist_along_of_point(hit).unwrap();
+                    let (_, angle) = thick_pl.dist_along_of_point(hit)?;
                     let perp = Line::must_new(
                         hit,
                         hit.project_away(Distance::meters(1.0), angle.rotate_degs(90.0)),
