@@ -5,7 +5,7 @@ fn input(config: &ImporterConfiguration) {
     download(
         config,
         "input/leeds/osm/west-yorkshire.osm.pbf",
-        "https://download.geofabrik.de/europe/great-britain/england/west-yorkshire.osm.pbf",
+        "https://download.geofabrik.de/europe/great-britain/england/west-yorkshire-latest.osm.pbf",
     );
 }
 
