@@ -367,8 +367,6 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -382,8 +380,6 @@
 
 <span class="doccomment">/// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_all_turns</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">i</span>.<span class="ident">is_border</span>());
-
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="ident">raw_turns</span>.<span class="ident">extend</span>(<span class="ident">make_vehicle_turns</span>(<span class="ident">i</span>, <span class="ident">map</span>, <span class="ident">timer</span>));
     <span class="ident">raw_turns</span>.<span class="ident">extend</span>(<span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">walking_turns</span>::<span class="ident">make_walking_turns</span>(
