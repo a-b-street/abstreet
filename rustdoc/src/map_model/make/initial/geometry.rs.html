@@ -1028,7 +1028,7 @@
                         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">trim_to</span><span class="op">|</span> <span class="ident">thin</span>.<span class="ident">center</span>.<span class="ident">get_slice_ending_at</span>(<span class="ident">trim_to</span>))<span class="question-mark">?</span>;
 
                     <span class="comment">// Do the same for the thick road</span>
-                    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">thick_pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">hit</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">thick_pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">hit</span>)<span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">perp</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(
                         <span class="ident">hit</span>,
                         <span class="ident">hit</span>.<span class="ident">project_away</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),

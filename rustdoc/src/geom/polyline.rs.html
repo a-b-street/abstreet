@@ -837,6 +837,14 @@
 <span id="836">836</span>
 <span id="837">837</span>
 <span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1490,6 +1498,14 @@
                         }
                     }
                 }
+            }
+        }
+
+        <span class="comment">// TODO Why is any of this necessary? Found a test case at the intersection geometry for</span>
+        <span class="comment">// https://www.openstreetmap.org/node/274088813 where this made a huge difference!</span>
+        <span class="kw">if</span> <span class="ident">closest_intersection</span>.<span class="ident">is_none</span>() {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_pt</span>() <span class="op">==</span> <span class="ident">other</span>.<span class="ident">last_pt</span>() {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="self">self</span>.<span class="ident">last_pt</span>(), <span class="self">self</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>()));
             }
         }
 
