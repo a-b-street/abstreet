@@ -466,12 +466,19 @@
 <span id="465">465</span>
 <span id="466">466</span>
 <span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">clamp</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -675,10 +682,12 @@
                 <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=&gt;</span> {
-                <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">cars</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Car&quot;</span>);
-                <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">bikes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Bike&quot;</span>);
-                <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">buses_and_trains</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Bus&quot;</span>);
-                <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">peds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Pedestrian&quot;</span>);
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">has_widget</span>(<span class="string">&quot;Car&quot;</span>) {
+                    <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">cars</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Car&quot;</span>);
+                    <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">bikes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Bike&quot;</span>);
+                    <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">buses_and_trains</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Bus&quot;</span>);
+                    <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">peds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Pedestrian&quot;</span>);
+                }
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">has_widget</span>(<span class="string">&quot;zorder&quot;</span>) {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">show_zorder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;zorder&quot;</span>);
                 }
@@ -837,10 +846,15 @@
         <span class="comment">// Also, double column to avoid the background color stretching to the bottom of the row.</span>
         <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="ident">col</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>),
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">zorder_range</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">show_zorder</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;zorder&quot;</span>)
-                    .<span class="ident">margin_above</span>(<span class="number">10</span>)
+            <span class="comment">// Enable the Z-order picker in dev mode or the OSM viewer (when the extra_controls for</span>
+            <span class="comment">// agents and layers are hidden).</span>
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">||</span> <span class="op">!</span><span class="ident">extra_controls</span> {
+                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;Z-order:&quot;</span>).<span class="ident">small</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">zorder_range</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">show_zorder</span>)
+                        .<span class="ident">named</span>(<span class="string">&quot;zorder&quot;</span>),
+                ])
+                .<span class="ident">margin_above</span>(<span class="number">10</span>)
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
