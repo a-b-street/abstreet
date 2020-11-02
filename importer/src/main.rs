@@ -5,6 +5,7 @@ mod berlin;
 mod configuration;
 mod dependencies;
 mod krakow;
+mod leeds;
 mod london;
 mod seattle;
 #[cfg(feature = "scenarios")]
@@ -135,6 +136,7 @@ fn main() {
             match job.city.as_ref() {
                 "berlin" => berlin::osm_to_raw(&name, &mut timer, &config),
                 "krakow" => krakow::osm_to_raw(&name, &mut timer, &config),
+                "leeds" => leeds::osm_to_raw(&name, &mut timer, &config),
                 "london" => london::osm_to_raw(&name, &mut timer, &config),
                 "seattle" => seattle::osm_to_raw(&name, &mut timer, &config),
                 "tel_aviv" => tel_aviv::osm_to_raw(&name, &mut timer, &config),
