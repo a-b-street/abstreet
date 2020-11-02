@@ -5,14 +5,14 @@ fn input(config: &ImporterConfiguration) {
     download(
         config,
         "input/leeds/osm/west-yorkshire.osm.pbf",
-        "https://download.geofabrik.de/europe/great-britain/england/west-yorkshire-latest.osm.pbf",
+        "https://download.geofabrik.de/europe/great-britain/england/west-yorkshire.osm.pbf",
     );
 }
 
 pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {
     input(config);
     osmconvert(
-        "input/leeds/osm/west-yorkshire-latest.osm.pbf",
+        "input/leeds/osm/west-yorkshire.osm.pbf",
         format!("input/leeds/polygons/{}.poly", name),
         format!("input/leeds/osm/{}.osm", name),
         config,
