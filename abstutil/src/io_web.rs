@@ -18,6 +18,8 @@ static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     "cities/",
     "fonts/",
     "maps/montlake.bin",
+    // used by tutorial
+    "prebaked_results/montlake/car vs bike contention.bin",
     "proposals/"
 );
 
