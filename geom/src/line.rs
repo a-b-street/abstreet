@@ -60,8 +60,8 @@ impl Line {
         self.pt1().dist_to(self.pt2())
     }
 
-    /// If two line segments intersect -- including endpoints -- return the point where they hit.
-    /// Undefined if the two lines have more than one intersection point!
+    /// If two line segments intersect at exactly one point, including endpoints, return that
+    /// point.
     // TODO Also return the distance along self
     pub fn intersection(&self, other: &Line) -> Option<Pt2D> {
         // From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
@@ -70,6 +70,19 @@ impl Line {
             || is_counter_clockwise(self.pt1(), self.pt2(), other.pt1())
                 == is_counter_clockwise(self.pt1(), self.pt2(), other.pt2())
         {
+            // This algorithm doesn't handle endpoints matching, so do that here.
+            if self.pt1() == other.pt1() {
+                return Some(self.pt1());
+            }
+            if self.pt1() == other.pt2() {
+                return Some(self.pt1());
+            }
+            if self.pt2() == other.pt1() {
+                return Some(self.pt2());
+            }
+            if self.pt2() == other.pt2() {
+                return Some(self.pt2());
+            }
             return None;
         }
 
@@ -279,5 +292,17 @@ impl fmt::Display for InfiniteLine {
         writeln!(f, "  Pt2D::new({}, {}),", self.0.x(), self.0.y())?;
         writeln!(f, "  Pt2D::new({}, {}),", self.1.x(), self.1.y())?;
         write!(f, ")")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn intersection() {
+        let l1 = Line::must_new(Pt2D::new(0.0, 0.0), Pt2D::new(1.0, 1.0));
+        let l2 = Line::must_new(Pt2D::new(2.0, 2.0), Pt2D::new(1.0, 1.0));
+        assert_eq!(Some(Pt2D::new(1.0, 1.0)), l1.intersection(&l2));
     }
 }
