@@ -15,7 +15,7 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
     }
 
     // TODO Hack! Fix upstream problems.
-    if map.name == "xian" {
+    if map.name == "xian" || map.name == "leeds_center" {
         return;
     }
 
