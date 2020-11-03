@@ -361,7 +361,7 @@ impl Cities {
             cities
         } else {
             let mut f = File::create(&path).unwrap();
-            writeln!(f, "runtime: seattle,berlin,krakow,leeds").unwrap();
+            writeln!(f, "runtime: seattle,berlin,krakow").unwrap();
             writeln!(f, "input: ").unwrap();
             println!("- Wrote {}", path);
             Cities {
@@ -369,7 +369,6 @@ impl Cities {
                     "seattle".to_string(),
                     "berlin".to_string(),
                     "krakow".to_string(),
-                    "leeds".to_string(),
                 ],
                 input: vec![],
             }
