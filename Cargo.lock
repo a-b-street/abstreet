@@ -411,6 +411,7 @@ dependencies = [
  "byteorder",
  "geom",
  "kml",
+ "log",
  "map_model",
  "roxmltree",
 ]

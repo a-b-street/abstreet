@@ -36,8 +36,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
 
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(3), /* TODO: support amenity=parking_entrance */
-            // TODO: investigate why some many buildings drop their private parkings
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(3),
             elevation: None,
             include_railroads: true,
         },

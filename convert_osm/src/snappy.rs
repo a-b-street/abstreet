@@ -15,7 +15,7 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
     }
 
     // TODO Hack! Fix upstream problems.
-    if map.name == "xian" || map.name == "leeds_center" {
+    if map.name == "xian" {
         return;
     }
 
@@ -131,7 +131,13 @@ fn v1(
     // How many degrees difference to consider parallel ways
     let parallel_threshold = 30.0;
     for (cycleway_id, cycleway) in cycleways {
-        let pl = PolyLine::must_new(map.gps_bounds.convert(&cycleway.points));
+        let pl = match PolyLine::new(map.gps_bounds.convert(&cycleway.points)) {
+            Ok(pl) => pl,
+            Err(err) => {
+                warn!("Not snapping cycleway {}: {}", cycleway_id, err);
+                continue;
+            }
+        };
 
         let mut dist = Distance::ZERO;
         loop {

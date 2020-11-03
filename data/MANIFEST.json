@@ -48,6 +48,12 @@
     "data/input/leeds/footways.bin": {
       "checksum": "59fa91ed0935dc0049d644dff53b5f0e"
     },
+    "data/input/leeds/leeds_center_separate_cycleways.bin": {
+      "checksum": "d209fb64e088914617f10fbaba4cc97c"
+    },
+    "data/input/leeds/leeds_center_snapped_cycleways.bin": {
+      "checksum": "ad96e232fea00b1e7cfd9480ed3028fb"
+    },
     "data/input/leeds/osm/leeds_center.osm": {
       "checksum": "7c5408f54d8c62aee7420a711a228ec0"
     },

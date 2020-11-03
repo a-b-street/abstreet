@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 use abstutil::Timer;
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::RawMap;
