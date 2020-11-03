@@ -1085,6 +1085,7 @@ dependencies = [
  "geojson",
  "histogram",
  "instant",
+ "line_intersection",
  "ordered-float",
  "polylabel",
  "serde",
@@ -1627,6 +1628,15 @@ name = "libm"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7d73b3f436185384286bd8098d17ec07c9a7d2388a6599f824d8502b529702a"
+
+[[package]]
+name = "line_intersection"
+version = "0.4.0"
+source = "git+https://github.com/triptec/line_intersection#8bd54337fc5732db185d8f4583513c5cbc678be1"
+dependencies = [
+ "geo 0.14.2",
+ "num-traits 0.2.12",
+]
 
 [[package]]
 name = "lock_api"

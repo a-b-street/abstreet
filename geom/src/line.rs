@@ -60,31 +60,23 @@ impl Line {
         self.pt1().dist_to(self.pt2())
     }
 
-    /// If two line segments intersect -- including endpoints -- return the point where they hit.
-    /// Undefined if the two lines have more than one intersection point!
+    /// If two line segments intersect at exactly one point, including endpoints, return the point
+    /// where they hit.
     // TODO Also return the distance along self
     pub fn intersection(&self, other: &Line) -> Option<Pt2D> {
-        // From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
-        if is_counter_clockwise(self.pt1(), other.pt1(), other.pt2())
-            == is_counter_clockwise(self.pt2(), other.pt1(), other.pt2())
-            || is_counter_clockwise(self.pt1(), self.pt2(), other.pt1())
-                == is_counter_clockwise(self.pt1(), self.pt2(), other.pt2())
-        {
-            return None;
-        }
-
-        let hit = self.infinite().intersection(&other.infinite())?;
-        if self.contains_pt(hit) {
-            // TODO and other contains pt, then we dont need ccw check thing
-            Some(hit)
-        } else {
-            // TODO Should be impossible, but I was hitting it somewhere
-            println!(
-                "{} and {} intersect, but first line doesn't contain_pt({})",
-                self, other, hit
-            );
-            None
-        }
+        let l1 = line_intersection::LineInterval::line_segment(geo::Line {
+            start: (self.pt1().x(), self.pt1().y()).into(),
+            end: (self.pt2().x(), self.pt2().y()).into(),
+        });
+        let l2 = line_intersection::LineInterval::line_segment(geo::Line {
+            start: (other.pt1().x(), other.pt1().y()).into(),
+            end: (other.pt2().x(), other.pt2().y()).into(),
+        });
+        // TODO From the unit test, the segments (0,0)->(1,1) and (2,2)->(1,1) are co-linear! I'd
+        // expect these to intersect at just the (1,1) endpoint.
+        println!("eh? {:?} and {:?} are {:?}", l1, l2, l1.relate(&l2));
+        let hit = l1.relate(&l2).unique_intersection()?;
+        Some(Pt2D::new(hit.x(), hit.y()))
     }
 
     /// Determine if two line segments intersect, but more so than just two endpoints touching.
@@ -237,10 +229,6 @@ impl fmt::Display for Line {
     }
 }
 
-fn is_counter_clockwise(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> bool {
-    (pt3.y() - pt1.y()) * (pt2.x() - pt1.x()) > (pt2.y() - pt1.y()) * (pt3.x() - pt1.x())
-}
-
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct InfiniteLine(Pt2D, Pt2D);
 
@@ -279,5 +267,17 @@ impl fmt::Display for InfiniteLine {
         writeln!(f, "  Pt2D::new({}, {}),", self.0.x(), self.0.y())?;
         writeln!(f, "  Pt2D::new({}, {}),", self.1.x(), self.1.y())?;
         write!(f, ")")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn intersection() {
+        let l1 = Line::must_new(Pt2D::new(0.0, 0.0), Pt2D::new(1.0, 1.0));
+        let l2 = Line::must_new(Pt2D::new(2.0, 2.0), Pt2D::new(1.0, 1.0));
+        assert_eq!(Some(Pt2D::new(1.0, 1.0)), l1.intersection(&l2));
     }
 }

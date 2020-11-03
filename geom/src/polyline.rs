@@ -655,11 +655,11 @@ impl PolyLine {
 
         // TODO Why is any of this necessary? Found a test case at the intersection geometry for
         // https://www.openstreetmap.org/node/274088813 where this made a huge difference!
-        if closest_intersection.is_none() {
+        /*if closest_intersection.is_none() {
             if self.last_pt() == other.last_pt() {
                 return Some((self.last_pt(), self.last_line().angle()));
             }
-        }
+        }*/
 
         closest_intersection
     }
@@ -843,4 +843,19 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
         }
     }
     (deduped, dupes)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn intersection() {
+        let pl1 = PolyLine::must_new(vec![Pt2D::new(0.0, 0.0), Pt2D::new(1.0, 1.0)]);
+        let pl2 = PolyLine::must_new(vec![Pt2D::new(2.0, 2.0), Pt2D::new(1.0, 1.0)]);
+        assert_eq!(
+            Some((Pt2D::new(1.0, 1.0), Angle::degrees(45.0))),
+            pl1.intersection(&pl2)
+        );
+    }
 }
