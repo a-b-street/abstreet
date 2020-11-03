@@ -207,6 +207,7 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
             }
             "huge_seattle" => map == "huge_seattle",
             "krakow" => map == "krakow_center",
+            "leeds" => map == "leeds_center",
             "berlin" => map == "berlin_center",
             "xian" => map == "xian",
             "tel_aviv" => map == "tel_aviv",
