@@ -155,8 +155,10 @@ mod wasm_loader {
             // Note that files are only gzipepd on S3. When running locally, we just symlink the
             // data/ directory, where files aren't compressed.
             let url = if cfg!(feature = "wasm_s3") {
+                // Anytime data with a new binary format is uploaded, the web client has to be
+                // re-deployed too
                 format!(
-                    "http://abstreet.s3-website.us-east-2.amazonaws.com/{}.gz",
+                    "http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/{}.gz",
                     path.strip_prefix(&abstutil::path("")).unwrap()
                 )
             } else {

@@ -9,6 +9,7 @@ use walkdir::WalkDir;
 use abstutil::{Entry, Manifest, Timer};
 
 const MD5_BUF_READ_SIZE: usize = 4096;
+const VERSION: &str = "dev";
 
 #[tokio::main]
 async fn main() {
@@ -19,9 +20,6 @@ async fn main() {
             }
             "--dry" => {
                 just_compare();
-            }
-            "--checklinks" => {
-                check_links().await;
             }
             x => {
                 println!("Unknown argument {}", x);
@@ -51,7 +49,7 @@ async fn download() {
     for (path, entry) in truth.entries {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
-            match curl(entry).await {
+            match curl(&path).await {
                 Ok(bytes) => {
                     println!(
                         "> decompress {}, which is {} bytes compressed",
@@ -99,7 +97,7 @@ fn just_compare() {
 }
 
 fn upload() {
-    let remote_base = "/home/dabreegster/Dropbox/abstreet_data";
+    let remote_base = format!("/home/dabreegster/s3_abst_data/{}", VERSION);
 
     let mut local = generate_manifest();
     let remote: Manifest = abstutil::maybe_read_json(
@@ -131,56 +129,29 @@ fn upload() {
                 std::io::copy(&mut input, &mut encoder).unwrap();
                 encoder.finish().unwrap();
             }
-
-            // Wait for the Dropbox client to sync
-            loop {
-                std::thread::sleep(std::time::Duration::from_millis(1000));
-                println!("Waiting for {} to sync", remote_path);
-                if run(Command::new("dropbox").arg("filestatus").arg(&remote_path))
-                    .contains("up to date")
-                {
-                    break;
-                }
-            }
-        }
-        entry.dropbox_url = remote
-            .entries
-            .get(path)
-            .map(|x| x.dropbox_url.clone().unwrap());
-        // The sharelink sometimes changes when the file does.
-        if entry.dropbox_url.is_none() || changed {
-            // Dropbox crashes when trying to upload lots of tiny screenshots. :D
-            std::thread::sleep(std::time::Duration::from_millis(1000));
-            let url = run(Command::new("dropbox").arg("sharelink").arg(remote_path))
-                .trim()
-                .to_string();
-            if !url.contains("dropbox.com") {
-                panic!("dropbox daemon is sad, slow down");
-            }
-            entry.dropbox_url = Some(url);
         }
     }
 
     abstutil::write_json(format!("{}/MANIFEST.json", remote_base), &local);
     abstutil::write_json("data/MANIFEST.json".to_string(), &local);
-}
 
-async fn check_links() {
-    let client = reqwest::Client::new();
-
-    for (file, entry) in Manifest::load().entries {
-        println!("> Check remote for {}", file);
-        let url = entry.dropbox_url.unwrap();
-        let url = format!("{}{}", &url[..url.len() - 1], "1");
-        if let Err(err) = client
-            .head(&url)
-            .send()
-            .await
-            .and_then(|res| res.error_for_status())
-        {
-            println!("{} broken: {}", url, err);
-        }
-    }
+    must_run_cmd(
+        Command::new("aws")
+            .arg("s3")
+            .arg("sync")
+            .arg("--delete")
+            .arg(format!("{}/data", remote_base))
+            .arg(format!("s3://abstreet/{}/data", VERSION)),
+    );
+    // Because of the directory structure, do this one separately, without --delete. The wasm files
+    // also live in /dev/.
+    must_run_cmd(
+        Command::new("aws")
+            .arg("s3")
+            .arg("cp")
+            .arg(format!("{}/MANIFEST.json", remote_base))
+            .arg(format!("s3://abstreet/{}/MANIFEST.json", VERSION)),
+    );
 }
 
 fn generate_manifest() -> Manifest {
@@ -216,13 +187,7 @@ fn generate_manifest() -> Manifest {
             context.consume(&buffer[..n]);
         }
         let checksum = format!("{:x}", context.compute());
-        kv.insert(
-            path,
-            Entry {
-                checksum,
-                dropbox_url: None,
-            },
-        );
+        kv.insert(path, Entry { checksum });
     }
     Manifest { entries: kv }
 }
@@ -384,9 +349,18 @@ fn basename(path: &str) -> String {
         .unwrap()
 }
 
-fn run(cmd: &mut Command) -> String {
-    println!("> {:?}", cmd);
-    String::from_utf8(cmd.output().unwrap().stdout).unwrap()
+fn must_run_cmd(cmd: &mut Command) {
+    println!("> Running {:?}", cmd);
+    match cmd.status() {
+        Ok(status) => {
+            if !status.success() {
+                panic!("{:?} failed", cmd);
+            }
+        }
+        Err(err) => {
+            panic!("Failed to run {:?}: {:?}", cmd, err);
+        }
+    }
 }
 
 fn rm(path: &str) {
@@ -404,20 +378,17 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(entry: Entry) -> Result<Vec<u8>, Box<dyn Error>> {
-    let src = entry.dropbox_url.unwrap();
-    // the ?dl=0 param at the end of each URL takes you to an interactive page
-    // for viewing the folder in the browser. For some reason, curl and wget can
-    // both get around this to download the file with no extra flags needed but
-    // I can't figure out how to make reqwest do that so this switches it to ?dl=1
-    // which redirects to a direct download link
-    let src = &format!("{}{}", &src[..src.len() - 1], "1");
+async fn curl(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+    let src = format!(
+        "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
+        VERSION, path
+    );
 
     let mut bytes = Vec::new();
 
     println!("> download {}", src);
 
-    let mut resp = reqwest::get(src).await.unwrap();
+    let mut resp = reqwest::get(&src).await.unwrap();
 
     match resp.error_for_status_ref() {
         Ok(_) => {}

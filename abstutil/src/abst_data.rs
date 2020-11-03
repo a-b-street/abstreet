@@ -16,8 +16,6 @@ pub struct Manifest {
 pub struct Entry {
     /// md5sum of the file
     pub checksum: String,
-    /// URL to a .zip file containing the one file
-    pub dropbox_url: Option<String>,
 }
 
 impl Manifest {
