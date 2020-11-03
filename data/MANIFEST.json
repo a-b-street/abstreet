@@ -45,6 +45,18 @@
     "data/input/krakow/service_roads.bin": {
       "checksum": "a702f4fa6680793c7e1047668d8d0b69"
     },
+    "data/input/leeds/footways.bin": {
+      "checksum": "59fa91ed0935dc0049d644dff53b5f0e"
+    },
+    "data/input/leeds/osm/leeds_center.osm": {
+      "checksum": "7c5408f54d8c62aee7420a711a228ec0"
+    },
+    "data/input/leeds/osm/west-yorkshire.osm.pbf": {
+      "checksum": "0de99323ac548f889860f597704b2910"
+    },
+    "data/input/leeds/service_roads.bin": {
+      "checksum": "8588e5f3dda5d53903da869026ba1773"
+    },
     "data/input/london/footways.bin": {
       "checksum": "95816ac4d77d857c561a61830d1998a0"
     },
@@ -80,6 +92,9 @@
     },
     "data/input/raw_maps/lakeslice.bin": {
       "checksum": "5362657bbcdac16ac22aadf58f2a769c"
+    },
+    "data/input/raw_maps/leeds_center.bin": {
+      "checksum": "abd2c3964d724077e287e7f3210eab0a"
     },
     "data/input/raw_maps/montlake.bin": {
       "checksum": "60776c41875cad8f79354dff8c4d3d47"
@@ -314,6 +329,9 @@
     },
     "data/system/maps/lakeslice.bin": {
       "checksum": "da08eecbaeebbadea93d3ee96cdeaea6"
+    },
+    "data/system/maps/leeds_center.bin": {
+      "checksum": "c50278ac1d5b38575d53cc9b517fded4"
     },
     "data/system/maps/montlake.bin": {
       "checksum": "59c3c1bddd2e0bf317e8a0b63e85a580"
