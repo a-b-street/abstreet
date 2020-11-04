@@ -16,6 +16,8 @@ pub struct Manifest {
 pub struct Entry {
     /// md5sum of the file
     pub checksum: String,
+    /// Size in bytes
+    pub size_bytes: usize,
 }
 
 impl Manifest {

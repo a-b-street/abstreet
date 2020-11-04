@@ -99,7 +99,7 @@ fn just_compare() {
 fn upload() {
     let remote_base = format!("/home/dabreegster/s3_abst_data/{}", VERSION);
 
-    let mut local = generate_manifest();
+    let local = generate_manifest();
     let remote: Manifest = abstutil::maybe_read_json(
         format!("{}/MANIFEST.json", remote_base),
         &mut Timer::throwaway(),
@@ -116,7 +116,7 @@ fn upload() {
     }
 
     // Anything missing or needing updating?
-    for (path, entry) in &mut local.entries {
+    for (path, entry) in &local.entries {
         let remote_path = format!("{}/{}.gz", remote_base, path);
         let changed = remote.entries.get(path).map(|x| &x.checksum) != Some(&entry.checksum);
         if changed {
@@ -180,14 +180,16 @@ fn generate_manifest() -> Manifest {
         let mut file = File::open(&orig_path).unwrap();
         let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
         let mut context = md5::Context::new();
+        let mut size_bytes = 0;
         while let Ok(n) = file.read(&mut buffer) {
             if n == 0 {
                 break;
             }
+            size_bytes += n;
             context.consume(&buffer[..n]);
         }
         let checksum = format!("{:x}", context.compute());
-        kv.insert(path, Entry { checksum });
+        kv.insert(path, Entry { checksum, size_bytes });
     }
     Manifest { entries: kv }
 }
