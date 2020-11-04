@@ -45,7 +45,6 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
-<span id="47">47</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">osmconvert</span>};
@@ -85,8 +84,7 @@
 
             <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">OnstreetParking</span>::<span class="ident">JustOSM</span>,
             <span class="ident">public_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PublicOffstreetParking</span>::<span class="prelude-val">None</span>,
-            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PrivateOffstreetParking</span>::<span class="ident">FixedPerBldg</span>(<span class="number">3</span>), <span class="comment">/* TODO: support amenity=parking_entrance */</span>
-            <span class="comment">// TODO: investigate why some many buildings drop their private parkings</span>
+            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PrivateOffstreetParking</span>::<span class="ident">FixedPerBldg</span>(<span class="number">3</span>),
             <span class="ident">elevation</span>: <span class="prelude-val">None</span>,
             <span class="ident">include_railroads</span>: <span class="bool-val">true</span>,
         },
