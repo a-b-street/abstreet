@@ -97,6 +97,7 @@ pub fn nice_map_name(name: &str) -> &str {
         // Outside Seattle
         "berlin_center" => "Berlin (city center)",
         "krakow_center" => "Kraków (city center)",
+        "leeds_center" => "Leeds (city center)",
         "southbank" => "London (Southbank)",
         "tel_aviv" => "Tel Aviv",
         "xian" => "Xi'an",

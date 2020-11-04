@@ -432,11 +432,16 @@ fn make_shared_sidewalk_corner(
                 return baseline;
             }
 
-            pts_between.extend(
-                PolyLine::must_new(deduped)
-                    .must_shift_right(l1.width.min(l2.width) / 2.0)
-                    .points(),
-            );
+            if let Ok(pl) = PolyLine::must_new(deduped).shift_right(l1.width.min(l2.width) / 2.0) {
+                pts_between.extend(pl.points());
+            } else {
+                timer.warn(format!(
+                    "SharedSidewalkCorner between {} and {} has weird collapsing geometry, so \
+                     just doing straight line",
+                    l1.id, l2.id
+                ));
+                return baseline;
+            }
         }
     }
     pts_between.push(l1.last_pt());
