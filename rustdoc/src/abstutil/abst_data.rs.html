@@ -31,6 +31,8 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -50,6 +52,8 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Entry</span> {
     <span class="doccomment">/// md5sum of the file</span>
     <span class="kw">pub</span> <span class="ident">checksum</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Size in bytes</span>
+    <span class="kw">pub</span> <span class="ident">size_bytes</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Manifest</span> {
