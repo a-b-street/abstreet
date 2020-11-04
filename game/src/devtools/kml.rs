@@ -1,3 +1,5 @@
+// TODO Rename -- this is for KML, CSV, GeoJSON
+
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use aabb_quadtree::QuadTree;
@@ -48,6 +50,15 @@ impl ViewKML {
                     // The new file will show up as untracked in git, so it'll be obvious this
                     // happened.
                     abstutil::write_binary(path.replace(".kml", ".bin"), &shapes);
+                    shapes
+                } else if path.ends_with(".csv") {
+                    let shapes =
+                        kml::load_csv(&path, &app.primary.map.get_gps_bounds(), &mut timer)
+                            .unwrap();
+                    // Assuming this is some huge file, conveniently convert the extract to .bin.
+                    // The new file will show up as untracked in git, so it'll be obvious this
+                    // happened.
+                    abstutil::write_binary(path.replace(".csv", ".bin"), &shapes);
                     shapes
                 } else {
                     abstutil::read_binary::<ExtraShapes>(path.to_string(), &mut timer)
@@ -184,7 +195,7 @@ impl State<App> for ViewKML {
                             )))
                             .into_iter()
                             .filter(|x| {
-                                (x.ends_with(".bin") || x.ends_with(".kml"))
+                                (x.ends_with(".bin") || x.ends_with(".kml") || x.ends_with(".csv"))
                                     && !x.ends_with("popdat.bin")
                             })
                             .collect(),
