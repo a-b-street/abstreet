@@ -226,7 +226,7 @@ impl State<App> for DebugMode {
                         app,
                         vec![
                             MapName::seattle("downtown"),
-                            MapName::new("krakow", "krakow_center"),
+                            MapName::new("krakow", "center"),
                             MapName::seattle("lakeslice"),
                             MapName::seattle("montlake"),
                             MapName::new("london", "southbank"),

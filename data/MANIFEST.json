@@ -12,7 +12,7 @@
       "checksum": "8e7f5ecf37631bb975f062593c5add99",
       "size_bytes": 60018288
     },
-    "data/input/berlin/osm/berlin_center.osm": {
+    "data/input/berlin/osm/center.osm": {
       "checksum": "7411c1f8e1e5ff792445a7cd575f5379",
       "size_bytes": 61611497
     },
@@ -24,9 +24,9 @@
       "checksum": "1bfc2044f1f5f40acdcdded1a644ad22",
       "size_bytes": 3054511
     },
-    "data/input/berlin/raw_maps/berlin_center.bin": {
-      "checksum": "0045c35aada8114ba1c2cf0113708b2f",
-      "size_bytes": 9955976
+    "data/input/berlin/raw_maps/center.bin": {
+      "checksum": "21eb9093fe5ace2cfb4542bf3370c9ea",
+      "size_bytes": 9955969
     },
     "data/input/berlin/service_roads.bin": {
       "checksum": "be06e4b4136771f8e03a2ba7a5f9b8cd",
@@ -36,7 +36,7 @@
       "checksum": "b04c0b011e531d6d1396218523deef4a",
       "size_bytes": 70864
     },
-    "data/input/krakow/osm/krakow_center.osm": {
+    "data/input/krakow/osm/center.osm": {
       "checksum": "b914bbcd42a7f769a40a90970cea35f2",
       "size_bytes": 55365446
     },
@@ -44,11 +44,11 @@
       "checksum": "9505917bbacc478177e36605e89b6d77",
       "size_bytes": 117776270
     },
-    "data/input/krakow/raw_maps/krakow_center.bin": {
-      "checksum": "d355436d13a89b6c6462a5aa4eb6720b",
-      "size_bytes": 14988445
+    "data/input/krakow/raw_maps/center.bin": {
+      "checksum": "38aeef13365095d722c64cca7c9e6b63",
+      "size_bytes": 14988438
     },
-    "data/input/krakow/screenshots/krakow_center.zip": {
+    "data/input/krakow/screenshots/center.zip": {
       "checksum": "c176076e6f60f03741ca44b0bfdf8545",
       "size_bytes": 14238180
     },
@@ -60,7 +60,7 @@
       "checksum": "95961d499e97b049e620f145eb58c7c8",
       "size_bytes": 1907052
     },
-    "data/input/leeds/osm/leeds_center.osm": {
+    "data/input/leeds/osm/center.osm": {
       "checksum": "7c5408f54d8c62aee7420a711a228ec0",
       "size_bytes": 130969890
     },
@@ -68,7 +68,7 @@
       "checksum": "0de99323ac548f889860f597704b2910",
       "size_bytes": 33826429
     },
-    "data/input/leeds/raw_maps/leeds_center.bin": {
+    "data/input/leeds/raw_maps/center.bin": {
       "checksum": "38ec311a319b9ccca42c09172d2a8e59",
       "size_bytes": 41794121
     },
@@ -280,17 +280,17 @@
       "checksum": "4fb70e32d0cc3ddeaa8924c240bc9d5b",
       "size_bytes": 544579
     },
+    "data/input/tel_aviv/osm/center.osm": {
+      "checksum": "eeb7f3813a33f754eceed13766a3c236",
+      "size_bytes": 43912053
+    },
     "data/input/tel_aviv/osm/israel-and-palestine-latest.osm.pbf": {
       "checksum": "d5b0d6a26bfdedd32cc5c9c26e6fd426",
       "size_bytes": 82926416
     },
-    "data/input/tel_aviv/osm/tel_aviv.osm": {
-      "checksum": "eeb7f3813a33f754eceed13766a3c236",
-      "size_bytes": 43912053
-    },
-    "data/input/tel_aviv/raw_maps/tel_aviv.bin": {
-      "checksum": "b6faf60108d82d7308cc15e7edd26f30",
-      "size_bytes": 12342170
+    "data/input/tel_aviv/raw_maps/center.bin": {
+      "checksum": "de811581fd456dafae4168096e5acf3d",
+      "size_bytes": 12342168
     },
     "data/input/tel_aviv/service_roads.bin": {
       "checksum": "216407d6f112683e81973fbb11af6403",
@@ -300,31 +300,31 @@
       "checksum": "425becbab867631415fe49edcf8f9694",
       "size_bytes": 233914
     },
+    "data/input/xian/osm/center.osm": {
+      "checksum": "4084c665ad947bb40173a43cb33fdec8",
+      "size_bytes": 26198743
+    },
     "data/input/xian/osm/china-latest.osm.pbf": {
       "checksum": "0108807f1dc321d5de5579622ac3f4cf",
       "size_bytes": 634566681
     },
-    "data/input/xian/osm/xian.osm": {
-      "checksum": "4084c665ad947bb40173a43cb33fdec8",
-      "size_bytes": 26198743
-    },
-    "data/input/xian/raw_maps/xian.bin": {
-      "checksum": "944535618cda403d0613ed485ef18072",
-      "size_bytes": 12038513
+    "data/input/xian/raw_maps/center.bin": {
+      "checksum": "40e30cf6e1ca4ae7d3ff6ddb77382000",
+      "size_bytes": 12038515
     },
     "data/input/xian/service_roads.bin": {
       "checksum": "c9a1a296817cfbd6c64dbe0d3389c40a",
       "size_bytes": 249765
     },
-    "data/system/berlin/maps/berlin_center.bin": {
-      "checksum": "2a0a126ecfae8d1204cb359d362e0dca",
-      "size_bytes": 25329082
+    "data/system/berlin/maps/center.bin": {
+      "checksum": "55f1bb2355631851ea699b9872f91199",
+      "size_bytes": 25329075
     },
-    "data/system/krakow/maps/krakow_center.bin": {
-      "checksum": "49fd1c63a8160659a05011dcc344ba02",
-      "size_bytes": 35155994
+    "data/system/krakow/maps/center.bin": {
+      "checksum": "e7269a66e7382914f5c347d941165658",
+      "size_bytes": 35155987
     },
-    "data/system/leeds/maps/leeds_center.bin": {
+    "data/system/leeds/maps/center.bin": {
       "checksum": "380fe8d5a62094f5bbbbc2f227826fde",
       "size_bytes": 122125015
     },
@@ -412,13 +412,13 @@
       "checksum": "bbb836a9d1071aeb54a954de07be4bfb",
       "size_bytes": 37276677
     },
-    "data/system/tel_aviv/maps/tel_aviv.bin": {
-      "checksum": "04bc1bc90e81624af322b390f33b1957",
-      "size_bytes": 46963922
+    "data/system/tel_aviv/maps/center.bin": {
+      "checksum": "08123720c8c0a0990b9604ba25554b81",
+      "size_bytes": 46963920
     },
-    "data/system/xian/maps/xian.bin": {
-      "checksum": "a7cfdb82c59fa99242df14e20d5e666e",
-      "size_bytes": 82508890
+    "data/system/xian/maps/center.bin": {
+      "checksum": "a242a8421b1c3e9ce82d8493bf8b4107",
+      "size_bytes": 82508892
     }
   }
 }

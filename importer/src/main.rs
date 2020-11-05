@@ -152,7 +152,7 @@ fn main() {
             let mut map = utils::raw_to_map(&name, !job.skip_ch, job.keep_bldg_tags, &mut timer);
 
             // Another strange step in the pipeline.
-            if name.map == "berlin_center" {
+            if name == MapName::new("berlin", "center") {
                 timer.start(format!(
                     "distribute residents from planning areas for {}",
                     name.describe()

@@ -87,14 +87,9 @@ fn smoke_test() -> Result<(), std::io::Error> {
         scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
         sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
 
-        if vec![
-            "downtown",
-            "krakow_center",
-            "lakeslice",
-            "montlake",
-            "udistrict",
-        ]
-        .contains(&name.map.as_str())
+        if (name.city == "seattle"
+            && vec!["downtown", "lakeslice", "montlake", "udistrict"].contains(&name.map.as_str()))
+            || name == MapName::new("krakow", "center")
         {
             dump_route_goldenfile(&map)?;
         }

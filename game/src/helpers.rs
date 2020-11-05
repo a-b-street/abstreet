@@ -86,22 +86,21 @@ pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names:
 
 // TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
 pub fn nice_map_name(name: &MapName) -> &str {
-    match name.map.as_ref() {
-        "ballard" => "Ballard",
-        "downtown" => "Downtown Seattle",
-        "huge_seattle" => "Seattle (entire area)",
-        "lakeslice" => "Lake Washington corridor",
-        "montlake" => "Montlake and Eastlake",
-        "south_seattle" => "South Seattle",
-        "udistrict" => "University District",
-        "west_seattle" => "West Seattle",
-        // Outside Seattle
-        "berlin_center" => "Berlin (city center)",
-        "krakow_center" => "Kraków (city center)",
-        "leeds_center" => "Leeds (city center)",
-        "southbank" => "London (Southbank)",
-        "tel_aviv" => "Tel Aviv",
-        "xian" => "Xi'an",
+    match (name.city.as_ref(), name.map.as_ref()) {
+        ("seattle", "ballard") => "Ballard",
+        ("seattle", "downtown") => "Downtown Seattle",
+        ("seattle", "huge_seattle") => "Seattle (entire area)",
+        ("seattle", "lakeslice") => "Lake Washington corridor",
+        ("seattle", "montlake") => "Montlake and Eastlake",
+        ("seattle", "south_seattle") => "South Seattle",
+        ("seattle", "udistrict") => "University District",
+        ("seattle", "west_seattle") => "West Seattle",
+        ("berlin", "center") => "Berlin (city center)",
+        ("krakow", "center") => "Kraków (city center)",
+        ("leeds", "center") => "Leeds (city center)",
+        ("london", "southbank") => "London (Southbank)",
+        ("tel_aviv", "center") => "Tel Aviv (city center)",
+        ("xian", "center") => "Xi'an (city center)",
         _ => &name.map,
     }
 }

@@ -19,10 +19,8 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     );
 
     let bounds = geom::GPSBounds::from(
-        geom::LonLat::read_osmosis_polygon(abstutil::path(
-            "input/berlin/polygons/berlin_center.poly",
-        ))
-        .unwrap(),
+        geom::LonLat::read_osmosis_polygon(abstutil::path("input/berlin/polygons/center.poly"))
+            .unwrap(),
     );
     // From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
     download_kml(
