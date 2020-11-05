@@ -180,15 +180,16 @@ screenshots as the new goldenfiles.</li>
 <ul>
 <li><code>--prebake</code> runs the full weekday scenario on two maps that've previously been
 coerced into being gridlock-free</li>
-<li><code>--smoketest</code> simulates one hour on all maps, flushing out bugs with bus
-spawning, agents hitting odd parts of the map, etc</li>
-<li><code>--check_proposals</code> makes sure the edits shipped with the game still load
-properly</li>
 </ul>
-<h2><a class="header" href="#map_tests" id="map_tests">map_tests</a></h2>
-<p>The <code>map_tests</code> crate runs the full importer against really simple <code>.osm</code>
-files. To iterate rapidly on interpreting turn restrictions, for example, it
-produces goldenfiles describing all turns in the tiny map.</p>
+<h2><a class="header" href="#integration-tests" id="integration-tests">Integration tests</a></h2>
+<p>The <code>tests</code> crate contains some integration tests.</p>
+<p>One part runs the full importer against really simple <code>.osm</code> files. To iterate
+rapidly on interpreting turn restrictions, it produces goldenfiles describing
+all turns in the tiny map.</p>
+<p>The &quot;smoke-test&quot; section simulates one hour on all maps, flushing out bugs with
+bus spawning, agents hitting odd parts of the map, etc</p>
+<p>The &quot;check proposals&quot; section makes sure the edits shipped with the game still
+load properly.</p>
 <h2><a class="header" href="#old-tests" id="old-tests">Old tests</a></h2>
 <p>Once upon a time, I made a little test harness that would run the simulation
 headlessly (without graphics), set up certain situations forcing a car to park
