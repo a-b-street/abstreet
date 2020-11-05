@@ -181,8 +181,6 @@
 <span id="180">180</span>
 <span id="181">181</span>
 <span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 
@@ -205,10 +203,8 @@
     );
 
     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">geom</span>::<span class="ident">GPSBounds</span>::<span class="ident">from</span>(
-        <span class="ident">geom</span>::<span class="ident">LonLat</span>::<span class="ident">read_osmosis_polygon</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(
-            <span class="string">&quot;input/berlin/polygons/berlin_center.poly&quot;</span>,
-        ))
-        .<span class="ident">unwrap</span>(),
+        <span class="ident">geom</span>::<span class="ident">LonLat</span>::<span class="ident">read_osmosis_polygon</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;input/berlin/polygons/center.poly&quot;</span>))
+            .<span class="ident">unwrap</span>(),
     );
     <span class="comment">// From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en</span>
     <span class="ident">download_kml</span>(

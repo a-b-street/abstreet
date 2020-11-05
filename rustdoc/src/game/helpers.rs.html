@@ -313,7 +313,6 @@
 <span id="312">312</span>
 <span id="313">313</span>
 <span id="314">314</span>
-<span id="315">315</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -403,22 +402,21 @@
 
 <span class="comment">// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nice_map_name</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
-    <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>() {
-        <span class="string">&quot;ballard&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Ballard&quot;</span>,
-        <span class="string">&quot;downtown&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Downtown Seattle&quot;</span>,
-        <span class="string">&quot;huge_seattle&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Seattle (entire area)&quot;</span>,
-        <span class="string">&quot;lakeslice&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Lake Washington corridor&quot;</span>,
-        <span class="string">&quot;montlake&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Montlake and Eastlake&quot;</span>,
-        <span class="string">&quot;south_seattle&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;South Seattle&quot;</span>,
-        <span class="string">&quot;udistrict&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;University District&quot;</span>,
-        <span class="string">&quot;west_seattle&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;West Seattle&quot;</span>,
-        <span class="comment">// Outside Seattle</span>
-        <span class="string">&quot;berlin_center&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Berlin (city center)&quot;</span>,
-        <span class="string">&quot;krakow_center&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Kraków (city center)&quot;</span>,
-        <span class="string">&quot;leeds_center&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Leeds (city center)&quot;</span>,
-        <span class="string">&quot;southbank&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;London (Southbank)&quot;</span>,
-        <span class="string">&quot;tel_aviv&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Tel Aviv&quot;</span>,
-        <span class="string">&quot;xian&quot;</span> <span class="op">=&gt;</span> <span class="string">&quot;Xi&#39;an&quot;</span>,
+    <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;ballard&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Ballard&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;downtown&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Downtown Seattle&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;huge_seattle&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Seattle (entire area)&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;lakeslice&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Lake Washington corridor&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;montlake&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Montlake and Eastlake&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;south_seattle&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;South Seattle&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;udistrict&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;University District&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;west_seattle&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;West Seattle&quot;</span>,
+        (<span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Berlin (city center)&quot;</span>,
+        (<span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Kraków (city center)&quot;</span>,
+        (<span class="string">&quot;leeds&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Leeds (city center)&quot;</span>,
+        (<span class="string">&quot;london&quot;</span>, <span class="string">&quot;southbank&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;London (Southbank)&quot;</span>,
+        (<span class="string">&quot;tel_aviv&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Tel Aviv (city center)&quot;</span>,
+        (<span class="string">&quot;xian&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Xi&#39;an (city center)&quot;</span>,
         <span class="kw">_</span> <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
     }
 }
