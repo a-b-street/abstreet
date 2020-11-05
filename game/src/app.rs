@@ -7,7 +7,7 @@ use rand::seq::SliceRandom;
 use abstutil::{MapName, Timer};
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, PermanentMapEdits, Traversable};
-use sim::{Analytics, Sim, SimCallback, SimFlags};
+use sim::{Analytics, Scenario, Sim, SimCallback, SimFlags};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState};
 
 use crate::challenges::HighScore;
@@ -516,6 +516,12 @@ pub struct PerMap {
     /// scenario name too.
     // TODO Embed that in Analytics directly instead.
     prebaked: Option<(MapName, String, Analytics)>,
+    /// The most recent Scenario loaded from a file. Don't depend on it always matching the current
+    /// gameplay mode; always verify the name matches what's needed.
+    ///
+    /// Storing this may cost some memory, but otherwise resetting to midnight would require
+    /// loading it again from a file. This is particularly painful on the web!
+    pub scenario: Option<Scenario>,
 }
 
 impl PerMap {
@@ -549,6 +555,7 @@ impl PerMap {
             layer: None,
             suspended_sim: None,
             prebaked: None,
+            scenario: None,
         };
 
         let mut rng = per_map.current_flags.sim_flags.make_rng();

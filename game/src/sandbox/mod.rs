@@ -640,6 +640,8 @@ impl State<App> for SandboxLoader {
                     ));
                 }
                 LoadStage::LoadingScenario => {
+                    // TODO Can we cache the dynamically generated scenarios, like home_to_work, and
+                    // avoid regenerating with this call?
                     match ctx.loading_screen("load scenario", |_, mut timer| {
                         self.mode.scenario(
                             &app.primary.map,
@@ -658,6 +660,14 @@ impl State<App> for SandboxLoader {
                             continue;
                         }
                         gameplay::LoadScenario::Path(path) => {
+                            // Reuse the cached scenario, if possible.
+                            if let Some(ref scenario) = app.primary.scenario {
+                                if scenario.scenario_name == abstutil::basename(&path) {
+                                    self.stage = Some(LoadStage::GotScenario(scenario.clone()));
+                                    continue;
+                                }
+                            }
+
                             return Transition::Push(FileLoader::<Scenario>::new(
                                 ctx,
                                 path,
@@ -666,9 +676,10 @@ impl State<App> for SandboxLoader {
                                     let scenario = scenario.unwrap();
                                     Transition::Multi(vec![
                                         Transition::Pop,
-                                        Transition::ModifyState(Box::new(|state, _, _| {
+                                        Transition::ModifyState(Box::new(|state, _, app| {
                                             let loader =
                                                 state.downcast_mut::<SandboxLoader>().unwrap();
+                                            app.primary.scenario = Some(scenario.clone());
                                             loader.stage = Some(LoadStage::GotScenario(scenario));
                                         })),
                                     ])
