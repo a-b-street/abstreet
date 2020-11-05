@@ -1,3 +1,5 @@
+use abstutil::MapName;
+
 use configuration::{load_configuration, ImporterConfiguration};
 use dependencies::are_dependencies_callable;
 
@@ -144,25 +146,26 @@ fn main() {
                 x => panic!("Unknown city {}", x),
             }
         }
+        let name = MapName::new(&job.city, &name);
 
         let mut maybe_map = if job.raw_to_map {
             let mut map = utils::raw_to_map(&name, !job.skip_ch, job.keep_bldg_tags, &mut timer);
 
             // Another strange step in the pipeline.
-            if name == "berlin_center" {
+            if name.map == "berlin_center" {
                 timer.start(format!(
                     "distribute residents from planning areas for {}",
-                    name
+                    name.describe()
                 ));
                 berlin::distribute_residents(&mut map, &mut timer);
                 timer.stop(format!(
                     "distribute residents from planning areas for {}",
-                    name
+                    name.describe()
                 ));
-            } else if job.city == "seattle" {
-                timer.start(format!("add GTFS schedules for {}", name));
+            } else if name.city == "seattle" {
+                timer.start(format!("add GTFS schedules for {}", name.describe()));
                 seattle::add_gtfs_schedules(&mut map);
-                timer.stop(format!("add GTFS schedules for {}", name));
+                timer.stop(format!("add GTFS schedules for {}", name.describe()));
             }
 
             Some(map)
@@ -174,7 +177,7 @@ fn main() {
 
         #[cfg(feature = "scenarios")]
         if job.scenario {
-            timer.start(format!("scenario for {}", name));
+            timer.start(format!("scenario for {}", name.describe()));
             let scenario = soundcast::make_weekday_scenario(
                 maybe_map.as_ref().unwrap(),
                 maybe_popdat.as_ref().unwrap(),
@@ -182,26 +185,26 @@ fn main() {
                 &mut timer,
             );
             scenario.save();
-            timer.stop(format!("scenario for {}", name));
+            timer.stop(format!("scenario for {}", name.describe()));
 
             // This is a strange ordering.
-            if name == "downtown" || name == "south_seattle" {
-                timer.start(format!("adjust parking for {}", name));
+            if name.map == "downtown" || name.map == "south_seattle" {
+                timer.start(format!("adjust parking for {}", name.describe()));
                 seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), &scenario);
-                timer.stop(format!("adjust parking for {}", name));
+                timer.stop(format!("adjust parking for {}", name.describe()));
             }
         }
 
         #[cfg(feature = "scenarios")]
         if job.scenario_everyone {
-            timer.start(format!("scenario_everyone for {}", name));
+            timer.start(format!("scenario_everyone for {}", name.describe()));
             soundcast::make_weekday_scenario_with_everyone(
                 maybe_map.as_ref().unwrap(),
                 maybe_popdat.as_ref().unwrap(),
                 &mut timer,
             )
             .save();
-            timer.stop(format!("scenario_everyone for {}", name));
+            timer.stop(format!("scenario_everyone for {}", name.describe()));
         }
     }
 }
@@ -220,8 +223,7 @@ fn oneshot(
     let raw = convert_osm::convert(
         convert_osm::Options {
             osm_input: osm_path,
-            city_name: "oneshot".to_string(),
-            name: name.clone(),
+            name: MapName::new("oneshot", &name),
 
             clip,
             map_config: map_model::MapConfig {
@@ -248,5 +250,5 @@ fn oneshot(
     timer.start("save map");
     map.save();
     timer.stop("save map");
-    println!("{} has been created", abstutil::path_map(&name));
+    println!("{} has been created", abstutil::path_map(map.get_name()));
 }

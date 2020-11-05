@@ -10,18 +10,18 @@ use map_model::{osm, Direction};
 
 /// Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.
 pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
-    if map.city_name == "oneshot" {
+    if map.name.city == "oneshot" {
         return;
     }
 
     // TODO Hack! Fix upstream problems.
-    if map.name == "xian" {
+    if map.name.city == "xian" {
         return;
     }
 
     let mut cycleways = HashMap::new();
     for shape in abstutil::read_binary::<ExtraShapes>(
-        abstutil::path(format!("input/{}/footways.bin", map.city_name)),
+        abstutil::path(format!("input/{}/footways.bin", map.name.city)),
         timer,
     )
     .shapes
@@ -92,14 +92,14 @@ fn dump_output(
     abstutil::write_binary(
         abstutil::path(format!(
             "input/{}/{}_separate_cycleways.bin",
-            map.city_name, map.name
+            map.name.city, map.name.map
         )),
         &separate_cycleways,
     );
     abstutil::write_binary(
         abstutil::path(format!(
             "input/{}/{}_snapped_cycleways.bin",
-            map.city_name, map.name
+            map.name.city, map.name.map
         )),
         &snapped_cycleways,
     );

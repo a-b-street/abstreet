@@ -18,13 +18,13 @@ struct App {
 
 impl SharedAppState for App {
     fn dump_before_abort(&self, canvas: &Canvas) {
-        if !self.model.map.name.is_empty() {
+        if !self.model.map.name.map.is_empty() {
             canvas.save_camera_state(&self.model.map.name);
         }
     }
 
     fn before_quit(&self, canvas: &Canvas) {
-        if !self.model.map.name.is_empty() {
+        if !self.model.map.name.map.is_empty() {
             canvas.save_camera_state(&self.model.map.name);
         }
     }
@@ -62,7 +62,7 @@ impl MainState {
         } else {
             Model::blank()
         };
-        if !model.map.name.is_empty() {
+        if !model.map.name.map.is_empty() {
             ctx.canvas.load_camera_state(&model.map.name);
         }
         let bounds = model.map.gps_bounds.to_bounds();

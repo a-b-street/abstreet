@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use serde::Deserialize;
 use serde_json::Value;
 
+use abstutil::MapName;
 use geom::Speed;
 
 use crate::raw::OriginalRoad;
@@ -51,6 +52,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits, String>
             .as_object_mut()
             .unwrap()
             .insert("version".to_string(), Value::Number(3.into()));
+    }
+    if value["version"] == Value::Number(3.into()) {
+        fix_map_name(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(4.into()));
     }
 
     abstutil::from_json(&value.to_string().into_bytes()).map_err(|x| x.to_string())
@@ -208,6 +216,19 @@ fn fix_merge_zones(value: &mut Value) {
     let obj = value.as_object_mut().unwrap();
     if !obj.contains_key("merge_zones") {
         obj.insert("merge_zones".to_string(), Value::Bool(true.into()));
+    }
+}
+
+// fef306489ba5e73735e0badad0172f3992d342db split map/city name into a dedicated struct
+fn fix_map_name(value: &mut Value) {
+    let root = value.as_object_mut().unwrap();
+    if let Value::String(ref name) = root["map_name"].clone() {
+        // At the time of this change, there likely aren't many people who have edits saved in
+        // other maps.
+        root.insert(
+            "map_name".to_string(),
+            serde_json::to_value(MapName::seattle(name)).unwrap(),
+        );
     }
 }
 

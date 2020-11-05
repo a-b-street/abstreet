@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use abstutil::{Parallelism, Tags, Timer};
+use abstutil::{MapName, Parallelism, Tags, Timer};
 use geom::{Distance, Pt2D};
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
@@ -225,12 +225,12 @@ impl State<App> for DebugMode {
                         ctx,
                         app,
                         vec![
-                            "downtown",
-                            "krakow_center",
-                            "lakeslice",
-                            "montlake",
-                            "southbank",
-                            "udistrict",
+                            MapName::seattle("downtown"),
+                            MapName::new("krakow", "krakow_center"),
+                            MapName::seattle("lakeslice"),
+                            MapName::seattle("montlake"),
+                            MapName::new("london", "southbank"),
+                            MapName::seattle("udistrict"),
                         ],
                     ));
                 }
@@ -642,7 +642,7 @@ impl ContextualActions for Actions {
 
     fn gameplay_mode(&self) -> GameplayMode {
         // Hack so info panels can be opened in DebugMode
-        GameplayMode::Freeform("fake".to_string())
+        GameplayMode::FixTrafficSignals
     }
 }
 
@@ -731,16 +731,16 @@ fn find_large_intersections(app: &App) {
 // Because of the slightly odd control flow needed to ask widgetry to ScreenCaptureEverything, a
 // separate state is the easiest way to automatically screenshot multiple maps.
 struct ScreenshotTest {
-    todo_maps: Vec<&'static str>,
+    todo_maps: Vec<MapName>,
     screenshot_done: bool,
 }
 
 impl ScreenshotTest {
-    fn new(ctx: &mut EventCtx, app: &App, mut todo_maps: Vec<&'static str>) -> Box<dyn State<App>> {
+    fn new(ctx: &mut EventCtx, app: &App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
         MapLoader::new(
             ctx,
             app,
-            todo_maps.pop().unwrap().to_string(),
+            todo_maps.pop().unwrap(),
             Box::new(move |_, _| {
                 Transition::Replace(Box::new(ScreenshotTest {
                     todo_maps,
@@ -777,7 +777,7 @@ fn screenshot_everything(ctx: &mut EventCtx, app: &App) {
     let bounds = app.primary.map.get_bounds();
     assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
     ctx.request_update(UpdateType::ScreenCaptureEverything {
-        dir: format!("screenshots_{}", app.primary.map.get_name()),
+        dir: format!("screenshots_{}", app.primary.map.get_name().as_filename()),
         zoom: 3.0,
         max_x: bounds.max_x,
         max_y: bounds.max_y,

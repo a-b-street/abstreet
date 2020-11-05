@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use maplit::btreemap;
 use rand::seq::SliceRandom;
 
-use abstutil::Timer;
+use abstutil::{MapName, Timer};
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, PermanentMapEdits, Traversable};
 use sim::{Analytics, Sim, SimCallback, SimFlags};
@@ -59,13 +59,13 @@ impl App {
     }
 
     // TODO Should the prebaked methods be on primary along with the data?
-    pub fn has_prebaked(&self) -> Option<(&String, &String)> {
+    pub fn has_prebaked(&self) -> Option<(&MapName, &String)> {
         self.primary.prebaked.as_ref().map(|(m, s, _)| (m, s))
     }
     pub fn prebaked(&self) -> &Analytics {
         &self.primary.prebaked.as_ref().unwrap().2
     }
-    pub fn set_prebaked(&mut self, prebaked: Option<(String, String, Analytics)>) {
+    pub fn set_prebaked(&mut self, prebaked: Option<(MapName, String, Analytics)>) {
         self.primary.prebaked = prebaked;
 
         if false {
@@ -515,7 +515,7 @@ pub struct PerMap {
     /// Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
     /// scenario name too.
     // TODO Embed that in Analytics directly instead.
-    prebaked: Option<(String, String, Analytics)>,
+    prebaked: Option<(MapName, String, Analytics)>,
 }
 
 impl PerMap {

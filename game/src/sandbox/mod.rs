@@ -627,7 +627,7 @@ impl State<App> for SandboxLoader {
                     return Transition::Push(MapLoader::new(
                         ctx,
                         app,
-                        self.mode.map_name().to_string(),
+                        self.mode.map_name().clone(),
                         Box::new(|_, _| {
                             Transition::Multi(vec![
                                 Transition::Pop,
@@ -741,7 +741,7 @@ impl State<App> for SandboxLoader {
                                  This means trip dashboards can't compare current times to any \
                                  kind of baseline: {}",
                                 scenario_name,
-                                app.primary.map.get_name(),
+                                app.primary.map.get_name().describe(),
                                 err
                             );
                             app.set_prebaked(None);

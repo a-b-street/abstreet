@@ -8,7 +8,7 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Parallelism, Timer};
+use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, MapName, Parallelism, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRoute, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest, Position,
@@ -45,7 +45,7 @@ pub struct Sim {
     time: Time,
 
     // These're needed to load from a savestate.
-    pub(crate) map_name: String,
+    pub(crate) map_name: MapName,
     pub(crate) edits_name: String,
     // Some tests deliberately set different scenario names for comparisons.
     // TODO Maybe get rid of this, now that savestates aren't used
@@ -207,7 +207,7 @@ impl Sim {
             scheduler,
             time: Time::START_OF_DAY,
 
-            map_name: map.get_name().to_string(),
+            map_name: map.get_name().clone(),
             edits_name: map.get_edits().edits_name.clone(),
             run_name: opts.run_name,
             step_count: 0,

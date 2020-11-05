@@ -22,7 +22,7 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{serialize_btreemap, CmdArgs, Timer};
+use abstutil::{serialize_btreemap, CmdArgs, MapName, Timer};
 use geom::{Duration, LonLat, Time};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
@@ -38,7 +38,7 @@ lazy_static::lazy_static! {
     static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
     static ref LOAD: RwLock<LoadSim> = RwLock::new({
         LoadSim {
-            scenario: abstutil::path_scenario("montlake", "weekday"),
+            scenario: abstutil::path_scenario(&MapName::seattle("montlake"), "weekday"),
             modifiers: Vec::new(),
             edits: None,
             rng_seed: SimFlags::RNG_SEED,

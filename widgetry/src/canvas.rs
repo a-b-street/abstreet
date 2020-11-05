@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::Timer;
+use abstutil::{MapName, Timer};
 use geom::{Bounds, Pt2D};
 
 use crate::{Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
@@ -289,19 +289,19 @@ impl Canvas {
         b
     }
 
-    pub fn save_camera_state(&self, map_name: &str) {
+    pub fn save_camera_state(&self, name: &MapName) {
         let state = CameraState {
             cam_x: self.cam_x,
             cam_y: self.cam_y,
             cam_zoom: self.cam_zoom,
         };
-        abstutil::write_json(abstutil::path_camera_state(map_name), &state);
+        abstutil::write_json(abstutil::path_camera_state(name), &state);
     }
 
     // True if this succeeds
-    pub fn load_camera_state(&mut self, map_name: &str) -> bool {
+    pub fn load_camera_state(&mut self, name: &MapName) -> bool {
         match abstutil::maybe_read_json::<CameraState>(
-            abstutil::path_camera_state(map_name),
+            abstutil::path_camera_state(name),
             &mut Timer::throwaway(),
         ) {
             Ok(ref loaded) => {

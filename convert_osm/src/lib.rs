@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate log;
 
-use abstutil::Timer;
+use abstutil::{MapName, Timer};
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::RawMap;
 use map_model::{osm, Amenity, MapConfig};
@@ -18,8 +18,7 @@ mod transit;
 
 pub struct Options {
     pub osm_input: String,
-    pub city_name: String,
-    pub name: String,
+    pub name: MapName,
 
     /// The path to an osmosis boundary polygon. Highly recommended.
     pub clip: Option<String>,
@@ -68,7 +67,7 @@ pub enum PrivateOffstreetParking {
 }
 
 pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
-    let mut map = RawMap::blank(&opts.city_name, &opts.name);
+    let mut map = RawMap::blank(opts.name.clone());
     if let Some(ref path) = opts.clip {
         let pts = LonLat::read_osmosis_polygon(path.to_string()).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());

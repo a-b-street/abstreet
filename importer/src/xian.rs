@@ -1,3 +1,5 @@
+use abstutil::MapName;
+
 use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, osmconvert};
 
@@ -21,8 +23,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     let map = convert_osm::convert(
         convert_osm::Options {
             osm_input: abstutil::path(format!("input/xian/osm/{}.osm", name)),
-            city_name: "xian".to_string(),
-            name: name.to_string(),
+            name: MapName::new("xian", name),
 
             clip: Some(abstutil::path(format!("input/xian/polygons/{}.poly", name))),
             map_config: map_model::MapConfig {

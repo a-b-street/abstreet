@@ -1,5 +1,8 @@
 {
-  "map_name": "lakeslice",
+  "map_name": {
+	  "city": "seattle",
+	  "map": "lakeslice"
+  },
   "edits_name": "stay healthy lake wash blvd",
   "version": 3,
   "commands": [

@@ -6,7 +6,7 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, Counter, Timer};
+use abstutil::{prettyprint_usize, Counter, MapName, Timer};
 use geom::{Distance, Duration, LonLat, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, OffstreetParking, PathConstraints,
@@ -24,7 +24,7 @@ use crate::{
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
     pub scenario_name: String,
-    pub map_name: String,
+    pub map_name: MapName,
 
     pub people: Vec<PersonSpec>,
     /// None means seed all buses. Otherwise the route name must be present here.
@@ -222,7 +222,7 @@ impl Scenario {
     pub fn empty(map: &Map, name: &str) -> Scenario {
         Scenario {
             scenario_name: name.to_string(),
-            map_name: map.get_name().to_string(),
+            map_name: map.get_name().clone(),
             people: Vec::new(),
             only_seed_buses: Some(BTreeSet::new()),
         }

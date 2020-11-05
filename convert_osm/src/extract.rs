@@ -147,16 +147,16 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         }
     }
 
-    if map.city_name != "oneshot"
-        && ((map.city_name == "seattle" && map.name == "huge_seattle")
-            || map.city_name != "seattle")
+    if map.name.city != "oneshot"
+        && ((map.name.city == "seattle" && map.name.map == "huge_seattle")
+            || map.name.city != "seattle")
     {
         abstutil::write_binary(
-            abstutil::path(format!("input/{}/footways.bin", map.city_name)),
+            abstutil::path(format!("input/{}/footways.bin", map.name.city)),
             &extra_footways,
         );
         abstutil::write_binary(
-            abstutil::path(format!("input/{}/service_roads.bin", map.city_name)),
+            abstutil::path(format!("input/{}/service_roads.bin", map.name.city)),
             &extra_service_roads,
         );
     }

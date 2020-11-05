@@ -1,6 +1,6 @@
 use rand_xorshift::XorShiftRng;
 
-use abstutil::Timer;
+use abstutil::{MapName, Timer};
 use geom::Duration;
 use map_model::{EditCmd, EditIntersection, Map, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
@@ -28,10 +28,9 @@ pub mod tutorial;
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum GameplayMode {
     // TODO Maybe this should be "sandbox"
-    // Map name
-    Freeform(String),
+    Freeform(MapName),
     // Map name, scenario name
-    PlayScenario(String, String, Vec<ScenarioModifier>),
+    PlayScenario(MapName, String, Vec<ScenarioModifier>),
     FixTrafficSignals,
     OptimizeCommute(OrigPersonID, Duration),
 
@@ -84,13 +83,13 @@ pub enum LoadScenario {
 }
 
 impl GameplayMode {
-    pub fn map_name(&self) -> &str {
+    pub fn map_name(&self) -> MapName {
         match self {
-            GameplayMode::Freeform(ref name) => name,
-            GameplayMode::PlayScenario(ref name, _, _) => name,
-            GameplayMode::FixTrafficSignals => "downtown",
-            GameplayMode::OptimizeCommute(_, _) => "montlake",
-            GameplayMode::Tutorial(_) => "montlake",
+            GameplayMode::Freeform(ref name) => name.clone(),
+            GameplayMode::PlayScenario(ref name, _, _) => name.clone(),
+            GameplayMode::FixTrafficSignals => MapName::seattle("downtown"),
+            GameplayMode::OptimizeCommute(_, _) => MapName::seattle("montlake"),
+            GameplayMode::Tutorial(_) => MapName::seattle("montlake"),
         }
     }
 

@@ -8,7 +8,7 @@ use std::fmt;
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
+use abstutil::{deserialize_btreemap, serialize_btreemap, MapName, Tags, Timer};
 use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
@@ -18,8 +18,7 @@ use crate::{
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawMap {
-    pub city_name: String,
-    pub name: String,
+    pub name: MapName,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -85,10 +84,9 @@ impl OriginalRoad {
 }
 
 impl RawMap {
-    pub fn blank(city_name: &str, name: &str) -> RawMap {
+    pub fn blank(name: MapName) -> RawMap {
         RawMap {
-            city_name: city_name.to_string(),
-            name: name.to_string(),
+            name,
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
             buildings: BTreeMap::new(),
@@ -179,10 +177,7 @@ impl RawMap {
     }
 
     pub fn save(&self) {
-        abstutil::write_binary(
-            abstutil::path(format!("input/raw_maps/{}.bin", self.name)),
-            self,
-        )
+        abstutil::write_binary(abstutil::path_raw_map(&self.name), self)
     }
 }
 

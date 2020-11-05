@@ -441,7 +441,7 @@ fn pct_diff(a: Duration, b: Duration) -> f64 {
 fn export_times(app: &App) -> Result<String, std::io::Error> {
     let path = format!(
         "trip_times_{}_{}.csv",
-        app.primary.map.get_name(),
+        app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
     let mut f = File::create(&path)?;

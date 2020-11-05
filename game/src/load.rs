@@ -3,7 +3,7 @@
 
 use serde::de::DeserializeOwned;
 
-use abstutil::Timer;
+use abstutil::{MapName, Timer};
 use sim::Sim;
 use widgetry::{Color, EventCtx, GfxCtx, State};
 
@@ -22,7 +22,7 @@ impl MapLoader {
     pub fn new(
         ctx: &mut EventCtx,
         app: &App,
-        name: String,
+        name: MapName,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
     ) -> Box<dyn State<App>> {
         if app.primary.map.get_name() == &name {
@@ -53,7 +53,7 @@ impl MapLoader {
                     Err(err) => Transition::Replace(PopupMsg::new(
                         ctx,
                         "Error",
-                        vec![format!("Couldn't load {}", name), err],
+                        vec![format!("Couldn't load {}", name.describe()), err],
                     )),
                 }
             }),

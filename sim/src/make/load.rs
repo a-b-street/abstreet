@@ -1,7 +1,7 @@
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
-use abstutil::CmdArgs;
+use abstutil::{CmdArgs, MapName};
 use map_model::{Map, MapEdits};
 
 use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
@@ -34,7 +34,7 @@ impl SimFlags {
         SimFlags {
             load: args
                 .optional_free()
-                .unwrap_or_else(|| abstutil::path_map("montlake")),
+                .unwrap_or_else(|| abstutil::path_map(&MapName::seattle("montlake"))),
             modifiers,
             rng_seed,
             opts: SimOptions::from_args(args, rng_seed),
@@ -43,12 +43,8 @@ impl SimFlags {
 
     // TODO rename seattle_test
     pub fn for_test(run_name: &str) -> SimFlags {
-        SimFlags::synthetic_test("montlake", run_name)
-    }
-
-    pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
-            load: abstutil::path_map(map),
+            load: abstutil::path_map(&MapName::seattle("montlake")),
             modifiers: Vec::new(),
             rng_seed: SimFlags::RNG_SEED,
             opts: SimOptions::new(run_name),

@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::process::Command;
 
-use abstutil::{must_run_cmd, Timer};
+use abstutil::{must_run_cmd, MapName, Timer};
 
 use crate::configuration::ImporterConfiguration;
 
@@ -124,21 +124,21 @@ pub fn osmconvert(
 
 // Converts a RawMap to a Map.
 pub fn raw_to_map(
-    name: &str,
+    name: &MapName,
     build_ch: bool,
     keep_bldg_tags: bool,
     timer: &mut Timer,
 ) -> map_model::Map {
-    timer.start(format!("Raw->Map for {}", name));
+    timer.start(format!("Raw->Map for {}", name.describe()));
     let raw: map_model::raw::RawMap = abstutil::read_binary(abstutil::path_raw_map(name), timer);
     let map = map_model::Map::create_from_raw(raw, build_ch, keep_bldg_tags, timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");
-    timer.stop(format!("Raw->Map for {}", name));
+    timer.stop(format!("Raw->Map for {}", name.describe()));
 
     // TODO Just sticking this here for now
-    if map.get_name() == "huge_seattle" {
+    if name.map == "huge_seattle" {
         timer.start("generating city manifest");
         abstutil::write_binary(
             abstutil::path(format!("system/cities/{}.bin", map.get_city_name())),

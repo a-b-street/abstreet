@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 
-use abstutil::Timer;
+use abstutil::{MapName, Timer};
 use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
@@ -166,8 +166,10 @@ impl Map {
             },
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
-            city_name: "blank city".to_string(),
-            name: "blank".to_string(),
+            name: MapName {
+                city: "blank city".to_string(),
+                map: "blank".to_string(),
+            },
             edits: MapEdits::new(),
         }
     }
@@ -408,10 +410,10 @@ impl Map {
     }
 
     pub fn get_city_name(&self) -> &String {
-        &self.city_name
+        &self.name.city
     }
 
-    pub fn get_name(&self) -> &String {
+    pub fn get_name(&self) -> &MapName {
         &self.name
     }
 

@@ -1,4 +1,4 @@
-use abstutil::prettyprint_usize;
+use abstutil::{prettyprint_usize, MapName};
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
@@ -15,7 +15,7 @@ use crate::render::DrawArea;
 pub struct CityPicker {
     panel: Panel,
     // In untranslated screen-space
-    regions: Vec<(String, Color, Polygon)>,
+    regions: Vec<(MapName, Color, Polygon)>,
     selected: Option<usize>,
     // Wrapped in an Option just to make calling from event() work.
     on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>>,
@@ -65,8 +65,10 @@ impl CityPicker {
         let mut this_city = vec![];
         let mut more_cities = 0;
         for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
+            // TODO Wrong! When path_all_maps changes, have to deal with this.
+            let name = MapName::seattle(&name);
             if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
-                let btn = Btn::txt(&name, Text::from(Line(nice_map_name(&name)).fg(*color)))
+                let btn = Btn::txt(&name.map, Text::from(Line(nice_map_name(&name)).fg(*color)))
                     .tooltip(Text::new());
                 this_city.push(if &name == app.primary.map.get_name() {
                     btn.inactive(ctx)
@@ -75,7 +77,7 @@ impl CityPicker {
                 });
             } else if other_cities.len() < 10 {
                 other_cities.push(
-                    Btn::txt(&name, Text::from(Line(nice_map_name(&name))))
+                    Btn::txt(&name.map, Text::from(Line(nice_map_name(&name))))
                         .tooltip(Text::new())
                         .build_def(ctx, None),
                 );
@@ -155,7 +157,8 @@ impl State<App> for CityPicker {
                     return Transition::Replace(MapLoader::new(
                         ctx,
                         app,
-                        name.to_string(),
+                        // TODO Have to do something more clever soon
+                        MapName::seattle(name),
                         self.on_load.take().unwrap(),
                     ));
                 }
@@ -177,7 +180,7 @@ impl State<App> for CityPicker {
                     }
                 } else if let Some(btn) = self.panel.currently_hovering() {
                     for (idx, (name, _, _)) in self.regions.iter().enumerate() {
-                        if name != app.primary.map.get_name() && name == btn {
+                        if name != app.primary.map.get_name() && &name.map == btn {
                             self.selected = Some(idx);
                             break;
                         }
@@ -194,7 +197,7 @@ impl State<App> for CityPicker {
                 return Transition::Replace(MapLoader::new(
                     ctx,
                     app,
-                    name.to_string(),
+                    name.clone(),
                     self.on_load.take().unwrap(),
                 ));
             }
@@ -283,7 +286,7 @@ impl State<App> for AllCityPicker {
                     return Transition::Replace(MapLoader::new(
                         ctx,
                         app,
-                        name.to_string(),
+                        MapName::seattle(name),
                         self.on_load.take().unwrap(),
                     ));
                 }
@@ -295,7 +298,7 @@ impl State<App> for AllCityPicker {
                 return Transition::Replace(MapLoader::new(
                     ctx,
                     app,
-                    names.remove(0),
+                    MapName::seattle(&names.remove(0)),
                     self.on_load.take().unwrap(),
                 ));
             }

@@ -3,7 +3,7 @@ use std::fs::File;
 
 use serde::Deserialize;
 
-use abstutil::MultiMap;
+use abstutil::{MapName, MultiMap};
 use geom::{Duration, Time};
 use map_model::{BusRouteID, Map};
 use sim::Scenario;
@@ -71,8 +71,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     let map = convert_osm::convert(
         convert_osm::Options {
             osm_input: abstutil::path(format!("input/seattle/osm/{}.osm", name)),
-            city_name: "seattle".to_string(),
-            name: name.to_string(),
+            name: MapName::seattle(name),
 
             clip: Some(abstutil::path(format!(
                 "input/seattle/polygons/{}.poly",
@@ -115,21 +114,23 @@ pub fn ensure_popdat_exists(
     timer: &mut abstutil::Timer,
     config: &ImporterConfiguration,
 ) -> (crate::soundcast::PopDat, map_model::Map) {
+    let huge_name = MapName::seattle("huge_seattle");
+
     if abstutil::file_exists(abstutil::path_popdat()) {
         println!("- {} exists, not regenerating it", abstutil::path_popdat());
         return (
             abstutil::read_binary(abstutil::path_popdat(), timer),
-            map_model::Map::new(abstutil::path_map("huge_seattle"), timer),
+            map_model::Map::new(abstutil::path_map(&huge_name), timer),
         );
     }
 
-    if !abstutil::file_exists(abstutil::path_raw_map("huge_seattle")) {
+    if !abstutil::file_exists(abstutil::path_raw_map(&huge_name)) {
         osm_to_raw("huge_seattle", timer, config);
     }
-    let huge_map = if abstutil::file_exists(abstutil::path_map("huge_seattle")) {
-        map_model::Map::new(abstutil::path_map("huge_seattle"), timer)
+    let huge_map = if abstutil::file_exists(abstutil::path_map(&huge_name)) {
+        map_model::Map::new(abstutil::path_map(&huge_name), timer)
     } else {
-        crate::utils::raw_to_map("huge_seattle", true, false, timer)
+        crate::utils::raw_to_map(&huge_name, true, false, timer)
     };
 
     (crate::soundcast::import_data(&huge_map, timer), huge_map)

@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap, MapName};
 use geom::Time;
 
 use crate::edits::{EditCmd, EditIntersection, EditRoad, MapEdits};
@@ -14,7 +14,7 @@ use crate::{osm, ControlStopSign, IntersectionID, Map};
 /// likely to change.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PermanentMapEdits {
-    pub map_name: String,
+    pub map_name: MapName,
     pub edits_name: String,
     pub version: usize,
     commands: Vec<PermanentEditCmd>,
@@ -88,10 +88,10 @@ impl EditCmd {
 impl PermanentMapEdits {
     pub fn to_permanent(edits: &MapEdits, map: &Map) -> PermanentMapEdits {
         PermanentMapEdits {
-            map_name: map.get_name().to_string(),
+            map_name: map.get_name().clone(),
             edits_name: edits.edits_name.clone(),
             // Increase this every time there's a schema change
-            version: 3,
+            version: 4,
             proposal_description: edits.proposal_description.clone(),
             proposal_link: edits.proposal_link.clone(),
             commands: edits.commands.iter().map(|cmd| cmd.to_perma(map)).collect(),

@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate log;
 
-use abstutil::{CmdArgs, Timer};
+use abstutil::{CmdArgs, MapName, Timer};
 use geom::Duration;
 use sim::SimFlags;
 use widgetry::{EventCtx, State};
@@ -89,7 +89,7 @@ pub fn main(mut args: CmdArgs) {
         'OUTER: for (_, stages) in challenges::Challenge::all() {
             for challenge in stages {
                 if challenge.alias == x {
-                    flags.sim_flags.load = abstutil::path_map(challenge.gameplay.map_name());
+                    flags.sim_flags.load = abstutil::path_map(&challenge.gameplay.map_name());
                     mode = Some(challenge.gameplay);
                     break 'OUTER;
                 } else {
@@ -112,12 +112,8 @@ pub fn main(mut args: CmdArgs) {
     let modifiers = flags.sim_flags.modifiers.drain(..).collect();
 
     if mode.is_none() && flags.sim_flags.load.contains("scenarios/") {
-        // TODO regex
-        let parts = flags.sim_flags.load.split("/").collect::<Vec<_>>();
-        let map_name = parts[parts.len() - 2].to_string();
-        let scenario = abstutil::basename(parts[parts.len() - 1]);
+        let (map_name, scenario) = abstutil::parse_scenario_path(&flags.sim_flags.load);
         flags.sim_flags.load = abstutil::path_map(&map_name);
-
         mode = Some(sandbox::GameplayMode::PlayScenario(
             map_name, scenario, modifiers,
         ));
@@ -200,6 +196,9 @@ fn setup_app(
 fn smoke_test() {
     let mut timer = Timer::new("run a smoke-test for all maps");
     for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
+        // TODO Wrong! When we start using city as part of the filename, this'll break. But that's
+        // also when path_all_maps() has to change.
+        let name = MapName::seattle(&name);
         let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
         let scenario = if map.get_city_name() == "seattle" {
             abstutil::read_binary(abstutil::path_scenario(&name, "weekday"), &mut timer)
@@ -223,7 +222,7 @@ fn smoke_test() {
             "montlake",
             "udistrict",
         ]
-        .contains(&name.as_str())
+        .contains(&name.map.as_str())
         {
             dump_route_goldenfile(&map).unwrap();
         }
@@ -234,7 +233,10 @@ fn dump_route_goldenfile(map: &map_model::Map) -> Result<(), std::io::Error> {
     use std::fs::File;
     use std::io::Write;
 
-    let path = abstutil::path(format!("route_goldenfiles/{}.txt", map.get_name()));
+    let path = abstutil::path(format!(
+        "route_goldenfiles/{}.txt",
+        map.get_name().as_filename()
+    ));
     let mut f = File::create(path)?;
     for br in map.all_bus_routes() {
         writeln!(

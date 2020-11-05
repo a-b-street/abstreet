@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::{prettyprint_usize, MapName, Timer};
 use geom::{Duration, Percent, Time};
 use map_model::Map;
 use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
@@ -297,9 +297,14 @@ pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
     {
-        let map = map_model::Map::new(abstutil::path_map("montlake"), &mut timer);
-        let scenario: Scenario =
-            abstutil::read_binary(abstutil::path_scenario("montlake", "weekday"), &mut timer);
+        let map = map_model::Map::new(
+            abstutil::path_map(&MapName::seattle("montlake")),
+            &mut timer,
+        );
+        let scenario: Scenario = abstutil::read_binary(
+            abstutil::path_scenario(map.get_name(), "weekday"),
+            &mut timer,
+        );
         prebake(&map, scenario, None, &mut timer);
 
         for generator in TutorialState::scenarios_to_prebake(&map) {
@@ -312,10 +317,12 @@ pub fn prebake_all() {
         }
     }
 
-    for name in vec!["lakeslice"] {
-        let map = map_model::Map::new(abstutil::path_map(name), &mut timer);
-        let scenario: Scenario =
-            abstutil::read_binary(abstutil::path_scenario(name, "weekday"), &mut timer);
+    for name in vec![MapName::seattle("lakeslice")] {
+        let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
+        let scenario: Scenario = abstutil::read_binary(
+            abstutil::path_scenario(map.get_name(), "weekday"),
+            &mut timer,
+        );
         prebake(&map, scenario, None, &mut timer);
     }
 }
@@ -323,7 +330,8 @@ pub fn prebake_all() {
 fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &mut Timer) {
     timer.start(format!(
         "prebake for {} / {}",
-        scenario.map_name, scenario.scenario_name
+        scenario.map_name.describe(),
+        scenario.scenario_name
     ));
 
     let mut opts = SimOptions::new("prebaked");
@@ -351,7 +359,8 @@ fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &
     timer.note(format!("{} agents left by end of day", agents_left));
     timer.stop(format!(
         "prebake for {} / {}",
-        scenario.map_name, scenario.scenario_name
+        scenario.map_name.describe(),
+        scenario.scenario_name
     ));
 
     // TODO Ah, it's people waiting on a bus that never spawned. Woops.
@@ -359,7 +368,7 @@ fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &
         panic!(
             "{} agents left by end of day on {}; seems bad",
             prettyprint_usize(agents_left),
-            scenario.map_name
+            scenario.map_name.describe()
         );
     }
 }

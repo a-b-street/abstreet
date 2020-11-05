@@ -144,7 +144,7 @@ fn endpoints(
 }
 
 fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> Vec<Trip> {
-    let maybe_huge_map = if map.get_name() == "huge_seattle" {
+    let maybe_huge_map = if map.get_name().map == "huge_seattle" {
         None
     } else {
         let mut huge_osm_id_to_bldg = HashMap::new();
@@ -310,7 +310,7 @@ pub fn make_weekday_scenario(
 
     Scenario {
         scenario_name: "weekday".to_string(),
-        map_name: map.get_name().to_string(),
+        map_name: map.get_name().clone(),
         people,
         only_seed_buses: None,
     }
@@ -381,7 +381,7 @@ pub fn make_weekday_scenario_with_everyone(
 
     Scenario {
         scenario_name: "everyone_weekday".to_string(),
-        map_name: map.get_name().to_string(),
+        map_name: map.get_name().clone(),
         people,
         only_seed_buses: None,
     }

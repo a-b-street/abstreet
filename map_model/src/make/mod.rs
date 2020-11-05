@@ -59,7 +59,6 @@ impl Map {
             config: raw.config.clone(),
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,
-            city_name: raw.city_name.clone(),
             name: raw.name.clone(),
             edits: MapEdits::new(),
         };

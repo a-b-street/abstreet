@@ -189,7 +189,13 @@ fn generate_manifest() -> Manifest {
             context.consume(&buffer[..n]);
         }
         let checksum = format!("{:x}", context.compute());
-        kv.insert(path, Entry { checksum, size_bytes });
+        kv.insert(
+            path,
+            Entry {
+                checksum,
+                size_bytes,
+            },
+        );
     }
     Manifest { entries: kv }
 }

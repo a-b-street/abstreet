@@ -1,5 +1,8 @@
 {
-  "map_name": "west_seattle",
+  "map_name": {
+	  "city": "seattle",
+	  "map": "west_seattle"
+  },
   "edits_name": "repair west seattle bridge",
   "version": 3,
   "commands": [

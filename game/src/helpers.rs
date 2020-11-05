@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use abstutil::MapName;
 use geom::{Duration, Polygon, Pt2D};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use sim::{AgentID, AgentType, CarID, PedestrianID, TripMode, TripPhaseType};
@@ -84,8 +85,8 @@ pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names:
 }
 
 // TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
-pub fn nice_map_name(name: &str) -> &str {
-    match name {
+pub fn nice_map_name(name: &MapName) -> &str {
+    match name.map.as_ref() {
         "ballard" => "Ballard",
         "downtown" => "Downtown Seattle",
         "huge_seattle" => "Seattle (entire area)",
@@ -101,7 +102,7 @@ pub fn nice_map_name(name: &str) -> &str {
         "southbank" => "London (Southbank)",
         "tel_aviv" => "Tel Aviv",
         "xian" => "Xi'an",
-        _ => name,
+        _ => &name.map,
     }
 }
 

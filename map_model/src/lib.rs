@@ -28,7 +28,7 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap, MapName};
 use geom::{Bounds, Distance, GPSBounds, Polygon};
 
 pub use crate::city::City;
@@ -111,8 +111,7 @@ pub struct Map {
     // Not the source of truth, just cached.
     zones: Vec<Zone>,
 
-    city_name: String,
-    name: String,
+    name: MapName,
     #[serde(skip_serializing, skip_deserializing)]
     edits: MapEdits,
 }

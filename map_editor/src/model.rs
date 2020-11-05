@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use abstutil::{Tags, Timer};
+use abstutil::{MapName, Tags, Timer};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw::{OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
 use map_model::{osm, IntersectionType};
@@ -26,7 +26,10 @@ pub struct Model {
 impl Model {
     pub fn blank() -> Model {
         Model {
-            map: RawMap::blank("", ""),
+            map: RawMap::blank(MapName {
+                city: String::new(),
+                map: String::new(),
+            }),
             showing_pts: None,
 
             include_bldgs: false,
@@ -74,8 +77,8 @@ impl Model {
 impl Model {
     // TODO Only for truly synthetic maps...
     pub fn export(&mut self) {
-        if self.map.name == "" {
-            self.map.name = "new_synthetic_map".to_string();
+        if self.map.name.map == "" {
+            self.map.name.map = "new_synthetic_map".to_string();
         }
 
         // Shift the map to start at (0, 0)

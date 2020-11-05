@@ -4,7 +4,7 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
 
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::{prettyprint_usize, MapName, Timer};
 use geom::{Polygon, Ring};
 use kml::ExtraShapes;
 
@@ -62,8 +62,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
     let map = convert_osm::convert(
         convert_osm::Options {
             osm_input: abstutil::path(format!("input/berlin/osm/{}.osm", name)),
-            city_name: "berlin".to_string(),
-            name: name.to_string(),
+            name: MapName::new("berlin", name),
 
             clip: Some(abstutil::path(format!(
                 "input/berlin/polygons/{}.poly",
