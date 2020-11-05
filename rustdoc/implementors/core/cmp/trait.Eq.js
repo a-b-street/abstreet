@@ -1,4 +1,5 @@
 (function() {var implementors = {};
+implementors["abstutil"] = [{"text":"impl Eq for MapName","synthetic":false,"types":[]}];
 implementors["game"] = [{"text":"impl Eq for ID","synthetic":false,"types":[]},{"text":"impl Eq for Loc","synthetic":false,"types":[]},{"text":"impl Eq for TutorialPointer","synthetic":false,"types":[]},{"text":"impl Eq for GameplayMode","synthetic":false,"types":[]}];
 implementors["geom"] = [{"text":"impl Eq for Distance","synthetic":false,"types":[]},{"text":"impl Eq for Duration","synthetic":false,"types":[]},{"text":"impl Eq for LonLat","synthetic":false,"types":[]},{"text":"impl Eq for HashablePt2D","synthetic":false,"types":[]},{"text":"impl Eq for Statistic","synthetic":false,"types":[]},{"text":"impl Eq for Time","synthetic":false,"types":[]}];
 implementors["map_editor"] = [{"text":"impl Eq for ID","synthetic":false,"types":[]}];

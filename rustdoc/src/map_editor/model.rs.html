@@ -508,10 +508,13 @@
 <span id="507">507</span>
 <span id="508">508</span>
 <span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawBuilding</span>, <span class="ident">RawIntersection</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">IntersectionType</span>};
@@ -537,7 +540,10 @@
 <span class="kw">impl</span> <span class="ident">Model</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blank</span>() <span class="op">-&gt;</span> <span class="ident">Model</span> {
         <span class="ident">Model</span> {
-            <span class="ident">map</span>: <span class="ident">RawMap</span>::<span class="ident">blank</span>(<span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>),
+            <span class="ident">map</span>: <span class="ident">RawMap</span>::<span class="ident">blank</span>(<span class="ident">MapName</span> {
+                <span class="ident">city</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
+                <span class="ident">map</span>: <span class="ident">String</span>::<span class="ident">new</span>(),
+            }),
             <span class="ident">showing_pts</span>: <span class="prelude-val">None</span>,
 
             <span class="ident">include_bldgs</span>: <span class="bool-val">false</span>,
@@ -585,8 +591,8 @@
 <span class="kw">impl</span> <span class="ident">Model</span> {
     <span class="comment">// TODO Only for truly synthetic maps...</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">export</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;&quot;</span> {
-            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;new_synthetic_map&quot;</span>.<span class="ident">to_string</span>();
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span> <span class="op">==</span> <span class="string">&quot;&quot;</span> {
+            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span> <span class="string">&quot;new_synthetic_map&quot;</span>.<span class="ident">to_string</span>();
         }
 
         <span class="comment">// Shift the map to start at (0, 0)</span>

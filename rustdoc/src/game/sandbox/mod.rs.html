@@ -837,6 +837,17 @@
 <span id="836">836</span>
 <span id="837">837</span>
 <span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -1467,7 +1478,7 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">map_name</span>().<span class="ident">to_string</span>(),
+                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">map_name</span>().<span class="ident">clone</span>(),
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
                             <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                                 <span class="ident">Transition</span>::<span class="ident">Pop</span>,
@@ -1480,6 +1491,8 @@
                     ));
                 }
                 <span class="ident">LoadStage</span>::<span class="ident">LoadingScenario</span> <span class="op">=&gt;</span> {
+                    <span class="comment">// TODO Can we cache the dynamically generated scenarios, like home_to_work, and</span>
+                    <span class="comment">// avoid regenerating with this call?</span>
                     <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load scenario&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
                         <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">scenario</span>(
                             <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
@@ -1498,6 +1511,14 @@
                             <span class="kw">continue</span>;
                         }
                         <span class="ident">gameplay</span>::<span class="ident">LoadScenario</span>::<span class="ident">Path</span>(<span class="ident">path</span>) <span class="op">=&gt;</span> {
+                            <span class="comment">// Reuse the cached scenario, if possible.</span>
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">scenario</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">scenario</span> {
+                                <span class="kw">if</span> <span class="ident">scenario</span>.<span class="ident">scenario_name</span> <span class="op">==</span> <span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
+                                    <span class="self">self</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage</span>::<span class="ident">GotScenario</span>(<span class="ident">scenario</span>.<span class="ident">clone</span>()));
+                                    <span class="kw">continue</span>;
+                                }
+                            }
+
                             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">Scenario</span><span class="op">&gt;</span>::<span class="ident">new</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="ident">path</span>,
@@ -1506,9 +1527,10 @@
                                     <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">unwrap</span>();
                                     <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                                         <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                                        <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
+                                        <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="kw">_</span>, <span class="ident">app</span><span class="op">|</span> {
                                             <span class="kw">let</span> <span class="ident">loader</span> <span class="op">=</span>
                                                 <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxLoader</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">scenario</span>.<span class="ident">clone</span>());
                                             <span class="ident">loader</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage</span>::<span class="ident">GotScenario</span>(<span class="ident">scenario</span>));
                                         })),
                                     ])
@@ -1581,7 +1603,7 @@
                                  This means trip dashboards can&#39;t compare current times to any \
                                  kind of baseline: {}&quot;</span>,
                                 <span class="ident">scenario_name</span>,
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">describe</span>(),
                                 <span class="ident">err</span>
                             );
                             <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);

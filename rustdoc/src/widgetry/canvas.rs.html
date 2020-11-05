@@ -373,7 +373,7 @@
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Key</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">UpdateType</span>, <span class="ident">UserInput</span>};
@@ -660,19 +660,19 @@
         <span class="ident">b</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save_camera_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save_camera_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) {
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CameraState</span> {
             <span class="ident">cam_x</span>: <span class="self">self</span>.<span class="ident">cam_x</span>,
             <span class="ident">cam_y</span>: <span class="self">self</span>.<span class="ident">cam_y</span>,
             <span class="ident">cam_zoom</span>: <span class="self">self</span>.<span class="ident">cam_zoom</span>,
         };
-        <span class="ident">abstutil</span>::<span class="ident">write_json</span>(<span class="ident">abstutil</span>::<span class="ident">path_camera_state</span>(<span class="ident">map_name</span>), <span class="kw-2">&amp;</span><span class="ident">state</span>);
+        <span class="ident">abstutil</span>::<span class="ident">write_json</span>(<span class="ident">abstutil</span>::<span class="ident">path_camera_state</span>(<span class="ident">name</span>), <span class="kw-2">&amp;</span><span class="ident">state</span>);
     }
 
     <span class="comment">// True if this succeeds</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_camera_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_camera_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">CameraState</span><span class="op">&gt;</span>(
-            <span class="ident">abstutil</span>::<span class="ident">path_camera_state</span>(<span class="ident">map_name</span>),
+            <span class="ident">abstutil</span>::<span class="ident">path_camera_state</span>(<span class="ident">name</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
         ) {
             <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">loaded</span>) <span class="op">=&gt;</span> {

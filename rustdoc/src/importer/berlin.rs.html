@@ -183,7 +183,6 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
-<span id="185">185</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 
@@ -191,7 +190,7 @@
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MapName</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::<span class="ident">ExtraShapes</span>;
 
@@ -249,8 +248,7 @@
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
         <span class="ident">convert_osm</span>::<span class="ident">Options</span> {
             <span class="ident">osm_input</span>: <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/berlin/osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
-            <span class="ident">city_name</span>: <span class="string">&quot;berlin&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
+            <span class="ident">name</span>: <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;berlin&quot;</span>, <span class="ident">name</span>),
 
             <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;input/berlin/polygons/{}.poly&quot;</span>,
