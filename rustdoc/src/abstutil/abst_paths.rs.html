@@ -198,9 +198,6 @@
 <span id="197">197</span>
 <span id="198">198</span>
 <span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -399,10 +396,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_raw_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/raw_maps/{}.bin&quot;</span>, <span class="ident">name</span>.<span class="ident">map</span>))
-}
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_raw_maps</span>() <span class="op">-&gt;</span> <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="string">&quot;input/raw_maps&quot;</span>)
+    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/raw_maps/{}.bin&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>))
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "abstutil";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

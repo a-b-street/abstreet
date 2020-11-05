@@ -215,16 +215,13 @@ required by osmconvert.</p>
 </li>
 <li>
 <p>Create a new module in <code>importer/src/</code> for your city, copying
-<code>importer/src/krakow.rs</code> as a guide. Edit that file in the obvious way. The
+<code>importer/src/tel_aviv.rs</code> as a guide. Edit that file in the obvious way. The
 main thing you'll need is a .osm or .osm.pbf file to download that contains
 your city. The clipping polygon will be applied to that.</p>
 </li>
 <li>
 <p>Update <code>importer/src/main.rs</code> to reference your new module, following
-<code>krakow</code> as an example.</p>
-</li>
-<li>
-<p>Update <code>map_belongs_to_city</code> in <code>updater/src/main.rs</code></p>
+<code>tel_aviv</code> as an example.</p>
 </li>
 <li>
 <p>Run it: <code>./import.sh --city=your_city --raw --map</code></p>
