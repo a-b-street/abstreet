@@ -374,16 +374,6 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -623,16 +613,6 @@
 
         <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
         <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">1</span>] <span class="op">==</span> <span class="string">&quot;input&quot;</span> {
-            <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">==</span> <span class="string">&quot;screenshots&quot;</span> {
-                <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">3</span>].<span class="ident">trim_end_matches</span>(<span class="string">&quot;.zip&quot;</span>);
-                <span class="kw">if</span> <span class="ident">cities</span>
-                    .<span class="ident">input</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">city</span><span class="op">|</span> <span class="ident">map_belongs_to_city</span>(<span class="ident">map</span>, <span class="ident">city</span>))
-                {
-                    <span class="kw">continue</span>;
-                }
-            }
             <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">==</span> <span class="string">&quot;raw_maps&quot;</span> {
                 <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">3</span>].<span class="ident">trim_end_matches</span>(<span class="string">&quot;.bin&quot;</span>);
                 <span class="kw">if</span> <span class="ident">cities</span>
