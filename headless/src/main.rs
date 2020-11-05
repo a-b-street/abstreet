@@ -23,7 +23,7 @@ use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{serialize_btreemap, CmdArgs, MapName, Timer};
-use geom::{Duration, LonLat, Time};
+use geom::{Distance, Duration, LonLat, Time};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
     MovementID, PermanentMapEdits, RoadID, TurnID,
@@ -297,6 +297,7 @@ fn handle_command(
                 .map(|a| AgentPosition {
                     vehicle_type: a.id.to_vehicle_type(),
                     pos: a.pos.to_gps(map.get_gps_bounds()),
+                    distance_crossed: sim.agent_properties(a.id).dist_crossed,
                     person: a.person,
                 })
                 .collect(),
@@ -363,10 +364,20 @@ struct AgentPositions {
 
 #[derive(Serialize)]
 struct AgentPosition {
-    // None for pedestrians
+    /// None for pedestrians
     vehicle_type: Option<VehicleType>,
+    /// The agent's current position. For pedestrians, this is their center. For vehicles, this
+    /// represents the front of the vehicle.
     pos: LonLat,
-    // None for buses
+    /// The distance crossed so far by the agent, in meters. There are some caveats to this value:
+    /// - The distance along driveways between buildings/parking lots and the road doesn't count
+    ///   here.
+    /// - The distance will slightly exceed the true value if the agent begins or ends in the
+    ///   middle of a lane.
+    /// - The distance will not change while an agent is travelling along a lane; it'll only
+    ///   increment when they completely cross one step of their path.
+    distance_crossed: Distance,
+    /// None for buses
     person: Option<PersonID>,
 }
 
