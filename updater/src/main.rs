@@ -201,29 +201,6 @@ fn generate_manifest() -> Manifest {
 }
 
 fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
-    // TODO Temporary hack until directories are organized better
-    fn map_belongs_to_city(map: &str, city: &str) -> bool {
-        match city {
-            "seattle" => {
-                map == "ballard"
-                    || map == "downtown"
-                    || map == "lakeslice"
-                    || map == "montlake"
-                    || map == "south_seattle"
-                    || map == "udistrict"
-                    || map == "west_seattle"
-            }
-            "huge_seattle" => map == "huge_seattle",
-            "krakow" => map == "krakow_center",
-            "leeds" => map == "leeds_center",
-            "berlin" => map == "berlin_center",
-            "xian" => map == "xian",
-            "tel_aviv" => map == "tel_aviv",
-            "london" => map == "southbank",
-            _ => panic!("Unknown city {}. Check your data/config", city),
-        }
-    }
-
     let mut remove = Vec::new();
     for path in manifest.entries.keys() {
         // TODO Some hardcoded weird exceptions
@@ -235,21 +212,7 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
         }
 
         let parts = path.split("/").collect::<Vec<_>>();
-        if parts[1] == "input" {
-            if parts[2] == "raw_maps" {
-                let map = parts[3].trim_end_matches(".bin");
-                if cities
-                    .input
-                    .iter()
-                    .any(|city| map_belongs_to_city(map, city))
-                {
-                    continue;
-                }
-            }
-            if cities.input.contains(&parts[2].to_string()) {
-                continue;
-            }
-        } else if parts[1] == "system" {
+        if parts[1] == "input" || parts[1] == "system" {
             if cities.input.contains(&parts[2].to_string()) {
                 continue;
             }

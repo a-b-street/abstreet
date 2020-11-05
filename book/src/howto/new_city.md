@@ -67,18 +67,16 @@ use it as well.
     required by osmconvert.
 
 5.  Create a new module in `importer/src/` for your city, copying
-    `importer/src/krakow.rs` as a guide. Edit that file in the obvious way. The
+    `importer/src/tel_aviv.rs` as a guide. Edit that file in the obvious way. The
     main thing you'll need is a .osm or .osm.pbf file to download that contains
     your city. The clipping polygon will be applied to that.
 
 6.  Update `importer/src/main.rs` to reference your new module, following
-    `krakow` as an example.
+    `tel_aviv` as an example.
 
-7.  Update `map_belongs_to_city` in `updater/src/main.rs`
+7.  Run it: `./import.sh --city=your_city --raw --map`
 
-8.  Run it: `./import.sh --city=your_city --raw --map`
-
-9.  Update `.gitignore`, following `krakow` as an example.
+8.  Update `.gitignore`, following `krakow` as an example.
 
 Send a PR with your changes! I'll generate everything and make it work with
 `updater`, so most people don't have to build everything from scratch.

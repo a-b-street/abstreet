@@ -103,9 +103,7 @@ impl SimFlags {
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
 
             (map, sim, rng)
-        } else if self.load.starts_with(&abstutil::path_all_raw_maps())
-            || self.load.contains("/maps/")
-        {
+        } else if self.load.contains("/raw_maps/") || self.load.contains("/maps/") {
             timer.note(format!("Loading map {}", self.load));
 
             let map = Map::new(self.load.clone(), timer);
