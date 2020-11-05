@@ -70,10 +70,7 @@ fn dump_turn_goldenfile(map: &Map) -> Result<(), std::io::Error> {
 /// Simulate an hour on every map.
 fn smoke_test() -> Result<(), std::io::Error> {
     let mut timer = Timer::new("run a smoke-test for all maps");
-    for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
-        // TODO Wrong! When we start using city as part of the filename, this'll break. But that's
-        // also when path_all_maps() has to change.
-        let name = MapName::seattle(&name);
+    for name in abstutil::list_all_maps() {
         let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
         let scenario = if map.get_city_name() == "seattle" {
             abstutil::read_binary(abstutil::path_scenario(&name, "weekday"), &mut timer)

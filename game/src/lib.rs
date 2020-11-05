@@ -128,7 +128,7 @@ fn setup_app(
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
-        && !flags.sim_flags.load.contains("system/scenarios")
+        && !flags.sim_flags.load.contains("/scenarios/")
         && !osm_viewer
         && maybe_mode.is_none();
     let mut app = App::new(flags, opts, ctx, title);

@@ -28,7 +28,7 @@ the `weekday` scenario. The only way you can change this is by calling
 `/sim/load`. For example:
 
 ```
-curl http://localhost:1234/sim/load -d '{ "scenario": "data/system/scenarios/downtown/monday.bin", "modifiers": [], "edits": null }' -X POST`
+curl http://localhost:1234/sim/load -d '{ "scenario": "data/system/seattle/scenarios/downtown/monday.bin", "modifiers": [], "edits": null }' -X POST`
 ```
 
 You can also pass flags like `--infinite_parking` to the server to control
@@ -100,7 +100,7 @@ are missing, etc. A summary of the commands available so far:
 If you need to deeply inspect the map, you can dump it to JSON:
 
 ```
-cargo run --bin dump_map data/system/maps/montlake.bin > montlake.json
+cargo run --bin dump_map data/system/seattle/maps/montlake.bin > montlake.json
 ```
 
 See some example code that
@@ -125,21 +125,21 @@ You can also generate different variations of one of the
 an RNG seed:
 
 ```
-cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin --scenario_name=home_to_work
+cargo run --bin random_scenario -- --rng=123 --map=data/system/seattle/maps/montlake.bin --scenario_name=home_to_work
 ```
 
 You can also dump Scenarios (the file that defines all of the people and trips)
 to JSON:
 
 ```
-cargo run --bin dump_scenario data/system/scenarios/montlake/weekday.bin > montlake_weekday.json
+cargo run --bin dump_scenario data/system/seattle/scenarios/montlake/weekday.bin > montlake_weekday.json
 ```
 
 You can modify the JSON, then put the file back in the appropriate directory and
 use it in-game:
 
 ```
-cargo run --bin game data/system/scenarios/montlake/modified_scenario.json
+cargo run --bin game data/system/seattle/scenarios/montlake/modified_scenario.json
 ```
 
 The Scenario format is also undocumented, but see the

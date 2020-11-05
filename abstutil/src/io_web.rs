@@ -15,12 +15,12 @@ use crate::{Manifest, Timer};
 static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     "../data/system",
     "assets/",
-    "cities/",
     "fonts/",
-    "maps/montlake.bin",
-    // used by tutorial
-    "prebaked_results/montlake/car vs bike contention.bin",
     "proposals/"
+    "seattle/city.bin",
+    "seattle/maps/montlake.bin",
+    // used by tutorial
+    "seattle/prebaked_results/montlake/car vs bike contention.bin",
 );
 
 // For file_exists and list_dir only, also check if the file is in the Manifest. The caller has to

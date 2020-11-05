@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{basename, file_exists};
+use crate::{basename, file_exists, list_all_objects};
 
 lazy_static::lazy_static! {
     static ref ROOT_DIR: String = {
@@ -89,21 +89,41 @@ impl MapName {
     pub fn as_filename(&self) -> String {
         format!("{}_{}", self.city, self.map)
     }
+
+    /// Transforms a path to a map back to a MapName. Crashes if the input is strange.
+    pub fn from_path(path: &str) -> MapName {
+        // TODO regex
+        let parts = path.split("/").collect::<Vec<_>>();
+        let city = parts[parts.len() - 3];
+        let map = basename(parts[parts.len() - 1]);
+        MapName::new(city, &map)
+    }
 }
 
 // System data (Players can't edit, needed at runtime)
 
 pub fn path_map(name: &MapName) -> String {
-    path(format!("system/maps/{}.bin", name.map))
+    path(format!("system/{}/maps/{}.bin", name.city, name.map))
 }
-pub fn path_all_maps() -> String {
-    path("system/maps")
+
+/// Returns all maps from all cities.
+pub fn list_all_maps() -> Vec<MapName> {
+    let mut names = Vec::new();
+    for city in list_all_objects(path("system")) {
+        if city == "assets" || city == "fonts" || city == "proposals" {
+            continue;
+        }
+        for map in list_all_objects(path(format!("system/{}/maps", city))) {
+            names.push(MapName::new(&city, &map));
+        }
+    }
+    names
 }
 
 pub fn path_prebaked_results(name: &MapName, scenario_name: &str) -> String {
     path(format!(
-        "system/prebaked_results/{}/{}.bin",
-        name.map, scenario_name
+        "system/{}/prebaked_results/{}/{}.bin",
+        name.city, name.map, scenario_name
     ))
 }
 
@@ -111,12 +131,12 @@ pub fn path_scenario(name: &MapName, scenario_name: &str) -> String {
     // TODO Getting complicated. Sometimes we're trying to load, so we should look for .bin, then
     // .json. But when we're writing a custom scenario, we actually want to write a .bin.
     let bin = path(format!(
-        "system/scenarios/{}/{}.bin",
-        name.map, scenario_name
+        "system/{}/scenarios/{}/{}.bin",
+        name.city, name.map, scenario_name
     ));
     let json = path(format!(
-        "system/scenarios/{}/{}.json",
-        name.map, scenario_name
+        "system/{}/scenarios/{}/{}.json",
+        name.city, name.map, scenario_name
     ));
     if file_exists(&bin) {
         return bin;
@@ -127,17 +147,17 @@ pub fn path_scenario(name: &MapName, scenario_name: &str) -> String {
     bin
 }
 pub fn path_all_scenarios(name: &MapName) -> String {
-    path(format!("system/scenarios/{}", name.map))
+    path(format!("system/{}/scenarios/{}", name.city, name.map))
 }
 
 /// Extract the map and scenario name from a path. Crashes if the input is strange.
 pub fn parse_scenario_path(path: &str) -> (MapName, String) {
     // TODO regex
     let parts = path.split("/").collect::<Vec<_>>();
-    let simple_map_name = parts[parts.len() - 2].to_string();
+    let city = parts[parts.len() - 4];
+    let map = parts[parts.len() - 2];
     let scenario = basename(parts[parts.len() - 1]);
-    // TODO Well this is brittle!
-    let map_name = MapName::seattle(&simple_map_name);
+    let map_name = MapName::new(city, map);
     (map_name, scenario)
 }
 

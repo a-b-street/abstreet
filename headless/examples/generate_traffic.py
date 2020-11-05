@@ -2,10 +2,10 @@
 # This example loads an exported JSON map, finds different buildings, and
 # generates a simple travel demand model.
 #
-# 1) cargo run --bin dump_map data/system/maps/montlake.bin > montlake.json
+# 1) cargo run --bin dump_map data/system/seattle/maps/montlake.bin > montlake.json
 # 2) ./headless/examples/generate_traffic.py --map=montlake.json --out=traffic.json
-# 3) cargo run --bin import_traffic -- --map=data/system/maps/montlake.bin --input=traffic.json
-# 4) Use data/system/scenarios/montlake/monday.bin in the game or from the API.
+# 3) cargo run --bin import_traffic -- --map=data/system/seattle/maps/montlake.bin --input=traffic.json
+# 4) Use data/system/seattle/scenarios/montlake/monday.bin in the game or from the API.
 #
 # Keep this script formatted with autopep8 -i
 

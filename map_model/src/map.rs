@@ -36,7 +36,7 @@ pub enum DrivingSide {
 
 impl Map {
     pub fn new(path: String, timer: &mut Timer) -> Map {
-        if path.starts_with(&abstutil::path_all_maps()) {
+        if path.contains("/maps/") {
             match abstutil::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
                     let mut map: Map = map;

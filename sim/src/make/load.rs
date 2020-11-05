@@ -82,7 +82,7 @@ impl SimFlags {
             sim.restore_paths(&map, timer);
 
             (map, sim, rng)
-        } else if self.load.starts_with(&abstutil::path("system/scenarios/")) {
+        } else if self.load.contains("/scenarios/") {
             timer.note(format!(
                 "Seeding the simulation from scenario {}",
                 self.load
@@ -104,7 +104,7 @@ impl SimFlags {
 
             (map, sim, rng)
         } else if self.load.starts_with(&abstutil::path_all_raw_maps())
-            || self.load.starts_with(&abstutil::path_all_maps())
+            || self.load.contains("/maps/")
         {
             timer.note(format!("Loading map {}", self.load));
 

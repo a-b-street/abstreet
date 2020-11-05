@@ -96,7 +96,7 @@ example:
 Run the tool:
 
 ```
-cargo run --bin import_traffic -- --map=data/system/maps/montlake.bin --input=/path/to/input.json
+cargo run --bin import_traffic -- --map=data/system/seattle/maps/montlake.bin --input=/path/to/input.json
 ```
 
 The tool matches input positions to the nearest building or border intersection,

@@ -40,10 +40,13 @@ data/input/screenshots/*.zip
 
 data/player
 
-data/system/cities
-data/system/maps
-data/system/prebaked_results
-data/system/scenarios
+data/system/berlin
+data/system/krakow
+data/system/leeds
+data/system/london
+data/system/seattle
+data/system/tel_aviv
+data/system/xian
 
 importer.json
 

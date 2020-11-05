@@ -20,13 +20,15 @@ import time
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--api', default='http://localhost:1234')
+    parser.add_argument('--city_name', default='seattle')
     parser.add_argument('--map_name', default='montlake')
     parser.add_argument('--hours', type=int, default=24)
     parser.add_argument('--cap_pct', type=int, default=80)
     parser.add_argument('--rounds', type=int, default=10)
     parser.add_argument('--cap_all_roads', type=bool, default=True)
     args = parser.parse_args()
-    print('Simulating {} hours of data/system/scenarios/{}/weekday.bin'.format(args.hours, args.map_name))
+    print('Simulating {} hours of data/system/{}/scenarios/{}/weekday.bin'.format(
+        args.hours, args.city_name, args.map_name))
 
     baseline = abst_helpers.run_sim(args)
     edits = get(args, '/map/get-edits').json()

@@ -2,7 +2,7 @@
 
 set -e
 
-rm -fv data/system/maps/huge_seattle.bin data/input/raw_maps/huge_seattle.bin data/input/seattle/popdat.bin
+rm -fv data/system/seattle/maps/huge_seattle.bin data/input/raw_maps/huge_seattle.bin data/input/seattle/popdat.bin
 
 ./import.sh --raw --map --scenario
 ./import.sh --raw --map --city=berlin

@@ -35,10 +35,10 @@ One-time setup:
   - To warp to an object by numeric ID: press **Control+j**
   - To enter debug mode with all sorts of goodies: press **Control+D**
 - You can start the game in different modes using flags:
-  - `cargo run --bin game -- --dev data/system/maps/downtown.bin` starts on a
-    particular map
-  - `cargo run --bin game -- data/system/scenarios/downtown/weekday.bin` starts
-    with a scenario (which is tied to a certain map)
+  - `cargo run --bin game -- --dev data/system/seattle/maps/downtown.bin` starts
+    on a particular map
+  - `cargo run --bin game -- data/system/seattle/scenarios/downtown/weekday.bin`
+    starts with a scenario (which is tied to a certain map)
   - `cargo run --bin game -- --challenge=trafficsig/tut2` starts on a particular
     challenge. See the list of aliases by passing in a bad value here.
   - `cargo run --bin game -- data/player/saves/montlake/no_edits_unnamed/00h00m20.3s.bin`

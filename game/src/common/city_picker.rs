@@ -34,7 +34,7 @@ impl CityPicker {
 
         if let Ok(city) = abstutil::maybe_read_binary::<City>(
             abstutil::path(format!(
-                "system/cities/{}.bin",
+                "system/{}/city.bin",
                 app.primary.map.get_city_name()
             )),
             &mut abstutil::Timer::throwaway(),
@@ -64,12 +64,13 @@ impl CityPicker {
         let mut other_cities = vec![Line("Other cities").draw(ctx)];
         let mut this_city = vec![];
         let mut more_cities = 0;
-        for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
-            // TODO Wrong! When path_all_maps changes, have to deal with this.
-            let name = MapName::seattle(&name);
+        for name in abstutil::list_all_maps() {
             if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
-                let btn = Btn::txt(&name.map, Text::from(Line(nice_map_name(&name)).fg(*color)))
-                    .tooltip(Text::new());
+                let btn = Btn::txt(
+                    abstutil::path_map(&name),
+                    Text::from(Line(nice_map_name(&name)).fg(*color)),
+                )
+                .tooltip(Text::new());
                 this_city.push(if &name == app.primary.map.get_name() {
                     btn.inactive(ctx)
                 } else {
@@ -77,9 +78,12 @@ impl CityPicker {
                 });
             } else if other_cities.len() < 10 {
                 other_cities.push(
-                    Btn::txt(&name.map, Text::from(Line(nice_map_name(&name))))
-                        .tooltip(Text::new())
-                        .build_def(ctx, None),
+                    Btn::txt(
+                        abstutil::path_map(&name),
+                        Text::from(Line(nice_map_name(&name))),
+                    )
+                    .tooltip(Text::new())
+                    .build_def(ctx, None),
                 );
             } else {
                 more_cities += 1;
@@ -153,12 +157,11 @@ impl State<App> for CityPicker {
                         "https://dabreegster.github.io/abstreet/howto/new_city.html".to_string(),
                     );
                 }
-                name => {
+                path => {
                     return Transition::Replace(MapLoader::new(
                         ctx,
                         app,
-                        // TODO Have to do something more clever soon
-                        MapName::seattle(name),
+                        MapName::from_path(path),
                         self.on_load.take().unwrap(),
                     ));
                 }
@@ -245,14 +248,14 @@ impl AllCityPicker {
         let mut autocomplete_entries = Vec::new();
         let mut buttons = Vec::new();
 
-        for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
+        for name in abstutil::list_all_maps() {
             buttons.push(
-                Btn::text_fg(&name)
-                    .build_def(ctx, None)
+                Btn::text_fg(name.describe())
+                    .build(ctx, abstutil::path_map(&name), None)
                     .margin_right(10)
                     .margin_below(10),
             );
-            autocomplete_entries.push((name.clone(), name));
+            autocomplete_entries.push((name.describe(), abstutil::path_map(&name)));
         }
 
         Box::new(AllCityPicker {
@@ -282,23 +285,23 @@ impl State<App> for AllCityPicker {
                 "close" => {
                     return Transition::Pop;
                 }
-                name => {
+                path => {
                     return Transition::Replace(MapLoader::new(
                         ctx,
                         app,
-                        MapName::seattle(name),
+                        MapName::from_path(path),
                         self.on_load.take().unwrap(),
                     ));
                 }
             },
             _ => {}
         }
-        if let Some(mut names) = self.panel.autocomplete_done::<String>("search") {
-            if !names.is_empty() {
+        if let Some(mut paths) = self.panel.autocomplete_done::<String>("search") {
+            if !paths.is_empty() {
                 return Transition::Replace(MapLoader::new(
                     ctx,
                     app,
-                    MapName::seattle(&names.remove(0)),
+                    MapName::from_path(&paths.remove(0)),
                     self.on_load.take().unwrap(),
                 ));
             }

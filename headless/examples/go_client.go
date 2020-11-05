@@ -26,6 +26,7 @@ const (
 )
 
 var (
+	cityName        = flag.String("map", "city", "city of the map to simulate")
 	mapName         = flag.String("map", "montlake", "map name to simulate")
 	hoursToSimulate = flag.Int("hours", 24, "number of hours to simulate")
 	comparePct1     = flag.Int64("cmp1", -1, "the baseline percentage for indvidual comparison")
@@ -91,7 +92,7 @@ func run(pct int64) (*results, error) {
 	start := time.Now()
 
 	_, err := post("sim/load", LoadSim{
-		Scenario: fmt.Sprintf("data/system/scenarios/%v/weekday.bin", *mapName),
+		Scenario: fmt.Sprintf("data/system/%v/scenarios/%v/weekday.bin", *cityName, *mapName),
 		Modifiers: []ScenarioModifier{{ChangeMode: ChangeMode{
 			PctPpl:          uint64(pct),
 			DepartureFilter: []float64{0.0, 86400.0},

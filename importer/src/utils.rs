@@ -141,7 +141,7 @@ pub fn raw_to_map(
     if name.map == "huge_seattle" {
         timer.start("generating city manifest");
         abstutil::write_binary(
-            abstutil::path(format!("system/cities/{}.bin", map.get_city_name())),
+            abstutil::path(format!("system/{}/city.bin", map.get_city_name())),
             &map_model::City::new(&map),
         );
         timer.stop("generating city manifest");

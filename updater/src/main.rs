@@ -228,7 +228,7 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
     for path in manifest.entries.keys() {
         // TODO Some hardcoded weird exceptions
         if !cities.runtime.contains(&"huge_seattle".to_string())
-            && path == "data/system/scenarios/montlake/everyone_weekday.bin"
+            && path == "data/system/seattle/scenarios/montlake/everyone_weekday.bin"
         {
             remove.push(path.clone());
             continue;
@@ -260,28 +260,8 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
                 continue;
             }
         } else if parts[1] == "system" {
-            if parts[2] == "maps" {
-                let map = parts[3].trim_end_matches(".bin");
-                if cities
-                    .runtime
-                    .iter()
-                    .any(|city| map_belongs_to_city(map, city))
-                {
-                    continue;
-                }
-            } else if parts[2] == "cities" {
-                if cities.runtime.contains(&basename(parts[3])) {
-                    continue;
-                }
-            } else {
-                let map = &parts[3];
-                if cities
-                    .runtime
-                    .iter()
-                    .any(|city| map_belongs_to_city(map, city))
-                {
-                    continue;
-                }
+            if cities.input.contains(&parts[2].to_string()) {
+                continue;
             }
         } else {
             panic!("Wait what's {}", path);
@@ -347,15 +327,6 @@ impl Cities {
             }
         }
     }
-}
-
-fn basename(path: &str) -> String {
-    std::path::Path::new(path)
-        .file_stem()
-        .unwrap()
-        .to_os_string()
-        .into_string()
-        .unwrap()
 }
 
 fn must_run_cmd(cmd: &mut Command) {
