@@ -776,8 +776,9 @@ impl State<App> for ScreenshotTest {
 fn screenshot_everything(ctx: &mut EventCtx, app: &App) {
     let bounds = app.primary.map.get_bounds();
     assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
+    let name = app.primary.map.get_name();
     ctx.request_update(UpdateType::ScreenCaptureEverything {
-        dir: format!("screenshots_{}", app.primary.map.get_name().as_filename()),
+        dir: format!("screenshots/{}/{}", name.city, name.map),
         zoom: 3.0,
         max_x: bounds.max_x,
         max_y: bounds.max_y,

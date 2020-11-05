@@ -40,6 +40,10 @@
       "checksum": "9505917bbacc478177e36605e89b6d77",
       "size_bytes": 117776270
     },
+    "data/input/krakow/screenshots/krakow_center.zip": {
+      "checksum": "c176076e6f60f03741ca44b0bfdf8545",
+      "size_bytes": 14238180
+    },
     "data/input/krakow/service_roads.bin": {
       "checksum": "a702f4fa6680793c7e1047668d8d0b69",
       "size_bytes": 421094
@@ -71,6 +75,10 @@
     "data/input/london/osm/southbank.osm": {
       "checksum": "b86babace41d69a9e5b8be2310a725ae",
       "size_bytes": 18059372
+    },
+    "data/input/london/screenshots/southbank.zip": {
+      "checksum": "6a8b17f4f8abf68a3e7248bffc59a455",
+      "size_bytes": 3936498
     },
     "data/input/london/service_roads.bin": {
       "checksum": "4f651a450d9d6b73618db015c34a03ad",
@@ -131,30 +139,6 @@
     "data/input/raw_maps/xian.bin": {
       "checksum": "944535618cda403d0613ed485ef18072",
       "size_bytes": 12038513
-    },
-    "data/input/screenshots/downtown.zip": {
-      "checksum": "0f6281f4a154cf33e7d8e0622a10f892",
-      "size_bytes": 14846427
-    },
-    "data/input/screenshots/krakow_center.zip": {
-      "checksum": "1aa1db83e194651a917e230c70ae897d",
-      "size_bytes": 14244236
-    },
-    "data/input/screenshots/lakeslice.zip": {
-      "checksum": "cec91a0f2786dedc250e70c7d50dd42e",
-      "size_bytes": 13560905
-    },
-    "data/input/screenshots/montlake.zip": {
-      "checksum": "2163547c4b4f7c4ed32397c1d9bd7d0d",
-      "size_bytes": 2626368
-    },
-    "data/input/screenshots/southbank.zip": {
-      "checksum": "b36aa4257d3fa625284b835e8e2c27b5",
-      "size_bytes": 3938034
-    },
-    "data/input/screenshots/udistrict.zip": {
-      "checksum": "e45711495e86f8f7df6c2a3252fa3aef",
-      "size_bytes": 6794090
     },
     "data/input/seattle/N47W122.hgt": {
       "checksum": "0db4e23e51f7680538b0bbbc72208e07",
@@ -275,6 +259,22 @@
     "data/input/seattle/popdat.bin": {
       "checksum": "592592ec7bd0dadc7b09ee96a4d086a7",
       "size_bytes": 430666022
+    },
+    "data/input/seattle/screenshots/downtown.zip": {
+      "checksum": "4552a34fffb0c47b121f532d882964e8",
+      "size_bytes": 14841175
+    },
+    "data/input/seattle/screenshots/lakeslice.zip": {
+      "checksum": "9d2fb224f4be434404a46a0004274bff",
+      "size_bytes": 13555629
+    },
+    "data/input/seattle/screenshots/montlake.zip": {
+      "checksum": "366d6ee503a070d3c03eab16bb94accd",
+      "size_bytes": 2625400
+    },
+    "data/input/seattle/screenshots/udistrict.zip": {
+      "checksum": "4e0a2e2a756de90b187367d71b16f06c",
+      "size_bytes": 6791102
     },
     "data/input/seattle/service_roads.bin": {
       "checksum": "550f1e72408b63781596ec26b6daa1d0",

@@ -1,13 +1,14 @@
 #!/bin/bash
 
-name=$1;
+city=$1;
+map=$2;
 
 mkdir screens_before;
 cd screens_before;
-unzip ../../data/input/screenshots/${name}.zip;
+unzip ../../data/input/${city}/screenshots/${map}.zip;
 cd ..;
-before=screens_before/screenshots_${name};
-after=screenshots_${name};
+before=screens_before;
+after=screenshots/${city}/${map};
 
 rm -rf diff
 mkdir diff

@@ -4,15 +4,9 @@ __pycache__
 
 data/config
 
-data/input/berlin/osm
 data/input/berlin/planning_areas.bin
 data/input/berlin/planning_areas.kml
 data/input/berlin/EWR201812E_Matrix.csv
-
-data/input/krakow/osm
-data/input/leeds/osm
-
-data/input/london/osm
 
 data/input/seattle/blockface.bin
 data/input/seattle/blockface.kml
@@ -20,23 +14,19 @@ data/input/seattle/google_transit
 data/input/seattle/N47W122.hgt
 data/input/seattle/offstreet_parking.bin
 data/input/seattle/offstreet_parking.kml
-data/input/seattle/osm
 data/input/seattle/parcels.bin
 data/input/seattle/parcels_urbansim.txt
 data/input/seattle/popdat.bin
 data/input/seattle/trips_2014.csv
 
-data/input/tel_aviv/osm
-
-data/input/xian/osm
-
+data/input/*/osm
 data/input/*/footways.bin
 data/input/*/service_roads.bin
 data/input/*/*_separate_cycleways.bin
 data/input/*/*_snapped_cycleways.bin
+data/input/*/screenshots/*.zip
 
 data/input/raw_maps
-data/input/screenshots/*.zip
 
 data/player
 

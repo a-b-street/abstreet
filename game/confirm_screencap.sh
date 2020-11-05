@@ -1,8 +1,11 @@
 #!/bin/bash
 
-name=$1;
+city=$1;
+map=$2;
 
-rm -rf ../data/input/screenshots/${name}.zip diff screens_before;
-zip -r $name screenshots_${name};
-mv ${name}.zip ../data/input/screenshots/;
-rm -rf screenshots_${name};
+rm -rf ../data/input/${city}/screenshots/${map}.zip diff screens_before;
+cd screenshots/${city}/${map};
+zip ${map}.zip *;
+mv ${map}.zip ../../../../data/input/${city}/screenshots/;
+cd ../../../;
+rm -rf screenshots/${city}/${map};
