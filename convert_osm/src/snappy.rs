@@ -19,7 +19,14 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
         return;
     }
 
-    let mut cycleways = HashMap::new();
+    // TODO The output here is nondeterministic and I haven't figured out why. Instead of spurious
+    // data diffs, just totally disable this experiment for now. Will fix when this becomes active
+    // work again.
+    if true {
+        return;
+    }
+
+    let mut cycleways = BTreeMap::new();
     for shape in abstutil::read_binary::<ExtraShapes>(
         abstutil::path(format!("input/{}/footways.bin", map.name.city)),
         timer,
@@ -59,7 +66,7 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
 
 fn dump_output(
     map: &RawMap,
-    cycleways: &HashMap<WayID, ExtraShape>,
+    cycleways: &BTreeMap<WayID, ExtraShape>,
     road_edges: &HashMap<(OriginalRoad, Direction), PolyLine>,
     matches: MultiMap<(OriginalRoad, Direction), WayID>,
 ) {
@@ -113,7 +120,7 @@ fn dump_output(
 // TODO Should we run this before splitting ways? Possibly less work to do.
 fn v1(
     map: &RawMap,
-    cycleways: &HashMap<WayID, ExtraShape>,
+    cycleways: &BTreeMap<WayID, ExtraShape>,
     road_edges: &HashMap<(OriginalRoad, Direction), PolyLine>,
 ) -> MultiMap<(OriginalRoad, Direction), WayID> {
     let mut matches: MultiMap<(OriginalRoad, Direction), WayID> = MultiMap::new();

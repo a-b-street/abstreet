@@ -4,14 +4,6 @@
       "checksum": "7966d3e37c45e7ffa4ee26bb6c8cec28",
       "size_bytes": 89337
     },
-    "data/input/berlin/berlin_center_separate_cycleways.bin": {
-      "checksum": "1ecea88ef3c60a92ee4c9a56f993974d",
-      "size_bytes": 12423
-    },
-    "data/input/berlin/berlin_center_snapped_cycleways.bin": {
-      "checksum": "2ff14b60c55ada6154bad1ce71f1ddb5",
-      "size_bytes": 4076
-    },
     "data/input/berlin/footways.bin": {
       "checksum": "19d6608e9bc85800706e004e4530a81b",
       "size_bytes": 1286097
@@ -40,14 +32,6 @@
       "checksum": "b04c0b011e531d6d1396218523deef4a",
       "size_bytes": 70864
     },
-    "data/input/krakow/krakow_center_separate_cycleways.bin": {
-      "checksum": "d9325c47fdfaac27fd054ee8ec9fbb7c",
-      "size_bytes": 19623
-    },
-    "data/input/krakow/krakow_center_snapped_cycleways.bin": {
-      "checksum": "8eeb3343858a8a065cd0136ccef23b9c",
-      "size_bytes": 1785
-    },
     "data/input/krakow/osm/krakow_center.osm": {
       "checksum": "b914bbcd42a7f769a40a90970cea35f2",
       "size_bytes": 55365446
@@ -63,14 +47,6 @@
     "data/input/leeds/footways.bin": {
       "checksum": "95961d499e97b049e620f145eb58c7c8",
       "size_bytes": 1907052
-    },
-    "data/input/leeds/leeds_center_separate_cycleways.bin": {
-      "checksum": "ddd4940fad2c228615c98ebde883c2e3",
-      "size_bytes": 266825
-    },
-    "data/input/leeds/leeds_center_snapped_cycleways.bin": {
-      "checksum": "e2962e8c3bb5be82c65e03c21858cc34",
-      "size_bytes": 58694
     },
     "data/input/leeds/osm/leeds_center.osm": {
       "checksum": "7c5408f54d8c62aee7420a711a228ec0",
@@ -99,14 +75,6 @@
     "data/input/london/service_roads.bin": {
       "checksum": "4f651a450d9d6b73618db015c34a03ad",
       "size_bytes": 99666
-    },
-    "data/input/london/southbank_separate_cycleways.bin": {
-      "checksum": "bf03003b8ef0875ffd4c1081cc40ddec",
-      "size_bytes": 46196
-    },
-    "data/input/london/southbank_snapped_cycleways.bin": {
-      "checksum": "6cbbe9d6c102a1d35c17ddd1acd7841a",
-      "size_bytes": 9005
     },
     "data/input/raw_maps/ballard.bin": {
       "checksum": "9321228f47483f7a14b2747e5ea84885",
@@ -192,14 +160,6 @@
       "checksum": "0db4e23e51f7680538b0bbbc72208e07",
       "size_bytes": 25934402
     },
-    "data/input/seattle/ballard_separate_cycleways.bin": {
-      "checksum": "78afccfd6304c46bbd60cdc9e70c1650",
-      "size_bytes": 181111
-    },
-    "data/input/seattle/ballard_snapped_cycleways.bin": {
-      "checksum": "1f25c6dac0d0c8f01b187031c4bcf58c",
-      "size_bytes": 6078
-    },
     "data/input/seattle/blockface.bin": {
       "checksum": "add872bab9040ae911366328a230f8b5",
       "size_bytes": 49030587
@@ -207,14 +167,6 @@
     "data/input/seattle/blockface.kml": {
       "checksum": "350bd9e59bf2af4e885a7c0741e6ee6b",
       "size_bytes": 102846513
-    },
-    "data/input/seattle/downtown_separate_cycleways.bin": {
-      "checksum": "d9707ac1933a2b578b5b729c9bd1489a",
-      "size_bytes": 178928
-    },
-    "data/input/seattle/downtown_snapped_cycleways.bin": {
-      "checksum": "ece26188973856f10bcebe54b84b14da",
-      "size_bytes": 8548
     },
     "data/input/seattle/footways.bin": {
       "checksum": "09c6aca2ad37d007c6bd40b91886ed95",
@@ -267,30 +219,6 @@
     "data/input/seattle/google_transit/trips.txt": {
       "checksum": "e8efe1d2e130e248942188284d88ab09",
       "size_bytes": 3356184
-    },
-    "data/input/seattle/huge_seattle_separate_cycleways.bin": {
-      "checksum": "31d98a265dfaf3fbbc6581d6936e9368",
-      "size_bytes": 139543
-    },
-    "data/input/seattle/huge_seattle_snapped_cycleways.bin": {
-      "checksum": "620b615c1c1bf434463c14045d3ac56d",
-      "size_bytes": 32135
-    },
-    "data/input/seattle/lakeslice_separate_cycleways.bin": {
-      "checksum": "c25d48f63542df9ea989ee97948fc55c",
-      "size_bytes": 183496
-    },
-    "data/input/seattle/lakeslice_snapped_cycleways.bin": {
-      "checksum": "30916279d151f97fd7ff6653eaef8719",
-      "size_bytes": 1224
-    },
-    "data/input/seattle/montlake_separate_cycleways.bin": {
-      "checksum": "83b2288e6c5d8d0ad8ccd71b30aac790",
-      "size_bytes": 189959
-    },
-    "data/input/seattle/montlake_snapped_cycleways.bin": {
-      "checksum": "bad5e9c0a0ca11b8e73d79e47ab903a2",
-      "size_bytes": 304
     },
     "data/input/seattle/offstreet_parking.bin": {
       "checksum": "a33c05e8962dfe10a7a14b9eb6413803",
@@ -352,33 +280,9 @@
       "checksum": "550f1e72408b63781596ec26b6daa1d0",
       "size_bytes": 3787291
     },
-    "data/input/seattle/south_seattle_separate_cycleways.bin": {
-      "checksum": "5a0d81c042bf853e1a849e46bc81b058",
-      "size_bytes": 167331
-    },
-    "data/input/seattle/south_seattle_snapped_cycleways.bin": {
-      "checksum": "92bb9e7d7b8d89e63ecb4d9fe54e3b7f",
-      "size_bytes": 12358
-    },
     "data/input/seattle/trips_2014.csv": {
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
       "size_bytes": 3047098014
-    },
-    "data/input/seattle/udistrict_separate_cycleways.bin": {
-      "checksum": "aa7d53873c47779baf69ca69d4dda99f",
-      "size_bytes": 186688
-    },
-    "data/input/seattle/udistrict_snapped_cycleways.bin": {
-      "checksum": "bcea0f2da9f979c814db74d63482f9cf",
-      "size_bytes": 3933
-    },
-    "data/input/seattle/west_seattle_separate_cycleways.bin": {
-      "checksum": "9ae407f9c8479c3994ef67a89e306e4b",
-      "size_bytes": 180944
-    },
-    "data/input/seattle/west_seattle_snapped_cycleways.bin": {
-      "checksum": "4a8e438b0795360aa7fec1ebacd64233",
-      "size_bytes": 4761
     },
     "data/input/tel_aviv/footways.bin": {
       "checksum": "4fb70e32d0cc3ddeaa8924c240bc9d5b",
@@ -395,14 +299,6 @@
     "data/input/tel_aviv/service_roads.bin": {
       "checksum": "216407d6f112683e81973fbb11af6403",
       "size_bytes": 208181
-    },
-    "data/input/tel_aviv/tel_aviv_separate_cycleways.bin": {
-      "checksum": "702fdbdbf4ec3ef11733d0f6a0c9da98",
-      "size_bytes": 29032
-    },
-    "data/input/tel_aviv/tel_aviv_snapped_cycleways.bin": {
-      "checksum": "9d2377846fbc40501bee851e1d555930",
-      "size_bytes": 16439
     },
     "data/input/xian/footways.bin": {
       "checksum": "425becbab867631415fe49edcf8f9694",
