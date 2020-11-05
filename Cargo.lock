@@ -1755,15 +1755,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "map_tests"
-version = "0.1.0"
-dependencies = [
- "abstutil",
- "convert_osm",
- "map_model",
-]
-
-[[package]]
 name = "maplit"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2914,6 +2905,17 @@ dependencies = [
  "numtoa",
  "redox_syscall",
  "redox_termios",
+]
+
+[[package]]
+name = "tests"
+version = "0.1.0"
+dependencies = [
+ "abstutil",
+ "convert_osm",
+ "geom",
+ "map_model",
+ "sim",
 ]
 
 [[package]]

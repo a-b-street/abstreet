@@ -1,8 +1,7 @@
 #[macro_use]
 extern crate log;
 
-use abstutil::{CmdArgs, MapName, Timer};
-use geom::Duration;
+use abstutil::CmdArgs;
 use sim::SimFlags;
 use widgetry::{EventCtx, State};
 
@@ -34,15 +33,6 @@ pub fn main(mut args: CmdArgs) {
         challenges::prebake_all();
         return;
     }
-    if args.enabled("--smoketest") {
-        smoke_test();
-        return;
-    }
-    if args.enabled("--check_proposals") {
-        check_proposals();
-        return;
-    }
-
     let mut flags = Flags {
         sim_flags: SimFlags::from_args(&mut args),
         num_agents: args.optional_parse("--num_agents", |s| s.parse()),
@@ -191,89 +181,6 @@ fn setup_app(
     }
 
     (app, states)
-}
-
-fn smoke_test() {
-    let mut timer = Timer::new("run a smoke-test for all maps");
-    for name in abstutil::list_all_objects(abstutil::path_all_maps()) {
-        // TODO Wrong! When we start using city as part of the filename, this'll break. But that's
-        // also when path_all_maps() has to change.
-        let name = MapName::seattle(&name);
-        let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
-        let scenario = if map.get_city_name() == "seattle" {
-            abstutil::read_binary(abstutil::path_scenario(&name, "weekday"), &mut timer)
-        } else {
-            let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
-            sim::ScenarioGenerator::proletariat_robot(&map, &mut rng, &mut timer)
-        };
-
-        let mut opts = sim::SimOptions::new("smoke_test");
-        opts.alerts = sim::AlertHandler::Silence;
-        let mut sim = sim::Sim::new(&map, opts, &mut timer);
-        // Bit of an abuse of this, but just need to fix the rng seed.
-        let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
-        scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
-        sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
-
-        if vec![
-            "downtown",
-            "krakow_center",
-            "lakeslice",
-            "montlake",
-            "udistrict",
-        ]
-        .contains(&name.map.as_str())
-        {
-            dump_route_goldenfile(&map).unwrap();
-        }
-    }
-}
-
-fn dump_route_goldenfile(map: &map_model::Map) -> Result<(), std::io::Error> {
-    use std::fs::File;
-    use std::io::Write;
-
-    let path = abstutil::path(format!(
-        "route_goldenfiles/{}.txt",
-        map.get_name().as_filename()
-    ));
-    let mut f = File::create(path)?;
-    for br in map.all_bus_routes() {
-        writeln!(
-            f,
-            "{} from {} to {:?}",
-            br.osm_rel_id, br.start, br.end_border
-        )?;
-        for bs in &br.stops {
-            let bs = map.get_bs(*bs);
-            writeln!(
-                f,
-                "  {}: {} driving, {} sidewalk",
-                bs.name, bs.driving_pos, bs.sidewalk_pos
-            )?;
-        }
-    }
-    Ok(())
-}
-
-fn check_proposals() {
-    let mut timer = Timer::new("check all proposals");
-    for name in abstutil::list_all_objects(abstutil::path("system/proposals")) {
-        match abstutil::maybe_read_json::<map_model::PermanentMapEdits>(
-            abstutil::path(format!("system/proposals/{}.json", name)),
-            &mut timer,
-        ) {
-            Ok(perma) => {
-                let map = map_model::Map::new(abstutil::path_map(&perma.map_name), &mut timer);
-                if let Err(err) = map_model::PermanentMapEdits::from_permanent(perma, &map) {
-                    timer.error(format!("{} is out-of-date: {}", name, err));
-                }
-            }
-            Err(err) => {
-                timer.error(format!("{} JSON is broken: {}", name, err));
-            }
-        }
-    }
 }
 
 #[cfg(target_arch = "wasm32")]

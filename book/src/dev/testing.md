@@ -37,16 +37,20 @@ Additionally, this script does a few more tests:
 
 - `--prebake` runs the full weekday scenario on two maps that've previously been
   coerced into being gridlock-free
-- `--smoketest` simulates one hour on all maps, flushing out bugs with bus
-  spawning, agents hitting odd parts of the map, etc
-- `--check_proposals` makes sure the edits shipped with the game still load
-  properly
 
-## map_tests
+## Integration tests
 
-The `map_tests` crate runs the full importer against really simple `.osm`
-files. To iterate rapidly on interpreting turn restrictions, for example, it
-produces goldenfiles describing all turns in the tiny map.
+The `tests` crate contains some integration tests.
+
+One part runs the full importer against really simple `.osm` files. To iterate
+rapidly on interpreting turn restrictions, it produces goldenfiles describing
+all turns in the tiny map.
+
+The "smoke-test" section simulates one hour on all maps, flushing out bugs with
+bus spawning, agents hitting odd parts of the map, etc
+
+The "check proposals" section makes sure the edits shipped with the game still
+load properly.
 
 ## Old tests
 
