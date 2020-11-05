@@ -98,27 +98,28 @@ impl MapName {
         let map = basename(parts[parts.len() - 1]);
         MapName::new(city, &map)
     }
+
+    /// Returns the filesystem path to this map.
+    pub fn path(&self) -> String {
+        path(format!("system/{}/maps/{}.bin", self.city, self.map))
+    }
+
+    /// Returns all maps from all cities.
+    pub fn list_all_maps() -> Vec<MapName> {
+        let mut names = Vec::new();
+        for city in list_all_objects(path("system")) {
+            if city == "assets" || city == "fonts" || city == "proposals" {
+                continue;
+            }
+            for map in list_all_objects(path(format!("system/{}/maps", city))) {
+                names.push(MapName::new(&city, &map));
+            }
+        }
+        names
+    }
 }
 
 // System data (Players can't edit, needed at runtime)
-
-pub fn path_map(name: &MapName) -> String {
-    path(format!("system/{}/maps/{}.bin", name.city, name.map))
-}
-
-/// Returns all maps from all cities.
-pub fn list_all_maps() -> Vec<MapName> {
-    let mut names = Vec::new();
-    for city in list_all_objects(path("system")) {
-        if city == "assets" || city == "fonts" || city == "proposals" {
-            continue;
-        }
-        for map in list_all_objects(path(format!("system/{}/maps", city))) {
-            names.push(MapName::new(&city, &map));
-        }
-    }
-    names
-}
 
 pub fn path_prebaked_results(name: &MapName, scenario_name: &str) -> String {
     path(format!(

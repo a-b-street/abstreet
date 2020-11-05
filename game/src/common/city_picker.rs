@@ -64,10 +64,10 @@ impl CityPicker {
         let mut other_cities = vec![Line("Other cities").draw(ctx)];
         let mut this_city = vec![];
         let mut more_cities = 0;
-        for name in abstutil::list_all_maps() {
+        for name in MapName::list_all_maps() {
             if let Some((_, color, _)) = regions.iter().find(|(n, _, _)| &name == n) {
                 let btn = Btn::txt(
-                    abstutil::path_map(&name),
+                    name.path(),
                     Text::from(Line(nice_map_name(&name)).fg(*color)),
                 )
                 .tooltip(Text::new());
@@ -78,12 +78,9 @@ impl CityPicker {
                 });
             } else if other_cities.len() < 10 {
                 other_cities.push(
-                    Btn::txt(
-                        abstutil::path_map(&name),
-                        Text::from(Line(nice_map_name(&name))),
-                    )
-                    .tooltip(Text::new())
-                    .build_def(ctx, None),
+                    Btn::txt(name.path(), Text::from(Line(nice_map_name(&name))))
+                        .tooltip(Text::new())
+                        .build_def(ctx, None),
                 );
             } else {
                 more_cities += 1;
@@ -248,14 +245,14 @@ impl AllCityPicker {
         let mut autocomplete_entries = Vec::new();
         let mut buttons = Vec::new();
 
-        for name in abstutil::list_all_maps() {
+        for name in MapName::list_all_maps() {
             buttons.push(
                 Btn::text_fg(name.describe())
-                    .build(ctx, abstutil::path_map(&name), None)
+                    .build(ctx, name.path(), None)
                     .margin_right(10)
                     .margin_below(10),
             );
-            autocomplete_entries.push((name.describe(), abstutil::path_map(&name)));
+            autocomplete_entries.push((name.describe(), name.path()));
         }
 
         Box::new(AllCityPicker {

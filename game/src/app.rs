@@ -611,10 +611,7 @@ impl PerMap {
         let mut orig_map = self.unedited_map.borrow_mut();
         if orig_map.is_none() {
             let mut timer = Timer::new("load unedited map");
-            *orig_map = Some(Map::new(
-                abstutil::path_map(self.map.get_name()),
-                &mut timer,
-            ));
+            *orig_map = Some(Map::new(self.map.get_name().path(), &mut timer));
         }
     }
 }

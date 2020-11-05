@@ -79,7 +79,7 @@ pub fn main(mut args: CmdArgs) {
         'OUTER: for (_, stages) in challenges::Challenge::all() {
             for challenge in stages {
                 if challenge.alias == x {
-                    flags.sim_flags.load = abstutil::path_map(&challenge.gameplay.map_name());
+                    flags.sim_flags.load = challenge.gameplay.map_name().path();
                     mode = Some(challenge.gameplay);
                     break 'OUTER;
                 } else {
@@ -103,7 +103,7 @@ pub fn main(mut args: CmdArgs) {
 
     if mode.is_none() && flags.sim_flags.load.contains("scenarios/") {
         let (map_name, scenario) = abstutil::parse_scenario_path(&flags.sim_flags.load);
-        flags.sim_flags.load = abstutil::path_map(&map_name);
+        flags.sim_flags.load = map_name.path();
         mode = Some(sandbox::GameplayMode::PlayScenario(
             map_name, scenario, modifiers,
         ));

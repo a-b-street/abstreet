@@ -34,7 +34,7 @@ impl SimFlags {
         SimFlags {
             load: args
                 .optional_free()
-                .unwrap_or_else(|| abstutil::path_map(&MapName::seattle("montlake"))),
+                .unwrap_or_else(|| MapName::seattle("montlake").path()),
             modifiers,
             rng_seed,
             opts: SimOptions::from_args(args, rng_seed),
@@ -44,7 +44,7 @@ impl SimFlags {
     // TODO rename seattle_test
     pub fn for_test(run_name: &str) -> SimFlags {
         SimFlags {
-            load: abstutil::path_map(&MapName::seattle("montlake")),
+            load: MapName::seattle("montlake").path(),
             modifiers: Vec::new(),
             rng_seed: SimFlags::RNG_SEED,
             opts: SimOptions::new(run_name),
@@ -65,7 +65,7 @@ impl SimFlags {
 
             let mut sim: Sim = abstutil::read_binary(self.load.clone(), timer);
 
-            let mut map = Map::new(abstutil::path_map(&sim.map_name), timer);
+            let mut map = Map::new(sim.map_name.path(), timer);
             match MapEdits::load(
                 &map,
                 abstutil::path_edits(map.get_name(), &sim.edits_name),
@@ -90,7 +90,7 @@ impl SimFlags {
 
             let mut scenario: Scenario = abstutil::read_binary(self.load.clone(), timer);
 
-            let map = Map::new(abstutil::path_map(&scenario.map_name), timer);
+            let map = Map::new(scenario.map_name.path(), timer);
 
             for m in &self.modifiers {
                 scenario = m.apply(&map, scenario);

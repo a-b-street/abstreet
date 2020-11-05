@@ -34,7 +34,7 @@ impl MapLoader {
         // TODO If we want to load montlake on the web, just pull from bundled data.
         FileLoader::<map_model::Map>::new(
             ctx,
-            abstutil::path_map(&name),
+            name.path(),
             Box::new(move |ctx, app, timer, map| {
                 match map {
                     Ok(mut map) => {

@@ -170,7 +170,7 @@ fn main() {
 
             Some(map)
         } else if job.scenario || job.scenario_everyone {
-            Some(map_model::Map::new(abstutil::path_map(&name), &mut timer))
+            Some(map_model::Map::new(name.path(), &mut timer))
         } else {
             None
         };
@@ -250,5 +250,5 @@ fn oneshot(
     timer.start("save map");
     map.save();
     timer.stop("save map");
-    println!("{} has been created", abstutil::path_map(map.get_name()));
+    println!("{} has been created", map.get_name().path());
 }

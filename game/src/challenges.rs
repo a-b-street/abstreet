@@ -297,10 +297,7 @@ pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
     {
-        let map = map_model::Map::new(
-            abstutil::path_map(&MapName::seattle("montlake")),
-            &mut timer,
-        );
+        let map = map_model::Map::new(MapName::seattle("montlake").path(), &mut timer);
         let scenario: Scenario = abstutil::read_binary(
             abstutil::path_scenario(map.get_name(), "weekday"),
             &mut timer,
@@ -318,7 +315,7 @@ pub fn prebake_all() {
     }
 
     for name in vec![MapName::seattle("lakeslice")] {
-        let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
+        let map = map_model::Map::new(name.path(), &mut timer);
         let scenario: Scenario = abstutil::read_binary(
             abstutil::path_scenario(map.get_name(), "weekday"),
             &mut timer,

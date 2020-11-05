@@ -476,7 +476,7 @@ impl Map {
         assert!(self.edits.edits_name.starts_with("Untitled Proposal"));
         assert!(self.edits.commands.is_empty());
         assert!(!self.pathfinder_dirty);
-        abstutil::write_binary(abstutil::path_map(&self.name), self);
+        abstutil::write_binary(self.name.path(), self);
     }
 
     /// Cars trying to park near this building should head for the driving lane returned here, then

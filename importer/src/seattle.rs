@@ -120,15 +120,15 @@ pub fn ensure_popdat_exists(
         println!("- {} exists, not regenerating it", abstutil::path_popdat());
         return (
             abstutil::read_binary(abstutil::path_popdat(), timer),
-            map_model::Map::new(abstutil::path_map(&huge_name), timer),
+            map_model::Map::new(huge_name.path(), timer),
         );
     }
 
     if !abstutil::file_exists(abstutil::path_raw_map(&huge_name)) {
         osm_to_raw("huge_seattle", timer, config);
     }
-    let huge_map = if abstutil::file_exists(abstutil::path_map(&huge_name)) {
-        map_model::Map::new(abstutil::path_map(&huge_name), timer)
+    let huge_map = if abstutil::file_exists(huge_name.path()) {
+        map_model::Map::new(huge_name.path(), timer)
     } else {
         crate::utils::raw_to_map(&huge_name, true, false, timer)
     };

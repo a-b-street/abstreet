@@ -70,8 +70,8 @@ fn dump_turn_goldenfile(map: &Map) -> Result<(), std::io::Error> {
 /// Simulate an hour on every map.
 fn smoke_test() -> Result<(), std::io::Error> {
     let mut timer = Timer::new("run a smoke-test for all maps");
-    for name in abstutil::list_all_maps() {
-        let map = map_model::Map::new(abstutil::path_map(&name), &mut timer);
+    for name in MapName::list_all_maps() {
+        let map = map_model::Map::new(name.path(), &mut timer);
         let scenario = if map.get_city_name() == "seattle" {
             abstutil::read_binary(abstutil::path_scenario(&name, "weekday"), &mut timer)
         } else {
@@ -136,7 +136,7 @@ fn check_proposals() -> Result<(), String> {
             &mut timer,
         ) {
             Ok(perma) => {
-                let map = map_model::Map::new(abstutil::path_map(&perma.map_name), &mut timer);
+                let map = map_model::Map::new(perma.map_name.path(), &mut timer);
                 if let Err(err) = map_model::PermanentMapEdits::from_permanent(perma, &map) {
                     return Err(format!("{} is out-of-date: {}", name, err));
                 }
