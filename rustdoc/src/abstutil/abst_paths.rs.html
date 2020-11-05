@@ -200,6 +200,7 @@
 <span id="199">199</span>
 <span id="200">200</span>
 <span id="201">201</span>
+<span id="202">202</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -301,27 +302,28 @@
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">basename</span>(<span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]);
         <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="ident">city</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>)
     }
+
+    <span class="doccomment">/// Returns the filesystem path to this map.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/maps/{}.bin&quot;</span>, <span class="self">self</span>.<span class="ident">city</span>, <span class="self">self</span>.<span class="ident">map</span>))
+    }
+
+    <span class="doccomment">/// Returns all maps from all cities.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_maps</span>() <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="string">&quot;system&quot;</span>)) {
+            <span class="kw">if</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;assets&quot;</span> <span class="op">||</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;fonts&quot;</span> <span class="op">||</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;proposals&quot;</span> {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">for</span> <span class="ident">map</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/maps&quot;</span>, <span class="ident">city</span>))) {
+                <span class="ident">names</span>.<span class="ident">push</span>(<span class="ident">MapName</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
+            }
+        }
+        <span class="ident">names</span>
+    }
 }
 
 <span class="comment">// System data (Players can&#39;t edit, needed at runtime)</span>
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/maps/{}.bin&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>))
-}
-
-<span class="doccomment">/// Returns all maps from all cities.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_maps</span>() <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="string">&quot;system&quot;</span>)) {
-        <span class="kw">if</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;assets&quot;</span> <span class="op">||</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;fonts&quot;</span> <span class="op">||</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;proposals&quot;</span> {
-            <span class="kw">continue</span>;
-        }
-        <span class="kw">for</span> <span class="ident">map</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/maps&quot;</span>, <span class="ident">city</span>))) {
-            <span class="ident">names</span>.<span class="ident">push</span>(<span class="ident">MapName</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
-        }
-    }
-    <span class="ident">names</span>
-}
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_prebaked_results</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(

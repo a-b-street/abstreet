@@ -735,9 +735,6 @@
 <span id="734">734</span>
 <span id="735">735</span>
 <span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -1352,10 +1349,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">orig_map</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unedited_map</span>.<span class="ident">borrow_mut</span>();
         <span class="kw">if</span> <span class="ident">orig_map</span>.<span class="ident">is_none</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;load unedited map&quot;</span>);
-            <span class="kw-2">*</span><span class="ident">orig_map</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Map</span>::<span class="ident">new</span>(
-                <span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-            ));
+            <span class="kw-2">*</span><span class="ident">orig_map</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Map</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>));
         }
     }
 }

@@ -1164,7 +1164,7 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Untitled Proposal&quot;</span>));
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>());
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
-        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="ident">abstutil</span>::<span class="ident">path_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>), <span class="self">self</span>);
+        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="self">self</span>.<span class="ident">name</span>.<span class="ident">path</span>(), <span class="self">self</span>);
     }
 
     <span class="doccomment">/// Cars trying to park near this building should head for the driving lane returned here, then</span>
