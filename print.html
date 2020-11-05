@@ -321,8 +321,8 @@ the console logs appear in a new window, try running the command from
 whatever arguments you're passing in.</p>
 </li>
 </ul>
-<p>The oneshot importer will will generate a new file in <code>data/system/maps</code> that
-you can then load in the game. If you have an Osmosis polygon filter (see
+<p>The oneshot importer will will generate a new file in <code>data/system/oneshot/maps</code>
+that you can then load in the game. If you have an Osmosis polygon filter (see
 below), you can also pass <code>--oneshot_clip=clip.poly</code> to improve the result. You
 should first make sure your .osm has been clipped:
 <code>osmconvert large_map.osm -B=clipping.poly --complete-ways -o=smaller_map.osm</code>.</p>
@@ -835,10 +835,10 @@ access them. The list:
 </li>
 <li>You can start the game in different modes using flags:
 <ul>
-<li><code>cargo run --bin game -- --dev data/system/maps/downtown.bin</code> starts on a
-particular map</li>
-<li><code>cargo run --bin game -- data/system/scenarios/downtown/weekday.bin</code> starts
-with a scenario (which is tied to a certain map)</li>
+<li><code>cargo run --bin game -- --dev data/system/seattle/maps/downtown.bin</code> starts
+on a particular map</li>
+<li><code>cargo run --bin game -- data/system/seattle/scenarios/downtown/weekday.bin</code>
+starts with a scenario (which is tied to a certain map)</li>
 <li><code>cargo run --bin game -- --challenge=trafficsig/tut2</code> starts on a particular
 challenge. See the list of aliases by passing in a bad value here.</li>
 <li><code>cargo run --bin game -- data/player/saves/montlake/no_edits_unnamed/00h00m20.3s.bin</code>
@@ -982,7 +982,7 @@ sudo usermod -aG docker ${USER}
 <p>Then:</p>
 <pre><code>sudo systemctl start docker
 cross build --release --target x86_64-pc-windows-gnu --bin game
-wine target/x86_64-pc-windows-gnu/release/game.exe data/system/maps/montlake.bin
+wine target/x86_64-pc-windows-gnu/release/game.exe data/system/seattle/maps/montlake.bin
 </code></pre>
 <h2><a class="header" href="#markdown" id="markdown">Markdown</a></h2>
 <p>For formatting:</p>
@@ -1064,7 +1064,7 @@ get in touch, so we can figure out something better suited to your use case.</p>
 <p>When you start the <code>headless</code> server, it always loads the <code>montlake</code> map with
 the <code>weekday</code> scenario. The only way you can change this is by calling
 <code>/sim/load</code>. For example:</p>
-<pre><code>curl http://localhost:1234/sim/load -d '{ &quot;scenario&quot;: &quot;data/system/scenarios/downtown/monday.bin&quot;, &quot;modifiers&quot;: [], &quot;edits&quot;: null }' -X POST`
+<pre><code>curl http://localhost:1234/sim/load -d '{ &quot;scenario&quot;: &quot;data/system/seattle/scenarios/downtown/monday.bin&quot;, &quot;modifiers&quot;: [], &quot;edits&quot;: null }' -X POST`
 </code></pre>
 <p>You can also pass flags like <code>--infinite_parking</code> to the server to control
 <a href="https://dabreegster.github.io/abstreet/rustdoc/sim/struct.SimOptions.html">SimOptions</a>.
@@ -1143,7 +1143,7 @@ intersection's center.</li>
 </ul>
 <h2><a class="header" href="#working-with-the-map-model" id="working-with-the-map-model">Working with the map model</a></h2>
 <p>If you need to deeply inspect the map, you can dump it to JSON:</p>
-<pre><code>cargo run --bin dump_map data/system/maps/montlake.bin &gt; montlake.json
+<pre><code>cargo run --bin dump_map data/system/seattle/maps/montlake.bin &gt; montlake.json
 </code></pre>
 <p>See some example code that
 <a href="https://github.com/dabreegster/abstreet/blob/master/headless/examples/generate_traffic.py">reads this JSON and finds buildings</a>.</p>
@@ -1159,15 +1159,15 @@ needed. If possible, it's simpler to create a Scenario as input.</p>
 <p>You can also generate different variations of one of the
 <a href="dev/../trafficsim/travel_demand.html#proletariat-robot">demand models</a> by specifying
 an RNG seed:</p>
-<pre><code>cargo run --bin random_scenario -- --rng=123 --map=data/system/maps/montlake.bin --scenario_name=home_to_work
+<pre><code>cargo run --bin random_scenario -- --rng=123 --map=data/system/seattle/maps/montlake.bin --scenario_name=home_to_work
 </code></pre>
 <p>You can also dump Scenarios (the file that defines all of the people and trips)
 to JSON:</p>
-<pre><code>cargo run --bin dump_scenario data/system/scenarios/montlake/weekday.bin &gt; montlake_weekday.json
+<pre><code>cargo run --bin dump_scenario data/system/seattle/scenarios/montlake/weekday.bin &gt; montlake_weekday.json
 </code></pre>
 <p>You can modify the JSON, then put the file back in the appropriate directory and
 use it in-game:</p>
-<pre><code>cargo run --bin game data/system/scenarios/montlake/modified_scenario.json
+<pre><code>cargo run --bin game data/system/seattle/scenarios/montlake/modified_scenario.json
 </code></pre>
 <p>The Scenario format is also undocumented, but see the
 <a href="https://dabreegster.github.io/abstreet/rustdoc/sim/struct.Scenario.html">generated API docs</a>
@@ -2173,7 +2173,7 @@ example:</p>
 }
 </code></pre>
 <p>Run the tool:</p>
-<pre><code>cargo run --bin import_traffic -- --map=data/system/maps/montlake.bin --input=/path/to/input.json
+<pre><code>cargo run --bin import_traffic -- --map=data/system/seattle/maps/montlake.bin --input=/path/to/input.json
 </code></pre>
 <p>The tool matches input positions to the nearest building or border intersection,
 within 100 meters. The <code>departure</code> time is seconds since midnight. The tool will

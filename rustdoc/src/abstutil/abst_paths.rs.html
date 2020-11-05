@@ -180,12 +180,32 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">basename</span>, <span class="ident">file_exists</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">basename</span>, <span class="ident">file_exists</span>, <span class="ident">list_all_objects</span>};
 
 <span class="ident">lazy_static</span>::<span class="macro">lazy_static</span><span class="macro">!</span> {
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">ROOT_DIR</span>: <span class="ident">String</span> <span class="op">=</span> {
@@ -272,21 +292,41 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_filename</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}_{}&quot;</span>, <span class="self">self</span>.<span class="ident">city</span>, <span class="self">self</span>.<span class="ident">map</span>)
     }
+
+    <span class="doccomment">/// Transforms a path to a map back to a MapName. Crashes if the input is strange.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">MapName</span> {
+        <span class="comment">// TODO regex</span>
+        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
+        <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">3</span>];
+        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">basename</span>(<span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]);
+        <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="ident">city</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>)
+    }
 }
 
 <span class="comment">// System data (Players can&#39;t edit, needed at runtime)</span>
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/maps/{}.bin&quot;</span>, <span class="ident">name</span>.<span class="ident">map</span>))
+    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/maps/{}.bin&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_maps</span>() <span class="op">-&gt;</span> <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="string">&quot;system/maps&quot;</span>)
+
+<span class="doccomment">/// Returns all maps from all cities.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_maps</span>() <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="string">&quot;system&quot;</span>)) {
+        <span class="kw">if</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;assets&quot;</span> <span class="op">||</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;fonts&quot;</span> <span class="op">||</span> <span class="ident">city</span> <span class="op">==</span> <span class="string">&quot;proposals&quot;</span> {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">for</span> <span class="ident">map</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/maps&quot;</span>, <span class="ident">city</span>))) {
+            <span class="ident">names</span>.<span class="ident">push</span>(<span class="ident">MapName</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
+        }
+    }
+    <span class="ident">names</span>
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_prebaked_results</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-        <span class="string">&quot;system/prebaked_results/{}/{}.bin&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
+        <span class="string">&quot;system/{}/prebaked_results/{}/{}.bin&quot;</span>,
+        <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
     ))
 }
 
@@ -294,12 +334,12 @@
     <span class="comment">// TODO Getting complicated. Sometimes we&#39;re trying to load, so we should look for .bin, then</span>
     <span class="comment">// .json. But when we&#39;re writing a custom scenario, we actually want to write a .bin.</span>
     <span class="kw">let</span> <span class="ident">bin</span> <span class="op">=</span> <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-        <span class="string">&quot;system/scenarios/{}/{}.bin&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
+        <span class="string">&quot;system/{}/scenarios/{}/{}.bin&quot;</span>,
+        <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
     ));
     <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-        <span class="string">&quot;system/scenarios/{}/{}.json&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
+        <span class="string">&quot;system/{}/scenarios/{}/{}.json&quot;</span>,
+        <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
     ));
     <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">bin</span>) {
         <span class="kw">return</span> <span class="ident">bin</span>;
@@ -310,17 +350,17 @@
     <span class="ident">bin</span>
 }
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_scenarios</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/scenarios/{}&quot;</span>, <span class="ident">name</span>.<span class="ident">map</span>))
+    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/scenarios/{}&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>))
 }
 
 <span class="doccomment">/// Extract the map and scenario name from a path. Crashes if the input is strange.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_scenario_path</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> (<span class="ident">MapName</span>, <span class="ident">String</span>) {
     <span class="comment">// TODO regex</span>
     <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
-    <span class="kw">let</span> <span class="ident">simple_map_name</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">to_string</span>();
+    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">4</span>];
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>];
     <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">basename</span>(<span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]);
-    <span class="comment">// TODO Well this is brittle!</span>
-    <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="kw-2">&amp;</span><span class="ident">simple_map_name</span>);
+    <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="ident">city</span>, <span class="ident">map</span>);
     (<span class="ident">map_name</span>, <span class="ident">scenario</span>)
 }
 
