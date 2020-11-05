@@ -471,6 +471,17 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -497,7 +508,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">serialize_btreemap</span>, <span class="ident">CmdArgs</span>, <span class="ident">MapName</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">CompressedMovementID</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>,
     <span class="ident">MovementID</span>, <span class="ident">PermanentMapEdits</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>,
@@ -771,6 +782,7 @@
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">AgentPosition</span> {
                     <span class="ident">vehicle_type</span>: <span class="ident">a</span>.<span class="ident">id</span>.<span class="ident">to_vehicle_type</span>(),
                     <span class="ident">pos</span>: <span class="ident">a</span>.<span class="ident">pos</span>.<span class="ident">to_gps</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
+                    <span class="ident">distance_crossed</span>: <span class="ident">sim</span>.<span class="ident">agent_properties</span>(<span class="ident">a</span>.<span class="ident">id</span>).<span class="ident">dist_crossed</span>,
                     <span class="ident">person</span>: <span class="ident">a</span>.<span class="ident">person</span>,
                 })
                 .<span class="ident">collect</span>(),
@@ -837,10 +849,20 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">AgentPosition</span> {
-    <span class="comment">// None for pedestrians</span>
+    <span class="doccomment">/// None for pedestrians</span>
     <span class="ident">vehicle_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VehicleType</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The agent&#39;s current position. For pedestrians, this is their center. For vehicles, this</span>
+    <span class="doccomment">/// represents the front of the vehicle.</span>
     <span class="ident">pos</span>: <span class="ident">LonLat</span>,
-    <span class="comment">// None for buses</span>
+    <span class="doccomment">/// The distance crossed so far by the agent, in meters. There are some caveats to this value:</span>
+    <span class="doccomment">/// - The distance along driveways between buildings/parking lots and the road doesn&#39;t count</span>
+    <span class="doccomment">///   here.</span>
+    <span class="doccomment">/// - The distance will slightly exceed the true value if the agent begins or ends in the</span>
+    <span class="doccomment">///   middle of a lane.</span>
+    <span class="doccomment">/// - The distance will not change while an agent is travelling along a lane; it&#39;ll only</span>
+    <span class="doccomment">///   increment when they completely cross one step of their path.</span>
+    <span class="ident">distance_crossed</span>: <span class="ident">Distance</span>,
+    <span class="doccomment">/// None for buses</span>
     <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,
 }
 
