@@ -213,6 +213,23 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -270,6 +287,23 @@
         <span class="string">&quot;input/seattle/google_transit/&quot;</span>,
         <span class="string">&quot;http://metro.kingcounty.gov/gtfs/google_transit.zip&quot;</span>,
     );
+
+    <span class="comment">// From</span>
+    <span class="comment">// https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0</span>
+    <span class="ident">download</span>(
+        <span class="ident">config</span>,
+        <span class="string">&quot;input/seattle/collisions.kml&quot;</span>,
+        <span class="string">&quot;https://opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0.kml&quot;</span>,
+    );
+
+    <span class="comment">// This is a little expensive, so delete data/input/seattle/collisions.bin to regenerate this.</span>
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="string">&quot;data/input/seattle/collisions.bin&quot;</span>) {
+        <span class="kw">let</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">kml</span>::<span class="ident">load</span>(<span class="string">&quot;data/input/seattle/collisions.kml&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bounds</span>, <span class="bool-val">true</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">collisions</span> <span class="op">=</span> <span class="ident">collisions</span>::<span class="ident">import_seattle</span>(
+        <span class="ident">shapes</span>,
+        <span class="string">&quot;https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0&quot;</span>);
+        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="string">&quot;data/input/seattle/collisions.bin&quot;</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">collisions</span>);
+    }
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">osm_to_raw</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>) {
