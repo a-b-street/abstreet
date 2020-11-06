@@ -53,7 +53,7 @@ impl ViewKML {
                     shapes
                 } else if path.ends_with(".csv") {
                     let shapes =
-                        kml::load_csv(&path, &app.primary.map.get_gps_bounds(), &mut timer)
+                        ExtraShapes::load_csv(&path, &app.primary.map.get_gps_bounds(), &mut timer)
                             .unwrap();
                     // Assuming this is some huge file, conveniently convert the extract to .bin.
                     // The new file will show up as untracked in git, so it'll be obvious this

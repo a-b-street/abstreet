@@ -9,6 +9,11 @@ fn input(config: &ImporterConfiguration) {
         "input/london/osm/greater-london-latest.osm.pbf",
         "http://download.geofabrik.de/europe/great-britain/england/greater-london-latest.osm.pbf",
     );
+
+    download(
+        config,
+        "input/london/Road Safety Data - Accidents 2019.csv",
+        "http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip");
 }
 
 pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {
@@ -44,4 +49,16 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
         timer,
     );
     map.save();
+
+    // Always do this, it's idempotent and fast
+    let shapes = kml::ExtraShapes::load_csv(
+        "data/input/london/Road Safety Data - Accidents 2019.csv",
+        &map.gps_bounds,
+        timer,
+    )
+    .unwrap();
+    let collisions = collisions::import_stats19(
+        shapes,
+        "http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip");
+    abstutil::write_binary("data/input/london/collisions.bin".to_string(), &collisions);
 }

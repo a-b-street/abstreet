@@ -56,6 +56,14 @@
       "checksum": "a702f4fa6680793c7e1047668d8d0b69",
       "size_bytes": 421094
     },
+    "data/input/leeds/Road Safety Data - Accidents 2019.csv": {
+      "checksum": "ce30e6f7743be7b451e298583c65f99a",
+      "size_bytes": 16138801
+    },
+    "data/input/leeds/collisions.bin": {
+      "checksum": "7d478dc42993c71bea4eacf70ffa244a",
+      "size_bytes": 28899
+    },
     "data/input/leeds/footways.bin": {
       "checksum": "95961d499e97b049e620f145eb58c7c8",
       "size_bytes": 1907052
@@ -69,12 +77,20 @@
       "size_bytes": 33826429
     },
     "data/input/leeds/raw_maps/center.bin": {
-      "checksum": "38ec311a319b9ccca42c09172d2a8e59",
-      "size_bytes": 41794121
+      "checksum": "c32ae45c261c4caeac78a64bb5dd8459",
+      "size_bytes": 41794115
     },
     "data/input/leeds/service_roads.bin": {
       "checksum": "8588e5f3dda5d53903da869026ba1773",
       "size_bytes": 1376915
+    },
+    "data/input/london/Road Safety Data - Accidents 2019.csv": {
+      "checksum": "ce30e6f7743be7b451e298583c65f99a",
+      "size_bytes": 16138801
+    },
+    "data/input/london/collisions.bin": {
+      "checksum": "f206f015c8d70b0a5185229b8d4656df",
+      "size_bytes": 13527
     },
     "data/input/london/footways.bin": {
       "checksum": "95816ac4d77d857c561a61830d1998a0",

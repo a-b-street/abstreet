@@ -133,40 +133,42 @@ fn parse_pt(input: &str) -> Option<LonLat> {
     }
 }
 
-/// Parses a .csv file and returns ExtraShapes. Each record must have a column called 'Longitude'
-/// and 'Latitude', representing a single point; all other columns will just be attributes. Objects
-/// will be clipped to the given gps_bounds.
-pub fn load_csv(
-    path: &str,
-    gps_bounds: &GPSBounds,
-    timer: &mut Timer,
-) -> Result<ExtraShapes, Box<dyn Error>> {
-    timer.start(format!("read {}", path));
-    let mut shapes = Vec::new();
-    for rec in csv::Reader::from_path(path)?.deserialize() {
-        let mut rec: BTreeMap<String, String> = rec?;
-        match (rec.remove("Longitude"), rec.remove("Latitude")) {
-            (Some(lon), Some(lat)) => {
-                if let (Ok(lon), Ok(lat)) = (lon.parse::<f64>(), lat.parse::<f64>()) {
-                    let pt = LonLat::new(lon, lat);
-                    if gps_bounds.contains(pt) {
-                        shapes.push(ExtraShape {
-                            points: vec![pt],
-                            attributes: rec,
-                        });
+impl ExtraShapes {
+    /// Parses a .csv file and returns ExtraShapes. Each record must have a column called
+    /// 'Longitude' and 'Latitude', representing a single point; all other columns will just be
+    /// attributes. Objects will be clipped to the given gps_bounds.
+    pub fn load_csv(
+        path: &str,
+        gps_bounds: &GPSBounds,
+        timer: &mut Timer,
+    ) -> Result<ExtraShapes, Box<dyn Error>> {
+        timer.start(format!("read {}", path));
+        let mut shapes = Vec::new();
+        for rec in csv::Reader::from_path(path)?.deserialize() {
+            let mut rec: BTreeMap<String, String> = rec?;
+            match (rec.remove("Longitude"), rec.remove("Latitude")) {
+                (Some(lon), Some(lat)) => {
+                    if let (Ok(lon), Ok(lat)) = (lon.parse::<f64>(), lat.parse::<f64>()) {
+                        let pt = LonLat::new(lon, lat);
+                        if gps_bounds.contains(pt) {
+                            shapes.push(ExtraShape {
+                                points: vec![pt],
+                                attributes: rec,
+                            });
+                        }
                     }
                 }
-            }
-            _ => {
-                timer.stop(format!("read {}", path));
-                return Err(format!(
-                    "{} doesn't have a column called Longitude and Latitude",
-                    path
-                )
-                .into());
+                _ => {
+                    timer.stop(format!("read {}", path));
+                    return Err(format!(
+                        "{} doesn't have a column called Longitude and Latitude",
+                        path
+                    )
+                    .into());
+                }
             }
         }
+        timer.stop(format!("read {}", path));
+        Ok(ExtraShapes { shapes })
     }
-    timer.stop(format!("read {}", path));
-    Ok(ExtraShapes { shapes })
 }

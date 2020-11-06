@@ -10,6 +10,7 @@ scenarios = ["gdal"]
 
 [dependencies]
 abstutil = { path = "../abstutil" }
+collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }
 csv = "1.0.1"
 geojson = "0.19"

@@ -115,7 +115,7 @@ Constructing the map:
 
 - `convert_osm`: extract useful data from OpenStreetMap and other data sources,
   emit intermediate map format
-- `kml`: extract shapes from KML shapefiles
+- `kml`: extract shapes from KML and CSV shapefiles
 - `map_model`: the final representation of the map, also conversion from the
   intermediate map format into the final format
 - `map_editor`: GUI for modifying geometry of maps and creating maps from
@@ -142,6 +142,7 @@ Common utilities:
 
 Other:
 
+- `collisions`: an experimental data format for real-world collision data
 - `traffic_seitan`: a bug-finding tool that randomly generates live map edits
 - `tests`: integration tests
 

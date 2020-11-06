@@ -2,6 +2,7 @@
 
 members = [
   "abstutil",
+  "collisions",
   "convert_osm",
   "game",
   "geom",

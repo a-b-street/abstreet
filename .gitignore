@@ -8,6 +8,12 @@ data/input/berlin/planning_areas.bin
 data/input/berlin/planning_areas.kml
 data/input/berlin/EWR201812E_Matrix.csv
 
+data/input/leeds/Road Safety Data - Accidents 2019.csv
+data/input/leeds/collisions.bin
+
+data/input/london/Road Safety Data - Accidents 2019.csv
+data/input/london/collisions.bin
+
 data/input/seattle/blockface.bin
 data/input/seattle/blockface.kml
 data/input/seattle/google_transit
