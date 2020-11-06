@@ -212,8 +212,12 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
         }
 
         let parts = path.split("/").collect::<Vec<_>>();
-        if parts[1] == "input" || parts[1] == "system" {
+        if parts[1] == "input" {
             if cities.input.contains(&parts[2].to_string()) {
+                continue;
+            }
+        } else if parts[1] == "system" {
+            if cities.runtime.contains(&parts[2].to_string()) {
                 continue;
             }
         } else {
