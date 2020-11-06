@@ -921,6 +921,7 @@ dependencies = [
  "abstutil",
  "built",
  "chrono",
+ "collisions",
  "colorous",
  "console_log",
  "contour",

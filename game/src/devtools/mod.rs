@@ -10,6 +10,7 @@ use crate::common::CityPicker;
 use crate::game::{ChooseSomething, Transition};
 use crate::helpers::nice_map_name;
 
+mod collisions;
 mod destinations;
 mod kml;
 pub mod mapping;
@@ -44,6 +45,14 @@ impl DevToolsMode {
                     Btn::text_fg("load scenario").build_def(ctx, Key::W),
                     Btn::text_fg("view KML").build_def(ctx, Key::K),
                     Btn::text_fg("story maps").build_def(ctx, Key::S),
+                    if abstutil::file_exists(abstutil::path(format!(
+                        "input/{}/collisions.bin",
+                        app.primary.map.get_city_name()
+                    ))) {
+                        Btn::text_fg("collisions").build_def(ctx, Key::C)
+                    } else {
+                        Widget::nothing()
+                    },
                 ])
                 .flex_wrap(ctx, Percent::int(60)),
             ]))
@@ -112,6 +121,9 @@ impl State<App> for DevToolsMode {
                 }
                 "story maps" => {
                     return Transition::Push(story::StoryMapEditor::new(ctx));
+                }
+                "collisions" => {
+                    return Transition::Push(collisions::CollisionsViewer::new(ctx, app));
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new(
