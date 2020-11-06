@@ -143,6 +143,18 @@
 <span id="142">142</span>
 <span id="143">143</span>
 <span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Percent</span>};
@@ -156,6 +168,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">nice_map_name</span>;
 
+<span class="kw">mod</span> <span class="ident">collisions</span>;
 <span class="kw">mod</span> <span class="ident">destinations</span>;
 <span class="kw">mod</span> <span class="ident">kml</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mapping</span>;
@@ -190,6 +203,14 @@
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;load scenario&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">W</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;view KML&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">K</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;story maps&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
+                    <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;input/{}/collisions.bin&quot;</span>,
+                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>()
+                    ))) {
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;collisions&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">C</span>)
+                    } <span class="kw">else</span> {
+                        <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+                    },
                 ])
                 .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">60</span>)),
             ]))
@@ -258,6 +279,9 @@
                 }
                 <span class="string">&quot;story maps&quot;</span> <span class="op">=&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">story</span>::<span class="ident">StoryMapEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>));
+                }
+                <span class="string">&quot;collisions&quot;</span> <span class="op">=&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">collisions</span>::<span class="ident">CollisionsViewer</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;change map&quot;</span> <span class="op">=&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">CityPicker</span>::<span class="ident">new</span>(

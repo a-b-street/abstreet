@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["destinations",""],["kml",""],["mapping",""],["osm_viewer",""],["polygon",""],["scenario",""],["story",""]],"struct":[["DevToolsMode",""]]});
+initSidebarItems({"mod":[["collisions",""],["destinations",""],["kml",""],["mapping",""],["osm_viewer",""],["polygon",""],["scenario",""],["story",""]],"struct":[["DevToolsMode",""]]});
