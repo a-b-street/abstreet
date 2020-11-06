@@ -58,8 +58,8 @@ impl LonLat {
 
     /// Parses a file in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
     /// and returns all points.
-    pub fn read_osmosis_polygon(path: String) -> Result<Vec<LonLat>, Box<dyn Error>> {
-        let f = File::open(&path)?;
+    pub fn read_osmosis_polygon(path: &str) -> Result<Vec<LonLat>, Box<dyn Error>> {
+        let f = File::open(path)?;
         let mut pts = Vec::new();
         for (idx, line) in BufReader::new(f).lines().enumerate() {
             if idx < 2 {

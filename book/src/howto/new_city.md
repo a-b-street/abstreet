@@ -55,21 +55,22 @@ use it as well.
     [the instructions](../dev/index.md#building-map-data). You'll need Rust,
     osmconvert, gdal, etc.
 
-2.  Create a new directory: `mkdir -p data/input/your_city/polygons`
+2.  Create a new directory: `mkdir importer/config/your_city`
 
 3.  Use [geojson.io](http://geojson.io/) or
     [geoman.io](https://geoman.io/geojson-editor) to draw a boundary around the
     region you want to simulate and save the geojson locally.
 
-4.  Use `cargo run --bin geojson_to_osmosis < boundary.geojson > clipping.poly`
+4.  Use
+    `cargo run --bin geojson_to_osmosis < boundary.geojson > importer/config/your_city/region_name.poly`
     to convert that geojson to the
     [Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
     required by osmconvert.
 
 5.  Create a new module in `importer/src/` for your city, copying
-    `importer/src/tel_aviv.rs` as a guide. Edit that file in the obvious way. The
-    main thing you'll need is a .osm or .osm.pbf file to download that contains
-    your city. The clipping polygon will be applied to that.
+    `importer/src/tel_aviv.rs` as a guide. Edit that file in the obvious way.
+    The main thing you'll need is a .osm or .osm.pbf file to download that
+    contains your city. The clipping polygon will be applied to that.
 
 6.  Update `importer/src/main.rs` to reference your new module, following
     `tel_aviv` as an example.
@@ -80,6 +81,14 @@ use it as well.
 
 Send a PR with your changes! I'll generate everything and make it work with
 `updater`, so most people don't have to build everything from scratch.
+
+Also, you can divide the city into multiple regions, repeating step 4 and
+declaring more polygon boundaries. The boundaries may overlap each other, and
+they don't have to cover all of the space. Picking good boundaries may take
+trial-and-error; the goal is to keep the resulting map file size small, so that
+it loads quickly, while capturing all of the area needed to simulate something
+interesting. This is easiest when you have some local knowledge of the area, and
+at least a vague goal in mind for what you want to study.
 
 ## Next steps
 

@@ -20,7 +20,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     input(config);
     osmconvert(
         "input/leeds/osm/west-yorkshire.osm.pbf",
-        format!("input/leeds/polygons/{}.poly", name),
+        format!("importer/config/leeds/{}.poly", name),
         format!("input/leeds/osm/{}.osm", name),
         config,
     );
@@ -30,10 +30,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
             osm_input: abstutil::path(format!("input/leeds/osm/{}.osm", name)),
             name: MapName::new("leeds", name),
 
-            clip: Some(abstutil::path(format!(
-                "input/leeds/polygons/{}.poly",
-                name
-            ))),
+            clip: Some(format!("importer/config/leeds/{}.poly", name)),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Left,
                 bikes_can_use_bus_lanes: false,

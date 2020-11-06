@@ -424,6 +424,7 @@ dependencies = [
  "log",
  "map_model",
  "roxmltree",
+ "serde",
 ]
 
 [[package]]

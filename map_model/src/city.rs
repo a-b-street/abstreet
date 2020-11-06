@@ -20,21 +20,17 @@ pub struct City {
 impl City {
     pub fn new(huge_map: &Map) -> City {
         let city_name = huge_map.get_city_name().clone();
-        let mut regions =
-            abstutil::list_all_objects(abstutil::path(format!("input/{}/polygons", city_name)))
-                .into_iter()
-                .map(|name| {
-                    let pts = LonLat::read_osmosis_polygon(abstutil::path(format!(
-                        "input/{}/polygons/{}.poly",
-                        city_name, name
-                    )))
-                    .unwrap();
-                    (
-                        MapName::new(&city_name, &name),
-                        Ring::must_new(huge_map.get_gps_bounds().convert(&pts)).to_polygon(),
-                    )
-                })
-                .collect::<Vec<_>>();
+        let mut regions = abstutil::list_dir(format!("importer/config/{}", city_name))
+            .into_iter()
+            .filter(|path| path.ends_with(".poly"))
+            .map(|path| {
+                let pts = LonLat::read_osmosis_polygon(&path).unwrap();
+                (
+                    MapName::new(&city_name, &abstutil::basename(path)),
+                    Ring::must_new(huge_map.get_gps_bounds().convert(&pts)).to_polygon(),
+                )
+            })
+            .collect::<Vec<_>>();
         // Just a sort of z-ordering hack so that the largest encompassing region isn't first
         // later in the UI picker.
         regions.sort_by_key(|(_, poly)| poly.get_bounds().width() as usize);

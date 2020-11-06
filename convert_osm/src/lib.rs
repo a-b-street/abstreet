@@ -5,6 +5,7 @@ use abstutil::{MapName, Timer};
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
 use map_model::raw::RawMap;
 use map_model::{osm, Amenity, MapConfig};
+use serde::{Deserialize, Serialize};
 
 mod clip;
 mod extract;
@@ -16,6 +17,7 @@ mod split_ways;
 mod srtm;
 mod transit;
 
+#[derive(Serialize, Deserialize)]
 pub struct Options {
     pub osm_input: String,
     pub name: MapName,
@@ -36,6 +38,7 @@ pub struct Options {
 
 /// What roads will have on-street parking lanes? Data from
 /// <https://wiki.openstreetmap.org/wiki/Key:parking:lane> is always used if available.
+#[derive(Serialize, Deserialize)]
 pub enum OnstreetParking {
     /// If not tagged, there won't be parking.
     JustOSM,
@@ -51,6 +54,7 @@ pub enum OnstreetParking {
 }
 
 /// How many spots are available in public parking garages?
+#[derive(Serialize, Deserialize)]
 pub enum PublicOffstreetParking {
     None,
     /// Pull data from
@@ -61,6 +65,7 @@ pub enum PublicOffstreetParking {
 
 /// If a building doesn't have anything from public_offstreet_parking and isn't tagged as a garage
 /// in OSM, how many private spots should it have?
+#[derive(Serialize, Deserialize)]
 pub enum PrivateOffstreetParking {
     FixedPerBldg(usize),
     // TODO Based on the number of residents?
@@ -69,7 +74,7 @@ pub enum PrivateOffstreetParking {
 pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     let mut map = RawMap::blank(opts.name.clone());
     if let Some(ref path) = opts.clip {
-        let pts = LonLat::read_osmosis_polygon(path.to_string()).unwrap();
+        let pts = LonLat::read_osmosis_polygon(path).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());
         map.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).to_polygon();
         map.gps_bounds = gps_bounds;

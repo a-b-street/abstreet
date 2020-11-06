@@ -19,8 +19,7 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     );
 
     let bounds = geom::GPSBounds::from(
-        geom::LonLat::read_osmosis_polygon(abstutil::path("input/berlin/polygons/center.poly"))
-            .unwrap(),
+        geom::LonLat::read_osmosis_polygon("importer/config/berlin/center.poly").unwrap(),
     );
     // From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
     download_kml(
@@ -52,7 +51,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
     input(config, timer);
     osmconvert(
         "input/berlin/osm/berlin-latest.osm.pbf",
-        format!("input/berlin/polygons/{}.poly", name),
+        format!("importer/config/berlin/{}.poly", name),
         format!("input/berlin/osm/{}.osm", name),
         config,
     );
@@ -62,10 +61,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
             osm_input: abstutil::path(format!("input/berlin/osm/{}.osm", name)),
             name: MapName::new("berlin", name),
 
-            clip: Some(abstutil::path(format!(
-                "input/berlin/polygons/{}.poly",
-                name
-            ))),
+            clip: Some(format!("importer/config/berlin/{}.poly", name)),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,

@@ -66,7 +66,7 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
     for path in list_dir(dir) {
         match read_object(path.clone(), &mut timer) {
             Ok(obj) => {
-                tree.insert(basename(&path), obj);
+                tree.insert(basename(path), obj);
             }
             Err(err) => {
                 error!("Couldn't load {}: {}", path, err);
@@ -78,5 +78,5 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
 
 /// Just list all things from a directory, return sorted by name, with file extension removed.
 pub fn list_all_objects(dir: String) -> Vec<String> {
-    list_dir(dir).into_iter().map(|x| basename(&x)).collect()
+    list_dir(dir).into_iter().map(basename).collect()
 }

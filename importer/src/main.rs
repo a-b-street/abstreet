@@ -1,4 +1,7 @@
-use abstutil::MapName;
+//! It's assumed that the importer is run with the current directory as the project repository; aka
+//! `./data/` and `./importer/config` must exist.
+
+use abstutil::{basename, MapName};
 
 use configuration::{load_configuration, ImporterConfiguration};
 use dependencies::are_dependencies_callable;
@@ -55,7 +58,7 @@ fn main() {
         keep_bldg_tags: args.enabled("--keep_bldg_tags"),
 
         // Only process one map. If not specified, process all maps defined by clipping polygons in
-        // data/input/$city/polygons/.
+        // importer/config/$city/.
         only_map: args.optional_free(),
 
         // Ignore other arguments and just convert the given .osm file to a Map.
@@ -106,7 +109,11 @@ fn main() {
         vec![n]
     } else {
         println!("- Working on all {} maps", job.city);
-        abstutil::list_all_objects(abstutil::path(format!("input/{}/polygons", job.city)))
+        abstutil::list_dir(format!("importer/config/{}", job.city))
+            .into_iter()
+            .filter(|path| path.ends_with(".poly"))
+            .map(basename)
+            .collect()
     };
 
     let mut timer = abstutil::Timer::new("import map data");

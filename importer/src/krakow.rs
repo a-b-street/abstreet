@@ -15,7 +15,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     input(config);
     osmconvert(
         "input/krakow/osm/malopolskie-latest.osm.pbf",
-        format!("input/krakow/polygons/{}.poly", name),
+        format!("importer/config/krakow/{}.poly", name),
         format!("input/krakow/osm/{}.osm", name),
         config,
     );
@@ -25,10 +25,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
             osm_input: abstutil::path(format!("input/krakow/osm/{}.osm", name)),
             name: MapName::new("krakow", name),
 
-            clip: Some(abstutil::path(format!(
-                "input/krakow/polygons/{}.poly",
-                name
-            ))),
+            clip: Some(format!("importer/config/krakow/{}.poly", name)),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: false,

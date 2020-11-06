@@ -70,7 +70,7 @@ impl ViewKML {
             let boundary = app.primary.map.get_boundary_polygon();
             let dataset_name = path
                 .as_ref()
-                .map(|p| abstutil::basename(p))
+                .map(abstutil::basename)
                 .unwrap_or("no file".to_string());
             let bldg_lookup: HashMap<String, BuildingID> = app
                 .primary

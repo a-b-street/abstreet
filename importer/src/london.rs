@@ -20,7 +20,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     input(config);
     osmconvert(
         "input/london/osm/greater-london-latest.osm.pbf",
-        format!("input/london/polygons/{}.poly", name),
+        format!("importer/config/london/{}.poly", name),
         format!("input/london/osm/{}.osm", name),
         config,
     );
@@ -30,10 +30,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
             osm_input: abstutil::path(format!("input/london/osm/{}.osm", name)),
             name: MapName::new("london", name),
 
-            clip: Some(abstutil::path(format!(
-                "input/london/polygons/{}.poly",
-                name
-            ))),
+            clip: Some(format!("importer/config/london/{}.poly", name)),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Left,
                 bikes_can_use_bus_lanes: true,

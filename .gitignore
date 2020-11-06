@@ -1,39 +1,13 @@
 /target/
 *.swp
 __pycache__
+.idea/
 
 data/config
-
-data/input/berlin/planning_areas.bin
-data/input/berlin/planning_areas.kml
-data/input/berlin/EWR201812E_Matrix.csv
-
-data/input/leeds/Road Safety Data - Accidents 2019.csv
-data/input/leeds/collisions.bin
-
-data/input/london/Road Safety Data - Accidents 2019.csv
-data/input/london/collisions.bin
-
-data/input/seattle/blockface.bin
-data/input/seattle/blockface.kml
-data/input/seattle/google_transit
-data/input/seattle/N47W122.hgt
-data/input/seattle/offstreet_parking.bin
-data/input/seattle/offstreet_parking.kml
-data/input/seattle/parcels.bin
-data/input/seattle/parcels_urbansim.txt
-data/input/seattle/popdat.bin
-data/input/seattle/trips_2014.csv
-
-data/input/*/osm
-data/input/*/raw_maps
-data/input/*/footways.bin
-data/input/*/service_roads.bin
-data/input/*/*_separate_cycleways.bin
-data/input/*/*_snapped_cycleways.bin
-data/input/*/screenshots/*.zip
-
 data/player
+importer.json
+
+data/input
 
 data/system/berlin
 data/system/krakow
@@ -42,7 +16,3 @@ data/system/london
 data/system/seattle
 data/system/tel_aviv
 data/system/xian
-
-importer.json
-
-.idea/

@@ -15,7 +15,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     input(config);
     osmconvert(
         "input/xian/osm/china-latest.osm.pbf",
-        format!("input/xian/polygons/{}.poly", name),
+        format!("importer/config/xian/{}.poly", name),
         format!("input/xian/osm/{}.osm", name),
         config,
     );
@@ -25,7 +25,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
             osm_input: abstutil::path(format!("input/xian/osm/{}.osm", name)),
             name: MapName::new("xian", name),
 
-            clip: Some(abstutil::path(format!("input/xian/polygons/{}.poly", name))),
+            clip: Some(format!("importer/config/xian/{}.poly", name)),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,

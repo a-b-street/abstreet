@@ -70,25 +70,29 @@ impl State<App> for DevToolsMode {
                     return Transition::Pop;
                 }
                 "edit a polygon" => {
-                    // TODO Sorry, Seattle only right now
                     return Transition::Push(ChooseSomething::new(
                         ctx,
                         "Choose a polygon",
-                        Choice::strings(abstutil::list_all_objects(abstutil::path(
-                            "input/seattle/polygons/",
-                        ))),
-                        Box::new(|name, ctx, _| {
-                            match LonLat::read_osmosis_polygon(abstutil::path(format!(
-                                "input/seattle/polygons/{}.poly",
-                                name
-                            ))) {
-                                Ok(pts) => {
-                                    Transition::Replace(polygon::PolygonEditor::new(ctx, name, pts))
-                                }
-                                Err(err) => {
-                                    println!("Bad polygon {}: {}", name, err);
-                                    Transition::Pop
-                                }
+                        // This directory won't exist on the web or for binary releases, only for
+                        // people building from source. Also, abstutil::path is abused to find the
+                        // importer/ directory.
+                        abstutil::list_dir(abstutil::path(format!(
+                            "../importer/config/{}",
+                            app.primary.map.get_city_name()
+                        )))
+                        .into_iter()
+                        .filter(|path| path.ends_with(".poly"))
+                        .map(|path| Choice::new(abstutil::basename(&path), path))
+                        .collect(),
+                        Box::new(|path, ctx, _| match LonLat::read_osmosis_polygon(&path) {
+                            Ok(pts) => Transition::Replace(polygon::PolygonEditor::new(
+                                ctx,
+                                abstutil::basename(path),
+                                pts,
+                            )),
+                            Err(err) => {
+                                println!("Bad polygon {}: {}", path, err);
+                                Transition::Pop
                             }
                         }),
                     ));

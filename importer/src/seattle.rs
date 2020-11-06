@@ -30,10 +30,7 @@ fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
     );
 
     let bounds = geom::GPSBounds::from(
-        geom::LonLat::read_osmosis_polygon(abstutil::path(
-            "input/seattle/polygons/huge_seattle.poly",
-        ))
-        .unwrap(),
+        geom::LonLat::read_osmosis_polygon("importer/config/seattle/huge_seattle.poly").unwrap(),
     );
     // From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
     download_kml(
@@ -63,7 +60,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     input(config, timer);
     osmconvert(
         "input/seattle/osm/washington-latest.osm.pbf",
-        format!("input/seattle/polygons/{}.poly", name),
+        format!("importer/config/seattle/{}.poly", name),
         format!("input/seattle/osm/{}.osm", name),
         config,
     );
@@ -73,10 +70,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
             osm_input: abstutil::path(format!("input/seattle/osm/{}.osm", name)),
             name: MapName::seattle(name),
 
-            clip: Some(abstutil::path(format!(
-                "input/seattle/polygons/{}.poly",
-                name
-            ))),
+            clip: Some(format!("importer/config/seattle/{}.poly", name)),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,

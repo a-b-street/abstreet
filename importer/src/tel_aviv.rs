@@ -15,7 +15,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     input(config);
     osmconvert(
         "input/tel_aviv/osm/israel-and-palestine-latest.osm.pbf",
-        format!("input/tel_aviv/polygons/{}.poly", name),
+        format!("importer/config/tel_aviv/{}.poly", name),
         format!("input/tel_aviv/osm/{}.osm", name),
         config,
     );
@@ -25,10 +25,7 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
             osm_input: abstutil::path(format!("input/tel_aviv/osm/{}.osm", name)),
             name: MapName::new("tel_aviv", name),
 
-            clip: Some(abstutil::path(format!(
-                "input/tel_aviv/polygons/{}.poly",
-                name
-            ))),
+            clip: Some(format!("importer/config/tel_aviv/{}.poly", name)),
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
