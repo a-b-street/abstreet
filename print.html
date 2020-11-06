@@ -368,20 +368,17 @@ to convert that geojson to the
 required by osmconvert.</p>
 </li>
 <li>
-<p>Create a new module in <code>importer/src/</code> for your city, copying
-<code>importer/src/tel_aviv.rs</code> as a guide. Edit that file in the obvious way.
-The main thing you'll need is a .osm or .osm.pbf file to download that
-contains your city. The clipping polygon will be applied to that.</p>
-</li>
-<li>
-<p>Update <code>importer/src/main.rs</code> to reference your new module, following
-<code>tel_aviv</code> as an example.</p>
+<p>Copy <code>importer/config/tel_aviv/cfg.json</code> to
+<code>importer/config/your_city/cfg.json</code> and edit this file. See
+<a href="https://github.com/dabreegster/abstreet/blob/master/importer/src/generic.rs">here</a>
+for details on the different fields. The defaults are a reasonable start;
+the only thing you need to change is <code>osm_url</code>.</p>
 </li>
 <li>
 <p>Run it: <code>./import.sh --city=your_city --raw --map</code></p>
 </li>
 <li>
-<p>Update <code>.gitignore</code>, following <code>krakow</code> as an example.</p>
+<p>Update <code>.gitignore</code>, following <code>tel_aviv</code> as an example.</p>
 </li>
 </ol>
 <p>Send a PR with your changes! I'll generate everything and make it work with

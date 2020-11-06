@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""],["oneshot",""]],"mod":[["berlin",""],["configuration",""],["dependencies",""],["krakow",""],["leeds",""],["london",""],["seattle",""],["tel_aviv",""],["utils",""],["xian",""]],"struct":[["Job",""]]});
+initSidebarItems({"fn":[["main",""],["oneshot",""]],"mod":[["berlin",""],["configuration",""],["dependencies",""],["generic",""],["leeds",""],["london",""],["seattle",""],["utils",""]],"struct":[["Job",""]]});
