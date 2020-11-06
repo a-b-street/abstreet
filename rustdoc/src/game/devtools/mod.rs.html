@@ -155,6 +155,10 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Percent</span>};
@@ -228,25 +232,29 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="string">&quot;edit a polygon&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="comment">// TODO Sorry, Seattle only right now</span>
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Choose a polygon&quot;</span>,
-                        <span class="ident">Choice</span>::<span class="ident">strings</span>(<span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(
-                            <span class="string">&quot;input/seattle/polygons/&quot;</span>,
-                        ))),
-                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
-                            <span class="kw">match</span> <span class="ident">LonLat</span>::<span class="ident">read_osmosis_polygon</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-                                <span class="string">&quot;input/seattle/polygons/{}.poly&quot;</span>,
-                                <span class="ident">name</span>
-                            ))) {
-                                <span class="prelude-val">Ok</span>(<span class="ident">pts</span>) <span class="op">=&gt;</span> {
-                                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">polygon</span>::<span class="ident">PolygonEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">name</span>, <span class="ident">pts</span>))
-                                }
-                                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> {
-                                    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Bad polygon {}: {}&quot;</span>, <span class="ident">name</span>, <span class="ident">err</span>);
-                                    <span class="ident">Transition</span>::<span class="ident">Pop</span>
-                                }
+                        <span class="comment">// This directory won&#39;t exist on the web or for binary releases, only for</span>
+                        <span class="comment">// people building from source. Also, abstutil::path is abused to find the</span>
+                        <span class="comment">// importer/ directory.</span>
+                        <span class="ident">abstutil</span>::<span class="ident">list_dir</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+                            <span class="string">&quot;../importer/config/{}&quot;</span>,
+                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>()
+                        )))
+                        .<span class="ident">into_iter</span>()
+                        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.poly&quot;</span>))
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>), <span class="ident">path</span>))
+                        .<span class="ident">collect</span>(),
+                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">path</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">LonLat</span>::<span class="ident">read_osmosis_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
+                            <span class="prelude-val">Ok</span>(<span class="ident">pts</span>) <span class="op">=&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">polygon</span>::<span class="ident">PolygonEditor</span>::<span class="ident">new</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="ident">path</span>),
+                                <span class="ident">pts</span>,
+                            )),
+                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> {
+                                <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Bad polygon {}: {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>);
+                                <span class="ident">Transition</span>::<span class="ident">Pop</span>
                             }
                         }),
                     ));

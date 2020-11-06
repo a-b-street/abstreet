@@ -46,9 +46,6 @@
 <span id="45">45</span>
 <span id="46">46</span>
 <span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
 
@@ -67,7 +64,7 @@
     <span class="ident">input</span>(<span class="ident">config</span>);
     <span class="ident">osmconvert</span>(
         <span class="string">&quot;input/krakow/osm/malopolskie-latest.osm.pbf&quot;</span>,
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/krakow/polygons/{}.poly&quot;</span>, <span class="ident">name</span>),
+        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;importer/config/krakow/{}.poly&quot;</span>, <span class="ident">name</span>),
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/krakow/osm/{}.osm&quot;</span>, <span class="ident">name</span>),
         <span class="ident">config</span>,
     );
@@ -77,10 +74,7 @@
             <span class="ident">osm_input</span>: <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/krakow/osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
             <span class="ident">name</span>: <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;krakow&quot;</span>, <span class="ident">name</span>),
 
-            <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;input/krakow/polygons/{}.poly&quot;</span>,
-                <span class="ident">name</span>
-            ))),
+            <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;importer/config/krakow/{}.poly&quot;</span>, <span class="ident">name</span>)),
             <span class="ident">map_config</span>: <span class="ident">map_model</span>::<span class="ident">MapConfig</span> {
                 <span class="ident">driving_side</span>: <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">false</span>,

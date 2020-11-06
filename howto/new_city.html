@@ -200,7 +200,7 @@ use it as well.</p>
 osmconvert, gdal, etc.</p>
 </li>
 <li>
-<p>Create a new directory: <code>mkdir -p data/input/your_city/polygons</code></p>
+<p>Create a new directory: <code>mkdir importer/config/your_city</code></p>
 </li>
 <li>
 <p>Use <a href="http://geojson.io/">geojson.io</a> or
@@ -208,16 +208,17 @@ osmconvert, gdal, etc.</p>
 region you want to simulate and save the geojson locally.</p>
 </li>
 <li>
-<p>Use <code>cargo run --bin geojson_to_osmosis &lt; boundary.geojson &gt; clipping.poly</code>
+<p>Use
+<code>cargo run --bin geojson_to_osmosis &lt; boundary.geojson &gt; importer/config/your_city/region_name.poly</code>
 to convert that geojson to the
 <a href="https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format">Osmosis format</a>
 required by osmconvert.</p>
 </li>
 <li>
 <p>Create a new module in <code>importer/src/</code> for your city, copying
-<code>importer/src/tel_aviv.rs</code> as a guide. Edit that file in the obvious way. The
-main thing you'll need is a .osm or .osm.pbf file to download that contains
-your city. The clipping polygon will be applied to that.</p>
+<code>importer/src/tel_aviv.rs</code> as a guide. Edit that file in the obvious way.
+The main thing you'll need is a .osm or .osm.pbf file to download that
+contains your city. The clipping polygon will be applied to that.</p>
 </li>
 <li>
 <p>Update <code>importer/src/main.rs</code> to reference your new module, following
@@ -232,6 +233,13 @@ your city. The clipping polygon will be applied to that.</p>
 </ol>
 <p>Send a PR with your changes! I'll generate everything and make it work with
 <code>updater</code>, so most people don't have to build everything from scratch.</p>
+<p>Also, you can divide the city into multiple regions, repeating step 4 and
+declaring more polygon boundaries. The boundaries may overlap each other, and
+they don't have to cover all of the space. Picking good boundaries may take
+trial-and-error; the goal is to keep the resulting map file size small, so that
+it loads quickly, while capturing all of the area needed to simulate something
+interesting. This is easiest when you have some local knowledge of the area, and
+at least a vague goal in mind for what you want to study.</p>
 <h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
 <p>OpenStreetMap isn't the only data source we need. If you look at the import
 pipeline for Seattle, you'll see many more sources for parking, GTFS bus

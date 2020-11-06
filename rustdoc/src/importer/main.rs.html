@@ -253,8 +253,18 @@
 <span id="252">252</span>
 <span id="253">253</span>
 <span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
+<span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
+<span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">basename</span>, <span class="ident">MapName</span>};
 
 <span class="kw">use</span> <span class="ident">configuration</span>::{<span class="ident">load_configuration</span>, <span class="ident">ImporterConfiguration</span>};
 <span class="kw">use</span> <span class="ident">dependencies</span>::<span class="ident">are_dependencies_callable</span>;
@@ -311,7 +321,7 @@
         <span class="ident">keep_bldg_tags</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--keep_bldg_tags&quot;</span>),
 
         <span class="comment">// Only process one map. If not specified, process all maps defined by clipping polygons in</span>
-        <span class="comment">// data/input/$city/polygons/.</span>
+        <span class="comment">// importer/config/$city/.</span>
         <span class="ident">only_map</span>: <span class="ident">args</span>.<span class="ident">optional_free</span>(),
 
         <span class="comment">// Ignore other arguments and just convert the given .osm file to a Map.</span>
@@ -362,7 +372,11 @@
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">n</span>]
     } <span class="kw">else</span> {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Working on all {} maps&quot;</span>, <span class="ident">job</span>.<span class="ident">city</span>);
-        <span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/polygons&quot;</span>, <span class="ident">job</span>.<span class="ident">city</span>)))
+        <span class="ident">abstutil</span>::<span class="ident">list_dir</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;importer/config/{}&quot;</span>, <span class="ident">job</span>.<span class="ident">city</span>))
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.poly&quot;</span>))
+            .<span class="ident">map</span>(<span class="ident">basename</span>)
+            .<span class="ident">collect</span>()
     };
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;import map data&quot;</span>);

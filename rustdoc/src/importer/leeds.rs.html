@@ -60,9 +60,6 @@
 <span id="59">59</span>
 <span id="60">60</span>
 <span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
 
@@ -86,7 +83,7 @@
     <span class="ident">input</span>(<span class="ident">config</span>);
     <span class="ident">osmconvert</span>(
         <span class="string">&quot;input/leeds/osm/west-yorkshire.osm.pbf&quot;</span>,
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/leeds/polygons/{}.poly&quot;</span>, <span class="ident">name</span>),
+        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;importer/config/leeds/{}.poly&quot;</span>, <span class="ident">name</span>),
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/leeds/osm/{}.osm&quot;</span>, <span class="ident">name</span>),
         <span class="ident">config</span>,
     );
@@ -96,10 +93,7 @@
             <span class="ident">osm_input</span>: <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/leeds/osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
             <span class="ident">name</span>: <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;leeds&quot;</span>, <span class="ident">name</span>),
 
-            <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;input/leeds/polygons/{}.poly&quot;</span>,
-                <span class="ident">name</span>
-            ))),
+            <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;importer/config/leeds/{}.poly&quot;</span>, <span class="ident">name</span>)),
             <span class="ident">map_config</span>: <span class="ident">map_model</span>::<span class="ident">MapConfig</span> {
                 <span class="ident">driving_side</span>: <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Left</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">false</span>,
