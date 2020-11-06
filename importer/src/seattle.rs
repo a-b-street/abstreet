@@ -54,6 +54,23 @@ fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
         "input/seattle/google_transit/",
         "http://metro.kingcounty.gov/gtfs/google_transit.zip",
     );
+
+    // From
+    // https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0
+    download(
+        config,
+        "input/seattle/collisions.kml",
+        "https://opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0.kml",
+    );
+
+    // This is a little expensive, so delete data/input/seattle/collisions.bin to regenerate this.
+    if !abstutil::file_exists("data/input/seattle/collisions.bin") {
+        let shapes = kml::load("data/input/seattle/collisions.kml", &bounds, true, timer).unwrap();
+        let collisions = collisions::import_seattle(
+        shapes,
+        "https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0");
+        abstutil::write_binary("data/input/seattle/collisions.bin".to_string(), &collisions);
+    }
 }
 
 pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {

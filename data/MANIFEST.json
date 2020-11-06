@@ -128,6 +128,14 @@
       "checksum": "350bd9e59bf2af4e885a7c0741e6ee6b",
       "size_bytes": 102846513
     },
+    "data/input/seattle/collisions.bin": {
+      "checksum": "5c403fc190bc43e028a34d6d54a5d6bf",
+      "size_bytes": 4457539
+    },
+    "data/input/seattle/collisions.kml": {
+      "checksum": "16e26b4a07d2918780e09c95202ba9ac",
+      "size_bytes": 433758033
+    },
     "data/input/seattle/footways.bin": {
       "checksum": "09c6aca2ad37d007c6bd40b91886ed95",
       "size_bytes": 5536891
