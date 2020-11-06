@@ -17,7 +17,6 @@ mod split_ways;
 mod srtm;
 mod transit;
 
-#[derive(Serialize, Deserialize)]
 pub struct Options {
     pub osm_input: String,
     pub name: MapName,
@@ -38,7 +37,7 @@ pub struct Options {
 
 /// What roads will have on-street parking lanes? Data from
 /// <https://wiki.openstreetmap.org/wiki/Key:parking:lane> is always used if available.
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum OnstreetParking {
     /// If not tagged, there won't be parking.
     JustOSM,
@@ -54,7 +53,7 @@ pub enum OnstreetParking {
 }
 
 /// How many spots are available in public parking garages?
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum PublicOffstreetParking {
     None,
     /// Pull data from
@@ -65,7 +64,7 @@ pub enum PublicOffstreetParking {
 
 /// If a building doesn't have anything from public_offstreet_parking and isn't tagged as a garage
 /// in OSM, how many private spots should it have?
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum PrivateOffstreetParking {
     FixedPerBldg(usize),
     // TODO Based on the number of residents?

@@ -67,17 +67,15 @@ use it as well.
     [Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
     required by osmconvert.
 
-5.  Create a new module in `importer/src/` for your city, copying
-    `importer/src/tel_aviv.rs` as a guide. Edit that file in the obvious way.
-    The main thing you'll need is a .osm or .osm.pbf file to download that
-    contains your city. The clipping polygon will be applied to that.
+5.  Copy `importer/config/tel_aviv/cfg.json` to
+    `importer/config/your_city/cfg.json` and edit this file. See
+    [here](https://github.com/dabreegster/abstreet/blob/master/importer/src/generic.rs)
+    for details on the different fields. The defaults are a reasonable start;
+    the only thing you need to change is `osm_url`.
 
-6.  Update `importer/src/main.rs` to reference your new module, following
-    `tel_aviv` as an example.
+6.  Run it: `./import.sh --city=your_city --raw --map`
 
-7.  Run it: `./import.sh --city=your_city --raw --map`
-
-8.  Update `.gitignore`, following `krakow` as an example.
+7.  Update `.gitignore`, following `tel_aviv` as an example.
 
 Send a PR with your changes! I'll generate everything and make it work with
 `updater`, so most people don't have to build everything from scratch.

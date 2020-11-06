@@ -1,0 +1,19 @@
+{
+  "osm_url": "http://download.geofabrik.de/europe/poland/malopolskie-latest.osm.pbf",
+  "map_config": {
+    "driving_side": "Right",
+    "bikes_can_use_bus_lanes": false,
+    "inferred_sidewalks": false
+  },
+  "onstreet_parking": {
+    "SomeAdditionalWhereNoData": {
+      "pct": 90
+    }
+  },
+  "public_offstreet_parking": "None",
+  "private_offstreet_parking": {
+    "FixedPerBldg": 3
+  },
+  "elevation": null,
+  "include_railroads": true
+}

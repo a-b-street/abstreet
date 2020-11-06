@@ -9,15 +9,13 @@ use dependencies::are_dependencies_callable;
 mod berlin;
 mod configuration;
 mod dependencies;
-mod krakow;
+mod generic;
 mod leeds;
 mod london;
 mod seattle;
 #[cfg(feature = "scenarios")]
 mod soundcast;
-mod tel_aviv;
 mod utils;
-mod xian;
 
 // TODO Might be cleaner to express as a dependency graph?
 
@@ -144,13 +142,22 @@ fn main() {
         if job.osm_to_raw {
             match job.city.as_ref() {
                 "berlin" => berlin::osm_to_raw(&name, &mut timer, &config),
-                "krakow" => krakow::osm_to_raw(&name, &mut timer, &config),
                 "leeds" => leeds::osm_to_raw(&name, &mut timer, &config),
                 "london" => london::osm_to_raw(&name, &mut timer, &config),
                 "seattle" => seattle::osm_to_raw(&name, &mut timer, &config),
-                "tel_aviv" => tel_aviv::osm_to_raw(&name, &mut timer, &config),
-                "xian" => xian::osm_to_raw(&name, &mut timer, &config),
-                x => panic!("Unknown city {}", x),
+                x => {
+                    match abstutil::maybe_read_json::<generic::GenericCityImporter>(
+                        format!("importer/config/{}/cfg.json", x),
+                        &mut timer,
+                    ) {
+                        Ok(city_cfg) => {
+                            city_cfg.osm_to_raw(MapName::new(x, &name), &mut timer, &config);
+                        }
+                        Err(err) => {
+                            panic!("Can't import city {}: {}", x, err);
+                        }
+                    }
+                }
             }
         }
         let name = MapName::new(&job.city, &name);
