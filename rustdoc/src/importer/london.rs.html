@@ -46,6 +46,23 @@
 <span id="45">45</span>
 <span id="46">46</span>
 <span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
 
@@ -58,6 +75,11 @@
         <span class="string">&quot;input/london/osm/greater-london-latest.osm.pbf&quot;</span>,
         <span class="string">&quot;http://download.geofabrik.de/europe/great-britain/england/greater-london-latest.osm.pbf&quot;</span>,
     );
+
+    <span class="ident">download</span>(
+        <span class="ident">config</span>,
+        <span class="string">&quot;input/london/Road Safety Data - Accidents 2019.csv&quot;</span>,
+        <span class="string">&quot;http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip&quot;</span>);
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">osm_to_raw</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>) {
@@ -93,6 +115,18 @@
         <span class="ident">timer</span>,
     );
     <span class="ident">map</span>.<span class="ident">save</span>();
+
+    <span class="comment">// Always do this, it&#39;s idempotent and fast</span>
+    <span class="kw">let</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">kml</span>::<span class="ident">ExtraShapes</span>::<span class="ident">load_csv</span>(
+        <span class="string">&quot;data/input/london/Road Safety Data - Accidents 2019.csv&quot;</span>,
+        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>,
+        <span class="ident">timer</span>,
+    )
+    .<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">collisions</span> <span class="op">=</span> <span class="ident">collisions</span>::<span class="ident">import_stats19</span>(
+        <span class="ident">shapes</span>,
+        <span class="string">&quot;http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip&quot;</span>);
+    <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="string">&quot;data/input/london/collisions.bin&quot;</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">collisions</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "importer";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
