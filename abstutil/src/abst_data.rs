@@ -32,6 +32,38 @@ impl Manifest {
     pub fn load() -> Manifest {
         crate::from_json(&include_bytes!("../../data/MANIFEST.json").to_vec()).unwrap()
     }
+
+    /// Removes entries from the Manifest to match the DataPacks that should exist locally.
+    pub fn filter(mut self, data_packs: DataPacks) -> Manifest {
+        let mut remove = Vec::new();
+        for path in self.entries.keys() {
+            // TODO Some hardcoded weird exceptions
+            if !data_packs.runtime.contains("huge_seattle")
+                && path == "data/system/seattle/scenarios/montlake/everyone_weekday.bin"
+            {
+                remove.push(path.clone());
+                continue;
+            }
+
+            let parts = path.split("/").collect::<Vec<_>>();
+            if parts[1] == "input" {
+                if data_packs.input.contains(parts[2]) {
+                    continue;
+                }
+            } else if parts[1] == "system" {
+                if data_packs.runtime.contains(parts[2]) {
+                    continue;
+                }
+            } else {
+                panic!("Wait what's {}", path);
+            }
+            remove.push(path.clone());
+        }
+        for path in remove {
+            self.entries.remove(&path).unwrap();
+        }
+        self
+    }
 }
 
 /// Player-chosen groups of files to opt into downloading
@@ -45,11 +77,8 @@ pub struct DataPacks {
 
 impl DataPacks {
     /// Load the player's config for what files to download, or create the config.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn load_or_create() -> DataPacks {
-        if cfg!(target_arch = "wasm32") {
-            panic!("DataPacks::load_or_create shouldn't be called on wasm");
-        }
-
         let path = crate::path("player/data.json");
         match crate::maybe_read_json::<DataPacks>(path.clone(), &mut Timer::throwaway()) {
             Ok(mut cfg) => {

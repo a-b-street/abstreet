@@ -5,7 +5,7 @@
 //! screen or menu to choose a map, then a map viewer, then maybe a state to drill down into pieces
 //! of the map.
 
-use crate::{Canvas, EventCtx, GfxCtx};
+use crate::{Canvas, Color, EventCtx, GfxCtx};
 
 /// Any data that should last the entire lifetime of the application should be stored in the struct
 /// implementing this trait.
@@ -58,8 +58,11 @@ impl<A: SharedAppState> App<A> {
                         self.shared_app_state.draw_default(g);
                     }
                     DrawBaselayer::Custom => {}
-                    // Nope, don't recurse
-                    DrawBaselayer::PreviousState => {}
+                    // Don't recurse, but at least clear the screen, because the state is usually
+                    // expecting the previous thing to happen.
+                    DrawBaselayer::PreviousState => {
+                        g.clear(Color::BLACK);
+                    }
                 }
 
                 self.states[self.states.len() - 2].draw(g, &self.shared_app_state);

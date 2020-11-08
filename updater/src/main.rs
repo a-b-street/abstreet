@@ -35,7 +35,7 @@ async fn main() {
 async fn download() {
     let data_packs = DataPacks::load_or_create();
     let local = generate_manifest();
-    let truth = filter_manifest(Manifest::load(), data_packs);
+    let truth = Manifest::load().filter(data_packs);
 
     // Anything local need deleting?
     for path in local.entries.keys() {
@@ -79,7 +79,7 @@ async fn download() {
 fn just_compare() {
     let data_packs = DataPacks::load_or_create();
     let local = generate_manifest();
-    let truth = filter_manifest(Manifest::load(), data_packs);
+    let truth = Manifest::load().filter(data_packs);
 
     // Anything local need deleting?
     for path in local.entries.keys() {
@@ -197,37 +197,6 @@ fn generate_manifest() -> Manifest {
         );
     }
     Manifest { entries: kv }
-}
-
-fn filter_manifest(mut manifest: Manifest, data_packs: DataPacks) -> Manifest {
-    let mut remove = Vec::new();
-    for path in manifest.entries.keys() {
-        // TODO Some hardcoded weird exceptions
-        if !data_packs.runtime.contains("huge_seattle")
-            && path == "data/system/seattle/scenarios/montlake/everyone_weekday.bin"
-        {
-            remove.push(path.clone());
-            continue;
-        }
-
-        let parts = path.split("/").collect::<Vec<_>>();
-        if parts[1] == "input" {
-            if data_packs.input.contains(parts[2]) {
-                continue;
-            }
-        } else if parts[1] == "system" {
-            if data_packs.runtime.contains(parts[2]) {
-                continue;
-            }
-        } else {
-            panic!("Wait what's {}", path);
-        }
-        remove.push(path.clone());
-    }
-    for path in remove {
-        manifest.entries.remove(&path).unwrap();
-    }
-    manifest
 }
 
 fn must_run_cmd(cmd: &mut Command) {

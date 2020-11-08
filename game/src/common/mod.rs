@@ -25,6 +25,7 @@ mod heatmap;
 mod isochrone;
 mod minimap;
 mod navigate;
+#[cfg(not(target_arch = "wasm32"))]
 mod updater;
 mod warp;
 

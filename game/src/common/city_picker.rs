@@ -160,7 +160,14 @@ impl State<App> for CityPicker {
                     );
                 }
                 "Download more cities" => {
-                    return Transition::Replace(crate::common::updater::Picker::new(ctx));
+                    let _ = "just stop this from counting as an attribute on an expression";
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        return Transition::Replace(crate::common::updater::Picker::new(
+                            ctx,
+                            self.on_load.take().unwrap(),
+                        ));
+                    }
                 }
                 path => {
                     return Transition::Replace(MapLoader::new(
