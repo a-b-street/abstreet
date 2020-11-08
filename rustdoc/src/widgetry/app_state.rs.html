@@ -195,6 +195,9 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
 <span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
@@ -203,7 +206,7 @@
 <span class="doccomment">//! screen or menu to choose a map, then a map viewer, then maybe a state to drill down into pieces</span>
 <span class="doccomment">//! of the map.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>};
 
 <span class="doccomment">/// Any data that should last the entire lifetime of the application should be stored in the struct</span>
 <span class="doccomment">/// implementing this trait.</span>
@@ -256,8 +259,11 @@
                         <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">draw_default</span>(<span class="ident">g</span>);
                     }
                     <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span> <span class="op">=&gt;</span> {}
-                    <span class="comment">// Nope, don&#39;t recurse</span>
-                    <span class="ident">DrawBaselayer</span>::<span class="ident">PreviousState</span> <span class="op">=&gt;</span> {}
+                    <span class="comment">// Don&#39;t recurse, but at least clear the screen, because the state is usually</span>
+                    <span class="comment">// expecting the previous thing to happen.</span>
+                    <span class="ident">DrawBaselayer</span>::<span class="ident">PreviousState</span> <span class="op">=&gt;</span> {
+                        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
+                    }
                 }
 
                 <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared_app_state</span>);

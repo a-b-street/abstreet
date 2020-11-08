@@ -307,6 +307,7 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -335,6 +336,7 @@
 <span class="kw">mod</span> <span class="ident">isochrone</span>;
 <span class="kw">mod</span> <span class="ident">minimap</span>;
 <span class="kw">mod</span> <span class="ident">navigate</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">updater</span>;
 <span class="kw">mod</span> <span class="ident">warp</span>;
 
