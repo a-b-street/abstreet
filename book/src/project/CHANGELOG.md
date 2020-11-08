@@ -640,3 +640,10 @@ changes here.
 - imported many maps for an OSM viewer demo
 - misc bug fixes, UI tweaks, and perf improvements, especially for the web version
 - start using OSM sidewalks data properly in krakow -- more work needed, but better start
+
+0.2.18
+
+- overhaul data/system management: switch from Dropbox to S3, reorganize files, add an in-game updater
+- started a UI for collision dataviz, with data in the UK and Seattle
+- improve turns between separate footways
+- simplify the process of importing a new city
