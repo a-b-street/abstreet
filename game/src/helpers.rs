@@ -290,8 +290,9 @@ pub fn open_browser(url: String) {
 
 pub fn loading_tips() -> Text {
     Text::from_multiline(vec![
-        Line("Recent changes (October 25)"),
+        Line("Recent changes (November 8)"),
         Line(""),
+        Line("- Download more cities from within the game"),
         Line("- You can now click agents while zoomed out"),
         Line("- New OpenStreetMap viewer, open it from the splash screen"),
         Line("- A web version has launched!"),
