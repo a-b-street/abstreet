@@ -25,6 +25,7 @@ mod heatmap;
 mod isochrone;
 mod minimap;
 mod navigate;
+mod updater;
 mod warp;
 
 // TODO This is now just used in two modes...

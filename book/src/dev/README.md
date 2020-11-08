@@ -56,15 +56,8 @@ version control will get out of date. At any time, you can run
 files that have changed.
 
 You can also opt into downloading updates for more cities by editing
-`data/config`. Opting into everything looks like this:
-
-```
-runtime: seattle,huge_seattle,krakow,berlin,xian,tel_aviv,london
-input: seattle,huge_seattle,krakow,berlin,xian,tel_aviv,london
-```
-
-`runtime` downloads new maps and scenarios in `data/system/`. `input` is used
-for building those maps -- see below.
+`data/player/data.json`. In the main UI, there's a button to download more
+cities that will help you manage this config file.
 
 ## Building map data
 

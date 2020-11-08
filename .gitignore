@@ -3,7 +3,6 @@
 __pycache__
 .idea/
 
-data/config
 data/player
 importer.json
 

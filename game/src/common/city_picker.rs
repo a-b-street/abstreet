@@ -130,6 +130,11 @@ impl CityPicker {
                     )
                     .build_def(ctx, None),
                 ]),
+                if cfg!(not(target_arch = "wasm32")) {
+                    Btn::text_fg("Download more cities").build_def(ctx, None)
+                } else {
+                    Widget::nothing()
+                },
             ]))
             .build(ctx),
         })
@@ -153,6 +158,9 @@ impl State<App> for CityPicker {
                     open_browser(
                         "https://dabreegster.github.io/abstreet/howto/new_city.html".to_string(),
                     );
+                }
+                "Download more cities" => {
+                    return Transition::Replace(crate::common::updater::Picker::new(ctx));
                 }
                 path => {
                     return Transition::Replace(MapLoader::new(

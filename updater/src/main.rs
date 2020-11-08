@@ -1,12 +1,12 @@
 use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufReader, Read, Write};
 use std::process::Command;
 
 use walkdir::WalkDir;
 
-use abstutil::{Entry, Manifest, Timer};
+use abstutil::{DataPacks, Entry, Manifest, Timer};
 
 const MD5_BUF_READ_SIZE: usize = 4096;
 const VERSION: &str = "dev";
@@ -33,9 +33,9 @@ async fn main() {
 }
 
 async fn download() {
-    let cities = Cities::load_or_create();
+    let data_packs = DataPacks::load_or_create();
     let local = generate_manifest();
-    let truth = filter_manifest(Manifest::load(), cities);
+    let truth = filter_manifest(Manifest::load(), data_packs);
 
     // Anything local need deleting?
     for path in local.entries.keys() {
@@ -77,9 +77,9 @@ async fn download() {
 }
 
 fn just_compare() {
-    let cities = Cities::load_or_create();
+    let data_packs = DataPacks::load_or_create();
     let local = generate_manifest();
-    let truth = filter_manifest(Manifest::load(), cities);
+    let truth = filter_manifest(Manifest::load(), data_packs);
 
     // Anything local need deleting?
     for path in local.entries.keys() {
@@ -199,11 +199,11 @@ fn generate_manifest() -> Manifest {
     Manifest { entries: kv }
 }
 
-fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
+fn filter_manifest(mut manifest: Manifest, data_packs: DataPacks) -> Manifest {
     let mut remove = Vec::new();
     for path in manifest.entries.keys() {
         // TODO Some hardcoded weird exceptions
-        if !cities.runtime.contains(&"huge_seattle".to_string())
+        if !data_packs.runtime.contains("huge_seattle")
             && path == "data/system/seattle/scenarios/montlake/everyone_weekday.bin"
         {
             remove.push(path.clone());
@@ -212,11 +212,11 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
 
         let parts = path.split("/").collect::<Vec<_>>();
         if parts[1] == "input" {
-            if cities.input.contains(&parts[2].to_string()) {
+            if data_packs.input.contains(parts[2]) {
                 continue;
             }
         } else if parts[1] == "system" {
-            if cities.runtime.contains(&parts[2].to_string()) {
+            if data_packs.runtime.contains(parts[2]) {
                 continue;
             }
         } else {
@@ -228,61 +228,6 @@ fn filter_manifest(mut manifest: Manifest, cities: Cities) -> Manifest {
         manifest.entries.remove(&path).unwrap();
     }
     manifest
-}
-
-// What data to download?
-struct Cities {
-    runtime: Vec<String>,
-    input: Vec<String>,
-}
-
-impl Cities {
-    fn load_or_create() -> Cities {
-        let path = "data/config";
-        if let Ok(f) = File::open(path) {
-            let mut cities = Cities {
-                runtime: Vec::new(),
-                input: Vec::new(),
-            };
-            for line in BufReader::new(f).lines() {
-                let line = line.unwrap();
-                let parts = line.split(": ").collect::<Vec<_>>();
-                assert_eq!(parts.len(), 2);
-                let list = parts[1]
-                    .split(",")
-                    .map(|x| x.to_string())
-                    .filter(|x| !x.is_empty())
-                    .collect::<Vec<_>>();
-                if parts[0] == "runtime" {
-                    cities.runtime = list;
-                } else if parts[0] == "input" {
-                    cities.input = list;
-                } else {
-                    panic!("{} is corrupted, what's {}", path, parts[0]);
-                }
-            }
-            if !cities.runtime.contains(&"seattle".to_string()) {
-                panic!(
-                    "{}: runtime must contain seattle; the game breaks without this",
-                    path
-                );
-            }
-            cities
-        } else {
-            let mut f = File::create(&path).unwrap();
-            writeln!(f, "runtime: seattle,berlin,krakow").unwrap();
-            writeln!(f, "input: ").unwrap();
-            println!("- Wrote {}", path);
-            Cities {
-                runtime: vec![
-                    "seattle".to_string(),
-                    "berlin".to_string(),
-                    "krakow".to_string(),
-                ],
-                input: vec![],
-            }
-        }
-    }
 }
 
 fn must_run_cmd(cmd: &mut Command) {
