@@ -214,12 +214,8 @@ version control will get out of date. At any time, you can run
 <code>cargo run --bin updater</code> from the main repository directory to update only the
 files that have changed.</p>
 <p>You can also opt into downloading updates for more cities by editing
-<code>data/config</code>. Opting into everything looks like this:</p>
-<pre><code>runtime: seattle,huge_seattle,krakow,berlin,xian,tel_aviv,london
-input: seattle,huge_seattle,krakow,berlin,xian,tel_aviv,london
-</code></pre>
-<p><code>runtime</code> downloads new maps and scenarios in <code>data/system/</code>. <code>input</code> is used
-for building those maps -- see below.</p>
+<code>data/player/data.json</code>. In the main UI, there's a button to download more
+cities that will help you manage this config file.</p>
 <h2><a class="header" href="#building-map-data" id="building-map-data">Building map data</a></h2>
 <p>You can skip this section if you're just touching code in <code>game</code>, <code>widgetry</code>,
 and <code>sim</code>.</p>

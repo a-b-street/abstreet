@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MD5_BUF_READ_SIZE",""],["VERSION",""]],"fn":[["curl",""],["download",""],["filter_manifest",""],["generate_manifest",""],["just_compare",""],["main",""],["must_run_cmd",""],["rm",""],["upload",""]],"struct":[["Cities",""]]});
+initSidebarItems({"constant":[["MD5_BUF_READ_SIZE",""],["VERSION",""]],"fn":[["curl",""],["download",""],["filter_manifest",""],["generate_manifest",""],["just_compare",""],["main",""],["must_run_cmd",""],["rm",""],["upload",""]]});
