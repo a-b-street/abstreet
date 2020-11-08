@@ -19,10 +19,11 @@ jobs:
                 # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
                 key: ${{ runner.os }}-build
       - name: Build game
+        working-directory: game
         shell: bash
         run: |
                 if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then features="--features=release_s3"; else features=""; fi
-                cargo build --release --bin game ${features}
+                cargo build --release ${features}
       - name: Build importer
         run: cargo build --release --bin importer
       - name: Package release
@@ -53,9 +54,10 @@ jobs:
                 # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
                 key: ${{ runner.os }}-build
       - name: Build game
+        working-directory: game
         run: |
                 if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then features="--features=release_s3"; else features=""; fi
-                cargo build --release --bin game ${features}
+                cargo build --release ${features}
       - name: Build importer
         run: cargo build --release --bin importer
       - name: Package release
@@ -89,9 +91,10 @@ jobs:
                 # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
                 key: ${{ runner.os }}-build
       - name: Build game
+        working-directory: game
         run: |
                 if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then features="--features=release_s3"; else features=""; fi
-                cargo build --release --bin game ${features}
+                cargo build --release ${features}
       - name: Build importer
         run: cargo build --release --bin importer
       - name: Package release
