@@ -2,8 +2,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
-use crate::Timer;
-
 /// A list of all canonical data files for A/B Street that're uploaded somewhere. The file formats
 /// are tied to the latest version of the git repo. Players use the updater crate to sync these
 /// files with local copies.
@@ -25,7 +23,8 @@ pub struct Entry {
 impl Manifest {
     #[cfg(not(target_arch = "wasm32"))]
     pub fn load() -> Manifest {
-        crate::maybe_read_json(crate::path("MANIFEST.json"), &mut Timer::throwaway()).unwrap()
+        crate::maybe_read_json(crate::path("MANIFEST.json"), &mut crate::Timer::throwaway())
+            .unwrap()
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -39,7 +38,8 @@ impl Manifest {
         for path in self.entries.keys() {
             // TODO Some hardcoded weird exceptions
             if !data_packs.runtime.contains("huge_seattle")
-                && path == "data/system/seattle/scenarios/montlake/everyone_weekday.bin"
+                && (path == "data/system/seattle/maps/huge_seattle.bin"
+                    || path == "data/system/seattle/scenarios/huge_seattle/weekday.bin")
             {
                 remove.push(path.clone());
                 continue;
@@ -80,7 +80,7 @@ impl DataPacks {
     #[cfg(not(target_arch = "wasm32"))]
     pub fn load_or_create() -> DataPacks {
         let path = crate::path("player/data.json");
-        match crate::maybe_read_json::<DataPacks>(path.clone(), &mut Timer::throwaway()) {
+        match crate::maybe_read_json::<DataPacks>(path.clone(), &mut crate::Timer::throwaway()) {
             Ok(mut cfg) => {
                 // The game breaks without this required data pack.
                 cfg.runtime.insert("seattle".to_string());

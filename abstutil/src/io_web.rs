@@ -16,7 +16,7 @@ static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     "../data/system",
     "assets/",
     "fonts/",
-    "proposals/"
+    "proposals/",
     "seattle/city.bin",
     "seattle/maps/montlake.bin",
     // used by tutorial
@@ -38,19 +38,27 @@ pub fn file_exists<I: Into<String>>(path: I) -> bool {
 
 pub fn list_dir(dir: String) -> Vec<String> {
     let mut results = BTreeSet::new();
-    if let Some(dir) = SYSTEM_DATA.get_dir(dir.trim_start_matches("../data/system/")) {
+    if dir == "../data/system" {
+        for f in SYSTEM_DATA.files() {
+            results.insert(format!("../data/system/{}", f.path().display()));
+        }
+    } else if let Some(dir) = SYSTEM_DATA.get_dir(dir.trim_start_matches("../data/system/")) {
         for f in dir.files() {
             results.insert(format!("../data/system/{}", f.path().display()));
         }
     } else {
-        error!("Can't list_dir({})", dir);
+        warn!("list_dir({}): not in SYSTEM_DATA, maybe it's remote", dir);
     }
 
     // Merge with remote files. Duplicates handled by BTreeSet.
-    let dir = dir.trim_start_matches("../");
+    let mut dir = dir.trim_start_matches("../").to_string();
+    if !dir.ends_with("/") {
+        dir = format!("{}/", dir);
+    }
     for f in Manifest::load().entries.keys() {
-        if f.starts_with(dir) {
-            results.insert(format!("../{}", f));
+        if let Some(path) = f.strip_prefix(&dir) {
+            // Just list the things immediately in this directory; don't recurse arbitrarily
+            results.insert(format!("../{}/{}", dir, path.split("/").next().unwrap()));
         }
     }
 
