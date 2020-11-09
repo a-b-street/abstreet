@@ -6,33 +6,28 @@ use std::process::Command;
 
 use walkdir::WalkDir;
 
-use abstutil::{DataPacks, Entry, Manifest, Timer};
+use abstutil::{CmdArgs, DataPacks, Entry, Manifest, Timer};
 
 const MD5_BUF_READ_SIZE: usize = 4096;
-const VERSION: &str = "dev";
 
 #[tokio::main]
 async fn main() {
-    match std::env::args().skip(1).next() {
-        Some(x) => match x.as_ref() {
-            "--upload" => {
-                upload();
-            }
-            "--dry" => {
-                just_compare();
-            }
-            x => {
-                println!("Unknown argument {}", x);
-                std::process::exit(1);
-            }
-        },
-        None => {
-            download().await;
-        }
+    let mut args = CmdArgs::new();
+    let version = args.optional("--version").unwrap_or("dev".to_string());
+    if args.enabled("--upload") {
+        assert_eq!(version, "dev");
+        upload(version);
+        return;
     }
+    if args.enabled("--dry") {
+        just_compare();
+        return;
+    }
+    args.done();
+    download(version).await;
 }
 
-async fn download() {
+async fn download(version: String) {
     let data_packs = DataPacks::load_or_create();
     let local = generate_manifest();
     let truth = Manifest::load().filter(data_packs);
@@ -49,7 +44,7 @@ async fn download() {
     for (path, entry) in truth.entries {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
-            match curl(&path).await {
+            match curl(&version, &path).await {
                 Ok(bytes) => {
                     println!(
                         "> decompress {}, which is {} bytes compressed",
@@ -96,8 +91,8 @@ fn just_compare() {
     }
 }
 
-fn upload() {
-    let remote_base = format!("/home/dabreegster/s3_abst_data/{}", VERSION);
+fn upload(version: String) {
+    let remote_base = format!("/home/dabreegster/s3_abst_data/{}", version);
 
     let local = generate_manifest();
     let remote: Manifest = abstutil::maybe_read_json(
@@ -141,7 +136,7 @@ fn upload() {
             .arg("sync")
             .arg("--delete")
             .arg(format!("{}/data", remote_base))
-            .arg(format!("s3://abstreet/{}/data", VERSION)),
+            .arg(format!("s3://abstreet/{}/data", version)),
     );
     // Because of the directory structure, do this one separately, without --delete. The wasm files
     // also live in /dev/.
@@ -150,7 +145,7 @@ fn upload() {
             .arg("s3")
             .arg("cp")
             .arg(format!("{}/MANIFEST.json", remote_base))
-            .arg(format!("s3://abstreet/{}/MANIFEST.json", VERSION)),
+            .arg(format!("s3://abstreet/{}/MANIFEST.json", version)),
     );
 }
 
@@ -228,10 +223,10 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+async fn curl(version: &str, path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let src = format!(
         "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
-        VERSION, path
+        version, path
     );
 
     let mut bytes = Vec::new();
