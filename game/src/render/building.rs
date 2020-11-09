@@ -5,7 +5,7 @@ use map_model::{Building, BuildingID, LaneType, Map, OffstreetParking, NORMAL_LA
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
 use crate::app::App;
-use crate::colors::ColorScheme;
+use crate::colors::{ColorScheme, ColorSchemeChoice};
 use crate::helpers::ID;
 use crate::options::{CameraAngle, Options};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
@@ -203,10 +203,14 @@ impl DrawBuilding {
         }
         if opts.camera_angle != CameraAngle::Abstract {
             paths_batch.push(
-                cs.zoomed_road_surface(
-                    LaneType::Sidewalk,
-                    map.get_parent(bldg.sidewalk()).get_rank(),
-                ),
+                if opts.color_scheme == ColorSchemeChoice::NightMode {
+                    Color::hex("#4B4B4B")
+                } else {
+                    cs.zoomed_road_surface(
+                        LaneType::Sidewalk,
+                        map.get_parent(bldg.sidewalk()).get_rank(),
+                    )
+                },
                 driveway.make_polygons(NORMAL_LANE_THICKNESS),
             );
         }

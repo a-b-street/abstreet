@@ -373,20 +373,31 @@ fn hex(x: &str) -> Color {
 
 // Alternate, in-progress schemes
 impl ColorScheme {
+    // Shamelessly adapted from https://github.com/Uriopass/Egregoria
     fn night_mode() -> ColorScheme {
         let mut cs = ColorScheme::standard();
-        cs.residential_building = hex("#42208B");
-        cs.sidewalk = hex("#7C55C8");
-        cs.grass = hex("#063D88").into();
-        cs.dialog_bg = hex("#063D88");
-        cs.map_background = hex("#070747").into();
-        cs.unzoomed_arterial = hex("#54247A");
-        cs.unzoomed_highway = hex("#DD1F7F");
-        cs.unzoomed_residential = hex("#4D51AC");
-        cs.water = hex("#2A43AA").into();
-        // Horrible choice, but demonstrate it can be done.
-        cs.panel_bg = Color::PURPLE;
-        cs.gui_style.panel_bg = Color::PURPLE;
+        cs.map_background = Color::BLACK.into();
+        cs.grass = Color::hex("#243A1F").into();
+        cs.water = Color::hex("#21374E").into();
+        cs.residential_building = Color::hex("#5E8962");
+        cs.commerical_building = Color::hex("#5D5F97");
+
+        cs.driving_lane = Color::hex("#404040");
+        cs.parking_lane = Color::hex("#353535");
+        cs.sidewalk = Color::hex("#6B6B6B");
+        cs.general_road_marking = Color::hex("#B1B1B1");
+        cs.normal_intersection = cs.driving_lane;
+        cs.road_center_line = cs.general_road_marking;
+
+        cs.parking_lot = cs.sidewalk;
+        cs.unzoomed_arterial = cs.sidewalk;
+        cs.unzoomed_highway = cs.parking_lane;
+        cs.unzoomed_residential = cs.driving_lane;
+
+        cs.panel_bg = Color::rgba(0, 48, 70, 0.6);
+        cs.gui_style.panel_bg = cs.panel_bg;
+        cs.inner_panel = cs.panel_bg;
+
         cs
     }
 
