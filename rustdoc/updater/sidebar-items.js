@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MD5_BUF_READ_SIZE",""],["VERSION",""]],"fn":[["curl",""],["download",""],["generate_manifest",""],["just_compare",""],["main",""],["must_run_cmd",""],["rm",""],["upload",""]]});
+initSidebarItems({"constant":[["MD5_BUF_READ_SIZE",""]],"fn":[["curl",""],["download",""],["generate_manifest",""],["just_compare",""],["main",""],["must_run_cmd",""],["rm",""],["upload",""]]});
