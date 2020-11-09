@@ -8,7 +8,8 @@ use widgetry::{Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, Tex
 use crate::app::App;
 use crate::game::{PopupMsg, Transition};
 
-const LATEST_RELEASE: &str = "0.2.17";
+// Update this ___before___ pushing the commit with "[rebuild] [release]".
+const NEXT_RELEASE: &str = "0.2.19";
 
 pub struct Picker {
     panel: Panel,
@@ -125,7 +126,7 @@ fn prettyprint_bytes(bytes: usize) -> String {
 fn sync(timer: &mut Timer) -> Vec<String> {
     let truth = Manifest::load().filter(DataPacks::load_or_create());
     let version = if cfg!(feature = "release_s3") {
-        LATEST_RELEASE
+        NEXT_RELEASE
     } else {
         "dev"
     };

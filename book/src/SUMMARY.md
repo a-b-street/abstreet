@@ -16,6 +16,7 @@
   - [API](dev/api.md)
   - [Testing](dev/testing.md)
   - [Importing many maps](dev/mass_import.md)
+  - [Data organization](dev/data.md)
 - [Map model](map/README.md)
   - [Details](map/details.md)
   - [Importing](map/importing/README.md)
