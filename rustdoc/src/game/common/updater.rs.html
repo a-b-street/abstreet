@@ -195,6 +195,7 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -206,7 +207,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">Transition</span>};
 
-<span class="kw">const</span> <span class="ident">LATEST_RELEASE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;0.2.17&quot;</span>;
+<span class="comment">// Update this ___before___ pushing the commit with &quot;[rebuild] [release]&quot;.</span>
+<span class="kw">const</span> <span class="ident">NEXT_RELEASE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;0.2.19&quot;</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Picker</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
@@ -323,7 +325,7 @@
 <span class="kw">fn</span> <span class="ident">sync</span>(<span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">truth</span> <span class="op">=</span> <span class="ident">Manifest</span>::<span class="ident">load</span>().<span class="ident">filter</span>(<span class="ident">DataPacks</span>::<span class="ident">load_or_create</span>());
     <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;release_s3&quot;</span>) {
-        <span class="ident">LATEST_RELEASE</span>
+        <span class="ident">NEXT_RELEASE</span>
     } <span class="kw">else</span> {
         <span class="string">&quot;dev&quot;</span>
     };

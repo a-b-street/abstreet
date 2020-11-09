@@ -1,0 +1,285 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Data organization - A/B Street</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../howto/index.html"><strong aria-hidden="true">2.</strong> Instructions</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../howto/map_parking.html"><strong aria-hidden="true">2.1.</strong> How to map on-street parking</a></li><li class="chapter-item expanded "><a href="../howto/new_city.html"><strong aria-hidden="true">2.2.</strong> Importing a new city</a></li></ol></li><li class="chapter-item expanded "><a href="../how_it_works.html"><strong aria-hidden="true">3.</strong> How it works</a></li><li class="chapter-item expanded "><a href="../case_studies/index.html"><strong aria-hidden="true">4.</strong> Case studies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../case_studies/lake_wash.html"><strong aria-hidden="true">4.1.</strong> Lake Washington Blvd Stay Healthy Street</a></li><li class="chapter-item expanded "><a href="../case_studies/west_seattle.html"><strong aria-hidden="true">4.2.</strong> West Seattle mitigations</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="../dev/index.html"><strong aria-hidden="true">5.</strong> Developer guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../dev/misc_tricks.html"><strong aria-hidden="true">5.1.</strong> Misc developer tricks</a></li><li class="chapter-item expanded "><a href="../dev/api.html"><strong aria-hidden="true">5.2.</strong> API</a></li><li class="chapter-item expanded "><a href="../dev/testing.html"><strong aria-hidden="true">5.3.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../dev/mass_import.html"><strong aria-hidden="true">5.4.</strong> Importing many maps</a></li><li class="chapter-item expanded "><a href="../dev/data.html" class="active"><strong aria-hidden="true">5.5.</strong> Data organization</a></li></ol></li><li class="chapter-item expanded "><a href="../map/index.html"><strong aria-hidden="true">6.</strong> Map model</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/details.html"><strong aria-hidden="true">6.1.</strong> Details</a></li><li class="chapter-item expanded "><a href="../map/importing/index.html"><strong aria-hidden="true">6.2.</strong> Importing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../map/importing/convert_osm.html"><strong aria-hidden="true">6.2.1.</strong> convert_osm</a></li><li class="chapter-item expanded "><a href="../map/importing/geometry.html"><strong aria-hidden="true">6.2.2.</strong> Road/intersection geometry</a></li><li class="chapter-item expanded "><a href="../map/importing/rest.html"><strong aria-hidden="true">6.2.3.</strong> The rest</a></li><li class="chapter-item expanded "><a href="../map/importing/misc.html"><strong aria-hidden="true">6.2.4.</strong> Misc</a></li></ol></li><li class="chapter-item expanded "><a href="../map/edits.html"><strong aria-hidden="true">6.3.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../map/platform.html"><strong aria-hidden="true">6.4.</strong> Exporting</a></li></ol></li><li class="chapter-item expanded "><a href="../trafficsim/index.html"><strong aria-hidden="true">7.</strong> Traffic simulation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trafficsim/discrete_event.html"><strong aria-hidden="true">7.1.</strong> Discrete event simulation</a></li><li class="chapter-item expanded "><a href="../trafficsim/travel_demand.html"><strong aria-hidden="true">7.2.</strong> Travel demand</a></li><li class="chapter-item expanded "><a href="../trafficsim/gridlock.html"><strong aria-hidden="true">7.3.</strong> Gridlock</a></li><li class="chapter-item expanded "><a href="../trafficsim/trips.html"><strong aria-hidden="true">7.4.</strong> Multi-modal trips</a></li><li class="chapter-item expanded "><a href="../trafficsim/live_edits.html"><strong aria-hidden="true">7.5.</strong> Live edits</a></li><li class="chapter-item expanded "><a href="../trafficsim/parking.html"><strong aria-hidden="true">7.6.</strong> Parking</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="../project/index.html"><strong aria-hidden="true">8.</strong> Project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/roadmap.html"><strong aria-hidden="true">8.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../project/motivations.html"><strong aria-hidden="true">8.2.</strong> Motivations</a></li><li class="chapter-item expanded "><a href="../project/history/index.html"><strong aria-hidden="true">8.3.</strong> History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../project/history/backstory.html"><strong aria-hidden="true">8.3.1.</strong> Backstory</a></li><li class="chapter-item expanded "><a href="../project/history/year1.html"><strong aria-hidden="true">8.3.2.</strong> Year 1</a></li><li class="chapter-item expanded "><a href="../project/history/year2.html"><strong aria-hidden="true">8.3.3.</strong> Year 2</a></li><li class="chapter-item expanded "><a href="../project/history/year3.html"><strong aria-hidden="true">8.3.4.</strong> Year 3</a></li></ol></li><li class="chapter-item expanded "><a href="../project/CHANGELOG.html"><strong aria-hidden="true">8.4.</strong> Full CHANGELOG</a></li><li class="chapter-item expanded "><a href="../project/references.html"><strong aria-hidden="true">8.5.</strong> References</a></li><li class="chapter-item expanded "><a href="../project/collaborations.html"><strong aria-hidden="true">8.6.</strong> Collaborations</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">A/B Street</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#data-organization" id="data-organization">Data organization</a></h1>
+<p>A/B Street includes lots of large binary files to represent converted maps,
+scenarios, and prebaked simulation results. The files are too large to store in
+git, but the files are still logically tied to a version of the code, since the
+format sometimes changes. Additionally, all of the files are too large to
+include in the .zip release that most people use, but it should still be
+possible for players to download the optional content. Also, there are different
+versions of the game floating around, on native and web, that have to be
+associated with the proper version of these files.</p>
+<p>It's all slightly confusing, so this page describes how it all works.</p>
+<h2><a class="header" href="#the-data-itself" id="the-data-itself">The data itself</a></h2>
+<p>If you peek into the <code>data/</code> directory, it's mainly split into 3 subdirectories.
+<code>system/</code> is used when running the game and is the subject of this page.
+<code>input/</code> is used to store input and intermediate files for importing maps, and
+only developers running the importer should care about it. <code>player/</code> contains
+local settings, map edits, and other data created in-game.</p>
+<p><code>data/MANIFEST.json</code> is a listing of all files in <code>data/system/</code>, along with
+their size and md5sum. Different tools compare this manifest to the local
+filesystem to figure out what to do.</p>
+<p>There are also some other scripts and files in <code>data/</code>, but they should probably
+be moved.</p>
+<h2><a class="header" href="#where-the-data-is-stored" id="where-the-data-is-stored">Where the data is stored</a></h2>
+<p><code>data/system/</code> and <code>data/input/</code> are stored in Amazon S3, at
+http://abstreet.s3-website.us-east-2.amazonaws.com. This S3 bucket is organized
+into versions: <code>dev</code>, <code>0.2.17</code>, <code>0.2.18</code>, etc. <code>dev</code> represents the latest
+version of all data files. The numbered versions correspond to
+<a href="https://github.com/dabreegster/abstreet/releases">releases</a> and only contain
+<code>data/system/</code>, not <code>data/input/</code>. Depending how large these directories grow
+over time, I'll commit to keeping around at least 3 of the previous numbered
+versions, but I might delete older ones after that.</p>
+<p>In lieu of a proper document for the release process, the commands used to make
+a versioned copy of the data are something like:</p>
+<pre><code>aws s3 cp --recursive s3://abstreet/dev/data/system s3://abstreet/0.2.17/data/system
+</code></pre>
+<h2><a class="header" href="#native-running-from-source" id="native-running-from-source">Native, running from source</a></h2>
+<p>For people building the game <a href="index.html">from source</a>, the process to keep data
+files fresh is to <code>cargo run --bin updater</code>. This tool calculates md5sums of all
+local files, then compares it with the checked-in <code>data/MANIFEST.json</code>. Any
+difference results in a local file being deleted or a new file from S3 being
+downloaded. By editing <code>data/player/data.json</code> manually or using the UI in the
+game (found by loading a map, then choosing to download more maps), somebody can
+opt into downloading &quot;extra/optional&quot; cities.</p>
+<h2><a class="header" href="#native-running-from-a-release-zip" id="native-running-from-a-release-zip">Native, running from a release .zip</a></h2>
+<p>When the weekly .zip binary release for Mac, Linux, and Windows is produced, the
+<code>game</code> crate is built with <code>--features release_s3</code>. When the downloader UI is
+opened in-game, this causes downloads to occur from a versioned S3 directory,
+like <code>0.2.17</code>, depending on the version string compiled into the game at that
+time. So somebody can run off the weekly release, opt into more cities, and get
+the correct version of the files, even if the format has changed in <code>/dev/</code>
+since then.</p>
+<h2><a class="header" href="#web-running-locally" id="web-running-locally">Web, running locally</a></h2>
+<p>The strategy for managing files gets more interested when the game is compiled
+to WebAssembly, since browsers can't read from the local filesystem.
+<code>game/src/load.rs</code> contains some crazy tricks to instead make asynchronous HTTP
+requests through the browser. When using <code>game/run_web.sh</code>, the files are served
+through a local HTTP server and symlinked to the local copy of <code>data/system/</code>.</p>
+<p>Not all files are loaded through HTTP; some are actually statically compiled
+into the <code>.wasm</code> file itself! <code>abstutil/src/io_web.rs</code> does this magic using the
+<code>include_dir</code> crate. Only a few critical large files, needed at startup, are
+included. There's an IO layer for listing and reading files that, on web, merges
+results from the bundled-in files and the remote files that're declared to exist
+in the bundled-in copy of <code>data/MANIFEST.json</code>.</p>
+<h2><a class="header" href="#web-from-s3" id="web-from-s3">Web, from S3</a></h2>
+<p>Everything's the same, except building with <code>--features wasm_s3</code> causes the game
+to make HTTP requests to the S3 bucket, instead of localhost. The web version
+always pins to <code>/dev</code>, never a release version of the data, since the web client
+is always updated along with the data, for now.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../dev/mass_import.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../map/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../dev/mass_import.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../map/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
