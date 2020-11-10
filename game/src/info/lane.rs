@@ -194,7 +194,7 @@ pub fn traffic(
     // Since this applies to the entire road, ignore lane type.
     let mut txt = Text::from(Line("Traffic over entire road, not just this lane"));
     txt.add(Line(format!(
-        "Since midnight: {} agents crossed",
+        "Since midnight: {} commuters and vehicles crossed",
         prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r.id))
     )));
     rows.push(txt.draw(ctx));
@@ -207,10 +207,11 @@ pub fn traffic(
     } else {
         app.primary.sim.time()
     };
+    // TODO This conflates commuters and vehicles, so we should maybe split it into different plots.
     rows.push(throughput(
         ctx,
         app,
-        "Number of crossing trips per hour",
+        "Number of commuters and vehicles per hour",
         move |a| {
             if a.road_thruput.raw.is_empty() {
                 a.road_thruput.count_per_hour(r, time)

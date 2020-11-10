@@ -59,7 +59,7 @@ pub fn traffic(
     let mut txt = Text::new();
 
     txt.add(Line(format!(
-        "Since midnight: {} agents crossed",
+        "Since midnight: {} commuters and vehicles crossed",
         prettyprint_usize(
             app.primary
                 .sim
@@ -80,7 +80,7 @@ pub fn traffic(
     rows.push(throughput(
         ctx,
         app,
-        "Number of crossing trips per hour",
+        "Number of commuters and vehicles per hour",
         move |a| {
             if a.intersection_thruput.raw.is_empty() {
                 a.intersection_thruput.count_per_hour(id, time)

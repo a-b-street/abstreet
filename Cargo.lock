@@ -645,7 +645,7 @@ checksum = "134951f4028bdadb9b84baf4232681efbf277da25144b9b0ad65df75946c422b"
 [[package]]
 name = "earcutr"
 version = "0.1.0"
-source = "git+https://github.com/dabreegster/earcutr?branch=patch-1#8364b6883e336b86df5e26df5d474e7a02411eef"
+source = "git+https://github.com/donbright/earcutr#aaa18bfdfe581db26bb9869aec170329b4e14f4c"
 
 [[package]]
 name = "either"
