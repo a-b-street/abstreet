@@ -12,6 +12,7 @@ use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState};
 
 use crate::challenges::HighScore;
 use crate::colors::{ColorScheme, ColorSchemeChoice};
+use crate::edit::apply_map_edits;
 use crate::helpers::ID;
 use crate::layer::Layer;
 use crate::options::Options;
@@ -445,6 +446,19 @@ impl App {
         });
 
         true
+    }
+
+    /// Ensure the map edits are blank, reset the simulation, and blank out prebaked results.
+    pub fn clear_everything(&mut self, ctx: &mut EventCtx) {
+        ctx.loading_screen("reset map and sim", |ctx, mut timer| {
+            apply_map_edits(ctx, self, self.primary.map.new_edits());
+            self.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+
+            self.primary.clear_sim();
+            self.set_prebaked(None);
+        });
     }
 }
 

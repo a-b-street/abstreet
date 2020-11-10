@@ -13,7 +13,7 @@ pub use self::freeform::spawn_agents_around;
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
 use crate::challenges::{Challenge, ChallengesPicker};
-use crate::edit::{apply_map_edits, SaveEdits};
+use crate::edit::SaveEdits;
 use crate::game::Transition;
 use crate::pregame::MainMenu;
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
@@ -307,16 +307,7 @@ impl State<App> for FinalScore {
         }
 
         if self.chose_next || self.chose_back_to_challenges {
-            ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-                // Always safe to do this
-                apply_map_edits(ctx, app, app.primary.map.new_edits());
-                app.primary
-                    .map
-                    .recalculate_pathfinding_after_edits(&mut timer);
-
-                app.primary.clear_sim();
-                app.set_prebaked(None);
-            });
+            app.clear_everything(ctx);
         }
 
         if self.chose_next {

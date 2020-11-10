@@ -553,6 +553,16 @@ impl Map {
         BTreeSet<TurnID>,
         BTreeSet<IntersectionID>,
     ) {
+        // Short-circuit to avoid marking pathfinder_dirty
+        if self.edits == new_edits {
+            return (
+                BTreeSet::new(),
+                BTreeSet::new(),
+                BTreeSet::new(),
+                BTreeSet::new(),
+            );
+        }
+
         let mut effects = EditEffects::new();
 
         // We need to undo() all of the current commands in reverse order, then apply() all of the

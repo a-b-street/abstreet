@@ -18,8 +18,7 @@ use crate::colors::ColorSchemeChoice;
 use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
-    apply_map_edits, can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor,
-    TrafficSignalEditor,
+    can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
 };
 use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::ID;
@@ -293,16 +292,7 @@ struct BackToMainMenu;
 
 impl State<App> for BackToMainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-            // Always safe to do this
-            apply_map_edits(ctx, app, app.primary.map.new_edits());
-            app.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut timer);
-
-            app.primary.clear_sim();
-            app.set_prebaked(None);
-        });
+        app.clear_everything(ctx);
         Transition::Clear(vec![MainMenu::new(ctx, app)])
     }
 
