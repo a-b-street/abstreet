@@ -405,6 +405,12 @@
 <span id="404">404</span>
 <span id="405">405</span>
 <span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">IntersectionID</span>;
@@ -431,34 +437,17 @@
     <span class="ident">top_center</span>: <span class="ident">Panel</span>,
     <span class="ident">meter</span>: <span class="ident">Panel</span>,
     <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">done</span>: <span class="ident">bool</span>,
+    <span class="ident">done_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
     <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">FixTrafficSignals</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FixTrafficSignals</span> {
-            <span class="ident">top_center</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;Keep delay at all intersections under {}&quot;</span>,
-                        <span class="ident">THRESHOLD</span>
-                    ))
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">svg</span>(
-                        <span class="string">&quot;system/assets/tools/hint.svg&quot;</span>,
-                        <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>),
-                    )
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;hint&quot;</span>, <span class="prelude-val">None</span>)
-                    .<span class="ident">align_right</span>(),
-                ]),
-            ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
+            <span class="ident">top_center</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
             <span class="ident">meter</span>: <span class="ident">make_meter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>),
             <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
-            <span class="ident">done</span>: <span class="bool-val">false</span>,
+            <span class="ident">done_at</span>: <span class="prelude-val">None</span>,
             <span class="ident">mode</span>: <span class="ident">GameplayMode</span>::<span class="ident">FixTrafficSignals</span>,
         })
     }
@@ -533,7 +522,7 @@
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">set_periodic_callback</span>(<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">1</span>));
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">done</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">done_at</span>.<span class="ident">is_none</span>() {
             <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>();
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">i</span>, <span class="ident">t</span>)) <span class="op">=</span> <span class="ident">app</span>
@@ -550,23 +539,8 @@
                 <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="ident">t</span>;
                 <span class="self">self</span>.<span class="ident">meter</span> <span class="op">=</span> <span class="ident">make_meter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>((<span class="ident">i</span>, <span class="ident">dt</span>)));
                 <span class="kw">if</span> <span class="ident">dt</span> <span class="op">&gt;=</span> <span class="ident">THRESHOLD</span> {
-                    <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
-                        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                                <span class="string">&quot;Delay exceeded {} at {}&quot;</span>,
-                                <span class="ident">THRESHOLD</span>,
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>()
-                            ))
-                            .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>)
-                            .<span class="ident">draw</span>(<span class="ident">ctx</span>)
-                            .<span class="ident">centered_vert</span>(),
-                            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-                        ]),
-                    ]))
-                    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>);
+                    <span class="self">self</span>.<span class="ident">done_at</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
+                    <span class="self">self</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">final_score</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(), <span class="bool-val">true</span>)),
@@ -589,7 +563,7 @@
             );
 
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">is_done</span>() {
-                <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.<span class="ident">done_at</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
                 <span class="comment">// TODO The score is up to 1 min (report_limit) off.</span>
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">final_score</span>(
                     <span class="ident">ctx</span>,
@@ -683,6 +657,44 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">meter</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">time</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">done_at</span> {
+            <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Delay exceeded {} at {}&quot;</span>, <span class="ident">THRESHOLD</span>, <span class="ident">time</span>))
+                        .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>)
+                        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">centered_vert</span>(),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                ]),
+            ]))
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;Keep delay at all intersections under {}&quot;</span>,
+                        <span class="ident">THRESHOLD</span>
+                    ))
+                    .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Btn</span>::<span class="ident">svg</span>(
+                        <span class="string">&quot;system/assets/tools/hint.svg&quot;</span>,
+                        <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>),
+                    )
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;hint&quot;</span>, <span class="prelude-val">None</span>)
+                    .<span class="ident">align_right</span>(),
+                ]),
+            ]))
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        }
+
+        <span class="comment">// self.meter is recreated as time changes anyway</span>
     }
 
     <span class="kw">fn</span> <span class="ident">on_destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {

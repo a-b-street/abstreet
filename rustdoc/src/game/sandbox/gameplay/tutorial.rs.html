@@ -1454,6 +1454,13 @@
 <span id="1453">1453</span>
 <span id="1454">1454</span>
 <span id="1455">1455</span>
+<span id="1456">1456</span>
+<span id="1457">1457</span>
+<span id="1458">1458</span>
+<span id="1459">1459</span>
+<span id="1460">1460</span>
+<span id="1461">1461</span>
+<span id="1462">1462</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1851,6 +1858,13 @@
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">tut</span>.<span class="ident">fire_station</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
             );
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">let</span> <span class="ident">tut</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">top_center</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_center</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span>);
+
+        <span class="comment">// Time can&#39;t pass while self.msg_panel is active</span>
     }
 
     <span class="kw">fn</span> <span class="ident">can_move_canvas</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
