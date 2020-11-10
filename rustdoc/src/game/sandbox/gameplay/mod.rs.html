@@ -338,15 +338,6 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
@@ -363,7 +354,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">tutorial</span>::{<span class="ident">Tutorial</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::{<span class="ident">Challenge</span>, <span class="ident">ChallengesPicker</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">SaveEdits</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">SaveEdits</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">MainMenu</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
@@ -657,16 +648,7 @@
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">chose_next</span> <span class="op">||</span> <span class="self">self</span>.<span class="ident">chose_back_to_challenges</span> {
-            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;reset map and sim&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-                <span class="comment">// Always safe to do this</span>
-                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
-                <span class="ident">app</span>.<span class="ident">primary</span>
-                    .<span class="ident">map</span>
-                    .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
-                <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
-            });
+            <span class="ident">app</span>.<span class="ident">clear_everything</span>(<span class="ident">ctx</span>);
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">chose_next</span> {

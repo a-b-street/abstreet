@@ -754,6 +754,20 @@
 <span id="753">753</span>
 <span id="754">754</span>
 <span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -769,6 +783,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">HighScore</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::{<span class="ident">ColorScheme</span>, <span class="ident">ColorSchemeChoice</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">apply_map_edits</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">Layer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
@@ -1202,6 +1217,19 @@
         });
 
         <span class="bool-val">true</span>
+    }
+
+    <span class="doccomment">/// Ensure the map edits are blank, reset the simulation, and blank out prebaked results.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_everything</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;reset map and sim&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+            <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="self">self</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
+            <span class="self">self</span>.<span class="ident">primary</span>
+                .<span class="ident">map</span>
+                .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+
+            <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
+            <span class="self">self</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
+        });
     }
 }
 
