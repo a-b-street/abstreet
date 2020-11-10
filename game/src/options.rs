@@ -5,10 +5,10 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::colors::{ColorScheme, ColorSchemeChoice};
+use crate::colors::ColorSchemeChoice;
 use crate::game::Transition;
 use crate::helpers::grey_out_map;
-use crate::render::{DrawBuilding, DrawMap};
+use crate::render::DrawBuilding;
 
 /// Options controlling the UI.
 // TODO SimOptions stuff too
@@ -25,6 +25,8 @@ pub struct Options {
     pub traffic_signal_style: TrafficSignalStyle,
     /// The color scheme for map elements, agents, and the UI.
     pub color_scheme: ColorSchemeChoice,
+    /// Automatically change color_scheme based on simulation time to reflect day/night
+    pub toggle_day_night_colors: bool,
     /// Map elements are drawn differently when unzoomed and zoomed. This specifies the canvas zoom
     /// level where they switch.
     pub min_zoom_for_detail: f64,
@@ -53,6 +55,7 @@ impl Options {
 
             traffic_signal_style: TrafficSignalStyle::BAP,
             color_scheme: ColorSchemeChoice::Standard,
+            toggle_day_night_colors: false,
             min_zoom_for_detail: 4.0,
             camera_angle: CameraAngle::TopDown,
 
@@ -305,18 +308,9 @@ impl State<App> for OptionsPanel {
                         });
                     }
 
-                    let scheme = self.panel.dropdown_value("Color scheme");
-                    if app.opts.color_scheme != scheme {
-                        app.opts.color_scheme = scheme;
-                        app.cs = ColorScheme::new(app.opts.color_scheme);
-                        ctx.set_style(app.cs.gui_style.clone());
-
-                        ctx.loading_screen("rerendering map colors", |ctx, timer| {
-                            let (draw_map, zorder_range) =
-                                DrawMap::new(&app.primary.map, &app.opts, &app.cs, ctx, timer);
-                            app.primary.draw_map = draw_map;
-                            app.primary.zorder_range = zorder_range;
-                        });
+                    if app.change_color_scheme(ctx, self.panel.dropdown_value("Color scheme")) {
+                        // If the player picks a different scheme, don't undo it later.
+                        app.opts.toggle_day_night_colors = false;
                     }
 
                     app.opts.min_zoom_for_detail = self.panel.dropdown_value("min zoom");

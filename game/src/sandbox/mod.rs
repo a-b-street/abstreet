@@ -14,6 +14,7 @@ use widgetry::{
 use self::misc_tools::RoutePreview;
 pub use self::misc_tools::TurnExplorer;
 use crate::app::App;
+use crate::colors::ColorSchemeChoice;
 use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
@@ -101,6 +102,19 @@ impl SandboxMode {
 
 impl State<App> for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if app.opts.toggle_day_night_colors {
+            let cs_changed = if is_daytime(app) {
+                app.change_color_scheme(ctx, ColorSchemeChoice::Standard)
+            } else {
+                app.change_color_scheme(ctx, ColorSchemeChoice::NightMode)
+            };
+            if cs_changed {
+                // TODO Recreate panels. This handles some of them, but it also loses minimap zoom
+                // state, and misses the top_panel managed by individual GameplayStates.
+                self.controls = SandboxControls::new(ctx, app, &self.gameplay);
+            }
+        }
+
         // Do this before gameplay
         if self.gameplay.can_move_canvas() {
             ctx.canvas_movement();
@@ -764,43 +778,7 @@ impl State<App> for SandboxLoader {
                 LoadStage::Finalizing => {
                     let gameplay = self.mode.initialize(ctx, app);
                     let sandbox = Box::new(SandboxMode {
-                        controls: SandboxControls {
-                            common: if gameplay.has_common() {
-                                Some(CommonState::new())
-                            } else {
-                                None
-                            },
-                            route_preview: if gameplay.can_examine_objects() {
-                                Some(RoutePreview::new())
-                            } else {
-                                None
-                            },
-                            tool_panel: if gameplay.has_tool_panel() {
-                                Some(tool_panel(ctx))
-                            } else {
-                                None
-                            },
-                            time_panel: if gameplay.has_time_panel() {
-                                Some(TimePanel::new(ctx, app))
-                            } else {
-                                None
-                            },
-                            speed: if gameplay.has_speed() {
-                                Some(SpeedControls::new(ctx, app))
-                            } else {
-                                None
-                            },
-                            agent_meter: if gameplay.has_agent_meter() {
-                                Some(AgentMeter::new(ctx, app))
-                            } else {
-                                None
-                            },
-                            minimap: if gameplay.has_minimap() {
-                                Some(Minimap::new(ctx, app, true))
-                            } else {
-                                None
-                            },
-                        },
+                        controls: SandboxControls::new(ctx, app, &gameplay),
                         gameplay,
                         gameplay_mode: self.mode.clone(),
                         recalc_unzoomed_agent: None,
@@ -844,6 +822,57 @@ fn mouseover_unzoomed_agent_circle(ctx: &mut EventCtx, app: &mut App) {
             if Circle::new(pt, unzoomed_agent_radius(id.to_vehicle_type())).contains_pt(cursor) {
                 app.primary.current_selection = Some(ID::from_agent(*id));
             }
+        }
+    }
+}
+
+fn is_daytime(app: &App) -> bool {
+    let hours = app.primary.sim.time().get_parts().0 % 24;
+    hours >= 6 && hours < 18
+}
+
+impl SandboxControls {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        gameplay: &Box<dyn gameplay::GameplayState>,
+    ) -> SandboxControls {
+        SandboxControls {
+            common: if gameplay.has_common() {
+                Some(CommonState::new())
+            } else {
+                None
+            },
+            route_preview: if gameplay.can_examine_objects() {
+                Some(RoutePreview::new())
+            } else {
+                None
+            },
+            tool_panel: if gameplay.has_tool_panel() {
+                Some(tool_panel(ctx))
+            } else {
+                None
+            },
+            time_panel: if gameplay.has_time_panel() {
+                Some(TimePanel::new(ctx, app))
+            } else {
+                None
+            },
+            speed: if gameplay.has_speed() {
+                Some(SpeedControls::new(ctx, app))
+            } else {
+                None
+            },
+            agent_meter: if gameplay.has_agent_meter() {
+                Some(AgentMeter::new(ctx, app))
+            } else {
+                None
+            },
+            minimap: if gameplay.has_minimap() {
+                Some(Minimap::new(ctx, app, true))
+            } else {
+                None
+            },
         }
     }
 }
