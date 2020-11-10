@@ -94,6 +94,8 @@ are missing, etc. A summary of the commands available so far:
     one feature for the intersection and a feature for all connecting roads. The
     polygon coordinates are measured in meters, with the origin centered at the
     intersection's center.
+  - **GET /map/get-all-geometry**: Returns a huge GeoJSON object with one
+    feature per road and intersection in the map. The coordinate space is WGS84.
 
 ## Working with the map model
 

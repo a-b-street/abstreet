@@ -330,6 +330,7 @@ fn handle_command(
             let i = IntersectionID(params["id"].parse::<usize>()?);
             Ok(abstutil::to_json(&export_geometry(map, i)))
         }
+        "/map/get-all-geometry" => Ok(abstutil::to_json(&export_all_geometry(map))),
         _ => Err("Unknown command".into()),
     }
 }
@@ -468,6 +469,48 @@ fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
                     .to_thick_ring(2.0 * r.get_half_width(map))
                     .translate(-center.x(), -center.y())
                     .to_geojson(None),
+            ),
+            id: None,
+            properties: Some(props),
+            foreign_members: None,
+        });
+    }
+
+    GeoJson::from(FeatureCollection {
+        bbox: None,
+        features,
+        foreign_members: None,
+    })
+}
+
+fn export_all_geometry(map: &Map) -> geojson::GeoJson {
+    use geojson::{Feature, FeatureCollection, GeoJson};
+
+    let mut features = Vec::new();
+    let gps_bounds = Some(map.get_gps_bounds());
+
+    for i in map.all_intersections() {
+        let mut props = serde_json::Map::new();
+        props.insert("type".to_string(), "intersection".into());
+        props.insert("id".to_string(), i.orig_id.to_string().into());
+        features.push(Feature {
+            bbox: None,
+            geometry: Some(i.polygon.clone().into_ring().to_geojson(gps_bounds)),
+            id: None,
+            properties: Some(props),
+            foreign_members: None,
+        });
+    }
+    for r in map.all_roads() {
+        let mut props = serde_json::Map::new();
+        props.insert("type".to_string(), "road".into());
+        props.insert("id".to_string(), r.orig_id.osm_way_id.to_string().into());
+        features.push(Feature {
+            bbox: None,
+            geometry: Some(
+                r.center_pts
+                    .to_thick_ring(2.0 * r.get_half_width(map))
+                    .to_geojson(gps_bounds),
             ),
             id: None,
             properties: Some(props),
