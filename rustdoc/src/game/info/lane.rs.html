@@ -258,6 +258,7 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -455,7 +456,7 @@
     <span class="comment">// Since this applies to the entire road, ignore lane type.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Traffic over entire road, not just this lane&quot;</span>));
     <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-        <span class="string">&quot;Since midnight: {} agents crossed&quot;</span>,
+        <span class="string">&quot;Since midnight: {} commuters and vehicles crossed&quot;</span>,
         <span class="ident">prettyprint_usize</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">road_thruput</span>.<span class="ident">total_for</span>(<span class="ident">r</span>.<span class="ident">id</span>))
     )));
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
@@ -468,10 +469,11 @@
     } <span class="kw">else</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>()
     };
+    <span class="comment">// TODO This conflates commuters and vehicles, so we should maybe split it into different plots.</span>
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">throughput</span>(
         <span class="ident">ctx</span>,
         <span class="ident">app</span>,
-        <span class="string">&quot;Number of crossing trips per hour&quot;</span>,
+        <span class="string">&quot;Number of commuters and vehicles per hour&quot;</span>,
         <span class="kw">move</span> <span class="op">|</span><span class="ident">a</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">road_thruput</span>.<span class="ident">raw</span>.<span class="ident">is_empty</span>() {
                 <span class="ident">a</span>.<span class="ident">road_thruput</span>.<span class="ident">count_per_hour</span>(<span class="ident">r</span>, <span class="ident">time</span>)

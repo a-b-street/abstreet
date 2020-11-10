@@ -481,7 +481,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
 
     <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-        <span class="string">&quot;Since midnight: {} agents crossed&quot;</span>,
+        <span class="string">&quot;Since midnight: {} commuters and vehicles crossed&quot;</span>,
         <span class="ident">prettyprint_usize</span>(
             <span class="ident">app</span>.<span class="ident">primary</span>
                 .<span class="ident">sim</span>
@@ -502,7 +502,7 @@
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">throughput</span>(
         <span class="ident">ctx</span>,
         <span class="ident">app</span>,
-        <span class="string">&quot;Number of crossing trips per hour&quot;</span>,
+        <span class="string">&quot;Number of commuters and vehicles per hour&quot;</span>,
         <span class="kw">move</span> <span class="op">|</span><span class="ident">a</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">intersection_thruput</span>.<span class="ident">raw</span>.<span class="ident">is_empty</span>() {
                 <span class="ident">a</span>.<span class="ident">intersection_thruput</span>.<span class="ident">count_per_hour</span>(<span class="ident">id</span>, <span class="ident">time</span>)
