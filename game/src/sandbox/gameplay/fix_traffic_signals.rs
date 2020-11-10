@@ -23,34 +23,17 @@ pub struct FixTrafficSignals {
     top_center: Panel,
     meter: Panel,
     time: Time,
-    done: bool,
+    done_at: Option<Time>,
     mode: GameplayMode,
 }
 
 impl FixTrafficSignals {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
         Box::new(FixTrafficSignals {
-            top_center: Panel::new(Widget::col(vec![
-                challenge_header(ctx, "Traffic signal survivor"),
-                Widget::row(vec![
-                    Line(format!(
-                        "Keep delay at all intersections under {}",
-                        THRESHOLD
-                    ))
-                    .draw(ctx),
-                    Btn::svg(
-                        "system/assets/tools/hint.svg",
-                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                    )
-                    .build(ctx, "hint", None)
-                    .align_right(),
-                ]),
-            ]))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .build(ctx),
+            top_center: Panel::empty(ctx),
             meter: make_meter(ctx, app, None),
             time: Time::START_OF_DAY,
-            done: false,
+            done_at: None,
             mode: GameplayMode::FixTrafficSignals,
         })
     }
@@ -125,7 +108,7 @@ impl GameplayState for FixTrafficSignals {
             app.primary.sim.set_periodic_callback(Duration::minutes(1));
         }
 
-        if self.time != app.primary.sim.time() && !self.done {
+        if self.time != app.primary.sim.time() && self.done_at.is_none() {
             self.time = app.primary.sim.time();
 
             if let Some((i, t)) = app
@@ -142,23 +125,8 @@ impl GameplayState for FixTrafficSignals {
                 let dt = app.primary.sim.time() - t;
                 self.meter = make_meter(ctx, app, Some((i, dt)));
                 if dt >= THRESHOLD {
-                    self.done = true;
-                    self.top_center = Panel::new(Widget::col(vec![
-                        challenge_header(ctx, "Traffic signal survivor"),
-                        Widget::row(vec![
-                            Line(format!(
-                                "Delay exceeded {} at {}",
-                                THRESHOLD,
-                                app.primary.sim.time()
-                            ))
-                            .fg(Color::RED)
-                            .draw(ctx)
-                            .centered_vert(),
-                            Btn::text_fg("try again").build_def(ctx, None),
-                        ]),
-                    ]))
-                    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-                    .build(ctx);
+                    self.done_at = Some(app.primary.sim.time());
+                    self.recreate_panels(ctx, app);
 
                     return Some(Transition::Multi(vec![
                         Transition::Push(final_score(ctx, app, self.mode.clone(), true)),
@@ -181,7 +149,7 @@ impl GameplayState for FixTrafficSignals {
             );
 
             if app.primary.sim.is_done() {
-                self.done = true;
+                self.done_at = Some(app.primary.sim.time());
                 // TODO The score is up to 1 min (report_limit) off.
                 return Some(Transition::Push(final_score(
                     ctx,
@@ -275,6 +243,44 @@ impl GameplayState for FixTrafficSignals {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
         self.meter.draw(g);
+    }
+
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+        if let Some(time) = self.done_at {
+            self.top_center = Panel::new(Widget::col(vec![
+                challenge_header(ctx, "Traffic signal survivor"),
+                Widget::row(vec![
+                    Line(format!("Delay exceeded {} at {}", THRESHOLD, time))
+                        .fg(Color::RED)
+                        .draw(ctx)
+                        .centered_vert(),
+                    Btn::text_fg("try again").build_def(ctx, None),
+                ]),
+            ]))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx);
+        } else {
+            self.top_center = Panel::new(Widget::col(vec![
+                challenge_header(ctx, "Traffic signal survivor"),
+                Widget::row(vec![
+                    Line(format!(
+                        "Keep delay at all intersections under {}",
+                        THRESHOLD
+                    ))
+                    .draw(ctx),
+                    Btn::svg(
+                        "system/assets/tools/hint.svg",
+                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                    )
+                    .build(ctx, "hint", None)
+                    .align_right(),
+                ]),
+            ]))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx);
+        }
+
+        // self.meter is recreated as time changes anyway
     }
 
     fn on_destroy(&self, app: &mut App) {

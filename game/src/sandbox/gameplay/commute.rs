@@ -47,22 +47,7 @@ impl OptimizeCommute {
         let person = app.primary.sim.find_person_by_orig_id(orig_person).unwrap();
         let trips = app.primary.sim.get_person(person).trips.clone();
         Box::new(OptimizeCommute {
-            top_center: Panel::new(Widget::col(vec![
-                challenge_header(ctx, "Optimize the VIP's commute"),
-                Widget::row(vec![
-                    format!("Speed up the VIP's trips by {}", goal)
-                        .draw_text(ctx)
-                        .centered_vert(),
-                    Btn::svg(
-                        "system/assets/tools/hint.svg",
-                        RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                    )
-                    .build(ctx, "hint", None)
-                    .align_right(),
-                ]),
-            ]))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .build(ctx),
+            top_center: Panel::empty(ctx),
             meter: make_meter(ctx, app, Duration::ZERO, Duration::ZERO, 0, trips.len()),
             person,
             mode: GameplayMode::OptimizeCommute(orig_person, goal),
@@ -210,6 +195,27 @@ impl GameplayState for OptimizeCommute {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
         self.meter.draw(g);
+    }
+
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.top_center = Panel::new(Widget::col(vec![
+            challenge_header(ctx, "Optimize the VIP's commute"),
+            Widget::row(vec![
+                format!("Speed up the VIP's trips by {}", self.goal)
+                    .draw_text(ctx)
+                    .centered_vert(),
+                Btn::svg(
+                    "system/assets/tools/hint.svg",
+                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
+                )
+                .build(ctx, "hint", None)
+                .align_right(),
+            ]),
+        ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+
+        // self.meter is recreated as time passes
     }
 }
 

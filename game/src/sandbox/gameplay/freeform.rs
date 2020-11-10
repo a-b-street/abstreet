@@ -27,9 +27,9 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn GameplayState> {
         Box::new(Freeform {
-            top_center: make_top_center(ctx, app),
+            top_center: Panel::empty(ctx),
         })
     }
 }
@@ -105,40 +105,44 @@ impl GameplayState for Freeform {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_center.draw(g);
     }
-}
 
-fn make_top_center(ctx: &mut EventCtx, app: &App) -> Panel {
-    let rows = vec![
-        Widget::row(vec![
-            Line("Sandbox").small_heading().draw(ctx),
-            Widget::vert_separator(ctx, 50.0),
-            "Map:".draw_text(ctx),
-            Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
-                ctx,
-                "change map",
-                lctrl(Key::L),
-            ),
-            "Traffic:".draw_text(ctx),
-            Btn::pop_up(ctx, Some("none")).build(ctx, "change traffic", Key::S),
-            Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
-        ])
-        .centered(),
-        Widget::row(vec![
-            Btn::text_fg("Start a new trip").build_def(ctx, None),
-            Btn::text_fg("Record trips as a scenario").build_def(ctx, None),
-        ])
-        .centered(),
-        Text::from_all(vec![
-            Line("Select an intersection and press "),
-            Key::Z.txt(ctx),
-            Line(" to start traffic nearby"),
-        ])
-        .draw(ctx),
-    ];
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+        let rows = vec![
+            Widget::row(vec![
+                Line("Sandbox").small_heading().draw(ctx),
+                Widget::vert_separator(ctx, 50.0),
+                "Map:".draw_text(ctx),
+                Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
+                    ctx,
+                    "change map",
+                    lctrl(Key::L),
+                ),
+                "Traffic:".draw_text(ctx),
+                Btn::pop_up(ctx, Some("none")).build(ctx, "change traffic", Key::S),
+                Btn::svg_def("system/assets/tools/edit_map.svg").build(
+                    ctx,
+                    "edit map",
+                    lctrl(Key::E),
+                ),
+            ])
+            .centered(),
+            Widget::row(vec![
+                Btn::text_fg("Start a new trip").build_def(ctx, None),
+                Btn::text_fg("Record trips as a scenario").build_def(ctx, None),
+            ])
+            .centered(),
+            Text::from_all(vec![
+                Line("Select an intersection and press "),
+                Key::Z.txt(ctx),
+                Line(" to start traffic nearby"),
+            ])
+            .draw(ctx),
+        ];
 
-    Panel::new(Widget::col(rows))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx)
+        self.top_center = Panel::new(Widget::col(rows))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx);
+    }
 }
 
 pub fn make_change_traffic(

@@ -26,12 +26,11 @@ pub struct PlayScenario {
 impl PlayScenario {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &mut App,
         name: &String,
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn GameplayState> {
         Box::new(PlayScenario {
-            top_center: make_top_center(ctx, app, name, &modifiers),
+            top_center: Panel::empty(ctx),
             scenario_name: name.to_string(),
             modifiers,
         })
@@ -111,47 +110,47 @@ impl GameplayState for PlayScenario {
     fn on_destroy(&self, app: &mut App) {
         app.primary.has_modified_trips = false;
     }
-}
 
-fn make_top_center(
-    ctx: &mut EventCtx,
-    app: &App,
-    scenario_name: &str,
-    modifiers: &Vec<ScenarioModifier>,
-) -> Panel {
-    let rows = vec![
-        Widget::row(vec![
-            Line("Sandbox").small_heading().draw(ctx),
-            Widget::vert_separator(ctx, 50.0),
-            "Map:".draw_text(ctx),
-            Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
-                ctx,
-                "change map",
-                lctrl(Key::L),
-            ),
-            "Traffic:".draw_text(ctx),
-            Btn::pop_up(ctx, Some(scenario_name)).build(ctx, "change traffic", Key::S),
-            Btn::svg_def("system/assets/tools/edit_map.svg").build(ctx, "edit map", lctrl(Key::E)),
-        ])
-        .centered(),
-        if scenario_name == "weekday" {
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+        let rows = vec![
             Widget::row(vec![
-                Btn::svg_def("system/assets/tools/pencil.svg").build(
+                Line("Sandbox").small_heading().draw(ctx),
+                Widget::vert_separator(ctx, 50.0),
+                "Map:".draw_text(ctx),
+                Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
                     ctx,
-                    "edit traffic patterns",
-                    None,
+                    "change map",
+                    lctrl(Key::L),
                 ),
-                format!("{} modifications to traffic patterns", modifiers.len()).draw_text(ctx),
+                "Traffic:".draw_text(ctx),
+                Btn::pop_up(ctx, Some(&self.scenario_name)).build(ctx, "change traffic", Key::S),
+                Btn::svg_def("system/assets/tools/edit_map.svg").build(
+                    ctx,
+                    "edit map",
+                    lctrl(Key::E),
+                ),
             ])
-            .centered_horiz()
-        } else {
-            Widget::nothing()
-        },
-    ];
+            .centered(),
+            if self.scenario_name == "weekday" {
+                Widget::row(vec![
+                    Btn::svg_def("system/assets/tools/pencil.svg").build(
+                        ctx,
+                        "edit traffic patterns",
+                        None,
+                    ),
+                    format!("{} modifications to traffic patterns", self.modifiers.len())
+                        .draw_text(ctx),
+                ])
+                .centered_horiz()
+            } else {
+                Widget::nothing()
+            },
+        ];
 
-    Panel::new(Widget::col(rows))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx)
+        self.top_center = Panel::new(Widget::col(rows))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx);
+    }
 }
 
 struct EditScenarioModifiers {

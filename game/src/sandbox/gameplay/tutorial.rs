@@ -396,6 +396,13 @@ impl GameplayState for Tutorial {
         }
     }
 
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+        let tut = app.session.tutorial.as_ref().unwrap();
+        self.top_center = tut.make_top_center(ctx, self.last_finished_task >= Task::WatchBikes);
+
+        // Time can't pass while self.msg_panel is active
+    }
+
     fn can_move_canvas(&self) -> bool {
         self.msg_panel.is_none()
     }
