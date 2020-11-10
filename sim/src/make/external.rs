@@ -3,7 +3,7 @@
 
 use serde::Deserialize;
 
-use geom::{Distance, FindClosest, LonLat, Pt2D, Time};
+use geom::{Distance, FindClosest, LonLat, Time};
 use map_model::Map;
 
 use crate::{IndividTrip, PersonID, PersonSpec, SpawnTrip, TripEndpoint, TripMode, TripPurpose};
@@ -38,16 +38,15 @@ impl ExternalPerson {
         }
         let lookup_pt = |endpt| match endpt {
             ExternalTripEndpoint::TripEndpoint(endpt) => Ok(endpt),
-            ExternalTripEndpoint::Position(gps) => match closest.closest_pt(
-                Pt2D::from_gps(gps, map.get_gps_bounds()),
-                Distance::meters(100.0),
-            ) {
-                Some((x, _)) => Ok(x),
-                None => Err(format!(
-                    "No building or border intersection within 100m of {}",
-                    gps
-                )),
-            },
+            ExternalTripEndpoint::Position(gps) => {
+                match closest.closest_pt(gps.to_pt(map.get_gps_bounds()), Distance::meters(100.0)) {
+                    Some((x, _)) => Ok(x),
+                    None => Err(format!(
+                        "No building or border intersection within 100m of {}",
+                        gps
+                    )),
+                }
+            }
         };
 
         let mut results = Vec::new();

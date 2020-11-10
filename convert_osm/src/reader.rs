@@ -91,13 +91,11 @@ pub fn read(
                 if doc.nodes.contains_key(&id) {
                     return Err(format!("Duplicate {}, your .osm is corrupt", id).into());
                 }
-                let pt = Pt2D::from_gps(
-                    LonLat::new(
-                        obj.attribute("lon").unwrap().parse::<f64>().unwrap(),
-                        obj.attribute("lat").unwrap().parse::<f64>().unwrap(),
-                    ),
-                    &doc.gps_bounds,
-                );
+                let pt = LonLat::new(
+                    obj.attribute("lon").unwrap().parse::<f64>().unwrap(),
+                    obj.attribute("lat").unwrap().parse::<f64>().unwrap(),
+                )
+                .to_pt(&doc.gps_bounds);
                 let tags = read_tags(obj);
                 doc.nodes.insert(id, Node { pt, tags });
             }

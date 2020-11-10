@@ -166,18 +166,18 @@ impl GPSBounds {
     /// Convert all points to map-space, failing if any points are outside this boundary.
     pub fn try_convert(&self, pts: &Vec<LonLat>) -> Option<Vec<Pt2D>> {
         let mut result = Vec::new();
-        for pt in pts {
-            if !self.contains(*pt) {
+        for gps in pts {
+            if !self.contains(*gps) {
                 return None;
             }
-            result.push(Pt2D::from_gps(*pt, self));
+            result.push(gps.to_pt(self));
         }
         Some(result)
     }
 
     /// Convert all points to map-space. The points may be outside this boundary.
     pub fn convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
-        pts.iter().map(|pt| Pt2D::from_gps(*pt, self)).collect()
+        pts.iter().map(|gps| gps.to_pt(self)).collect()
     }
 
     /// Convert map-space points back to `LonLat`s. This is only valid if the `GPSBounds` used

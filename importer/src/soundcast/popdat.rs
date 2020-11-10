@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use serde::{Deserialize, Serialize};
 
 use abstutil::{prettyprint_usize, Counter, FileWithProgress, Timer};
-use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
+use geom::{Distance, Duration, FindClosest, LonLat, Time};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::{osm, Map};
 use sim::{OrigPersonID, TripMode, TripPurpose};
@@ -176,7 +176,7 @@ fn import_parcels(
     {
         timer.next();
         let gps = LonLat::new(x, y);
-        let pt = Pt2D::from_gps(gps, bounds);
+        let pt = gps.to_pt(bounds);
         let osm_building = if bounds.contains(gps) {
             closest_bldg
                 .closest_pt(pt, Distance::meters(30.0))

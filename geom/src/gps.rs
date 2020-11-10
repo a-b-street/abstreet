@@ -6,7 +6,7 @@ use std::io::{BufRead, BufReader, Write};
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 
-use crate::Distance;
+use crate::{Distance, GPSBounds, Pt2D};
 
 /// Represents a (longitude, latitude) point.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
@@ -32,6 +32,20 @@ impl LonLat {
     /// Returns the latitude of this point.
     pub fn y(self) -> f64 {
         self.latitude.into_inner()
+    }
+
+    /// Transform this to a world-space point. Can go out of bounds.
+    pub fn to_pt(self, b: &GPSBounds) -> Pt2D {
+        let (width, height) = {
+            let pt = b.get_max_world_pt();
+            (pt.x(), pt.y())
+        };
+
+        let x = (self.x() - b.min_lon) / (b.max_lon - b.min_lon) * width;
+        // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian
+        // grid.
+        let y = height - ((self.y() - b.min_lat) / (b.max_lat - b.min_lat) * height);
+        Pt2D::new(x, y)
     }
 
     /// Returns the Haversine distance to another point.

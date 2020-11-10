@@ -38,20 +38,6 @@ impl Pt2D {
     }
 
     /// Can go out of bounds.
-    pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Pt2D {
-        let (width, height) = {
-            let pt = b.get_max_world_pt();
-            (pt.x(), pt.y())
-        };
-
-        let x = (gps.x() - b.min_lon) / (b.max_lon - b.min_lon) * width;
-        // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian
-        // grid.
-        let y = height - ((gps.y() - b.min_lat) / (b.max_lat - b.min_lat) * height);
-        Pt2D::new(x, y)
-    }
-
-    /// Can go out of bounds.
     pub fn to_gps(self, b: &GPSBounds) -> LonLat {
         let (width, height) = {
             let pt = b.get_max_world_pt();

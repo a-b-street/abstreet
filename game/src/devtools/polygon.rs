@@ -82,11 +82,8 @@ impl State<App> for PolygonEditor {
 
         if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
             self.mouseover_pt = self.points.iter().position(|pt| {
-                Circle::new(
-                    Pt2D::from_gps(*pt, gps_bounds),
-                    POINT_RADIUS / ctx.canvas.cam_zoom,
-                )
-                .contains_pt(cursor)
+                Circle::new(pt.to_pt(gps_bounds), POINT_RADIUS / ctx.canvas.cam_zoom)
+                    .contains_pt(cursor)
             });
         } else {
             self.mouseover_pt = None;

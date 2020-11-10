@@ -1,6 +1,6 @@
 use abstutil::{prettyprint_usize, Counter};
 use collisions::{CollisionDataset, Severity};
-use geom::{Circle, Distance, Duration, FindClosest, Pt2D};
+use geom::{Circle, Distance, Duration, FindClosest};
 use map_model::{IntersectionID, RoadID};
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
@@ -28,7 +28,7 @@ impl CollisionsViewer {
             );
             all.collisions.retain(|c| {
                 map.get_boundary_polygon()
-                    .contains_pt(Pt2D::from_gps(c.location, map.get_gps_bounds()))
+                    .contains_pt(c.location.to_pt(map.get_gps_bounds()))
             });
             all
         });
@@ -175,7 +175,7 @@ impl Dataviz {
             let collision = &data.collisions[idx];
             // Search up to 10m away
             if let Some((id, _)) = closest.closest_pt(
-                Pt2D::from_gps(collision.location, map.get_gps_bounds()),
+                collision.location.to_pt(map.get_gps_bounds()),
                 Distance::meters(10.0),
             ) {
                 match id {
@@ -224,7 +224,7 @@ impl Dataviz {
         for idx in indices {
             let collision = &data.collisions[idx];
             let circle = Circle::new(
-                Pt2D::from_gps(collision.location, app.primary.map.get_gps_bounds()),
+                collision.location.to_pt(app.primary.map.get_gps_bounds()),
                 Distance::meters(5.0),
             );
             batch.push(Color::RED, circle.to_polygon());

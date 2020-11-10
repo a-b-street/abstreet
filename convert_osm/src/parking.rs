@@ -1,5 +1,5 @@
 use abstutil::Timer;
-use geom::{Distance, FindClosest, PolyLine, Pt2D};
+use geom::{Distance, FindClosest, PolyLine};
 use kml::ExtraShapes;
 use map_model::osm;
 use map_model::raw::{OriginalRoad, RawMap};
@@ -149,7 +149,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     // TODO Another function just to use ?. Try blocks would rock.
     let mut handle_shape: Box<dyn FnMut(kml::ExtraShape) -> Option<()>> = Box::new(|s| {
         assert_eq!(s.points.len(), 1);
-        let pt = Pt2D::from_gps(s.points[0], &map.gps_bounds);
+        let pt = s.points[0].to_pt(&map.gps_bounds);
         let (id, _) = closest.closest_pt(pt, Distance::meters(50.0))?;
         // TODO Handle parking lots.
         if !map.buildings[&id].polygon.contains_pt(pt) {
