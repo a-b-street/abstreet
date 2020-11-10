@@ -34,7 +34,7 @@ pub struct Collision {
 /// A simple ranking for how severe the collision was. Different agencies use different
 /// classification systems, each of which likely has their own nuance and bias. This is
 /// deliberately simplified.
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Severity {
     Slight,
     Serious,
