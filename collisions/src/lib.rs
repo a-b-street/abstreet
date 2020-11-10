@@ -23,6 +23,7 @@ pub struct Collision {
     /// A single point describing where the collision occurred.
     pub location: LonLat,
     /// The local time the collision occurred.
+    // TODO Wait, why isn't this Time?
     pub time: Duration,
     /// The severity reported in the original data source.
     pub severity: Severity,

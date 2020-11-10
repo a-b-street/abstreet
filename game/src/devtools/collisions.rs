@@ -1,10 +1,9 @@
 use abstutil::{prettyprint_usize, Counter};
 use collisions::{CollisionDataset, Severity};
-use geom::{Circle, Distance, Duration, FindClosest};
-use map_model::{IntersectionID, RoadID};
+use geom::{Circle, Distance, Duration, FindClosest, Polygon, Time};
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, Slider, State, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, Slider, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -15,6 +14,7 @@ use crate::helpers::ID;
 pub struct CollisionsViewer {
     data: CollisionDataset,
     dataviz: Dataviz,
+    tooltips: MapspaceTooltips,
     panel: Panel,
 }
 
@@ -36,7 +36,7 @@ impl CollisionsViewer {
         let filters = Filters::new();
         let indices = filters.apply(&data);
         let count = indices.len();
-        let dataviz = Dataviz::aggregated(ctx, app, &data, indices);
+        let (dataviz, tooltips) = Dataviz::aggregated(ctx, app, &data, indices);
 
         Box::new(CollisionsViewer {
             panel: Panel::new(Widget::col(vec![
@@ -53,6 +53,7 @@ impl CollisionsViewer {
             .build(ctx),
             data,
             dataviz,
+            tooltips,
         })
     }
 }
@@ -139,13 +140,10 @@ impl Filters {
 enum Dataviz {
     Individual {
         draw_all_circles: Drawable,
-        hitboxes: Vec<(Circle, usize)>,
     },
     Aggregated {
         unzoomed: Drawable,
         zoomed: Drawable,
-        per_road: Counter<RoadID>,
-        per_intersection: Counter<IntersectionID>,
     },
 }
 
@@ -155,7 +153,7 @@ impl Dataviz {
         app: &App,
         data: &CollisionDataset,
         indices: Vec<usize>,
-    ) -> Dataviz {
+    ) -> (Dataviz, MapspaceTooltips) {
         let map = &app.primary.map;
 
         // Match each collision to the nearest road and intersection
@@ -198,19 +196,33 @@ impl Dataviz {
             );
         }
 
+        // TODO Is it strange to not use the built-in DrawMap mouseover stuff for this?
+        let mut tooltips = Vec::new();
+        for (r, cnt) in per_road.borrow() {
+            tooltips.push((
+                map.get_r(*r).get_thick_polygon(map),
+                Text::from(Line(format!("{} collisions", prettyprint_usize(*cnt)))),
+            ));
+        }
+        for (i, cnt) in per_intersection.borrow() {
+            tooltips.push((
+                map.get_i(*i).polygon.clone(),
+                Text::from(Line(format!("{} collisions", prettyprint_usize(*cnt)))),
+            ));
+        }
+        let tooltips = MapspaceTooltips::new(
+            tooltips,
+            Box::new(|poly| GeomBatch::from(vec![(Color::BLUE.alpha(0.5), poly.clone())])),
+        );
+
         // Color roads and intersections using the counts
         let mut colorer = ColorNetwork::new(app);
         // TODO We should use some scale for both!
-        colorer.pct_roads(per_road.clone(), &app.cs.good_to_bad_red);
-        colorer.pct_intersections(per_intersection.clone(), &app.cs.good_to_bad_red);
+        colorer.pct_roads(per_road, &app.cs.good_to_bad_red);
+        colorer.pct_intersections(per_intersection, &app.cs.good_to_bad_red);
         let (unzoomed, zoomed) = colorer.build(ctx);
 
-        Dataviz::Aggregated {
-            unzoomed,
-            zoomed,
-            per_road,
-            per_intersection,
-        }
+        (Dataviz::Aggregated { unzoomed, zoomed }, tooltips)
     }
 
     fn individual(
@@ -218,22 +230,40 @@ impl Dataviz {
         app: &App,
         data: &CollisionDataset,
         indices: Vec<usize>,
-    ) -> Dataviz {
-        let mut hitboxes = Vec::new();
+    ) -> (Dataviz, MapspaceTooltips) {
         let mut batch = GeomBatch::new();
+        let mut tooltips = Vec::new();
         for idx in indices {
             let collision = &data.collisions[idx];
             let circle = Circle::new(
                 collision.location.to_pt(app.primary.map.get_gps_bounds()),
                 Distance::meters(5.0),
-            );
-            batch.push(Color::RED, circle.to_polygon());
-            hitboxes.push((circle, idx));
+            )
+            .to_polygon();
+            batch.push(Color::RED, circle.clone());
+            // TODO Er, but multiple collisions can occur at exactly the same spot
+            tooltips.push((
+                circle,
+                Text::from_multiline(vec![
+                    Line(format!(
+                        "Time: {}",
+                        (Time::START_OF_DAY + collision.time).ampm_tostring()
+                    )),
+                    Line(format!("Severity: {:?}", collision.severity)),
+                ]),
+            ));
         }
-        Dataviz::Individual {
-            hitboxes,
-            draw_all_circles: ctx.upload(batch),
-        }
+        let tooltips = MapspaceTooltips::new(
+            tooltips,
+            Box::new(|poly| GeomBatch::from(vec![(Color::BLUE.alpha(0.5), poly.clone())])),
+        );
+
+        (
+            Dataviz::Individual {
+                draw_all_circles: ctx.upload(batch),
+            },
+            tooltips,
+        )
     }
 }
 
@@ -256,14 +286,18 @@ impl State<App> for CollisionsViewer {
         if filters != old_filters {
             let indices = filters.apply(&self.data);
             let count = indices.len();
-            self.dataviz = if filters.show_individual {
+            let (dataviz, tooltips) = if filters.show_individual {
                 Dataviz::individual(ctx, app, &self.data, indices)
             } else {
                 Dataviz::aggregated(ctx, app, &self.data, indices)
             };
+            self.dataviz = dataviz;
+            self.tooltips = tooltips;
             let count = format!("{} collisions", prettyprint_usize(count)).draw_text(ctx);
             self.panel.replace(ctx, "count", count);
         }
+
+        self.tooltips.event(ctx);
 
         Transition::Keep
     }
@@ -288,6 +322,48 @@ impl State<App> for CollisionsViewer {
                 g.redraw(draw_all_circles);
             }
         }
+        self.tooltips.draw(g);
         self.panel.draw(g);
+    }
+}
+
+// TODO Apply this to a few more places, and if it works well, lift to widgetry
+
+struct MapspaceTooltips {
+    // TODO Quadtree
+    tooltips: Vec<(Polygon, Text)>,
+    hover: Box<dyn Fn(&Polygon) -> GeomBatch>,
+    selected: Option<usize>,
+}
+
+impl MapspaceTooltips {
+    pub fn new(
+        tooltips: Vec<(Polygon, Text)>,
+        hover: Box<dyn Fn(&Polygon) -> GeomBatch>,
+    ) -> MapspaceTooltips {
+        MapspaceTooltips {
+            tooltips,
+            hover,
+            selected: None,
+        }
+    }
+
+    fn event(&mut self, ctx: &mut EventCtx) {
+        if ctx.redo_mouseover() {
+            self.selected = None;
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                self.selected = self.tooltips.iter().position(|(p, _)| p.contains_pt(pt));
+            }
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        if let Some(idx) = self.selected {
+            let (polygon, txt) = &self.tooltips[idx];
+            // TODO Cache
+            let draw = g.upload((self.hover)(polygon));
+            g.redraw(&draw);
+            g.draw_mouse_tooltip(txt.clone());
+        }
     }
 }
