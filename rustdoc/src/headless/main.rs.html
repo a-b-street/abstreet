@@ -482,6 +482,49 @@
 <span id="481">481</span>
 <span id="482">482</span>
 <span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -815,6 +858,7 @@
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">export_geometry</span>(<span class="ident">map</span>, <span class="ident">i</span>)))
         }
+        <span class="string">&quot;/map/get-all-geometry&quot;</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">export_all_geometry</span>(<span class="ident">map</span>))),
         <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Unknown command&quot;</span>.<span class="ident">into</span>()),
     }
 }
@@ -953,6 +997,48 @@
                     .<span class="ident">to_thick_ring</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
                     .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">center</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">center</span>.<span class="ident">y</span>())
                     .<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>),
+            ),
+            <span class="ident">id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">props</span>),
+            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+        });
+    }
+
+    <span class="ident">GeoJson</span>::<span class="ident">from</span>(<span class="ident">FeatureCollection</span> {
+        <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+        <span class="ident">features</span>,
+        <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+    })
+}
+
+<span class="kw">fn</span> <span class="ident">export_all_geometry</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">geojson</span>::<span class="ident">GeoJson</span> {
+    <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>};
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
+
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">Map</span>::<span class="ident">new</span>();
+        <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;type&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;intersection&quot;</span>.<span class="ident">into</span>());
+        <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
+        <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">Feature</span> {
+            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>().<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>)),
+            <span class="ident">id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">props</span>),
+            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+        });
+    }
+    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">Map</span>::<span class="ident">new</span>();
+        <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;type&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;road&quot;</span>.<span class="ident">into</span>());
+        <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
+        <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">Feature</span> {
+            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(
+                <span class="ident">r</span>.<span class="ident">center_pts</span>
+                    .<span class="ident">to_thick_ring</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
+                    .<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>),
             ),
             <span class="ident">id</span>: <span class="prelude-val">None</span>,
             <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">props</span>),
