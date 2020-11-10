@@ -139,6 +139,7 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
+<span id="141">141</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A simple data format to list collisions that&#39;ve occurred in the real world. The data is</span>
 <span class="doccomment">//! serializable in a binary format or as JSON.</span>
@@ -165,6 +166,7 @@
     <span class="doccomment">/// A single point describing where the collision occurred.</span>
     <span class="kw">pub</span> <span class="ident">location</span>: <span class="ident">LonLat</span>,
     <span class="doccomment">/// The local time the collision occurred.</span>
+    <span class="comment">// TODO Wait, why isn&#39;t this Time?</span>
     <span class="kw">pub</span> <span class="ident">time</span>: <span class="ident">Duration</span>,
     <span class="doccomment">/// The severity reported in the original data source.</span>
     <span class="kw">pub</span> <span class="ident">severity</span>: <span class="ident">Severity</span>,
