@@ -784,7 +784,6 @@
 <span id="783">783</span>
 <span id="784">784</span>
 <span id="785">785</span>
-<span id="786">786</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -893,8 +892,7 @@
                 <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)
             )));
         }
-        <span class="self">self</span>.<span class="ident">panel</span>
-            .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current info&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>));
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current info&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
     }
 }
 

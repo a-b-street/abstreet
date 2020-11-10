@@ -225,7 +225,6 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
-<span id="227">227</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -285,7 +284,7 @@
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;selector&quot;</span>),
                 <span class="ident">legend</span>,
-                <span class="ident">make_instructions</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">allow_through_traffic</span>),
+                <span class="ident">make_instructions</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">allow_through_traffic</span>).<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
                 <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">allow_through_traffic</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Limit the number of vehicles passing through per hour (0 = unlimited):&quot;</span>
@@ -366,7 +365,7 @@
                 }
                 <span class="ident">x</span> <span class="op">=&gt;</span> {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">x</span>)) {
-                        <span class="kw">let</span> <span class="ident">new_controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;selector&quot;</span>);
+                        <span class="kw">let</span> <span class="ident">new_controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;selector&quot;</span>, <span class="ident">new_controls</span>);
                         <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>);
                         <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">unzoomed</span>;
@@ -387,7 +386,7 @@
             }
             <span class="kw">_</span> <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>) {
-                    <span class="kw">let</span> <span class="ident">new_controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;selector&quot;</span>);
+                    <span class="kw">let</span> <span class="ident">new_controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>);
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;selector&quot;</span>, <span class="ident">new_controls</span>);
                     <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>);
                     <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">unzoomed</span>;
@@ -452,7 +451,6 @@
         <span class="ident">Line</span>(<span class="string">&quot;Trips may start or end in this zone, but through-traffic is only allowed for:&quot;</span>)
             .<span class="ident">draw</span>(<span class="ident">ctx</span>)
     }
-    .<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "game";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

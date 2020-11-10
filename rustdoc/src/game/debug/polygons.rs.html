@@ -140,8 +140,6 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Triangle</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -227,9 +225,7 @@
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;pointer&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">noun</span>, <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>())
-                .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;pointer&quot;</span>),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">noun</span>, <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>()).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
         );
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>

@@ -563,6 +563,11 @@
 <span id="562">562</span>
 <span id="563">563</span>
 <span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1020,8 +1025,13 @@
         <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">event</span>(<span class="ident">ctx</span>), <span class="ident">Outcome</span>::<span class="ident">Nothing</span>));
     }
 
-    <span class="doccomment">/// All margins/padding/etc from the previous widget are retained.</span>
+    <span class="doccomment">/// All margins/padding/etc from the previous widget are retained. The ID is set on the new</span>
+    <span class="doccomment">/// widget; no need to do that yourself.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">mut</span> <span class="ident">new</span>: <span class="ident">Widget</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">new_id</span>) <span class="op">=</span> <span class="ident">new</span>.<span class="ident">id</span> {
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">id</span>, <span class="ident">new_id</span>);
+        }
+        <span class="ident">new</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">named</span>(<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">find_mut</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
         <span class="ident">new</span>.<span class="ident">layout</span>.<span class="ident">style</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
         <span class="kw-2">*</span><span class="ident">old</span> <span class="op">=</span> <span class="ident">new</span>;

@@ -551,17 +551,6 @@
 <span id="550">550</span>
 <span id="551">551</span>
 <span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -823,9 +812,7 @@
             <span class="ident">spawner</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;instructions&quot;</span>,
-                <span class="string">&quot;Click a building or border to specify end&quot;</span>
-                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
+                <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             );
         }
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">spawner</span>)
@@ -899,15 +886,10 @@
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;instructions&quot;</span>,
-                            <span class="string">&quot;Click a building or border to specify end&quot;</span>
-                                .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
-                                .<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
+                            <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                         );
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="string">&quot;Confirm&quot;</span>,
-                            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Confirm&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;Confirm&quot;</span>),
-                        );
+                        <span class="self">self</span>.<span class="ident">panel</span>
+                            .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;Confirm&quot;</span>, <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Confirm&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>));
                     }
                 }
             }
@@ -942,9 +924,7 @@
                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;instructions&quot;</span>,
-                    <span class="string">&quot;Click a building or border to specify end&quot;</span>
-                        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
+                    <span class="string">&quot;Click a building or border to specify end&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 );
             } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">source</span> <span class="op">!=</span> <span class="prelude-val">Some</span>(<span class="ident">hovering</span>.<span class="ident">clone</span>()) {
                 <span class="kw">if</span> <span class="self">self</span>
@@ -977,9 +957,7 @@
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;instructions&quot;</span>,
-                        <span class="string">&quot;Confirm the trip settings&quot;</span>
-                            .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
-                            .<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
+                        <span class="string">&quot;Confirm the trip settings&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                     );
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                         <span class="ident">ctx</span>,

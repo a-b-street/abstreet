@@ -292,8 +292,6 @@
 <span id="291">291</span>
 <span id="292">292</span>
 <span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">collisions</span>::{<span class="ident">CollisionDataset</span>, <span class="ident">Severity</span>};
@@ -558,9 +556,7 @@
             } <span class="kw">else</span> {
                 <span class="ident">Dataviz</span>::<span class="ident">aggregated</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>, <span class="ident">indices</span>)
             };
-            <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} collisions&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>))
-                .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;count&quot;</span>);
+            <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} collisions&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
             <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;count&quot;</span>, <span class="ident">count</span>);
         }
 

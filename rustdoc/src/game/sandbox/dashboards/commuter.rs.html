@@ -702,11 +702,6 @@
 <span id="701">701</span>
 <span id="702">702</span>
 <span id="703">703</span>
-<span id="704">704</span>
-<span id="705">705</span>
-<span id="706">706</span>
-<span id="707">707</span>
-<span id="708">708</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1027,8 +1022,7 @@
                 }
             }
 
-            <span class="self">self</span>.<span class="ident">panel</span>
-                .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current&quot;</span>));
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current&quot;</span>, <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
 
             <span class="kw">let</span> <span class="ident">new_scale</span> <span class="op">=</span> <span class="ident">ColorLegend</span>::<span class="ident">gradient</span>(
                 <span class="ident">ctx</span>,
@@ -1037,15 +1031,11 @@
                     <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">state</span>.<span class="ident">max_count</span>)),
                 ],
-            )
-            .<span class="ident">named</span>(<span class="string">&quot;scale&quot;</span>);
+            );
             <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;scale&quot;</span>, <span class="ident">new_scale</span>);
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;current&quot;</span>,
-                <span class="string">&quot;None selected&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current&quot;</span>),
-            );
+            <span class="self">self</span>.<span class="ident">panel</span>
+                .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current&quot;</span>, <span class="string">&quot;None selected&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
         }
     }
 }
