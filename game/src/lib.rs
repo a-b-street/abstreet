@@ -43,6 +43,10 @@ pub fn main(mut args: CmdArgs) {
     if args.enabled("--lowzoom") {
         opts.min_zoom_for_detail = 1.0;
     }
+    if args.enabled("--day_night") {
+        opts.toggle_day_night_colors = true;
+        opts.color_scheme = colors::ColorSchemeChoice::NightMode;
+    }
 
     if let Some(x) = args.optional("--color_scheme") {
         let mut ok = false;

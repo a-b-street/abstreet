@@ -11,7 +11,7 @@ use sim::{Analytics, Scenario, Sim, SimCallback, SimFlags};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState};
 
 use crate::challenges::HighScore;
-use crate::colors::ColorScheme;
+use crate::colors::{ColorScheme, ColorSchemeChoice};
 use crate::helpers::ID;
 use crate::layer::Layer;
 use crate::options::Options;
@@ -426,6 +426,25 @@ impl App {
         borrows.sort_by_key(|x| x.get_zorder());
 
         borrows
+    }
+
+    /// Change the color scheme. Idempotent. Return true if there was a change.
+    pub fn change_color_scheme(&mut self, ctx: &mut EventCtx, cs: ColorSchemeChoice) -> bool {
+        if self.opts.color_scheme == cs {
+            return false;
+        }
+        self.opts.color_scheme = cs;
+        self.cs = ColorScheme::new(self.opts.color_scheme);
+        ctx.set_style(self.cs.gui_style.clone());
+
+        ctx.loading_screen("rerendering map colors", |ctx, timer| {
+            let (draw_map, zorder_range) =
+                DrawMap::new(&self.primary.map, &self.opts, &self.cs, ctx, timer);
+            self.primary.draw_map = draw_map;
+            self.primary.zorder_range = zorder_range;
+        });
+
+        true
     }
 }
 
