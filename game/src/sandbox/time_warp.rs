@@ -376,7 +376,7 @@ impl State<App> for TimeWarpScreen {
                 },
             ]);
 
-            self.panel.replace(ctx, "text", txt.draw(ctx).named("text"));
+            self.panel.replace(ctx, "text", txt.draw(ctx));
         }
         // >= because of the case of resetting to midnight. GameplayMode::initialize takes a tiny
         // step past midnight after spawning things, so that agents initially appear on the map.

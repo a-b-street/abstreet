@@ -105,8 +105,7 @@ impl DebugMode {
                 abstutil::prettyprint_usize(n)
             )));
         }
-        self.panel
-            .replace(ctx, "current info", txt.draw(ctx).named("current info"));
+        self.panel.replace(ctx, "current info", txt.draw(ctx));
     }
 }
 

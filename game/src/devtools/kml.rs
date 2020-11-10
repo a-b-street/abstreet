@@ -221,9 +221,7 @@ impl State<App> for ViewKML {
                 self.panel.replace(
                     ctx,
                     "matches",
-                    format!("Query matches {} objects", cnt)
-                        .draw_text(ctx)
-                        .named("matches"),
+                    format!("Query matches {} objects", cnt).draw_text(ctx),
                 );
             }
             _ => {}

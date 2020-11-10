@@ -432,40 +432,29 @@ impl SaveEdits {
 
     fn recalc_btn(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.current_name.is_empty() {
-            self.panel.replace(
-                ctx,
-                "save",
-                Btn::text_bg2("Save").inactive(ctx).named("save"),
-            );
             self.panel
-                .replace(ctx, "warning", Text::new().draw(ctx).named("warning"));
+                .replace(ctx, "save", Btn::text_bg2("Save").inactive(ctx));
+            self.panel.replace(ctx, "warning", Text::new().draw(ctx));
         } else if abstutil::file_exists(abstutil::path_edits(
             app.primary.map.get_name(),
             &self.current_name,
         )) {
-            self.panel.replace(
-                ctx,
-                "save",
-                Btn::text_bg2("Save").inactive(ctx).named("save"),
-            );
+            self.panel
+                .replace(ctx, "save", Btn::text_bg2("Save").inactive(ctx));
             self.panel.replace(
                 ctx,
                 "warning",
                 Line("A proposal with this name already exists")
                     .fg(Color::hex("#FF5E5E"))
-                    .draw(ctx)
-                    .named("warning"),
+                    .draw(ctx),
             );
         } else {
             self.panel.replace(
                 ctx,
                 "save",
-                Btn::text_bg2("Save")
-                    .build_def(ctx, Key::Enter)
-                    .named("save"),
+                Btn::text_bg2("Save").build_def(ctx, Key::Enter),
             );
-            self.panel
-                .replace(ctx, "warning", Text::new().draw(ctx).named("warning"));
+            self.panel.replace(ctx, "warning", Text::new().draw(ctx));
         }
     }
 }

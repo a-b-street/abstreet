@@ -454,8 +454,13 @@ impl Panel {
         ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
     }
 
-    /// All margins/padding/etc from the previous widget are retained.
+    /// All margins/padding/etc from the previous widget are retained. The ID is set on the new
+    /// widget; no need to do that yourself.
     pub fn replace(&mut self, ctx: &mut EventCtx, id: &str, mut new: Widget) {
+        if let Some(ref new_id) = new.id {
+            assert_eq!(id, new_id);
+        }
+        new = new.named(id);
         let old = self.top_level.find_mut(id).unwrap();
         new.layout.style = old.layout.style;
         *old = new;

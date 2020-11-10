@@ -261,9 +261,7 @@ impl State<App> for CollisionsViewer {
             } else {
                 Dataviz::aggregated(ctx, app, &self.data, indices)
             };
-            let count = format!("{} collisions", prettyprint_usize(count))
-                .draw_text(ctx)
-                .named("count");
+            let count = format!("{} collisions", prettyprint_usize(count)).draw_text(ctx);
             self.panel.replace(ctx, "count", count);
         }
 

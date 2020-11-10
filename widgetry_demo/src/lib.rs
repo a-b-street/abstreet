@@ -122,9 +122,7 @@ impl Demo {
         self.controls.replace(
             ctx,
             "stopwatch",
-            format!("Stopwatch: {}", self.elapsed)
-                .draw_text(ctx)
-                .named("stopwatch"),
+            format!("Stopwatch: {}", self.elapsed).draw_text(ctx),
         );
     }
 }

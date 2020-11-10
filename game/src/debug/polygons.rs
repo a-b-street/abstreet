@@ -82,9 +82,7 @@ impl State<App> for PolygonDebugger {
         self.panel.replace(
             ctx,
             "pointer",
-            format!("{} {}/{}", self.noun, self.idx + 1, self.items.len())
-                .draw_text(ctx)
-                .named("pointer"),
+            format!("{} {}/{}", self.noun, self.idx + 1, self.items.len()).draw_text(ctx),
         );
 
         Transition::Keep

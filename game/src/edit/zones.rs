@@ -56,7 +56,7 @@ impl ZoneEditor {
                     .draw(ctx),
                 selector.make_controls(ctx).named("selector"),
                 legend,
-                make_instructions(ctx, &allow_through_traffic),
+                make_instructions(ctx, &allow_through_traffic).named("instructions"),
                 checkbox_per_mode(ctx, app, &allow_through_traffic),
                 Widget::row(vec![
                     "Limit the number of vehicles passing through per hour (0 = unlimited):"
@@ -137,7 +137,7 @@ impl State<App> for ZoneEditor {
                 }
                 x => {
                     if self.selector.event(ctx, app, Some(x)) {
-                        let new_controls = self.selector.make_controls(ctx).named("selector");
+                        let new_controls = self.selector.make_controls(ctx);
                         self.panel.replace(ctx, "selector", new_controls);
                         let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
                         self.unzoomed = unzoomed;
@@ -158,7 +158,7 @@ impl State<App> for ZoneEditor {
             }
             _ => {
                 if self.selector.event(ctx, app, None) {
-                    let new_controls = self.selector.make_controls(ctx).named("selector");
+                    let new_controls = self.selector.make_controls(ctx);
                     self.panel.replace(ctx, "selector", new_controls);
                     let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
                     self.unzoomed = unzoomed;
@@ -223,5 +223,4 @@ fn make_instructions(ctx: &mut EventCtx, allow_through_traffic: &BTreeSet<TripMo
         Line("Trips may start or end in this zone, but through-traffic is only allowed for:")
             .draw(ctx)
     }
-    .named("instructions")
 }

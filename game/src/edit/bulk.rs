@@ -135,7 +135,7 @@ impl BulkEdit {
                     .small_heading()
                     .draw(ctx),
                 "Lane types".draw_text(ctx),
-                make_lt_switcher(ctx, vec![(None, None)]),
+                make_lt_switcher(ctx, vec![(None, None)]).named("lt transformations"),
                 {
                     let mut choices = vec![Choice::new("don't change", None)];
                     for c in speed_limit_choices(app) {
@@ -269,7 +269,7 @@ fn make_lt_switcher(
             .build_def(ctx, None),
         ]));
     }
-    Widget::col(col).named("lt transformations")
+    Widget::col(col)
 }
 
 fn make_bulk_edits(

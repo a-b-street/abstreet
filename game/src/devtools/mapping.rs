@@ -254,12 +254,12 @@ impl State<App> for ParkingMapper {
                             txt.add(Line(format!("{} = {}", k, v)).secondary());
                         }
                     }
-                    self.panel.replace(ctx, "info", txt.draw(ctx).named("info"));
+                    self.panel.replace(ctx, "info", txt.draw(ctx));
                 }
             } else if self.selected.is_some() {
                 self.selected = None;
                 self.panel
-                    .replace(ctx, "info", "Select a road".draw_text(ctx).named("info"));
+                    .replace(ctx, "info", "Select a road".draw_text(ctx));
             }
         }
         if self.selected.is_some() && app.per_obj.left_click(ctx, "map parking") {

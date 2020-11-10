@@ -258,9 +258,7 @@ impl AgentSpawner {
             spawner.panel.replace(
                 ctx,
                 "instructions",
-                "Click a building or border to specify end"
-                    .draw_text(ctx)
-                    .named("instructions"),
+                "Click a building or border to specify end".draw_text(ctx),
             );
         }
         Box::new(spawner)
@@ -334,15 +332,10 @@ impl State<App> for AgentSpawner {
                         self.panel.replace(
                             ctx,
                             "instructions",
-                            "Click a building or border to specify end"
-                                .draw_text(ctx)
-                                .named("instructions"),
+                            "Click a building or border to specify end".draw_text(ctx),
                         );
-                        self.panel.replace(
-                            ctx,
-                            "Confirm",
-                            Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
-                        );
+                        self.panel
+                            .replace(ctx, "Confirm", Btn::text_fg("Confirm").inactive(ctx));
                     }
                 }
             }
@@ -377,9 +370,7 @@ impl State<App> for AgentSpawner {
                 self.panel.replace(
                     ctx,
                     "instructions",
-                    "Click a building or border to specify end"
-                        .draw_text(ctx)
-                        .named("instructions"),
+                    "Click a building or border to specify end".draw_text(ctx),
                 );
             } else if self.source.is_some() && self.source != Some(hovering.clone()) {
                 if self
@@ -412,9 +403,7 @@ impl State<App> for AgentSpawner {
                     self.panel.replace(
                         ctx,
                         "instructions",
-                        "Confirm the trip settings"
-                            .draw_text(ctx)
-                            .named("instructions"),
+                        "Confirm the trip settings".draw_text(ctx),
                     );
                     self.panel.replace(
                         ctx,

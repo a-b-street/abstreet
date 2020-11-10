@@ -317,8 +317,7 @@ impl CommuterPatterns {
                 }
             }
 
-            self.panel
-                .replace(ctx, "current", txt.draw(ctx).named("current"));
+            self.panel.replace(ctx, "current", txt.draw(ctx));
 
             let new_scale = ColorLegend::gradient(
                 ctx,
@@ -327,15 +326,11 @@ impl CommuterPatterns {
                     "0".to_string(),
                     format!("{} trips", prettyprint_usize(state.max_count)),
                 ],
-            )
-            .named("scale");
+            );
             self.panel.replace(ctx, "scale", new_scale);
         } else {
-            self.panel.replace(
-                ctx,
-                "current",
-                "None selected".draw_text(ctx).named("current"),
-            );
+            self.panel
+                .replace(ctx, "current", "None selected".draw_text(ctx));
         }
     }
 }
