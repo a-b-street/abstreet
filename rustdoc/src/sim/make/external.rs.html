@@ -79,14 +79,13 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
-<span id="81">81</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own</span>
 <span class="doccomment">//! simulation input data; import it here.</span>
 
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
@@ -121,16 +120,15 @@
         }
         <span class="kw">let</span> <span class="ident">lookup_pt</span> <span class="op">=</span> <span class="op">|</span><span class="ident">endpt</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">endpt</span> {
             <span class="ident">ExternalTripEndpoint</span>::<span class="ident">TripEndpoint</span>(<span class="ident">endpt</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>),
-            <span class="ident">ExternalTripEndpoint</span>::<span class="ident">Position</span>(<span class="ident">gps</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(
-                <span class="ident">Pt2D</span>::<span class="ident">from_gps</span>(<span class="ident">gps</span>, <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
-                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">100.0</span>),
-            ) {
-                <span class="prelude-val">Some</span>((<span class="ident">x</span>, <span class="kw">_</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>),
-                <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;No building or border intersection within 100m of {}&quot;</span>,
-                    <span class="ident">gps</span>
-                )),
-            },
+            <span class="ident">ExternalTripEndpoint</span>::<span class="ident">Position</span>(<span class="ident">gps</span>) <span class="op">=&gt;</span> {
+                <span class="kw">match</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">100.0</span>)) {
+                    <span class="prelude-val">Some</span>((<span class="ident">x</span>, <span class="kw">_</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>),
+                    <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;No building or border intersection within 100m of {}&quot;</span>,
+                        <span class="ident">gps</span>
+                    )),
+                }
+            }
         };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();

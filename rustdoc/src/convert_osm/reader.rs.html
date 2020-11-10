@@ -206,8 +206,6 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -302,13 +300,11 @@
                 <span class="kw">if</span> <span class="ident">doc</span>.<span class="ident">nodes</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Duplicate {}, your .osm is corrupt&quot;</span>, <span class="ident">id</span>).<span class="ident">into</span>());
                 }
-                <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">from_gps</span>(
-                    <span class="ident">LonLat</span>::<span class="ident">new</span>(
-                        <span class="ident">obj</span>.<span class="ident">attribute</span>(<span class="string">&quot;lon&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-                        <span class="ident">obj</span>.<span class="ident">attribute</span>(<span class="string">&quot;lat&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-                    ),
-                    <span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">gps_bounds</span>,
-                );
+                <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(
+                    <span class="ident">obj</span>.<span class="ident">attribute</span>(<span class="string">&quot;lon&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
+                    <span class="ident">obj</span>.<span class="ident">attribute</span>(<span class="string">&quot;lat&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
+                )
+                .<span class="ident">to_pt</span>(<span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">gps_bounds</span>);
                 <span class="kw">let</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">read_tags</span>(<span class="ident">obj</span>);
                 <span class="ident">doc</span>.<span class="ident">nodes</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">Node</span> { <span class="ident">pt</span>, <span class="ident">tags</span> });
             }

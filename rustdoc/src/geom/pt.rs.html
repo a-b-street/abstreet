@@ -178,20 +178,6 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -230,20 +216,6 @@
     <span class="comment">// TODO This is a small first step...</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Pt2D</span>, <span class="ident">threshold</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">dist_to</span>(<span class="ident">other</span>) <span class="op">&lt;=</span> <span class="ident">threshold</span>
-    }
-
-    <span class="doccomment">/// Can go out of bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_gps</span>(<span class="ident">gps</span>: <span class="ident">LonLat</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
-        <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">get_max_world_pt</span>();
-            (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
-        };
-
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="ident">gps</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">b</span>.<span class="ident">min_lon</span>) <span class="op">/</span> (<span class="ident">b</span>.<span class="ident">max_lon</span> <span class="op">-</span> <span class="ident">b</span>.<span class="ident">min_lon</span>) <span class="op">*</span> <span class="ident">width</span>;
-        <span class="comment">// Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian</span>
-        <span class="comment">// grid.</span>
-        <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">height</span> <span class="op">-</span> ((<span class="ident">gps</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">b</span>.<span class="ident">min_lat</span>) <span class="op">/</span> (<span class="ident">b</span>.<span class="ident">max_lat</span> <span class="op">-</span> <span class="ident">b</span>.<span class="ident">min_lat</span>) <span class="op">*</span> <span class="ident">height</span>);
-        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x</span>, <span class="ident">y</span>)
     }
 
     <span class="doccomment">/// Can go out of bounds.</span>
