@@ -176,7 +176,7 @@
 <span class="doccomment">/// A simple ranking for how severe the collision was. Different agencies use different</span>
 <span class="doccomment">/// classification systems, each of which likely has their own nuance and bias. This is</span>
 <span class="doccomment">/// deliberately simplified.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Severity</span> {
     <span class="ident">Slight</span>,
     <span class="ident">Serious</span>,

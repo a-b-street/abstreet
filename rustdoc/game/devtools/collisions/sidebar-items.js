@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CollisionsViewer",""]]});
+initSidebarItems({"enum":[["Dataviz",""]],"struct":[["CollisionsViewer",""],["Filters",""]]});

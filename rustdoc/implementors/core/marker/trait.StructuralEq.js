@@ -1,5 +1,6 @@
 (function() {var implementors = {};
 implementors["abstutil"] = [{"text":"impl StructuralEq for MapName","synthetic":false,"types":[]}];
+implementors["collisions"] = [{"text":"impl StructuralEq for Severity","synthetic":false,"types":[]}];
 implementors["game"] = [{"text":"impl StructuralEq for ID","synthetic":false,"types":[]},{"text":"impl StructuralEq for Loc","synthetic":false,"types":[]},{"text":"impl StructuralEq for TutorialPointer","synthetic":false,"types":[]},{"text":"impl StructuralEq for GameplayMode","synthetic":false,"types":[]}];
 implementors["geom"] = [{"text":"impl StructuralEq for LonLat","synthetic":false,"types":[]},{"text":"impl StructuralEq for HashablePt2D","synthetic":false,"types":[]},{"text":"impl StructuralEq for Statistic","synthetic":false,"types":[]}];
 implementors["map_editor"] = [{"text":"impl StructuralEq for ID","synthetic":false,"types":[]}];
