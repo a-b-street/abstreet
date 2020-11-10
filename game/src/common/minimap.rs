@@ -37,7 +37,7 @@ impl Minimap {
         let mut m = Minimap {
             extra_controls,
             dragging: false,
-            panel: make_minimap_panel(ctx, app, 0, extra_controls),
+            panel: Panel::empty(ctx),
             zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
             layer: app.primary.layer.is_none(),
 
@@ -47,10 +47,121 @@ impl Minimap {
             offset_x: 0.0,
             offset_y: 0.0,
         };
+        m.recreate_panel(ctx, app);
         if m.zoomed {
             m.recenter(ctx, app);
         }
         m
+    }
+
+    pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            if !self.extra_controls {
+                self.panel = Panel::empty(ctx);
+                return;
+            }
+
+            self.panel = Panel::new(Widget::row(vec![
+                make_tool_panel(ctx, app).align_right(),
+                make_vert_viz_panel(ctx, app)
+                    .bg(app.cs.panel_bg)
+                    .padding(16),
+            ]))
+            .aligned(
+                HorizontalAlignment::Right,
+                VerticalAlignment::BottomAboveOSD,
+            )
+            .build_custom(ctx);
+            return;
+        }
+
+        let zoom_col = {
+            let mut col = vec![Btn::svg_def("system/assets/speed/speed_up.svg")
+                .build(ctx, "zoom in", None)
+                .margin_below(20)];
+            for i in (0..=3).rev() {
+                let color = if self.zoom_lvl < i {
+                    Color::WHITE.alpha(0.2)
+                } else {
+                    Color::WHITE
+                };
+                let rect = Polygon::rectangle(20.0, 8.0);
+                col.push(
+                    Btn::custom(
+                        GeomBatch::from(vec![(color, rect.clone())]),
+                        GeomBatch::from(vec![(app.cs.hovering, rect.clone())]),
+                        rect,
+                        None,
+                    )
+                    .build(ctx, format!("zoom to level {}", i + 1), None)
+                    .margin_below(20),
+                );
+            }
+            col.push(
+                Btn::svg_def("system/assets/speed/slow_down.svg").build(ctx, "zoom out", None),
+            );
+            // The zoom column should start below the "pan up" arrow. But if we put it on the row
+            // with <, minimap, and > then it messes up the horizontal alignment of the
+            // pan up arrow. Also, double column to avoid the background color
+            // stretching to the bottom of the row.
+            Widget::custom_col(vec![
+                Widget::custom_col(col).padding(10).bg(app.cs.inner_panel),
+                // Enable the Z-order picker in dev mode or the OSM viewer (when the extra_controls
+                // for agents and layers are hidden).
+                if app.opts.dev || !self.extra_controls {
+                    Widget::col(vec![
+                        Line("Z-order:").small().draw(ctx),
+                        Spinner::new(ctx, app.primary.zorder_range, app.primary.show_zorder)
+                            .named("zorder"),
+                    ])
+                    .margin_above(10)
+                } else {
+                    Widget::nothing()
+                },
+            ])
+            .margin_above(26)
+        };
+
+        let minimap_controls = Widget::col(vec![
+            Btn::svg_def("system/assets/minimap/up.svg")
+                .build(ctx, "pan up", None)
+                .centered_horiz(),
+            Widget::row(vec![
+                Btn::svg_def("system/assets/minimap/left.svg")
+                    .build(ctx, "pan left", None)
+                    .centered_vert(),
+                Filler::square_width(ctx, 0.15).named("minimap"),
+                Btn::svg_def("system/assets/minimap/right.svg")
+                    .build(ctx, "pan right", None)
+                    .centered_vert(),
+            ]),
+            Btn::svg_def("system/assets/minimap/down.svg")
+                .build(ctx, "pan down", None)
+                .centered_horiz(),
+        ]);
+
+        self.panel = Panel::new(Widget::row(vec![
+            if self.extra_controls {
+                make_tool_panel(ctx, app)
+            } else {
+                Widget::nothing()
+            },
+            Widget::col(vec![
+                Widget::row(vec![minimap_controls, zoom_col]),
+                if self.extra_controls {
+                    make_horiz_viz_panel(ctx, app)
+                } else {
+                    Widget::nothing()
+                },
+            ])
+            .padding(16)
+            .bg(app.cs.panel_bg),
+        ]))
+        .aligned(
+            HorizontalAlignment::Right,
+            VerticalAlignment::BottomAboveOSD,
+        )
+        .build_custom(ctx);
     }
 
     fn map_to_minimap_pct(&self, pt: Pt2D) -> (f64, f64) {
@@ -67,7 +178,7 @@ impl Minimap {
         let zoom_speed: f64 = 2.0;
         self.zoom_lvl = zoom_lvl;
         self.zoom = self.base_zoom * zoom_speed.powi(self.zoom_lvl as i32);
-        self.panel = make_minimap_panel(ctx, app, self.zoom_lvl, self.extra_controls);
+        self.recreate_panel(ctx, app);
 
         // Find the new offset
         let map_center = ctx.canvas.center_to_map_pt();
@@ -99,7 +210,7 @@ impl Minimap {
 
             self.zoomed = zoomed;
             self.layer = layer;
-            self.panel = make_minimap_panel(ctx, app, self.zoom_lvl, self.extra_controls);
+            self.recreate_panel(ctx, app);
 
             if just_zoomed_in {
                 self.recenter(ctx, app);
@@ -215,7 +326,7 @@ impl Minimap {
                 if self.panel.has_widget("zorder") {
                     app.primary.show_zorder = self.panel.spinner("zorder");
                 }
-                self.panel = make_minimap_panel(ctx, app, self.zoom_lvl, self.extra_controls);
+                self.recreate_panel(ctx, app);
             }
             _ => {}
         }
@@ -316,116 +427,6 @@ impl Minimap {
         g.disable_clipping();
         g.unfork();
     }
-}
-
-fn make_minimap_panel(
-    ctx: &mut EventCtx,
-    app: &App,
-    zoom_lvl: usize,
-    extra_controls: bool,
-) -> Panel {
-    if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-        if !extra_controls {
-            return Panel::empty(ctx);
-        }
-
-        return Panel::new(Widget::row(vec![
-            make_tool_panel(ctx, app).align_right(),
-            make_vert_viz_panel(ctx, app)
-                .bg(app.cs.panel_bg)
-                .padding(16),
-        ]))
-        .aligned(
-            HorizontalAlignment::Right,
-            VerticalAlignment::BottomAboveOSD,
-        )
-        .build_custom(ctx);
-    }
-
-    let zoom_col = {
-        let mut col = vec![Btn::svg_def("system/assets/speed/speed_up.svg")
-            .build(ctx, "zoom in", None)
-            .margin_below(20)];
-        for i in (0..=3).rev() {
-            let color = if zoom_lvl < i {
-                Color::WHITE.alpha(0.2)
-            } else {
-                Color::WHITE
-            };
-            let rect = Polygon::rectangle(20.0, 8.0);
-            col.push(
-                Btn::custom(
-                    GeomBatch::from(vec![(color, rect.clone())]),
-                    GeomBatch::from(vec![(app.cs.hovering, rect.clone())]),
-                    rect,
-                    None,
-                )
-                .build(ctx, format!("zoom to level {}", i + 1), None)
-                .margin_below(20),
-            );
-        }
-        col.push(Btn::svg_def("system/assets/speed/slow_down.svg").build(ctx, "zoom out", None));
-        // The zoom column should start below the "pan up" arrow. But if we put it on the row with
-        // <, minimap, and > then it messes up the horizontal alignment of the pan up arrow.
-        // Also, double column to avoid the background color stretching to the bottom of the row.
-        Widget::custom_col(vec![
-            Widget::custom_col(col).padding(10).bg(app.cs.inner_panel),
-            // Enable the Z-order picker in dev mode or the OSM viewer (when the extra_controls for
-            // agents and layers are hidden).
-            if app.opts.dev || !extra_controls {
-                Widget::col(vec![
-                    Line("Z-order:").small().draw(ctx),
-                    Spinner::new(ctx, app.primary.zorder_range, app.primary.show_zorder)
-                        .named("zorder"),
-                ])
-                .margin_above(10)
-            } else {
-                Widget::nothing()
-            },
-        ])
-        .margin_above(26)
-    };
-
-    let minimap_controls = Widget::col(vec![
-        Btn::svg_def("system/assets/minimap/up.svg")
-            .build(ctx, "pan up", None)
-            .centered_horiz(),
-        Widget::row(vec![
-            Btn::svg_def("system/assets/minimap/left.svg")
-                .build(ctx, "pan left", None)
-                .centered_vert(),
-            Filler::square_width(ctx, 0.15).named("minimap"),
-            Btn::svg_def("system/assets/minimap/right.svg")
-                .build(ctx, "pan right", None)
-                .centered_vert(),
-        ]),
-        Btn::svg_def("system/assets/minimap/down.svg")
-            .build(ctx, "pan down", None)
-            .centered_horiz(),
-    ]);
-
-    Panel::new(Widget::row(vec![
-        if extra_controls {
-            make_tool_panel(ctx, app)
-        } else {
-            Widget::nothing()
-        },
-        Widget::col(vec![
-            Widget::row(vec![minimap_controls, zoom_col]),
-            if extra_controls {
-                make_horiz_viz_panel(ctx, app)
-            } else {
-                Widget::nothing()
-            },
-        ])
-        .padding(16)
-        .bg(app.cs.panel_bg),
-    ]))
-    .aligned(
-        HorizontalAlignment::Right,
-        VerticalAlignment::BottomAboveOSD,
-    )
-    .build_custom(ctx)
 }
 
 fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {

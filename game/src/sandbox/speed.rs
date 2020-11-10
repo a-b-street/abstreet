@@ -32,10 +32,20 @@ enum SpeedSetting {
 }
 
 impl SpeedControls {
-    fn make_panel(ctx: &mut EventCtx, app: &App, paused: bool, setting: SpeedSetting) -> Panel {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> SpeedControls {
+        let mut speed = SpeedControls {
+            panel: Panel::empty(ctx),
+            paused: false,
+            setting: SpeedSetting::Realtime,
+        };
+        speed.recreate_panel(ctx, app);
+        speed
+    }
+
+    pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut row = Vec::new();
         row.push(
-            if paused {
+            if self.paused {
                 Btn::svg_def("system/assets/speed/triangle.svg").build(ctx, "play", Key::Space)
             } else {
                 Btn::svg_def("system/assets/speed/pause.svg").build(ctx, "pause", Key::Space)
@@ -61,7 +71,7 @@ impl SpeedControls {
                     txt.extend(Text::tooltip(ctx, Key::RightArrow, "speed up"));
 
                     GeomBatch::load_svg(ctx.prerender, "system/assets/speed/triangle.svg")
-                        .color(if setting >= s {
+                        .color(if self.setting >= s {
                             RewriteColor::NoOp
                         } else {
                             RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
@@ -110,21 +120,12 @@ impl SpeedControls {
             .bg(app.cs.section_bg),
         );
 
-        Panel::new(Widget::custom_row(row))
+        self.panel = Panel::new(Widget::custom_row(row))
             .aligned(
                 HorizontalAlignment::Center,
                 VerticalAlignment::BottomAboveOSD,
             )
-            .build(ctx)
-    }
-
-    pub fn new(ctx: &mut EventCtx, app: &App) -> SpeedControls {
-        let panel = SpeedControls::make_panel(ctx, app, false, SpeedSetting::Realtime);
-        SpeedControls {
-            panel,
-            paused: false,
-            setting: SpeedSetting::Realtime,
-        }
+            .build(ctx);
     }
 
     pub fn event(
@@ -137,27 +138,27 @@ impl SpeedControls {
             Outcome::Clicked(x) => match x.as_ref() {
                 "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                     return None;
                 }
                 "5x speed" => {
                     self.setting = SpeedSetting::Fast;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                     return None;
                 }
                 "30x speed" => {
                     self.setting = SpeedSetting::Faster;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                     return None;
                 }
                 "3600x speed" => {
                     self.setting = SpeedSetting::Fastest;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                     return None;
                 }
                 "play" => {
                     self.paused = false;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                     return None;
                 }
                 "pause" => {
@@ -213,15 +214,15 @@ impl SpeedControls {
                 SpeedSetting::Realtime => self.pause(ctx, app),
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Realtime;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                 }
                 SpeedSetting::Faster => {
                     self.setting = SpeedSetting::Fast;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                 }
                 SpeedSetting::Fastest => {
                     self.setting = SpeedSetting::Faster;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                 }
             }
         }
@@ -230,19 +231,19 @@ impl SpeedControls {
                 SpeedSetting::Realtime => {
                     if self.paused {
                         self.paused = false;
-                        self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                        self.recreate_panel(ctx, app);
                     } else {
                         self.setting = SpeedSetting::Fast;
-                        self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                        self.recreate_panel(ctx, app);
                     }
                 }
                 SpeedSetting::Fast => {
                     self.setting = SpeedSetting::Faster;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                 }
                 SpeedSetting::Faster => {
                     self.setting = SpeedSetting::Fastest;
-                    self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+                    self.recreate_panel(ctx, app);
                 }
                 SpeedSetting::Fastest => {}
             }
@@ -320,7 +321,7 @@ impl SpeedControls {
     pub fn pause(&mut self, ctx: &mut EventCtx, app: &App) {
         if !self.paused {
             self.paused = true;
-            self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+            self.recreate_panel(ctx, app);
         }
     }
 
@@ -328,7 +329,7 @@ impl SpeedControls {
         if self.paused || self.setting != SpeedSetting::Realtime {
             self.paused = false;
             self.setting = SpeedSetting::Realtime;
-            self.panel = SpeedControls::make_panel(ctx, app, self.paused, self.setting);
+            self.recreate_panel(ctx, app);
         }
     }
 

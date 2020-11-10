@@ -109,9 +109,8 @@ impl State<App> for SandboxMode {
                 app.change_color_scheme(ctx, ColorSchemeChoice::NightMode)
             };
             if cs_changed {
-                // TODO Recreate panels. This handles some of them, but it also loses minimap zoom
-                // state, and misses the top_panel managed by individual GameplayStates.
-                self.controls = SandboxControls::new(ctx, app, &self.gameplay);
+                self.controls.recreate_panels(ctx, app);
+                self.gameplay.recreate_panels(ctx, app);
             }
         }
 
@@ -776,7 +775,8 @@ impl State<App> for SandboxLoader {
                     continue;
                 }
                 LoadStage::Finalizing => {
-                    let gameplay = self.mode.initialize(ctx, app);
+                    let mut gameplay = self.mode.initialize(ctx, app);
+                    gameplay.recreate_panels(ctx, app);
                     let sandbox = Box::new(SandboxMode {
                         controls: SandboxControls::new(ctx, app, &gameplay),
                         gameplay,
@@ -873,6 +873,18 @@ impl SandboxControls {
             } else {
                 None
             },
+        }
+    }
+
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+        if self.tool_panel.is_some() {
+            self.tool_panel = Some(tool_panel(ctx));
+        }
+        if let Some(ref mut speed) = self.speed {
+            speed.recreate_panel(ctx, app);
+        }
+        if let Some(ref mut minimap) = self.minimap {
+            minimap.recreate_panel(ctx, app);
         }
     }
 }

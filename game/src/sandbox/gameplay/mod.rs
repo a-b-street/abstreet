@@ -48,6 +48,7 @@ pub trait GameplayState: downcast_rs::Downcast {
     ) -> Option<Transition>;
     fn draw(&self, g: &mut GfxCtx, app: &App);
     fn on_destroy(&self, _: &mut App) {}
+    fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App);
 
     fn can_move_canvas(&self) -> bool {
         true
@@ -173,12 +174,13 @@ impl GameplayMode {
         true
     }
 
-    /// Must be called after the scenario has been setup
+    /// Must be called after the scenario has been setup. The caller will call recreate_panels
+    /// after this, so each constructor doesn't need to.
     pub fn initialize(&self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn GameplayState> {
         match self {
-            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx, app),
+            GameplayMode::Freeform(_) => freeform::Freeform::new(ctx),
             GameplayMode::PlayScenario(_, ref scenario, ref modifiers) => {
-                play_scenario::PlayScenario::new(ctx, app, scenario, modifiers.clone())
+                play_scenario::PlayScenario::new(ctx, scenario, modifiers.clone())
             }
             GameplayMode::FixTrafficSignals => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, app)
