@@ -50,7 +50,7 @@
         <nd ref="-1605119346"/>
         <nd ref="-1605119348"/>
         <tag k="highway" v="residential"/>
-        <tag k="lanes" v="1"/>
+        <tag k="lanes" v="3"/>
         <tag k="oneway" v="yes"/>
         <tag k="maxspeed" v="25 mph"/>
         <tag k="name" v="Streety McStreetFace"/>
@@ -94,7 +94,7 @@
         <nd ref="-1605119355"/>
         <nd ref="-1605119357"/>
         <tag k="highway" v="residential"/>
-        <tag k="lanes" v="2"/>
+        <tag k="lanes" v="3"/>
         <tag k="oneway" v="yes"/>
         <tag k="maxspeed" v="25 mph"/>
         <tag k="name" v="Streety McStreetFace"/>

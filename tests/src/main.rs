@@ -3,11 +3,17 @@
 use std::fs::File;
 use std::io::Write;
 
+use rand::seq::SliceRandom;
+
 use abstutil::{MapName, Timer};
-use geom::Duration;
-use map_model::Map;
+use geom::{Duration, Time};
+use map_model::{LaneID, Map, PathConstraints};
+use sim::{DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripPurpose};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    test_lane_changing(&import_map(abstutil::path(
+        "../tests/input/lane_selection.osm",
+    )))?;
     test_map_importer()?;
     check_proposals()?;
     smoke_test()?;
@@ -141,5 +147,89 @@ fn check_proposals() -> Result<(), String> {
             }
         }
     }
+    Ok(())
+}
+
+/// Verify lane-chaging behavior is overall reasonable, by asserting all cars and bikes can
+/// complete their trip under a time limit.
+fn test_lane_changing(map: &Map) -> Result<(), String> {
+    // This uses a fixed RNG seed
+    let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
+
+    // Bit brittle to hardcode IDs here, but it's fast to update
+    let north = map.get_l(LaneID(23)).get_directed_parent(map);
+    let south = DrivingGoal::end_at_border(
+        map.get_l(LaneID(31)).get_directed_parent(map),
+        PathConstraints::Car,
+        None,
+        map,
+    )
+    .unwrap();
+    let east = map.get_l(LaneID(6)).get_directed_parent(map);
+    let west = DrivingGoal::end_at_border(
+        map.get_l(LaneID(15)).get_directed_parent(map),
+        PathConstraints::Car,
+        None,
+        map,
+    )
+    .unwrap();
+    // (origin, destination) pairs
+    let mut od = Vec::new();
+    for _ in 0..100 {
+        od.push((north, south.clone()));
+        od.push((east, south.clone()));
+    }
+    for _ in 0..100 {
+        od.push((north, west.clone()));
+        od.push((east, west.clone()));
+    }
+    // Shuffling here is critical, since the loop below creates a car/bike and chooses spawn time
+    // based on index.
+    od.shuffle(&mut rng);
+
+    let mut scenario = Scenario::empty(map, "lane_changing");
+    for (from, to) in od {
+        let id = PersonID(scenario.people.len());
+        scenario.people.push(PersonSpec {
+            id,
+            orig_id: None,
+            trips: vec![IndividTrip::new(
+                // Space out the spawn times a bit. If a vehicle tries to spawn and something's in
+                // the way, there's a fixed retry time in the simulation that we'll hit.
+                Time::START_OF_DAY + Duration::seconds(id.0 as f64 - 0.5).max(Duration::ZERO),
+                TripPurpose::Shopping,
+                SpawnTrip::FromBorder {
+                    dr: from,
+                    goal: to,
+                    // About half cars, half bikes
+                    is_bike: id.0 % 2 == 0,
+                    origin: None,
+                },
+            )],
+        });
+    }
+    // Enable to manually watch the scenario
+    if false {
+        scenario.save();
+    }
+
+    let mut opts = sim::SimOptions::new("test_lane_changing");
+    opts.alerts = sim::AlertHandler::Silence;
+    let mut sim = sim::Sim::new(&map, opts, &mut Timer::throwaway());
+    let mut rng = sim::SimFlags::for_test("test_lane_changing").make_rng();
+    scenario.instantiate(&mut sim, &map, &mut rng, &mut Timer::throwaway());
+    sim.run_until_done(&map, |_, _| {}, None);
+    // This time limit was determined by watching the scenario manually. This test prevents the
+    // time from regressing, which would probably indicate something breaking related to lane
+    // selection.
+    let limit = Duration::minutes(8) + Duration::seconds(35.0);
+    if sim.time() > Time::START_OF_DAY + limit {
+        panic!(
+            "Lane-changing scenario took {} to complete; it should be under {}",
+            sim.time(),
+            limit
+        );
+    }
+
     Ok(())
 }

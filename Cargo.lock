@@ -2928,6 +2928,7 @@ dependencies = [
  "convert_osm",
  "geom",
  "map_model",
+ "rand",
  "sim",
 ]
 

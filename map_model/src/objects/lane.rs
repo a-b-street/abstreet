@@ -222,7 +222,7 @@ impl Lane {
     }
 
     // TODO Store this natively if this winds up being useful.
-    pub(crate) fn get_directed_parent(&self, map: &Map) -> DirectedRoadID {
+    pub fn get_directed_parent(&self, map: &Map) -> DirectedRoadID {
         let r = map.get_r(self.parent);
         DirectedRoadID {
             id: r.id,
