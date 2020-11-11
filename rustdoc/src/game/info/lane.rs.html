@@ -259,6 +259,12 @@
 <span id="258">258</span>
 <span id="259">259</span>
 <span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -416,6 +422,12 @@
         <span class="string">&quot;Dir and offset&quot;</span>.<span class="ident">to_string</span>(),
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}, {}&quot;</span>, <span class="ident">r</span>.<span class="ident">dir</span>(<span class="ident">l</span>.<span class="ident">id</span>), <span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>.<span class="ident">id</span>)),
     ));
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">reserved</span>, <span class="ident">total</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">debug_queue_lengths</span>(<span class="ident">l</span>.<span class="ident">id</span>) {
+        <span class="ident">kv</span>.<span class="ident">push</span>((
+            <span class="string">&quot;Queue (reserved, total) length&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}, {}&quot;</span>, <span class="ident">reserved</span>, <span class="ident">total</span>),
+        ));
+    }
 
     <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">kv</span>));
 

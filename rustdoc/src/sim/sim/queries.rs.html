@@ -467,6 +467,10 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -864,6 +868,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_scheduler_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">scheduler</span>.<span class="ident">describe_stats</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_queue_lengths</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">debug_queue_lengths</span>(<span class="ident">l</span>)
     }
 }
 

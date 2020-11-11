@@ -838,6 +838,10 @@
 <span id="837">837</span>
 <span id="838">838</span>
 <span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1667,7 +1671,8 @@
 <span class="comment">// TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity. Workaround</span>
 <span class="comment">// for now.</span>
 <span class="kw">fn</span> <span class="ident">allow_block_the_box</span>(<span class="ident">osm_node_id</span>: <span class="ident">i64</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-    <span class="comment">// 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison</span>
+    <span class="comment">// 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison,</span>
+    <span class="comment">// Green Lake Way N and 50th</span>
     <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53211693</span>
         <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53214134</span>
         <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53214133</span>
@@ -1677,6 +1682,9 @@
         <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">4249361353</span>
         <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">987334546</span>
         <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">848817336</span>
+        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">3393025729</span>
+        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">59995197</span>
+        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53077575</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "sim";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
