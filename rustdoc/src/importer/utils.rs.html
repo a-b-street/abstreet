@@ -257,7 +257,7 @@
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
 ) {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">input</span>);
-    <span class="kw">let</span> <span class="ident">clipping_polygon</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">clipping_polygon</span>);
+    <span class="kw">let</span> <span class="ident">clipping_polygon</span> <span class="op">=</span> <span class="ident">clipping_polygon</span>;
     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">output</span>);
 
     <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">exists</span>() {
