@@ -210,6 +210,7 @@ fn test_lane_changing(map: &Map) -> Result<(), String> {
     }
     // Enable to manually watch the scenario
     if false {
+        map.save();
         scenario.save();
     }
 

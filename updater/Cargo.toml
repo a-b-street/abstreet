@@ -6,8 +6,8 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-flate2 = "1.0.18"
+flate2 = "1.0.19"
 md5 = "0.7.0"
 reqwest = { version = "0.10.8", default-features=false, features=["rustls-tls"] }
-tokio = { version = "0.2.22", features = ["full"] }
+tokio = { version = "0.3.3", features = ["full"] }
 walkdir = "2.3.1"

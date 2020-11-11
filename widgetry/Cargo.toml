@@ -20,10 +20,8 @@ htmlescape = "0.3.1"
 image = { version = "0.23.9", default-features = false, features=["png"] }
 instant = "0.1.7"
 log = "0.4.11"
-lru = "0.6.0"
-# lyon 0.16.0 causes crash in widgetry demo
-# maybe related: https://github.com/nical/lyon/issues/607
-lyon = "0.15.8"
+lru = "0.6.1"
+lyon = "0.16.2"
 serde = "1.0.116"
 stretch = "0.3.2"
 ttf-parser = "0.8.2"
