@@ -103,10 +103,10 @@ impl Bounds {
 /// to the right and down (screen-drawing order, not Cartesian) in meters.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GPSBounds {
-    pub(crate) min_lon: f64,
-    pub(crate) min_lat: f64,
-    pub(crate) max_lon: f64,
-    pub(crate) max_lat: f64,
+    pub min_lon: f64,
+    pub min_lat: f64,
+    pub max_lon: f64,
+    pub max_lat: f64,
 }
 
 impl GPSBounds {

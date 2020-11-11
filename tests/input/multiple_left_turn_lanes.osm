@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Resembles https://www.openstreetmap.org/node/53187904 with multiple left turn lanes. -->
 <osm>
-        <bounds minlon="0.0" maxlon="0.01" minlat="0.0" maxlat="0.01"/>
-        <node id="1" lon="0.005" lat="0.005"/>
-        <node id="2" lon="0.005" lat="-1.0"/>
-        <node id="3" lon="0.005" lat="1.0"/>
-        <node id="4" lon="-0.1" lat="0.005"/>
-        <node id="5" lon="1.0" lat="0.005"/>
+        <bounds minlon="0.0" maxlon="0.001" minlat="0.0" maxlat="0.001"/>
+        <node id="1" lon="0.0005" lat="0.0005"/>
+        <node id="2" lon="0.0005" lat="-1.0"/>
+        <node id="3" lon="0.0005" lat="1.0"/>
+        <node id="4" lon="-0.1" lat="0.0005"/>
+        <node id="5" lon="1.0" lat="0.0005"/>
         <way id="100">
             <nd ref="1"/>
             <nd ref="2"/>

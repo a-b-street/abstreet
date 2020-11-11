@@ -76,7 +76,7 @@ impl MainState {
                     Text::new().draw(ctx).named("current info"),
                     Widget::col(vec![
                         Btn::text_fg("quit").build_def(ctx, Key::Escape),
-                        Btn::text_fg("save raw map").build_def(ctx, None),
+                        Btn::text_fg("export to OSM").build_def(ctx, None),
                         Btn::text_fg("preview all intersections").build_def(ctx, Key::G),
                     ]),
                 ]))
@@ -185,9 +185,9 @@ impl widgetry::State<App> for MainState {
                                     app.before_quit(ctx.canvas);
                                     std::process::exit(0);
                                 }
-                                "save raw map" => {
+                                "export to OSM" => {
                                     // TODO Only do this for synthetic maps
-                                    app.model.export();
+                                    app.model.export_to_osm();
                                 }
                                 "preview all intersections" => {
                                     if !app.model.intersection_geom {

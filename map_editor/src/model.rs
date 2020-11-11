@@ -1,7 +1,10 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
+use std::io::Write;
 
 use abstutil::{MapName, Tags, Timer};
-use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{
+    Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
+};
 use map_model::raw::{OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
 use map_model::{osm, IntersectionType};
 use widgetry::{Color, EventCtx, Line, Text};
@@ -76,11 +79,7 @@ impl Model {
 // General
 impl Model {
     // TODO Only for truly synthetic maps...
-    pub fn export(&mut self) {
-        if self.map.name.map == "" {
-            self.map.name.map = "new_synthetic_map".to_string();
-        }
-
+    pub fn export_to_osm(&mut self) {
         // Shift the map to start at (0, 0)
         let bounds = self.compute_bounds();
         if bounds.min_x != 0.0 || bounds.min_y != 0.0 {
@@ -112,7 +111,7 @@ impl Model {
             .gps_bounds
             .update(Pt2D::new(bounds.max_x, bounds.max_y).to_gps(&seattle_bounds));
 
-        self.map.save();
+        dump_to_osm(&self.map).unwrap();
     }
 
     fn compute_bounds(&self) -> Bounds {
@@ -509,4 +508,55 @@ fn time_to_id() -> i64 {
     // TODO This is correct, just probably kind of annoying and slow. Having trouble getting
     // current time as seconds in wasm.
     -5000
+}
+
+/// Express a RawMap as a .osm file. Why not just save the RawMap? The format may change over time,
+/// and even if a RawMap is saved as JSON, manually updating it is annoying. This is used to create
+/// synthetic maps that will never go bad -- there will always be a pipeline to import a .osm file,
+/// so actually, .osm is a stable-over-time format.
+fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
+    let mut f = std::fs::File::create("synthetic_export.osm")?;
+    writeln!(f, r#"<?xml version='1.0' encoding='UTF-8'?>"#)?;
+    writeln!(f, r#"<osm>"#)?;
+    writeln!(
+        f,
+        r#"<!-- If you couldn't tell, this is a fake .osm file not representing the real world. -->"#
+    )?;
+    let b = &map.gps_bounds;
+    writeln!(
+        f,
+        r#"    <bounds minlon="{}" maxlon="{}" minlat="{}" maxlat="{}"/>"#,
+        b.min_lon, b.max_lon, b.min_lat, b.max_lat
+    )?;
+    let mut pt_to_id: HashMap<HashablePt2D, osm::NodeID> = HashMap::new();
+    for (id, i) in &map.intersections {
+        pt_to_id.insert(i.point.to_hashable(), *id);
+        let pt = i.point.to_gps(b);
+        writeln!(
+            f,
+            r#"    <node id="{}" lon="{}" lat="{}"/>"#,
+            id.0,
+            pt.x(),
+            pt.y()
+        )?;
+    }
+    for (id, r) in &map.roads {
+        writeln!(f, r#"    <way id="{}">"#, id.osm_way_id.0)?;
+        for pt in &r.center_points {
+            // TODO Make new IDs if needed
+            writeln!(
+                f,
+                r#"        <nd ref="{}"/>"#,
+                pt_to_id[&pt.to_hashable()].0
+            )?;
+        }
+        for (k, v) in r.osm_tags.inner() {
+            if !k.starts_with("abst:") {
+                writeln!(f, r#"        <tag k="{}" v="{}"/>"#, k, v)?;
+            }
+        }
+        writeln!(f, r#"    </way>"#)?;
+    }
+    writeln!(f, r#"</osm>"#)?;
+    Ok(())
 }

@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm>
+<!-- If you couldn't tell, this is a fake .osm file not representing the real world. -->
+    <bounds minlon="-122.45322" maxlon="-122.44926543386632" minlat="47.72120717894802" maxlat="47.723277"/>
+    <node id="-1605119357" lon="-122.45151126345101" lat="47.72120717894802"/>
+    <node id="-1605119355" lon="-122.4514653240954" lat="47.721556505137436"/>
+    <node id="-1605119352" lon="-122.44924830402773" lat="47.72226323072633"/>
+    <node id="-1605119350" lon="-122.45011356808114" lat="47.722252367820644"/>
+    <node id="-1605119348" lon="-122.453224" lat="47.72224689454935"/>
+    <node id="-1605119346" lon="-122.45247066541864" lat="47.72225775745503"/>
+    <node id="-1605119341" lon="-122.45144121479004" lat="47.72225775745503">
+        <tag k="highway" v="traffic_signals"/>
+    </node>
+    <node id="-1605119336" lon="-122.45145843018425" lat="47.72284341277203"/>
+    <node id="-1605119328" lon="-122.45144699647818" lat="47.723277"/>
+    <way id="-1605119381">
+        <nd ref="-1605119350"/>
+        <nd ref="-1605119341"/>
+        <tag k="highway" v="residential"/>
+        <tag k="lanes" v="3"/>
+        <tag k="oneway" v="yes"/>
+        <tag k="maxspeed" v="35 mph"/>
+        <tag k="name" v="Streety McStreetFace"/>
+        <tag k="parking:lane:both" v="no_parking"/>
+        <tag k="sidewalk" v="both"/>
+    </way>
+    <way id="-1605119379">
+        <nd ref="-1605119352"/>
+        <nd ref="-1605119350"/>
+        <tag k="highway" v="residential"/>
+        <tag k="lanes" v="1"/>
+        <tag k="oneway" v="yes"/>
+        <tag k="maxspeed" v="25 mph"/>
+        <tag k="name" v="Streety McStreetFace"/>
+        <tag k="parking:lane:both" v="no_parking"/>
+        <tag k="sidewalk" v="both"/>
+    </way>
+    <way id="-1605119375">
+        <nd ref="-1605119341"/>
+        <nd ref="-1605119346"/>
+        <tag k="highway" v="residential"/>
+        <tag k="lanes" v="2"/>
+        <tag k="oneway" v="yes"/>
+        <tag k="maxspeed" v="25 mph"/>
+        <tag k="name" v="Streety McStreetFace"/>
+        <tag k="parking:lane:both" v="no_parking"/>
+        <tag k="sidewalk" v="both"/>
+    </way>
+    <way id="-1605119368">
+        <nd ref="-1605119346"/>
+        <nd ref="-1605119348"/>
+        <tag k="highway" v="residential"/>
+        <tag k="lanes" v="1"/>
+        <tag k="oneway" v="yes"/>
+        <tag k="maxspeed" v="25 mph"/>
+        <tag k="name" v="Streety McStreetFace"/>
+        <tag k="parking:lane:both" v="no_parking"/>
+        <tag k="sidewalk" v="both"/>
+    </way>
+    <way id="-1605119365">
+        <nd ref="-1605119336"/>
+        <nd ref="-1605119341"/>
+        <tag k="highway" v="residential"/>
+        <tag k="lanes" v="3"/>
+        <tag k="oneway" v="yes"/>
+        <tag k="maxspeed" v="25 mph"/>
+        <tag k="name" v="Streety McStreetFace"/>
+        <tag k="parking:lane:both" v="no_parking"/>
+        <tag k="sidewalk" v="both"/>
+    </way>
+    <way id="-1605119363">
+        <nd ref="-1605119328"/>
+        <nd ref="-1605119336"/>
+        <tag k="highway" v="residential"/>
+        <tag k="lanes" v="1"/>
+        <tag k="oneway" v="yes"/>
+        <tag k="maxspeed" v="25 mph"/>
+        <tag k="name" v="Streety McStreetFace"/>
+        <tag k="parking:lane:both" v="no_parking"/>
+        <tag k="sidewalk" v="both"/>
+    </way>
+    <way id="-1605119361">
+        <nd ref="-1605119341"/>
+        <nd ref="-1605119355"/>
+        <tag k="highway" v="residential"/>
+        <tag k="lanes" v="3"/>
+        <tag k="oneway" v="yes"/>
+        <tag k="maxspeed" v="25 mph"/>
+        <tag k="name" v="Streety McStreetFace"/>
+        <tag k="parking:lane:both" v="no_parking"/>
+        <tag k="sidewalk" v="both"/>
+    </way>
+    <way id="-1605119360">
+        <nd ref="-1605119355"/>
+        <nd ref="-1605119357"/>
+        <tag k="highway" v="residential"/>
+        <tag k="lanes" v="2"/>
+        <tag k="oneway" v="yes"/>
+        <tag k="maxspeed" v="25 mph"/>
+        <tag k="name" v="Streety McStreetFace"/>
+        <tag k="parking:lane:both" v="no_parking"/>
+        <tag k="sidewalk" v="both"/>
+    </way>
+</osm>
