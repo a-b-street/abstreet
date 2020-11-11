@@ -1156,6 +1156,11 @@ impl DrivingSimState {
             }
         }
     }
+
+    pub fn debug_queue_lengths(&self, l: LaneID) -> Option<(Distance, Distance)> {
+        let queue = self.queues.get(&Traversable::Lane(l))?;
+        Some((queue.reserved_length, queue.geom_len))
+    }
 }
 
 impl IndexableKey for CarID {

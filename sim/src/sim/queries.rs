@@ -395,6 +395,10 @@ impl Sim {
     pub fn describe_scheduler_stats(&self) -> String {
         self.scheduler.describe_stats()
     }
+
+    pub fn debug_queue_lengths(&self, l: LaneID) -> Option<(Distance, Distance)> {
+        self.driving.debug_queue_lengths(l)
+    }
 }
 
 // Drawing

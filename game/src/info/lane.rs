@@ -154,6 +154,12 @@ pub fn debug(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Ve
         "Dir and offset".to_string(),
         format!("{}, {}", r.dir(l.id), r.offset(l.id)),
     ));
+    if let Some((reserved, total)) = app.primary.sim.debug_queue_lengths(l.id) {
+        kv.push((
+            "Queue (reserved, total) length".to_string(),
+            format!("{}, {}", reserved, total),
+        ));
+    }
 
     rows.extend(make_table(ctx, kv));
 
