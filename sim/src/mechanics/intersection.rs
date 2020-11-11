@@ -840,4 +840,5 @@ fn allow_block_the_box(osm_node_id: i64) -> bool {
         || osm_node_id == 3393025729
         || osm_node_id == 59995197
         || osm_node_id == 53077575
+        || osm_node_id == 4273547929
 }

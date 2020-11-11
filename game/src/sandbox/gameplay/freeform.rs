@@ -252,7 +252,7 @@ impl AgentSpawner {
                     "Number of trips:".draw_text(ctx),
                     Spinner::new(ctx, (1, 1000), 1).named("number"),
                 ]),
-                Btn::text_fg("Confirm").inactive(ctx).named("Confirm"),
+                Btn::text_fg("Confirm").inactive(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),

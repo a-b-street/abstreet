@@ -461,7 +461,10 @@ impl Panel {
             assert_eq!(id, new_id);
         }
         new = new.named(id);
-        let old = self.top_level.find_mut(id).unwrap();
+        let old = self
+            .top_level
+            .find_mut(id)
+            .expect(&format!("Panel doesn't have {}", id));
         new.layout.style = old.layout.style;
         *old = new;
         self.recompute_layout(ctx, true);
