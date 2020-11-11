@@ -521,7 +521,7 @@
     }
 
     <span class="comment">// TODO Store this natively if this winds up being useful.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_directed_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">DirectedRoadID</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_directed_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">DirectedRoadID</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">parent</span>);
         <span class="ident">DirectedRoadID</span> {
             <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
