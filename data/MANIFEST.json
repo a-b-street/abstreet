@@ -137,8 +137,8 @@
       "size_bytes": 433758033
     },
     "data/input/seattle/footways.bin": {
-      "checksum": "09c6aca2ad37d007c6bd40b91886ed95",
-      "size_bytes": 5536891
+      "checksum": "f0235ec7fa609871b87feaa4edcdddd7",
+      "size_bytes": 5950524
     },
     "data/input/seattle/google_transit/agency.txt": {
       "checksum": "75f564fcc06b1950b7b33acf9d61f696",
@@ -197,40 +197,40 @@
       "size_bytes": 585949
     },
     "data/input/seattle/osm/ballard.osm": {
-      "checksum": "f1fabfda271614393aee8c9aa4797afa",
-      "size_bytes": 80123564
+      "checksum": "598b44f72e129b24f8db35e98292b82c",
+      "size_bytes": 80757969
     },
     "data/input/seattle/osm/downtown.osm": {
-      "checksum": "390d049823a5be08b10eb62e8321d922",
-      "size_bytes": 34728832
+      "checksum": "946af458030dd64bf7cc40a1b72ad902",
+      "size_bytes": 35322532
     },
     "data/input/seattle/osm/huge_seattle.osm": {
-      "checksum": "b53c5c9d9ed5d3c0d08832471161abe5",
-      "size_bytes": 438279741
+      "checksum": "930d6b525b2b65fa5bf4f6f92388162c",
+      "size_bytes": 442065027
     },
     "data/input/seattle/osm/lakeslice.osm": {
-      "checksum": "dafae542f1f70fbb4111e56d79531c02",
-      "size_bytes": 37089205
+      "checksum": "c9365857a0bfae25e96d9d6d0e23da0e",
+      "size_bytes": 37149207
     },
     "data/input/seattle/osm/montlake.osm": {
-      "checksum": "54d1a86b873ba135f3220ddd89899bb7",
-      "size_bytes": 7698624
+      "checksum": "2cc60630403daaabc0ab648abfe281fe",
+      "size_bytes": 8197968
     },
     "data/input/seattle/osm/south_seattle.osm": {
-      "checksum": "aeafea7b1d390389f0ea75a30954008e",
-      "size_bytes": 87726737
+      "checksum": "6b91e5dac440743f2e1b04c6f2d79553",
+      "size_bytes": 88772152
     },
     "data/input/seattle/osm/udistrict.osm": {
-      "checksum": "41d0109c61665a53b5cd1bd11acf0363",
-      "size_bytes": 19486519
+      "checksum": "e1f05e0cd5656e338cc107467804f332",
+      "size_bytes": 19737660
     },
     "data/input/seattle/osm/washington-latest.osm.pbf": {
-      "checksum": "948d49da8aae15d99bd36e95c7c27ef2",
-      "size_bytes": 170461714
+      "checksum": "fe6a095c47ee3a36eb8d0849513d25df",
+      "size_bytes": 215889467
     },
     "data/input/seattle/osm/west_seattle.osm": {
-      "checksum": "d8a7e897774db567728f9a70337ef376",
-      "size_bytes": 92252962
+      "checksum": "f8d6cedb52a699309c4b11ab191ebc23",
+      "size_bytes": 93296015
     },
     "data/input/seattle/parcels.bin": {
       "checksum": "9cd91b7fa68b13634b21be7abfa0e654",
@@ -245,56 +245,56 @@
       "size_bytes": 430666022
     },
     "data/input/seattle/raw_maps/ballard.bin": {
-      "checksum": "9321228f47483f7a14b2747e5ea84885",
-      "size_bytes": 21648115
+      "checksum": "686b5dd919c420ece5b7307380bcf2e6",
+      "size_bytes": 21678521
     },
     "data/input/seattle/raw_maps/downtown.bin": {
-      "checksum": "a01147203819f1b6f4ea893af4300c44",
-      "size_bytes": 7774126
+      "checksum": "53b2c8792924c26c94878832b1abf65a",
+      "size_bytes": 7765953
     },
     "data/input/seattle/raw_maps/huge_seattle.bin": {
-      "checksum": "77a10eb129d0d5ce61d79192bd55b996",
-      "size_bytes": 123426278
+      "checksum": "cdcc4c27f5e098e8d1ad8acdc0668988",
+      "size_bytes": 123564008
     },
     "data/input/seattle/raw_maps/lakeslice.bin": {
-      "checksum": "5362657bbcdac16ac22aadf58f2a769c",
-      "size_bytes": 9984817
+      "checksum": "53fa4ceca86928ae4275eb07dde85f67",
+      "size_bytes": 9987408
     },
     "data/input/seattle/raw_maps/montlake.bin": {
-      "checksum": "60776c41875cad8f79354dff8c4d3d47",
-      "size_bytes": 1883008
+      "checksum": "4b5bfb62e581d72a3e5cf48b8d0735ff",
+      "size_bytes": 1883639
     },
     "data/input/seattle/raw_maps/south_seattle.bin": {
-      "checksum": "e29c6adc12d97b5b2b8beb643271dcfd",
-      "size_bytes": 23677722
+      "checksum": "f08238c7f3f357f425253f8db4b2f983",
+      "size_bytes": 23701655
     },
     "data/input/seattle/raw_maps/udistrict.bin": {
-      "checksum": "8dca7ce30cb5e6fa6417f8c2ce737fe2",
-      "size_bytes": 4393153
+      "checksum": "44d4f62ea6e648efe4826fc4d8aec2de",
+      "size_bytes": 4422766
     },
     "data/input/seattle/raw_maps/west_seattle.bin": {
-      "checksum": "4ed2b3505bd9ce9ca8158c174b8925e7",
-      "size_bytes": 25821468
+      "checksum": "ee4b169559e9b2643a1783efed19b530",
+      "size_bytes": 25877866
     },
     "data/input/seattle/screenshots/downtown.zip": {
-      "checksum": "4552a34fffb0c47b121f532d882964e8",
-      "size_bytes": 14841175
+      "checksum": "33fd063e51441da554d2fdaa6e59203e",
+      "size_bytes": 14868587
     },
     "data/input/seattle/screenshots/lakeslice.zip": {
-      "checksum": "9d2fb224f4be434404a46a0004274bff",
-      "size_bytes": 13555629
+      "checksum": "e03a80d37be61d751e2f25ec296f42be",
+      "size_bytes": 13654064
     },
     "data/input/seattle/screenshots/montlake.zip": {
-      "checksum": "366d6ee503a070d3c03eab16bb94accd",
-      "size_bytes": 2625400
+      "checksum": "bbeb959fb871a1d52802c3d21abecf15",
+      "size_bytes": 2623901
     },
     "data/input/seattle/screenshots/udistrict.zip": {
-      "checksum": "4e0a2e2a756de90b187367d71b16f06c",
-      "size_bytes": 6791102
+      "checksum": "46d140a803b2fce16da66771a9384c7f",
+      "size_bytes": 6803035
     },
     "data/input/seattle/service_roads.bin": {
-      "checksum": "550f1e72408b63781596ec26b6daa1d0",
-      "size_bytes": 3787291
+      "checksum": "1a1bbd9fe7ffa844d19d6587267639d8",
+      "size_bytes": 3816915
     },
     "data/input/seattle/trips_2014.csv": {
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
@@ -357,84 +357,84 @@
       "size_bytes": 8485906
     },
     "data/system/seattle/city.bin": {
-      "checksum": "f27f636bf123c11c878b79684c78de54",
-      "size_bytes": 1194340
+      "checksum": "1730b50f706c69e6cea9c19ec34923ac",
+      "size_bytes": 1240529
     },
     "data/system/seattle/maps/ballard.bin": {
-      "checksum": "c73171860d55e178437725646cc78ab7",
-      "size_bytes": 51296304
+      "checksum": "0a15cd016ccfe68816911adb4d1a45f7",
+      "size_bytes": 51324129
     },
     "data/system/seattle/maps/downtown.bin": {
-      "checksum": "6709080b9e4efd8dd39b6f5753bfda2c",
-      "size_bytes": 28854317
+      "checksum": "6e24bc5b062f410bb4dc5278c2ca94aa",
+      "size_bytes": 28763683
     },
     "data/system/seattle/maps/huge_seattle.bin": {
-      "checksum": "c7274af833eee6d5d0646b45e921bf9c",
-      "size_bytes": 296234955
+      "checksum": "7595474fd0c6ce0d9bb0eba0b282386e",
+      "size_bytes": 296480787
     },
     "data/system/seattle/maps/lakeslice.bin": {
-      "checksum": "da08eecbaeebbadea93d3ee96cdeaea6",
-      "size_bytes": 24340009
+      "checksum": "bae0102be641c6f3eea8b4deba7040ee",
+      "size_bytes": 24343651
     },
     "data/system/seattle/maps/montlake.bin": {
-      "checksum": "59c3c1bddd2e0bf317e8a0b63e85a580",
-      "size_bytes": 4167805
+      "checksum": "147240d8d1cd6eeb3ad787f1b4a144a5",
+      "size_bytes": 4159250
     },
     "data/system/seattle/maps/south_seattle.bin": {
-      "checksum": "9114499e2e3280305b35f2559fc4027e",
-      "size_bytes": 62144147
+      "checksum": "771548d4b5686f23b8747b05a8d9a6ea",
+      "size_bytes": 62322326
     },
     "data/system/seattle/maps/udistrict.bin": {
-      "checksum": "02f2f0a371a89e50e2b80a7d8c2e9524",
-      "size_bytes": 11004882
+      "checksum": "249e9d44e569ae1bf3669eedb8042371",
+      "size_bytes": 11043340
     },
     "data/system/seattle/maps/west_seattle.bin": {
-      "checksum": "bd5e15621ed2c752d2ed571c8663b3fe",
-      "size_bytes": 58615858
+      "checksum": "1f7e66df58591f37ecf9b9987910897b",
+      "size_bytes": 58730351
     },
     "data/system/seattle/prebaked_results/lakeslice/weekday.bin": {
-      "checksum": "b06748aebca40aefe5092662fccdc41b",
-      "size_bytes": 66361063
+      "checksum": "939bdc606246dcd9cc0f374b999e54e2",
+      "size_bytes": 67222067
     },
     "data/system/seattle/prebaked_results/montlake/car vs bike contention.bin": {
-      "checksum": "e602068a44a8c2e2aa6852013e54d752",
+      "checksum": "f8cd6330a51448feffddbacd221d809a",
       "size_bytes": 5226
     },
     "data/system/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "04c72381efac86f446ab1c472e919cb0",
-      "size_bytes": 8999325
+      "checksum": "57ee0b9c39158817b796f24829f94e89",
+      "size_bytes": 8973017
     },
     "data/system/seattle/scenarios/ballard/weekday.bin": {
-      "checksum": "32ab5007df36c3040a018128ea87eb01",
-      "size_bytes": 40525117
+      "checksum": "b1e1b8acd43f99e889961b933d772712",
+      "size_bytes": 40506840
     },
     "data/system/seattle/scenarios/downtown/weekday.bin": {
-      "checksum": "f89cdf9a500821701ba485b93ec0ea41",
-      "size_bytes": 76504112
+      "checksum": "94aefd32130106a60501dfabe238008b",
+      "size_bytes": 76285398
     },
     "data/system/seattle/scenarios/huge_seattle/weekday.bin": {
-      "checksum": "a08f6e7e80f690ff0c9ff99dd257ac8e",
-      "size_bytes": 184932063
+      "checksum": "a69738b3d477788727a4c72fbfff35ae",
+      "size_bytes": 185044972
     },
     "data/system/seattle/scenarios/lakeslice/weekday.bin": {
-      "checksum": "b61bed608f57640363b2d2ec545b09d6",
-      "size_bytes": 18220244
+      "checksum": "cf1e2ebd3c292f8498dbf21cfed487d5",
+      "size_bytes": 18208953
     },
     "data/system/seattle/scenarios/montlake/weekday.bin": {
-      "checksum": "ab411078b00df998e33cc37b5bbd87f6",
+      "checksum": "7de94da091e867377837219a92ad386b",
       "size_bytes": 2644719
     },
     "data/system/seattle/scenarios/south_seattle/weekday.bin": {
-      "checksum": "00fcb31bfe4a1aac5b7bad10d391d5d0",
-      "size_bytes": 52466813
+      "checksum": "319c010481d053296cf3feabbd0e644e",
+      "size_bytes": 52459907
     },
     "data/system/seattle/scenarios/udistrict/weekday.bin": {
-      "checksum": "215e15abc5c7f34836d9939325e07fad",
-      "size_bytes": 18675051
+      "checksum": "e7e849122b7271264522086fd13f0b64",
+      "size_bytes": 18637961
     },
     "data/system/seattle/scenarios/west_seattle/weekday.bin": {
-      "checksum": "bbb836a9d1071aeb54a954de07be4bfb",
-      "size_bytes": 37276677
+      "checksum": "b6651a8dafd8bb3cd463f1bbc35d1dba",
+      "size_bytes": 37268171
     },
     "data/system/tel_aviv/maps/center.bin": {
       "checksum": "08123720c8c0a0990b9604ba25554b81",

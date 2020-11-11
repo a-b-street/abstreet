@@ -138,7 +138,15 @@ fn check_proposals() -> Result<(), String> {
         ) {
             Ok(perma) => {
                 let map = map_model::Map::new(perma.map_name.path(), &mut timer);
-                if let Err(err) = map_model::PermanentMapEdits::from_permanent(perma, &map) {
+                if let Err(err) = map_model::PermanentMapEdits::from_permanent(perma.clone(), &map)
+                {
+                    abstutil::write_json(
+                        "repair_attempt.json".to_string(),
+                        &map_model::PermanentMapEdits::to_permanent(
+                            &map_model::PermanentMapEdits::from_permanent_permissive(perma, &map),
+                            &map,
+                        ),
+                    );
                     return Err(format!("{} is out-of-date: {}", name, err));
                 }
             }

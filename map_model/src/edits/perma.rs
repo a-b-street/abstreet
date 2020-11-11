@@ -85,6 +85,50 @@ impl EditCmd {
     }
 }
 
+impl PermanentEditCmd {
+    pub fn to_cmd(self, map: &Map) -> Result<EditCmd, String> {
+        match self {
+            PermanentEditCmd::ChangeRoad { r, new, old } => {
+                let id = map.find_r_by_osm_id(r)?;
+                let num_current = map.get_r(id).lanes_ltr().len();
+                // The basemap changed -- it'd be pretty hard to understand the original
+                // intent of the edit.
+                if num_current != new.lanes_ltr.len() {
+                    return Err(format!(
+                        "number of lanes in {} is {} now, but {} in the edits",
+                        r,
+                        num_current,
+                        new.lanes_ltr.len()
+                    ));
+                }
+                Ok(EditCmd::ChangeRoad { r: id, new, old })
+            }
+            PermanentEditCmd::ChangeIntersection { i, new, old } => {
+                let id = map.find_i_by_osm_id(i)?;
+                Ok(EditCmd::ChangeIntersection {
+                    i: id,
+                    new: new.from_permanent(id, map).map_err(|err| {
+                        format!("new ChangeIntersection of {} invalid: {}", i, err)
+                    })?,
+                    old: old.from_permanent(id, map).map_err(|err| {
+                        format!("old ChangeIntersection of {} invalid: {}", i, err)
+                    })?,
+                })
+            }
+            PermanentEditCmd::ChangeRouteSchedule {
+                osm_rel_id,
+                old,
+                new,
+            } => {
+                let id = map
+                    .find_br(osm_rel_id)
+                    .ok_or(format!("can't find {}", osm_rel_id))?;
+                Ok(EditCmd::ChangeRouteSchedule { id, old, new })
+            }
+        }
+    }
+}
+
 impl PermanentMapEdits {
     pub fn to_permanent(edits: &MapEdits, map: &Map) -> PermanentMapEdits {
         PermanentMapEdits {
@@ -99,10 +143,8 @@ impl PermanentMapEdits {
         }
     }
 
-    /// Load edits from the permanent form, looking up the Map IDs by the hopefully stabler OSM IDs.
+    /// Load edits from the permanent form, looking up the map IDs by the hopefully stabler OSM IDs.
     /// Validate that the basemap hasn't changed in important ways.
-    // TODO When a change has happened, try to preserve as much of the original edits as possible,
-    // and warn the player about the rest?
     pub fn from_permanent(perma: PermanentMapEdits, map: &Map) -> Result<MapEdits, String> {
         let mut edits = MapEdits {
             edits_name: perma.edits_name,
@@ -111,45 +153,7 @@ impl PermanentMapEdits {
             commands: perma
                 .commands
                 .into_iter()
-                .map(|cmd| match cmd {
-                    PermanentEditCmd::ChangeRoad { r, new, old } => {
-                        let id = map.find_r_by_osm_id(r)?;
-                        let num_current = map.get_r(id).lanes_ltr().len();
-                        // The basemap changed -- it'd be pretty hard to understand the original
-                        // intent of the edit.
-                        if num_current != new.lanes_ltr.len() {
-                            return Err(format!(
-                                "number of lanes in {} is {} now, but {} in the edits",
-                                r,
-                                num_current,
-                                new.lanes_ltr.len()
-                            ));
-                        }
-                        Ok(EditCmd::ChangeRoad { r: id, new, old })
-                    }
-                    PermanentEditCmd::ChangeIntersection { i, new, old } => {
-                        let id = map.find_i_by_osm_id(i)?;
-                        Ok(EditCmd::ChangeIntersection {
-                            i: id,
-                            new: new.from_permanent(id, map).map_err(|err| {
-                                format!("new ChangeIntersection of {} invalid: {}", i, err)
-                            })?,
-                            old: old.from_permanent(id, map).map_err(|err| {
-                                format!("old ChangeIntersection of {} invalid: {}", i, err)
-                            })?,
-                        })
-                    }
-                    PermanentEditCmd::ChangeRouteSchedule {
-                        osm_rel_id,
-                        old,
-                        new,
-                    } => {
-                        let id = map
-                            .find_br(osm_rel_id)
-                            .ok_or(format!("can't find {}", osm_rel_id))?;
-                        Ok(EditCmd::ChangeRouteSchedule { id, old, new })
-                    }
-                })
+                .map(|cmd| cmd.to_cmd(map))
                 .collect::<Result<Vec<EditCmd>, String>>()?,
             merge_zones: perma.merge_zones,
 
@@ -159,6 +163,28 @@ impl PermanentMapEdits {
         };
         edits.update_derived(map);
         Ok(edits)
+    }
+
+    /// Load edits from the permanent form, looking up the map IDs by the hopefully stabler OSM IDs.
+    /// Strip out commands that're broken.
+    pub fn from_permanent_permissive(perma: PermanentMapEdits, map: &Map) -> MapEdits {
+        let mut edits = MapEdits {
+            edits_name: perma.edits_name,
+            proposal_description: perma.proposal_description,
+            proposal_link: perma.proposal_link,
+            commands: perma
+                .commands
+                .into_iter()
+                .filter_map(|cmd| cmd.to_cmd(map).ok())
+                .collect(),
+            merge_zones: perma.merge_zones,
+
+            changed_roads: BTreeSet::new(),
+            original_intersections: BTreeMap::new(),
+            changed_routes: BTreeSet::new(),
+        };
+        edits.update_derived(map);
+        edits
     }
 }
 

@@ -104,7 +104,7 @@ pub fn osmconvert(
     config: &ImporterConfiguration,
 ) {
     let input = abstutil::path(input);
-    let clipping_polygon = abstutil::path(clipping_polygon);
+    let clipping_polygon = clipping_polygon;
     let output = abstutil::path(output);
 
     if Path::new(&output).exists() {

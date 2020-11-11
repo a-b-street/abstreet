@@ -1,10 +1,10 @@
 {
   "map_name": {
-	  "city": "seattle",
-	  "map": "west_seattle"
+    "city": "seattle",
+    "map": "west_seattle"
   },
   "edits_name": "repair west seattle bridge",
-  "version": 3,
+  "version": 4,
   "commands": [
     {
       "ChangeRoad": {
@@ -73,65 +73,6 @@
           "lanes_ltr": [
             [
               "Construction",
-              "Fwd"
-            ]
-          ],
-          "speed_limit": 17.8816,
-          "access_restrictions": {
-            "allow_through_traffic": 31,
-            "cap_vehicles_per_hour": null
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
-          "osm_way_id": 6424831,
-          "i1": 634075875,
-          "i2": 634092934
-        },
-        "new": {
-          "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Back"
-            ],
-            [
-              "Driving",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
-              "Fwd"
-            ]
-          ],
-          "speed_limit": 17.8816,
-          "access_restrictions": {
-            "allow_through_traffic": 31,
-            "cap_vehicles_per_hour": null
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            [
-              "Sidewalk",
-              "Back"
-            ],
-            [
-              "Bus",
-              "Back"
-            ],
-            [
-              "Bus",
-              "Fwd"
-            ],
-            [
-              "Sidewalk",
               "Fwd"
             ]
           ],
