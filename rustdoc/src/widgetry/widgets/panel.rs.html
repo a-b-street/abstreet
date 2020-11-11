@@ -568,6 +568,9 @@
 <span id="567">567</span>
 <span id="568">568</span>
 <span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1032,7 +1035,10 @@
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">id</span>, <span class="ident">new_id</span>);
         }
         <span class="ident">new</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">named</span>(<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">find_mut</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">top_level</span>
+            .<span class="ident">find_mut</span>(<span class="ident">id</span>)
+            .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Panel doesn&#39;t have {}&quot;</span>, <span class="ident">id</span>));
         <span class="ident">new</span>.<span class="ident">layout</span>.<span class="ident">style</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
         <span class="kw-2">*</span><span class="ident">old</span> <span class="op">=</span> <span class="ident">new</span>;
         <span class="self">self</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
