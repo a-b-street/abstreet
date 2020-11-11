@@ -166,9 +166,9 @@
 <span class="doccomment">/// when they change. The goldenfiles (and changes to them) themselves aren&#39;t easy to understand,</span>
 <span class="doccomment">/// but the test maps are.</span>
 <span class="kw">fn</span> <span class="ident">test_map_importer</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="comment">// TODO It&#39;s kind of a hack to reference the crate&#39;s directory relative to the data dir.</span>
-    <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">abstutil</span>::<span class="ident">list_dir</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;../tests/input&quot;</span>)) {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">import_map</span>(<span class="ident">path</span>);
+    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;left_turn_and_bike_lane&quot;</span>, <span class="string">&quot;multiple_left_turn_lanes&quot;</span>] {
+        <span class="comment">// TODO It&#39;s kind of a hack to reference the crate&#39;s directory relative to the data dir.</span>
+        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">import_map</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;../tests/input/{}.osm&quot;</span>, <span class="ident">name</span>)));
         <span class="comment">// Enable to debug the result wih the normal GUI</span>
         <span class="kw">if</span> <span class="bool-val">false</span> {
             <span class="ident">map</span>.<span class="ident">save</span>();

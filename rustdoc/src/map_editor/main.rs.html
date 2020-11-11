@@ -456,7 +456,7 @@
                     <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;quit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
-                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;save raw map&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                        <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;export to OSM&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                         <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;preview all intersections&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">G</span>),
                     ]),
                 ]))
@@ -565,9 +565,9 @@
                                     <span class="ident">app</span>.<span class="ident">before_quit</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>);
                                     <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">exit</span>(<span class="number">0</span>);
                                 }
-                                <span class="string">&quot;save raw map&quot;</span> <span class="op">=&gt;</span> {
+                                <span class="string">&quot;export to OSM&quot;</span> <span class="op">=&gt;</span> {
                                     <span class="comment">// TODO Only do this for synthetic maps</span>
-                                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">export</span>();
+                                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">export_to_osm</span>();
                                 }
                                 <span class="string">&quot;preview all intersections&quot;</span> <span class="op">=&gt;</span> {
                                     <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">intersection_geom</span> {
