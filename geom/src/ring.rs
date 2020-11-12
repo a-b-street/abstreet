@@ -83,12 +83,16 @@ impl Ring {
         hits
     }
 
-    pub fn get_both_slices_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> Option<(PolyLine, PolyLine)> {
+    pub(crate) fn get_both_slices_btwn(
+        &self,
+        pt1: Pt2D,
+        pt2: Pt2D,
+    ) -> Option<(PolyLine, PolyLine)> {
         assert!(pt1 != pt2);
         let pl = PolyLine::unchecked_new(self.pts.clone());
 
-        let mut dist1 = pl.dist_along_of_point(pt1).unwrap().0;
-        let mut dist2 = pl.dist_along_of_point(pt2).unwrap().0;
+        let mut dist1 = pl.dist_along_of_point(pt1)?.0;
+        let mut dist2 = pl.dist_along_of_point(pt2)?.0;
         if dist1 > dist2 {
             std::mem::swap(&mut dist1, &mut dist2);
         }
@@ -104,12 +108,12 @@ impl Ring {
         Some((candidate1, candidate2))
     }
 
-    pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
-        let (candidate1, candidate2) = self.get_both_slices_btwn(pt1, pt2).unwrap();
+    pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> Option<PolyLine> {
+        let (candidate1, candidate2) = self.get_both_slices_btwn(pt1, pt2)?;
         if candidate1.length() < candidate2.length() {
-            candidate1
+            Some(candidate1)
         } else {
-            candidate2
+            Some(candidate2)
         }
     }
 

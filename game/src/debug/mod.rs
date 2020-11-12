@@ -808,22 +808,28 @@ fn trace_block(app: &App, start: LaneID) -> Option<Polygon> {
     let mut visited = HashSet::new();
     loop {
         let l = map.get_l(current);
-        if fwd {
-            pts.extend(
-                l.lane_center_pts
-                    .shift_left(l.width / 2.0)
-                    .unwrap()
-                    .into_points(),
-            );
+        let lane_pts = if fwd {
+            l.lane_center_pts.shift_left(l.width / 2.0)
         } else {
-            pts.extend(
-                l.lane_center_pts
-                    .reversed()
-                    .shift_left(l.width / 2.0)
-                    .unwrap()
-                    .into_points(),
-            );
+            l.lane_center_pts.reversed().shift_left(l.width / 2.0)
         }
+        .unwrap()
+        .into_points();
+        if let Some(last_pt) = pts.last().cloned() {
+            if last_pt != lane_pts[0] {
+                let last_i = if fwd { l.src_i } else { l.dst_i };
+                if let Some(pl) = map
+                    .get_i(last_i)
+                    .polygon
+                    .clone()
+                    .into_ring()
+                    .get_shorter_slice_btwn(last_pt, lane_pts[0])
+                {
+                    pts.extend(pl.into_points());
+                }
+            }
+        }
+        pts.extend(lane_pts);
         // Imagine pointing down this lane to the intersection. Rotate left -- which road is next?
         let i = if fwd { l.dst_i } else { l.src_i };
         println!("{}, fwd={}, pointing to {}", current, fwd, i);
@@ -853,5 +859,5 @@ fn trace_block(app: &App, start: LaneID) -> Option<Polygon> {
     }
     pts.push(pts[0]);
     pts.dedup();
-    Some(Ring::new(pts).unwrap().to_polygon())
+    Some(Ring::new(pts).ok()?.to_polygon())
 }
