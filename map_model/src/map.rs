@@ -44,52 +44,52 @@ impl Map {
 
                     if false {
                         use abstutil::{prettyprint_usize, serialized_size_bytes};
-                        println!(
+                        info!(
                             "Total map size: {} bytes",
                             prettyprint_usize(serialized_size_bytes(&map))
                         );
-                        println!(
+                        info!(
                             "- {} roads: {} bytes",
                             prettyprint_usize(map.roads.len()),
                             prettyprint_usize(serialized_size_bytes(&map.roads))
                         );
-                        println!(
+                        info!(
                             "- {} lanes: {} bytes",
                             prettyprint_usize(map.lanes.len()),
                             prettyprint_usize(serialized_size_bytes(&map.lanes))
                         );
-                        println!(
+                        info!(
                             "- {} intersections: {} bytes",
                             prettyprint_usize(map.intersections.len()),
                             prettyprint_usize(serialized_size_bytes(&map.intersections))
                         );
-                        println!(
+                        info!(
                             "- {} turns: {} bytes",
                             prettyprint_usize(map.turns.len()),
                             prettyprint_usize(serialized_size_bytes(&map.turns))
                         );
-                        println!(
+                        info!(
                             "- {} buildings: {} bytes",
                             prettyprint_usize(map.buildings.len()),
                             prettyprint_usize(serialized_size_bytes(&map.buildings))
                         );
-                        println!(
+                        info!(
                             "- {} areas: {} bytes",
                             prettyprint_usize(map.areas.len()),
                             prettyprint_usize(serialized_size_bytes(&map.areas))
                         );
-                        println!(
+                        info!(
                             "- {} parking lots: {} bytes",
                             prettyprint_usize(map.parking_lots.len()),
                             prettyprint_usize(serialized_size_bytes(&map.parking_lots))
                         );
-                        println!(
+                        info!(
                             "- {} zones: {} bytes",
                             prettyprint_usize(map.zones.len()),
                             prettyprint_usize(serialized_size_bytes(&map.zones))
                         );
                         // This is the partridge in the pear tree, I suppose
-                        println!(
+                        info!(
                             "- pathfinder: {} bytes",
                             prettyprint_usize(serialized_size_bytes(&map.pathfinder))
                         );
@@ -115,21 +115,21 @@ impl Map {
     }
 
     pub fn corrupt_err(path: String, err: Box<dyn std::error::Error>) {
-        println!("\nError loading {}: {}\n", path, err);
+        error!("\nError loading {}: {}\n", path, err);
         if err.to_string().contains("No such file") {
-            println!(
+            error!(
                 "{} is missing. You may need to do: cargo run --bin updater",
                 path
             );
         } else {
-            println!(
+            error!(
                 "{} is out-of-date. You may need to update your build (git pull) or download new \
                  data (cargo run --bin updater). If this is a custom map, you need to import it \
                  again.",
                 path
             );
         }
-        println!(
+        error!(
             "Check https://dabreegster.github.io/abstreet/dev/index.html and file an issue if you \
              have trouble."
         );
