@@ -536,15 +536,5 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
         return Some(AreaType::Island);
     }
 
-    // TODO These just cover up poorly inferred road geometry now. Figure out how to use these.
-    if false {
-        if tags.is("traffic_calming", "island") {
-            return Some(AreaType::PedestrianIsland);
-        }
-        if tags.is(osm::HIGHWAY, "pedestrian") && tags.is("area", "yes") {
-            return Some(AreaType::PedestrianIsland);
-        }
-    }
-
     None
 }

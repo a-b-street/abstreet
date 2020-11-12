@@ -111,6 +111,7 @@ pub struct ColorScheme {
     pub parking_lot: Color,
     pub grass: Fill,
     pub water: Fill,
+    pub median_strip: Fill,
 
     // Unzoomed dynamic elements
     pub unzoomed_car: Color,
@@ -230,6 +231,7 @@ impl ColorScheme {
             parking_lot: Color::grey(0.7),
             grass: hex("#94C84A").into(),
             water: Color::rgb(164, 200, 234).into(),
+            median_strip: Color::CYAN.into(),
 
             // Unzoomed dynamic elements
             unzoomed_car: hex("#A32015"),

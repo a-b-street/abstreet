@@ -38,11 +38,10 @@ impl DrawArea {
 
     pub fn fill(area_type: AreaType, cs: &ColorScheme) -> Fill {
         match area_type {
-            // MJK TODO: convert some of these to be a Fill on the theme rather than `into`
             AreaType::Park => cs.grass.clone(),
             AreaType::Water => cs.water.clone(),
-            AreaType::PedestrianIsland => Color::grey(0.3).into(),
             AreaType::Island => cs.map_background.clone(),
+            AreaType::MedianStrip => cs.median_strip.clone(),
         }
     }
 }

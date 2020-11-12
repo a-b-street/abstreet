@@ -3,20 +3,21 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
-use abstutil::{Parallelism, Timer};
+use abstutil::{Parallelism, Tags, Timer};
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Speed, EPSILON_DIST};
 
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
-    connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
-    Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits,
-    Movement, PathConstraints, Position, Road, RoadID, Zone,
+    connectivity, osm, AccessRestrictions, Area, AreaID, AreaType, ControlStopSign,
+    ControlTrafficSignal, Direction, Intersection, IntersectionID, IntersectionType, Lane, LaneID,
+    Map, MapEdits, Movement, PathConstraints, Position, Road, RoadID, Zone,
 };
 
 mod bridges;
 mod buildings;
 pub mod initial;
+mod medians;
 mod parking_lots;
 mod remove_disconnected;
 pub mod traffic_signals;
@@ -266,13 +267,24 @@ impl Map {
 
         map.zones = Zone::make_all(&map);
 
-        for (idx, a) in raw.areas.iter().enumerate() {
+        // Create medians first, so they wind up rendering underneath areas from OSM. Sometimes
+        // medians contain mapped grass.
+        for polygon in medians::find_medians(&map) {
             map.areas.push(Area {
-                id: AreaID(idx),
+                id: AreaID(map.areas.len()),
+                area_type: AreaType::MedianStrip,
+                polygon,
+                osm_tags: Tags::new(BTreeMap::new()),
+                osm_id: None,
+            });
+        }
+        for a in &raw.areas {
+            map.areas.push(Area {
+                id: AreaID(map.areas.len()),
                 area_type: a.area_type,
                 polygon: a.polygon.clone(),
                 osm_tags: a.osm_tags.clone(),
-                osm_id: a.osm_id,
+                osm_id: Some(a.osm_id),
             });
         }
 

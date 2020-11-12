@@ -26,8 +26,8 @@ impl fmt::Display for AreaID {
 pub enum AreaType {
     Park,
     Water,
-    PedestrianIsland,
     Island,
+    MedianStrip,
 }
 
 /// Areas are just used for drawing.
@@ -37,5 +37,6 @@ pub struct Area {
     pub area_type: AreaType,
     pub polygon: Polygon,
     pub osm_tags: Tags,
-    pub osm_id: osm::OsmID,
+    /// The importing process also automatically creates some areas, so they don't come from OSM.
+    pub osm_id: Option<osm::OsmID>,
 }

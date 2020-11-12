@@ -3,8 +3,8 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Distance, Line, PolyLine, Pt2D};
+use abstutil::{deserialize_usize, serialize_usize, wraparound_get};
+use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring};
 
 use crate::{
     osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, Road, RoadID, TurnType,
@@ -293,5 +293,74 @@ impl Lane {
                 })
                 .collect(),
         )
+    }
+
+    /// Starting from this lane, follow the lane's left edge to the intersection, continuing to
+    /// "walk around the block" until we reach the starting point. This only makes sense for the
+    /// outermost lanes on a road. Returns the polygon and all visited lanes.
+    ///
+    /// TODO This process currently fails for some starting positions; orienting is weird.
+    pub fn trace_around_block(&self, map: &Map) -> Option<(Polygon, BTreeSet<LaneID>)> {
+        let start = self.id;
+        let mut pts = Vec::new();
+        let mut current = start;
+        let mut fwd = map.get_parent(start).lanes_ltr()[0].0 == start;
+        let mut visited = BTreeSet::new();
+        loop {
+            let l = map.get_l(current);
+            let lane_pts = if fwd {
+                l.lane_center_pts.shift_left(l.width / 2.0)
+            } else {
+                l.lane_center_pts.reversed().shift_left(l.width / 2.0)
+            }
+            .unwrap()
+            .into_points();
+            if let Some(last_pt) = pts.last().cloned() {
+                if last_pt != lane_pts[0] {
+                    let last_i = if fwd { l.src_i } else { l.dst_i };
+                    if let Some(pl) = map
+                        .get_i(last_i)
+                        .polygon
+                        .clone()
+                        .into_ring()
+                        .get_shorter_slice_btwn(last_pt, lane_pts[0])
+                    {
+                        pts.extend(pl.into_points());
+                    }
+                }
+            }
+            pts.extend(lane_pts);
+            // Imagine pointing down this lane to the intersection. Rotate left -- which road is
+            // next?
+            let i = if fwd { l.dst_i } else { l.src_i };
+            // TODO Remove these debug statements entirely after stabilizing this
+            //println!("{}, fwd={}, pointing to {}", current, fwd, i);
+            let roads = map
+                .get_i(i)
+                .get_roads_sorted_by_incoming_angle(map.all_roads());
+            let idx = roads.iter().position(|r| *r == l.parent).unwrap();
+            // Get the next road counter-clockwise
+            let next_road = map.get_r(*wraparound_get(&roads, (idx as isize) + 1));
+            // Depending on if this road points to or from the intersection, get the left- or
+            // right-most lane.
+            let next_lane = if next_road.src_i == i {
+                next_road.lanes_ltr()[0].0
+            } else {
+                next_road.lanes_ltr().last().unwrap().0
+            };
+            if next_lane == start {
+                break;
+            }
+            if visited.contains(&current) {
+                //println!("Loop, something's broken");
+                return None;
+            }
+            visited.insert(current);
+            current = next_lane;
+            fwd = map.get_l(current).src_i == i;
+        }
+        pts.push(pts[0]);
+        pts.dedup();
+        Some((Ring::new(pts).ok()?.to_polygon(), visited))
     }
 }
