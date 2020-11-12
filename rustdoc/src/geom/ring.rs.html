@@ -185,6 +185,10 @@
 <span id="184">184</span>
 <span id="185">185</span>
 <span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -271,12 +275,16 @@
         <span class="ident">hits</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_both_slices_btwn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_both_slices_btwn</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">pt1</span>: <span class="ident">Pt2D</span>,
+        <span class="ident">pt2</span>: <span class="ident">Pt2D</span>,
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pt1</span> <span class="op">!=</span> <span class="ident">pt2</span>);
         <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist1</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt1</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist2</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt2</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist1</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt1</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist2</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt2</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
         <span class="kw">if</span> <span class="ident">dist1</span> <span class="op">&gt;</span> <span class="ident">dist2</span> {
             <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist2</span>);
         }
@@ -292,12 +300,12 @@
         <span class="prelude-val">Some</span>((<span class="ident">candidate1</span>, <span class="ident">candidate2</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_shorter_slice_btwn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
-        <span class="kw">let</span> (<span class="ident">candidate1</span>, <span class="ident">candidate2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_both_slices_btwn</span>(<span class="ident">pt1</span>, <span class="ident">pt2</span>).<span class="ident">unwrap</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_shorter_slice_btwn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">candidate1</span>, <span class="ident">candidate2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_both_slices_btwn</span>(<span class="ident">pt1</span>, <span class="ident">pt2</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">candidate1</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">candidate2</span>.<span class="ident">length</span>() {
-            <span class="ident">candidate1</span>
+            <span class="prelude-val">Some</span>(<span class="ident">candidate1</span>)
         } <span class="kw">else</span> {
-            <span class="ident">candidate2</span>
+            <span class="prelude-val">Some</span>(<span class="ident">candidate2</span>)
         }
     }
 

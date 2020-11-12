@@ -497,6 +497,8 @@
 <span id="496">496</span>
 <span id="497">497</span>
 <span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -908,7 +910,9 @@
 
     <span class="comment">// TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.</span>
     <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">return</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">points</span>().<span class="ident">clone</span>()).<span class="ident">get_shorter_slice_btwn</span>(<span class="ident">corner1</span>, <span class="ident">corner2</span>);
+        <span class="kw">return</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">points</span>().<span class="ident">clone</span>())
+            .<span class="ident">get_shorter_slice_btwn</span>(<span class="ident">corner1</span>, <span class="ident">corner2</span>)
+            .<span class="ident">unwrap</span>();
     }
 
     <span class="comment">// The order of the points here seems backwards, but it&#39;s because we scan from corner2</span>

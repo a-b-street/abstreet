@@ -856,6 +856,12 @@
 <span id="855">855</span>
 <span id="856">856</span>
 <span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1667,22 +1673,28 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
     <span class="kw">loop</span> {
         <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>);
-        <span class="kw">if</span> <span class="ident">fwd</span> {
-            <span class="ident">pts</span>.<span class="ident">extend</span>(
-                <span class="ident">l</span>.<span class="ident">lane_center_pts</span>
-                    .<span class="ident">shift_left</span>(<span class="ident">l</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">into_points</span>(),
-            );
+        <span class="kw">let</span> <span class="ident">lane_pts</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fwd</span> {
+            <span class="ident">l</span>.<span class="ident">lane_center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">l</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
         } <span class="kw">else</span> {
-            <span class="ident">pts</span>.<span class="ident">extend</span>(
-                <span class="ident">l</span>.<span class="ident">lane_center_pts</span>
-                    .<span class="ident">reversed</span>()
-                    .<span class="ident">shift_left</span>(<span class="ident">l</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">into_points</span>(),
-            );
+            <span class="ident">l</span>.<span class="ident">lane_center_pts</span>.<span class="ident">reversed</span>().<span class="ident">shift_left</span>(<span class="ident">l</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
         }
+        .<span class="ident">unwrap</span>()
+        .<span class="ident">into_points</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last_pt</span>) <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">cloned</span>() {
+            <span class="kw">if</span> <span class="ident">last_pt</span> <span class="op">!=</span> <span class="ident">lane_pts</span>[<span class="number">0</span>] {
+                <span class="kw">let</span> <span class="ident">last_i</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fwd</span> { <span class="ident">l</span>.<span class="ident">src_i</span> } <span class="kw">else</span> { <span class="ident">l</span>.<span class="ident">dst_i</span> };
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">map</span>
+                    .<span class="ident">get_i</span>(<span class="ident">last_i</span>)
+                    .<span class="ident">polygon</span>
+                    .<span class="ident">clone</span>()
+                    .<span class="ident">into_ring</span>()
+                    .<span class="ident">get_shorter_slice_btwn</span>(<span class="ident">last_pt</span>, <span class="ident">lane_pts</span>[<span class="number">0</span>])
+                {
+                    <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">pl</span>.<span class="ident">into_points</span>());
+                }
+            }
+        }
+        <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">lane_pts</span>);
         <span class="comment">// Imagine pointing down this lane to the intersection. Rotate left -- which road is next?</span>
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fwd</span> { <span class="ident">l</span>.<span class="ident">dst_i</span> } <span class="kw">else</span> { <span class="ident">l</span>.<span class="ident">src_i</span> };
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}, fwd={}, pointing to {}&quot;</span>, <span class="ident">current</span>, <span class="ident">fwd</span>, <span class="ident">i</span>);
@@ -1712,7 +1724,7 @@
     }
     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
     <span class="ident">pts</span>.<span class="ident">dedup</span>();
-    <span class="prelude-val">Some</span>(<span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>().<span class="ident">to_polygon</span>())
+    <span class="prelude-val">Some</span>(<span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">to_polygon</span>())
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "game";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

@@ -300,7 +300,7 @@
     }
 
     <span class="kw">let</span> <span class="ident">trimmed_result</span> <span class="op">=</span> <span class="ident">result_pl</span>.<span class="ident">trim_to_endpts</span>(<span class="ident">hits</span>[<span class="number">0</span>], <span class="ident">hits</span>[<span class="number">1</span>]);
-    <span class="kw">let</span> <span class="ident">boundary_glue</span> <span class="op">=</span> <span class="ident">boundary</span>.<span class="ident">get_shorter_slice_btwn</span>(<span class="ident">hits</span>[<span class="number">0</span>], <span class="ident">hits</span>[<span class="number">1</span>]);
+    <span class="kw">let</span> <span class="ident">boundary_glue</span> <span class="op">=</span> <span class="ident">boundary</span>.<span class="ident">get_shorter_slice_btwn</span>(<span class="ident">hits</span>[<span class="number">0</span>], <span class="ident">hits</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trimmed_pts</span> <span class="op">=</span> <span class="ident">trimmed_result</span>.<span class="ident">points</span>().<span class="ident">clone</span>();
     <span class="kw">if</span> <span class="ident">trimmed_result</span>.<span class="ident">last_pt</span>() <span class="op">==</span> <span class="ident">boundary_glue</span>.<span class="ident">first_pt</span>() {
