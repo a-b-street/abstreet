@@ -827,7 +827,7 @@ impl SignalState {
 // for now.
 fn allow_block_the_box(osm_node_id: i64) -> bool {
     // 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison,
-    // Green Lake Way N and 50th
+    // Green Lake Way N and 50th, Green Lake Way and N 64th
     osm_node_id == 53211693
         || osm_node_id == 53214134
         || osm_node_id == 53214133
@@ -840,5 +840,6 @@ fn allow_block_the_box(osm_node_id: i64) -> bool {
         || osm_node_id == 3393025729
         || osm_node_id == 59995197
         || osm_node_id == 53077575
+        || osm_node_id == 2632986818
         || osm_node_id == 4273547929
 }
