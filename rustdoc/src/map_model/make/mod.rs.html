@@ -385,26 +385,39 @@
 <span id="384">384</span>
 <span id="385">385</span>
 <span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! See &lt;https://dabreegster.github.io/abstreet/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">Pathfinder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>,
-    <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>,
-    <span class="ident">Movement</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Zone</span>,
+    <span class="ident">connectivity</span>, <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>, <span class="ident">ControlStopSign</span>,
+    <span class="ident">ControlTrafficSignal</span>, <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>,
+    <span class="ident">Map</span>, <span class="ident">MapEdits</span>, <span class="ident">Movement</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Zone</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">bridges</span>;
 <span class="kw">mod</span> <span class="ident">buildings</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">initial</span>;
+<span class="kw">mod</span> <span class="ident">medians</span>;
 <span class="kw">mod</span> <span class="ident">parking_lots</span>;
 <span class="kw">mod</span> <span class="ident">remove_disconnected</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">traffic_signals</span>;
@@ -654,13 +667,24 @@
 
         <span class="ident">map</span>.<span class="ident">zones</span> <span class="op">=</span> <span class="ident">Zone</span>::<span class="ident">make_all</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>);
 
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">a</span>) <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">areas</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+        <span class="comment">// Create medians first, so they wind up rendering underneath areas from OSM. Sometimes</span>
+        <span class="comment">// medians contain mapped grass.</span>
+        <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">medians</span>::<span class="ident">find_medians</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>) {
             <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">Area</span> {
-                <span class="ident">id</span>: <span class="ident">AreaID</span>(<span class="ident">idx</span>),
+                <span class="ident">id</span>: <span class="ident">AreaID</span>(<span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">len</span>()),
+                <span class="ident">area_type</span>: <span class="ident">AreaType</span>::<span class="ident">MedianStrip</span>,
+                <span class="ident">polygon</span>,
+                <span class="ident">osm_tags</span>: <span class="ident">Tags</span>::<span class="ident">new</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>()),
+                <span class="ident">osm_id</span>: <span class="prelude-val">None</span>,
+            });
+        }
+        <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">areas</span> {
+            <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">Area</span> {
+                <span class="ident">id</span>: <span class="ident">AreaID</span>(<span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">len</span>()),
                 <span class="ident">area_type</span>: <span class="ident">a</span>.<span class="ident">area_type</span>,
                 <span class="ident">polygon</span>: <span class="ident">a</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
                 <span class="ident">osm_tags</span>: <span class="ident">a</span>.<span class="ident">osm_tags</span>.<span class="ident">clone</span>(),
-                <span class="ident">osm_id</span>: <span class="ident">a</span>.<span class="ident">osm_id</span>,
+                <span class="ident">osm_id</span>: <span class="prelude-val">Some</span>(<span class="ident">a</span>.<span class="ident">osm_id</span>),
             });
         }
 
