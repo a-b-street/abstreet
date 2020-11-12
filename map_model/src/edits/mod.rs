@@ -147,15 +147,15 @@ impl MapEdits {
     }
 
     pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits, String> {
-        match abstutil::maybe_read_json(path.clone(), timer) {
-            Ok(perma) => PermanentMapEdits::from_permanent(perma, map),
+        match abstutil::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
+            Ok(perma) => perma.to_edits(map),
             Err(_) => {
                 // The JSON format may have changed, so attempt backwards compatibility.
                 let bytes = abstutil::slurp_file(&path).map_err(|err| err.to_string())?;
                 let contents = std::str::from_utf8(&bytes).map_err(|err| err.to_string())?;
                 let value = serde_json::from_str(contents).map_err(|err| err.to_string())?;
                 let perma = compat::upgrade(value, map)?;
-                PermanentMapEdits::from_permanent(perma, map)
+                perma.to_edits(map)
             }
         }
     }
@@ -168,7 +168,7 @@ impl MapEdits {
 
         abstutil::write_json(
             abstutil::path_edits(map.get_name(), &self.edits_name),
-            &PermanentMapEdits::to_permanent(self, map),
+            &self.to_permanent(map),
         );
     }
 

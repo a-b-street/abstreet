@@ -316,9 +316,7 @@ fn handle_command(
             let mut edits = map.get_edits().clone();
             edits.commands.clear();
             edits.compress(map);
-            Ok(abstutil::to_json(&PermanentMapEdits::to_permanent(
-                &edits, map,
-            )))
+            Ok(abstutil::to_json(&edits.to_permanent(map)))
         }
         "/map/get-edit-road-command" => {
             let r = RoadID(params["id"].parse::<usize>()?);
@@ -415,7 +413,7 @@ impl LoadSim {
 
         let mut map = Map::new(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {
-            let edits = PermanentMapEdits::from_permanent(perma, &map).unwrap();
+            let edits = perma.to_edits(&map).unwrap();
             map.must_apply_edits(edits, timer);
             map.recalculate_pathfinding_after_edits(timer);
         }

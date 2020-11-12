@@ -129,33 +129,36 @@ impl PermanentEditCmd {
     }
 }
 
-impl PermanentMapEdits {
-    pub fn to_permanent(edits: &MapEdits, map: &Map) -> PermanentMapEdits {
+impl MapEdits {
+    /// Encode the edits in a permanent format, referring to more-stable OSM IDs.
+    pub fn to_permanent(&self, map: &Map) -> PermanentMapEdits {
         PermanentMapEdits {
             map_name: map.get_name().clone(),
-            edits_name: edits.edits_name.clone(),
+            edits_name: self.edits_name.clone(),
             // Increase this every time there's a schema change
             version: 4,
-            proposal_description: edits.proposal_description.clone(),
-            proposal_link: edits.proposal_link.clone(),
-            commands: edits.commands.iter().map(|cmd| cmd.to_perma(map)).collect(),
-            merge_zones: edits.merge_zones,
+            proposal_description: self.proposal_description.clone(),
+            proposal_link: self.proposal_link.clone(),
+            commands: self.commands.iter().map(|cmd| cmd.to_perma(map)).collect(),
+            merge_zones: self.merge_zones,
         }
     }
+}
 
-    /// Load edits from the permanent form, looking up the map IDs by the hopefully stabler OSM IDs.
-    /// Validate that the basemap hasn't changed in important ways.
-    pub fn from_permanent(perma: PermanentMapEdits, map: &Map) -> Result<MapEdits, String> {
+impl PermanentMapEdits {
+    /// Transform permanent edits to MapEdits, looking up the map IDs by the hopefully stabler OSM
+    /// IDs. Validate that the basemap hasn't changed in important ways.
+    pub fn to_edits(self, map: &Map) -> Result<MapEdits, String> {
         let mut edits = MapEdits {
-            edits_name: perma.edits_name,
-            proposal_description: perma.proposal_description,
-            proposal_link: perma.proposal_link,
-            commands: perma
+            edits_name: self.edits_name,
+            proposal_description: self.proposal_description,
+            proposal_link: self.proposal_link,
+            commands: self
                 .commands
                 .into_iter()
                 .map(|cmd| cmd.to_cmd(map))
                 .collect::<Result<Vec<EditCmd>, String>>()?,
-            merge_zones: perma.merge_zones,
+            merge_zones: self.merge_zones,
 
             changed_roads: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
@@ -165,19 +168,19 @@ impl PermanentMapEdits {
         Ok(edits)
     }
 
-    /// Load edits from the permanent form, looking up the map IDs by the hopefully stabler OSM IDs.
-    /// Strip out commands that're broken.
-    pub fn from_permanent_permissive(perma: PermanentMapEdits, map: &Map) -> MapEdits {
+    /// Transform permanent edits to MapEdits, looking up the map IDs by the hopefully stabler OSM
+    /// IDs. Strip out commands that're broken.
+    pub fn to_edits_permissive(self, map: &Map) -> MapEdits {
         let mut edits = MapEdits {
-            edits_name: perma.edits_name,
-            proposal_description: perma.proposal_description,
-            proposal_link: perma.proposal_link,
-            commands: perma
+            edits_name: self.edits_name,
+            proposal_description: self.proposal_description,
+            proposal_link: self.proposal_link,
+            commands: self
                 .commands
                 .into_iter()
                 .filter_map(|cmd| cmd.to_cmd(map).ok())
                 .collect(),
-            merge_zones: perma.merge_zones,
+            merge_zones: self.merge_zones,
 
             changed_roads: BTreeSet::new(),
             original_intersections: BTreeMap::new(),

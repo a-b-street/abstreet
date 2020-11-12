@@ -6,7 +6,7 @@ use rand::seq::SliceRandom;
 
 use abstutil::{MapName, Timer};
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
-use map_model::{IntersectionID, Map, PermanentMapEdits, Traversable};
+use map_model::{IntersectionID, Map, Traversable};
 use sim::{Analytics, Scenario, Sim, SimCallback, SimFlags};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState};
 
@@ -747,7 +747,7 @@ impl SharedAppState for App {
         } else {
             abstutil::write_json(
                 "edits_during_crash.json".to_string(),
-                &PermanentMapEdits::to_permanent(self.primary.map.get_edits(), &self.primary.map),
+                &self.primary.map.get_edits().to_permanent(&self.primary.map),
             );
             println!("Please include edits_during_crash.json in your bug report.");
         }
