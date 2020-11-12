@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use abstutil::{MapName, Parallelism, Tags, Timer};
-use geom::{Distance, Pt2D};
-use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
+use abstutil::{wraparound_get, MapName, Parallelism, Tags, Timer};
+use geom::{Distance, Polygon, Pt2D, Ring};
+use map_model::{osm, ControlTrafficSignal, LaneID, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -464,6 +464,10 @@ impl ContextualActions for Actions {
                 }
                 actions.push((Key::X, "debug lane geometry".to_string()));
                 actions.push((Key::F2, "debug lane triangles geometry".to_string()));
+                actions.push((
+                    Key::B,
+                    "trace the block to the left of this road".to_string(),
+                ));
             }
             ID::Intersection(i) => {
                 actions.push((Key::H, "hide this".to_string()));
@@ -599,6 +603,18 @@ impl ContextualActions for Actions {
                         .collect(),
                     None,
                 ))
+            }
+            (ID::Lane(l), "trace the block to the left of this road") => {
+                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                    let mut mode = state.downcast_mut::<DebugMode>().unwrap();
+                    // Just abuse this to display the results
+                    mode.search_results = trace_block(app, l).map(|poly| SearchResults {
+                        query: format!("block around {}", l),
+                        num_matches: 0,
+                        draw: ctx.upload(GeomBatch::from(vec![(Color::RED, poly)])),
+                    });
+                    mode.reset_info(ctx);
+                }))
             }
             (ID::Area(a), "debug area geometry") => {
                 let pts = &app.primary.map.get_a(a).polygon.points();
@@ -782,4 +798,60 @@ fn screenshot_everything(ctx: &mut EventCtx, app: &App) {
         max_x: bounds.max_x,
         max_y: bounds.max_y,
     });
+}
+
+fn trace_block(app: &App, start: LaneID) -> Option<Polygon> {
+    let map = &app.primary.map;
+    let mut pts = Vec::new();
+    let mut current = start;
+    let mut fwd = app.primary.map.get_parent(start).lanes_ltr()[0].0 == start;
+    let mut visited = HashSet::new();
+    loop {
+        let l = map.get_l(current);
+        if fwd {
+            pts.extend(
+                l.lane_center_pts
+                    .shift_left(l.width / 2.0)
+                    .unwrap()
+                    .into_points(),
+            );
+        } else {
+            pts.extend(
+                l.lane_center_pts
+                    .reversed()
+                    .shift_left(l.width / 2.0)
+                    .unwrap()
+                    .into_points(),
+            );
+        }
+        // Imagine pointing down this lane to the intersection. Rotate left -- which road is next?
+        let i = if fwd { l.dst_i } else { l.src_i };
+        println!("{}, fwd={}, pointing to {}", current, fwd, i);
+        let roads = map
+            .get_i(i)
+            .get_roads_sorted_by_incoming_angle(map.all_roads());
+        let idx = roads.iter().position(|r| *r == l.parent).unwrap();
+        // Get the next road counter-clockwise
+        let next_road = map.get_r(*wraparound_get(&roads, (idx as isize) + 1));
+        // Depending on if this road points to or from the intersection, get the left- or
+        // right-most lane.
+        let next_lane = if next_road.src_i == i {
+            next_road.lanes_ltr()[0].0
+        } else {
+            next_road.lanes_ltr().last().unwrap().0
+        };
+        if next_lane == start {
+            break;
+        }
+        if visited.contains(&current) {
+            println!("Loop, something's broken");
+            return None;
+        }
+        visited.insert(current);
+        current = next_lane;
+        fwd = map.get_l(current).src_i == i;
+    }
+    pts.push(pts[0]);
+    pts.dedup();
+    Some(Ring::new(pts).unwrap().to_polygon())
 }

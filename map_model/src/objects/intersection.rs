@@ -122,7 +122,7 @@ impl Intersection {
             .unwrap()
     }
 
-    pub(crate) fn get_roads_sorted_by_incoming_angle(&self, all_roads: &Vec<Road>) -> Vec<RoadID> {
+    pub fn get_roads_sorted_by_incoming_angle(&self, all_roads: &Vec<Road>) -> Vec<RoadID> {
         let center = self.polygon.center();
         let mut roads: Vec<RoadID> = self.roads.iter().cloned().collect();
         roads.sort_by_key(|id| {
