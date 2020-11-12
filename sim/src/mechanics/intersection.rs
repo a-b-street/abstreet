@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, FixedMap};
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, PhaseType, Traversable,
-    TurnID, TurnPriority, TurnType,
+    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, PhaseType,
+    Traversable, TurnID, TurnPriority, TurnType,
 };
 
 use crate::mechanics::car::Car;
@@ -387,7 +387,7 @@ impl IntersectionSimState {
             if !queue.try_to_reserve_entry(
                 car,
                 !self.dont_block_the_box
-                    || allow_block_the_box(map.get_i(turn.parent).orig_id.0)
+                    || allow_block_the_box(map.get_i(turn.parent))
                     || inside_ut,
             ) {
                 if self.break_turn_conflict_cycles {
@@ -823,23 +823,30 @@ impl SignalState {
     }
 }
 
-// TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity. Workaround
-// for now.
-fn allow_block_the_box(osm_node_id: i64) -> bool {
+fn allow_block_the_box(i: &Intersection) -> bool {
+    // Degenerate intersections are often just artifacts of how roads are split up in OSM. Allow
+    // vehicles to get stuck in them, since the only possible thing they could block is pedestrians
+    // from using the crosswalk. Those crosswalks usually don't exist in reality, so this behavior
+    // is more realistic.
+    if i.roads.len() == 2 {
+        return true;
+    }
+
+    // TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity.
+    // Workaround for now.
+    let id = i.orig_id.0;
     // 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison,
     // Green Lake Way N and 50th, Green Lake Way and N 64th
-    osm_node_id == 53211693
-        || osm_node_id == 53214134
-        || osm_node_id == 53214133
-        || osm_node_id == 53165712
-        || osm_node_id == 281487826
-        || osm_node_id == 53209840
-        || osm_node_id == 4249361353
-        || osm_node_id == 987334546
-        || osm_node_id == 848817336
-        || osm_node_id == 3393025729
-        || osm_node_id == 59995197
-        || osm_node_id == 53077575
-        || osm_node_id == 2632986818
-        || osm_node_id == 4273547929
+    id == 53211693
+        || id == 53214134
+        || id == 53214133
+        || id == 53165712
+        || id == 53209840
+        || id == 4249361353
+        || id == 987334546
+        || id == 848817336
+        || id == 3393025729
+        || id == 59995197
+        || id == 53077575
+        || id == 2632986818
 }
