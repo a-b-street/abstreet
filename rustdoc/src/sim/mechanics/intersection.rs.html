@@ -844,6 +844,13 @@
 <span id="843">843</span>
 <span id="844">844</span>
 <span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -852,8 +859,8 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">FixedMap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PhaseType</span>, <span class="ident">Traversable</span>,
-    <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+    <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PhaseType</span>,
+    <span class="ident">Traversable</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::<span class="ident">Car</span>;
@@ -1234,7 +1241,7 @@
             <span class="kw">if</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">try_to_reserve_entry</span>(
                 <span class="ident">car</span>,
                 <span class="op">!</span><span class="self">self</span>.<span class="ident">dont_block_the_box</span>
-                    <span class="op">||</span> <span class="ident">allow_block_the_box</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">turn</span>.<span class="ident">parent</span>).<span class="ident">orig_id</span>.<span class="number">0</span>)
+                    <span class="op">||</span> <span class="ident">allow_block_the_box</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">turn</span>.<span class="ident">parent</span>))
                     <span class="op">||</span> <span class="ident">inside_ut</span>,
             ) {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">break_turn_conflict_cycles</span> {
@@ -1670,25 +1677,32 @@
     }
 }
 
-<span class="comment">// TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity. Workaround</span>
-<span class="comment">// for now.</span>
-<span class="kw">fn</span> <span class="ident">allow_block_the_box</span>(<span class="ident">osm_node_id</span>: <span class="ident">i64</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">allow_block_the_box</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="comment">// Degenerate intersections are often just artifacts of how roads are split up in OSM. Allow</span>
+    <span class="comment">// vehicles to get stuck in them, since the only possible thing they could block is pedestrians</span>
+    <span class="comment">// from using the crosswalk. Those crosswalks usually don&#39;t exist in reality, so this behavior</span>
+    <span class="comment">// is more realistic.</span>
+    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
+        <span class="kw">return</span> <span class="bool-val">true</span>;
+    }
+
+    <span class="comment">// TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity.</span>
+    <span class="comment">// Workaround for now.</span>
+    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>;
     <span class="comment">// 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison,</span>
     <span class="comment">// Green Lake Way N and 50th, Green Lake Way and N 64th</span>
-    <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53211693</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53214134</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53214133</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53165712</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">281487826</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53209840</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">4249361353</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">987334546</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">848817336</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">3393025729</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">59995197</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">53077575</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">2632986818</span>
-        <span class="op">||</span> <span class="ident">osm_node_id</span> <span class="op">==</span> <span class="number">4273547929</span>
+    <span class="ident">id</span> <span class="op">==</span> <span class="number">53211693</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">53214134</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">53214133</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">53165712</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">53209840</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">4249361353</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">987334546</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">848817336</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">3393025729</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">59995197</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">53077575</span>
+        <span class="op">||</span> <span class="ident">id</span> <span class="op">==</span> <span class="number">2632986818</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "sim";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
