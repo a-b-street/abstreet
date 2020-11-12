@@ -777,7 +777,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PermanentMapEdits</span>, <span class="ident">Traversable</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Analytics</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">SimCallback</span>, <span class="ident">SimFlags</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">SharedAppState</span>};
 
@@ -1518,7 +1518,7 @@
         } <span class="kw">else</span> {
             <span class="ident">abstutil</span>::<span class="ident">write_json</span>(
                 <span class="string">&quot;edits_during_crash.json&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">PermanentMapEdits</span>::<span class="ident">to_permanent</span>(<span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
+                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">to_permanent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
             );
             <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Please include edits_during_crash.json in your bug report.&quot;</span>);
         }
