@@ -7,6 +7,7 @@ output=$1;
 runner=$2;
 game_binary=$3;
 importer_binary=$4;
+headless_binary=$5;
 
 cargo run --bin updater
 
@@ -14,12 +15,13 @@ mkdir $output
 
 cp book/src/howto/README.md $output/INSTRUCTIONS.txt
 cp release/$runner $output
-# Put the importer in the root directory, but hide game to encourage people to
-# use the runner script. It will capture output logs. But if somebody runs the
-# game binary directly, it'll still work.
+# Put the importer and headless in the root directory, but hide game to
+# encourage people to use the runner script. It will capture output logs. But
+# if somebody runs the game binary directly, it'll still work.
 mkdir $output/game
 cp $game_binary $output/game
 cp $importer_binary $output
+cp $headless_binary $output
 mkdir $output/data
 cp -Rv data/system $output/data/system
 cp data/MANIFEST.json $output/data
