@@ -691,6 +691,18 @@
 <span id="690">690</span>
 <span id="691">691</span>
 <span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -724,6 +736,7 @@
     <span class="ident">TODO</span>,
     <span class="ident">Done</span>,
     <span class="ident">DividedHighways</span>,
+    <span class="ident">UnmappedDividedHighways</span>,
     <span class="ident">OverlappingStuff</span>,
 }
 
@@ -755,7 +768,7 @@
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">show</span> {
             <span class="ident">Show</span>::<span class="ident">TODO</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
             <span class="ident">Show</span>::<span class="ident">Done</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">BLUE</span>,
-            <span class="ident">Show</span>::<span class="ident">DividedHighways</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
+            <span class="ident">Show</span>::<span class="ident">DividedHighways</span> <span class="op">|</span> <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
             <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
         }
         .<span class="ident">alpha</span>(<span class="number">0.5</span>);
@@ -783,6 +796,14 @@
         <span class="kw">if</span> <span class="ident">show</span> <span class="op">==</span> <span class="ident">Show</span>::<span class="ident">DividedHighways</span> {
             <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">find_divided_highways</span>(<span class="ident">app</span>) {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
+            }
+        }
+        <span class="kw">if</span> <span class="ident">show</span> <span class="op">==</span> <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span> {
+            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">find_divided_highways</span>(<span class="ident">app</span>) {
+                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;dual_carriageway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
+                }
             }
         }
         <span class="kw">if</span> <span class="ident">show</span> <span class="op">==</span> <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span> {
@@ -846,6 +867,7 @@
                             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;divided highways&quot;</span>, <span class="ident">Show</span>::<span class="ident">DividedHighways</span>).<span class="ident">tooltip</span>(
                                 <span class="string">&quot;Roads divided in OSM often have the wrong number of lanes tagged&quot;</span>,
                             ),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;unmapped divided highways&quot;</span>, <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span>),
                             <span class="ident">Choice</span>::<span class="ident">new</span>(
                                 <span class="string">&quot;buildings and parking lots overlapping roads&quot;</span>,
                                 <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span>,
@@ -860,6 +882,7 @@
                             <span class="ident">Show</span>::<span class="ident">TODO</span> <span class="op">=&gt;</span> <span class="string">&quot;TODO&quot;</span>,
                             <span class="ident">Show</span>::<span class="ident">Done</span> <span class="op">=&gt;</span> <span class="string">&quot;done&quot;</span>,
                             <span class="ident">Show</span>::<span class="ident">DividedHighways</span> <span class="op">=&gt;</span> <span class="string">&quot;divided highways&quot;</span>,
+                            <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span> <span class="op">=&gt;</span> <span class="string">&quot;unmapped divided highways&quot;</span>,
                             <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span> <span class="op">=&gt;</span> {
                                 <span class="string">&quot;buildings and parking lots overlapping roads&quot;</span>
                             }
@@ -929,8 +952,8 @@
                     ]);
                     <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-                        <span class="ident">Key</span>::<span class="ident">O</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Line</span>(<span class="string">&quot; to open OpenStreetMap for this way&quot;</span>),
+                        <span class="ident">Key</span>::<span class="ident">E</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Line</span>(<span class="string">&quot; to edit OpenStreetMap for this way&quot;</span>),
                     ]);
                     <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">inner</span>() {
                         <span class="kw">if</span> <span class="ident">k</span>.<span class="ident">starts_with</span>(<span class="string">&quot;abst:&quot;</span>) {
@@ -987,14 +1010,15 @@
             }
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">roads</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">O</span>) {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">E</span>) {
                 <span class="ident">open_browser</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{}&quot;</span>,
+                    <span class="string">&quot;https://www.openstreetmap.org/edit?way={}&quot;</span>,
                     <span class="ident">app</span>.<span class="ident">primary</span>
                         .<span class="ident">map</span>
                         .<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>())
                         .<span class="ident">orig_id</span>
                         .<span class="ident">osm_way_id</span>
+                        .<span class="number">0</span>
                 ));
             }
         }
