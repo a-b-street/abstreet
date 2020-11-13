@@ -1,4 +1,5 @@
 use glow::HasContext;
+use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use winit::platform::web::WindowExtWebSys;
 
@@ -15,7 +16,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     }));
 
     let event_loop = winit::event_loop::EventLoop::new();
-    let size = {
+    let get_full_size = || {
         // TODO Not sure how to get scrollbar dims
         let scrollbars = 30.0;
         let win = web_sys::window().unwrap();
@@ -28,7 +29,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     };
     let winit_window = winit::window::WindowBuilder::new()
         .with_title(window_title)
-        .with_inner_size(size)
+        .with_inner_size(get_full_size())
         .build(&event_loop)
         .unwrap();
     let canvas = winit_window.canvas();
@@ -38,6 +39,22 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     let body = document.body().unwrap();
     body.append_child(&canvas)
         .expect("Append canvas to HTML body");
+
+    let winit_window = Rc::new(winit_window);
+
+    // resize of our winit::Window whenever the browser window changes size.
+    {
+        let winit_window = winit_window.clone();
+        let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move |e: web_sys::Event| {
+            debug!("handling resize event: {:?}", e);
+            let size = get_full_size();
+            winit_window.set_inner_size(size)
+        }) as Box<dyn FnMut(_)>);
+        window
+            .add_event_listener_with_callback("resize", closure.as_ref().unchecked_ref())
+            .unwrap();
+        closure.forget();
+    }
 
     let webgl2_context = canvas
         .get_context("webgl2")
@@ -105,13 +122,19 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     )
 }
 
-pub struct WindowAdapter(winit::window::Window);
+pub struct WindowAdapter(Rc<winit::window::Window>);
 
 impl WindowAdapter {
     pub fn window(&self) -> &winit::window::Window {
         &self.0
     }
 
-    pub fn window_resized(&self, _new_size: ScreenDims, _scale_factor: f64) {}
+    pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
+        debug!(
+            "[window_resize] new_size: {:?}, scale_factor: {}",
+            new_size, scale_factor
+        );
+    }
+
     pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {}
 }
