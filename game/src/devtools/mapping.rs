@@ -30,6 +30,7 @@ enum Show {
     TODO,
     Done,
     DividedHighways,
+    UnmappedDividedHighways,
     OverlappingStuff,
 }
 
@@ -61,7 +62,7 @@ impl ParkingMapper {
         let color = match show {
             Show::TODO => Color::RED,
             Show::Done => Color::BLUE,
-            Show::DividedHighways => Color::RED,
+            Show::DividedHighways | Show::UnmappedDividedHighways => Color::RED,
             Show::OverlappingStuff => Color::RED,
         }
         .alpha(0.5);
@@ -89,6 +90,14 @@ impl ParkingMapper {
         if show == Show::DividedHighways {
             for r in find_divided_highways(app) {
                 batch.push(color, map.get_r(r).get_thick_polygon(map));
+            }
+        }
+        if show == Show::UnmappedDividedHighways {
+            for r in find_divided_highways(app) {
+                let r = map.get_r(r);
+                if !r.osm_tags.is("dual_carriageway", "yes") {
+                    batch.push(color, r.get_thick_polygon(map));
+                }
             }
         }
         if show == Show::OverlappingStuff {
@@ -152,6 +161,7 @@ impl ParkingMapper {
                             Choice::new("divided highways", Show::DividedHighways).tooltip(
                                 "Roads divided in OSM often have the wrong number of lanes tagged",
                             ),
+                            Choice::new("unmapped divided highways", Show::UnmappedDividedHighways),
                             Choice::new(
                                 "buildings and parking lots overlapping roads",
                                 Show::OverlappingStuff,
@@ -166,6 +176,7 @@ impl ParkingMapper {
                             Show::TODO => "TODO",
                             Show::Done => "done",
                             Show::DividedHighways => "divided highways",
+                            Show::UnmappedDividedHighways => "unmapped divided highways",
                             Show::OverlappingStuff => {
                                 "buildings and parking lots overlapping roads"
                             }
@@ -235,8 +246,8 @@ impl State<App> for ParkingMapper {
                     ]);
                     txt.add_appended(vec![
                         Line("Press "),
-                        Key::O.txt(ctx),
-                        Line(" to open OpenStreetMap for this way"),
+                        Key::E.txt(ctx),
+                        Line(" to edit OpenStreetMap for this way"),
                     ]);
                     for (k, v) in road.osm_tags.inner() {
                         if k.starts_with("abst:") {
@@ -293,14 +304,15 @@ impl State<App> for ParkingMapper {
             }
         }
         if let Some((ref roads, _)) = self.selected {
-            if ctx.input.pressed(Key::O) {
+            if ctx.input.pressed(Key::E) {
                 open_browser(format!(
-                    "{}",
+                    "https://www.openstreetmap.org/edit?way={}",
                     app.primary
                         .map
                         .get_r(*roads.iter().next().unwrap())
                         .orig_id
                         .osm_way_id
+                        .0
                 ));
             }
         }
