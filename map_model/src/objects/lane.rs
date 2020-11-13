@@ -335,9 +335,10 @@ impl Lane {
             let i = if fwd { l.dst_i } else { l.src_i };
             // TODO Remove these debug statements entirely after stabilizing this
             //println!("{}, fwd={}, pointing to {}", current, fwd, i);
-            let roads = map
+            let mut roads = map
                 .get_i(i)
                 .get_roads_sorted_by_incoming_angle(map.all_roads());
+            roads.retain(|r| !map.get_r(*r).is_footway());
             let idx = roads.iter().position(|r| *r == l.parent).unwrap();
             // Get the next road counter-clockwise
             let next_road = map.get_r(*wraparound_get(&roads, (idx as isize) + 1));

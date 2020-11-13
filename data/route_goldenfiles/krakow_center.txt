@@ -1,3 +1,3 @@
-https://www.openstreetmap.org/relation/2053781 from Lane #5348 to Some(LaneID(17297))
-  Politechnika: Position(Lane #5348, 69.997m) driving, Position(Lane #15491, 1.3056m) sidewalk
-  Nowy Kleparz: Position(Lane #9209, 21.4007m) driving, Position(Lane #11931, 20.9778m) sidewalk
+https://www.openstreetmap.org/relation/2053781 from Lane #5301 to Some(LaneID(17216))
+  Politechnika: Position(Lane #5301, 69.997m) driving, Position(Lane #15428, 1.3056m) sidewalk
+  Nowy Kleparz: Position(Lane #9152, 21.4007m) driving, Position(Lane #11892, 20.9778m) sidewalk
