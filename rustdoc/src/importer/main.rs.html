@@ -267,6 +267,19 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -295,6 +308,7 @@
     <span class="ident">raw_to_map</span>: <span class="ident">bool</span>,
     <span class="ident">scenario</span>: <span class="ident">bool</span>,
     <span class="ident">scenario_everyone</span>: <span class="ident">bool</span>,
+    <span class="ident">city_overview</span>: <span class="ident">bool</span>,
 
     <span class="ident">skip_ch</span>: <span class="ident">bool</span>,
     <span class="ident">keep_bldg_tags</span>: <span class="ident">bool</span>,
@@ -319,6 +333,8 @@
         <span class="ident">scenario</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--scenario&quot;</span>),
         <span class="comment">// Produce a variation of the weekday scenario including off-map trips.</span>
         <span class="ident">scenario_everyone</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--scenario_everyone&quot;</span>),
+        <span class="comment">// Produce a city overview from all of the individual maps in a city.</span>
+        <span class="ident">city_overview</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--city_overview&quot;</span>),
         <span class="comment">// Skip the most expensive step of --map, building contraction hierarchies. The simulation</span>
         <span class="comment">// will use a slower method to pathfind.</span>
         <span class="ident">skip_ch</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--skip_ch&quot;</span>),
@@ -340,11 +356,12 @@
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">job</span>.<span class="ident">raw_to_map</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">job</span>.<span class="ident">scenario</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">job</span>.<span class="ident">scenario_everyone</span>
+        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">job</span>.<span class="ident">city_overview</span>
         <span class="op">&amp;&amp;</span> <span class="ident">job</span>.<span class="ident">oneshot</span>.<span class="ident">is_none</span>()
     {
         <span class="macro">println</span><span class="macro">!</span>(
             <span class="string">&quot;Nothing to do! Pass some combination of --raw, --map, --scenario, \
-             --scenario_everyone or --oneshot&quot;</span>
+             --scenario_everyone, --city_overview, or --oneshot&quot;</span>
         );
         <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">exit</span>(<span class="number">1</span>);
     }
@@ -490,6 +507,15 @@
             .<span class="ident">save</span>();
             <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;scenario_everyone for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
         }
+    }
+
+    <span class="kw">if</span> <span class="ident">job</span>.<span class="ident">city_overview</span> {
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;generate city overview for {}&quot;</span>, <span class="ident">job</span>.<span class="ident">city</span>));
+        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(
+            <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/city.bin&quot;</span>, <span class="ident">job</span>.<span class="ident">city</span>)),
+            <span class="kw-2">&amp;</span><span class="ident">map_model</span>::<span class="ident">City</span>::<span class="ident">from_individual_maps</span>(<span class="kw-2">&amp;</span><span class="ident">job</span>.<span class="ident">city</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>),
+        );
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;generate city overview for {}&quot;</span>, <span class="ident">job</span>.<span class="ident">city</span>));
     }
 }
 
