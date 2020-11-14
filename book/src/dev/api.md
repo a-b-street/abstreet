@@ -85,8 +85,8 @@ are missing, etc. A summary of the commands available so far:
     hour since midnight, throughput for that one hour period).
 - **/map**
   - **GET /map/get-edits**: Returns the current map edits in JSON. You can save
-    this to a file in `data/player/edits/map_name/` and later use it in-game
-    normally. You can also later run the `headless` server with
+    this to a file in `data/player/edits/city_name/map_name/` and later use it
+    in-game normally. You can also later run the `headless` server with
     `--edits=name_of_edits`.
   - **GET /map/get-edit-road-command?id=123**: Returns an object that can be
     modified and then added to map edits.

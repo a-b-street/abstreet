@@ -165,26 +165,32 @@ pub fn parse_scenario_path(path: &str) -> (MapName, String) {
 // Player data (Players edit this)
 
 pub fn path_camera_state(name: &MapName) -> String {
-    path(format!("player/camera_state/{}.json", name.map))
+    path(format!(
+        "player/camera_state/{}/{}.json",
+        name.city, name.map
+    ))
 }
 
 pub fn path_edits(name: &MapName, edits_name: &str) -> String {
-    path(format!("player/edits/{}/{}.json", name.map, edits_name))
+    path(format!(
+        "player/edits/{}/{}/{}.json",
+        name.city, name.map, edits_name
+    ))
 }
 pub fn path_all_edits(name: &MapName) -> String {
-    path(format!("player/edits/{}", name.map))
+    path(format!("player/edits/{}/{}", name.city, name.map))
 }
 
 pub fn path_save(name: &MapName, edits_name: &str, run_name: &str, time: String) -> String {
     path(format!(
-        "player/saves/{}/{}_{}/{}.bin",
-        name.map, edits_name, run_name, time
+        "player/saves/{}/{}/{}_{}/{}.bin",
+        name.city, name.map, edits_name, run_name, time
     ))
 }
 pub fn path_all_saves(name: &MapName, edits_name: &str, run_name: &str) -> String {
     path(format!(
-        "player/saves/{}/{}_{}",
-        name.map, edits_name, run_name
+        "player/saves/{}/{}/{}_{}",
+        name.city, name.map, edits_name, run_name
     ))
 }
 
