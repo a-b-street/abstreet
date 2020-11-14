@@ -539,6 +539,8 @@
 <span id="538">538</span>
 <span id="539">539</span>
 <span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -757,7 +759,9 @@
                             <span class="ident">via_node_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">n</span>);
                         }
                     }
-                    <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    <span class="ident">OsmID</span>::<span class="ident">Relation</span>(<span class="ident">r</span>) <span class="op">=&gt;</span> {
+                        <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;{} contains {} as {}&quot;</span>, <span class="ident">id</span>, <span class="ident">r</span>, <span class="ident">role</span>);
+                    }
                 }
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">restriction</span>) <span class="op">=</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;restriction&quot;</span>) {

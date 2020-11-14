@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["boundary_coords",""],["main","Convert geojson boundary suitable for osmfilter and other osmosis based tools. Expects the input to contain no element other than the boundary of interest. Reads geojson text from stdin Writes \"poly\" formatted text to stdout"]]});
+initSidebarItems({"fn":[["extract_boundaries",""],["main","Reads GeoJSON input from STDIN, extracts a polygon from every feature, and writes numbered files in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as output."]]});

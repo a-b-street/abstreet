@@ -334,9 +334,9 @@ invert.</p>
 <a href="https://download.bbbike.org/">https://download.bbbike.org/</a> or <a href="http://download.geofabrik.de/index.html">http://download.geofabrik.de/index.html</a>,
 then clip them to a smaller area. Use <a href="http://geojson.io/">geojson.io</a> or
 <a href="https://geoman.io/geojson-editor">geoman.io</a> to draw a boundary around the
-region you want to simulate and save the geojson locally. Use
-<code>cargo run --bin geojson_to_osmosis &lt; boundary.geojson &gt; clipping.poly</code> to
-convert that geojson to the
+region you want to simulate and save the GeoJSON locally. Use
+<code>cargo run --bin geojson_to_osmosis &lt; boundary.geojson</code> to convert that GeoJSON
+to the
 <a href="https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format">Osmosis format</a>
 required by osmconvert.</p>
 <p>Note that you may hit problems if you use JOSM to download additional data to a
@@ -361,11 +361,13 @@ osmconvert, gdal, etc.</p>
 region you want to simulate and save the geojson locally.</p>
 </li>
 <li>
-<p>Use
-<code>cargo run --bin geojson_to_osmosis &lt; boundary.geojson &gt; importer/config/your_city/region_name.poly</code>
-to convert that geojson to the
+<p>Use <code>cargo run --bin geojson_to_osmosis &lt; boundary.geojson</code> to convert that
+geojson to the
 <a href="https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format">Osmosis format</a>
-required by osmconvert.</p>
+required by osmconvert. This tool writes one file per feature in the input,
+so you'd then
+<code>mv boundary0.poly importer/config/your_city/region_name.poly</code>, repeating if
+you drew multiple polygons.</p>
 </li>
 <li>
 <p>Copy <code>importer/config/tel_aviv/cfg.json</code> to
