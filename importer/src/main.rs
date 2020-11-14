@@ -25,6 +25,7 @@ struct Job {
     raw_to_map: bool,
     scenario: bool,
     scenario_everyone: bool,
+    city_overview: bool,
 
     skip_ch: bool,
     keep_bldg_tags: bool,
@@ -49,6 +50,8 @@ fn main() {
         scenario: args.enabled("--scenario"),
         // Produce a variation of the weekday scenario including off-map trips.
         scenario_everyone: args.enabled("--scenario_everyone"),
+        // Produce a city overview from all of the individual maps in a city.
+        city_overview: args.enabled("--city_overview"),
         // Skip the most expensive step of --map, building contraction hierarchies. The simulation
         // will use a slower method to pathfind.
         skip_ch: args.enabled("--skip_ch"),
@@ -70,11 +73,12 @@ fn main() {
         && !job.raw_to_map
         && !job.scenario
         && !job.scenario_everyone
+        && !job.city_overview
         && job.oneshot.is_none()
     {
         println!(
             "Nothing to do! Pass some combination of --raw, --map, --scenario, \
-             --scenario_everyone or --oneshot"
+             --scenario_everyone, --city_overview, or --oneshot"
         );
         std::process::exit(1);
     }
@@ -220,6 +224,15 @@ fn main() {
             .save();
             timer.stop(format!("scenario_everyone for {}", name.describe()));
         }
+    }
+
+    if job.city_overview {
+        timer.start(format!("generate city overview for {}", job.city));
+        abstutil::write_binary(
+            abstutil::path(format!("system/{}/city.bin", job.city)),
+            &map_model::City::from_individual_maps(&job.city, &mut timer),
+        );
+        timer.stop(format!("generate city overview for {}", job.city));
     }
 }
 

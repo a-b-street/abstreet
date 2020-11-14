@@ -142,7 +142,7 @@ pub fn raw_to_map(
         timer.start("generating city manifest");
         abstutil::write_binary(
             abstutil::path(format!("system/{}/city.bin", map.get_city_name())),
-            &map_model::City::new(&map),
+            &map_model::City::from_huge_map(&map),
         );
         timer.stop("generating city manifest");
     }

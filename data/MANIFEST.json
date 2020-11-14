@@ -408,6 +408,10 @@
       "checksum": "69df8b1a1f93c5d52f872ef18eb5cde2",
       "size_bytes": 8485994
     },
+    "data/system/paris/city.bin": {
+      "checksum": "0fd1914ef16ad3797ccfaf14c36c3a17",
+      "size_bytes": 2279409
+    },
     "data/system/paris/maps/center.bin": {
       "checksum": "5ed145aee161a464011fb4bc16d3110a",
       "size_bytes": 37829561
