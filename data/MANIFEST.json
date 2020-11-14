@@ -116,6 +116,58 @@
       "checksum": "4f651a450d9d6b73618db015c34a03ad",
       "size_bytes": 99666
     },
+    "data/input/paris/footways.bin": {
+      "checksum": "8197a29367a323022a7d57338fc5fe5b",
+      "size_bytes": 834703
+    },
+    "data/input/paris/osm/center.osm": {
+      "checksum": "224841aa32fafd0212b0b2e3cc200e9a",
+      "size_bytes": 107158714
+    },
+    "data/input/paris/osm/east.osm": {
+      "checksum": "af9bca4c771af2b89beec6f82d8c97a9",
+      "size_bytes": 90032731
+    },
+    "data/input/paris/osm/ile-de-france-latest.osm.pbf": {
+      "checksum": "b41d83c58cbfb78b6221316ac389e99c",
+      "size_bytes": 265495060
+    },
+    "data/input/paris/osm/north.osm": {
+      "checksum": "3435c999f471cd15a375efcbf645d4b1",
+      "size_bytes": 102747474
+    },
+    "data/input/paris/osm/south.osm": {
+      "checksum": "e8cbf73f7bb6c1a6b486ec6025fcaaba",
+      "size_bytes": 94381432
+    },
+    "data/input/paris/osm/west.osm": {
+      "checksum": "c2a143b3d8cbfdd515ebc38eab62d618",
+      "size_bytes": 108503931
+    },
+    "data/input/paris/raw_maps/center.bin": {
+      "checksum": "68641839a87f9c29f2a2f5013a69a266",
+      "size_bytes": 23611429
+    },
+    "data/input/paris/raw_maps/east.bin": {
+      "checksum": "90c43e47ab44752843d24c0858559765",
+      "size_bytes": 19747799
+    },
+    "data/input/paris/raw_maps/north.bin": {
+      "checksum": "92e0a324ea0b1dad68e77d4fcb8e60a1",
+      "size_bytes": 24101998
+    },
+    "data/input/paris/raw_maps/south.bin": {
+      "checksum": "7a6d4b62c0afb678c5e23cd94db54438",
+      "size_bytes": 17815656
+    },
+    "data/input/paris/raw_maps/west.bin": {
+      "checksum": "3beb388991d77348026c712468b68386",
+      "size_bytes": 23780627
+    },
+    "data/input/paris/service_roads.bin": {
+      "checksum": "611fd252dc503d8ff7f4c62182821c85",
+      "size_bytes": 241244
+    },
     "data/input/seattle/N47W122.hgt": {
       "checksum": "0db4e23e51f7680538b0bbbc72208e07",
       "size_bytes": 25934402
@@ -355,6 +407,26 @@
     "data/system/london/maps/southbank.bin": {
       "checksum": "69df8b1a1f93c5d52f872ef18eb5cde2",
       "size_bytes": 8485994
+    },
+    "data/system/paris/maps/center.bin": {
+      "checksum": "5ed145aee161a464011fb4bc16d3110a",
+      "size_bytes": 37829561
+    },
+    "data/system/paris/maps/east.bin": {
+      "checksum": "35a78d43db2447dccd4a55b8b43183c1",
+      "size_bytes": 32721602
+    },
+    "data/system/paris/maps/north.bin": {
+      "checksum": "224cec9d1a2e218aaac495060c626f2d",
+      "size_bytes": 40701747
+    },
+    "data/system/paris/maps/south.bin": {
+      "checksum": "910ef8aa1620507874c521ad1b10ebc4",
+      "size_bytes": 31920280
+    },
+    "data/system/paris/maps/west.bin": {
+      "checksum": "b3338997530c12ae76e1a277556ea18a",
+      "size_bytes": 44557045
     },
     "data/system/seattle/city.bin": {
       "checksum": "6b1692a48146f2c5d09e49b49d4f09d6",
