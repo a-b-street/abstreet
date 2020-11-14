@@ -35,9 +35,9 @@ If the area is small enough, try the "export" tool on
 <https://download.bbbike.org/> or <http://download.geofabrik.de/index.html>,
 then clip them to a smaller area. Use [geojson.io](http://geojson.io/) or
 [geoman.io](https://geoman.io/geojson-editor) to draw a boundary around the
-region you want to simulate and save the geojson locally. Use
-`cargo run --bin geojson_to_osmosis < boundary.geojson > clipping.poly` to
-convert that geojson to the
+region you want to simulate and save the GeoJSON locally. Use
+`cargo run --bin geojson_to_osmosis < boundary.geojson` to convert that GeoJSON
+to the
 [Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
 required by osmconvert.
 
@@ -61,11 +61,13 @@ use it as well.
     [geoman.io](https://geoman.io/geojson-editor) to draw a boundary around the
     region you want to simulate and save the geojson locally.
 
-4.  Use
-    `cargo run --bin geojson_to_osmosis < boundary.geojson > importer/config/your_city/region_name.poly`
-    to convert that geojson to the
+4.  Use `cargo run --bin geojson_to_osmosis < boundary.geojson` to convert that
+    geojson to the
     [Osmosis format](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
-    required by osmconvert.
+    required by osmconvert. This tool writes one file per feature in the input,
+    so you'd then
+    `mv boundary0.poly importer/config/your_city/region_name.poly`, repeating if
+    you drew multiple polygons.
 
 5.  Copy `importer/config/tel_aviv/cfg.json` to
     `importer/config/your_city/cfg.json` and edit this file. See

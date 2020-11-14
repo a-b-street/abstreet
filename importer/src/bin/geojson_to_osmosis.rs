@@ -2,37 +2,45 @@ use std::io::{self, Read};
 
 use geojson::{GeoJson, Value};
 
-/// Convert geojson boundary suitable for osmfilter and other osmosis based tools.
-/// Expects the input to contain no element other than the boundary of interest.
-//
-/// Reads geojson text from stdin
-/// Writes "poly" formatted text to stdout
+use geom::LonLat;
+
+/// Reads GeoJSON input from STDIN, extracts a polygon from every feature, and writes numbered
+/// files in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as
+/// output.
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut buffer = String::new();
     io::stdin().read_to_string(&mut buffer)?;
     let geojson = buffer.parse::<GeoJson>()?;
-    let points = boundary_coords(&geojson)?;
 
-    println!("boundary");
-    println!("1");
-    for point in points {
-        println!("     {}    {}", point[0], point[1]);
+    for (idx, points) in extract_boundaries(geojson)?.into_iter().enumerate() {
+        let path = format!("boundary{}.poly", idx);
+        LonLat::write_osmosis_polygon(&path, &points)?;
+        println!("Wrote {}", path);
     }
-    println!("END");
-    println!("END");
     Ok(())
 }
 
-fn boundary_coords(geojson: &GeoJson) -> Result<Vec<Vec<f64>>, Box<dyn std::error::Error>> {
-    let feature = match geojson {
-        GeoJson::Feature(feature) => feature,
-        GeoJson::FeatureCollection(feature_collection) => &feature_collection.features[0],
+fn extract_boundaries(geojson: GeoJson) -> Result<Vec<Vec<LonLat>>, Box<dyn std::error::Error>> {
+    let features = match geojson {
+        GeoJson::Feature(feature) => vec![feature],
+        GeoJson::FeatureCollection(feature_collection) => feature_collection.features,
         _ => return Err(format!("Unexpected geojson: {:?}", geojson).into()),
     };
-
-    match &feature.geometry.as_ref().map(|g| &g.value) {
-        Some(Value::MultiPolygon(multi_polygon)) => return Ok(multi_polygon[0][0].clone()),
-        Some(Value::Polygon(polygon)) => return Ok(polygon[0].clone()),
-        _ => Err(format!("Unexpected feature: {:?}", feature).into()),
+    let mut polygons = Vec::new();
+    for mut feature in features {
+        let points = match feature.geometry.take().map(|g| g.value) {
+            Some(Value::MultiPolygon(multi_polygon)) => multi_polygon[0][0].clone(),
+            Some(Value::Polygon(polygon)) => polygon[0].clone(),
+            _ => {
+                return Err(format!("Unexpected feature: {:?}", feature).into());
+            }
+        };
+        polygons.push(
+            points
+                .into_iter()
+                .map(|pt| LonLat::new(pt[0], pt[1]))
+                .collect(),
+        );
     }
+    Ok(polygons)
 }

@@ -132,8 +132,14 @@ impl Map {
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
                 zorder: if let Some(layer) = raw.roads[&r.id].osm_tags.get("layer") {
-                    // Just drop .5 for now
-                    layer.parse::<f64>().unwrap() as isize
+                    match layer.parse::<f64>() {
+                        // Just drop .5 for now
+                        Ok(l) => l as isize,
+                        Err(_) => {
+                            warn!("Weird layer={} on {}", layer, r.id);
+                            0
+                        }
+                    }
                 } else {
                     0
                 },

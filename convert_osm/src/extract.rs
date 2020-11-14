@@ -215,7 +215,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                             via_node_id = Some(*n);
                         }
                     }
-                    _ => unreachable!(),
+                    OsmID::Relation(r) => {
+                        warn!("{} contains {} as {}", id, r, role);
+                    }
                 }
             }
             if let Some(restriction) = rel.tags.get("restriction") {
