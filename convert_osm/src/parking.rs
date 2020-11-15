@@ -97,12 +97,17 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
                 && category != Some(&"No Parking Allowed".to_string());
 
             let definitely_no_parking =
-                tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"]);
+                tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link", "trunk"]);
             if has_parking && definitely_no_parking {
                 timer.warn(format!(
                     "Blockface says there's parking along motorway {}, ignoring",
                     r
                 ));
+                continue;
+            }
+
+            // Let's assume there isn't parking on the inner part of a dual carriageway
+            if !fwds && tags.is("dual_carriageway", "yes") {
                 continue;
             }
 
