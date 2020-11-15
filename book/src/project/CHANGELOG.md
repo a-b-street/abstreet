@@ -647,3 +647,10 @@ changes here.
 - started a UI for collision dataviz, with data in the UK and Seattle
 - improve turns between separate footways
 - simplify the process of importing a new city
+
+0.2.19
+
+- added experimental day/night support; run with --day_night
+- slight performance improvements by avoiding applying no-op edits
+- new tests for lane-changing behavior, used to more safely allow more realistic behavior blocking "degenerate" intersections
+- experimenting with filling in gaps between one-way roads, to represent medians
