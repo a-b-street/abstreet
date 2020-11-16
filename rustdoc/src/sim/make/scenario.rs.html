@@ -793,6 +793,19 @@
 <span id="792">792</span>
 <span id="793">793</span>
 <span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -802,7 +815,7 @@
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">MapName</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">MapName</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">PathConstraints</span>,
@@ -957,8 +970,8 @@
         }
 
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;trips for People&quot;</span>, <span class="self">self</span>.<span class="ident">people</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">make_spawner</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parked_cars</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vehicle</span>, <span class="ident">BuildingID</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">schedule_trips</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">people</span> {
             <span class="ident">timer</span>.<span class="ident">next</span>();
 
@@ -987,8 +1000,8 @@
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp_rng</span>,
                     <span class="ident">map</span>,
                 );
-                <span class="ident">spawner</span>.<span class="ident">schedule_trip</span>(
-                    <span class="ident">person</span>,
+                <span class="ident">schedule_trips</span>.<span class="ident">push</span>((
+                    <span class="ident">person</span>.<span class="ident">id</span>,
                     <span class="ident">t</span>.<span class="ident">depart</span>,
                     <span class="ident">spec</span>,
                     <span class="ident">t</span>.<span class="ident">trip</span>.<span class="ident">start</span>(<span class="ident">map</span>),
@@ -996,9 +1009,22 @@
                     <span class="ident">t</span>.<span class="ident">cancelled</span>,
                     <span class="ident">t</span>.<span class="ident">modified</span>,
                     <span class="ident">map</span>,
-                );
+                ));
             }
         }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">make_spawner</span>();
+        <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(
+            <span class="string">&quot;schedule trips&quot;</span>,
+            <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
+            <span class="ident">schedule_trips</span>,
+            <span class="op">|</span><span class="ident">tuple</span><span class="op">|</span> {
+                <span class="ident">spawner</span>.<span class="ident">schedule_trip_fast</span>(
+                    <span class="ident">tuple</span>.<span class="number">0</span>, <span class="ident">tuple</span>.<span class="number">1</span>, <span class="ident">tuple</span>.<span class="number">2</span>, <span class="ident">tuple</span>.<span class="number">3</span>, <span class="ident">tuple</span>.<span class="number">4</span>, <span class="ident">tuple</span>.<span class="number">5</span>, <span class="ident">tuple</span>.<span class="number">6</span>, <span class="ident">tuple</span>.<span class="number">7</span>,
+                )
+            },
+        );
+        <span class="ident">spawner</span>.<span class="ident">schedule_trips</span>(<span class="ident">results</span>);
 
         <span class="comment">// parked_cars is stable over map edits, so don&#39;t fork.</span>
         <span class="ident">parked_cars</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
