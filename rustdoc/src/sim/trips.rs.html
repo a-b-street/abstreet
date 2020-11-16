@@ -1759,15 +1759,6 @@
 <span id="1758">1758</span>
 <span id="1759">1759</span>
 <span id="1760">1760</span>
-<span id="1761">1761</span>
-<span id="1762">1762</span>
-<span id="1763">1763</span>
-<span id="1764">1764</span>
-<span id="1765">1765</span>
-<span id="1766">1766</span>
-<span id="1767">1767</span>
-<span id="1768">1768</span>
-<span id="1769">1769</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -2889,20 +2880,11 @@
                     }
                 }
             }
-            <span class="ident">TripSpec</span>::<span class="ident">NoRoomToSpawn</span> {
-                <span class="ident">i</span>,
-                <span class="ident">use_vehicle</span>,
-                <span class="ident">error</span>,
-                ..
+            <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> {
+                <span class="ident">use_vehicle</span>, <span class="ident">error</span>, ..
             } <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">get_vehicle</span>(<span class="ident">use_vehicle</span>);
-                <span class="self">self</span>.<span class="ident">cancel_trip</span>(
-                    <span class="ident">now</span>,
-                    <span class="ident">trip</span>,
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;couldn&#39;t spawn at border {}: {}&quot;</span>, <span class="ident">i</span>, <span class="ident">error</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>),
-                    <span class="ident">ctx</span>,
-                );
+                <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">error</span>, <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>), <span class="ident">ctx</span>);
             }
             <span class="ident">TripSpec</span>::<span class="ident">UsingParkedCar</span> {
                 <span class="ident">car</span>, <span class="ident">start_bldg</span>, ..

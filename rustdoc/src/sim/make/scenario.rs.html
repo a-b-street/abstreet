@@ -793,8 +793,6 @@
 <span id="792">792</span>
 <span id="793">793</span>
 <span id="794">794</span>
-<span id="795">795</span>
-<span id="796">796</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1261,11 +1259,9 @@
                         <span class="ident">origin</span>,
                     }
                 } <span class="kw">else</span> {
-                    <span class="ident">TripSpec</span>::<span class="ident">NoRoomToSpawn</span> {
-                        <span class="ident">i</span>: <span class="ident">dr</span>.<span class="ident">src_i</span>(<span class="ident">map</span>),
+                    <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> {
                         <span class="ident">goal</span>,
                         <span class="ident">use_vehicle</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
-                        <span class="ident">origin</span>,
                         <span class="ident">error</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} has no lanes to spawn a {:?}&quot;</span>, <span class="ident">dr</span>.<span class="ident">id</span>, <span class="ident">constraints</span>),
                     }
                 }
