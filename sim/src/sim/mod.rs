@@ -643,7 +643,7 @@ impl Sim {
                 m.handle_event(self.time, &ev, &mut self.scheduler);
             }
             if let Some(ref mut r) = self.recorder {
-                r.handle_event(self.time, &ev, map);
+                r.handle_event(self.time, &ev, map, &self.driving, &self.trips);
             }
 
             self.analytics.event(ev, self.time, map);

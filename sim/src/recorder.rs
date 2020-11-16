@@ -1,11 +1,11 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use geom::Time;
-use map_model::{IntersectionID, LaneID, Map, Position, Traversable};
+use map_model::{IntersectionID, Map, PathStep, Position, Traversable};
 
 use crate::{
-    AgentID, CarID, DrivingGoal, Event, IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip,
-    TripPurpose, VehicleType,
+    AgentID, DrivingGoal, DrivingSimState, Event, IndividTrip, PersonID, PersonSpec, Scenario,
+    SpawnTrip, TripID, TripManager, TripPurpose, VehicleType,
 };
 
 /// Records trips beginning and ending at a specified set of intersections. This can be used to
@@ -17,8 +17,7 @@ pub struct TrafficRecorder {
     // TODO The RNG will determine vehicle length, so this won't be a perfect capture. Hopefully
     // good enough.
     trips: Vec<IndividTrip>,
-    // Where and when did a car encounter one of the capture_points?
-    entered: BTreeMap<CarID, (Time, LaneID)>,
+    seen_trips: BTreeSet<TripID>,
 }
 
 impl TrafficRecorder {
@@ -26,28 +25,44 @@ impl TrafficRecorder {
         TrafficRecorder {
             capture_points,
             trips: Vec::new(),
-            entered: BTreeMap::new(),
+            seen_trips: BTreeSet::new(),
         }
     }
 
-    pub fn handle_event(&mut self, time: Time, ev: &Event, map: &Map) {
+    pub fn handle_event(
+        &mut self,
+        time: Time,
+        ev: &Event,
+        map: &Map,
+        driving: &DrivingSimState,
+        trips: &TripManager,
+    ) {
         if let Event::AgentEntersTraversable(a, on, _) = ev {
             if let AgentID::Car(car) = a {
-                if let Traversable::Lane(l) = on {
-                    let lane = map.get_l(*l);
-                    if self.capture_points.contains(&lane.src_i) {
-                        self.entered.insert(*car, (time, *l));
-                    } else if self.capture_points.contains(&lane.dst_i) {
-                        if let Some((depart, from)) = self.entered.remove(car) {
-                            self.trips.push(IndividTrip::new(
-                                depart,
-                                TripPurpose::Shopping,
-                                SpawnTrip::VehicleAppearing {
-                                    start: Position::start(from),
-                                    goal: DrivingGoal::Border(lane.dst_i, lane.id, None),
-                                    is_bike: car.1 == VehicleType::Bike,
-                                },
-                            ));
+                if let Some(trip) = trips.agent_to_trip(AgentID::Car(*car)) {
+                    if self.seen_trips.contains(&trip) {
+                        return;
+                    }
+                    if let Traversable::Lane(l) = on {
+                        if self.capture_points.contains(&map.get_l(*l).src_i) {
+                            // Where do they exit?
+                            for step in driving.get_path(*car).unwrap().get_steps() {
+                                if let PathStep::Turn(t) = step {
+                                    if self.capture_points.contains(&t.parent) {
+                                        self.trips.push(IndividTrip::new(
+                                            time,
+                                            TripPurpose::Shopping,
+                                            SpawnTrip::VehicleAppearing {
+                                                start: Position::start(*l),
+                                                goal: DrivingGoal::Border(t.parent, t.src, None),
+                                                is_bike: car.1 == VehicleType::Bike,
+                                            },
+                                        ));
+                                        self.seen_trips.insert(trip);
+                                        return;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
