@@ -372,8 +372,9 @@ impl TripManager {
             end,
             constraints: PathConstraints::Bike,
         };
-        let maybe_router = if req.start == req.end {
-            // TODO Convert to a walking trip!
+        let maybe_router = if req.start.lane() == req.end.lane() {
+            // TODO Convert to a walking trip! Ideally, do this earlier and convert the trip to
+            // walking, like schedule_trip does
             None
         } else {
             ctx.map
