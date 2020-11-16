@@ -78,15 +78,30 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Time</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathStep</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">Event</span>, <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">SpawnTrip</span>,
-    <span class="ident">TripPurpose</span>, <span class="ident">VehicleType</span>,
+    <span class="ident">AgentID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>, <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>,
+    <span class="ident">SpawnTrip</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">TripPurpose</span>, <span class="ident">VehicleType</span>,
 };
 
 <span class="doccomment">/// Records trips beginning and ending at a specified set of intersections. This can be used to</span>
@@ -98,8 +113,7 @@
     <span class="comment">// TODO The RNG will determine vehicle length, so this won&#39;t be a perfect capture. Hopefully</span>
     <span class="comment">// good enough.</span>
     <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span>,
-    <span class="comment">// Where and when did a car encounter one of the capture_points?</span>
-    <span class="ident">entered</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, (<span class="ident">Time</span>, <span class="ident">LaneID</span>)<span class="op">&gt;</span>,
+    <span class="ident">seen_trips</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TrafficRecorder</span> {
@@ -107,28 +121,44 @@
         <span class="ident">TrafficRecorder</span> {
             <span class="ident">capture_points</span>,
             <span class="ident">trips</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">entered</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+            <span class="ident">seen_trips</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">time</span>: <span class="ident">Time</span>, <span class="ident">ev</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_event</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">time</span>: <span class="ident">Time</span>,
+        <span class="ident">ev</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">driving</span>: <span class="kw-2">&amp;</span><span class="ident">DrivingSimState</span>,
+        <span class="ident">trips</span>: <span class="kw-2">&amp;</span><span class="ident">TripManager</span>,
+    ) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event</span>::<span class="ident">AgentEntersTraversable</span>(<span class="ident">a</span>, <span class="ident">on</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ev</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>) <span class="op">=</span> <span class="ident">a</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">on</span> {
-                    <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>);
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">capture_points</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">lane</span>.<span class="ident">src_i</span>) {
-                        <span class="self">self</span>.<span class="ident">entered</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">car</span>, (<span class="ident">time</span>, <span class="kw-2">*</span><span class="ident">l</span>));
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">capture_points</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">lane</span>.<span class="ident">dst_i</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">depart</span>, <span class="ident">from</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">entered</span>.<span class="ident">remove</span>(<span class="ident">car</span>) {
-                            <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
-                                <span class="ident">depart</span>,
-                                <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                                <span class="ident">SpawnTrip</span>::<span class="ident">VehicleAppearing</span> {
-                                    <span class="ident">start</span>: <span class="ident">Position</span>::<span class="ident">start</span>(<span class="ident">from</span>),
-                                    <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>, <span class="ident">lane</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>),
-                                    <span class="ident">is_bike</span>: <span class="ident">car</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>,
-                                },
-                            ));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trip</span>) <span class="op">=</span> <span class="ident">trips</span>.<span class="ident">agent_to_trip</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">car</span>)) {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">seen_trips</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">trip</span>) {
+                        <span class="kw">return</span>;
+                    }
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">on</span> {
+                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">capture_points</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">src_i</span>) {
+                            <span class="comment">// Where do they exit?</span>
+                            <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">driving</span>.<span class="ident">get_path</span>(<span class="kw-2">*</span><span class="ident">car</span>).<span class="ident">unwrap</span>().<span class="ident">get_steps</span>() {
+                                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span> {
+                                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">capture_points</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">parent</span>) {
+                                        <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
+                                            <span class="ident">time</span>,
+                                            <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
+                                            <span class="ident">SpawnTrip</span>::<span class="ident">VehicleAppearing</span> {
+                                                <span class="ident">start</span>: <span class="ident">Position</span>::<span class="ident">start</span>(<span class="kw-2">*</span><span class="ident">l</span>),
+                                                <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">t</span>.<span class="ident">parent</span>, <span class="ident">t</span>.<span class="ident">src</span>, <span class="prelude-val">None</span>),
+                                                <span class="ident">is_bike</span>: <span class="ident">car</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span>,
+                                            },
+                                        ));
+                                        <span class="self">self</span>.<span class="ident">seen_trips</span>.<span class="ident">insert</span>(<span class="ident">trip</span>);
+                                        <span class="kw">return</span>;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
