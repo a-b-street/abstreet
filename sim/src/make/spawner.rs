@@ -8,8 +8,8 @@ use geom::{Duration, Time};
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 
 use crate::{
-    CarID, Command, DrivingGoal, OffMapLocation, Person, PersonID, Scheduler, SidewalkSpot,
-    TripEndpoint, TripLeg, TripManager, TripMode, TripPurpose, VehicleType,
+    CarID, Command, DrivingGoal, OffMapLocation, PersonID, Scheduler, SidewalkSpot, TripEndpoint,
+    TripLeg, TripManager, TripMode, TripPurpose, VehicleType,
 };
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
@@ -61,17 +61,19 @@ pub enum TripSpec {
     },
 }
 
+type TripSpawnPlan = (
+    PersonID,
+    Time,
+    TripSpec,
+    TripEndpoint,
+    TripPurpose,
+    bool,
+    bool,
+);
+
 /// This structure is created temporarily by a Scenario or to interactively spawn agents.
 pub struct TripSpawner {
-    trips: Vec<(
-        PersonID,
-        Time,
-        TripSpec,
-        TripEndpoint,
-        TripPurpose,
-        bool,
-        bool,
-    )>,
+    trips: Vec<TripSpawnPlan>,
 }
 
 impl TripSpawner {
@@ -79,9 +81,11 @@ impl TripSpawner {
         TripSpawner { trips: Vec::new() }
     }
 
-    pub fn schedule_trip(
-        &mut self,
-        person: &Person,
+    /// Doesn't actually schedule anything yet; you can call this from multiple threads, then feed
+    /// all the results to schedule_trips.
+    pub fn schedule_trip_fast(
+        &self,
+        person: PersonID,
         start_time: Time,
         mut spec: TripSpec,
         trip_start: TripEndpoint,
@@ -89,7 +93,7 @@ impl TripSpawner {
         cancelled: bool,
         modified: bool,
         map: &Map,
-    ) {
+    ) -> TripSpawnPlan {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         match &spec {
             TripSpec::VehicleAppearing {
@@ -189,9 +193,30 @@ impl TripSpawner {
             TripSpec::Remote { .. } => {}
         };
 
-        self.trips.push((
-            person.id, start_time, spec, trip_start, purpose, cancelled, modified,
+        (
+            person, start_time, spec, trip_start, purpose, cancelled, modified,
+        )
+    }
+
+    /// Immediately schedule the requested trip
+    pub fn schedule_trip(
+        &mut self,
+        person: PersonID,
+        start_time: Time,
+        spec: TripSpec,
+        trip_start: TripEndpoint,
+        purpose: TripPurpose,
+        cancelled: bool,
+        modified: bool,
+        map: &Map,
+    ) {
+        self.trips.push(self.schedule_trip_fast(
+            person, start_time, spec, trip_start, purpose, cancelled, modified, map,
         ));
+    }
+
+    pub fn schedule_trips(&mut self, trips: Vec<TripSpawnPlan>) {
+        self.trips.extend(trips);
     }
 
     pub fn finalize(

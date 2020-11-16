@@ -6,7 +6,7 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, Counter, MapName, Timer};
+use abstutil::{prettyprint_usize, Counter, MapName, Parallelism, Timer};
 use geom::{Distance, Duration, LonLat, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, OffstreetParking, PathConstraints,
@@ -161,8 +161,8 @@ impl Scenario {
         }
 
         timer.start_iter("trips for People", self.people.len());
-        let mut spawner = sim.make_spawner();
         let mut parked_cars: Vec<(Vehicle, BuildingID)> = Vec::new();
+        let mut schedule_trips = Vec::new();
         for p in &self.people {
             timer.next();
 
@@ -191,8 +191,8 @@ impl Scenario {
                     &mut tmp_rng,
                     map,
                 );
-                spawner.schedule_trip(
-                    person,
+                schedule_trips.push((
+                    person.id,
                     t.depart,
                     spec,
                     t.trip.start(map),
@@ -200,9 +200,22 @@ impl Scenario {
                     t.cancelled,
                     t.modified,
                     map,
-                );
+                ));
             }
         }
+
+        let mut spawner = sim.make_spawner();
+        let results = timer.parallelize(
+            "schedule trips",
+            Parallelism::Fastest,
+            schedule_trips,
+            |tuple| {
+                spawner.schedule_trip_fast(
+                    tuple.0, tuple.1, tuple.2, tuple.3, tuple.4, tuple.5, tuple.6, tuple.7,
+                )
+            },
+        );
+        spawner.schedule_trips(results);
 
         // parked_cars is stable over map edits, so don't fork.
         parked_cars.shuffle(rng);

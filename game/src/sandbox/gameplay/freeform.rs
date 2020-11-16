@@ -485,7 +485,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                     vec![vehicle_spec.clone()],
                 );
                 spawner.schedule_trip(
-                    person,
+                    person.id,
                     now,
                     TripSpec::VehicleAppearing {
                         start_pos: Position::new(
@@ -509,7 +509,8 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
         } else if lane.is_walkable() {
             for _ in 0..5 {
                 spawner.schedule_trip(
-                    sim.random_person(Scenario::rand_ped_speed(&mut rng), Vec::new()),
+                    sim.random_person(Scenario::rand_ped_speed(&mut rng), Vec::new())
+                        .id,
                     now,
                     TripSpec::JustWalking {
                         start: SidewalkSpot::suddenly_appear(
