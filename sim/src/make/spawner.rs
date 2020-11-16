@@ -5,9 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Duration, Time};
-use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
-};
+use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 
 use crate::{
     CarID, Command, DrivingGoal, OffMapLocation, Person, PersonID, Scheduler, SidewalkSpot,
@@ -26,13 +24,10 @@ pub enum TripSpec {
         retry_if_no_room: bool,
         origin: Option<OffMapLocation>,
     },
-    /// A VehicleAppearing that failed to even pick a start_pos, because of a bug with badly chosen
-    /// borders.
-    NoRoomToSpawn {
-        i: IntersectionID,
+    /// Something went wrong spawning a vehicle.
+    SpawningFailure {
         goal: DrivingGoal,
         use_vehicle: CarID,
-        origin: Option<OffMapLocation>,
         error: String,
     },
     UsingParkedCar {
@@ -101,7 +96,6 @@ impl TripSpawner {
                 start_pos,
                 goal,
                 use_vehicle,
-                origin,
                 ..
             } => {
                 if start_pos.dist_along() >= map.get_l(start_pos.lane()).length() {
@@ -124,16 +118,14 @@ impl TripSpawner {
                     PathConstraints::Car
                 };
                 if goal.goal_pos(constraints, map).is_none() {
-                    spec = TripSpec::NoRoomToSpawn {
-                        i: map.get_l(start_pos.lane()).src_i,
+                    spec = TripSpec::SpawningFailure {
                         goal: goal.clone(),
                         use_vehicle: use_vehicle.clone(),
-                        origin: origin.clone(),
                         error: format!("goal_pos to {:?} for a {:?} failed", goal, constraints),
                     };
                 }
             }
-            TripSpec::NoRoomToSpawn { .. } => {}
+            TripSpec::SpawningFailure { .. } => {}
             TripSpec::UsingParkedCar { .. } => {}
             TripSpec::JustWalking { start, goal, .. } => {
                 if start == goal {
@@ -143,7 +135,7 @@ impl TripSpawner {
                     );
                 }
             }
-            TripSpec::UsingBike { start, goal, .. } => {
+            TripSpec::UsingBike { start, goal, bike } => {
                 // TODO Might not be possible to walk to the same border if there's no sidewalk
                 let backup_plan = match goal {
                     DrivingGoal::ParkNear(b) => Some(TripSpec::JustWalking {
@@ -183,10 +175,14 @@ impl TripSpawner {
                     info!("Can't start biking from {}. Walking instead", start);
                     spec = backup_plan.unwrap();
                 } else {
-                    panic!(
-                        "Can't start biking from {} and can't walk either! Goal is {:?}",
-                        start, goal
-                    );
+                    spec = TripSpec::SpawningFailure {
+                        goal: goal.clone(),
+                        use_vehicle: *bike,
+                        error: format!(
+                            "Can't start biking from {} and can't walk either! Goal is {:?}",
+                            start, goal
+                        ),
+                    };
                 }
             }
             TripSpec::UsingTransit { .. } => {}
@@ -238,7 +234,7 @@ impl TripSpawner {
                         map,
                     )
                 }
-                TripSpec::NoRoomToSpawn {
+                TripSpec::SpawningFailure {
                     goal, use_vehicle, ..
                 } => {
                     let mut legs = vec![TripLeg::Drive(use_vehicle, goal.clone())];
@@ -390,7 +386,7 @@ impl TripSpec {
                     constraints,
                 })
             }
-            TripSpec::NoRoomToSpawn { .. } => None,
+            TripSpec::SpawningFailure { .. } => None,
             // We don't know where the parked car will be
             TripSpec::UsingParkedCar { .. } => None,
             TripSpec::JustWalking { start, goal, .. } => Some(PathRequest {

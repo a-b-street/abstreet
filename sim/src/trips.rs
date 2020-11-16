@@ -1118,20 +1118,11 @@ impl TripManager {
                     }
                 }
             }
-            TripSpec::NoRoomToSpawn {
-                i,
-                use_vehicle,
-                error,
-                ..
+            TripSpec::SpawningFailure {
+                use_vehicle, error, ..
             } => {
                 let vehicle = person.get_vehicle(use_vehicle);
-                self.cancel_trip(
-                    now,
-                    trip,
-                    format!("couldn't spawn at border {}: {}", i, error),
-                    Some(vehicle),
-                    ctx,
-                );
+                self.cancel_trip(now, trip, error, Some(vehicle), ctx);
             }
             TripSpec::UsingParkedCar {
                 car, start_bldg, ..

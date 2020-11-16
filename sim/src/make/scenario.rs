@@ -463,11 +463,9 @@ impl SpawnTrip {
                         origin,
                     }
                 } else {
-                    TripSpec::NoRoomToSpawn {
-                        i: dr.src_i(map),
+                    TripSpec::SpawningFailure {
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
-                        origin,
                         error: format!("{} has no lanes to spawn a {:?}", dr.id, constraints),
                     }
                 }
