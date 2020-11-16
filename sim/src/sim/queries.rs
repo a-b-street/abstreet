@@ -392,8 +392,11 @@ impl Sim {
         delays
     }
 
-    pub fn describe_scheduler_stats(&self) -> String {
-        self.scheduler.describe_stats()
+    pub fn describe_internal_stats(&self) -> Vec<String> {
+        let mut stats = self.scheduler.describe_stats();
+        stats.push(String::new());
+        stats.extend(self.intersections.describe_stats());
+        stats
     }
 
     pub fn debug_queue_lengths(&self, l: LaneID) -> Option<(Distance, Distance)> {

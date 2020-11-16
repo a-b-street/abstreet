@@ -243,7 +243,7 @@ impl Scheduler {
         }
     }
 
-    pub fn describe_stats(&self) -> String {
+    pub fn describe_stats(&self) -> Vec<String> {
         let mut stats = vec![
             format!("delta times for events: {}", self.delta_times.describe()),
             "count for each command type:".to_string(),
@@ -251,7 +251,7 @@ impl Scheduler {
         for (cmd, cnt) in self.cmd_type_counts.borrow() {
             stats.push(format!("{:?}: {}", cmd, abstutil::prettyprint_usize(*cnt)));
         }
-        stats.join("\n")
+        stats
     }
 
     /// It's much more efficient to save without the paths, and to recalculate them when loading

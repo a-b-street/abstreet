@@ -67,6 +67,7 @@ impl DebugMode {
                     Btn::text_fg("find bad traffic signals").build_def(ctx, None),
                     Btn::text_fg("find degenerate roads").build_def(ctx, None),
                     Btn::text_fg("find large intersections").build_def(ctx, None),
+                    Btn::text_fg("sim internal stats").build_def(ctx, None),
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
@@ -241,6 +242,13 @@ impl State<App> for DebugMode {
                 }
                 "find large intersections" => {
                     find_large_intersections(app);
+                }
+                "sim internal stats" => {
+                    return Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Simulation internal stats",
+                        app.primary.sim.describe_internal_stats(),
+                    ));
                 }
                 _ => unreachable!(),
             },

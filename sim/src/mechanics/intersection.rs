@@ -2,7 +2,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, FixedMap};
+use abstutil::{
+    deserialize_btreemap, prettyprint_usize, retain_btreeset, serialize_btreemap, FixedMap,
+};
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, PhaseType,
@@ -36,6 +38,13 @@ pub struct IntersectionSimState {
     // structure.
     blocked_by: BTreeSet<(CarID, CarID)>,
     events: Vec<Event>,
+
+    // Count how many calls to maybe_start_turn there are aside from the initial call. Break down
+    // failures by those not allowed by the current intersection state vs those blocked by a
+    // vehicle in the way in the target queue.
+    total_repeat_requests: usize,
+    not_allowed_requests: usize,
+    blocked_by_someone_requests: usize,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -79,6 +88,10 @@ impl IntersectionSimState {
             disable_turn_conflicts: opts.disable_turn_conflicts,
             blocked_by: BTreeSet::new(),
             events: Vec::new(),
+
+            total_repeat_requests: 0,
+            not_allowed_requests: 0,
+            blocked_by_someone_requests: 0,
         };
         if sim.disable_turn_conflicts {
             sim.use_freeform_policy_everywhere = true;
@@ -303,12 +316,21 @@ impl IntersectionSimState {
         )>,
     ) -> bool {
         let req = Request { agent, turn };
-        self.state
+        let entry = self
+            .state
             .get_mut(&turn.parent)
             .unwrap()
             .waiting
-            .entry(req.clone())
-            .or_insert(now);
+            .entry(req.clone());
+        let repeat_request = match entry {
+            std::collections::btree_map::Entry::Vacant(_) => false,
+            std::collections::btree_map::Entry::Occupied(_) => true,
+        };
+        entry.or_insert(now);
+
+        if repeat_request {
+            self.total_repeat_requests += 1;
+        }
 
         let shared_sidewalk_corner =
             map.get_t(req.turn).turn_type == TurnType::SharedSidewalkCorner;
@@ -350,6 +372,9 @@ impl IntersectionSimState {
             unreachable!()
         };
         if !allowed {
+            if repeat_request {
+                self.not_allowed_requests += 1;
+            }
             return false;
         }
 
@@ -363,6 +388,9 @@ impl IntersectionSimState {
                 for t in &ut.path {
                     let req = Request { agent, turn: *t };
                     if !self.handle_accepted_conflicts(&req, map, readonly_pair) {
+                        if repeat_request {
+                            self.blocked_by_someone_requests += 1;
+                        }
                         return false;
                     }
                 }
@@ -415,6 +443,9 @@ impl IntersectionSimState {
                     }
                 }
 
+                if repeat_request {
+                    self.blocked_by_someone_requests += 1;
+                }
                 return false;
             }
         }
@@ -580,6 +611,29 @@ impl IntersectionSimState {
             }
             panic!("After live map edits, intersection state refers to deleted turns!");
         }
+    }
+
+    pub fn describe_stats(&self) -> Vec<String> {
+        vec![
+            format!("intersection stats"),
+            format!(
+                "{} total turn requests repeated after the initial attempt",
+                prettyprint_usize(self.total_repeat_requests)
+            ),
+            format!(
+                "{} not allowed by intersection ({}%)",
+                prettyprint_usize(self.not_allowed_requests),
+                (100.0 * (self.not_allowed_requests as f64) / (self.total_repeat_requests as f64))
+                    .round()
+            ),
+            format!(
+                "{} blocked by someone in the way ({}%)",
+                prettyprint_usize(self.blocked_by_someone_requests),
+                (100.0 * (self.blocked_by_someone_requests as f64)
+                    / (self.total_repeat_requests as f64))
+                    .round()
+            ),
+        ]
     }
 }
 
