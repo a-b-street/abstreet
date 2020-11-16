@@ -1759,6 +1759,7 @@
 <span id="1758">1758</span>
 <span id="1759">1759</span>
 <span id="1760">1760</span>
+<span id="1761">1761</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -2134,8 +2135,9 @@
             <span class="ident">end</span>,
             <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
         };
-        <span class="kw">let</span> <span class="ident">maybe_router</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span> <span class="op">==</span> <span class="ident">req</span>.<span class="ident">end</span> {
-            <span class="comment">// TODO Convert to a walking trip!</span>
+        <span class="kw">let</span> <span class="ident">maybe_router</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() {
+            <span class="comment">// TODO Convert to a walking trip! Ideally, do this earlier and convert the trip to</span>
+            <span class="comment">// walking, like schedule_trip does</span>
             <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
             <span class="ident">ctx</span>.<span class="ident">map</span>
