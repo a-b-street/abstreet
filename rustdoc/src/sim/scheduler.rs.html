@@ -561,7 +561,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stats</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delta times for events: {}&quot;</span>, <span class="self">self</span>.<span class="ident">delta_times</span>.<span class="ident">describe</span>()),
             <span class="string">&quot;count for each command type:&quot;</span>.<span class="ident">to_string</span>(),
@@ -569,7 +569,7 @@
         <span class="kw">for</span> (<span class="ident">cmd</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">cmd_type_counts</span>.<span class="ident">borrow</span>() {
             <span class="ident">stats</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}: {}&quot;</span>, <span class="ident">cmd</span>, <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="kw-2">*</span><span class="ident">cnt</span>)));
         }
-        <span class="ident">stats</span>.<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>)
+        <span class="ident">stats</span>
     }
 
     <span class="doccomment">/// It&#39;s much more efficient to save without the paths, and to recalculate them when loading</span>

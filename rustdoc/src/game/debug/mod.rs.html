@@ -805,6 +805,14 @@
 <span id="804">804</span>
 <span id="805">805</span>
 <span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -875,6 +883,7 @@
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;find bad traffic signals&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;find degenerate roads&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;find large intersections&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;sim internal stats&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                 ]),
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Hold &quot;</span>),
@@ -1049,6 +1058,13 @@
                 }
                 <span class="string">&quot;find large intersections&quot;</span> <span class="op">=&gt;</span> {
                     <span class="ident">find_large_intersections</span>(<span class="ident">app</span>);
+                }
+                <span class="string">&quot;sim internal stats&quot;</span> <span class="op">=&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;Simulation internal stats&quot;</span>,
+                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">describe_internal_stats</span>(),
+                    ));
                 }
                 <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },

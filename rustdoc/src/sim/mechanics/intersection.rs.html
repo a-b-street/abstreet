@@ -851,12 +851,68 @@
 <span id="850">850</span>
 <span id="851">851</span>
 <span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">FixedMap</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{
+    <span class="ident">deserialize_btreemap</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">retain_btreeset</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">FixedMap</span>,
+};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PhaseType</span>,
@@ -890,6 +946,13 @@
     <span class="comment">// structure.</span>
     <span class="ident">blocked_by</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="ident">CarID</span>)<span class="op">&gt;</span>,
     <span class="ident">events</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
+
+    <span class="comment">// Count how many calls to maybe_start_turn there are aside from the initial call. Break down</span>
+    <span class="comment">// failures by those not allowed by the current intersection state vs those blocked by a</span>
+    <span class="comment">// vehicle in the way in the target queue.</span>
+    <span class="ident">total_repeat_requests</span>: <span class="ident">usize</span>,
+    <span class="ident">not_allowed_requests</span>: <span class="ident">usize</span>,
+    <span class="ident">blocked_by_someone_requests</span>: <span class="ident">usize</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -933,6 +996,10 @@
             <span class="ident">disable_turn_conflicts</span>: <span class="ident">opts</span>.<span class="ident">disable_turn_conflicts</span>,
             <span class="ident">blocked_by</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
             <span class="ident">events</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+
+            <span class="ident">total_repeat_requests</span>: <span class="number">0</span>,
+            <span class="ident">not_allowed_requests</span>: <span class="number">0</span>,
+            <span class="ident">blocked_by_someone_requests</span>: <span class="number">0</span>,
         };
         <span class="kw">if</span> <span class="ident">sim</span>.<span class="ident">disable_turn_conflicts</span> {
             <span class="ident">sim</span>.<span class="ident">use_freeform_policy_everywhere</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -1157,12 +1224,21 @@
         )<span class="op">&gt;</span>,
     ) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request</span> { <span class="ident">agent</span>, <span class="ident">turn</span> };
-        <span class="self">self</span>.<span class="ident">state</span>
+        <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">state</span>
             .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">parent</span>)
             .<span class="ident">unwrap</span>()
             .<span class="ident">waiting</span>
-            .<span class="ident">entry</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
-            .<span class="ident">or_insert</span>(<span class="ident">now</span>);
+            .<span class="ident">entry</span>(<span class="ident">req</span>.<span class="ident">clone</span>());
+        <span class="kw">let</span> <span class="ident">repeat_request</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">entry</span> {
+            <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">btree_map</span>::<span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">btree_map</span>::<span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+        };
+        <span class="ident">entry</span>.<span class="ident">or_insert</span>(<span class="ident">now</span>);
+
+        <span class="kw">if</span> <span class="ident">repeat_request</span> {
+            <span class="self">self</span>.<span class="ident">total_repeat_requests</span> <span class="op">+=</span> <span class="number">1</span>;
+        }
 
         <span class="kw">let</span> <span class="ident">shared_sidewalk_corner</span> <span class="op">=</span>
             <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">req</span>.<span class="ident">turn</span>).<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType</span>::<span class="ident">SharedSidewalkCorner</span>;
@@ -1204,6 +1280,9 @@
             <span class="macro">unreachable</span><span class="macro">!</span>()
         };
         <span class="kw">if</span> <span class="op">!</span><span class="ident">allowed</span> {
+            <span class="kw">if</span> <span class="ident">repeat_request</span> {
+                <span class="self">self</span>.<span class="ident">not_allowed_requests</span> <span class="op">+=</span> <span class="number">1</span>;
+            }
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
@@ -1217,6 +1296,9 @@
                 <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ut</span>.<span class="ident">path</span> {
                     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request</span> { <span class="ident">agent</span>, <span class="ident">turn</span>: <span class="kw-2">*</span><span class="ident">t</span> };
                     <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">handle_accepted_conflicts</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>, <span class="ident">readonly_pair</span>) {
+                        <span class="kw">if</span> <span class="ident">repeat_request</span> {
+                            <span class="self">self</span>.<span class="ident">blocked_by_someone_requests</span> <span class="op">+=</span> <span class="number">1</span>;
+                        }
                         <span class="kw">return</span> <span class="bool-val">false</span>;
                     }
                 }
@@ -1269,6 +1351,9 @@
                     }
                 }
 
+                <span class="kw">if</span> <span class="ident">repeat_request</span> {
+                    <span class="self">self</span>.<span class="ident">blocked_by_someone_requests</span> <span class="op">+=</span> <span class="number">1</span>;
+                }
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
         }
@@ -1434,6 +1519,29 @@
             }
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;After live map edits, intersection state refers to deleted turns!&quot;</span>);
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;intersection stats&quot;</span>),
+            <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;{} total turn requests repeated after the initial attempt&quot;</span>,
+                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">total_repeat_requests</span>)
+            ),
+            <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;{} not allowed by intersection ({}%)&quot;</span>,
+                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">not_allowed_requests</span>),
+                (<span class="number">100.0</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">not_allowed_requests</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">total_repeat_requests</span> <span class="kw">as</span> <span class="ident">f64</span>))
+                    .<span class="ident">round</span>()
+            ),
+            <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;{} blocked by someone in the way ({}%)&quot;</span>,
+                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">blocked_by_someone_requests</span>),
+                (<span class="number">100.0</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">blocked_by_someone_requests</span> <span class="kw">as</span> <span class="ident">f64</span>)
+                    <span class="op">/</span> (<span class="self">self</span>.<span class="ident">total_repeat_requests</span> <span class="kw">as</span> <span class="ident">f64</span>))
+                    .<span class="ident">round</span>()
+            ),
+        ]
     }
 }
 

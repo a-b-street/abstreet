@@ -471,6 +471,9 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -866,8 +869,11 @@
         <span class="ident">delays</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_scheduler_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">scheduler</span>.<span class="ident">describe_stats</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_internal_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stats</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scheduler</span>.<span class="ident">describe_stats</span>();
+        <span class="ident">stats</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">new</span>());
+        <span class="ident">stats</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">describe_stats</span>());
+        <span class="ident">stats</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_queue_lengths</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
