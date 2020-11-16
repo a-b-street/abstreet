@@ -1014,6 +1014,30 @@
 <span id="1013">1013</span>
 <span id="1014">1014</span>
 <span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1028,8 +1052,8 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">CmdArgs</span>, <span class="ident">MapName</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRoute</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
-    <span class="ident">Traversable</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">BusRoute</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
+    <span class="ident">PathRequest</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">queries</span>::<span class="ident">AgentProperties</span>;
@@ -1037,8 +1061,9 @@
     <span class="ident">AgentID</span>, <span class="ident">AlertLocation</span>, <span class="ident">Analytics</span>, <span class="ident">CapSimState</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DrivingSimState</span>,
     <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>,
     <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Router</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>,
-    <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">TripPhaseType</span>, <span class="ident">TripSpawner</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>,
-    <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">BUS_LENGTH</span>, <span class="ident">LIGHT_RAIL_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>, <span class="ident">SPAWN_DIST</span>,
+    <span class="ident">TrafficRecorder</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">TripPhaseType</span>, <span class="ident">TripSpawner</span>, <span class="ident">Vehicle</span>,
+    <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">BUS_LENGTH</span>, <span class="ident">LIGHT_RAIL_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>,
+    <span class="ident">SPAWN_DIST</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">queries</span>;
@@ -1073,6 +1098,9 @@
     <span class="comment">// full day and can be trimmed to any time.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">analytics</span>: <span class="ident">Analytics</span>,
+    <span class="comment">// This is created interactively, and there&#39;s no reason to preserve one for savestates.</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
+    <span class="ident">recorder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TrafficRecorder</span><span class="op">&gt;</span>,
 
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
@@ -1231,6 +1259,7 @@
             <span class="ident">alerts</span>: <span class="ident">opts</span>.<span class="ident">alerts</span>,
 
             <span class="ident">analytics</span>: <span class="ident">Analytics</span>::<span class="ident">new</span>(<span class="op">!</span><span class="ident">opts</span>.<span class="ident">skip_analytics</span>),
+            <span class="ident">recorder</span>: <span class="prelude-val">None</span>,
         }
     }
 
@@ -1654,6 +1683,9 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">m</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pandemic</span> {
                 <span class="ident">m</span>.<span class="ident">handle_event</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="ident">ev</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>);
             }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">r</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">recorder</span> {
+                <span class="ident">r</span>.<span class="ident">handle_event</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="ident">ev</span>, <span class="ident">map</span>);
+            }
 
             <span class="self">self</span>.<span class="ident">analytics</span>.<span class="ident">event</span>(<span class="ident">ev</span>, <span class="self">self</span>.<span class="ident">time</span>, <span class="ident">map</span>);
         }
@@ -2028,6 +2060,22 @@
         <span class="comment">// Frequency doesn&#39;t matter</span>
         <span class="self">self</span>.<span class="ident">scheduler</span>
             .<span class="ident">cancel</span>(<span class="ident">Command</span>::<span class="ident">Callback</span>(<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">1.0</span>)));
+    }
+}
+
+<span class="comment">// Recording traffic</span>
+<span class="kw">impl</span> <span class="ident">Sim</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">record_traffic_for</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">intersections</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">recorder</span>.<span class="ident">is_none</span>());
+        <span class="self">self</span>.<span class="ident">recorder</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TrafficRecorder</span>::<span class="ident">new</span>(<span class="ident">intersections</span>));
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_recorded_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">recorder</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">num_recorded_trips</span>())
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save_recorded_traffic</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
+        <span class="self">self</span>.<span class="ident">recorder</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">save</span>(<span class="ident">map</span>);
     }
 }
 </pre></div>

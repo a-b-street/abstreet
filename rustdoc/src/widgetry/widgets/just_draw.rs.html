@@ -172,7 +172,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">JustDraw</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">wrap</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">JustDraw</span> {
             <span class="ident">dims</span>: <span class="ident">batch</span>.<span class="ident">get_dims</span>(),
             <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
