@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, MapName, Parallelism, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
-    BuildingID, BusRoute, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest, Position,
-    Traversable,
+    BuildingID, BusRoute, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints,
+    PathRequest, Position, Traversable,
 };
 
 pub use self::queries::AgentProperties;
@@ -20,8 +20,9 @@ use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
     Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,
     ParkingSimState, ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    TransitSimState, TripID, TripManager, TripPhaseType, TripSpawner, Vehicle, VehicleSpec,
-    VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
+    TrafficRecorder, TransitSimState, TripID, TripManager, TripPhaseType, TripSpawner, Vehicle,
+    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
+    SPAWN_DIST,
 };
 
 mod queries;
@@ -56,6 +57,9 @@ pub struct Sim {
     // full day and can be trimmed to any time.
     #[serde(skip_serializing, skip_deserializing)]
     analytics: Analytics,
+    // This is created interactively, and there's no reason to preserve one for savestates.
+    #[serde(skip_serializing, skip_deserializing)]
+    recorder: Option<TrafficRecorder>,
 
     #[serde(skip_serializing, skip_deserializing)]
     alerts: AlertHandler,
@@ -214,6 +218,7 @@ impl Sim {
             alerts: opts.alerts,
 
             analytics: Analytics::new(!opts.skip_analytics),
+            recorder: None,
         }
     }
 
@@ -637,6 +642,9 @@ impl Sim {
             if let Some(ref mut m) = self.pandemic {
                 m.handle_event(self.time, &ev, &mut self.scheduler);
             }
+            if let Some(ref mut r) = self.recorder {
+                r.handle_event(self.time, &ev, map);
+            }
 
             self.analytics.event(ev, self.time, map);
         }
@@ -1011,5 +1019,21 @@ impl Sim {
         // Frequency doesn't matter
         self.scheduler
             .cancel(Command::Callback(Duration::seconds(1.0)));
+    }
+}
+
+// Recording traffic
+impl Sim {
+    pub fn record_traffic_for(&mut self, intersections: BTreeSet<IntersectionID>) {
+        assert!(self.recorder.is_none());
+        self.recorder = Some(TrafficRecorder::new(intersections));
+    }
+
+    pub fn num_recorded_trips(&self) -> Option<usize> {
+        Some(self.recorder.as_ref()?.num_recorded_trips())
+    }
+
+    pub fn save_recorded_traffic(&mut self, map: &Map) {
+        self.recorder.take().unwrap().save(map);
     }
 }

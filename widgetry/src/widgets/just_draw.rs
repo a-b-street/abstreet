@@ -14,7 +14,7 @@ pub struct JustDraw {
 }
 
 impl JustDraw {
-    pub fn wrap(ctx: &EventCtx, batch: GeomBatch) -> Widget {
+    pub(crate) fn wrap(ctx: &EventCtx, batch: GeomBatch) -> Widget {
         Widget::new(Box::new(JustDraw {
             dims: batch.get_dims(),
             draw: ctx.upload(batch),

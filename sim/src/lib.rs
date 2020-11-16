@@ -41,6 +41,7 @@ pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
 };
 pub(crate) use self::pandemic::PandemicModel;
+pub(crate) use self::recorder::TrafficRecorder;
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::{AgentProperties, AlertHandler, Sim, SimCallback, SimOptions};
@@ -55,6 +56,7 @@ mod events;
 mod make;
 mod mechanics;
 mod pandemic;
+mod recorder;
 mod render;
 mod router;
 mod scheduler;

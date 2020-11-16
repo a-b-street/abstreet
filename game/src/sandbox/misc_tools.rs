@@ -1,5 +1,7 @@
+use std::collections::BTreeSet;
+
 use geom::{ArrowCap, Distance, Time};
-use map_model::{LaneID, TurnType};
+use map_model::{IntersectionID, LaneID, TurnType};
 use sim::AgentID;
 use widgetry::{
     Btn, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -7,8 +9,9 @@ use widgetry::{
 };
 
 use crate::app::{App, ShowEverything};
-use crate::common::ColorLegend;
+use crate::common::{ColorLegend, CommonState};
 use crate::game::Transition;
+use crate::helpers::ID;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 /// Draws a preview of the path for the agent under the mouse cursor.
@@ -263,3 +266,98 @@ impl TurnExplorer {
 
 const CURRENT_TURN: Color = Color::GREEN;
 const CONFLICTING_TURN: Color = Color::RED.alpha(0.8);
+
+// TODO Refactor with SignalPicker
+pub struct TrafficRecorder {
+    members: BTreeSet<IntersectionID>,
+    panel: Panel,
+}
+
+impl TrafficRecorder {
+    pub fn new(ctx: &mut EventCtx, members: BTreeSet<IntersectionID>) -> Box<dyn State<App>> {
+        Box::new(TrafficRecorder {
+            panel: Panel::new(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Select the bounding intersections for recording traffic")
+                        .small_heading()
+                        .draw(ctx),
+                    Btn::close(ctx),
+                ]),
+                make_btn(ctx, members.len()),
+            ]))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
+            members,
+        })
+    }
+}
+
+impl State<App> for TrafficRecorder {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
+        if ctx.redo_mouseover() {
+            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
+        }
+        if let Some(ID::Intersection(i)) = app.primary.current_selection {
+            if !self.members.contains(&i) && app.per_obj.left_click(ctx, "add this intersection") {
+                self.members.insert(i);
+                let btn = make_btn(ctx, self.members.len());
+                self.panel.replace(ctx, "record", btn);
+            } else if self.members.contains(&i)
+                && app.per_obj.left_click(ctx, "remove this intersection")
+            {
+                self.members.remove(&i);
+                let btn = make_btn(ctx, self.members.len());
+                self.panel.replace(ctx, "record", btn);
+            }
+        } else {
+            app.primary.current_selection = None;
+        }
+
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                "record" => {
+                    app.primary.sim.record_traffic_for(self.members.clone());
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        CommonState::draw_osd(g, app);
+
+        let mut batch = GeomBatch::new();
+        for i in &self.members {
+            batch.push(
+                Color::RED.alpha(0.8),
+                app.primary.map.get_i(*i).polygon.clone(),
+            );
+        }
+        let draw = g.upload(batch);
+        g.redraw(&draw);
+    }
+}
+
+fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
+    if num == 0 {
+        return Btn::text_bg2("Record 0 intersections")
+            .inactive(ctx)
+            .named("record");
+    }
+
+    let title = if num == 1 {
+        "Record 1 intersection".to_string()
+    } else {
+        format!("Record {} intersections", num)
+    };
+    Btn::text_bg2(title).build(ctx, "record", Key::Enter)
+}

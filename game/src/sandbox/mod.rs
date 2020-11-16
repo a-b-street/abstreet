@@ -4,15 +4,15 @@ pub use speed::{SpeedControls, TimePanel};
 pub use time_warp::TimeWarpScreen;
 
 use abstutil::prettyprint_usize;
-use geom::{Circle, Distance, Time};
+use geom::{Circle, Distance, Pt2D, Time};
 use sim::{Analytics, Scenario};
 use widgetry::{
-    lctrl, Btn, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    Text, TextExt, UpdateType, VerticalAlignment, Widget,
+    lctrl, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
-use self::misc_tools::RoutePreview;
 pub use self::misc_tools::TurnExplorer;
+use self::misc_tools::{RoutePreview, TrafficRecorder};
 use crate::app::App;
 use crate::colors::ColorSchemeChoice;
 use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
@@ -402,7 +402,7 @@ impl AgentMeter {
             prettyprint_usize(counts.bus_riders + counts.train_riders).draw_text(ctx),
         ]));
 
-        let rows = vec![
+        let mut rows = vec![
             "Active trips".draw_text(ctx),
             Widget::custom_row(row).centered(),
             Widget::horiz_separator(ctx, 0.2),
@@ -434,6 +434,22 @@ impl AgentMeter {
                     .align_right(),
             ]),
         ];
+        // TODO This likely fits better in the top center panel, but no easy way to squeeze it into
+        // the panel for all gameplay modes
+        if let Some(n) = app.primary.sim.num_recorded_trips() {
+            rows.push(Widget::row(vec![
+                Widget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(
+                        Color::RED,
+                        Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon(),
+                    )]),
+                )
+                .centered_vert(),
+                format!("{} trips captured", prettyprint_usize(n)).draw_text(ctx),
+                Btn::text_bg2("Stop").build_def(ctx, None).align_right(),
+            ]));
+        }
 
         let panel = Panel::new(Widget::col(rows))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -470,6 +486,9 @@ impl AgentMeter {
                         ],
                     )));
                 }
+                "Stop" => {
+                    app.primary.sim.save_recorded_traffic(&app.primary.map);
+                }
                 _ => unreachable!(),
             },
             _ => {}
@@ -505,6 +524,9 @@ impl ContextualActions for Actions {
                     }
                     if app.opts.dev {
                         actions.push((Key::U, "explore uber-turns".to_string()));
+                        if app.primary.sim.num_recorded_trips().is_none() {
+                            actions.push((Key::R, "record traffic here".to_string()));
+                        }
                     }
                 }
                 ID::Lane(l) => {
@@ -554,6 +576,9 @@ impl ContextualActions for Actions {
             ]),
             (ID::Intersection(i), "explore uber-turns") => {
                 Transition::Push(uber_turns::UberTurnPicker::new(ctx, app, i))
+            }
+            (ID::Intersection(i), "record traffic here") => {
+                Transition::Push(TrafficRecorder::new(ctx, btreeset! {i}))
             }
             (ID::Lane(l), "explore turns from this lane") => {
                 Transition::Push(TurnExplorer::new(ctx, app, l))
