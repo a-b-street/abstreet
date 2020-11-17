@@ -5,9 +5,9 @@ use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, Position};
 use sim::{
-    AgentID, Analytics, BorderSpawnOverTime, CarID, DrivingGoal, IndividTrip, OriginDestination,
-    PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, TripPurpose,
-    VehicleType,
+    AgentID, Analytics, BorderSpawnOverTime, CarID, IndividTrip, OriginDestination, PersonID,
+    PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, TripEndpoint, TripMode,
+    TripPurpose, VehicleType,
 };
 use widgetry::{
     hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -1072,14 +1072,16 @@ impl TutorialState {
                         trips: vec![IndividTrip::new(
                             Time::START_OF_DAY,
                             TripPurpose::Shopping,
-                            SpawnTrip::VehicleAppearing {
-                                start: Position::new(
+                            SpawnTrip::new(
+                                TripEndpoint::SuddenlyAppear(Position::new(
                                     start_lane,
                                     map.get_l(start_lane).length() * 0.8,
-                                ),
-                                goal: DrivingGoal::ParkNear(goal_bldg),
-                                is_bike: false,
-                            },
+                                )),
+                                TripEndpoint::Bldg(goal_bldg),
+                                TripMode::Drive,
+                                map,
+                            )
+                            .unwrap(),
                         )],
                     });
                     // Will definitely get there first
@@ -1090,14 +1092,16 @@ impl TutorialState {
                             trips: vec![IndividTrip::new(
                                 Time::START_OF_DAY,
                                 TripPurpose::Shopping,
-                                SpawnTrip::VehicleAppearing {
-                                    start: Position::new(
+                                SpawnTrip::new(
+                                    TripEndpoint::SuddenlyAppear(Position::new(
                                         lane_near_bldg,
                                         map.get_l(lane_near_bldg).length() / 2.0,
-                                    ),
-                                    goal: DrivingGoal::ParkNear(goal_bldg),
-                                    is_bike: false,
-                                },
+                                    )),
+                                    TripEndpoint::Bldg(goal_bldg),
+                                    TripMode::Drive,
+                                    map,
+                                )
+                                .unwrap(),
                             )],
                         });
                     }

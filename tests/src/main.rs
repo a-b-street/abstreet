@@ -7,8 +7,10 @@ use rand::seq::SliceRandom;
 
 use abstutil::{MapName, Timer};
 use geom::{Duration, Time};
-use map_model::{LaneID, Map, PathConstraints};
-use sim::{DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripPurpose};
+use map_model::{IntersectionID, Map};
+use sim::{
+    IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, TripMode, TripPurpose,
+};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     test_lane_changing(&import_map(abstutil::path(
@@ -161,29 +163,19 @@ fn test_lane_changing(map: &Map) -> Result<(), String> {
     let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
 
     // Bit brittle to hardcode IDs here, but it's fast to update
-    let north = map.get_l(LaneID(23)).get_directed_parent(map);
-    let south = DrivingGoal::end_at_border(
-        map.get_l(LaneID(31)).get_directed_parent(map),
-        PathConstraints::Car,
-        map,
-    )
-    .unwrap();
-    let east = map.get_l(LaneID(6)).get_directed_parent(map);
-    let west = DrivingGoal::end_at_border(
-        map.get_l(LaneID(15)).get_directed_parent(map),
-        PathConstraints::Car,
-        map,
-    )
-    .unwrap();
+    let north = IntersectionID(8);
+    let south = IntersectionID(0);
+    let east = IntersectionID(2);
+    let west = IntersectionID(4);
     // (origin, destination) pairs
     let mut od = Vec::new();
     for _ in 0..100 {
-        od.push((north, south.clone()));
-        od.push((east, south.clone()));
+        od.push((north, south));
+        od.push((east, south));
     }
     for _ in 0..100 {
-        od.push((north, west.clone()));
-        od.push((east, west.clone()));
+        od.push((north, west));
+        od.push((east, west));
     }
     // Shuffling here is critical, since the loop below creates a car/bike and chooses spawn time
     // based on index.
@@ -200,12 +192,18 @@ fn test_lane_changing(map: &Map) -> Result<(), String> {
                 // the way, there's a fixed retry time in the simulation that we'll hit.
                 Time::START_OF_DAY + Duration::seconds(id.0 as f64 - 0.5).max(Duration::ZERO),
                 TripPurpose::Shopping,
-                SpawnTrip::FromBorder {
-                    dr: from,
-                    goal: to,
+                SpawnTrip::new(
+                    TripEndpoint::Border(from),
+                    TripEndpoint::Border(to),
                     // About half cars, half bikes
-                    is_bike: id.0 % 2 == 0,
-                },
+                    if id.0 % 2 == 0 {
+                        TripMode::Drive
+                    } else {
+                        TripMode::Bike
+                    },
+                    &map,
+                )
+                .unwrap(),
             )],
         });
     }

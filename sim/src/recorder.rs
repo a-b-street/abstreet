@@ -4,8 +4,8 @@ use geom::Time;
 use map_model::{IntersectionID, Map, PathStep, Position, Traversable};
 
 use crate::{
-    AgentID, DrivingGoal, DrivingSimState, Event, IndividTrip, PersonID, PersonSpec, Scenario,
-    SpawnTrip, TripID, TripManager, TripPurpose, VehicleType,
+    AgentID, DrivingSimState, Event, IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip,
+    TripEndpoint, TripID, TripManager, TripMode, TripPurpose, VehicleType,
 };
 
 /// Records trips beginning and ending at a specified set of intersections. This can be used to
@@ -52,11 +52,17 @@ impl TrafficRecorder {
                                         self.trips.push(IndividTrip::new(
                                             time,
                                             TripPurpose::Shopping,
-                                            SpawnTrip::VehicleAppearing {
-                                                start: Position::start(*l),
-                                                goal: DrivingGoal::Border(t.parent, t.src),
-                                                is_bike: car.1 == VehicleType::Bike,
-                                            },
+                                            SpawnTrip::new(
+                                                TripEndpoint::SuddenlyAppear(Position::start(*l)),
+                                                TripEndpoint::Border(t.parent),
+                                                if car.1 == VehicleType::Bike {
+                                                    TripMode::Bike
+                                                } else {
+                                                    TripMode::Drive
+                                                },
+                                                map,
+                                            )
+                                            .unwrap(),
                                         ));
                                         self.seen_trips.insert(trip);
                                         return;
