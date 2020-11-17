@@ -24,7 +24,6 @@ struct Job {
     osm_to_raw: bool,
     raw_to_map: bool,
     scenario: bool,
-    scenario_everyone: bool,
     city_overview: bool,
 
     skip_ch: bool,
@@ -48,8 +47,6 @@ fn main() {
         raw_to_map: args.enabled("--map"),
         // Download trip demand data, then produce the typical weekday scenario.
         scenario: args.enabled("--scenario"),
-        // Produce a variation of the weekday scenario including off-map trips.
-        scenario_everyone: args.enabled("--scenario_everyone"),
         // Produce a city overview from all of the individual maps in a city.
         city_overview: args.enabled("--city_overview"),
         // Skip the most expensive step of --map, building contraction hierarchies. The simulation
@@ -72,13 +69,12 @@ fn main() {
     if !job.osm_to_raw
         && !job.raw_to_map
         && !job.scenario
-        && !job.scenario_everyone
         && !job.city_overview
         && job.oneshot.is_none()
     {
         println!(
-            "Nothing to do! Pass some combination of --raw, --map, --scenario, \
-             --scenario_everyone, --city_overview, or --oneshot"
+            "Nothing to do! Pass some combination of --raw, --map, --scenario, --city_overview, \
+             or --oneshot"
         );
         std::process::exit(1);
     }
@@ -120,7 +116,7 @@ fn main() {
 
     let mut timer = abstutil::Timer::new("import map data");
 
-    let (maybe_popdat, maybe_huge_map) = if job.scenario || job.scenario_everyone {
+    let (maybe_popdat, maybe_huge_map) = if job.scenario {
         assert_eq!(job.city, "seattle");
 
         #[cfg(feature = "scenarios")]
@@ -131,10 +127,7 @@ fn main() {
 
         #[cfg(not(feature = "scenarios"))]
         {
-            panic!(
-                "Can't do --scenario or --scenario_everyone without the scenarios feature \
-                 compiled in"
-            );
+            panic!("Can't do --scenario without the scenarios feature compiled in");
             // Nonsense to make the type-checker work
             (Some(true), Some(true))
         }
@@ -187,7 +180,7 @@ fn main() {
             }
 
             Some(map)
-        } else if job.scenario || job.scenario_everyone {
+        } else if job.scenario {
             Some(map_model::Map::new(name.path(), &mut timer))
         } else {
             None
@@ -211,18 +204,6 @@ fn main() {
                 seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), &scenario);
                 timer.stop(format!("adjust parking for {}", name.describe()));
             }
-        }
-
-        #[cfg(feature = "scenarios")]
-        if job.scenario_everyone {
-            timer.start(format!("scenario_everyone for {}", name.describe()));
-            soundcast::make_weekday_scenario_with_everyone(
-                maybe_map.as_ref().unwrap(),
-                maybe_popdat.as_ref().unwrap(),
-                &mut timer,
-            )
-            .save();
-            timer.stop(format!("scenario_everyone for {}", name.describe()));
         }
     }
 

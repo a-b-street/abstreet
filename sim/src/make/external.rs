@@ -34,7 +34,7 @@ impl ExternalPerson {
             closest.add(TripEndpoint::Bldg(b.id), b.polygon.points());
         }
         for i in map.all_intersections() {
-            closest.add(TripEndpoint::Border(i.id, None), i.polygon.points());
+            closest.add(TripEndpoint::Border(i.id), i.polygon.points());
         }
         let lookup_pt = |endpt| match endpt {
             ExternalTripEndpoint::TripEndpoint(endpt) => Ok(endpt),

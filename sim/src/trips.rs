@@ -11,10 +11,9 @@ use map_model::{
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
-    Event, IndividTrip, OffMapLocation, OrigPersonID, ParkedCar, ParkingSim, ParkingSpot,
-    PedestrianID, PersonID, PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, SpawnTrip,
-    TransitSimState, TripID, TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec,
-    VehicleType, WalkingSimState,
+    Event, IndividTrip, OrigPersonID, ParkedCar, ParkingSim, ParkingSpot, PedestrianID, PersonID,
+    PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, SpawnTrip, TransitSimState, TripID,
+    TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
 };
 
 /// Manages people, each of which executes some trips through the day. Each trip is further broken
@@ -111,20 +110,16 @@ impl TripManager {
         let end = match legs.last() {
             Some(TripLeg::Walk(ref spot)) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                SidewalkPOI::Border(i, ref loc) => TripEndpoint::Border(i, loc.clone()),
+                SidewalkPOI::Border(i) => TripEndpoint::Border(i),
                 _ => unreachable!(),
             },
             Some(TripLeg::Drive(_, ref goal)) => match goal {
                 DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
-                DrivingGoal::Border(i, _, loc) => TripEndpoint::Border(*i, loc.clone()),
+                DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
             },
-            Some(TripLeg::Remote(ref to)) => {
-                TripEndpoint::Border(map.all_incoming_borders()[0].id, Some(to.clone()))
-            }
             Some(TripLeg::RideBus(r, ref maybe_stop2)) => {
                 assert!(maybe_stop2.is_none());
-                // TODO No way to plumb OffMapLocation here
-                TripEndpoint::Border(map.get_l(map.get_br(*r).end_border.unwrap()).dst_i, None)
+                TripEndpoint::Border(map.get_l(map.get_br(*r).end_border.unwrap()).dst_i)
             }
             _ => unreachable!(),
         };
@@ -155,13 +150,7 @@ impl TripManager {
                         .push(Event::PersonEntersBuilding(trip.person, b));
                     PersonState::Inside(b)
                 }
-                TripEndpoint::Border(_, ref loc) => {
-                    if let Some(loc) = loc {
-                        self.events
-                            .push(Event::PersonEntersRemoteBuilding(trip.person, loc.clone()));
-                    }
-                    PersonState::OffMap
-                }
+                TripEndpoint::Border(_) => PersonState::OffMap,
             };
         }
         if let Some(t) = person.trips.last() {
@@ -599,7 +588,7 @@ impl TripManager {
 
         match trip.legs.pop_front() {
             Some(TripLeg::Walk(spot)) => match spot.connection {
-                SidewalkPOI::Border(i2, _) => assert_eq!(i, i2),
+                SidewalkPOI::Border(i2) => assert_eq!(i, i2),
                 _ => unreachable!(),
             },
             _ => unreachable!(),
@@ -615,12 +604,11 @@ impl TripManager {
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
-        if let TripEndpoint::Border(_, ref loc) = trip.info.end {
+        if let TripEndpoint::Border(_) = trip.info.end {
             self.events.push(Event::PersonLeavesMap(
                 person,
                 Some(AgentID::Pedestrian(ped)),
                 i,
-                loc.clone(),
             ));
         }
         self.people[person.0].state = PersonState::OffMap;
@@ -652,9 +640,9 @@ impl TripManager {
             blocked_time: trip.total_blocked_time,
         });
         let person = trip.person;
-        if let TripEndpoint::Border(i, ref loc) = trip.info.end {
+        if let TripEndpoint::Border(i) = trip.info.end {
             self.events
-                .push(Event::PersonLeavesMap(person, Some(agent), i, loc.clone()));
+                .push(Event::PersonLeavesMap(person, Some(agent), i));
         } else {
             unreachable!()
         }
@@ -674,7 +662,7 @@ impl TripManager {
         trip.total_blocked_time += blocked_time;
 
         match trip.legs.pop_front().unwrap() {
-            TripLeg::Drive(c, DrivingGoal::Border(int, _, _)) => {
+            TripLeg::Drive(c, DrivingGoal::Border(int, _)) => {
                 assert_eq!(car, c);
                 assert_eq!(i, int);
             }
@@ -692,38 +680,10 @@ impl TripManager {
         });
         let person = trip.person;
         self.people[person.0].state = PersonState::OffMap;
-        if let TripEndpoint::Border(_, ref loc) = trip.info.end {
-            self.events.push(Event::PersonLeavesMap(
-                person,
-                Some(AgentID::Car(car)),
-                i,
-                loc.clone(),
-            ));
+        if let TripEndpoint::Border(_) = trip.info.end {
+            self.events
+                .push(Event::PersonLeavesMap(person, Some(AgentID::Car(car)), i));
         }
-        self.person_finished_trip(now, person, ctx);
-    }
-
-    pub fn remote_trip_finished(&mut self, now: Time, id: TripID, ctx: &mut Ctx) {
-        let trip = &mut self.trips[id.0];
-
-        let to = match trip.legs.pop_front() {
-            Some(TripLeg::Remote(to)) => to,
-            _ => unreachable!(),
-        };
-        assert!(trip.legs.is_empty());
-        assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(now);
-        self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished {
-            trip: trip.id,
-            mode: trip.info.mode,
-            total_time: now - trip.info.departure,
-            blocked_time: trip.total_blocked_time,
-        });
-        let person = trip.person;
-        self.events
-            .push(Event::PersonEntersRemoteBuilding(person, to));
-        self.people[person.0].state = PersonState::OffMap;
         self.person_finished_trip(now, person, ctx);
     }
 
@@ -759,16 +719,15 @@ impl TripManager {
             TripEndpoint::Bldg(b) => {
                 self.events.push(Event::PersonEntersBuilding(person, b));
             }
-            TripEndpoint::Border(i, ref loc) => {
-                self.events
-                    .push(Event::PersonLeavesMap(person, None, i, loc.clone()));
+            TripEndpoint::Border(i) => {
+                self.events.push(Event::PersonLeavesMap(person, None, i));
             }
         }
 
         // Warp to the destination
         self.people[person.0].state = match trip.info.end {
             TripEndpoint::Bldg(b) => PersonState::Inside(b),
-            TripEndpoint::Border(_, _) => PersonState::OffMap,
+            TripEndpoint::Border(_) => PersonState::OffMap,
         };
         // Don't forget the car!
         if let Some(vehicle) = abandoned_vehicle {
@@ -863,9 +822,6 @@ impl TripManager {
             TripLeg::Walk(_) => AgentID::Pedestrian(person.ped),
             TripLeg::Drive(c, _) => AgentID::Car(*c),
             TripLeg::RideBus(_, _) => AgentID::BusPassenger(person.id, person.on_bus.unwrap()),
-            TripLeg::Remote(_) => {
-                return TripResult::RemoteTrip;
-            }
         };
         if self.active_trip_mode.get(&a) == Some(&id) {
             TripResult::Ok(a)
@@ -1069,14 +1025,12 @@ impl TripManager {
                 goal,
                 retry_if_no_room,
                 use_vehicle,
-                origin,
             } => {
                 assert_eq!(person.state, PersonState::OffMap);
                 self.events.push(Event::PersonEntersMap(
                     person.id,
                     AgentID::Car(use_vehicle),
                     ctx.map.get_l(start_pos.lane()).src_i,
-                    origin,
                 ));
                 person.state = PersonState::Trip(trip);
 
@@ -1182,12 +1136,11 @@ impl TripManager {
                     person.state,
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(i, ref loc) => {
+                        SidewalkPOI::Border(i) => {
                             self.events.push(Event::PersonEntersMap(
                                 person.id,
                                 AgentID::Pedestrian(person.ped),
                                 i,
-                                loc.clone(),
                             ));
                             PersonState::OffMap
                         }
@@ -1198,7 +1151,6 @@ impl TripManager {
                                 person.id,
                                 AgentID::Pedestrian(person.ped),
                                 ctx.map.get_l(start.sidewalk_pos.lane()).src_i,
-                                None,
                             ));
                             PersonState::OffMap
                         }
@@ -1290,12 +1242,11 @@ impl TripManager {
                     person.state,
                     match start.connection {
                         SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(i, ref loc) => {
+                        SidewalkPOI::Border(i) => {
                             self.events.push(Event::PersonEntersMap(
                                 person.id,
                                 AgentID::Pedestrian(person.ped),
                                 i,
-                                loc.clone(),
                             ));
                             PersonState::OffMap
                         }
@@ -1306,7 +1257,6 @@ impl TripManager {
                                 person.id,
                                 AgentID::Pedestrian(person.ped),
                                 ctx.map.get_l(start.sidewalk_pos.lane()).src_i,
-                                None,
                             ));
                             PersonState::OffMap
                         }
@@ -1341,22 +1291,6 @@ impl TripManager {
                     );
                 }
             }
-            TripSpec::Remote {
-                trip_time, from, ..
-            } => {
-                assert_eq!(person.state, PersonState::OffMap);
-                person.state = PersonState::Trip(trip);
-                self.events
-                    .push(Event::PersonLeavesRemoteBuilding(person.id, from));
-                ctx.scheduler
-                    .push(now + trip_time, Command::FinishRemoteTrip(trip));
-                self.events.push(Event::TripPhaseStarting(
-                    trip,
-                    person.id,
-                    None,
-                    TripPhaseType::Remote,
-                ));
-            }
         }
     }
 
@@ -1366,7 +1300,7 @@ impl TripManager {
             if t.info.cancellation_reason.is_some() {
                 continue;
             }
-            if let TripEndpoint::Border(i, _) = t.info.start {
+            if let TripEndpoint::Border(i) = t.info.start {
                 if i == at {
                     // We can make some assumptions here.
                     let agent_type = match t.info.mode {
@@ -1512,7 +1446,6 @@ pub enum TripLeg {
     Drive(CarID, DrivingGoal),
     /// Maybe get off at a stop, maybe ride off-map
     RideBus(BusRouteID, Option<BusStopID>),
-    Remote(OffMapLocation),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]
@@ -1585,7 +1518,7 @@ impl TripMode {
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
 pub enum TripEndpoint {
     Bldg(BuildingID),
-    Border(IntersectionID, Option<OffMapLocation>),
+    Border(IntersectionID),
 }
 
 impl TripEndpoint {
@@ -1618,11 +1551,11 @@ fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Pos
                     .unwrap(),
             ),
         },
-        TripEndpoint::Border(i, _) => match mode {
+        TripEndpoint::Border(i) => match mode {
             TripMode::Walk | TripMode::Transit => if from {
-                SidewalkSpot::start_at_border(i, None, map)
+                SidewalkSpot::start_at_border(i, map)
             } else {
-                SidewalkSpot::end_at_border(i, None, map)
+                SidewalkSpot::end_at_border(i, map)
             }
             .map(|spot| spot.sidewalk_pos),
             TripMode::Bike | TripMode::Drive => (if from {
@@ -1653,7 +1586,6 @@ pub enum TripResult<T> {
     TripDoesntExist,
     TripNotStarted,
     TripCancelled,
-    RemoteTrip,
 }
 
 impl<T> TripResult<T> {
@@ -1672,7 +1604,6 @@ impl<T> TripResult<T> {
             TripResult::TripDoesntExist => TripResult::TripDoesntExist,
             TripResult::TripNotStarted => TripResult::TripNotStarted,
             TripResult::TripCancelled => TripResult::TripCancelled,
-            TripResult::RemoteTrip => TripResult::RemoteTrip,
         }
     }
 }
@@ -1711,18 +1642,14 @@ impl TripEndpoint {
     pub(crate) fn start_sidewalk_spot(&self, map: &Map) -> Option<SidewalkSpot> {
         match self {
             TripEndpoint::Bldg(b) => Some(SidewalkSpot::building(*b, map)),
-            TripEndpoint::Border(i, origin) => {
-                SidewalkSpot::start_at_border(*i, origin.clone(), map)
-            }
+            TripEndpoint::Border(i) => SidewalkSpot::start_at_border(*i, map),
         }
     }
 
     pub(crate) fn end_sidewalk_spot(&self, map: &Map) -> Option<SidewalkSpot> {
         match self {
             TripEndpoint::Bldg(b) => Some(SidewalkSpot::building(*b, map)),
-            TripEndpoint::Border(i, destination) => {
-                SidewalkSpot::end_at_border(*i, destination.clone(), map)
-            }
+            TripEndpoint::Border(i) => SidewalkSpot::end_at_border(*i, map),
         }
     }
 
@@ -1733,12 +1660,9 @@ impl TripEndpoint {
     ) -> Option<DrivingGoal> {
         match self {
             TripEndpoint::Bldg(b) => Some(DrivingGoal::ParkNear(*b)),
-            TripEndpoint::Border(i, destination) => DrivingGoal::end_at_border(
-                map.get_i(*i).some_incoming_road(map)?,
-                constraints,
-                destination.clone(),
-                map,
-            ),
+            TripEndpoint::Border(i) => {
+                DrivingGoal::end_at_border(map.get_i(*i).some_incoming_road(map)?, constraints, map)
+            }
         }
     }
 }

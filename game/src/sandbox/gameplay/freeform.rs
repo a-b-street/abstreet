@@ -364,7 +364,7 @@ impl State<App> for AgentSpawner {
             }
         }
         if let Some(hovering) = match app.primary.current_selection {
-            Some(ID::Intersection(i)) => Some(TripEndpoint::Border(i, None)),
+            Some(ID::Intersection(i)) => Some(TripEndpoint::Border(i)),
             Some(ID::Building(b)) => Some(TripEndpoint::Bldg(b)),
             None => None,
             _ => unreachable!(),
@@ -431,7 +431,7 @@ impl State<App> for AgentSpawner {
             g.draw_polygon(
                 Color::BLUE.alpha(0.8),
                 match endpt {
-                    TripEndpoint::Border(i, _) => app.primary.map.get_i(*i).polygon.clone(),
+                    TripEndpoint::Border(i) => app.primary.map.get_i(*i).polygon.clone(),
                     TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
                 },
             );
@@ -440,7 +440,7 @@ impl State<App> for AgentSpawner {
             g.draw_polygon(
                 Color::GREEN.alpha(0.8),
                 match endpt {
-                    TripEndpoint::Border(i, _) => app.primary.map.get_i(*i).polygon.clone(),
+                    TripEndpoint::Border(i) => app.primary.map.get_i(*i).polygon.clone(),
                     TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
                 },
             );
@@ -497,9 +497,8 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         ),
                         use_vehicle: person.vehicles[0].id,
                         retry_if_no_room: false,
-                        origin: None,
                     },
-                    TripEndpoint::Border(lane.src_i, None),
+                    TripEndpoint::Border(lane.src_i),
                     TripPurpose::Shopping,
                     false,
                     false,
@@ -523,7 +522,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                             map,
                         ),
                     },
-                    TripEndpoint::Border(lane.src_i, None),
+                    TripEndpoint::Border(lane.src_i),
                     TripPurpose::Shopping,
                     false,
                     false,

@@ -34,8 +34,8 @@ pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{
     BorderSpawnOverTime, ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip,
-    OffMapLocation, OriginDestination, PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier,
-    SimFlags, SpawnOverTime, SpawnTrip, TripPurpose, TripSpawner, TripSpec,
+    OriginDestination, PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags,
+    SpawnOverTime, SpawnTrip, TripPurpose, TripSpawner, TripSpec,
 };
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
@@ -356,14 +356,13 @@ pub struct ParkedCar {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DrivingGoal {
     ParkNear(BuildingID),
-    Border(IntersectionID, LaneID, Option<OffMapLocation>),
+    Border(IntersectionID, LaneID),
 }
 
 impl DrivingGoal {
     pub fn end_at_border(
         dr: DirectedRoadID,
         constraints: PathConstraints,
-        destination: Option<OffMapLocation>,
         map: &Map,
     ) -> Option<DrivingGoal> {
         let lanes = dr.lanes(constraints, map);
@@ -371,7 +370,7 @@ impl DrivingGoal {
             None
         } else {
             // TODO ideally could use any
-            Some(DrivingGoal::Border(dr.dst_i(map), lanes[0], destination))
+            Some(DrivingGoal::Border(dr.dst_i(map), lanes[0]))
         }
     }
 
@@ -386,7 +385,7 @@ impl DrivingGoal {
                     unreachable!()
                 }
             },
-            DrivingGoal::Border(_, l, _) => Some(Position::end(*l, map)),
+            DrivingGoal::Border(_, l) => Some(Position::end(*l, map)),
         }
     }
 
@@ -399,7 +398,7 @@ impl DrivingGoal {
                     Router::park_near(owner, path, *b)
                 }
             }
-            DrivingGoal::Border(i, last_lane, _) => {
+            DrivingGoal::Border(i, last_lane) => {
                 Router::end_at_border(owner, path, map.get_l(*last_lane).length(), *i)
             }
         }
@@ -408,7 +407,7 @@ impl DrivingGoal {
     pub fn pt(&self, map: &Map) -> Pt2D {
         match self {
             DrivingGoal::ParkNear(b) => map.get_b(*b).polygon.center(),
-            DrivingGoal::Border(i, _, _) => map.get_i(*i).polygon.center(),
+            DrivingGoal::Border(i, _) => map.get_i(*i).polygon.center(),
         }
     }
 }
@@ -428,7 +427,7 @@ pub enum SidewalkPOI {
     DeferredParkingSpot,
     Building(BuildingID),
     BusStop(BusStopID),
-    Border(IntersectionID, Option<OffMapLocation>),
+    Border(IntersectionID),
     /// The bikeable position
     BikeRack(Position),
     SuddenlyAppear,
@@ -480,18 +479,14 @@ impl SidewalkSpot {
     }
 
     // Recall sidewalks are bidirectional.
-    pub fn start_at_border(
-        i: IntersectionID,
-        origin: Option<OffMapLocation>,
-        map: &Map,
-    ) -> Option<SidewalkSpot> {
+    pub fn start_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
         let lanes = map
             .get_i(i)
             .get_outgoing_lanes(map, PathConstraints::Pedestrian);
         if !lanes.is_empty() {
             return Some(SidewalkSpot {
                 sidewalk_pos: Position::start(lanes[0]),
-                connection: SidewalkPOI::Border(i, origin),
+                connection: SidewalkPOI::Border(i),
             });
         }
 
@@ -500,15 +495,11 @@ impl SidewalkSpot {
             .get(0)
             .map(|l| SidewalkSpot {
                 sidewalk_pos: Position::end(*l, map),
-                connection: SidewalkPOI::Border(i, origin),
+                connection: SidewalkPOI::Border(i),
             })
     }
 
-    pub fn end_at_border(
-        i: IntersectionID,
-        destination: Option<OffMapLocation>,
-        map: &Map,
-    ) -> Option<SidewalkSpot> {
+    pub fn end_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
         if let Some(l) = map
             .get_i(i)
             .get_incoming_lanes(map, PathConstraints::Pedestrian)
@@ -516,7 +507,7 @@ impl SidewalkSpot {
         {
             return Some(SidewalkSpot {
                 sidewalk_pos: Position::end(*l, map),
-                connection: SidewalkPOI::Border(i, destination),
+                connection: SidewalkPOI::Border(i),
             });
         }
 
@@ -528,7 +519,7 @@ impl SidewalkSpot {
         }
         Some(SidewalkSpot {
             sidewalk_pos: Position::start(lanes[0]),
-            connection: SidewalkPOI::Border(i, destination),
+            connection: SidewalkPOI::Border(i),
         })
     }
 

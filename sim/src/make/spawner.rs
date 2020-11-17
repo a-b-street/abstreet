@@ -4,12 +4,12 @@
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
-use geom::{Duration, Time};
+use geom::Time;
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 
 use crate::{
-    CarID, Command, DrivingGoal, OffMapLocation, PersonID, Scheduler, SidewalkSpot, TripEndpoint,
-    TripLeg, TripManager, TripMode, TripPurpose, VehicleType,
+    CarID, Command, DrivingGoal, PersonID, Scheduler, SidewalkSpot, TripEndpoint, TripLeg,
+    TripManager, TripMode, TripPurpose, VehicleType,
 };
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
@@ -22,7 +22,6 @@ pub enum TripSpec {
         /// This must be a currently off-map vehicle owned by the person.
         use_vehicle: CarID,
         retry_if_no_room: bool,
-        origin: Option<OffMapLocation>,
     },
     /// Something went wrong spawning a vehicle.
     SpawningFailure {
@@ -51,13 +50,6 @@ pub enum TripSpec {
         route: BusRouteID,
         stop1: BusStopID,
         maybe_stop2: Option<BusStopID>,
-    },
-    /// Completely off-map trip. Don't really simulate much of it.
-    Remote {
-        from: OffMapLocation,
-        to: OffMapLocation,
-        trip_time: Duration,
-        mode: TripMode,
     },
 }
 
@@ -105,7 +97,7 @@ impl TripSpawner {
                 if start_pos.dist_along() >= map.get_l(start_pos.lane()).length() {
                     panic!("Can't spawn at {}; it isn't that long", start_pos);
                 }
-                if let DrivingGoal::Border(_, end_lane, _) = goal {
+                if let DrivingGoal::Border(_, end_lane) = goal {
                     if start_pos.lane() == *end_lane
                         && start_pos.dist_along() == map.get_l(*end_lane).length()
                     {
@@ -146,12 +138,10 @@ impl TripSpawner {
                         start: SidewalkSpot::building(*start, map),
                         goal: SidewalkSpot::building(*b, map),
                     }),
-                    DrivingGoal::Border(i, _, off_map) => {
-                        SidewalkSpot::end_at_border(*i, off_map.clone(), map).map(|goal| {
-                            TripSpec::JustWalking {
-                                start: SidewalkSpot::building(*start, map),
-                                goal,
-                            }
+                    DrivingGoal::Border(i, _) => {
+                        SidewalkSpot::end_at_border(*i, map).map(|goal| TripSpec::JustWalking {
+                            start: SidewalkSpot::building(*start, map),
+                            goal,
                         })
                     }
                 };
@@ -190,7 +180,6 @@ impl TripSpawner {
                 }
             }
             TripSpec::UsingTransit { .. } => {}
-            TripSpec::Remote { .. } => {}
         };
 
         (
@@ -290,7 +279,7 @@ impl TripSpawner {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                         }
-                        DrivingGoal::Border(_, _, _) => {}
+                        DrivingGoal::Border(_, _) => {}
                     }
                     trips.new_trip(
                         person.id,
@@ -323,7 +312,7 @@ impl TripSpawner {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                         }
-                        DrivingGoal::Border(_, _, _) => {}
+                        DrivingGoal::Border(_, _) => {}
                     };
                     trips.new_trip(
                         person.id,
@@ -367,16 +356,6 @@ impl TripSpawner {
                         map,
                     )
                 }
-                TripSpec::Remote { to, mode, .. } => trips.new_trip(
-                    person.id,
-                    start_time,
-                    trip_start,
-                    mode,
-                    purpose,
-                    modified,
-                    vec![TripLeg::Remote(to)],
-                    map,
-                ),
             };
 
             if cancelled {
@@ -429,7 +408,6 @@ impl TripSpec {
                 end: SidewalkSpot::bus_stop(*stop1, map).sidewalk_pos,
                 constraints: PathConstraints::Pedestrian,
             }),
-            TripSpec::Remote { .. } => None,
         }
     }
 }

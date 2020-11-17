@@ -4,8 +4,7 @@ use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
 use geom::LonLat;
 use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
 use sim::{
-    IndividTrip, OffMapLocation, OrigPersonID, PersonID, PersonSpec, Scenario, SpawnTrip,
-    TripEndpoint, TripMode,
+    IndividTrip, OrigPersonID, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, TripMode,
 };
 
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
@@ -129,13 +128,7 @@ fn endpoints(
             .min_by_key(|(_, pt)| pt.fast_dist(border_endpt.pos))
             .map(|(id, _)| *id)
     })?;
-    let border = TripEndpoint::Border(
-        border_i,
-        Some(OffMapLocation {
-            gps: border_endpt.pos,
-            parcel_id: border_endpt.parcel_id,
-        }),
-    );
+    let border = TripEndpoint::Border(border_i);
     if let Some(b) = from_bldg {
         Some((TripEndpoint::Bldg(b), border))
     } else {
@@ -310,77 +303,6 @@ pub fn make_weekday_scenario(
 
     Scenario {
         scenario_name: "weekday".to_string(),
-        map_name: map.get_name().clone(),
-        people,
-        only_seed_buses: None,
-    }
-    .remove_weird_schedules(map)
-}
-
-pub fn make_weekday_scenario_with_everyone(
-    map: &Map,
-    popdat: &PopDat,
-    timer: &mut Timer,
-) -> Scenario {
-    let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
-    // person -> (trip seq, index into individ_trips)
-    let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
-        MultiMap::new();
-    timer.start_iter("turn Soundcast trips into SpawnTrips", popdat.trips.len());
-    for orig_trip in &popdat.trips {
-        timer.next();
-        let trip = SpawnTrip::Remote {
-            from: OffMapLocation {
-                gps: orig_trip.from.pos,
-                parcel_id: orig_trip.from.parcel_id,
-            },
-            to: OffMapLocation {
-                gps: orig_trip.to.pos,
-                parcel_id: orig_trip.to.parcel_id,
-            },
-            trip_time: orig_trip.trip_time,
-            mode: orig_trip.mode,
-        };
-        let idx = individ_trips.len();
-        individ_trips.push(Some(IndividTrip::new(
-            orig_trip.depart_at,
-            orig_trip.purpose,
-            trip,
-        )));
-        trips_per_person.insert(orig_trip.person, (orig_trip.seq, idx));
-    }
-
-    timer.note(format!(
-        "{} trips over {} people",
-        prettyprint_usize(individ_trips.len()),
-        prettyprint_usize(trips_per_person.len())
-    ));
-
-    let mut people = Vec::new();
-    for (orig_id, seq_trips) in trips_per_person.consume() {
-        let id = PersonID(people.len());
-        let mut trips = Vec::new();
-        for (_, idx) in seq_trips {
-            trips.push(individ_trips[idx].take().unwrap());
-        }
-        // Actually, the sequence in the Soundcast dataset crosses midnight. Don't do that; sort by
-        // departure time starting with midnight.
-        trips.sort_by_key(|t| t.depart);
-
-        people.push(PersonSpec {
-            id,
-            orig_id: Some(orig_id),
-            trips,
-        });
-    }
-    for maybe_t in individ_trips {
-        if maybe_t.is_some() {
-            panic!("Some IndividTrip wasn't associated with a Person?!");
-        }
-    }
-
-    Scenario {
-        scenario_name: "everyone_weekday".to_string(),
         map_name: map.get_name().clone(),
         people,
         only_seed_buses: None,

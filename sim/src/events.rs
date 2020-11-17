@@ -6,9 +6,7 @@ use map_model::{
     PathRequest, Traversable, TurnID,
 };
 
-use crate::{
-    AgentID, CarID, OffMapLocation, ParkingSpot, PedestrianID, PersonID, TripID, TripMode,
-};
+use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, TripID, TripMode};
 
 /// As a simulation runs, different systems emit Events. This cleanly separates the internal
 /// mechanics of the simulation from consumers that just want to know what's happening.
@@ -32,15 +30,8 @@ pub enum Event {
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),
     /// None if cancelled
-    PersonLeavesMap(
-        PersonID,
-        Option<AgentID>,
-        IntersectionID,
-        Option<OffMapLocation>,
-    ),
-    PersonEntersMap(PersonID, AgentID, IntersectionID, Option<OffMapLocation>),
-    PersonEntersRemoteBuilding(PersonID, OffMapLocation),
-    PersonLeavesRemoteBuilding(PersonID, OffMapLocation),
+    PersonLeavesMap(PersonID, Option<AgentID>, IntersectionID),
+    PersonEntersMap(PersonID, AgentID, IntersectionID),
 
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
 
@@ -91,7 +82,6 @@ pub enum TripPhaseType {
     Cancelled,
     Finished,
     DelayedStart,
-    Remote,
 }
 
 impl TripPhaseType {
@@ -108,7 +98,6 @@ impl TripPhaseType {
             TripPhaseType::Cancelled => "Trip was cancelled due to some bug".to_string(),
             TripPhaseType::Finished => "Trip finished".to_string(),
             TripPhaseType::DelayedStart => "Delayed by a previous trip taking too long".to_string(),
-            TripPhaseType::Remote => "Remote trip outside is the map boundaries".to_string(),
         }
     }
 }

@@ -40,11 +40,11 @@ fn produce_raw_data(app: &App) -> Vec<Entry> {
     for (id, phases) in app.primary.sim.get_analytics().get_all_trip_phases() {
         let trip = app.primary.sim.trip_info(id);
         let starts_off_map = match trip.start {
-            TripEndpoint::Border(_, _) => true,
+            TripEndpoint::Border(_) => true,
             _ => false,
         };
         let ends_off_map = match trip.end {
-            TripEndpoint::Border(_, _) => true,
+            TripEndpoint::Border(_) => true,
             _ => false,
         };
 

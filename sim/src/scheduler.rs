@@ -25,7 +25,6 @@ pub enum Command {
     UpdateIntersection(IntersectionID),
     Callback(Duration),
     Pandemic(pandemic::Cmd),
-    FinishRemoteTrip(TripID),
     /// The Time is redundant, just used to dedupe commands
     StartBus(BusRouteID, Time),
 }
@@ -50,7 +49,6 @@ impl Command {
             Command::UpdateIntersection(id) => CommandType::Intersection(*id),
             Command::Callback(_) => CommandType::Callback,
             Command::Pandemic(ref p) => CommandType::Pandemic(p.clone()),
-            Command::FinishRemoteTrip(t) => CommandType::FinishRemoteTrip(*t),
             Command::StartBus(r, t) => CommandType::StartBus(*r, *t),
         }
     }
@@ -66,7 +64,6 @@ impl Command {
             Command::UpdateIntersection(_) => SimpleCommandType::Intersection,
             Command::Callback(_) => SimpleCommandType::Callback,
             Command::Pandemic(_) => SimpleCommandType::Pandemic,
-            Command::FinishRemoteTrip(_) => SimpleCommandType::FinishRemoteTrip,
             Command::StartBus(_, _) => SimpleCommandType::StartBus,
         }
     }
@@ -83,7 +80,6 @@ enum CommandType {
     Intersection(IntersectionID),
     Callback,
     Pandemic(pandemic::Cmd),
-    FinishRemoteTrip(TripID),
     StartBus(BusRouteID, Time),
 }
 
@@ -97,7 +93,6 @@ enum SimpleCommandType {
     Intersection,
     Callback,
     Pandemic,
-    FinishRemoteTrip,
     StartBus,
 }
 

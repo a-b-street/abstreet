@@ -183,7 +183,7 @@ impl WalkingSimState {
                                 self.peds.remove(&id);
                             }
                         }
-                        SidewalkPOI::Border(i, _) => {
+                        SidewalkPOI::Border(i) => {
                             self.peds_per_traversable
                                 .remove(ped.path.current_step().as_traversable(), ped.id);
                             trips.ped_reached_border(now, ped.id, i, ped.total_blocked_time, ctx);

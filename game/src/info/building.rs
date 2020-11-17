@@ -142,7 +142,7 @@ pub fn people(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Building
                     break;
                 }
                 TripResult::TripDone | TripResult::TripCancelled => {}
-                TripResult::TripDoesntExist | TripResult::RemoteTrip => unreachable!(),
+                TripResult::TripDoesntExist => unreachable!(),
             }
         }
 

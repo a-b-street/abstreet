@@ -165,7 +165,6 @@ fn test_lane_changing(map: &Map) -> Result<(), String> {
     let south = DrivingGoal::end_at_border(
         map.get_l(LaneID(31)).get_directed_parent(map),
         PathConstraints::Car,
-        None,
         map,
     )
     .unwrap();
@@ -173,7 +172,6 @@ fn test_lane_changing(map: &Map) -> Result<(), String> {
     let west = DrivingGoal::end_at_border(
         map.get_l(LaneID(15)).get_directed_parent(map),
         PathConstraints::Car,
-        None,
         map,
     )
     .unwrap();
@@ -207,7 +205,6 @@ fn test_lane_changing(map: &Map) -> Result<(), String> {
                     goal: to,
                     // About half cars, half bikes
                     is_bike: id.0 % 2 == 0,
-                    origin: None,
                 },
             )],
         });

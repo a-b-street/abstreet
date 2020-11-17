@@ -7,7 +7,9 @@ considering cleaning up the API surface and making it a proper standalone crate.
 
 ## Running the demo
 
-Because of wasm-pack issues, normal Rust example binaries don't work. The example code is instead in the [widgetry_demo crate](../widgetry_demo/src/lib.rs).
+Because of wasm-pack issues, normal Rust example binaries don't work. The
+example code is instead in the
+[widgetry_demo crate](../widgetry_demo/src/lib.rs).
 
 ```
 git clone https://github.com/dabreegster/abstreet.git
@@ -56,11 +58,12 @@ entry, and some data viz things. You can combine these in `Panel`s to dispatch
 event handling and drawing. Styling (background colors, outline, padding) and
 Flexbox-ish layouting via [stretch](https://vislyhq.github.io/stretch/).
 
-The API / programming style is kind of funny; see the [demo](examples/demo.rs)
-to get a sense of it. No callbacks. You manually feed events into your `Panel`s
-of widgets and ask about what happened. There's no smart diffing of widget
-trees; most of the time it's fine to completely recreate a `Panel` from scratch
-when something changes, or replace a single widget in an existing `Panel`.
+The API / programming style is kind of funny; see the
+[demo](../widgetry_demo/src/lib.rs) to get a sense of it. No callbacks. You
+manually feed events into your `Panel`s of widgets and ask about what happened.
+There's no smart diffing of widget trees; most of the time it's fine to
+completely recreate a `Panel` from scratch when something changes, or replace a
+single widget in an existing `Panel`.
 
 (This is not a performance critical library. The perf bottlenecks in A/B Street
 are not in the GUI, and I probably won't invest much time speeding things up

@@ -87,16 +87,6 @@ pub fn trips(
                         .map(|open_trip| trip::ongoing(ctx, app, *t, a, open_trip, details)),
                 )
             }
-            TripResult::RemoteTrip => {
-                assert!(wheres_waldo);
-                wheres_waldo = false;
-                (
-                    "ongoing (off-map)",
-                    Color::hex("#7FFA4D"),
-                    // TODO Details about an ongoing remote trip?
-                    None,
-                )
-            }
             TripResult::ModeChange => {
                 // TODO No details. Weird case.
                 assert!(wheres_waldo);
@@ -392,7 +382,7 @@ pub fn schedule(
                     format!("{} (at {})", list.choose(&mut rng).unwrap(), b.address)
                 }
             }
-            TripEndpoint::Border(_, _) => "off-map".to_string(),
+            TripEndpoint::Border(_) => "off-map".to_string(),
         };
         rows.push(
             Text::from(Line(format!(
@@ -421,7 +411,7 @@ pub fn schedule(
                 format!("{} (at {})", list.choose(&mut rng).unwrap(), b.address)
             }
         }
-        TripEndpoint::Border(_, _) => "off-map".to_string(),
+        TripEndpoint::Border(_) => "off-map".to_string(),
     };
     rows.push(
         Text::from(Line(format!(

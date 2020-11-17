@@ -158,7 +158,6 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
         TripPhaseType::RidingBus(_, _, _) => app.cs.bus_trip,
         TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
         TripPhaseType::DelayedStart => Color::YELLOW,
-        TripPhaseType::Remote => Color::PINK,
     }
 }
 

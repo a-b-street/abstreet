@@ -117,7 +117,7 @@ impl ScenarioGenerator {
             .all_outgoing_borders()
             .into_iter()
             .filter(|b| b.is_incoming_border())
-            .map(|b| TripEndpoint::Border(b.id, None))
+            .map(|b| TripEndpoint::Border(b.id))
             .collect();
         assert!(commuter_borders.len() > 0);
         let person_params = (0..num_trips)
@@ -150,13 +150,13 @@ impl ScenarioGenerator {
                     (TripEndpoint::Bldg(_), TripEndpoint::Bldg(_)) => {
                         num_trips_local += 1;
                     }
-                    (TripEndpoint::Bldg(_), TripEndpoint::Border(_, _)) => {
+                    (TripEndpoint::Bldg(_), TripEndpoint::Border(_)) => {
                         num_trips_commuting_out += 1;
                     }
-                    (TripEndpoint::Border(_, _), TripEndpoint::Bldg(_)) => {
+                    (TripEndpoint::Border(_), TripEndpoint::Bldg(_)) => {
                         num_trips_commuting_in += 1;
                     }
-                    (TripEndpoint::Border(_, _), TripEndpoint::Border(_, _)) => {
+                    (TripEndpoint::Border(_), TripEndpoint::Border(_)) => {
                         num_trips_passthru += 1;
                     }
                 };

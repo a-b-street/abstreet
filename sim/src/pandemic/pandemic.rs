@@ -8,7 +8,7 @@ use geom::{Duration, Time};
 use map_model::{BuildingID, BusStopID};
 
 use crate::pandemic::{AnyTime, State};
-use crate::{CarID, Event, OffMapLocation, Person, PersonID, Scheduler, TripPhaseType};
+use crate::{CarID, Event, Person, PersonID, Scheduler, TripPhaseType};
 
 // TODO This does not model transmission by surfaces; only person-to-person.
 // TODO If two people are in the same shared space indefinitely and neither leaves, we don't model
@@ -19,7 +19,6 @@ pub struct PandemicModel {
     pop: BTreeMap<PersonID, State>,
 
     bldgs: SharedSpace<BuildingID>,
-    remote_bldgs: SharedSpace<OffMapLocation>,
     bus_stops: SharedSpace<BusStopID>,
     buses: SharedSpace<CarID>,
     person_to_bus: BTreeMap<PersonID, CarID>,
@@ -49,7 +48,6 @@ impl PandemicModel {
             pop: BTreeMap::new(),
 
             bldgs: SharedSpace::new(),
-            remote_bldgs: SharedSpace::new(),
             bus_stops: SharedSpace::new(),
             buses: SharedSpace::new(),
             person_to_bus: BTreeMap::new(),
@@ -170,20 +168,6 @@ impl PandemicModel {
                     panic!("{} left {}, but they weren't inside", person, bldg);
                 }
             }
-            Event::PersonEntersRemoteBuilding(person, loc) => {
-                self.remote_bldgs
-                    .person_enters_space(now, *person, loc.clone());
-            }
-            Event::PersonLeavesRemoteBuilding(person, loc) => {
-                if let Some(others) =
-                    self.remote_bldgs
-                        .person_leaves_space(now, *person, loc.clone())
-                {
-                    self.transmission(now, *person, others, scheduler);
-                } else {
-                    panic!("{} left {:?}, but they weren't inside", person, loc);
-                }
-            }
             Event::TripPhaseStarting(_, p, _, tpt) => {
                 let person = *p;
                 match tpt {
@@ -212,19 +196,6 @@ impl PandemicModel {
                     _ => {
                         self.transition(now, person, scheduler);
                     }
-                }
-            }
-            Event::PersonLeavesMap(_person, _, _, loc) => {
-                if let Some(_loc) = loc {
-                    // TODO Could make a SharedSpace for loc.parcel_id, representing buildings
-                    // off-map.
-                }
-            }
-            Event::PersonEntersMap(_person, _, _, loc) => {
-                if let Some(_loc) = loc {
-                    // TODO But we don't know how long the person spent at these parcels. They
-                    // could've taken tons of trips to other off-map parcels in between
-                    // PersonLeavesMap and PersonEntersMap.
                 }
             }
             _ => {}

@@ -617,9 +617,6 @@ impl Sim {
                     .unwrap()
                     .handle_cmd(self.time, cmd, &mut self.scheduler);
             }
-            Command::FinishRemoteTrip(trip) => {
-                self.trips.remote_trip_finished(self.time, trip, &mut ctx);
-            }
             Command::StartBus(r, _) => {
                 self.start_bus(map.get_br(r), map);
             }

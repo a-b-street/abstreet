@@ -142,13 +142,13 @@ impl Analytics {
             };
         }
         match ev {
-            Event::PersonLeavesMap(_, maybe_a, i, _) => {
+            Event::PersonLeavesMap(_, maybe_a, i) => {
                 // Ignore cancelled trips
                 if let Some(a) = maybe_a {
                     self.intersection_thruput.record(time, i, a.to_type(), 1);
                 }
             }
-            Event::PersonEntersMap(_, a, i, _) => {
+            Event::PersonEntersMap(_, a, i) => {
                 self.intersection_thruput.record(time, i, a.to_type(), 1);
             }
             _ => {}

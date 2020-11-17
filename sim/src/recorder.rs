@@ -54,7 +54,7 @@ impl TrafficRecorder {
                                             TripPurpose::Shopping,
                                             SpawnTrip::VehicleAppearing {
                                                 start: Position::start(*l),
-                                                goal: DrivingGoal::Border(t.parent, t.src, None),
+                                                goal: DrivingGoal::Border(t.parent, t.src),
                                                 is_bike: car.1 == VehicleType::Bike,
                                             },
                                         ));

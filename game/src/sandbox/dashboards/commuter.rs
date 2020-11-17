@@ -84,11 +84,11 @@ impl CommuterPatterns {
         for (_, trip) in app.primary.sim.all_trip_info() {
             let block1 = match trip.start {
                 TripEndpoint::Bldg(b) => bldg_to_block[&b],
-                TripEndpoint::Border(i, _) => border_to_block[&i],
+                TripEndpoint::Border(i) => border_to_block[&i],
             };
             let block2 = match trip.end {
                 TripEndpoint::Bldg(b) => bldg_to_block[&b],
-                TripEndpoint::Border(i, _) => border_to_block[&i],
+                TripEndpoint::Border(i) => border_to_block[&i],
             };
             // Totally ignore trips within the same block
             if block1 != block2 {
@@ -146,7 +146,7 @@ impl CommuterPatterns {
                     TripEndpoint::Bldg(b) => {
                         count.inc(self.bldg_to_block[&b]);
                     }
-                    TripEndpoint::Border(i, _) => {
+                    TripEndpoint::Border(i) => {
                         if self.filter.include_borders {
                             count.inc(self.border_to_block[&i]);
                         }
@@ -157,7 +157,7 @@ impl CommuterPatterns {
                     TripEndpoint::Bldg(b) => {
                         count.inc(self.bldg_to_block[&b]);
                     }
-                    TripEndpoint::Border(i, _) => {
+                    TripEndpoint::Border(i) => {
                         if self.filter.include_borders {
                             count.inc(self.border_to_block[&i]);
                         }

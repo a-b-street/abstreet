@@ -550,8 +550,6 @@ fn make_timeline(
                     TripPhaseType::RidingBus(_, _, _) => "system/assets/timeline/riding_bus.svg",
                     TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
                     TripPhaseType::DelayedStart => "system/assets/timeline/delayed_start.svg",
-                    // TODO What icon should represent this?
-                    TripPhaseType::Remote => "system/assets/timeline/delayed_start.svg",
                 },
             )
             .centered_on(Pt2D::new(x1 + phase_width / 2.0, icon_height / 2.0)),
@@ -890,7 +888,7 @@ fn endpoint(endpt: &TripEndpoint, app: &App) -> (ID, Pt2D, String) {
             let bldg = app.primary.map.get_b(*b);
             (ID::Building(*b), bldg.label_center, bldg.address.clone())
         }
-        TripEndpoint::Border(i, _) => {
+        TripEndpoint::Border(i) => {
             let i = app.primary.map.get_i(*i);
             (
                 ID::Intersection(i.id),

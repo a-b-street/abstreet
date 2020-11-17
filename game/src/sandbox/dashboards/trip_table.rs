@@ -116,11 +116,11 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
     for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
         let trip = sim.trip_info(*id);
         let starts_off_map = match trip.start {
-            TripEndpoint::Border(_, _) => true,
+            TripEndpoint::Border(_) => true,
             _ => false,
         };
         let ends_off_map = match trip.end {
-            TripEndpoint::Border(_, _) => true,
+            TripEndpoint::Border(_) => true,
             _ => false,
         };
         let duration_before = if let Some(ref times) = trip_times_before {
