@@ -1461,6 +1461,10 @@
 <span id="1460">1460</span>
 <span id="1461">1461</span>
 <span id="1462">1462</span>
+<span id="1463">1463</span>
+<span id="1464">1464</span>
+<span id="1465">1465</span>
+<span id="1466">1466</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1469,9 +1473,9 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Map</span>, <span class="ident">Position</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">BorderSpawnOverTime</span>, <span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">IndividTrip</span>, <span class="ident">OriginDestination</span>,
-    <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnOverTime</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripPurpose</span>,
-    <span class="ident">VehicleType</span>,
+    <span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">BorderSpawnOverTime</span>, <span class="ident">CarID</span>, <span class="ident">IndividTrip</span>, <span class="ident">OriginDestination</span>, <span class="ident">PersonID</span>,
+    <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnOverTime</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>,
+    <span class="ident">TripPurpose</span>, <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
@@ -2536,14 +2540,16 @@
                         <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                             <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
                             <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                            <span class="ident">SpawnTrip</span>::<span class="ident">VehicleAppearing</span> {
-                                <span class="ident">start</span>: <span class="ident">Position</span>::<span class="ident">new</span>(
+                            <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(
+                                <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
                                     <span class="ident">start_lane</span>,
                                     <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start_lane</span>).<span class="ident">length</span>() <span class="op">*</span> <span class="number">0.8</span>,
-                                ),
-                                <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="ident">goal_bldg</span>),
-                                <span class="ident">is_bike</span>: <span class="bool-val">false</span>,
-                            },
+                                )),
+                                <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">goal_bldg</span>),
+                                <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+                                <span class="ident">map</span>,
+                            )
+                            .<span class="ident">unwrap</span>(),
                         )],
                     });
                     <span class="comment">// Will definitely get there first</span>
@@ -2554,14 +2560,16 @@
                             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                                 <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
                                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                                <span class="ident">SpawnTrip</span>::<span class="ident">VehicleAppearing</span> {
-                                    <span class="ident">start</span>: <span class="ident">Position</span>::<span class="ident">new</span>(
+                                <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(
+                                    <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
                                         <span class="ident">lane_near_bldg</span>,
                                         <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane_near_bldg</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
-                                    ),
-                                    <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="ident">goal_bldg</span>),
-                                    <span class="ident">is_bike</span>: <span class="bool-val">false</span>,
-                                },
+                                    )),
+                                    <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">goal_bldg</span>),
+                                    <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+                                    <span class="ident">map</span>,
+                                )
+                                .<span class="ident">unwrap</span>(),
                             )],
                         });
                     }
