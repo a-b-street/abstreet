@@ -433,6 +433,7 @@ impl State<App> for AgentSpawner {
                 match endpt {
                     TripEndpoint::Border(i) => app.primary.map.get_i(*i).polygon.clone(),
                     TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
+                    TripEndpoint::SuddenlyAppear(_) => unreachable!(),
                 },
             );
         }
@@ -442,6 +443,7 @@ impl State<App> for AgentSpawner {
                 match endpt {
                     TripEndpoint::Border(i) => app.primary.map.get_i(*i).polygon.clone(),
                     TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
+                    TripEndpoint::SuddenlyAppear(_) => unreachable!(),
                 },
             );
             if let Some(p) = poly {
@@ -513,8 +515,14 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                     now,
                     TripSpec::JustWalking {
                         start: SidewalkSpot::suddenly_appear(
-                            lane.id,
-                            Scenario::rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
+                            Position::new(
+                                lane.id,
+                                Scenario::rand_dist(
+                                    &mut rng,
+                                    0.1 * lane.length(),
+                                    0.9 * lane.length(),
+                                ),
+                            ),
                             map,
                         ),
                         goal: SidewalkSpot::building(

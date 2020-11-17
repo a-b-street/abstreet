@@ -383,6 +383,7 @@ pub fn schedule(
                 }
             }
             TripEndpoint::Border(_) => "off-map".to_string(),
+            TripEndpoint::SuddenlyAppear(_) => "suddenly appear".to_string(),
         };
         rows.push(
             Text::from(Line(format!(
@@ -412,6 +413,7 @@ pub fn schedule(
             }
         }
         TripEndpoint::Border(_) => "off-map".to_string(),
+        TripEndpoint::SuddenlyAppear(_) => "suddenly disappear".to_string(),
     };
     rows.push(
         Text::from(Line(format!(

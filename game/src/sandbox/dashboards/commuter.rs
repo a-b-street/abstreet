@@ -85,10 +85,12 @@ impl CommuterPatterns {
             let block1 = match trip.start {
                 TripEndpoint::Bldg(b) => bldg_to_block[&b],
                 TripEndpoint::Border(i) => border_to_block[&i],
+                TripEndpoint::SuddenlyAppear(_) => continue,
             };
             let block2 = match trip.end {
                 TripEndpoint::Bldg(b) => bldg_to_block[&b],
                 TripEndpoint::Border(i) => border_to_block[&i],
+                TripEndpoint::SuddenlyAppear(_) => continue,
             };
             // Totally ignore trips within the same block
             if block1 != block2 {
@@ -151,6 +153,7 @@ impl CommuterPatterns {
                             count.inc(self.border_to_block[&i]);
                         }
                     }
+                    TripEndpoint::SuddenlyAppear(_) => {}
                 }
             } else {
                 match trip.start {
@@ -162,6 +165,7 @@ impl CommuterPatterns {
                             count.inc(self.border_to_block[&i]);
                         }
                     }
+                    TripEndpoint::SuddenlyAppear(_) => {}
                 }
             }
         }

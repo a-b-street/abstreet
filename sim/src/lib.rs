@@ -523,12 +523,12 @@ impl SidewalkSpot {
         })
     }
 
-    pub fn suddenly_appear(l: LaneID, dist: Distance, map: &Map) -> SidewalkSpot {
-        let lane = map.get_l(l);
+    pub fn suddenly_appear(pos: Position, map: &Map) -> SidewalkSpot {
+        let lane = map.get_l(pos.lane());
         assert!(lane.is_walkable());
-        assert!(dist <= lane.length());
+        assert!(pos.dist_along() <= lane.length());
         SidewalkSpot {
-            sidewalk_pos: Position::new(l, dist),
+            sidewalk_pos: pos,
             connection: SidewalkPOI::SuddenlyAppear,
         }
     }

@@ -169,6 +169,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, id: TripID) -> GeomBatch {
             .centered_on(match trip.start {
                 TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
                 TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.center(),
+                TripEndpoint::SuddenlyAppear(pos) => pos.pt(&app.primary.map),
             }),
     );
     batch.append(
@@ -182,6 +183,7 @@ fn preview_route(g: &mut GfxCtx, app: &App, id: TripID) -> GeomBatch {
             .centered_on(match trip.end {
                 TripEndpoint::Bldg(b) => app.primary.map.get_b(b).label_center,
                 TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.center(),
+                TripEndpoint::SuddenlyAppear(pos) => pos.pt(&app.primary.map),
             }),
     );
 

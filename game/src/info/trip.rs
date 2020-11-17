@@ -899,5 +899,13 @@ fn endpoint(endpt: &TripEndpoint, app: &App) -> (ID, Pt2D, String) {
                 ),
             )
         }
+        TripEndpoint::SuddenlyAppear(pos) => (
+            ID::Lane(pos.lane()),
+            pos.pt(&app.primary.map),
+            format!(
+                "suddenly appear {} along",
+                pos.dist_along().to_string(&app.opts.units)
+            ),
+        ),
     }
 }

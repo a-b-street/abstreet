@@ -150,7 +150,7 @@ impl TripManager {
                         .push(Event::PersonEntersBuilding(trip.person, b));
                     PersonState::Inside(b)
                 }
-                TripEndpoint::Border(_) => PersonState::OffMap,
+                TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => PersonState::OffMap,
             };
         }
         if let Some(t) = person.trips.last() {
@@ -715,20 +715,20 @@ impl TripManager {
         if let PersonState::Inside(b) = self.people[person.0].state {
             self.events.push(Event::PersonLeavesBuilding(person, b));
         }
-        match trip.info.end {
+        // Warp to the destination
+        self.people[person.0].state = match trip.info.end {
             TripEndpoint::Bldg(b) => {
                 self.events.push(Event::PersonEntersBuilding(person, b));
+                PersonState::Inside(b)
             }
             TripEndpoint::Border(i) => {
                 self.events.push(Event::PersonLeavesMap(person, None, i));
+                PersonState::OffMap
             }
-        }
-
-        // Warp to the destination
-        self.people[person.0].state = match trip.info.end {
-            TripEndpoint::Bldg(b) => PersonState::Inside(b),
-            TripEndpoint::Border(_) => PersonState::OffMap,
+            // Can't end trips here yet
+            TripEndpoint::SuddenlyAppear(_) => unreachable!(),
         };
+
         // Don't forget the car!
         if let Some(vehicle) = abandoned_vehicle {
             if vehicle.vehicle_type == VehicleType::Car {
@@ -1515,10 +1515,13 @@ impl TripMode {
     }
 }
 
+/// Specifies where a trip begins or ends.
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
 pub enum TripEndpoint {
     Bldg(BuildingID),
     Border(IntersectionID),
+    /// Used for interactive spawning, tests, etc. For now, only valid as a trip's start.
+    SuddenlyAppear(Position),
 }
 
 impl TripEndpoint {
@@ -1576,6 +1579,7 @@ fn pos(endpt: TripEndpoint, mode: TripMode, from: bool, map: &Map) -> Option<Pos
                 .map(|l| Position::start(*l))
             }),
         },
+        TripEndpoint::SuddenlyAppear(pos) => Some(pos),
     }
 }
 
@@ -1643,6 +1647,7 @@ impl TripEndpoint {
         match self {
             TripEndpoint::Bldg(b) => Some(SidewalkSpot::building(*b, map)),
             TripEndpoint::Border(i) => SidewalkSpot::start_at_border(*i, map),
+            TripEndpoint::SuddenlyAppear(pos) => Some(SidewalkSpot::suddenly_appear(*pos, map)),
         }
     }
 
@@ -1650,6 +1655,7 @@ impl TripEndpoint {
         match self {
             TripEndpoint::Bldg(b) => Some(SidewalkSpot::building(*b, map)),
             TripEndpoint::Border(i) => SidewalkSpot::end_at_border(*i, map),
+            TripEndpoint::SuddenlyAppear(_) => unreachable!(),
         }
     }
 
@@ -1663,6 +1669,7 @@ impl TripEndpoint {
             TripEndpoint::Border(i) => {
                 DrivingGoal::end_at_border(map.get_i(*i).some_incoming_road(map)?, constraints, map)
             }
+            TripEndpoint::SuddenlyAppear(_) => unreachable!(),
         }
     }
 }

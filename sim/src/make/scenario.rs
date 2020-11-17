@@ -511,9 +511,7 @@ impl SpawnTrip {
 
     pub fn start(&self, map: &Map) -> TripEndpoint {
         match self {
-            SpawnTrip::VehicleAppearing { ref start, .. } => {
-                TripEndpoint::Border(map.get_l(start.lane()).src_i)
-            }
+            SpawnTrip::VehicleAppearing { start, .. } => TripEndpoint::SuddenlyAppear(*start),
             SpawnTrip::FromBorder { dr, .. } => TripEndpoint::Border(dr.src_i(map)),
             SpawnTrip::UsingParkedCar(b, _) => TripEndpoint::Bldg(*b),
             SpawnTrip::UsingBike(b, _) => TripEndpoint::Bldg(*b),
@@ -521,9 +519,7 @@ impl SpawnTrip {
                 match spot.connection {
                     SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
                     SidewalkPOI::Border(i) => TripEndpoint::Border(i),
-                    SidewalkPOI::SuddenlyAppear => {
-                        TripEndpoint::Border(map.get_l(spot.sidewalk_pos.lane()).src_i)
-                    }
+                    SidewalkPOI::SuddenlyAppear => TripEndpoint::SuddenlyAppear(spot.sidewalk_pos),
                     _ => unreachable!(),
                 }
             }
@@ -565,6 +561,11 @@ impl SpawnTrip {
                     goal: to.driving_goal(PathConstraints::Car, map)?,
                     is_bike: false,
                 },
+                TripEndpoint::SuddenlyAppear(start) => SpawnTrip::VehicleAppearing {
+                    start,
+                    goal: to.driving_goal(PathConstraints::Bike, map)?,
+                    is_bike: false,
+                },
             },
             TripMode::Bike => match from {
                 TripEndpoint::Bldg(b) => {
@@ -572,6 +573,11 @@ impl SpawnTrip {
                 }
                 TripEndpoint::Border(i) => SpawnTrip::FromBorder {
                     dr: map.get_i(i).some_outgoing_road(map)?,
+                    goal: to.driving_goal(PathConstraints::Bike, map)?,
+                    is_bike: true,
+                },
+                TripEndpoint::SuddenlyAppear(start) => SpawnTrip::VehicleAppearing {
+                    start,
                     goal: to.driving_goal(PathConstraints::Bike, map)?,
                     is_bike: true,
                 },
@@ -610,11 +616,11 @@ impl PersonSpec {
             // Once off-map, re-enter via any border node.
             let end_bldg = match pair.0.trip.end(map) {
                 TripEndpoint::Bldg(b) => Some(b),
-                TripEndpoint::Border(_) => None,
+                TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => None,
             };
             let start_bldg = match pair.1.trip.start(map) {
                 TripEndpoint::Bldg(b) => Some(b),
-                TripEndpoint::Border(_) => None,
+                TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => None,
             };
 
             if end_bldg != start_bldg {

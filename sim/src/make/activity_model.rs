@@ -159,6 +159,8 @@ impl ScenarioGenerator {
                     (TripEndpoint::Border(_), TripEndpoint::Border(_)) => {
                         num_trips_passthru += 1;
                     }
+                    (TripEndpoint::SuddenlyAppear(_), _) => unreachable!(),
+                    (_, TripEndpoint::SuddenlyAppear(_)) => unreachable!(),
                 };
 
                 (home, work, fork_rng(rng))
