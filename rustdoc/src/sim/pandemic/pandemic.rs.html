@@ -445,35 +445,6 @@
 <span id="444">444</span>
 <span id="445">445</span>
 <span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -485,7 +456,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BusStopID</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pandemic</span>::{<span class="ident">AnyTime</span>, <span class="ident">State</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">Event</span>, <span class="ident">OffMapLocation</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">TripPhaseType</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">Event</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">TripPhaseType</span>};
 
 <span class="comment">// TODO This does not model transmission by surfaces; only person-to-person.</span>
 <span class="comment">// TODO If two people are in the same shared space indefinitely and neither leaves, we don&#39;t model</span>
@@ -496,7 +467,6 @@
     <span class="ident">pop</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PersonID</span>, <span class="ident">State</span><span class="op">&gt;</span>,
 
     <span class="ident">bldgs</span>: <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    <span class="ident">remote_bldgs</span>: <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>,
     <span class="ident">bus_stops</span>: <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>,
     <span class="ident">buses</span>: <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
     <span class="ident">person_to_bus</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PersonID</span>, <span class="ident">CarID</span><span class="op">&gt;</span>,
@@ -526,7 +496,6 @@
             <span class="ident">pop</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
 
             <span class="ident">bldgs</span>: <span class="ident">SharedSpace</span>::<span class="ident">new</span>(),
-            <span class="ident">remote_bldgs</span>: <span class="ident">SharedSpace</span>::<span class="ident">new</span>(),
             <span class="ident">bus_stops</span>: <span class="ident">SharedSpace</span>::<span class="ident">new</span>(),
             <span class="ident">buses</span>: <span class="ident">SharedSpace</span>::<span class="ident">new</span>(),
             <span class="ident">person_to_bus</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
@@ -647,20 +616,6 @@
                     <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} left {}, but they weren&#39;t inside&quot;</span>, <span class="ident">person</span>, <span class="ident">bldg</span>);
                 }
             }
-            <span class="ident">Event</span>::<span class="ident">PersonEntersRemoteBuilding</span>(<span class="ident">person</span>, <span class="ident">loc</span>) <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">remote_bldgs</span>
-                    .<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="ident">loc</span>.<span class="ident">clone</span>());
-            }
-            <span class="ident">Event</span>::<span class="ident">PersonLeavesRemoteBuilding</span>(<span class="ident">person</span>, <span class="ident">loc</span>) <span class="op">=&gt;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">others</span>) <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">remote_bldgs</span>
-                        .<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="ident">loc</span>.<span class="ident">clone</span>())
-                {
-                    <span class="self">self</span>.<span class="ident">transmission</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="ident">others</span>, <span class="ident">scheduler</span>);
-                } <span class="kw">else</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} left {:?}, but they weren&#39;t inside&quot;</span>, <span class="ident">person</span>, <span class="ident">loc</span>);
-                }
-            }
             <span class="ident">Event</span>::<span class="ident">TripPhaseStarting</span>(<span class="kw">_</span>, <span class="ident">p</span>, <span class="kw">_</span>, <span class="ident">tpt</span>) <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span>;
                 <span class="kw">match</span> <span class="ident">tpt</span> {
@@ -689,19 +644,6 @@
                     <span class="kw">_</span> <span class="op">=&gt;</span> {
                         <span class="self">self</span>.<span class="ident">transition</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">scheduler</span>);
                     }
-                }
-            }
-            <span class="ident">Event</span>::<span class="ident">PersonLeavesMap</span>(<span class="ident">_person</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">loc</span>) <span class="op">=&gt;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_loc</span>) <span class="op">=</span> <span class="ident">loc</span> {
-                    <span class="comment">// TODO Could make a SharedSpace for loc.parcel_id, representing buildings</span>
-                    <span class="comment">// off-map.</span>
-                }
-            }
-            <span class="ident">Event</span>::<span class="ident">PersonEntersMap</span>(<span class="ident">_person</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">loc</span>) <span class="op">=&gt;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_loc</span>) <span class="op">=</span> <span class="ident">loc</span> {
-                    <span class="comment">// TODO But we don&#39;t know how long the person spent at these parcels. They</span>
-                    <span class="comment">// could&#39;ve taken tons of trips to other off-map parcels in between</span>
-                    <span class="comment">// PersonLeavesMap and PersonEntersMap.</span>
                 }
             }
             <span class="kw">_</span> <span class="op">=&gt;</span> {}

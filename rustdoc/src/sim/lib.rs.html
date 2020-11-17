@@ -662,15 +662,6 @@
 <span id="661">661</span>
 <span id="662">662</span>
 <span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
-<span id="670">670</span>
-<span id="671">671</span>
-<span id="672">672</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also</span>
 <span class="doccomment">//! https://dabreegster.github.io/abstreet/trafficsim/index.html.</span>
@@ -708,8 +699,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">events</span>::{<span class="ident">AlertLocation</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">make</span>::{
     <span class="ident">BorderSpawnOverTime</span>, <span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>, <span class="ident">ExternalTripEndpoint</span>, <span class="ident">IndividTrip</span>,
-    <span class="ident">OffMapLocation</span>, <span class="ident">OriginDestination</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">ScenarioModifier</span>,
-    <span class="ident">SimFlags</span>, <span class="ident">SpawnOverTime</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripPurpose</span>, <span class="ident">TripSpawner</span>, <span class="ident">TripSpec</span>,
+    <span class="ident">OriginDestination</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">SimFlags</span>,
+    <span class="ident">SpawnOverTime</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripPurpose</span>, <span class="ident">TripSpawner</span>, <span class="ident">TripSpec</span>,
 };
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">mechanics</span>::{
     <span class="ident">DrivingSimState</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>, <span class="ident">WalkingSimState</span>,
@@ -1030,14 +1021,13 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DrivingGoal</span> {
     <span class="ident">ParkNear</span>(<span class="ident">BuildingID</span>),
-    <span class="ident">Border</span>(<span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>),
+    <span class="ident">Border</span>(<span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">DrivingGoal</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_at_border</span>(
         <span class="ident">dr</span>: <span class="ident">DirectedRoadID</span>,
         <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-        <span class="ident">destination</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrivingGoal</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">dr</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>);
@@ -1045,7 +1035,7 @@
             <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
             <span class="comment">// TODO ideally could use any</span>
-            <span class="prelude-val">Some</span>(<span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">dr</span>.<span class="ident">dst_i</span>(<span class="ident">map</span>), <span class="ident">lanes</span>[<span class="number">0</span>], <span class="ident">destination</span>))
+            <span class="prelude-val">Some</span>(<span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">dr</span>.<span class="ident">dst_i</span>(<span class="ident">map</span>), <span class="ident">lanes</span>[<span class="number">0</span>]))
         }
     }
 
@@ -1060,7 +1050,7 @@
                     <span class="macro">unreachable</span><span class="macro">!</span>()
                 }
             },
-            <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="ident">l</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Position</span>::<span class="ident">end</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">map</span>)),
+            <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="ident">l</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Position</span>::<span class="ident">end</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">map</span>)),
         }
     }
 
@@ -1073,7 +1063,7 @@
                     <span class="ident">Router</span>::<span class="ident">park_near</span>(<span class="ident">owner</span>, <span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">b</span>)
                 }
             }
-            <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="ident">last_lane</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+            <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="ident">last_lane</span>) <span class="op">=&gt;</span> {
                 <span class="ident">Router</span>::<span class="ident">end_at_border</span>(<span class="ident">owner</span>, <span class="ident">path</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">last_lane</span>).<span class="ident">length</span>(), <span class="kw-2">*</span><span class="ident">i</span>)
             }
         }
@@ -1082,7 +1072,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
-            <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
+            <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
         }
     }
 }
@@ -1102,7 +1092,7 @@
     <span class="ident">DeferredParkingSpot</span>,
     <span class="ident">Building</span>(<span class="ident">BuildingID</span>),
     <span class="ident">BusStop</span>(<span class="ident">BusStopID</span>),
-    <span class="ident">Border</span>(<span class="ident">IntersectionID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>),
+    <span class="ident">Border</span>(<span class="ident">IntersectionID</span>),
     <span class="doccomment">/// The bikeable position</span>
     <span class="ident">BikeRack</span>(<span class="ident">Position</span>),
     <span class="ident">SuddenlyAppear</span>,
@@ -1154,18 +1144,14 @@
     }
 
     <span class="comment">// Recall sidewalks are bidirectional.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_at_border</span>(
-        <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">origin</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_at_border</span>(<span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">map</span>
             .<span class="ident">get_i</span>(<span class="ident">i</span>)
             .<span class="ident">get_outgoing_lanes</span>(<span class="ident">map</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="ident">lanes</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">SidewalkSpot</span> {
                 <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>::<span class="ident">start</span>(<span class="ident">lanes</span>[<span class="number">0</span>]),
-                <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="ident">origin</span>),
+                <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>::<span class="ident">Border</span>(<span class="ident">i</span>),
             });
         }
 
@@ -1174,15 +1160,11 @@
             .<span class="ident">get</span>(<span class="number">0</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">SidewalkSpot</span> {
                 <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>::<span class="ident">end</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">map</span>),
-                <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="ident">origin</span>),
+                <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>::<span class="ident">Border</span>(<span class="ident">i</span>),
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_at_border</span>(
-        <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">destination</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_at_border</span>(<span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">map</span>
             .<span class="ident">get_i</span>(<span class="ident">i</span>)
             .<span class="ident">get_incoming_lanes</span>(<span class="ident">map</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>)
@@ -1190,7 +1172,7 @@
         {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">SidewalkSpot</span> {
                 <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>::<span class="ident">end</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">map</span>),
-                <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="ident">destination</span>),
+                <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>::<span class="ident">Border</span>(<span class="ident">i</span>),
             });
         }
 
@@ -1202,7 +1184,7 @@
         }
         <span class="prelude-val">Some</span>(<span class="ident">SidewalkSpot</span> {
             <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>::<span class="ident">start</span>(<span class="ident">lanes</span>[<span class="number">0</span>]),
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="ident">destination</span>),
+            <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>::<span class="ident">Border</span>(<span class="ident">i</span>),
         })
     }
 

@@ -417,7 +417,6 @@
 <span id="416">416</span>
 <span id="417">417</span>
 <span id="418">418</span>
-<span id="419">419</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a much more primitive way to randomly generate trips. activity_model.rs has something</span>
 <span class="doccomment">//! more realistic.</span>
@@ -693,7 +692,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span>
-            <span class="ident">SidewalkSpot</span>::<span class="ident">start_at_border</span>(<span class="self">self</span>.<span class="ident">start_from_border</span>.<span class="ident">src_i</span>(<span class="ident">map</span>), <span class="prelude-val">None</span>, <span class="ident">map</span>)
+            <span class="ident">SidewalkSpot</span>::<span class="ident">start_at_border</span>(<span class="self">self</span>.<span class="ident">start_from_border</span>.<span class="ident">src_i</span>(<span class="ident">map</span>), <span class="ident">map</span>)
         {
             <span class="ident">s</span>
         } <span class="kw">else</span> {
@@ -769,7 +768,6 @@
                             <span class="ident">dr</span>: <span class="self">self</span>.<span class="ident">start_from_border</span>,
                             <span class="ident">goal</span>,
                             <span class="ident">is_bike</span>: <span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
-                            <span class="ident">origin</span>: <span class="prelude-val">None</span>,
                         },
                     )],
                 });
@@ -799,7 +797,7 @@
             )),
             <span class="ident">OriginDestination</span>::<span class="ident">GotoBldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="kw-2">*</span><span class="ident">b</span>)),
             <span class="ident">OriginDestination</span>::<span class="ident">EndOfRoad</span>(<span class="ident">dr</span>) <span class="op">=&gt;</span> {
-                <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="ident">DrivingGoal</span>::<span class="ident">end_at_border</span>(<span class="kw-2">*</span><span class="ident">dr</span>, <span class="ident">constraints</span>, <span class="prelude-val">None</span>, <span class="ident">map</span>);
+                <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="ident">DrivingGoal</span>::<span class="ident">end_at_border</span>(<span class="kw-2">*</span><span class="ident">dr</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
                 <span class="kw">if</span> <span class="ident">goal</span>.<span class="ident">is_none</span>() {
                     <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;Can&#39;t spawn a {:?} ending at border {}; no appropriate lanes there&quot;</span>,
@@ -823,7 +821,7 @@
                 <span class="ident">map</span>,
             )),
             <span class="ident">OriginDestination</span>::<span class="ident">EndOfRoad</span>(<span class="ident">dr</span>) <span class="op">=&gt;</span> {
-                <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">end_at_border</span>(<span class="ident">dr</span>.<span class="ident">dst_i</span>(<span class="ident">map</span>), <span class="prelude-val">None</span>, <span class="ident">map</span>);
+                <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">end_at_border</span>(<span class="ident">dr</span>.<span class="ident">dst_i</span>(<span class="ident">map</span>), <span class="ident">map</span>);
                 <span class="kw">if</span> <span class="ident">goal</span>.<span class="ident">is_none</span>() {
                     <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t end_at_border for {} without a sidewalk&quot;</span>, <span class="ident">dr</span>));
                 }

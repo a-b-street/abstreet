@@ -318,7 +318,6 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
-<span id="320">320</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -480,7 +479,6 @@
         <span class="ident">TripPhaseType</span>::<span class="ident">RidingBus</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_trip</span>,
         <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span> <span class="op">|</span> <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         <span class="ident">TripPhaseType</span>::<span class="ident">DelayedStart</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">YELLOW</span>,
-        <span class="ident">TripPhaseType</span>::<span class="ident">Remote</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">PINK</span>,
     }
 }
 

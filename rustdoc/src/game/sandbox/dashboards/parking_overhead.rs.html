@@ -241,11 +241,11 @@
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">phases</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">get_all_trip_phases</span>() {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">starts_off_map</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
         };
         <span class="kw">let</span> <span class="ident">ends_off_map</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
         };
 

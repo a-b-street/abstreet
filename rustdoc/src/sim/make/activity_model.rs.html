@@ -450,7 +450,7 @@
             .<span class="ident">all_outgoing_borders</span>()
             .<span class="ident">into_iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">is_incoming_border</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>))
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">b</span>.<span class="ident">id</span>))
             .<span class="ident">collect</span>();
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">commuter_borders</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span>);
         <span class="kw">let</span> <span class="ident">person_params</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">num_trips</span>)
@@ -483,13 +483,13 @@
                     (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
                         <span class="ident">num_trips_local</span> <span class="op">+=</span> <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=&gt;</span> {
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
                         <span class="ident">num_trips_commuting_out</span> <span class="op">+=</span> <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
                         <span class="ident">num_trips_commuting_in</span> <span class="op">+=</span> <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=&gt;</span> {
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
                         <span class="ident">num_trips_passthru</span> <span class="op">+=</span> <span class="number">1</span>;
                     }
                 };

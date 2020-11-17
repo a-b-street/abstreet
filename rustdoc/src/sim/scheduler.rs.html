@@ -310,11 +310,6 @@
 <span id="309">309</span>
 <span id="310">310</span>
 <span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">Entry</span>;
@@ -343,7 +338,6 @@
     <span class="ident">UpdateIntersection</span>(<span class="ident">IntersectionID</span>),
     <span class="ident">Callback</span>(<span class="ident">Duration</span>),
     <span class="ident">Pandemic</span>(<span class="ident">pandemic</span>::<span class="ident">Cmd</span>),
-    <span class="ident">FinishRemoteTrip</span>(<span class="ident">TripID</span>),
     <span class="doccomment">/// The Time is redundant, just used to dedupe commands</span>
     <span class="ident">StartBus</span>(<span class="ident">BusRouteID</span>, <span class="ident">Time</span>),
 }
@@ -368,7 +362,6 @@
             <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Intersection</span>(<span class="kw-2">*</span><span class="ident">id</span>),
             <span class="ident">Command</span>::<span class="ident">Callback</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Callback</span>,
             <span class="ident">Command</span>::<span class="ident">Pandemic</span>(<span class="kw-2">ref</span> <span class="ident">p</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Pandemic</span>(<span class="ident">p</span>.<span class="ident">clone</span>()),
-            <span class="ident">Command</span>::<span class="ident">FinishRemoteTrip</span>(<span class="ident">t</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">FinishRemoteTrip</span>(<span class="kw-2">*</span><span class="ident">t</span>),
             <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="ident">r</span>, <span class="ident">t</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">StartBus</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">*</span><span class="ident">t</span>),
         }
     }
@@ -384,7 +377,6 @@
             <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Intersection</span>,
             <span class="ident">Command</span>::<span class="ident">Callback</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Callback</span>,
             <span class="ident">Command</span>::<span class="ident">Pandemic</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Pandemic</span>,
-            <span class="ident">Command</span>::<span class="ident">FinishRemoteTrip</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">FinishRemoteTrip</span>,
             <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartBus</span>,
         }
     }
@@ -401,7 +393,6 @@
     <span class="ident">Intersection</span>(<span class="ident">IntersectionID</span>),
     <span class="ident">Callback</span>,
     <span class="ident">Pandemic</span>(<span class="ident">pandemic</span>::<span class="ident">Cmd</span>),
-    <span class="ident">FinishRemoteTrip</span>(<span class="ident">TripID</span>),
     <span class="ident">StartBus</span>(<span class="ident">BusRouteID</span>, <span class="ident">Time</span>),
 }
 
@@ -415,7 +406,6 @@
     <span class="ident">Intersection</span>,
     <span class="ident">Callback</span>,
     <span class="ident">Pandemic</span>,
-    <span class="ident">FinishRemoteTrip</span>,
     <span class="ident">StartBus</span>,
 }
 

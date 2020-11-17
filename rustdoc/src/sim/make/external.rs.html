@@ -116,7 +116,7 @@
             <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>.<span class="ident">id</span>), <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
         }
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-            <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
+            <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>.<span class="ident">id</span>), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
         }
         <span class="kw">let</span> <span class="ident">lookup_pt</span> <span class="op">=</span> <span class="op">|</span><span class="ident">endpt</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">endpt</span> {
             <span class="ident">ExternalTripEndpoint</span>::<span class="ident">TripEndpoint</span>(<span class="ident">endpt</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>),

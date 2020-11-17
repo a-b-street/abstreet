@@ -902,8 +902,6 @@
 <span id="901">901</span>
 <span id="902">902</span>
 <span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -1457,8 +1455,6 @@
                     <span class="ident">TripPhaseType</span>::<span class="ident">RidingBus</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;system/assets/timeline/riding_bus.svg&quot;</span>,
                     <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span> <span class="op">|</span> <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                     <span class="ident">TripPhaseType</span>::<span class="ident">DelayedStart</span> <span class="op">=&gt;</span> <span class="string">&quot;system/assets/timeline/delayed_start.svg&quot;</span>,
-                    <span class="comment">// TODO What icon should represent this?</span>
-                    <span class="ident">TripPhaseType</span>::<span class="ident">Remote</span> <span class="op">=&gt;</span> <span class="string">&quot;system/assets/timeline/delayed_start.svg&quot;</span>,
                 },
             )
             .<span class="ident">centered_on</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x1</span> <span class="op">+</span> <span class="ident">phase_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">icon_height</span> <span class="op">/</span> <span class="number">2.0</span>)),
@@ -1797,7 +1793,7 @@
             <span class="kw">let</span> <span class="ident">bldg</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>);
             (<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="kw-2">*</span><span class="ident">b</span>), <span class="ident">bldg</span>.<span class="ident">label_center</span>, <span class="ident">bldg</span>.<span class="ident">address</span>.<span class="ident">clone</span>())
         }
-        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> {
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>);
             (
                 <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>),

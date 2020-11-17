@@ -359,7 +359,7 @@
             ))
             .<span class="ident">centered_on</span>(<span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
                 <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
-                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
+                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
             }),
     );
     <span class="ident">batch</span>.<span class="ident">append</span>(
@@ -372,7 +372,7 @@
             ))
             .<span class="ident">centered_on</span>(<span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
                 <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
-                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
+                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
             }),
     );
 

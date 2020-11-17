@@ -102,17 +102,6 @@
 <span id="101">101</span>
 <span id="102">102</span>
 <span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -122,9 +111,7 @@
     <span class="ident">PathRequest</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">OffMapLocation</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>,
-};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
 
 <span class="doccomment">/// As a simulation runs, different systems emit Events. This cleanly separates the internal</span>
 <span class="doccomment">/// mechanics of the simulation from consumers that just want to know what&#39;s happening.</span>
@@ -148,15 +135,8 @@
     <span class="ident">PersonEntersBuilding</span>(<span class="ident">PersonID</span>, <span class="ident">BuildingID</span>),
     <span class="ident">PersonLeavesBuilding</span>(<span class="ident">PersonID</span>, <span class="ident">BuildingID</span>),
     <span class="doccomment">/// None if cancelled</span>
-    <span class="ident">PersonLeavesMap</span>(
-        <span class="ident">PersonID</span>,
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span>,
-        <span class="ident">IntersectionID</span>,
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>,
-    ),
-    <span class="ident">PersonEntersMap</span>(<span class="ident">PersonID</span>, <span class="ident">AgentID</span>, <span class="ident">IntersectionID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffMapLocation</span><span class="op">&gt;</span>),
-    <span class="ident">PersonEntersRemoteBuilding</span>(<span class="ident">PersonID</span>, <span class="ident">OffMapLocation</span>),
-    <span class="ident">PersonLeavesRemoteBuilding</span>(<span class="ident">PersonID</span>, <span class="ident">OffMapLocation</span>),
+    <span class="ident">PersonLeavesMap</span>(<span class="ident">PersonID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span>, <span class="ident">IntersectionID</span>),
+    <span class="ident">PersonEntersMap</span>(<span class="ident">PersonID</span>, <span class="ident">AgentID</span>, <span class="ident">IntersectionID</span>),
 
     <span class="ident">PedReachedParkingSpot</span>(<span class="ident">PedestrianID</span>, <span class="ident">ParkingSpot</span>),
 
@@ -207,7 +187,6 @@
     <span class="ident">Cancelled</span>,
     <span class="ident">Finished</span>,
     <span class="ident">DelayedStart</span>,
-    <span class="ident">Remote</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TripPhaseType</span> {
@@ -224,7 +203,6 @@
             <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span> <span class="op">=&gt;</span> <span class="string">&quot;Trip was cancelled due to some bug&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> <span class="op">=&gt;</span> <span class="string">&quot;Trip finished&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">TripPhaseType</span>::<span class="ident">DelayedStart</span> <span class="op">=&gt;</span> <span class="string">&quot;Delayed by a previous trip taking too long&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripPhaseType</span>::<span class="ident">Remote</span> <span class="op">=&gt;</span> <span class="string">&quot;Remote trip outside is the map boundaries&quot;</span>.<span class="ident">to_string</span>(),
         }
     }
 }

@@ -555,7 +555,6 @@
 <span id="554">554</span>
 <span id="555">555</span>
 <span id="556">556</span>
-<span id="557">557</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -923,7 +922,7 @@
             }
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hovering</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="prelude-val">None</span>)),
+            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>)),
             <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>)),
             <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
@@ -990,7 +989,7 @@
             <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
                 <span class="ident">Color</span>::<span class="ident">BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
                 <span class="kw">match</span> <span class="ident">endpt</span> {
-                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
+                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
                     <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
                 },
             );
@@ -999,7 +998,7 @@
             <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
                 <span class="ident">Color</span>::<span class="ident">GREEN</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
                 <span class="kw">match</span> <span class="ident">endpt</span> {
-                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
+                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
                     <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
                 },
             );
@@ -1056,9 +1055,8 @@
                         ),
                         <span class="ident">use_vehicle</span>: <span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="number">0</span>].<span class="ident">id</span>,
                         <span class="ident">retry_if_no_room</span>: <span class="bool-val">false</span>,
-                        <span class="ident">origin</span>: <span class="prelude-val">None</span>,
                     },
-                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>),
                     <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                     <span class="bool-val">false</span>,
                     <span class="bool-val">false</span>,
@@ -1082,7 +1080,7 @@
                             <span class="ident">map</span>,
                         ),
                     },
-                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>),
                     <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
                     <span class="bool-val">false</span>,
                     <span class="bool-val">false</span>,
