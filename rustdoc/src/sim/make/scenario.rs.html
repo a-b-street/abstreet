@@ -753,6 +753,21 @@
 <span id="752">752</span>
 <span id="753">753</span>
 <span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -772,7 +787,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">fork_rng</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">Sim</span>,
-    <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">BIKE_LENGTH</span>,
+    <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripSpawner</span>, <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">BIKE_LENGTH</span>,
     <span class="ident">MAX_CAR_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>, <span class="ident">SPAWN_DIST</span>,
 };
 
@@ -883,8 +898,21 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Scenario</span> {
-    <span class="doccomment">/// Any case where map edits could change the calls to the RNG, we have to fork.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Sim</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
+        <span class="self">self</span>.<span class="ident">instantiate_without_retries</span>(<span class="ident">sim</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="bool-val">true</span>, <span class="ident">timer</span>);
+    }
+
+    <span class="doccomment">/// If retry_if_no_room is false, any vehicles that fail to spawn because of something else in</span>
+    <span class="doccomment">/// the way will just wind up as cancelled trips.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate_without_retries</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Sim</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
+        <span class="ident">retry_if_no_room</span>: <span class="ident">bool</span>,
+        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+    ) {
+        <span class="comment">// Any case where map edits could change the calls to the RNG, we have to fork.</span>
         <span class="ident">sim</span>.<span class="ident">set_name</span>(<span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>());
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Instantiating {}&quot;</span>, <span class="self">self</span>.<span class="ident">scenario_name</span>));
@@ -930,6 +958,7 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp_rng</span> <span class="op">=</span> <span class="ident">fork_rng</span>(<span class="ident">rng</span>);
                 <span class="kw">let</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">trip</span>.<span class="ident">clone</span>().<span class="ident">to_trip_spec</span>(
                     <span class="ident">maybe_idx</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">id</span>),
+                    <span class="ident">retry_if_no_room</span>,
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp_rng</span>,
                     <span class="ident">map</span>,
                 );
@@ -946,13 +975,13 @@
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">make_spawner</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">TripSpawner</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(
             <span class="string">&quot;schedule trips&quot;</span>,
             <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
             <span class="ident">schedule_trips</span>,
             <span class="op">|</span><span class="ident">tuple</span><span class="op">|</span> {
-                <span class="ident">spawner</span>.<span class="ident">schedule_trip_fast</span>(
+                <span class="ident">spawner</span>.<span class="ident">schedule_trip</span>(
                     <span class="ident">tuple</span>.<span class="number">0</span>, <span class="ident">tuple</span>.<span class="number">1</span>, <span class="ident">tuple</span>.<span class="number">2</span>, <span class="ident">tuple</span>.<span class="number">3</span>, <span class="ident">tuple</span>.<span class="number">4</span>, <span class="ident">tuple</span>.<span class="number">5</span>, <span class="ident">tuple</span>.<span class="number">6</span>, <span class="ident">tuple</span>.<span class="number">7</span>,
                 )
             },
@@ -983,7 +1012,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rand_car</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-&gt;</span> <span class="ident">VehicleSpec</span> {
+    <span class="kw">fn</span> <span class="ident">rand_car</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-&gt;</span> <span class="ident">VehicleSpec</span> {
         <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">Scenario</span>::<span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="ident">MIN_CAR_LENGTH</span>, <span class="ident">MAX_CAR_LENGTH</span>);
         <span class="ident">VehicleSpec</span> {
             <span class="ident">vehicle_type</span>: <span class="ident">VehicleType</span>::<span class="ident">Car</span>,
@@ -992,7 +1021,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rand_bike</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-&gt;</span> <span class="ident">VehicleSpec</span> {
+    <span class="kw">fn</span> <span class="ident">rand_bike</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-&gt;</span> <span class="ident">VehicleSpec</span> {
         <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Scenario</span>::<span class="ident">rand_speed</span>(
             <span class="ident">rng</span>,
             <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">8.0</span>),
@@ -1187,6 +1216,7 @@
     <span class="kw">fn</span> <span class="ident">to_trip_spec</span>(
         <span class="self">self</span>,
         <span class="ident">use_vehicle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
+        <span class="ident">retry_if_no_room</span>: <span class="ident">bool</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-&gt;</span> <span class="ident">TripSpec</span> {
@@ -1195,7 +1225,7 @@
                 <span class="ident">start_pos</span>: <span class="ident">start</span>,
                 <span class="ident">goal</span>,
                 <span class="ident">use_vehicle</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
-                <span class="ident">retry_if_no_room</span>: <span class="bool-val">true</span>,
+                <span class="ident">retry_if_no_room</span>,
             },
             <span class="ident">SpawnTrip</span>::<span class="ident">FromBorder</span> { <span class="ident">dr</span>, <span class="ident">goal</span>, <span class="ident">is_bike</span> } <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_bike</span> {
@@ -1208,7 +1238,7 @@
                         <span class="ident">start_pos</span>: <span class="ident">Position</span>::<span class="ident">new</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">SPAWN_DIST</span>),
                         <span class="ident">goal</span>,
                         <span class="ident">use_vehicle</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
-                        <span class="ident">retry_if_no_room</span>: <span class="bool-val">true</span>,
+                        <span class="ident">retry_if_no_room</span>,
                     }
                 } <span class="kw">else</span> {
                     <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> {

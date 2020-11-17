@@ -395,23 +395,6 @@
 <span id="394">394</span>
 <span id="395">395</span>
 <span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/dabreegster/abstreet/issues/258</span>
@@ -490,7 +473,7 @@
 
     <span class="doccomment">/// Doesn&#39;t actually schedule anything yet; you can call this from multiple threads, then feed</span>
     <span class="doccomment">/// all the results to schedule_trips.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">schedule_trip_fast</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">schedule_trip</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">person</span>: <span class="ident">PersonID</span>,
         <span class="ident">start_time</span>: <span class="ident">Time</span>,
@@ -600,23 +583,6 @@
         (
             <span class="ident">person</span>, <span class="ident">start_time</span>, <span class="ident">spec</span>, <span class="ident">trip_start</span>, <span class="ident">purpose</span>, <span class="ident">cancelled</span>, <span class="ident">modified</span>,
         )
-    }
-
-    <span class="doccomment">/// Immediately schedule the requested trip</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">schedule_trip</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">person</span>: <span class="ident">PersonID</span>,
-        <span class="ident">start_time</span>: <span class="ident">Time</span>,
-        <span class="ident">spec</span>: <span class="ident">TripSpec</span>,
-        <span class="ident">trip_start</span>: <span class="ident">TripEndpoint</span>,
-        <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
-        <span class="ident">cancelled</span>: <span class="ident">bool</span>,
-        <span class="ident">modified</span>: <span class="ident">bool</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) {
-        <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">schedule_trip_fast</span>(
-            <span class="ident">person</span>, <span class="ident">start_time</span>, <span class="ident">spec</span>, <span class="ident">trip_start</span>, <span class="ident">purpose</span>, <span class="ident">cancelled</span>, <span class="ident">modified</span>, <span class="ident">map</span>,
-        ));
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">schedule_trips</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripSpawnPlan</span><span class="op">&gt;</span>) {

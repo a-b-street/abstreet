@@ -662,6 +662,7 @@
 <span id="661">661</span>
 <span id="662">662</span>
 <span id="663">663</span>
+<span id="664">664</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also</span>
 <span class="doccomment">//! https://dabreegster.github.io/abstreet/trafficsim/index.html.</span>
@@ -700,8 +701,9 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">make</span>::{
     <span class="ident">BorderSpawnOverTime</span>, <span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>, <span class="ident">ExternalTripEndpoint</span>, <span class="ident">IndividTrip</span>,
     <span class="ident">OriginDestination</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">SimFlags</span>,
-    <span class="ident">SpawnOverTime</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripPurpose</span>, <span class="ident">TripSpawner</span>, <span class="ident">TripSpec</span>,
+    <span class="ident">SpawnOverTime</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripPurpose</span>,
 };
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">make</span>::{<span class="ident">TripSpawner</span>, <span class="ident">TripSpec</span>};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">mechanics</span>::{
     <span class="ident">DrivingSimState</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>, <span class="ident">WalkingSimState</span>,
 };
