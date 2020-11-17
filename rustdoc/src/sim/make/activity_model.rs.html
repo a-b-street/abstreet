@@ -330,6 +330,8 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.</span>
 <span class="doccomment">//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go</span>
@@ -492,6 +494,8 @@
                     (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
                         <span class="ident">num_trips_passthru</span> <span class="op">+=</span> <span class="number">1</span>;
                     }
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>), <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    (<span class="kw">_</span>, <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                 };
 
                 (<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">fork_rng</span>(<span class="ident">rng</span>))

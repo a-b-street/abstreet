@@ -666,6 +666,8 @@
 <span id="665">665</span>
 <span id="666">666</span>
 <span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -1052,6 +1054,7 @@
                 }
             }
             <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;off-map&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;suddenly appear&quot;</span>.<span class="ident">to_string</span>(),
         };
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -1081,6 +1084,7 @@
             }
         }
         <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;off-map&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;suddenly disappear&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(

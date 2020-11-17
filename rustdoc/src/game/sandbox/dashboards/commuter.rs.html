@@ -702,6 +702,10 @@
 <span id="701">701</span>
 <span id="702">702</span>
 <span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -790,10 +794,12 @@
             <span class="kw">let</span> <span class="ident">block1</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
                 <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>],
                 <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>],
+                <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="kw">continue</span>,
             };
             <span class="kw">let</span> <span class="ident">block2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
                 <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>],
                 <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>],
+                <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="kw">continue</span>,
             };
             <span class="comment">// Totally ignore trips within the same block</span>
             <span class="kw">if</span> <span class="ident">block1</span> <span class="op">!=</span> <span class="ident">block2</span> {
@@ -856,6 +862,7 @@
                             <span class="ident">count</span>.<span class="ident">inc</span>(<span class="self">self</span>.<span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>]);
                         }
                     }
+                    <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {}
                 }
             } <span class="kw">else</span> {
                 <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
@@ -867,6 +874,7 @@
                             <span class="ident">count</span>.<span class="ident">inc</span>(<span class="self">self</span>.<span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>]);
                         }
                     }
+                    <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {}
                 }
             }
         }

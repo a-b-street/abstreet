@@ -902,6 +902,14 @@
 <span id="901">901</span>
 <span id="902">902</span>
 <span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -1804,6 +1812,14 @@
                 ),
             )
         }
+        <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">pos</span>) <span class="op">=&gt;</span> (
+            <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()),
+            <span class="ident">pos</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
+            <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;suddenly appear {} along&quot;</span>,
+                <span class="ident">pos</span>.<span class="ident">dist_along</span>().<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+            ),
+        ),
     }
 }
 </pre></div>
