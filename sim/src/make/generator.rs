@@ -10,11 +10,13 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Duration, Time};
-use map_model::{BuildingID, DirectedRoadID, Map, PathConstraints};
+use map_model::{IntersectionID, Map};
 
 use crate::{
-    DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip, TripPurpose,
+    IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, TripMode, TripPurpose,
 };
+
+// TODO This can be simplified dramatically.
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct ScenarioGenerator {
@@ -34,7 +36,7 @@ pub struct SpawnOverTime {
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_time: Time,
     pub stop_time: Time,
-    pub goal: OriginDestination,
+    pub goal: Option<TripEndpoint>,
     pub percent_driving: f64,
     pub percent_biking: f64,
     pub percent_use_transit: f64,
@@ -49,8 +51,8 @@ pub struct BorderSpawnOverTime {
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_time: Time,
     pub stop_time: Time,
-    pub start_from_border: DirectedRoadID,
-    pub goal: OriginDestination,
+    pub start_from_border: IntersectionID,
+    pub goal: Option<TripEndpoint>,
 }
 
 impl ScenarioGenerator {
@@ -65,30 +67,27 @@ impl ScenarioGenerator {
             timer.start_iter("SpawnOverTime each agent", s.num_agents);
             for _ in 0..s.num_agents {
                 timer.next();
-                s.spawn_agent(rng, &mut scenario, map, timer);
+                s.spawn_agent(rng, &mut scenario, map);
             }
         }
 
         timer.start_iter("BorderSpawnOverTime", self.border_spawn_over_time.len());
         for s in &self.border_spawn_over_time {
             timer.next();
-            s.spawn_peds(rng, &mut scenario, map, timer);
-            s.spawn_vehicles(
-                s.num_cars,
-                PathConstraints::Car,
-                rng,
-                &mut scenario,
-                map,
-                timer,
-            );
-            s.spawn_vehicles(
-                s.num_bikes,
-                PathConstraints::Bike,
-                rng,
-                &mut scenario,
-                map,
-                timer,
-            );
+            for _ in 0..s.num_peds {
+                let mode = if rng.gen_bool(s.percent_use_transit) {
+                    TripMode::Transit
+                } else {
+                    TripMode::Walk
+                };
+                s.spawn(rng, &mut scenario, mode, map);
+            }
+            for _ in 0..s.num_cars {
+                s.spawn(rng, &mut scenario, TripMode::Drive, map);
+            }
+            for _ in 0..s.num_bikes {
+                s.spawn(rng, &mut scenario, TripMode::Bike, map);
+            }
         }
 
         timer.stop(format!("Generating scenario {}", self.scenario_name));
@@ -103,7 +102,7 @@ impl ScenarioGenerator {
                 num_agents: 100,
                 start_time: Time::START_OF_DAY,
                 stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                goal: OriginDestination::Anywhere,
+                goal: None,
                 percent_driving: 0.5,
                 percent_biking: 0.5,
                 percent_use_transit: 0.5,
@@ -119,8 +118,8 @@ impl ScenarioGenerator {
                     num_bikes: 10,
                     start_time: Time::START_OF_DAY,
                     stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                    start_from_border: i.some_outgoing_road(map).unwrap(),
-                    goal: OriginDestination::Anywhere,
+                    start_from_border: i.id,
+                    goal: None,
                     percent_use_transit: 0.5,
                 })
                 .collect(),
@@ -130,7 +129,7 @@ impl ScenarioGenerator {
                 num_agents: 10,
                 start_time: Time::START_OF_DAY,
                 stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                goal: OriginDestination::EndOfRoad(i.some_incoming_road(map).unwrap()),
+                goal: Some(TripEndpoint::Border(i.id)),
                 percent_driving: 0.5,
                 percent_biking: 0.5,
                 percent_use_transit: 0.5,
@@ -157,7 +156,7 @@ impl ScenarioGenerator {
                 num_agents: num_agents,
                 start_time: Time::START_OF_DAY,
                 stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                goal: OriginDestination::Anywhere,
+                goal: None,
                 percent_driving: 0.5,
                 percent_biking: 0.5,
                 percent_use_transit: 0.5,
@@ -168,246 +167,55 @@ impl ScenarioGenerator {
 }
 
 impl SpawnOverTime {
-    fn spawn_agent(
-        &self,
-        rng: &mut XorShiftRng,
-        scenario: &mut Scenario,
-        map: &Map,
-        timer: &mut Timer,
-    ) {
+    fn spawn_agent(&self, rng: &mut XorShiftRng, scenario: &mut Scenario, map: &Map) {
         let depart = rand_time(rng, self.start_time, self.stop_time);
         // Note that it's fine for agents to start/end at the same building. Later we might
         // want a better assignment of people per household, or workers per office building.
         let from_bldg = map.all_buildings().choose(rng).unwrap().id;
         let id = PersonID(scenario.people.len());
-
-        if rng.gen_bool(self.percent_driving) {
-            if let Some(goal) = self
-                .goal
-                .pick_driving_goal(PathConstraints::Car, map, rng, timer)
-            {
-                scenario.people.push(PersonSpec {
-                    id,
-                    orig_id: None,
-                    trips: vec![IndividTrip::new(
-                        depart,
-                        TripPurpose::Shopping,
-                        SpawnTrip::UsingParkedCar(from_bldg, goal),
-                    )],
-                });
-                return;
-            }
-        }
-
-        if rng.gen_bool(self.percent_biking) {
-            if let Some(goal) = self
-                .goal
-                .pick_driving_goal(PathConstraints::Bike, map, rng, timer)
-            {
-                scenario.people.push(PersonSpec {
-                    id,
-                    orig_id: None,
-                    trips: vec![IndividTrip::new(
-                        depart,
-                        TripPurpose::Shopping,
-                        SpawnTrip::UsingBike(from_bldg, goal),
-                    )],
-                });
-                return;
-            }
-        }
-
-        let start_spot = SidewalkSpot::building(from_bldg, map);
-        if let Some(goal) = self.goal.pick_walking_goal(map, rng, timer) {
-            if start_spot == goal {
-                timer.warn("Skipping walking trip between same two buildings".to_string());
-                return;
-            }
-
-            if rng.gen_bool(self.percent_use_transit) {
-                // TODO This throws away some work. It also sequentially does expensive
-                // work right here.
-                if let Some((stop1, maybe_stop2, route)) =
-                    map.should_use_transit(start_spot.sidewalk_pos, goal.sidewalk_pos)
-                {
-                    scenario.people.push(PersonSpec {
-                        id,
-                        orig_id: None,
-                        trips: vec![IndividTrip::new(
-                            depart,
-                            TripPurpose::Shopping,
-                            SpawnTrip::UsingTransit(start_spot, goal, route, stop1, maybe_stop2),
-                        )],
-                    });
-                    return;
-                }
-            }
-
+        let mode = if rng.gen_bool(self.percent_driving) {
+            TripMode::Drive
+        } else if rng.gen_bool(self.percent_biking) {
+            TripMode::Bike
+        } else if rng.gen_bool(self.percent_use_transit) {
+            TripMode::Transit
+        } else {
+            TripMode::Walk
+        };
+        if let Some(trip) = SpawnTrip::new(
+            TripEndpoint::Bldg(from_bldg),
+            self.goal
+                .clone()
+                .unwrap_or_else(|| TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)),
+            mode,
+            map,
+        ) {
             scenario.people.push(PersonSpec {
                 id,
                 orig_id: None,
-                trips: vec![IndividTrip::new(
-                    depart,
-                    TripPurpose::Shopping,
-                    SpawnTrip::JustWalking(start_spot, goal),
-                )],
+                trips: vec![IndividTrip::new(depart, TripPurpose::Shopping, trip)],
             });
-            return;
         }
-
-        timer.warn(format!("Couldn't fulfill {:?} at all", self));
     }
 }
 
 impl BorderSpawnOverTime {
-    fn spawn_peds(
-        &self,
-        rng: &mut XorShiftRng,
-        scenario: &mut Scenario,
-        map: &Map,
-        timer: &mut Timer,
-    ) {
-        if self.num_peds == 0 {
-            return;
-        }
-
-        let start = if let Some(s) =
-            SidewalkSpot::start_at_border(self.start_from_border.src_i(map), map)
-        {
-            s
-        } else {
-            timer.warn(format!(
-                "Can't start_at_border for {} without sidewalk",
-                self.start_from_border
-            ));
-            return;
-        };
-
-        for _ in 0..self.num_peds {
-            let depart = rand_time(rng, self.start_time, self.stop_time);
-            let id = PersonID(scenario.people.len());
-            if let Some(goal) = self.goal.pick_walking_goal(map, rng, timer) {
-                if rng.gen_bool(self.percent_use_transit) {
-                    // TODO This throws away some work. It also sequentially does expensive
-                    // work right here.
-                    if let Some((stop1, maybe_stop2, route)) =
-                        map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
-                    {
-                        scenario.people.push(PersonSpec {
-                            id,
-                            orig_id: None,
-                            trips: vec![IndividTrip::new(
-                                depart,
-                                TripPurpose::Shopping,
-                                SpawnTrip::UsingTransit(
-                                    start.clone(),
-                                    goal,
-                                    route,
-                                    stop1,
-                                    maybe_stop2,
-                                ),
-                            )],
-                        });
-                        continue;
-                    }
-                }
-
-                scenario.people.push(PersonSpec {
-                    id,
-                    orig_id: None,
-                    trips: vec![IndividTrip::new(
-                        depart,
-                        TripPurpose::Shopping,
-                        SpawnTrip::JustWalking(start.clone(), goal),
-                    )],
-                });
-            }
-        }
-    }
-
-    fn spawn_vehicles(
-        &self,
-        num: usize,
-        constraints: PathConstraints,
-        rng: &mut XorShiftRng,
-        scenario: &mut Scenario,
-        map: &Map,
-        timer: &mut Timer,
-    ) {
-        for _ in 0..num {
-            let depart = rand_time(rng, self.start_time, self.stop_time);
-            if let Some(goal) = self.goal.pick_driving_goal(constraints, map, rng, timer) {
-                let id = PersonID(scenario.people.len());
-                scenario.people.push(PersonSpec {
-                    id,
-                    orig_id: None,
-                    trips: vec![IndividTrip::new(
-                        depart,
-                        TripPurpose::Shopping,
-                        SpawnTrip::FromBorder {
-                            dr: self.start_from_border,
-                            goal,
-                            is_bike: constraints == PathConstraints::Bike,
-                        },
-                    )],
-                });
-            }
-        }
-    }
-}
-
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub enum OriginDestination {
-    Anywhere,
-    EndOfRoad(DirectedRoadID),
-    GotoBldg(BuildingID),
-}
-
-impl OriginDestination {
-    fn pick_driving_goal(
-        &self,
-        constraints: PathConstraints,
-        map: &Map,
-        rng: &mut XorShiftRng,
-        timer: &mut Timer,
-    ) -> Option<DrivingGoal> {
-        match self {
-            OriginDestination::Anywhere => Some(DrivingGoal::ParkNear(
-                map.all_buildings().choose(rng).unwrap().id,
-            )),
-            OriginDestination::GotoBldg(b) => Some(DrivingGoal::ParkNear(*b)),
-            OriginDestination::EndOfRoad(dr) => {
-                let goal = DrivingGoal::end_at_border(*dr, constraints, map);
-                if goal.is_none() {
-                    timer.warn(format!(
-                        "Can't spawn a {:?} ending at border {}; no appropriate lanes there",
-                        constraints, dr
-                    ));
-                }
-                goal
-            }
-        }
-    }
-
-    fn pick_walking_goal(
-        &self,
-        map: &Map,
-        rng: &mut XorShiftRng,
-        timer: &mut Timer,
-    ) -> Option<SidewalkSpot> {
-        match self {
-            OriginDestination::Anywhere => Some(SidewalkSpot::building(
-                map.all_buildings().choose(rng).unwrap().id,
-                map,
-            )),
-            OriginDestination::EndOfRoad(dr) => {
-                let goal = SidewalkSpot::end_at_border(dr.dst_i(map), map);
-                if goal.is_none() {
-                    timer.warn(format!("Can't end_at_border for {} without a sidewalk", dr));
-                }
-                goal
-            }
-            OriginDestination::GotoBldg(b) => Some(SidewalkSpot::building(*b, map)),
+    fn spawn(&self, rng: &mut XorShiftRng, scenario: &mut Scenario, mode: TripMode, map: &Map) {
+        let depart = rand_time(rng, self.start_time, self.stop_time);
+        let id = PersonID(scenario.people.len());
+        if let Some(trip) = SpawnTrip::new(
+            TripEndpoint::Border(self.start_from_border),
+            self.goal
+                .clone()
+                .unwrap_or_else(|| TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)),
+            mode,
+            map,
+        ) {
+            scenario.people.push(PersonSpec {
+                id,
+                orig_id: None,
+                trips: vec![IndividTrip::new(depart, TripPurpose::Shopping, trip)],
+            });
         }
     }
 }

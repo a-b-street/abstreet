@@ -3,11 +3,10 @@ use std::collections::BTreeSet;
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::raw::OriginalRoad;
-use map_model::{osm, BuildingID, DirectedRoadID, Direction, Map, Position};
+use map_model::{osm, BuildingID, Map, Position};
 use sim::{
-    AgentID, Analytics, BorderSpawnOverTime, CarID, IndividTrip, OriginDestination, PersonID,
-    PersonSpec, Scenario, ScenarioGenerator, SpawnOverTime, SpawnTrip, TripEndpoint, TripMode,
-    TripPurpose, VehicleType,
+    AgentID, Analytics, BorderSpawnOverTime, CarID, IndividTrip, PersonID, PersonSpec, Scenario,
+    ScenarioGenerator, SpawnOverTime, SpawnTrip, TripEndpoint, TripMode, TripPurpose, VehicleType,
 };
 use widgetry::{
     hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -27,7 +26,7 @@ use crate::sandbox::{
 };
 
 const ESCORT: CarID = CarID(0, VehicleType::Car);
-const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(60.0);
+const CAR_BIKE_CONTENTION_GOAL: Duration = Duration::const_seconds(15.0);
 
 pub struct Tutorial {
     top_center: Panel,
@@ -656,13 +655,10 @@ fn make_bike_lane_scenario(map: &Map) -> ScenarioGenerator {
         percent_use_transit: 0.0,
         start_time: Time::START_OF_DAY,
         stop_time: Time::START_OF_DAY + Duration::seconds(10.0),
-        start_from_border: DirectedRoadID {
-            id: map
-                .find_r_by_osm_id(OriginalRoad::new(263665925, (2499826475, 53096959)))
-                .unwrap(),
-            dir: Direction::Back,
-        },
-        goal: OriginDestination::GotoBldg(map.find_b_by_osm_id(bldg(217699501)).unwrap()),
+        start_from_border: map.find_i_by_osm_id(osm::NodeID(3005680098)).unwrap(),
+        goal: Some(TripEndpoint::Bldg(
+            map.find_b_by_osm_id(bldg(217699501)).unwrap(),
+        )),
     });
     s
 }
@@ -1175,7 +1171,7 @@ impl TutorialState {
                             num_agents: 1000,
                             start_time: Time::START_OF_DAY,
                             stop_time: Time::START_OF_DAY + Duration::hours(3),
-                            goal: OriginDestination::Anywhere,
+                            goal: None,
                             percent_driving: 1.0,
                             percent_biking: 0.0,
                             percent_use_transit: 0.0,

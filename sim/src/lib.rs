@@ -34,8 +34,8 @@ pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{
     BorderSpawnOverTime, ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip,
-    OriginDestination, PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags,
-    SpawnOverTime, SpawnTrip, TripPurpose,
+    PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags, SpawnOverTime, SpawnTrip,
+    TripPurpose,
 };
 pub(crate) use self::make::{TripSpawner, TripSpec};
 pub(crate) use self::mechanics::{
