@@ -16,7 +16,7 @@ use map_model::{
 use crate::make::fork_rng;
 use crate::{
     CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
-    TripEndpoint, TripMode, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
+    TripEndpoint, TripMode, TripSpawner, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
     MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 
@@ -127,8 +127,21 @@ impl fmt::Display for TripPurpose {
 }
 
 impl Scenario {
-    /// Any case where map edits could change the calls to the RNG, we have to fork.
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
+        self.instantiate_without_retries(sim, map, rng, true, timer);
+    }
+
+    /// If retry_if_no_room is false, any vehicles that fail to spawn because of something else in
+    /// the way will just wind up as cancelled trips.
+    pub fn instantiate_without_retries(
+        &self,
+        sim: &mut Sim,
+        map: &Map,
+        rng: &mut XorShiftRng,
+        retry_if_no_room: bool,
+        timer: &mut Timer,
+    ) {
+        // Any case where map edits could change the calls to the RNG, we have to fork.
         sim.set_name(self.scenario_name.clone());
 
         timer.start(format!("Instantiating {}", self.scenario_name));
@@ -174,6 +187,7 @@ impl Scenario {
                 let mut tmp_rng = fork_rng(rng);
                 let spec = t.trip.clone().to_trip_spec(
                     maybe_idx.map(|idx| person.vehicles[idx].id),
+                    retry_if_no_room,
                     &mut tmp_rng,
                     map,
                 );
@@ -190,13 +204,13 @@ impl Scenario {
             }
         }
 
-        let mut spawner = sim.make_spawner();
+        let mut spawner = TripSpawner::new();
         let results = timer.parallelize(
             "schedule trips",
             Parallelism::Fastest,
             schedule_trips,
             |tuple| {
-                spawner.schedule_trip_fast(
+                spawner.schedule_trip(
                     tuple.0, tuple.1, tuple.2, tuple.3, tuple.4, tuple.5, tuple.6, tuple.7,
                 )
             },
@@ -227,7 +241,7 @@ impl Scenario {
         }
     }
 
-    pub fn rand_car(rng: &mut XorShiftRng) -> VehicleSpec {
+    fn rand_car(rng: &mut XorShiftRng) -> VehicleSpec {
         let length = Scenario::rand_dist(rng, MIN_CAR_LENGTH, MAX_CAR_LENGTH);
         VehicleSpec {
             vehicle_type: VehicleType::Car,
@@ -236,7 +250,7 @@ impl Scenario {
         }
     }
 
-    pub fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
+    fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
         let max_speed = Some(Scenario::rand_speed(
             rng,
             Speed::miles_per_hour(8.0),
@@ -431,6 +445,7 @@ impl SpawnTrip {
     fn to_trip_spec(
         self,
         use_vehicle: Option<CarID>,
+        retry_if_no_room: bool,
         rng: &mut XorShiftRng,
         map: &Map,
     ) -> TripSpec {
@@ -439,7 +454,7 @@ impl SpawnTrip {
                 start_pos: start,
                 goal,
                 use_vehicle: use_vehicle.unwrap(),
-                retry_if_no_room: true,
+                retry_if_no_room,
             },
             SpawnTrip::FromBorder { dr, goal, is_bike } => {
                 let constraints = if is_bike {
@@ -452,7 +467,7 @@ impl SpawnTrip {
                         start_pos: Position::new(*l, SPAWN_DIST),
                         goal,
                         use_vehicle: use_vehicle.unwrap(),
-                        retry_if_no_room: true,
+                        retry_if_no_room,
                     }
                 } else {
                     TripSpec::SpawningFailure {

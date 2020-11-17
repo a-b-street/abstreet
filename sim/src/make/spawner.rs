@@ -75,7 +75,7 @@ impl TripSpawner {
 
     /// Doesn't actually schedule anything yet; you can call this from multiple threads, then feed
     /// all the results to schedule_trips.
-    pub fn schedule_trip_fast(
+    pub fn schedule_trip(
         &self,
         person: PersonID,
         start_time: Time,
@@ -185,23 +185,6 @@ impl TripSpawner {
         (
             person, start_time, spec, trip_start, purpose, cancelled, modified,
         )
-    }
-
-    /// Immediately schedule the requested trip
-    pub fn schedule_trip(
-        &mut self,
-        person: PersonID,
-        start_time: Time,
-        spec: TripSpec,
-        trip_start: TripEndpoint,
-        purpose: TripPurpose,
-        cancelled: bool,
-        modified: bool,
-        map: &Map,
-    ) {
-        self.trips.push(self.schedule_trip_fast(
-            person, start_time, spec, trip_start, purpose, cancelled, modified, map,
-        ));
     }
 
     pub fn schedule_trips(&mut self, trips: Vec<TripSpawnPlan>) {

@@ -80,11 +80,6 @@ impl TripManager {
             on_bus: None,
         });
     }
-    pub fn random_person(&mut self, ped_speed: Speed, vehicle_specs: Vec<VehicleSpec>) -> &Person {
-        let id = PersonID(self.people.len());
-        self.new_person(id, None, ped_speed, vehicle_specs);
-        self.get_person(id).unwrap()
-    }
 
     pub fn new_car_id(&mut self) -> usize {
         let id = self.car_id_counter;

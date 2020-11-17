@@ -35,8 +35,9 @@ pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{
     BorderSpawnOverTime, ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip,
     OriginDestination, PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags,
-    SpawnOverTime, SpawnTrip, TripPurpose, TripSpawner, TripSpec,
+    SpawnOverTime, SpawnTrip, TripPurpose,
 };
+pub(crate) use self::make::{TripSpawner, TripSpec};
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
 };

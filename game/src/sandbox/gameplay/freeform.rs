@@ -5,8 +5,7 @@ use abstutil::Timer;
 use geom::{Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{
-    DrivingGoal, IndividTrip, PersonID, PersonSpec, Scenario, SidewalkSpot, SpawnTrip,
-    TripEndpoint, TripMode, TripPurpose, TripSpec,
+    IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, TripMode, TripPurpose,
 };
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -455,9 +454,8 @@ impl State<App> for AgentSpawner {
 
 pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
     let map = &app.primary.map;
-    let sim = &mut app.primary.sim;
     let mut rng = app.primary.current_flags.sim_flags.make_rng();
-    let mut spawner = sim.make_spawner();
+    let mut scenario = Scenario::empty(map, "one-shot");
 
     if map.all_buildings().is_empty() {
         println!("No buildings, can't pick destinations");
@@ -469,79 +467,71 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
         i, app.primary.current_flags.sim_flags.rng_seed
     ));
 
-    let now = sim.time();
     for l in &map.get_i(i).incoming_lanes {
         let lane = map.get_l(*l);
         if lane.is_driving() || lane.is_biking() {
             for _ in 0..10 {
-                let vehicle_spec = if rng.gen_bool(0.7) && lane.is_driving() {
-                    Scenario::rand_car(&mut rng)
+                let mode = if rng.gen_bool(0.7) && lane.is_driving() {
+                    TripMode::Drive
                 } else {
-                    Scenario::rand_bike(&mut rng)
+                    TripMode::Bike
                 };
-                if vehicle_spec.length > lane.length() {
-                    continue;
-                }
-                let person = sim.random_person(
-                    Scenario::rand_ped_speed(&mut rng),
-                    vec![vehicle_spec.clone()],
-                );
-                spawner.schedule_trip(
-                    person.id,
-                    now,
-                    TripSpec::VehicleAppearing {
-                        start_pos: Position::new(
-                            lane.id,
-                            Scenario::rand_dist(&mut rng, vehicle_spec.length, lane.length()),
-                        ),
-                        goal: DrivingGoal::ParkNear(
-                            map.all_buildings().choose(&mut rng).unwrap().id,
-                        ),
-                        use_vehicle: person.vehicles[0].id,
-                        retry_if_no_room: false,
-                    },
-                    TripEndpoint::Border(lane.src_i),
-                    TripPurpose::Shopping,
-                    false,
-                    false,
-                    map,
-                );
+                scenario.people.push(PersonSpec {
+                    id: PersonID(app.primary.sim.get_all_people().len() + scenario.people.len()),
+                    orig_id: None,
+                    trips: vec![IndividTrip::new(
+                        app.primary.sim.time(),
+                        TripPurpose::Shopping,
+                        SpawnTrip::new(
+                            TripEndpoint::SuddenlyAppear(Position::new(
+                                lane.id,
+                                Scenario::rand_dist(&mut rng, Distance::ZERO, lane.length()),
+                            )),
+                            TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
+                            mode,
+                            map,
+                        )
+                        .unwrap(),
+                    )],
+                });
             }
         } else if lane.is_walkable() {
             for _ in 0..5 {
-                spawner.schedule_trip(
-                    sim.random_person(Scenario::rand_ped_speed(&mut rng), Vec::new())
-                        .id,
-                    now,
-                    TripSpec::JustWalking {
-                        start: SidewalkSpot::suddenly_appear(
-                            Position::new(
+                scenario.people.push(PersonSpec {
+                    id: PersonID(app.primary.sim.get_all_people().len() + scenario.people.len()),
+                    orig_id: None,
+                    trips: vec![IndividTrip::new(
+                        app.primary.sim.time(),
+                        TripPurpose::Shopping,
+                        SpawnTrip::new(
+                            TripEndpoint::SuddenlyAppear(Position::new(
                                 lane.id,
                                 Scenario::rand_dist(
                                     &mut rng,
                                     0.1 * lane.length(),
                                     0.9 * lane.length(),
                                 ),
-                            ),
+                            )),
+                            TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
+                            TripMode::Walk,
                             map,
-                        ),
-                        goal: SidewalkSpot::building(
-                            map.all_buildings().choose(&mut rng).unwrap().id,
-                            map,
-                        ),
-                    },
-                    TripEndpoint::Border(lane.src_i),
-                    TripPurpose::Shopping,
-                    false,
-                    false,
-                    map,
-                );
+                        )
+                        .unwrap(),
+                    )],
+                });
             }
         }
     }
 
-    sim.flush_spawner(spawner, map, &mut timer);
-    sim.tiny_step(map, &mut app.primary.sim_cb);
+    let retry_if_no_room = false;
+    scenario.instantiate_without_retries(
+        &mut app.primary.sim,
+        map,
+        &mut rng,
+        retry_if_no_room,
+        &mut timer,
+    );
+    app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
 }
 
 pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {
