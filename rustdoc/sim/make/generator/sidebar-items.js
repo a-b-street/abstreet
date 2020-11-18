@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["OriginDestination",""]],"fn":[["rand_time",""]],"struct":[["BorderSpawnOverTime",""],["ScenarioGenerator",""],["SpawnOverTime",""]]});
+initSidebarItems({"fn":[["rand_time",""]],"struct":[["BorderSpawnOverTime",""],["ScenarioGenerator",""],["SpawnOverTime",""]]});
