@@ -276,15 +276,10 @@ fn create_prole(
         // Fix this outside the parallelism
         id: PersonID(0),
         orig_id: None,
+        origin: home.clone(),
         trips: vec![
-            IndividTrip::new(
-                depart_am,
-                TripPurpose::Work,
-                home.clone(),
-                work.clone(),
-                mode,
-            ),
-            IndividTrip::new(depart_pm, TripPurpose::Home, work, home, mode),
+            IndividTrip::new(depart_am, TripPurpose::Work, work, mode),
+            IndividTrip::new(depart_pm, TripPurpose::Home, home, mode),
         ],
     })
 }

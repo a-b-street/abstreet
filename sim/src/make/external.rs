@@ -54,20 +54,17 @@ impl ExternalPerson {
             let mut spec = PersonSpec {
                 id: PersonID(results.len()),
                 orig_id: None,
+                origin: lookup_pt(person.origin)?,
                 trips: Vec::new(),
             };
-            let mut from = lookup_pt(person.origin)?;
             for trip in person.trips {
-                let to = lookup_pt(trip.destination)?;
                 // TODO Add space in the API to specify purpose, but probably make it optional.
                 spec.trips.push(IndividTrip::new(
                     trip.departure,
                     TripPurpose::Shopping,
-                    from.clone(),
-                    to.clone(),
+                    lookup_pt(trip.destination)?,
                     trip.mode,
                 ));
-                from = to;
             }
             results.push(spec);
         }

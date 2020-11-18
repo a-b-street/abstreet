@@ -1287,6 +1287,7 @@ impl TripManager {
             scenario.people.push(PersonSpec {
                 id: p.id,
                 orig_id: p.orig_id,
+                origin: self.trips[p.trips[0].0].info.start.clone(),
                 trips: p
                     .trips
                     .iter()
@@ -1295,7 +1296,6 @@ impl TripManager {
                         IndividTrip::new(
                             trip.info.departure,
                             trip.info.purpose,
-                            trip.info.start.clone(),
                             trip.info.end.clone(),
                             trip.info.mode,
                         )

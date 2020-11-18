@@ -242,18 +242,21 @@ pub fn make_weekday_scenario(
     huge_map: &Map,
     timer: &mut Timer,
 ) -> Scenario {
-    let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
+    // Include the origin with each trip
+    let mut individ_trips: Vec<Option<(TripEndpoint, IndividTrip)>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
         MultiMap::new();
     for trip in clip_trips(map, popdat, huge_map, timer) {
         let idx = individ_trips.len();
-        individ_trips.push(Some(IndividTrip::new(
-            trip.orig.depart_at,
-            trip.orig.purpose,
+        individ_trips.push(Some((
             trip.from,
-            trip.to,
-            trip.orig.mode,
+            IndividTrip::new(
+                trip.orig.depart_at,
+                trip.orig.purpose,
+                trip.to,
+                trip.orig.mode,
+            ),
         )));
         trips_per_person.insert(trip.orig.person, (trip.orig.seq, idx));
     }
@@ -265,19 +268,31 @@ pub fn make_weekday_scenario(
 
     let mut people = Vec::new();
     for (orig_id, seq_trips) in trips_per_person.consume() {
-        let id = PersonID(people.len());
-        let mut trips = Vec::new();
+        let mut pairs = Vec::new();
         for (_, idx) in seq_trips {
-            trips.push(individ_trips[idx].take().unwrap());
+            pairs.push(individ_trips[idx].take().unwrap());
         }
         // Actually, the sequence in the Soundcast dataset crosses midnight. Don't do that; sort by
         // departure time starting with midnight.
-        trips.sort_by_key(|t| t.depart);
+        pairs.sort_by_key(|(_, t)| t.depart);
+        // Sanity check that endpoints match up
+        for pair in pairs.windows(2) {
+            let destination = &pair[0].1.destination;
+            let origin = &pair[1].0;
+            if destination != origin {
+                timer.warn(format!(
+                    "Skipping {:?}, with adjacent trips that warp from {:?} to {:?}",
+                    orig_id, destination, origin
+                ));
+                continue;
+            }
+        }
 
         people.push(PersonSpec {
-            id,
+            id: PersonID(people.len()),
             orig_id: Some(orig_id),
-            trips,
+            origin: pairs[0].0.clone(),
+            trips: pairs.into_iter().map(|(_, t)| t).collect(),
         });
     }
     for maybe_t in individ_trips {

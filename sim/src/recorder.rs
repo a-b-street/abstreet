@@ -16,7 +16,7 @@ pub struct TrafficRecorder {
     capture_points: BTreeSet<IntersectionID>,
     // TODO The RNG will determine vehicle length, so this won't be a perfect capture. Hopefully
     // good enough.
-    trips: Vec<IndividTrip>,
+    trips: Vec<(TripEndpoint, IndividTrip)>,
     seen_trips: BTreeSet<TripID>,
 }
 
@@ -49,16 +49,18 @@ impl TrafficRecorder {
                             for step in driving.get_path(*car).unwrap().get_steps() {
                                 if let PathStep::Turn(t) = step {
                                     if self.capture_points.contains(&t.parent) {
-                                        self.trips.push(IndividTrip::new(
-                                            time,
-                                            TripPurpose::Shopping,
+                                        self.trips.push((
                                             TripEndpoint::SuddenlyAppear(Position::start(*l)),
-                                            TripEndpoint::Border(t.parent),
-                                            if car.1 == VehicleType::Bike {
-                                                TripMode::Bike
-                                            } else {
-                                                TripMode::Drive
-                                            },
+                                            IndividTrip::new(
+                                                time,
+                                                TripPurpose::Shopping,
+                                                TripEndpoint::Border(t.parent),
+                                                if car.1 == VehicleType::Bike {
+                                                    TripMode::Bike
+                                                } else {
+                                                    TripMode::Drive
+                                                },
+                                            ),
                                         ));
                                         self.seen_trips.insert(trip);
                                         return;
@@ -78,10 +80,11 @@ impl TrafficRecorder {
 
     pub fn save(mut self, map: &Map) {
         let mut people = Vec::new();
-        for trip in self.trips.drain(..) {
+        for (origin, trip) in self.trips.drain(..) {
             people.push(PersonSpec {
                 id: PersonID(people.len()),
                 orig_id: None,
+                origin,
                 trips: vec![trip],
             });
         }

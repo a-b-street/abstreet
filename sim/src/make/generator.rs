@@ -89,7 +89,7 @@ impl ScenarioGenerator {
         }
 
         timer.stop(format!("Generating scenario {}", self.scenario_name));
-        scenario
+        scenario.remove_weird_schedules()
     }
 
     pub fn small_run(map: &Map) -> ScenarioGenerator {
@@ -183,10 +183,10 @@ impl SpawnOverTime {
         scenario.people.push(PersonSpec {
             id,
             orig_id: None,
+            origin: TripEndpoint::Bldg(from_bldg),
             trips: vec![IndividTrip::new(
                 depart,
                 TripPurpose::Shopping,
-                TripEndpoint::Bldg(from_bldg),
                 self.goal.clone().unwrap_or_else(|| {
                     TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)
                 }),
@@ -203,10 +203,10 @@ impl BorderSpawnOverTime {
         scenario.people.push(PersonSpec {
             id,
             orig_id: None,
+            origin: TripEndpoint::Border(self.start_from_border),
             trips: vec![IndividTrip::new(
                 depart,
                 TripPurpose::Shopping,
-                TripEndpoint::Border(self.start_from_border),
                 self.goal.clone().unwrap_or_else(|| {
                     TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)
                 }),

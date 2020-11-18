@@ -32,14 +32,16 @@ pub struct PersonSpec {
     pub id: PersonID,
     /// Just used for debugging
     pub orig_id: Option<OrigPersonID>,
+    /// The first trip starts here
+    pub origin: TripEndpoint,
+    /// Each trip starts at the destination of the previous trip
     pub trips: Vec<IndividTrip>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct IndividTrip {
     pub depart: Time,
-    pub from: TripEndpoint,
-    pub to: TripEndpoint,
+    pub destination: TripEndpoint,
     pub mode: TripMode,
     pub purpose: TripPurpose,
     pub cancelled: bool,
@@ -51,14 +53,12 @@ impl IndividTrip {
     pub fn new(
         depart: Time,
         purpose: TripPurpose,
-        from: TripEndpoint,
-        to: TripEndpoint,
+        destination: TripEndpoint,
         mode: TripMode,
     ) -> IndividTrip {
         IndividTrip {
             depart,
-            from,
-            to,
+            destination,
             mode,
             purpose,
             cancelled: false,
@@ -161,13 +161,14 @@ impl Scenario {
             for (idx, b) in cars_initially_parked_at {
                 parked_cars.push((person.vehicles[idx].clone(), b));
             }
+            let mut from = p.origin.clone();
             for (t, maybe_idx) in p.trips.iter().zip(vehicle_foreach_trip) {
                 // The RNG call might change over edits for picking the spawning lane from a border
                 // with multiple choices for a vehicle type.
                 let mut tmp_rng = fork_rng(rng);
                 let spec = match TripSpec::maybe_new(
-                    t.from.clone(),
-                    t.to.clone(),
+                    from.clone(),
+                    t.destination.clone(),
                     t.mode,
                     maybe_idx.map(|idx| person.vehicles[idx].id),
                     retry_if_no_room,
@@ -186,8 +187,8 @@ impl Scenario {
                     TripInfo {
                         departure: t.depart,
                         mode: t.mode,
-                        start: t.from.clone(),
-                        end: t.to.clone(),
+                        start: from,
+                        end: t.destination.clone(),
                         purpose: t.purpose,
                         modified: t.modified,
                         capped: false,
@@ -198,6 +199,7 @@ impl Scenario {
                         },
                     },
                 ));
+                from = t.destination.clone();
             }
         }
 
@@ -434,33 +436,30 @@ fn find_spot_near_building(
 }
 
 impl PersonSpec {
-    // Verify that the trip start/endpoints of the person match up
+    /// Verify that a person's trips make sense
     fn check_schedule(&self) -> Result<(), String> {
-        for pair in self.trips.iter().zip(self.trips.iter().skip(1)) {
-            if pair.0.depart >= pair.1.depart {
+        for pair in self.trips.windows(2) {
+            if pair[0].depart >= pair[1].depart {
                 return Err(format!(
                     "{} {:?} starts two trips in the wrong order: {} then {}",
-                    self.id, self.orig_id, pair.0.depart, pair.1.depart
-                ));
-            }
-
-            // Once off-map, re-enter via any border node.
-            let end_bldg = match pair.0.to {
-                TripEndpoint::Bldg(b) => Some(b),
-                TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => None,
-            };
-            let start_bldg = match pair.1.from {
-                TripEndpoint::Bldg(b) => Some(b),
-                TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => None,
-            };
-
-            if end_bldg != start_bldg {
-                return Err(format!(
-                    "At {}, {} {:?} warps between some trips, from {:?} to {:?}",
-                    pair.1.depart, self.id, self.orig_id, end_bldg, start_bldg
+                    self.id, self.orig_id, pair[0].depart, pair[1].depart
                 ));
             }
         }
+
+        let mut endpts = vec![self.origin.clone()];
+        for t in &self.trips {
+            endpts.push(t.destination.clone());
+        }
+        for pair in endpts.windows(2) {
+            if pair[0] == pair[1] {
+                return Err(format!(
+                    "{} {:?} has two adjacent trips between the same place: {:?}",
+                    self.id, self.orig_id, pair[0]
+                ));
+            }
+        }
+
         Ok(())
     }
 
@@ -481,6 +480,7 @@ impl PersonSpec {
         let mut car_locations: Vec<(usize, Option<BuildingID>)> = Vec::new();
 
         // TODO If the trip is cancelled, this should be affected...
+        let mut from = self.origin.clone();
         for trip in &self.trips {
             let use_for_trip = match trip.mode {
                 TripMode::Walk | TripMode::Transit => None,
@@ -492,7 +492,7 @@ impl PersonSpec {
                     bike_idx
                 }
                 TripMode::Drive => {
-                    let need_parked_at = match trip.from {
+                    let need_parked_at = match from {
                         TripEndpoint::Bldg(b) => Some(b),
                         _ => None,
                     };
@@ -516,7 +516,7 @@ impl PersonSpec {
 
                     // Where does this car wind up?
                     car_locations.retain(|(i, _)| idx != *i);
-                    match trip.to {
+                    match trip.destination {
                         TripEndpoint::Bldg(b) => {
                             car_locations.push((idx, Some(b)));
                         }
@@ -528,6 +528,7 @@ impl PersonSpec {
                     Some(idx)
                 }
             };
+            from = trip.destination.clone();
             vehicle_foreach_trip.push(use_for_trip);
         }
 
