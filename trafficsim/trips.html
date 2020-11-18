@@ -168,11 +168,11 @@ has a schedule of trips, carrying them between <code>TripEndpoints</code> via so
 <li>When a scenario is instantiated, every trip for every person passes through
 <code>TripSpec::maybe_new</code>. This transforms the origin, destination, and mode into
 a <code>TripSpec</code>.</li>
-<li><code>TripSpawner</code> populates the <code>TripManager</code> with all of these trips. Each
-<code>TripSpec</code> is turned into a list of <code>TripLegs</code>. The <code>TripSpec</code> is then passed
-to the discrete-event scheduler inside a <code>Command::StartTrip</code>. This way,
-<code>TripManager</code> knows about all trips immediately, and at the right time, each
-trip can be initiated.</li>
+<li><code>TripSpec::to_plan</code> further validates these and attempts to repair impossible
+plans. Each <code>TripSpec</code> is turned into a list of <code>TripLegs</code>. The <code>TripSpec</code> is
+then passed to the discrete-event scheduler inside a <code>Command::StartTrip</code>.
+This way, <code>TripManager</code> knows about all trips immediately, and at the right
+time, each trip can be initiated.</li>
 <li>Later, the scheduler gets one of these commands, and calls
 <code>TripManager::start_trip</code> with the <code>TripSpec</code>. Each type of trip has its own
 initialization logic to kick off the first leg of the trip.</li>

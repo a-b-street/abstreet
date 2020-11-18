@@ -538,8 +538,6 @@
 <span id="537">537</span>
 <span id="538">538</span>
 <span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -555,8 +553,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">fork_rng</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Sim</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripInfo</span>, <span class="ident">TripMode</span>, <span class="ident">TripSpawner</span>, <span class="ident">TripSpec</span>,
-    <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">BIKE_LENGTH</span>, <span class="ident">MAX_CAR_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>,
+    <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Sim</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripInfo</span>, <span class="ident">TripMode</span>, <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>,
+    <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">BIKE_LENGTH</span>, <span class="ident">MAX_CAR_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>,
 };
 
 <span class="doccomment">/// A Scenario describes all the input to a simulation. Usually a scenario covers one day.</span>
@@ -739,20 +737,18 @@
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">TripSpawner</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(
             <span class="string">&quot;schedule trips&quot;</span>,
             <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
             <span class="ident">schedule_trips</span>,
-            <span class="op">|</span><span class="ident">tuple</span><span class="op">|</span> <span class="ident">spawner</span>.<span class="ident">schedule_trip</span>(<span class="ident">tuple</span>.<span class="number">0</span>, <span class="ident">tuple</span>.<span class="number">1</span>, <span class="ident">tuple</span>.<span class="number">2</span>, <span class="ident">map</span>),
+            <span class="op">|</span>(<span class="ident">p</span>, <span class="ident">spec</span>, <span class="ident">info</span>)<span class="op">|</span> <span class="ident">spec</span>.<span class="ident">to_plan</span>(<span class="ident">p</span>, <span class="ident">info</span>, <span class="ident">map</span>),
         );
-        <span class="ident">spawner</span>.<span class="ident">schedule_trips</span>(<span class="ident">results</span>);
 
         <span class="comment">// parked_cars is stable over map edits, so don&#39;t fork.</span>
         <span class="ident">parked_cars</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
         <span class="ident">seed_parked_cars</span>(<span class="ident">parked_cars</span>, <span class="ident">sim</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="ident">timer</span>);
 
-        <span class="ident">sim</span>.<span class="ident">flush_spawner</span>(<span class="ident">spawner</span>, <span class="ident">map</span>, <span class="ident">timer</span>);
+        <span class="ident">sim</span>.<span class="ident">spawn_trips</span>(<span class="ident">results</span>, <span class="ident">map</span>, <span class="ident">timer</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Instantiating {}&quot;</span>, <span class="self">self</span>.<span class="ident">scenario_name</span>));
     }
 
