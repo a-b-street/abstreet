@@ -80,6 +80,13 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter</span>::<span class="ident">CommuterPatterns</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalDemand</span>;
@@ -148,6 +155,13 @@
         <span class="kw">if</span> <span class="ident">tab</span> <span class="op">==</span> <span class="self">self</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
+        <span class="comment">// Hold on, a few tabs are &quot;sub-tabs&quot; -- don&#39;t change</span>
+        <span class="kw">if</span> <span class="ident">tab</span> <span class="op">==</span> <span class="ident">DashTab</span>::<span class="ident">FinishedTripTable</span> {
+            <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">DashTab</span>::<span class="ident">CancelledTripTable</span> <span class="op">||</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">DashTab</span>::<span class="ident">UnfinishedTripTable</span> {
+                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            }
+        }
+
         <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">match</span> <span class="ident">tab</span> {
             <span class="ident">DashTab</span>::<span class="ident">FinishedTripTable</span> <span class="op">=&gt;</span> <span class="ident">FinishedTripTable</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span> <span class="op">=&gt;</span> {
