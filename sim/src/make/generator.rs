@@ -12,7 +12,7 @@ use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::{IntersectionID, Map};
 
-use crate::{IndividTrip, PersonID, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use crate::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 // TODO This can be simplified dramatically.
 
@@ -170,7 +170,6 @@ impl SpawnOverTime {
         // Note that it's fine for agents to start/end at the same building. Later we might
         // want a better assignment of people per household, or workers per office building.
         let from_bldg = map.all_buildings().choose(rng).unwrap().id;
-        let id = PersonID(scenario.people.len());
         let mode = if rng.gen_bool(self.percent_driving) {
             TripMode::Drive
         } else if rng.gen_bool(self.percent_biking) {
@@ -181,7 +180,6 @@ impl SpawnOverTime {
             TripMode::Walk
         };
         scenario.people.push(PersonSpec {
-            id,
             orig_id: None,
             origin: TripEndpoint::Bldg(from_bldg),
             trips: vec![IndividTrip::new(
@@ -199,9 +197,7 @@ impl SpawnOverTime {
 impl BorderSpawnOverTime {
     fn spawn(&self, rng: &mut XorShiftRng, scenario: &mut Scenario, mode: TripMode, map: &Map) {
         let depart = rand_time(rng, self.start_time, self.stop_time);
-        let id = PersonID(scenario.people.len());
         scenario.people.push(PersonSpec {
-            id,
             orig_id: None,
             origin: TripEndpoint::Border(self.start_from_border),
             trips: vec![IndividTrip::new(

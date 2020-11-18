@@ -8,7 +8,7 @@ use rand::seq::SliceRandom;
 use abstutil::{MapName, Timer};
 use geom::{Duration, Time};
 use map_model::{IntersectionID, Map};
-use sim::{IndividTrip, PersonID, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     test_lane_changing(&import_map(abstutil::path(
@@ -180,20 +180,18 @@ fn test_lane_changing(map: &Map) -> Result<(), String> {
     od.shuffle(&mut rng);
 
     let mut scenario = Scenario::empty(map, "lane_changing");
-    for (from, to) in od {
-        let id = PersonID(scenario.people.len());
+    for (idx, (from, to)) in od.into_iter().enumerate() {
         scenario.people.push(PersonSpec {
-            id,
             orig_id: None,
             origin: TripEndpoint::Border(from),
             trips: vec![IndividTrip::new(
                 // Space out the spawn times a bit. If a vehicle tries to spawn and something's in
                 // the way, there's a fixed retry time in the simulation that we'll hit.
-                Time::START_OF_DAY + Duration::seconds(id.0 as f64 - 0.5).max(Duration::ZERO),
+                Time::START_OF_DAY + Duration::seconds(idx as f64 - 0.5).max(Duration::ZERO),
                 TripPurpose::Shopping,
                 TripEndpoint::Border(to),
                 // About half cars, half bikes
-                if id.0 % 2 == 0 {
+                if idx % 2 == 0 {
                     TripMode::Drive
                 } else {
                     TripMode::Bike

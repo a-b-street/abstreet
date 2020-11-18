@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
 use geom::LonLat;
 use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
-use sim::{IndividTrip, OrigPersonID, PersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
+use sim::{IndividTrip, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
 
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 
@@ -289,7 +289,6 @@ pub fn make_weekday_scenario(
         }
 
         people.push(PersonSpec {
-            id: PersonID(people.len()),
             orig_id: Some(orig_id),
             origin: pairs[0].0.clone(),
             trips: pairs.into_iter().map(|(_, t)| t).collect(),

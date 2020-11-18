@@ -4,8 +4,8 @@ use geom::Time;
 use map_model::{IntersectionID, Map, PathStep, Position, Traversable};
 
 use crate::{
-    AgentID, DrivingSimState, Event, IndividTrip, PersonID, PersonSpec, Scenario, TripEndpoint,
-    TripID, TripManager, TripMode, TripPurpose, VehicleType,
+    AgentID, DrivingSimState, Event, IndividTrip, PersonSpec, Scenario, TripEndpoint, TripID,
+    TripManager, TripMode, TripPurpose, VehicleType,
 };
 
 /// Records trips beginning and ending at a specified set of intersections. This can be used to
@@ -82,7 +82,6 @@ impl TrafficRecorder {
         let mut people = Vec::new();
         for (origin, trip) in self.trips.drain(..) {
             people.push(PersonSpec {
-                id: PersonID(people.len()),
                 orig_id: None,
                 origin,
                 trips: vec![trip],

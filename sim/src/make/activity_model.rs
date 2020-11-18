@@ -13,8 +13,7 @@ use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
 
 use crate::make::fork_rng;
 use crate::{
-    IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, TripEndpoint, TripMode,
-    TripPurpose,
+    IndividTrip, PersonSpec, Scenario, ScenarioGenerator, TripEndpoint, TripMode, TripPurpose,
 };
 
 impl ScenarioGenerator {
@@ -167,25 +166,23 @@ impl ScenarioGenerator {
             })
             .collect();
 
-        timer
-            .parallelize(
-                "create people: making PersonSpec from endpoints",
-                Parallelism::Fastest,
-                person_params,
-                |(home, work, mut rng)| match create_prole(home, work, map, &mut rng) {
-                    Ok(person) => Some(person),
-                    Err(e) => {
-                        trace!("Unable to create person. error: {}", e);
-                        None
-                    }
-                },
-            )
-            .into_iter()
-            .flatten()
-            .for_each(|mut person| {
-                person.id = PersonID(s.people.len());
-                s.people.push(person);
-            });
+        s.people.extend(
+            timer
+                .parallelize(
+                    "create people: making PersonSpec from endpoints",
+                    Parallelism::Fastest,
+                    person_params,
+                    |(home, work, mut rng)| match create_prole(home, work, map, &mut rng) {
+                        Ok(person) => Some(person),
+                        Err(e) => {
+                            trace!("Unable to create person. error: {}", e);
+                            None
+                        }
+                    },
+                )
+                .into_iter()
+                .flatten(),
+        );
 
         timer.stop("create people");
 
@@ -273,8 +270,6 @@ fn create_prole(
     }
 
     Ok(PersonSpec {
-        // Fix this outside the parallelism
-        id: PersonID(0),
         orig_id: None,
         origin: home.clone(),
         trips: vec![

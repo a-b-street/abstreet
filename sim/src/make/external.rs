@@ -6,7 +6,7 @@ use serde::Deserialize;
 use geom::{Distance, FindClosest, LonLat, Time};
 use map_model::Map;
 
-use crate::{IndividTrip, PersonID, PersonSpec, TripEndpoint, TripMode, TripPurpose};
+use crate::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
 #[derive(Deserialize)]
 pub struct ExternalPerson {
@@ -52,7 +52,6 @@ impl ExternalPerson {
         let mut results = Vec::new();
         for person in input {
             let mut spec = PersonSpec {
-                id: PersonID(results.len()),
                 orig_id: None,
                 origin: lookup_pt(person.origin)?,
                 trips: Vec::new(),

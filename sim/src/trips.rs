@@ -54,12 +54,11 @@ impl TripManager {
     // TODO assert the specs are correct yo
     pub fn new_person(
         &mut self,
-        id: PersonID,
         orig_id: Option<OrigPersonID>,
         ped_speed: Speed,
         vehicle_specs: Vec<VehicleSpec>,
-    ) {
-        assert_eq!(id.0, self.people.len());
+    ) -> &Person {
+        let id = PersonID(self.people.len());
         let vehicles = vehicle_specs
             .into_iter()
             .map(|v| {
@@ -79,6 +78,7 @@ impl TripManager {
             delayed_trips: Vec::new(),
             on_bus: None,
         });
+        self.get_person(id).unwrap()
     }
 
     pub fn new_car_id(&mut self) -> usize {
@@ -1285,7 +1285,6 @@ impl TripManager {
         let mut scenario = Scenario::empty(map, &name);
         for p in &self.people {
             scenario.people.push(PersonSpec {
-                id: p.id,
                 orig_id: p.orig_id,
                 origin: self.trips[p.trips[0].0].info.start.clone(),
                 trips: p

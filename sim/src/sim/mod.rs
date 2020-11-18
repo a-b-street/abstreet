@@ -19,7 +19,7 @@ pub use self::queries::AgentProperties;
 use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
     Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,
-    ParkingSimState, ParkingSpot, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
+    ParkingSimState, ParkingSpot, Person, Router, Scheduler, SidewalkPOI, SidewalkSpot,
     TrafficRecorder, TransitSimState, TripID, TripManager, TripPhaseType, TripSpawner, Vehicle,
     VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
     SPAWN_DIST,
@@ -297,12 +297,11 @@ impl Sim {
     // TODO Should these two be in TripSpawner?
     pub(crate) fn new_person(
         &mut self,
-        p: PersonID,
         orig_id: Option<OrigPersonID>,
         ped_speed: Speed,
         vehicle_specs: Vec<VehicleSpec>,
-    ) {
-        self.trips.new_person(p, orig_id, ped_speed, vehicle_specs);
+    ) -> &Person {
+        self.trips.new_person(orig_id, ped_speed, vehicle_specs)
     }
     pub(crate) fn seed_parked_car(&mut self, vehicle: Vehicle, spot: ParkingSpot) {
         self.parking.reserve_spot(spot, vehicle.id);

@@ -6,7 +6,7 @@ use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::Map;
 
-use crate::{PersonID, Scenario, TripMode};
+use crate::{Scenario, TripMode};
 
 /// Transforms an existing Scenario before instantiating it.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
@@ -76,7 +76,6 @@ impl ScenarioModifier {
                     &mut Timer::throwaway(),
                 );
                 for mut p in other.people {
-                    p.id = PersonID(s.people.len());
                     for trip in &mut p.trips {
                         trip.modified = true;
                     }

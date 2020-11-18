@@ -166,11 +166,12 @@ fn handle_command(
 
             let mut scenario = Scenario::empty(map, "one-shot");
             scenario.people = ExternalPerson::import(map, vec![input])?;
-            let id = PersonID(sim.get_all_people().len());
-            scenario.people[0].id = id;
             let mut rng = XorShiftRng::seed_from_u64(load.rng_seed);
             scenario.instantiate(sim, map, &mut rng, &mut Timer::throwaway());
-            Ok(format!("{} created", id))
+            Ok(format!(
+                "{} created",
+                sim.get_all_people().last().unwrap().id
+            ))
         }
         // Traffic signals
         "/traffic-signals/get" => {

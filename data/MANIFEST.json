@@ -481,36 +481,36 @@
       "size_bytes": 8554520
     },
     "data/system/seattle/scenarios/ballard/weekday.bin": {
-      "checksum": "121e73a1c4d373b7f4c152632f130d40",
-      "size_bytes": 22486817
+      "checksum": "b3646595e39578d6f2deda5812edfff1",
+      "size_bytes": 21682429
     },
     "data/system/seattle/scenarios/downtown/weekday.bin": {
-      "checksum": "b553afd0e7d0ed25df3bb6fadfde84df",
-      "size_bytes": 39960595
+      "checksum": "89f89dfffbc1bf98b02356e1925c9c79",
+      "size_bytes": 38519715
     },
     "data/system/seattle/scenarios/huge_seattle/weekday.bin": {
-      "checksum": "b33f1c2c850ad9a506c3f3491d2c0144",
-      "size_bytes": 114432005
+      "checksum": "2bf854455b2eaa5d6caebfd43cec273f",
+      "size_bytes": 110828173
     },
     "data/system/seattle/scenarios/lakeslice/weekday.bin": {
-      "checksum": "4ef0d8c999a111b3dd73a2ff1d67ca8d",
-      "size_bytes": 9522761
+      "checksum": "c14c1f2e8bff1a7e100f80ff463c27bf",
+      "size_bytes": 9164693
     },
     "data/system/seattle/scenarios/montlake/weekday.bin": {
-      "checksum": "5e144dabaa1519e359924f14d69f5a98",
-      "size_bytes": 1350628
+      "checksum": "fc52518f15d3e4e9006ea507fa97f1bd",
+      "size_bytes": 1296336
     },
     "data/system/seattle/scenarios/south_seattle/weekday.bin": {
-      "checksum": "0a9a5b301cb2bf8da89bbfa44244aab3",
-      "size_bytes": 29073867
+      "checksum": "3f929464935161a350691e7195032d4a",
+      "size_bytes": 27995479
     },
     "data/system/seattle/scenarios/udistrict/weekday.bin": {
-      "checksum": "26fcdcf7e3e5fbfa48b54e565eb225ef",
-      "size_bytes": 9675589
+      "checksum": "fff753d937ac907048a7fe7c04359008",
+      "size_bytes": 9302129
     },
     "data/system/seattle/scenarios/west_seattle/weekday.bin": {
-      "checksum": "dc36617ebec51dbe97b708e513ad748a",
-      "size_bytes": 21524507
+      "checksum": "e448c503ee5307cc09249b6a6ef19ff4",
+      "size_bytes": 20749035
     },
     "data/system/tel_aviv/maps/center.bin": {
       "checksum": "d395118f968b001898aba749d20cac02",

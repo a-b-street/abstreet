@@ -12,8 +12,8 @@ use map_model::{BuildingID, Map, OffstreetParking, RoadID};
 
 use crate::make::fork_rng;
 use crate::{
-    OrigPersonID, ParkingSpot, PersonID, Sim, TripEndpoint, TripInfo, TripMode, TripSpawner,
-    TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    OrigPersonID, ParkingSpot, Sim, TripEndpoint, TripInfo, TripMode, TripSpawner, TripSpec,
+    Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 
 /// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
@@ -29,7 +29,6 @@ pub struct Scenario {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct PersonSpec {
-    pub id: PersonID,
     /// Just used for debugging
     pub orig_id: Option<OrigPersonID>,
     /// The first trip starts here
@@ -151,13 +150,7 @@ impl Scenario {
 
             let (vehicle_specs, cars_initially_parked_at, vehicle_foreach_trip) =
                 p.get_vehicles(rng);
-            sim.new_person(
-                p.id,
-                p.orig_id,
-                Scenario::rand_ped_speed(rng),
-                vehicle_specs,
-            );
-            let person = sim.get_person(p.id);
+            let person = sim.new_person(p.orig_id, Scenario::rand_ped_speed(rng), vehicle_specs);
             for (idx, b) in cars_initially_parked_at {
                 parked_cars.push((person.vehicles[idx].clone(), b));
             }
@@ -308,10 +301,6 @@ impl Scenario {
             prettyprint_usize(orig - self.people.len()),
             prettyprint_usize(orig)
         );
-        // Fix up IDs
-        for (idx, person) in self.people.iter_mut().enumerate() {
-            person.id = PersonID(idx);
-        }
         self
     }
 }
@@ -441,8 +430,8 @@ impl PersonSpec {
         for pair in self.trips.windows(2) {
             if pair[0].depart >= pair[1].depart {
                 return Err(format!(
-                    "{} {:?} starts two trips in the wrong order: {} then {}",
-                    self.id, self.orig_id, pair[0].depart, pair[1].depart
+                    "Person ({:?}) starts two trips in the wrong order: {} then {}",
+                    self.orig_id, pair[0].depart, pair[1].depart
                 ));
             }
         }
@@ -454,8 +443,8 @@ impl PersonSpec {
         for pair in endpts.windows(2) {
             if pair[0] == pair[1] {
                 return Err(format!(
-                    "{} {:?} has two adjacent trips between the same place: {:?}",
-                    self.id, self.orig_id, pair[0]
+                    "Person ({:?}) has two adjacent trips between the same place: {:?}",
+                    self.orig_id, pair[0]
                 ));
             }
         }
@@ -539,7 +528,7 @@ impl PersonSpec {
                 n -= 1;
             }
             if n > 1 {
-                println!("{} needs {} cars", self.id, n);
+                println!("Someone needs {} cars", n);
             }
         }
 

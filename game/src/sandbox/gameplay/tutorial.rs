@@ -5,7 +5,7 @@ use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
 use sim::{
-    AgentID, Analytics, BorderSpawnOverTime, CarID, IndividTrip, PersonID, PersonSpec, Scenario,
+    AgentID, Analytics, BorderSpawnOverTime, CarID, IndividTrip, PersonSpec, Scenario,
     ScenarioGenerator, SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
 };
 use widgetry::{
@@ -1063,7 +1063,6 @@ impl TutorialState {
 
                     let mut scenario = Scenario::empty(map, "prank");
                     scenario.people.push(PersonSpec {
-                        id: PersonID(0),
                         orig_id: None,
                         origin: TripEndpoint::SuddenlyAppear(Position::new(
                             start_lane,
@@ -1077,9 +1076,8 @@ impl TutorialState {
                         )],
                     });
                     // Will definitely get there first
-                    for i in 0..map.get_b(goal_bldg).num_parking_spots() {
+                    for _ in 0..map.get_b(goal_bldg).num_parking_spots() {
                         scenario.people.push(PersonSpec {
-                            id: PersonID(i + 1),
                             orig_id: None,
                             origin: TripEndpoint::SuddenlyAppear(Position::new(
                                 lane_near_bldg,

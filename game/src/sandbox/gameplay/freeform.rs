@@ -4,7 +4,7 @@ use rand::Rng;
 use abstutil::Timer;
 use geom::{Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
-use sim::{IndividTrip, PersonID, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     ScreenRectangle, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
@@ -278,9 +278,8 @@ impl State<App> for AgentSpawner {
                     let mut scenario = Scenario::empty(map, "one-shot");
                     let from = self.source.take().unwrap();
                     let to = self.goal.take().unwrap().0;
-                    for i in 0..self.panel.spinner("number") as usize {
+                    for _ in 0..self.panel.spinner("number") as usize {
                         scenario.people.push(PersonSpec {
-                            id: PersonID(app.primary.sim.get_all_people().len() + i),
                             orig_id: None,
                             origin: from.clone(),
                             trips: vec![IndividTrip::new(
@@ -470,7 +469,6 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                     TripMode::Bike
                 };
                 scenario.people.push(PersonSpec {
-                    id: PersonID(app.primary.sim.get_all_people().len() + scenario.people.len()),
                     orig_id: None,
                     origin: TripEndpoint::SuddenlyAppear(Position::new(
                         lane.id,
@@ -487,7 +485,6 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
         } else if lane.is_walkable() {
             for _ in 0..5 {
                 scenario.people.push(PersonSpec {
-                    id: PersonID(app.primary.sim.get_all_people().len() + scenario.people.len()),
                     orig_id: None,
                     origin: TripEndpoint::SuddenlyAppear(Position::new(
                         lane.id,
