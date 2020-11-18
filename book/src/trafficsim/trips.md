@@ -82,3 +82,66 @@ ToBorder --> [*]
 
 @enduml
 ```
+
+## Spawning code overview
+
+As of November 2020, starting a traffic simulation works like this:
+
+1. Something creates a `Scenario`, which defines a bunch of people. Each person
+   has a schedule of trips, carrying them between `TripEndpoints` via some
+   `TripMode`, leaving at some `Time`.
+2. When a scenario is instantiated, every trip for every person passes through
+   `TripSpec::maybe_new`. This transforms the origin, destination, and mode into
+   a `TripSpec`.
+3. `TripSpawner` populates the `TripManager` with all of these trips. Each
+   `TripSpec` is turned into a list of `TripLegs`. The `TripSpec` is then passed
+   to the discrete-event scheduler inside a `Command::StartTrip`. This way,
+   `TripManager` knows about all trips immediately, and at the right time, each
+   trip can be initiated.
+4. Later, the scheduler gets one of these commands, and calls
+   `TripManager::start_trip` with the `TripSpec`. Each type of trip has its own
+   initialization logic to kick off the first leg of the trip.
+5. Most trips have multiple legs. When the first car, bike, or pedestrian
+   reaches their goal, `TripManager` gets called with some sort of transition
+   function to initiate the next leg of the trip, or declare the trip finished.
+   These transition functions also record stats from that leg of the trip, like
+   total blocked time.
+
+What're the different `TripSpec` cases, and what `TripLegs` do they get turned
+into?
+
+- `VehicleAppearing`: Starts at a border. Drive, then maybe walk to the
+  destination building.
+- `SpawningFailure`: No trip legs; just create and immediately cancel the trip.
+- `UsingParkedCar`: Starts at a building. Walk (to the parked car), drive, then
+  maybe walk to the destination building (after parking again).
+- `JustWalking`: Just walk between two buildings/borders.
+- `UsingBike`: Starts at a building. Walk to the nearest bikeable lane, drive,
+  then maybe walk to the destination building. (Note that starting a bike from a
+  border uses `VehicleAppearing`.)
+- `UsingTransit`: Walk, ride the bus, maybe walk again. No transfers yet; only
+  rides one bus between two stops.
+
+`TripManager` has a whole bunch of transition functions:
+
+- `car_reached_parking_spot`: drive -> walk, unless the destination building is
+  where we parked
+- `ped_reached_parking_spot`: walk -> drive
+- `ped_ready_to_bike`: walk -> bike
+- `bike_reached_end`: bike -> walk
+- `ped_reached_building`: walk -> done
+- `ped_reached_bus_stop`: walk -> wait or ride bus
+- `ped_boarded_bus`: waiting -> ride bus
+- `person_left_bus`: riding bus -> walk
+- `ped_reached_border`: walk -> done
+- `transit_rider_reached_border`: ride bus -> done
+- `car_or_bike_reached_border`: drive -> done
+
+There are at least a few use cases motivating the cleanup of all of this
+structure:
+
+- Capping trips through congested areas. Sometimes this just changes the driving
+  route, but sometimes it needs to cancel trips, convert driving trips to
+  walking/transit, or delay the trip's start.
+- Multiple public transit rides in a single trip, aka transferring
+- Handling live map edits in the middle of a trip
