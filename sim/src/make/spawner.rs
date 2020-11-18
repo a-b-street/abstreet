@@ -204,8 +204,10 @@ impl TripSpawner {
                     trips.new_trip(person.id, info, legs)
                 }
                 TripSpec::SpawningFailure { .. } => {
-                    // TODO Is it OK to have empty trip legs?
-                    let legs = Vec::new();
+                    // TODO The legs are a lie. Since the trip gets cancelled, this doesn't matter.
+                    // I'm not going to bother doing better because I think TripLeg will get
+                    // revamped soon anyway.
+                    let legs = vec![TripLeg::RideBus(BusRouteID(0), None)];
                     trips.new_trip(person.id, info, legs)
                 }
                 TripSpec::UsingParkedCar { car, goal, .. } => {

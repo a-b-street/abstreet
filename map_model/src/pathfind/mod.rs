@@ -612,6 +612,7 @@ impl Pathfinder {
         dijkstra::pathfind_avoiding_lanes(req, avoid, map)
     }
 
+    // TODO Consider returning the walking-only path in the failure case, to avoid wasting work
     pub fn should_use_transit(
         &self,
         map: &Map,
