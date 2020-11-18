@@ -11,6 +11,7 @@ sourcesIndex["geom"] = {"name":"","files":["angle.rs","bounds.rs","circle.rs","d
 sourcesIndex["headless"] = {"name":"","files":["main.rs"]};
 sourcesIndex["import_traffic"] = {"name":"","files":["import_traffic.rs"]};
 sourcesIndex["importer"] = {"name":"","files":["berlin.rs","configuration.rs","dependencies.rs","generic.rs","leeds.rs","london.rs","main.rs","seattle.rs","utils.rs"]};
+sourcesIndex["json_to_binary_map"] = {"name":"","files":["json_to_binary_map.rs"]};
 sourcesIndex["kml"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["map_editor"] = {"name":"","files":["main.rs","model.rs","world.rs"]};
 sourcesIndex["map_model"] = {"name":"","dirs":[{"name":"edits","files":["compat.rs","mod.rs","perma.rs"]},{"name":"make","dirs":[{"name":"initial","files":["geometry.rs","lane_specs.rs","mod.rs"]}],"files":["bridges.rs","buildings.rs","medians.rs","mod.rs","parking_lots.rs","remove_disconnected.rs","traffic_signals.rs","transit.rs","turns.rs","walking_turns.rs"]},{"name":"objects","files":["area.rs","building.rs","bus_stop.rs","intersection.rs","lane.rs","mod.rs","parking_lot.rs","road.rs","stop_signs.rs","traffic_signals.rs","turn.rs","zone.rs"]},{"name":"pathfind","files":["ch.rs","dijkstra.rs","driving.rs","mod.rs","node_map.rs","uber_turns.rs","walking.rs"]}],"files":["city.rs","connectivity.rs","lib.rs","map.rs","osm.rs","raw.rs","traversable.rs"]};

@@ -253,6 +253,16 @@ feature per road and intersection in the map. The coordinate space is WGS84.</li
 </code></pre>
 <p>See some example code that
 <a href="https://github.com/dabreegster/abstreet/blob/master/headless/examples/generate_traffic.py">reads this JSON and finds buildings</a>.</p>
+<p>You could also edit the map JSON, convert it back to binary, and use it in the
+simulation. This isn't recommended generally, but one possible use case could be
+tuning the amount of offstreet parking per building. The map JSON has a list
+called <code>buildings</code>, and each object there has a field <code>parking</code>. You coud set
+this object to <code>{ &quot;Private&quot;: [100, false] }</code> to indicate 100 parking spots, for
+a building not explicitly designated in OpenStreetMap as a garage. After editing
+the JSON, you have to convert it back to the binary format:</p>
+<pre><code>cargo run --bin json_to_binary_map -- --input=montlake.json out=data/system/seattle/maps/montlake_modified.bin`
+</code></pre>
+<p>... Except this tool doesn't seem to work yet!</p>
 <p>The format of the map isn't well-documented yet. See the
 <a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">generated API docs</a>
 and <a href="../map/index.html">the map model docs</a> in the meantime.</p>
