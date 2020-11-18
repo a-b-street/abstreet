@@ -108,6 +108,20 @@ cargo run --bin dump_map data/system/seattle/maps/montlake.bin > montlake.json
 See some example code that
 [reads this JSON and finds buildings](https://github.com/dabreegster/abstreet/blob/master/headless/examples/generate_traffic.py).
 
+You could also edit the map JSON, convert it back to binary, and use it in the
+simulation. This isn't recommended generally, but one possible use case could be
+tuning the amount of offstreet parking per building. The map JSON has a list
+called `buildings`, and each object there has a field `parking`. You coud set
+this object to `{ "Private": [100, false] }` to indicate 100 parking spots, for
+a building not explicitly designated in OpenStreetMap as a garage. After editing
+the JSON, you have to convert it back to the binary format:
+
+```
+cargo run --bin json_to_binary_map -- --input=montlake.json out=data/system/seattle/maps/montlake_modified.bin`
+```
+
+... Except this tool doesn't seem to work yet!
+
 The format of the map isn't well-documented yet. See the
 [generated API docs](https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html)
 and [the map model docs](../map/index.md) in the meantime.
