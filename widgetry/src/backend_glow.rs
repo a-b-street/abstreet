@@ -397,6 +397,7 @@ pub fn load_textures(
     let target = glow::TEXTURE_2D_ARRAY;
     let mipmap_level = 1;
     let internal_format = glow::RGBA;
+    let bytes_per_pixel = 4;
 
     let texture_id = unsafe { gl.create_texture()? };
     unsafe {
@@ -432,11 +433,39 @@ pub fn load_textures(
         sprite_count
     );
 
+    // Allocate the storage.
+    unsafe {
+        gl.tex_storage_3d(
+            target,
+            mipmap_level,
+            internal_format,
+            sprite_length as i32,
+            sprite_height as i32,
+            sprite_count as i32,
+        );
+    }
+
+    // Upload pixel data.
+    //
+    // From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management
+    // > The first 0 refers to the mipmap level (level 0, since there's only 1)
+    // > The following 2 zeroes refers to the x and y offsets in case you only want to
+    // > specify a subrectangle.
+    // > The final 0 refers to the layer index offset (we start from index 0 and have 2
+    // > levels).
+    // > Altogether you can specify a 3D box subset of the overall texture, but only one
+    // > mip level at a time.
+    let mut formatted_pixel_bytes: Vec<u8> =
+        Vec::with_capacity(img.pixels().len() * bytes_per_pixel);
+
     // In order to avoid branching in our shader logic, all shapes are rendered with a texture.
     // Even "non-textured" styles like Fill::Color, use a "default" no-op (pure white) texture,
     // which we generate here.
-    let mut formatted_pixels: Vec<image::Rgba<u8>> =
-        vec![image::Rgba([255; 4]); (sprite_length * sprite_length) as usize];
+    formatted_pixel_bytes.append(&mut vec![
+        255;
+        (sprite_length * sprite_height) as usize
+            * bytes_per_pixel
+    ]);
 
     // OpenGL texture arrays expect each texture's bytes to be contiguous, but it's conventional to
     // store textures in a grid within a single spritesheet image, where a row and column traverses
@@ -467,35 +496,10 @@ pub fn load_textures(
                 sprite_height,
             );
             for p in sprite_cell.pixels() {
-                formatted_pixels.push(p.2.clone());
+                formatted_pixel_bytes.extend_from_slice(&p.2 .0);
             }
         }
     }
-
-    // Allocate the storage.
-    unsafe {
-        gl.tex_storage_3d(
-            target,
-            mipmap_level,
-            internal_format,
-            sprite_length as i32,
-            sprite_height as i32,
-            sprite_count as i32,
-        );
-    }
-
-    // Upload pixel data.
-    //
-    // From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management
-    // > The first 0 refers to the mipmap level (level 0, since there's only 1)
-    // > The following 2 zeroes refers to the x and y offsets in case you only want to
-    // > specify a subrectangle.
-    // > The final 0 refers to the layer index offset (we start from index 0 and have 2
-    // > levels).
-    // > Altogether you can specify a 3D box subset of the overall texture, but only one
-    // > mip level at a time.
-    let formatted_pixel_bytes: Vec<u8> =
-        formatted_pixels.iter().flat_map(|p| p.0.to_vec()).collect();
 
     // prepare and generate mipmaps
     unsafe {
