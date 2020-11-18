@@ -65,6 +65,13 @@ impl DashTab {
         if tab == self {
             return None;
         }
+        // Hold on, a few tabs are "sub-tabs" -- don't change
+        if tab == DashTab::FinishedTripTable {
+            if self == DashTab::CancelledTripTable || self == DashTab::UnfinishedTripTable {
+                return None;
+            }
+        }
+
         Some(Transition::Replace(match tab {
             DashTab::FinishedTripTable => FinishedTripTable::new(ctx, app),
             DashTab::TripSummaries => {
