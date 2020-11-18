@@ -230,12 +230,6 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Integration tests</span>
 
@@ -247,9 +241,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{
-    <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">SpawnTrip</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>,
-};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 
 <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;&gt;</span> {
     <span class="ident">test_lane_changing</span>(<span class="kw-2">&amp;</span><span class="ident">import_map</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(
@@ -431,18 +423,14 @@
                 <span class="comment">// the way, there&#39;s a fixed retry time in the simulation that we&#39;ll hit.</span>
                 <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">id</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">-</span> <span class="number">0.5</span>).<span class="ident">max</span>(<span class="ident">Duration</span>::<span class="ident">ZERO</span>),
                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                <span class="ident">SpawnTrip</span>::<span class="ident">new</span>(
-                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">from</span>),
-                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">to</span>),
-                    <span class="comment">// About half cars, half bikes</span>
-                    <span class="kw">if</span> <span class="ident">id</span>.<span class="number">0</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span> {
-                        <span class="ident">TripMode</span>::<span class="ident">Drive</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">TripMode</span>::<span class="ident">Bike</span>
-                    },
-                    <span class="kw-2">&amp;</span><span class="ident">map</span>,
-                )
-                .<span class="ident">unwrap</span>(),
+                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">from</span>),
+                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">to</span>),
+                <span class="comment">// About half cars, half bikes</span>
+                <span class="kw">if</span> <span class="ident">id</span>.<span class="number">0</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span> {
+                    <span class="ident">TripMode</span>::<span class="ident">Drive</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">TripMode</span>::<span class="ident">Bike</span>
+                },
             )],
         });
     }

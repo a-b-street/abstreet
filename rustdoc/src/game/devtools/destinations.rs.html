@@ -189,7 +189,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_bldg</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">scenario</span>.<span class="ident">people</span> {
             <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">trips</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">trip</span>.<span class="ident">end</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">to</span> {
                     <span class="ident">per_bldg</span>.<span class="ident">inc</span>(<span class="ident">b</span>);
                 }
             }
