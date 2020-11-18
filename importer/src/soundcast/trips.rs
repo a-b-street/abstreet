@@ -3,9 +3,7 @@ use std::collections::HashMap;
 use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
 use geom::LonLat;
 use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
-use sim::{
-    IndividTrip, OrigPersonID, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, TripMode,
-};
+use sim::{IndividTrip, OrigPersonID, PersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
 
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 
@@ -244,36 +242,23 @@ pub fn make_weekday_scenario(
     huge_map: &Map,
     timer: &mut Timer,
 ) -> Scenario {
-    let trips = clip_trips(map, popdat, huge_map, timer);
-    let orig_trips = trips.len();
-
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
         MultiMap::new();
-    for (trip, depart, person, seq, purpose) in timer.parallelize(
-        "turn Soundcast trips into SpawnTrips",
-        Parallelism::Polite,
-        trips,
-        |trip| {
-            (
-                SpawnTrip::new(trip.from, trip.to, trip.orig.mode, map),
-                trip.orig.depart_at,
-                trip.orig.person,
-                trip.orig.seq,
-                trip.orig.purpose,
-            )
-        },
-    ) {
-        if let Some(trip) = trip {
-            let idx = individ_trips.len();
-            individ_trips.push(Some(IndividTrip::new(depart, purpose, trip)));
-            trips_per_person.insert(person, (seq, idx));
-        }
+    for trip in clip_trips(map, popdat, huge_map, timer) {
+        let idx = individ_trips.len();
+        individ_trips.push(Some(IndividTrip::new(
+            trip.orig.depart_at,
+            trip.orig.purpose,
+            trip.from,
+            trip.to,
+            trip.orig.mode,
+        )));
+        trips_per_person.insert(trip.orig.person, (trip.orig.seq, idx));
     }
     timer.note(format!(
-        "{} clipped trips down to {}, over {} people",
-        prettyprint_usize(orig_trips),
+        "{} clipped trips, over {} people",
         prettyprint_usize(individ_trips.len()),
         prettyprint_usize(trips_per_person.len())
     ));
@@ -307,5 +292,5 @@ pub fn make_weekday_scenario(
         people,
         only_seed_buses: None,
     }
-    .remove_weird_schedules(map)
+    .remove_weird_schedules()
 }

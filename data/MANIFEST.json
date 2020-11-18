@@ -481,36 +481,36 @@
       "size_bytes": 9004723
     },
     "data/system/seattle/scenarios/ballard/weekday.bin": {
-      "checksum": "f014c2bdce9768f63ab32d24c332dcbe",
-      "size_bytes": 29686654
+      "checksum": "b85c1f2649d9f5653a6892530f531bd5",
+      "size_bytes": 25996430
     },
     "data/system/seattle/scenarios/downtown/weekday.bin": {
-      "checksum": "6d7c71d64774b5ae53d17b7e4a494a5a",
-      "size_bytes": 57831457
+      "checksum": "c4fa49791d9044953357646547d44c94",
+      "size_bytes": 46149242
     },
     "data/system/seattle/scenarios/huge_seattle/weekday.bin": {
-      "checksum": "de9bedc7ebe58af8f17485ea4a01af49",
-      "size_bytes": 153841978
+      "checksum": "838e4da4ecde804e189ae1a723aac875",
+      "size_bytes": 134353259
     },
     "data/system/seattle/scenarios/lakeslice/weekday.bin": {
-      "checksum": "e2037dc1a2059ac9021c0d2b53a53fbb",
-      "size_bytes": 12677894
+      "checksum": "ab537ab45dc0696203a7795693d50d75",
+      "size_bytes": 10936762
     },
     "data/system/seattle/scenarios/montlake/weekday.bin": {
-      "checksum": "18e44a3556f382c928e5a35896963133",
-      "size_bytes": 1762819
+      "checksum": "56a8d73b8ed7c961399ae1e86ba7d9ba",
+      "size_bytes": 1536335
     },
     "data/system/seattle/scenarios/south_seattle/weekday.bin": {
-      "checksum": "fea36775a87e95fcc810df2faf7be78a",
-      "size_bytes": 37663645
+      "checksum": "493bb5cc11b2814e4a3b0fe547b8d356",
+      "size_bytes": 33451749
     },
     "data/system/seattle/scenarios/udistrict/weekday.bin": {
-      "checksum": "0d62a92263ef91b3e9ad36312cd8b9df",
-      "size_bytes": 13137921
+      "checksum": "f8fb713f39b4054704560c0c65db2b22",
+      "size_bytes": 11070560
     },
     "data/system/seattle/scenarios/west_seattle/weekday.bin": {
-      "checksum": "e1d0df68c84091ee6e0a6dd22b1235f2",
-      "size_bytes": 27282051
+      "checksum": "9ebd16bc8f33a4d539b91ff762c3888d",
+      "size_bytes": 24859939
     },
     "data/system/tel_aviv/maps/center.bin": {
       "checksum": "d395118f968b001898aba749d20cac02",

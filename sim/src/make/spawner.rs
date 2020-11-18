@@ -4,12 +4,11 @@
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
-use geom::Time;
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 
 use crate::{
-    CarID, Command, DrivingGoal, PersonID, Scheduler, SidewalkSpot, TripEndpoint, TripLeg,
-    TripManager, TripMode, TripPurpose, VehicleType,
+    CarID, Command, DrivingGoal, PersonID, Scheduler, SidewalkSpot, TripInfo, TripLeg, TripManager,
+    VehicleType,
 };
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
@@ -52,15 +51,7 @@ pub enum TripSpec {
     },
 }
 
-type TripSpawnPlan = (
-    PersonID,
-    Time,
-    TripSpec,
-    TripEndpoint,
-    TripPurpose,
-    bool,
-    bool,
-);
+type TripSpawnPlan = (PersonID, TripSpec, TripInfo);
 
 /// This structure is created temporarily by a Scenario or to interactively spawn agents.
 pub struct TripSpawner {
@@ -77,12 +68,8 @@ impl TripSpawner {
     pub fn schedule_trip(
         &self,
         person: PersonID,
-        start_time: Time,
         mut spec: TripSpec,
-        trip_start: TripEndpoint,
-        purpose: TripPurpose,
-        cancelled: bool,
-        modified: bool,
+        info: TripInfo,
         map: &Map,
     ) -> TripSpawnPlan {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
@@ -179,9 +166,7 @@ impl TripSpawner {
             TripSpec::UsingTransit { .. } => {}
         };
 
-        (
-            person, start_time, spec, trip_start, purpose, cancelled, modified,
-        )
+        (person, spec, info)
     }
 
     pub fn schedule_trips(&mut self, trips: Vec<TripSpawnPlan>) {
@@ -196,13 +181,14 @@ impl TripSpawner {
         timer: &mut Timer,
     ) {
         timer.start_iter("spawn trips", self.trips.len());
-        for (p, start_time, spec, trip_start, purpose, cancelled, modified) in self.trips.drain(..)
-        {
+        for (p, spec, info) in self.trips.drain(..) {
             timer.next();
 
             // TODO clone() is super weird to do here, but we just need to make the borrow checker
             // happy. All we're doing is grabbing IDs off this.
             let person = trips.get_person(p).unwrap().clone();
+            let departure = info.departure;
+            let cancellation_reason = info.cancellation_reason.clone();
             // Just create the trip for each case.
             // TODO Not happy about this clone()
             let trip = match spec.clone() {
@@ -213,42 +199,13 @@ impl TripSpawner {
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                     }
-                    trips.new_trip(
-                        person.id,
-                        start_time,
-                        trip_start,
-                        if use_vehicle.1 == VehicleType::Bike {
-                            TripMode::Bike
-                        } else {
-                            TripMode::Drive
-                        },
-                        purpose,
-                        modified,
-                        legs,
-                        map,
-                    )
+                    trips.new_trip(person.id, info, legs)
                 }
-                TripSpec::SpawningFailure { use_vehicle, .. } => {
-                    // TODO Need to plumb TripInfo into here
-                    todo!()
-                    /*let mut legs = vec![TripLeg::Drive(use_vehicle, goal.clone())];
-                    if let DrivingGoal::ParkNear(b) = goal {
-                        legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
-                    }
-                    trips.new_trip(
-                        person.id,
-                        start_time,
-                        trip_start,
-                        if use_vehicle.1 == VehicleType::Bike {
-                            TripMode::Bike
-                        } else {
-                            TripMode::Drive
-                        },
-                        purpose,
-                        modified,
-                        legs,
-                        map,
-                    )*/
+                TripSpec::SpawningFailure { .. } => {
+                    // TODO Is it OK to have empty trip legs?
+                    // TODO Do we have to cancel the trip or move the vehicle here?
+                    let legs = Vec::new();
+                    trips.new_trip(person.id, info, legs)
                 }
                 TripSpec::UsingParkedCar { car, goal, .. } => {
                     let mut legs = vec![
@@ -261,27 +218,11 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     }
-                    trips.new_trip(
-                        person.id,
-                        start_time,
-                        trip_start,
-                        TripMode::Drive,
-                        purpose,
-                        modified,
-                        legs,
-                        map,
-                    )
+                    trips.new_trip(person.id, info, legs)
                 }
-                TripSpec::JustWalking { goal, .. } => trips.new_trip(
-                    person.id,
-                    start_time,
-                    trip_start,
-                    TripMode::Walk,
-                    purpose,
-                    modified,
-                    vec![TripLeg::Walk(goal.clone())],
-                    map,
-                ),
+                TripSpec::JustWalking { goal, .. } => {
+                    trips.new_trip(person.id, info, vec![TripLeg::Walk(goal.clone())])
+                }
                 TripSpec::UsingBike { bike, start, goal } => {
                     let walk_to = SidewalkSpot::bike_rack(start, map).unwrap();
                     let mut legs = vec![
@@ -294,16 +235,7 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     };
-                    trips.new_trip(
-                        person.id,
-                        start_time,
-                        trip_start,
-                        TripMode::Bike,
-                        purpose,
-                        modified,
-                        legs,
-                        map,
-                    )
+                    trips.new_trip(person.id, info, legs)
                 }
                 TripSpec::UsingTransit {
                     route,
@@ -325,26 +257,14 @@ impl TripSpawner {
                             TripLeg::RideBus(route, None),
                         ]
                     };
-                    trips.new_trip(
-                        person.id,
-                        start_time,
-                        trip_start,
-                        TripMode::Transit,
-                        purpose,
-                        modified,
-                        legs,
-                        map,
-                    )
+                    trips.new_trip(person.id, info, legs)
                 }
             };
 
-            if cancelled {
-                trips.cancel_unstarted_trip(
-                    trip,
-                    format!("traffic pattern modifier cancelled this trip"),
-                );
+            if let Some(msg) = cancellation_reason {
+                trips.cancel_unstarted_trip(trip, msg);
             } else {
-                scheduler.push(start_time, Command::StartTrip(trip, spec));
+                scheduler.push(departure, Command::StartTrip(trip, spec));
             }
         }
     }

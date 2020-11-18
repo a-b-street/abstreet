@@ -16,7 +16,7 @@ use map_model::{
 use crate::make::fork_rng;
 use crate::{
     CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkSpot, Sim, TripEndpoint,
-    TripMode, TripSpawner, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
+    TripInfo, TripMode, TripSpawner, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
     MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 
@@ -210,13 +210,21 @@ impl Scenario {
                 };
                 schedule_trips.push((
                     person.id,
-                    t.depart,
                     spec,
-                    t.from.clone(),
-                    t.purpose,
-                    t.cancelled,
-                    t.modified,
-                    map,
+                    TripInfo {
+                        departure: t.depart,
+                        mode: t.mode,
+                        start: t.from.clone(),
+                        end: t.to.clone(),
+                        purpose: t.purpose,
+                        modified: t.modified,
+                        capped: false,
+                        cancellation_reason: if t.cancelled {
+                            Some(format!("cancelled by ScenarioModifier"))
+                        } else {
+                            None
+                        },
+                    },
                 ));
             }
         }
@@ -226,11 +234,7 @@ impl Scenario {
             "schedule trips",
             Parallelism::Fastest,
             schedule_trips,
-            |tuple| {
-                spawner.schedule_trip(
-                    tuple.0, tuple.1, tuple.2, tuple.3, tuple.4, tuple.5, tuple.6, tuple.7,
-                )
-            },
+            |tuple| spawner.schedule_trip(tuple.0, tuple.1, tuple.2, map),
         );
         spawner.schedule_trips(results);
 

@@ -87,49 +87,14 @@ impl TripManager {
         id
     }
 
-    pub fn new_trip(
-        &mut self,
-        person: PersonID,
-        departure: Time,
-        start: TripEndpoint,
-        mode: TripMode,
-        purpose: TripPurpose,
-        modified: bool,
-        legs: Vec<TripLeg>,
-        map: &Map,
-    ) -> TripID {
+    pub fn new_trip(&mut self, person: PersonID, info: TripInfo, legs: Vec<TripLeg>) -> TripID {
         assert!(!legs.is_empty());
         // TODO Make sure the legs constitute a valid state machine.
 
         let id = TripID(self.trips.len());
-        let end = match legs.last() {
-            Some(TripLeg::Walk(ref spot)) => match spot.connection {
-                SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                SidewalkPOI::Border(i) => TripEndpoint::Border(i),
-                _ => unreachable!(),
-            },
-            Some(TripLeg::Drive(_, ref goal)) => match goal {
-                DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
-                DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
-            },
-            Some(TripLeg::RideBus(r, ref maybe_stop2)) => {
-                assert!(maybe_stop2.is_none());
-                TripEndpoint::Border(map.get_l(map.get_br(*r).end_border.unwrap()).dst_i)
-            }
-            _ => unreachable!(),
-        };
         let trip = Trip {
             id,
-            info: TripInfo {
-                departure,
-                mode,
-                start,
-                end,
-                purpose,
-                modified,
-                capped: false,
-                cancellation_reason: None,
-            },
+            info,
             person,
             started: false,
             finished_at: None,
