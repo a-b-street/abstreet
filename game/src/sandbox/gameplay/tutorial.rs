@@ -6,7 +6,7 @@ use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
 use sim::{
     AgentID, Analytics, BorderSpawnOverTime, CarID, IndividTrip, PersonID, PersonSpec, Scenario,
-    ScenarioGenerator, SpawnOverTime, SpawnTrip, TripEndpoint, TripMode, TripPurpose, VehicleType,
+    ScenarioGenerator, SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
 };
 use widgetry::{
     hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -1068,16 +1068,12 @@ impl TutorialState {
                         trips: vec![IndividTrip::new(
                             Time::START_OF_DAY,
                             TripPurpose::Shopping,
-                            SpawnTrip::new(
-                                TripEndpoint::SuddenlyAppear(Position::new(
-                                    start_lane,
-                                    map.get_l(start_lane).length() * 0.8,
-                                )),
-                                TripEndpoint::Bldg(goal_bldg),
-                                TripMode::Drive,
-                                map,
-                            )
-                            .unwrap(),
+                            TripEndpoint::SuddenlyAppear(Position::new(
+                                start_lane,
+                                map.get_l(start_lane).length() * 0.8,
+                            )),
+                            TripEndpoint::Bldg(goal_bldg),
+                            TripMode::Drive,
                         )],
                     });
                     // Will definitely get there first
@@ -1088,16 +1084,12 @@ impl TutorialState {
                             trips: vec![IndividTrip::new(
                                 Time::START_OF_DAY,
                                 TripPurpose::Shopping,
-                                SpawnTrip::new(
-                                    TripEndpoint::SuddenlyAppear(Position::new(
-                                        lane_near_bldg,
-                                        map.get_l(lane_near_bldg).length() / 2.0,
-                                    )),
-                                    TripEndpoint::Bldg(goal_bldg),
-                                    TripMode::Drive,
-                                    map,
-                                )
-                                .unwrap(),
+                                TripEndpoint::SuddenlyAppear(Position::new(
+                                    lane_near_bldg,
+                                    map.get_l(lane_near_bldg).length() / 2.0,
+                                )),
+                                TripEndpoint::Bldg(goal_bldg),
+                                TripMode::Drive,
                             )],
                         });
                     }

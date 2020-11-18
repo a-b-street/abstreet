@@ -6,7 +6,7 @@ use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::Map;
 
-use crate::{IndividTrip, PersonID, Scenario, SpawnTrip, TripMode};
+use crate::{PersonID, Scenario, TripMode};
 
 /// Transforms an existing Scenario before instantiating it.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
@@ -53,19 +53,12 @@ impl ScenarioModifier {
                         if trip.depart < departure_filter.0 || trip.depart > departure_filter.1 {
                             continue;
                         }
-                        if !from_modes.contains(&trip.trip.mode()) {
+                        if !from_modes.contains(&trip.mode) {
                             continue;
                         }
                         if let Some(to_mode) = *to_mode {
-                            if let Some(new) = SpawnTrip::new(
-                                trip.trip.start(map),
-                                trip.trip.end(map),
-                                to_mode,
-                                map,
-                            ) {
-                                trip.modified = true;
-                                trip.trip = new;
-                            }
+                            trip.mode = to_mode;
+                            trip.modified = true;
                         } else {
                             trip.modified = true;
                             trip.cancelled = true;
@@ -131,8 +124,8 @@ fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
         let mut offset = Duration::ZERO;
         for _ in 0..days {
             for trip in &person.trips {
-                let mut new =
-                    IndividTrip::new(trip.depart + offset, trip.purpose, trip.trip.clone());
+                let mut new = trip.clone();
+                new.depart += offset;
                 new.modified = true;
                 trips.push(new);
             }

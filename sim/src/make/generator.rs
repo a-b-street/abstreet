@@ -12,9 +12,7 @@ use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::{IntersectionID, Map};
 
-use crate::{
-    IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, TripMode, TripPurpose,
-};
+use crate::{IndividTrip, PersonID, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 // TODO This can be simplified dramatically.
 
@@ -182,20 +180,19 @@ impl SpawnOverTime {
         } else {
             TripMode::Walk
         };
-        if let Some(trip) = SpawnTrip::new(
-            TripEndpoint::Bldg(from_bldg),
-            self.goal
-                .clone()
-                .unwrap_or_else(|| TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)),
-            mode,
-            map,
-        ) {
-            scenario.people.push(PersonSpec {
-                id,
-                orig_id: None,
-                trips: vec![IndividTrip::new(depart, TripPurpose::Shopping, trip)],
-            });
-        }
+        scenario.people.push(PersonSpec {
+            id,
+            orig_id: None,
+            trips: vec![IndividTrip::new(
+                depart,
+                TripPurpose::Shopping,
+                TripEndpoint::Bldg(from_bldg),
+                self.goal.clone().unwrap_or_else(|| {
+                    TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)
+                }),
+                mode,
+            )],
+        });
     }
 }
 
@@ -203,20 +200,19 @@ impl BorderSpawnOverTime {
     fn spawn(&self, rng: &mut XorShiftRng, scenario: &mut Scenario, mode: TripMode, map: &Map) {
         let depart = rand_time(rng, self.start_time, self.stop_time);
         let id = PersonID(scenario.people.len());
-        if let Some(trip) = SpawnTrip::new(
-            TripEndpoint::Border(self.start_from_border),
-            self.goal
-                .clone()
-                .unwrap_or_else(|| TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)),
-            mode,
-            map,
-        ) {
-            scenario.people.push(PersonSpec {
-                id,
-                orig_id: None,
-                trips: vec![IndividTrip::new(depart, TripPurpose::Shopping, trip)],
-            });
-        }
+        scenario.people.push(PersonSpec {
+            id,
+            orig_id: None,
+            trips: vec![IndividTrip::new(
+                depart,
+                TripPurpose::Shopping,
+                TripEndpoint::Border(self.start_from_border),
+                self.goal.clone().unwrap_or_else(|| {
+                    TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)
+                }),
+                mode,
+            )],
+        });
     }
 }
 

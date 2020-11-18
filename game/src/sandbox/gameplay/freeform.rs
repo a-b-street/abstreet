@@ -4,9 +4,7 @@ use rand::Rng;
 use abstutil::Timer;
 use geom::{Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
-use sim::{
-    IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, TripMode, TripPurpose,
-};
+use sim::{IndividTrip, PersonID, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     ScreenRectangle, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
@@ -281,22 +279,17 @@ impl State<App> for AgentSpawner {
                     let from = self.source.take().unwrap();
                     let to = self.goal.take().unwrap().0;
                     for i in 0..self.panel.spinner("number") as usize {
-                        if let Some(trip) = SpawnTrip::new(
-                            from.clone(),
-                            to.clone(),
-                            self.panel.dropdown_value("mode"),
-                            map,
-                        ) {
-                            scenario.people.push(PersonSpec {
-                                id: PersonID(app.primary.sim.get_all_people().len() + i),
-                                orig_id: None,
-                                trips: vec![IndividTrip::new(
-                                    app.primary.sim.time(),
-                                    TripPurpose::Shopping,
-                                    trip,
-                                )],
-                            });
-                        }
+                        scenario.people.push(PersonSpec {
+                            id: PersonID(app.primary.sim.get_all_people().len() + i),
+                            orig_id: None,
+                            trips: vec![IndividTrip::new(
+                                app.primary.sim.time(),
+                                TripPurpose::Shopping,
+                                from.clone(),
+                                to.clone(),
+                                self.panel.dropdown_value("mode"),
+                            )],
+                        });
                     }
                     let mut rng = app.primary.current_flags.sim_flags.make_rng();
                     scenario.instantiate(
@@ -482,16 +475,12 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                     trips: vec![IndividTrip::new(
                         app.primary.sim.time(),
                         TripPurpose::Shopping,
-                        SpawnTrip::new(
-                            TripEndpoint::SuddenlyAppear(Position::new(
-                                lane.id,
-                                Scenario::rand_dist(&mut rng, Distance::ZERO, lane.length()),
-                            )),
-                            TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
-                            mode,
-                            map,
-                        )
-                        .unwrap(),
+                        TripEndpoint::SuddenlyAppear(Position::new(
+                            lane.id,
+                            Scenario::rand_dist(&mut rng, Distance::ZERO, lane.length()),
+                        )),
+                        TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
+                        mode,
                     )],
                 });
             }
@@ -503,20 +492,12 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                     trips: vec![IndividTrip::new(
                         app.primary.sim.time(),
                         TripPurpose::Shopping,
-                        SpawnTrip::new(
-                            TripEndpoint::SuddenlyAppear(Position::new(
-                                lane.id,
-                                Scenario::rand_dist(
-                                    &mut rng,
-                                    0.1 * lane.length(),
-                                    0.9 * lane.length(),
-                                ),
-                            )),
-                            TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
-                            TripMode::Walk,
-                            map,
-                        )
-                        .unwrap(),
+                        TripEndpoint::SuddenlyAppear(Position::new(
+                            lane.id,
+                            Scenario::rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
+                        )),
+                        TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
+                        TripMode::Walk,
                     )],
                 });
             }

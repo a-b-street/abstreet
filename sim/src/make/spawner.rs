@@ -23,10 +23,9 @@ pub enum TripSpec {
         use_vehicle: CarID,
         retry_if_no_room: bool,
     },
-    /// Something went wrong spawning a vehicle.
+    /// Something went wrong spawning the trip.
     SpawningFailure {
-        goal: DrivingGoal,
-        use_vehicle: CarID,
+        use_vehicle: Option<CarID>,
         error: String,
     },
     UsingParkedCar {
@@ -115,8 +114,7 @@ impl TripSpawner {
                 };
                 if goal.goal_pos(constraints, map).is_none() {
                     spec = TripSpec::SpawningFailure {
-                        goal: goal.clone(),
-                        use_vehicle: use_vehicle.clone(),
+                        use_vehicle: Some(use_vehicle.clone()),
                         error: format!("goal_pos to {:?} for a {:?} failed", goal, constraints),
                     };
                 }
@@ -170,8 +168,7 @@ impl TripSpawner {
                     spec = backup_plan.unwrap();
                 } else {
                     spec = TripSpec::SpawningFailure {
-                        goal: goal.clone(),
-                        use_vehicle: *bike,
+                        use_vehicle: Some(*bike),
                         error: format!(
                             "Can't start biking from {} and can't walk either! Goal is {:?}",
                             start, goal
@@ -231,10 +228,10 @@ impl TripSpawner {
                         map,
                     )
                 }
-                TripSpec::SpawningFailure {
-                    goal, use_vehicle, ..
-                } => {
-                    let mut legs = vec![TripLeg::Drive(use_vehicle, goal.clone())];
+                TripSpec::SpawningFailure { use_vehicle, .. } => {
+                    // TODO Need to plumb TripInfo into here
+                    todo!()
+                    /*let mut legs = vec![TripLeg::Drive(use_vehicle, goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
                     }
@@ -251,7 +248,7 @@ impl TripSpawner {
                         modified,
                         legs,
                         map,
-                    )
+                    )*/
                 }
                 TripSpec::UsingParkedCar { car, goal, .. } => {
                     let mut legs = vec![

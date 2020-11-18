@@ -22,7 +22,7 @@ impl PopularDestinations {
         let mut per_bldg = Counter::new();
         for p in &scenario.people {
             for trip in &p.trips {
-                if let TripEndpoint::Bldg(b) = trip.trip.end(&app.primary.map) {
+                if let TripEndpoint::Bldg(b) = trip.to {
                     per_bldg.inc(b);
                 }
             }

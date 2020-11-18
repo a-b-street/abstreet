@@ -8,9 +8,7 @@ use rand::seq::SliceRandom;
 use abstutil::{MapName, Timer};
 use geom::{Duration, Time};
 use map_model::{IntersectionID, Map};
-use sim::{
-    IndividTrip, PersonID, PersonSpec, Scenario, SpawnTrip, TripEndpoint, TripMode, TripPurpose,
-};
+use sim::{IndividTrip, PersonID, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     test_lane_changing(&import_map(abstutil::path(
@@ -192,18 +190,14 @@ fn test_lane_changing(map: &Map) -> Result<(), String> {
                 // the way, there's a fixed retry time in the simulation that we'll hit.
                 Time::START_OF_DAY + Duration::seconds(id.0 as f64 - 0.5).max(Duration::ZERO),
                 TripPurpose::Shopping,
-                SpawnTrip::new(
-                    TripEndpoint::Border(from),
-                    TripEndpoint::Border(to),
-                    // About half cars, half bikes
-                    if id.0 % 2 == 0 {
-                        TripMode::Drive
-                    } else {
-                        TripMode::Bike
-                    },
-                    &map,
-                )
-                .unwrap(),
+                TripEndpoint::Border(from),
+                TripEndpoint::Border(to),
+                // About half cars, half bikes
+                if id.0 % 2 == 0 {
+                    TripMode::Drive
+                } else {
+                    TripMode::Bike
+                },
             )],
         });
     }

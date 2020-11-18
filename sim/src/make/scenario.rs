@@ -15,8 +15,8 @@ use map_model::{
 
 use crate::make::fork_rng;
 use crate::{
-    CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkPOI, SidewalkSpot, Sim,
-    TripEndpoint, TripMode, TripSpawner, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
+    CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkSpot, Sim, TripEndpoint,
+    TripMode, TripSpawner, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
     MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
 };
 
@@ -42,7 +42,9 @@ pub struct PersonSpec {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct IndividTrip {
     pub depart: Time,
-    pub trip: SpawnTrip,
+    pub from: TripEndpoint,
+    pub to: TripEndpoint,
+    pub mode: TripMode,
     pub purpose: TripPurpose,
     pub cancelled: bool,
     /// Did a ScenarioModifier affect this?
@@ -50,10 +52,18 @@ pub struct IndividTrip {
 }
 
 impl IndividTrip {
-    pub fn new(depart: Time, purpose: TripPurpose, trip: SpawnTrip) -> IndividTrip {
+    pub fn new(
+        depart: Time,
+        purpose: TripPurpose,
+        from: TripEndpoint,
+        to: TripEndpoint,
+        mode: TripMode,
+    ) -> IndividTrip {
         IndividTrip {
             depart,
-            trip,
+            from,
+            to,
+            mode,
             purpose,
             cancelled: false,
             modified: false,
@@ -62,7 +72,7 @@ impl IndividTrip {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum SpawnTrip {
+enum SpawnTrip {
     /// Only for interactive / debug trips
     VehicleAppearing {
         start: Position,
@@ -165,7 +175,7 @@ impl Scenario {
         for p in &self.people {
             timer.next();
 
-            if let Err(err) = p.check_schedule(map) {
+            if let Err(err) = p.check_schedule() {
                 panic!("{}", err);
             }
 
@@ -185,17 +195,24 @@ impl Scenario {
                 // The RNG call might change over edits for picking the spawning lane from a border
                 // with multiple choices for a vehicle type.
                 let mut tmp_rng = fork_rng(rng);
-                let spec = t.trip.clone().to_trip_spec(
-                    maybe_idx.map(|idx| person.vehicles[idx].id),
-                    retry_if_no_room,
-                    &mut tmp_rng,
-                    map,
-                );
+                let spec = match SpawnTrip::new(t.from.clone(), t.to.clone(), t.mode, map) {
+                    Some(trip) => trip.to_trip_spec(
+                        maybe_idx.map(|idx| person.vehicles[idx].id),
+                        retry_if_no_room,
+                        &mut tmp_rng,
+                        map,
+                    ),
+                    None => TripSpec::SpawningFailure {
+                        use_vehicle: maybe_idx.map(|idx| person.vehicles[idx].id),
+                        // TODO Collapse SpawnTrip::new and to_trip_spec and plumb better errors
+                        error: format!("unknown spawning error"),
+                    },
+                };
                 schedule_trips.push((
                     person.id,
                     t.depart,
                     spec,
-                    t.trip.start(map),
+                    t.from.clone(),
                     t.purpose,
                     t.cancelled,
                     t.modified,
@@ -299,16 +316,15 @@ impl Scenario {
         per_bldg
     }
 
-    pub fn remove_weird_schedules(mut self, map: &Map) -> Scenario {
+    pub fn remove_weird_schedules(mut self) -> Scenario {
         let orig = self.people.len();
-        self.people
-            .retain(|person| match person.check_schedule(map) {
-                Ok(()) => true,
-                Err(err) => {
-                    println!("{}", err);
-                    false
-                }
-            });
+        self.people.retain(|person| match person.check_schedule() {
+            Ok(()) => true,
+            Err(err) => {
+                println!("{}", err);
+                false
+            }
+        });
         println!(
             "{} of {} people have nonsense schedules",
             prettyprint_usize(orig - self.people.len()),
@@ -471,8 +487,7 @@ impl SpawnTrip {
                     }
                 } else {
                     TripSpec::SpawningFailure {
-                        goal,
-                        use_vehicle: use_vehicle.unwrap(),
+                        use_vehicle,
                         error: format!("{} has no lanes to spawn a {:?}", dr.id, constraints),
                     }
                 }
@@ -500,72 +515,7 @@ impl SpawnTrip {
         }
     }
 
-    // TODO Why do I feel like this code is sitting somewhere else already
-    pub fn mode(&self) -> TripMode {
-        match self {
-            SpawnTrip::VehicleAppearing { is_bike, .. } => {
-                if *is_bike {
-                    TripMode::Bike
-                } else {
-                    TripMode::Drive
-                }
-            }
-            SpawnTrip::FromBorder { is_bike, .. } => {
-                if *is_bike {
-                    TripMode::Bike
-                } else {
-                    TripMode::Drive
-                }
-            }
-            SpawnTrip::UsingParkedCar(_, _) => TripMode::Drive,
-            SpawnTrip::UsingBike(_, _) => TripMode::Bike,
-            SpawnTrip::JustWalking(_, _) => TripMode::Walk,
-            SpawnTrip::UsingTransit(_, _, _, _, _) => TripMode::Transit,
-        }
-    }
-
-    pub fn start(&self, map: &Map) -> TripEndpoint {
-        match self {
-            SpawnTrip::VehicleAppearing { start, .. } => TripEndpoint::SuddenlyAppear(*start),
-            SpawnTrip::FromBorder { dr, .. } => TripEndpoint::Border(dr.src_i(map)),
-            SpawnTrip::UsingParkedCar(b, _) => TripEndpoint::Bldg(*b),
-            SpawnTrip::UsingBike(b, _) => TripEndpoint::Bldg(*b),
-            SpawnTrip::JustWalking(ref spot, _) | SpawnTrip::UsingTransit(ref spot, _, _, _, _) => {
-                match spot.connection {
-                    SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                    SidewalkPOI::Border(i) => TripEndpoint::Border(i),
-                    SidewalkPOI::SuddenlyAppear => TripEndpoint::SuddenlyAppear(spot.sidewalk_pos),
-                    _ => unreachable!(),
-                }
-            }
-        }
-    }
-
-    pub fn end(&self, _: &Map) -> TripEndpoint {
-        match self {
-            SpawnTrip::VehicleAppearing { ref goal, .. }
-            | SpawnTrip::FromBorder { ref goal, .. }
-            | SpawnTrip::UsingParkedCar(_, ref goal)
-            | SpawnTrip::UsingBike(_, ref goal) => match goal {
-                DrivingGoal::ParkNear(b) => TripEndpoint::Bldg(*b),
-                DrivingGoal::Border(i, _) => TripEndpoint::Border(*i),
-            },
-            SpawnTrip::JustWalking(_, ref spot) | SpawnTrip::UsingTransit(_, ref spot, _, _, _) => {
-                match spot.connection {
-                    SidewalkPOI::Building(b) => TripEndpoint::Bldg(b),
-                    SidewalkPOI::Border(i) => TripEndpoint::Border(i),
-                    _ => unreachable!(),
-                }
-            }
-        }
-    }
-
-    pub fn new(
-        from: TripEndpoint,
-        to: TripEndpoint,
-        mode: TripMode,
-        map: &Map,
-    ) -> Option<SpawnTrip> {
+    fn new(from: TripEndpoint, to: TripEndpoint, mode: TripMode, map: &Map) -> Option<SpawnTrip> {
         Some(match mode {
             TripMode::Drive => match from {
                 TripEndpoint::Bldg(b) => {
@@ -619,7 +569,7 @@ impl SpawnTrip {
 
 impl PersonSpec {
     // Verify that the trip start/endpoints of the person match up
-    fn check_schedule(&self, map: &Map) -> Result<(), String> {
+    fn check_schedule(&self) -> Result<(), String> {
         for pair in self.trips.iter().zip(self.trips.iter().skip(1)) {
             if pair.0.depart >= pair.1.depart {
                 return Err(format!(
@@ -629,11 +579,11 @@ impl PersonSpec {
             }
 
             // Once off-map, re-enter via any border node.
-            let end_bldg = match pair.0.trip.end(map) {
+            let end_bldg = match pair.0.to {
                 TripEndpoint::Bldg(b) => Some(b),
                 TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => None,
             };
-            let start_bldg = match pair.1.trip.start(map) {
+            let start_bldg = match pair.1.from {
                 TripEndpoint::Bldg(b) => Some(b),
                 TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => None,
             };
@@ -666,85 +616,51 @@ impl PersonSpec {
 
         // TODO If the trip is cancelled, this should be affected...
         for trip in &self.trips {
-            let use_for_trip = match trip.trip {
-                SpawnTrip::VehicleAppearing {
-                    is_bike, ref goal, ..
-                }
-                | SpawnTrip::FromBorder {
-                    is_bike, ref goal, ..
-                } => {
-                    if is_bike {
-                        if bike_idx.is_none() {
-                            bike_idx = Some(vehicle_specs.len());
-                            vehicle_specs.push(Scenario::rand_bike(rng));
-                        }
-                        bike_idx
-                    } else {
-                        // Any available cars off-map?
-                        let idx = if let Some(idx) = car_locations
-                            .iter()
-                            .find(|(_, parked_at)| parked_at.is_none())
-                            .map(|(idx, _)| *idx)
-                        {
-                            idx
-                        } else {
-                            // Need a new car, starting off-map
-                            let idx = vehicle_specs.len();
-                            vehicle_specs.push(Scenario::rand_car(rng));
-                            idx
-                        };
-
-                        // Where does this car wind up?
-                        car_locations.retain(|(i, _)| idx != *i);
-                        match goal {
-                            DrivingGoal::ParkNear(b) => {
-                                car_locations.push((idx, Some(*b)));
-                            }
-                            DrivingGoal::Border(_, _) => {
-                                car_locations.push((idx, None));
-                            }
-                        }
-
-                        Some(idx)
-                    }
-                }
-                SpawnTrip::UsingParkedCar(b, ref goal) => {
-                    // Is there already a car parked here?
-                    let idx = if let Some(idx) = car_locations
-                        .iter()
-                        .find(|(_, parked_at)| *parked_at == Some(b))
-                        .map(|(idx, _)| *idx)
-                    {
-                        idx
-                    } else {
-                        // Need a new car, starting at this building
-                        let idx = vehicle_specs.len();
-                        vehicle_specs.push(Scenario::rand_car(rng));
-                        cars_initially_parked_at.push((idx, b));
-                        idx
-                    };
-
-                    // Where does this car wind up?
-                    car_locations.retain(|(i, _)| idx != *i);
-                    match goal {
-                        DrivingGoal::ParkNear(b) => {
-                            car_locations.push((idx, Some(*b)));
-                        }
-                        DrivingGoal::Border(_, _) => {
-                            car_locations.push((idx, None));
-                        }
-                    }
-
-                    Some(idx)
-                }
-                SpawnTrip::UsingBike(_, _) => {
+            let use_for_trip = match trip.mode {
+                TripMode::Walk | TripMode::Transit => None,
+                TripMode::Bike => {
                     if bike_idx.is_none() {
                         bike_idx = Some(vehicle_specs.len());
                         vehicle_specs.push(Scenario::rand_bike(rng));
                     }
                     bike_idx
                 }
-                SpawnTrip::JustWalking(_, _) | SpawnTrip::UsingTransit(_, _, _, _, _) => None,
+                TripMode::Drive => {
+                    let need_parked_at = match trip.from {
+                        TripEndpoint::Bldg(b) => Some(b),
+                        _ => None,
+                    };
+
+                    // Any available cars in the right spot?
+                    let idx = if let Some(idx) = car_locations
+                        .iter()
+                        .find(|(_, parked_at)| *parked_at == need_parked_at)
+                        .map(|(idx, _)| *idx)
+                    {
+                        idx
+                    } else {
+                        // Need a new car, starting in the right spot
+                        let idx = vehicle_specs.len();
+                        vehicle_specs.push(Scenario::rand_car(rng));
+                        if let Some(b) = need_parked_at {
+                            cars_initially_parked_at.push((idx, b));
+                        }
+                        idx
+                    };
+
+                    // Where does this car wind up?
+                    car_locations.retain(|(i, _)| idx != *i);
+                    match trip.to {
+                        TripEndpoint::Bldg(b) => {
+                            car_locations.push((idx, Some(b)));
+                        }
+                        TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => {
+                            car_locations.push((idx, None));
+                        }
+                    }
+
+                    Some(idx)
+                }
             };
             vehicle_foreach_trip.push(use_for_trip);
         }

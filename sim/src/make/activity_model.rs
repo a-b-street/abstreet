@@ -13,8 +13,8 @@ use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
 
 use crate::make::fork_rng;
 use crate::{
-    IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, SpawnTrip, TripEndpoint,
-    TripMode, TripPurpose,
+    IndividTrip, PersonID, PersonSpec, Scenario, ScenarioGenerator, TripEndpoint, TripMode,
+    TripPurpose,
 };
 
 impl ScenarioGenerator {
@@ -172,7 +172,7 @@ impl ScenarioGenerator {
                 "create people: making PersonSpec from endpoints",
                 Parallelism::Fastest,
                 person_params,
-                |(home, work, mut rng)| match create_prole(&home, &work, map, &mut rng) {
+                |(home, work, mut rng)| match create_prole(home, work, map, &mut rng) {
                     Ok(person) => Some(person),
                     Err(e) => {
                         trace!("Unable to create person. error: {}", e);
@@ -206,8 +206,8 @@ impl ScenarioGenerator {
 }
 
 fn create_prole(
-    home: &TripEndpoint,
-    work: &TripEndpoint,
+    home: TripEndpoint,
+    work: TripEndpoint,
     map: &Map,
     rng: &mut XorShiftRng,
 ) -> Result<PersonSpec, Box<dyn std::error::Error>> {
@@ -217,7 +217,7 @@ fn create_prole(
         return Err("TODO: handle working and living in the same building".into());
     }
 
-    let mode = match (home, work) {
+    let mode = match (&home, &work) {
         // commuting entirely within map
         (TripEndpoint::Bldg(home_bldg), TripEndpoint::Bldg(work_bldg)) => {
             // Decide mode based on walking distance. If the buildings aren't connected,
@@ -272,18 +272,19 @@ fn create_prole(
         );
     }
 
-    let goto_work = SpawnTrip::new(home.clone(), work.clone(), mode, map)
-        .ok_or("unable to spawn 'goto work' trip")?;
-    let return_home = SpawnTrip::new(work.clone(), home.clone(), mode, map)
-        .ok_or("unable to spawn 'return home' trip")?;
-
     Ok(PersonSpec {
         // Fix this outside the parallelism
         id: PersonID(0),
         orig_id: None,
         trips: vec![
-            IndividTrip::new(depart_am, TripPurpose::Work, goto_work),
-            IndividTrip::new(depart_pm, TripPurpose::Home, return_home),
+            IndividTrip::new(
+                depart_am,
+                TripPurpose::Work,
+                home.clone(),
+                work.clone(),
+                mode,
+            ),
+            IndividTrip::new(depart_pm, TripPurpose::Home, work, home, mode),
         ],
     })
 }

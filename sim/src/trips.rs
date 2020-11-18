@@ -12,7 +12,7 @@ use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
     Event, IndividTrip, OrigPersonID, ParkedCar, ParkingSim, ParkingSpot, PedestrianID, PersonID,
-    PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, SpawnTrip, TransitSimState, TripID,
+    PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID,
     TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
 };
 
@@ -1071,8 +1071,8 @@ impl TripManager {
             TripSpec::SpawningFailure {
                 use_vehicle, error, ..
             } => {
-                let vehicle = person.get_vehicle(use_vehicle);
-                self.cancel_trip(now, trip, error, Some(vehicle), ctx);
+                let vehicle = use_vehicle.map(|v| person.get_vehicle(v));
+                self.cancel_trip(now, trip, error, vehicle, ctx);
             }
             TripSpec::UsingParkedCar {
                 car, start_bldg, ..
@@ -1314,10 +1314,8 @@ impl TripManager {
         times
     }
 
-    // TODO This could be lossy. There are a few layers in spawning trips, and things like
-    // spawn_agents_around reach into one of the middle layers directly. So here in TripManager, we
-    // might not have retained enough state to create a proper scenario. But this should work
-    // reasonably for most cases.
+    /// Recreate the Scenario from an instantiated simulation. The results should match the
+    /// original Scenario used.
     pub fn generate_scenario(&self, map: &Map, name: String) -> Scenario {
         let mut scenario = Scenario::empty(map, &name);
         for p in &self.people {
@@ -1327,17 +1325,15 @@ impl TripManager {
                 trips: p
                     .trips
                     .iter()
-                    .filter_map(|t| {
+                    .map(|t| {
                         let trip = &self.trips[t.0];
-                        SpawnTrip::new(
+                        IndividTrip::new(
+                            trip.info.departure,
+                            trip.info.purpose,
                             trip.info.start.clone(),
                             trip.info.end.clone(),
                             trip.info.mode,
-                            map,
                         )
-                        .map(|spawn| {
-                            IndividTrip::new(trip.info.departure, trip.info.purpose, spawn)
-                        })
                     })
                     .collect(),
             });

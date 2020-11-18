@@ -8,7 +8,7 @@ pub use self::external::{ExternalPerson, ExternalTrip, ExternalTripEndpoint};
 pub use self::generator::{BorderSpawnOverTime, ScenarioGenerator, SpawnOverTime};
 pub use self::load::SimFlags;
 pub use self::modifier::ScenarioModifier;
-pub use self::scenario::{IndividTrip, PersonSpec, Scenario, SpawnTrip, TripPurpose};
+pub use self::scenario::{IndividTrip, PersonSpec, Scenario, TripPurpose};
 pub use self::spawner::{TripSpawner, TripSpec};
 
 mod activity_model;
