@@ -97,7 +97,6 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
-<span id="99">99</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -105,8 +104,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathStep</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>, <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>,
-    <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>, <span class="ident">VehicleType</span>,
+    <span class="ident">AgentID</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>, <span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>,
+    <span class="ident">TripManager</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>, <span class="ident">VehicleType</span>,
 };
 
 <span class="doccomment">/// Records trips beginning and ending at a specified set of intersections. This can be used to</span>
@@ -183,7 +182,6 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">origin</span>, <span class="ident">trip</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">drain</span>(..) {
             <span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
-                <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="ident">people</span>.<span class="ident">len</span>()),
                 <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
                 <span class="ident">origin</span>,
                 <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">trip</span>],

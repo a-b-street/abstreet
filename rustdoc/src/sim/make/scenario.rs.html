@@ -540,17 +540,6 @@
 <span id="539">539</span>
 <span id="540">540</span>
 <span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -566,8 +555,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">fork_rng</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Sim</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripInfo</span>, <span class="ident">TripMode</span>, <span class="ident">TripSpawner</span>,
-    <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">BIKE_LENGTH</span>, <span class="ident">MAX_CAR_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>,
+    <span class="ident">OrigPersonID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Sim</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripInfo</span>, <span class="ident">TripMode</span>, <span class="ident">TripSpawner</span>, <span class="ident">TripSpec</span>,
+    <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">BIKE_LENGTH</span>, <span class="ident">MAX_CAR_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>,
 };
 
 <span class="doccomment">/// A Scenario describes all the input to a simulation. Usually a scenario covers one day.</span>
@@ -583,7 +572,6 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PersonSpec</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">PersonID</span>,
     <span class="doccomment">/// Just used for debugging</span>
     <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The first trip starts here</span>
@@ -705,13 +693,7 @@
 
             <span class="kw">let</span> (<span class="ident">vehicle_specs</span>, <span class="ident">cars_initially_parked_at</span>, <span class="ident">vehicle_foreach_trip</span>) <span class="op">=</span>
                 <span class="ident">p</span>.<span class="ident">get_vehicles</span>(<span class="ident">rng</span>);
-            <span class="ident">sim</span>.<span class="ident">new_person</span>(
-                <span class="ident">p</span>.<span class="ident">id</span>,
-                <span class="ident">p</span>.<span class="ident">orig_id</span>,
-                <span class="ident">Scenario</span>::<span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>),
-                <span class="ident">vehicle_specs</span>,
-            );
-            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">p</span>.<span class="ident">id</span>);
+            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">new_person</span>(<span class="ident">p</span>.<span class="ident">orig_id</span>, <span class="ident">Scenario</span>::<span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>), <span class="ident">vehicle_specs</span>);
             <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">cars_initially_parked_at</span> {
                 <span class="ident">parked_cars</span>.<span class="ident">push</span>((<span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">clone</span>(), <span class="ident">b</span>));
             }
@@ -862,10 +844,6 @@
             <span class="ident">prettyprint_usize</span>(<span class="ident">orig</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
             <span class="ident">prettyprint_usize</span>(<span class="ident">orig</span>)
         );
-        <span class="comment">// Fix up IDs</span>
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">person</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">people</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-            <span class="ident">person</span>.<span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="ident">idx</span>);
-        }
         <span class="self">self</span>
     }
 }
@@ -995,8 +973,8 @@
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span> <span class="op">&gt;=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} {:?} starts two trips in the wrong order: {} then {}&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span>, <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span>
+                    <span class="string">&quot;Person ({:?}) starts two trips in the wrong order: {} then {}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span>, <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span>
                 ));
             }
         }
@@ -1008,8 +986,8 @@
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">endpts</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">==</span> <span class="ident">pair</span>[<span class="number">1</span>] {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} {:?} has two adjacent trips between the same place: {:?}&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>[<span class="number">0</span>]
+                    <span class="string">&quot;Person ({:?}) has two adjacent trips between the same place: {:?}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>[<span class="number">0</span>]
                 ));
             }
         }
@@ -1093,7 +1071,7 @@
                 <span class="ident">n</span> <span class="op">-=</span> <span class="number">1</span>;
             }
             <span class="kw">if</span> <span class="ident">n</span> <span class="op">&gt;</span> <span class="number">1</span> {
-                <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{} needs {} cars&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">n</span>);
+                <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Someone needs {} cars&quot;</span>, <span class="ident">n</span>);
             }
         }
 

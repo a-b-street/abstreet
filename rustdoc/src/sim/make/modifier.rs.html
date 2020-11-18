@@ -135,7 +135,6 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
-<span id="137">137</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -145,7 +144,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PersonID</span>, <span class="ident">Scenario</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Scenario</span>, <span class="ident">TripMode</span>};
 
 <span class="doccomment">/// Transforms an existing Scenario before instantiating it.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -215,7 +214,6 @@
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
                 );
                 <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">people</span> {
-                    <span class="ident">p</span>.<span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>());
                     <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">p</span>.<span class="ident">trips</span> {
                         <span class="ident">trip</span>.<span class="ident">modified</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     }

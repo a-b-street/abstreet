@@ -1651,7 +1651,6 @@
 <span id="1650">1650</span>
 <span id="1651">1651</span>
 <span id="1652">1652</span>
-<span id="1653">1653</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -1709,12 +1708,11 @@
     <span class="comment">// TODO assert the specs are correct yo</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_person</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">id</span>: <span class="ident">PersonID</span>,
         <span class="ident">orig_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span><span class="op">&gt;</span>,
         <span class="ident">ped_speed</span>: <span class="ident">Speed</span>,
         <span class="ident">vehicle_specs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">VehicleSpec</span><span class="op">&gt;</span>,
-    ) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">id</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">people</span>.<span class="ident">len</span>());
+    ) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Person</span> {
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="self">self</span>.<span class="ident">people</span>.<span class="ident">len</span>());
         <span class="kw">let</span> <span class="ident">vehicles</span> <span class="op">=</span> <span class="ident">vehicle_specs</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
@@ -1734,6 +1732,7 @@
             <span class="ident">delayed_trips</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">on_bus</span>: <span class="prelude-val">None</span>,
         });
+        <span class="self">self</span>.<span class="ident">get_person</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_car_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
@@ -2940,7 +2939,6 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario</span>::<span class="ident">empty</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>);
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">people</span> {
             <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
-                <span class="ident">id</span>: <span class="ident">p</span>.<span class="ident">id</span>,
                 <span class="ident">orig_id</span>: <span class="ident">p</span>.<span class="ident">orig_id</span>,
                 <span class="ident">origin</span>: <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">p</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">start</span>.<span class="ident">clone</span>(),
                 <span class="ident">trips</span>: <span class="ident">p</span>

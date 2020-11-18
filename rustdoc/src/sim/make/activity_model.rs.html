@@ -323,11 +323,6 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.</span>
 <span class="doccomment">//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go</span>
@@ -344,8 +339,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">fork_rng</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">IndividTrip</span>, <span class="ident">PersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>,
-    <span class="ident">TripPurpose</span>,
+    <span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>,
 };
 
 <span class="kw">impl</span> <span class="ident">ScenarioGenerator</span> {
@@ -498,25 +492,23 @@
             })
             .<span class="ident">collect</span>();
 
-        <span class="ident">timer</span>
-            .<span class="ident">parallelize</span>(
-                <span class="string">&quot;create people: making PersonSpec from endpoints&quot;</span>,
-                <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
-                <span class="ident">person_params</span>,
-                <span class="op">|</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">create_prole</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">person</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> {
-                        <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Unable to create person. error: {}&quot;</span>, <span class="ident">e</span>);
-                        <span class="prelude-val">None</span>
-                    }
-                },
-            )
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flatten</span>()
-            .<span class="ident">for_each</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">person</span><span class="op">|</span> {
-                <span class="ident">person</span>.<span class="ident">id</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>());
-                <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">person</span>);
-            });
+        <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">extend</span>(
+            <span class="ident">timer</span>
+                .<span class="ident">parallelize</span>(
+                    <span class="string">&quot;create people: making PersonSpec from endpoints&quot;</span>,
+                    <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
+                    <span class="ident">person_params</span>,
+                    <span class="op">|</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">create_prole</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>) {
+                        <span class="prelude-val">Ok</span>(<span class="ident">person</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>),
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> {
+                            <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Unable to create person. error: {}&quot;</span>, <span class="ident">e</span>);
+                            <span class="prelude-val">None</span>
+                        }
+                    },
+                )
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">flatten</span>(),
+        );
 
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;create people&quot;</span>);
 
@@ -604,8 +596,6 @@
     }
 
     <span class="prelude-val">Ok</span>(<span class="ident">PersonSpec</span> {
-        <span class="comment">// Fix this outside the parallelism</span>
-        <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="number">0</span>),
         <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">origin</span>: <span class="ident">home</span>.<span class="ident">clone</span>(),
         <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[
