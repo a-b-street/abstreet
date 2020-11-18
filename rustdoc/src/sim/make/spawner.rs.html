@@ -397,6 +397,8 @@
 <span id="396">396</span>
 <span id="397">397</span>
 <span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/dabreegster/abstreet/issues/258</span>
@@ -604,8 +606,10 @@
                     <span class="ident">trips</span>.<span class="ident">new_trip</span>(<span class="ident">person</span>.<span class="ident">id</span>, <span class="ident">info</span>, <span class="ident">legs</span>)
                 }
                 <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> { .. } <span class="op">=&gt;</span> {
-                    <span class="comment">// TODO Is it OK to have empty trip legs?</span>
-                    <span class="kw">let</span> <span class="ident">legs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                    <span class="comment">// TODO The legs are a lie. Since the trip gets cancelled, this doesn&#39;t matter.</span>
+                    <span class="comment">// I&#39;m not going to bother doing better because I think TripLeg will get</span>
+                    <span class="comment">// revamped soon anyway.</span>
+                    <span class="kw">let</span> <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TripLeg</span>::<span class="ident">RideBus</span>(<span class="ident">BusRouteID</span>(<span class="number">0</span>), <span class="prelude-val">None</span>)];
                     <span class="ident">trips</span>.<span class="ident">new_trip</span>(<span class="ident">person</span>.<span class="ident">id</span>, <span class="ident">info</span>, <span class="ident">legs</span>)
                 }
                 <span class="ident">TripSpec</span>::<span class="ident">UsingParkedCar</span> { <span class="ident">car</span>, <span class="ident">goal</span>, .. } <span class="op">=&gt;</span> {
