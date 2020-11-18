@@ -1,14 +1,16 @@
 //! Intermediate structures used to instantiate a Scenario. Badly needs simplification:
 //! https://github.com/dabreegster/abstreet/issues/258
 
+use rand::seq::SliceRandom;
+use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 
 use crate::{
-    CarID, Command, DrivingGoal, PersonID, Scheduler, SidewalkSpot, TripInfo, TripLeg, TripManager,
-    VehicleType,
+    CarID, Command, DrivingGoal, PersonID, Scheduler, SidewalkSpot, TripEndpoint, TripInfo,
+    TripLeg, TripManager, TripMode, VehicleType, SPAWN_DIST,
 };
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
@@ -203,7 +205,6 @@ impl TripSpawner {
                 }
                 TripSpec::SpawningFailure { .. } => {
                     // TODO Is it OK to have empty trip legs?
-                    // TODO Do we have to cancel the trip or move the vehicle here?
                     let legs = Vec::new();
                     trips.new_trip(person.id, info, legs)
                 }
@@ -271,7 +272,7 @@ impl TripSpawner {
 }
 
 impl TripSpec {
-    pub(crate) fn get_pathfinding_request(&self, map: &Map) -> Option<PathRequest> {
+    pub fn get_pathfinding_request(&self, map: &Map) -> Option<PathRequest> {
         match self {
             TripSpec::VehicleAppearing {
                 start_pos,
@@ -309,5 +310,89 @@ impl TripSpec {
                 constraints: PathConstraints::Pedestrian,
             }),
         }
+    }
+
+    /// Turn an origin/destination pair and mode into a specific plan for instantiating a trip.
+    /// Decisions like how to use public transit happen here.
+    pub fn maybe_new(
+        from: TripEndpoint,
+        to: TripEndpoint,
+        mode: TripMode,
+        use_vehicle: Option<CarID>,
+        retry_if_no_room: bool,
+        rng: &mut XorShiftRng,
+        map: &Map,
+    ) -> Result<TripSpec, String> {
+        Ok(match mode {
+            TripMode::Drive | TripMode::Bike => {
+                let constraints = if mode == TripMode::Drive {
+                    PathConstraints::Car
+                } else {
+                    PathConstraints::Bike
+                };
+                let goal = to.driving_goal(constraints, map)?;
+                match from {
+                    TripEndpoint::Bldg(start_bldg) => {
+                        if mode == TripMode::Drive {
+                            TripSpec::UsingParkedCar {
+                                start_bldg,
+                                goal,
+                                car: use_vehicle.unwrap(),
+                            }
+                        } else {
+                            TripSpec::UsingBike {
+                                start: start_bldg,
+                                goal,
+                                bike: use_vehicle.unwrap(),
+                            }
+                        }
+                    }
+                    TripEndpoint::Border(i) => {
+                        let start_lane = map
+                            .get_i(i)
+                            .some_outgoing_road(map)
+                            .and_then(|dr| dr.lanes(constraints, map).choose(rng).cloned())
+                            .ok_or_else(|| {
+                                format!("can't start a {} trip from {}", mode.ongoing_verb(), i)
+                            })?;
+                        TripSpec::VehicleAppearing {
+                            start_pos: Position::new(start_lane, SPAWN_DIST),
+                            goal,
+                            use_vehicle: use_vehicle.unwrap(),
+                            retry_if_no_room,
+                        }
+                    }
+                    TripEndpoint::SuddenlyAppear(start_pos) => TripSpec::VehicleAppearing {
+                        start_pos,
+                        goal,
+                        use_vehicle: use_vehicle.unwrap(),
+                        retry_if_no_room,
+                    },
+                }
+            }
+            TripMode::Walk => TripSpec::JustWalking {
+                start: from.start_sidewalk_spot(map)?,
+                goal: to.end_sidewalk_spot(map)?,
+            },
+            TripMode::Transit => {
+                let start = from.start_sidewalk_spot(map)?;
+                let goal = to.end_sidewalk_spot(map)?;
+                if let Some((stop1, maybe_stop2, route)) =
+                    map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
+                {
+                    TripSpec::UsingTransit {
+                        start,
+                        goal,
+                        route,
+                        stop1,
+                        maybe_stop2,
+                    }
+                } else {
+                    //timer.warn(format!("{:?} not actually using transit, because pathfinding
+                    // didn't find any useful route", trip));
+                    TripSpec::JustWalking { start, goal }
+                }
+            }
+        })
     }
 }

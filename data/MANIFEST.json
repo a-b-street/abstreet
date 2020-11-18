@@ -469,7 +469,7 @@
       "size_bytes": 58767209
     },
     "data/system/seattle/prebaked_results/lakeslice/weekday.bin": {
-      "checksum": "1da2f64c88888a6183849bd1e6a4b7f2",
+      "checksum": "bfb09ece72ba926b9d7d2583736689fd",
       "size_bytes": 67024414
     },
     "data/system/seattle/prebaked_results/montlake/car vs bike contention.bin": {
@@ -477,7 +477,7 @@
       "size_bytes": 5277
     },
     "data/system/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "72b8f5dbd00a8027eb6583346fd8ae4f",
+      "checksum": "5817e0c4af88a8070577930effa409c5",
       "size_bytes": 9004723
     },
     "data/system/seattle/scenarios/ballard/weekday.bin": {

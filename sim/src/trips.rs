@@ -1598,19 +1598,22 @@ pub enum PersonState {
     OffMap,
 }
 
+// TODO Move these to make/spawner?
 impl TripEndpoint {
-    pub(crate) fn start_sidewalk_spot(&self, map: &Map) -> Option<SidewalkSpot> {
+    pub(crate) fn start_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot, String> {
         match self {
-            TripEndpoint::Bldg(b) => Some(SidewalkSpot::building(*b, map)),
-            TripEndpoint::Border(i) => SidewalkSpot::start_at_border(*i, map),
-            TripEndpoint::SuddenlyAppear(pos) => Some(SidewalkSpot::suddenly_appear(*pos, map)),
+            TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(*b, map)),
+            TripEndpoint::Border(i) => SidewalkSpot::start_at_border(*i, map)
+                .ok_or_else(|| format!("can't start walking from {}", i)),
+            TripEndpoint::SuddenlyAppear(pos) => Ok(SidewalkSpot::suddenly_appear(*pos, map)),
         }
     }
 
-    pub(crate) fn end_sidewalk_spot(&self, map: &Map) -> Option<SidewalkSpot> {
+    pub(crate) fn end_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot, String> {
         match self {
-            TripEndpoint::Bldg(b) => Some(SidewalkSpot::building(*b, map)),
-            TripEndpoint::Border(i) => SidewalkSpot::end_at_border(*i, map),
+            TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(*b, map)),
+            TripEndpoint::Border(i) => SidewalkSpot::end_at_border(*i, map)
+                .ok_or_else(|| format!("can't end walking at {}", i)),
             TripEndpoint::SuddenlyAppear(_) => unreachable!(),
         }
     }
@@ -1619,12 +1622,14 @@ impl TripEndpoint {
         &self,
         constraints: PathConstraints,
         map: &Map,
-    ) -> Option<DrivingGoal> {
+    ) -> Result<DrivingGoal, String> {
         match self {
-            TripEndpoint::Bldg(b) => Some(DrivingGoal::ParkNear(*b)),
-            TripEndpoint::Border(i) => {
-                DrivingGoal::end_at_border(map.get_i(*i).some_incoming_road(map)?, constraints, map)
-            }
+            TripEndpoint::Bldg(b) => Ok(DrivingGoal::ParkNear(*b)),
+            TripEndpoint::Border(i) => map
+                .get_i(*i)
+                .some_incoming_road(map)
+                .and_then(|dr| DrivingGoal::end_at_border(dr, constraints, map))
+                .ok_or_else(|| format!("can't end at {} for {:?}", i, constraints)),
             TripEndpoint::SuddenlyAppear(_) => unreachable!(),
         }
     }

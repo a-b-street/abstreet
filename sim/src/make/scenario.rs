@@ -8,16 +8,12 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{prettyprint_usize, Counter, MapName, Parallelism, Timer};
 use geom::{Distance, Speed, Time};
-use map_model::{
-    BuildingID, BusRouteID, BusStopID, DirectedRoadID, Map, OffstreetParking, PathConstraints,
-    Position, RoadID,
-};
+use map_model::{BuildingID, Map, OffstreetParking, RoadID};
 
 use crate::make::fork_rng;
 use crate::{
-    CarID, DrivingGoal, OrigPersonID, ParkingSpot, PersonID, SidewalkSpot, Sim, TripEndpoint,
-    TripInfo, TripMode, TripSpawner, TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
-    MAX_CAR_LENGTH, MIN_CAR_LENGTH, SPAWN_DIST,
+    OrigPersonID, ParkingSpot, PersonID, Sim, TripEndpoint, TripInfo, TripMode, TripSpawner,
+    TripSpec, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 
 /// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
@@ -69,32 +65,6 @@ impl IndividTrip {
             modified: false,
         }
     }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-enum SpawnTrip {
-    /// Only for interactive / debug trips
-    VehicleAppearing {
-        start: Position,
-        goal: DrivingGoal,
-        is_bike: bool,
-    },
-    FromBorder {
-        dr: DirectedRoadID,
-        goal: DrivingGoal,
-        /// For bikes starting at a border, use FromBorder. UsingBike implies a walk->bike trip.
-        is_bike: bool,
-    },
-    UsingParkedCar(BuildingID, DrivingGoal),
-    UsingBike(BuildingID, DrivingGoal),
-    JustWalking(SidewalkSpot, SidewalkSpot),
-    UsingTransit(
-        SidewalkSpot,
-        SidewalkSpot,
-        BusRouteID,
-        BusStopID,
-        Option<BusStopID>,
-    ),
 }
 
 /// Lifted from Seattle's Soundcast model, but seems general enough to use anyhere.
@@ -195,17 +165,19 @@ impl Scenario {
                 // The RNG call might change over edits for picking the spawning lane from a border
                 // with multiple choices for a vehicle type.
                 let mut tmp_rng = fork_rng(rng);
-                let spec = match SpawnTrip::new(t.from.clone(), t.to.clone(), t.mode, map) {
-                    Some(trip) => trip.to_trip_spec(
-                        maybe_idx.map(|idx| person.vehicles[idx].id),
-                        retry_if_no_room,
-                        &mut tmp_rng,
-                        map,
-                    ),
-                    None => TripSpec::SpawningFailure {
+                let spec = match TripSpec::maybe_new(
+                    t.from.clone(),
+                    t.to.clone(),
+                    t.mode,
+                    maybe_idx.map(|idx| person.vehicles[idx].id),
+                    retry_if_no_room,
+                    &mut tmp_rng,
+                    map,
+                ) {
+                    Ok(spec) => spec,
+                    Err(error) => TripSpec::SpawningFailure {
                         use_vehicle: maybe_idx.map(|idx| person.vehicles[idx].id),
-                        // TODO Collapse SpawnTrip::new and to_trip_spec and plumb better errors
-                        error: format!("unknown spawning error"),
+                        error,
                     },
                 };
                 schedule_trips.push((
@@ -458,116 +430,6 @@ fn find_spot_near_building(
                 visited.insert(next_r);
             }
         }
-    }
-}
-
-impl SpawnTrip {
-    fn to_trip_spec(
-        self,
-        use_vehicle: Option<CarID>,
-        retry_if_no_room: bool,
-        rng: &mut XorShiftRng,
-        map: &Map,
-    ) -> TripSpec {
-        match self {
-            SpawnTrip::VehicleAppearing { start, goal, .. } => TripSpec::VehicleAppearing {
-                start_pos: start,
-                goal,
-                use_vehicle: use_vehicle.unwrap(),
-                retry_if_no_room,
-            },
-            SpawnTrip::FromBorder { dr, goal, is_bike } => {
-                let constraints = if is_bike {
-                    PathConstraints::Bike
-                } else {
-                    PathConstraints::Car
-                };
-                if let Some(l) = dr.lanes(constraints, map).choose(rng) {
-                    TripSpec::VehicleAppearing {
-                        start_pos: Position::new(*l, SPAWN_DIST),
-                        goal,
-                        use_vehicle: use_vehicle.unwrap(),
-                        retry_if_no_room,
-                    }
-                } else {
-                    TripSpec::SpawningFailure {
-                        use_vehicle,
-                        error: format!("{} has no lanes to spawn a {:?}", dr.id, constraints),
-                    }
-                }
-            }
-            SpawnTrip::UsingParkedCar(start_bldg, goal) => TripSpec::UsingParkedCar {
-                start_bldg,
-                goal,
-                car: use_vehicle.unwrap(),
-            },
-            SpawnTrip::UsingBike(start, goal) => TripSpec::UsingBike {
-                bike: use_vehicle.unwrap(),
-                start,
-                goal,
-            },
-            SpawnTrip::JustWalking(start, goal) => TripSpec::JustWalking { start, goal },
-            SpawnTrip::UsingTransit(start, goal, route, stop1, maybe_stop2) => {
-                TripSpec::UsingTransit {
-                    start,
-                    goal,
-                    route,
-                    stop1,
-                    maybe_stop2,
-                }
-            }
-        }
-    }
-
-    fn new(from: TripEndpoint, to: TripEndpoint, mode: TripMode, map: &Map) -> Option<SpawnTrip> {
-        Some(match mode {
-            TripMode::Drive => match from {
-                TripEndpoint::Bldg(b) => {
-                    SpawnTrip::UsingParkedCar(b, to.driving_goal(PathConstraints::Car, map)?)
-                }
-                TripEndpoint::Border(i) => SpawnTrip::FromBorder {
-                    dr: map.get_i(i).some_outgoing_road(map)?,
-                    goal: to.driving_goal(PathConstraints::Car, map)?,
-                    is_bike: false,
-                },
-                TripEndpoint::SuddenlyAppear(start) => SpawnTrip::VehicleAppearing {
-                    start,
-                    goal: to.driving_goal(PathConstraints::Bike, map)?,
-                    is_bike: false,
-                },
-            },
-            TripMode::Bike => match from {
-                TripEndpoint::Bldg(b) => {
-                    SpawnTrip::UsingBike(b, to.driving_goal(PathConstraints::Bike, map)?)
-                }
-                TripEndpoint::Border(i) => SpawnTrip::FromBorder {
-                    dr: map.get_i(i).some_outgoing_road(map)?,
-                    goal: to.driving_goal(PathConstraints::Bike, map)?,
-                    is_bike: true,
-                },
-                TripEndpoint::SuddenlyAppear(start) => SpawnTrip::VehicleAppearing {
-                    start,
-                    goal: to.driving_goal(PathConstraints::Bike, map)?,
-                    is_bike: true,
-                },
-            },
-            TripMode::Walk => {
-                SpawnTrip::JustWalking(from.start_sidewalk_spot(map)?, to.end_sidewalk_spot(map)?)
-            }
-            TripMode::Transit => {
-                let start = from.start_sidewalk_spot(map)?;
-                let goal = to.end_sidewalk_spot(map)?;
-                if let Some((stop1, maybe_stop2, route)) =
-                    map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
-                {
-                    SpawnTrip::UsingTransit(start, goal, route, stop1, maybe_stop2)
-                } else {
-                    //timer.warn(format!("{:?} not actually using transit, because pathfinding
-                    // didn't find any useful route", trip));
-                    SpawnTrip::JustWalking(start, goal)
-                }
-            }
-        })
     }
 }
 
