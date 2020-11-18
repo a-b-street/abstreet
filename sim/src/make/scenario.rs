@@ -12,8 +12,8 @@ use map_model::{BuildingID, Map, OffstreetParking, RoadID};
 
 use crate::make::fork_rng;
 use crate::{
-    OrigPersonID, ParkingSpot, Sim, TripEndpoint, TripInfo, TripMode, TripSpawner, TripSpec,
-    Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+    OrigPersonID, ParkingSpot, Sim, TripEndpoint, TripInfo, TripMode, TripSpec, Vehicle,
+    VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 
 /// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
@@ -196,20 +196,18 @@ impl Scenario {
             }
         }
 
-        let mut spawner = TripSpawner::new();
         let results = timer.parallelize(
             "schedule trips",
             Parallelism::Fastest,
             schedule_trips,
-            |tuple| spawner.schedule_trip(tuple.0, tuple.1, tuple.2, map),
+            |(p, spec, info)| spec.to_plan(p, info, map),
         );
-        spawner.schedule_trips(results);
 
         // parked_cars is stable over map edits, so don't fork.
         parked_cars.shuffle(rng);
         seed_parked_cars(parked_cars, sim, map, rng, timer);
 
-        sim.flush_spawner(spawner, map, timer);
+        sim.spawn_trips(results, map, timer);
         timer.stop(format!("Instantiating {}", self.scenario_name));
     }
 

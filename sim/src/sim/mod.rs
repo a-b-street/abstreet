@@ -19,10 +19,10 @@ pub use self::queries::AgentProperties;
 use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
     Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,
-    ParkingSimState, ParkingSpot, Person, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    TrafficRecorder, TransitSimState, TripID, TripManager, TripPhaseType, TripSpawner, Vehicle,
-    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
-    SPAWN_DIST,
+    ParkingSimState, ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
+    TrafficRecorder, TransitSimState, TripID, TripInfo, TripLeg, TripManager, TripPhaseType,
+    TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH,
+    MIN_CAR_LENGTH, SPAWN_DIST,
 };
 
 mod queries;
@@ -222,8 +222,24 @@ impl Sim {
         }
     }
 
-    pub(crate) fn flush_spawner(&mut self, spawner: TripSpawner, map: &Map, timer: &mut Timer) {
-        spawner.finalize(map, &mut self.trips, &mut self.scheduler, timer);
+    pub(crate) fn spawn_trips(
+        &mut self,
+        input: Vec<(PersonID, TripInfo, TripSpec, Vec<TripLeg>)>,
+        map: &Map,
+        timer: &mut Timer,
+    ) {
+        timer.start_iter("spawn trips", input.len());
+        for (p, info, spec, legs) in input {
+            timer.next();
+
+            let trip = self.trips.new_trip(p, info.clone(), legs);
+            if let Some(msg) = info.cancellation_reason {
+                self.trips.cancel_unstarted_trip(trip, msg);
+            } else {
+                self.scheduler
+                    .push(info.departure, Command::StartTrip(trip, spec));
+            }
+        }
 
         if let Some(ref mut m) = self.pandemic {
             m.initialize(self.trips.get_all_people(), &mut self.scheduler);
@@ -294,7 +310,6 @@ impl Sim {
         Some((path, start.dist_along()))
     }
 
-    // TODO Should these two be in TripSpawner?
     pub(crate) fn new_person(
         &mut self,
         orig_id: Option<OrigPersonID>,

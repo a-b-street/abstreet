@@ -93,11 +93,11 @@ As of November 2020, starting a traffic simulation works like this:
 2. When a scenario is instantiated, every trip for every person passes through
    `TripSpec::maybe_new`. This transforms the origin, destination, and mode into
    a `TripSpec`.
-3. `TripSpawner` populates the `TripManager` with all of these trips. Each
-   `TripSpec` is turned into a list of `TripLegs`. The `TripSpec` is then passed
-   to the discrete-event scheduler inside a `Command::StartTrip`. This way,
-   `TripManager` knows about all trips immediately, and at the right time, each
-   trip can be initiated.
+3. `TripSpec::to_plan` further validates these and attempts to repair impossible
+   plans. Each `TripSpec` is turned into a list of `TripLegs`. The `TripSpec` is
+   then passed to the discrete-event scheduler inside a `Command::StartTrip`.
+   This way, `TripManager` knows about all trips immediately, and at the right
+   time, each trip can be initiated.
 4. Later, the scheduler gets one of these commands, and calls
    `TripManager::start_trip` with the `TripSpec`. Each type of trip has its own
    initialization logic to kick off the first leg of the trip.

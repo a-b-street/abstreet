@@ -5,12 +5,11 @@ use rand::seq::SliceRandom;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::Timer;
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 
 use crate::{
-    CarID, Command, DrivingGoal, PersonID, Scheduler, SidewalkSpot, TripEndpoint, TripInfo,
-    TripLeg, TripManager, TripMode, VehicleType, SPAWN_DIST,
+    CarID, DrivingGoal, PersonID, SidewalkSpot, TripEndpoint, TripInfo, TripLeg, TripMode,
+    VehicleType, SPAWN_DIST,
 };
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
@@ -53,29 +52,16 @@ pub enum TripSpec {
     },
 }
 
-type TripSpawnPlan = (PersonID, TripSpec, TripInfo);
-
-/// This structure is created temporarily by a Scenario or to interactively spawn agents.
-pub struct TripSpawner {
-    trips: Vec<TripSpawnPlan>,
-}
-
-impl TripSpawner {
-    pub fn new() -> TripSpawner {
-        TripSpawner { trips: Vec::new() }
-    }
-
-    /// Doesn't actually schedule anything yet; you can call this from multiple threads, then feed
-    /// all the results to schedule_trips.
-    pub fn schedule_trip(
-        &self,
+impl TripSpec {
+    pub fn to_plan(
+        self,
         person: PersonID,
-        mut spec: TripSpec,
         info: TripInfo,
         map: &Map,
-    ) -> TripSpawnPlan {
+    ) -> (PersonID, TripInfo, TripSpec, Vec<TripLeg>) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
-        match &spec {
+        let mut legs = Vec::new();
+        match &self {
             TripSpec::VehicleAppearing {
                 start_pos,
                 goal,
@@ -101,15 +87,36 @@ impl TripSpawner {
                 } else {
                     PathConstraints::Car
                 };
+
+                legs.push(TripLeg::Drive(*use_vehicle, goal.clone()));
+                if let DrivingGoal::ParkNear(b) = goal {
+                    legs.push(TripLeg::Walk(SidewalkSpot::building(*b, map)));
+                }
+
                 if goal.goal_pos(constraints, map).is_none() {
-                    spec = TripSpec::SpawningFailure {
+                    return TripSpec::SpawningFailure {
                         use_vehicle: Some(use_vehicle.clone()),
                         error: format!("goal_pos to {:?} for a {:?} failed", goal, constraints),
-                    };
+                    }
+                    .to_plan(person, info, map);
                 }
             }
-            TripSpec::SpawningFailure { .. } => {}
-            TripSpec::UsingParkedCar { .. } => {}
+            TripSpec::SpawningFailure { .. } => {
+                // TODO The legs are a lie. Since the trip gets cancelled, this doesn't matter.
+                // I'm not going to bother doing better because I think TripLeg will get
+                // revamped soon anyway.
+                legs.push(TripLeg::RideBus(BusRouteID(0), None));
+            }
+            TripSpec::UsingParkedCar { car, goal, .. } => {
+                legs.push(TripLeg::Walk(SidewalkSpot::deferred_parking_spot()));
+                legs.push(TripLeg::Drive(*car, goal.clone()));
+                match goal {
+                    DrivingGoal::ParkNear(b) => {
+                        legs.push(TripLeg::Walk(SidewalkSpot::building(*b, map)));
+                    }
+                    DrivingGoal::Border(_, _) => {}
+                }
+            }
             TripSpec::JustWalking { start, goal, .. } => {
                 if start == goal {
                     panic!(
@@ -117,6 +124,7 @@ impl TripSpawner {
                         start, goal
                     );
                 }
+                legs.push(TripLeg::Walk(goal.clone()));
             }
             TripSpec::UsingBike { start, goal, bike } => {
                 // TODO Might not be possible to walk to the same border if there's no sidewalk
@@ -142,134 +150,63 @@ impl TripSpawner {
                                      sidewalk!",
                                     start, b
                                 );
-                                spec = backup_plan.unwrap();
+                                return backup_plan.unwrap().to_plan(person, info, map);
                             }
                         } else {
                             info!(
                                 "Can't find biking connection for goal {}, walking instead",
                                 b
                             );
-                            spec = backup_plan.unwrap();
+                            return backup_plan.unwrap().to_plan(person, info, map);
                         }
+                    }
+
+                    legs.push(TripLeg::Walk(start_spot));
+                    legs.push(TripLeg::Drive(*bike, goal.clone()));
+                    match goal {
+                        DrivingGoal::ParkNear(b) => {
+                            legs.push(TripLeg::Walk(SidewalkSpot::building(*b, map)));
+                        }
+                        DrivingGoal::Border(_, _) => {}
                     }
                 } else if backup_plan.is_some() {
                     info!("Can't start biking from {}. Walking instead", start);
-                    spec = backup_plan.unwrap();
+                    return backup_plan.unwrap().to_plan(person, info, map);
                 } else {
-                    spec = TripSpec::SpawningFailure {
+                    return TripSpec::SpawningFailure {
                         use_vehicle: Some(*bike),
                         error: format!(
                             "Can't start biking from {} and can't walk either! Goal is {:?}",
                             start, goal
                         ),
-                    };
+                    }
+                    .to_plan(person, info, map);
                 }
             }
-            TripSpec::UsingTransit { .. } => {}
+            TripSpec::UsingTransit {
+                route,
+                stop1,
+                maybe_stop2,
+                goal,
+                ..
+            } => {
+                let walk_to = SidewalkSpot::bus_stop(*stop1, map);
+                if let Some(stop2) = maybe_stop2 {
+                    legs = vec![
+                        TripLeg::Walk(walk_to.clone()),
+                        TripLeg::RideBus(*route, Some(*stop2)),
+                        TripLeg::Walk(goal.clone()),
+                    ];
+                } else {
+                    legs = vec![
+                        TripLeg::Walk(walk_to.clone()),
+                        TripLeg::RideBus(*route, None),
+                    ];
+                }
+            }
         };
 
-        (person, spec, info)
-    }
-
-    pub fn schedule_trips(&mut self, trips: Vec<TripSpawnPlan>) {
-        self.trips.extend(trips);
-    }
-
-    pub fn finalize(
-        mut self,
-        map: &Map,
-        trips: &mut TripManager,
-        scheduler: &mut Scheduler,
-        timer: &mut Timer,
-    ) {
-        timer.start_iter("spawn trips", self.trips.len());
-        for (p, spec, info) in self.trips.drain(..) {
-            timer.next();
-
-            // TODO clone() is super weird to do here, but we just need to make the borrow checker
-            // happy. All we're doing is grabbing IDs off this.
-            let person = trips.get_person(p).unwrap().clone();
-            let departure = info.departure;
-            let cancellation_reason = info.cancellation_reason.clone();
-            // Just create the trip for each case.
-            // TODO Not happy about this clone()
-            let trip = match spec.clone() {
-                TripSpec::VehicleAppearing {
-                    goal, use_vehicle, ..
-                } => {
-                    let mut legs = vec![TripLeg::Drive(use_vehicle, goal.clone())];
-                    if let DrivingGoal::ParkNear(b) = goal {
-                        legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
-                    }
-                    trips.new_trip(person.id, info, legs)
-                }
-                TripSpec::SpawningFailure { .. } => {
-                    // TODO The legs are a lie. Since the trip gets cancelled, this doesn't matter.
-                    // I'm not going to bother doing better because I think TripLeg will get
-                    // revamped soon anyway.
-                    let legs = vec![TripLeg::RideBus(BusRouteID(0), None)];
-                    trips.new_trip(person.id, info, legs)
-                }
-                TripSpec::UsingParkedCar { car, goal, .. } => {
-                    let mut legs = vec![
-                        TripLeg::Walk(SidewalkSpot::deferred_parking_spot()),
-                        TripLeg::Drive(car, goal.clone()),
-                    ];
-                    match goal {
-                        DrivingGoal::ParkNear(b) => {
-                            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
-                        }
-                        DrivingGoal::Border(_, _) => {}
-                    }
-                    trips.new_trip(person.id, info, legs)
-                }
-                TripSpec::JustWalking { goal, .. } => {
-                    trips.new_trip(person.id, info, vec![TripLeg::Walk(goal.clone())])
-                }
-                TripSpec::UsingBike { bike, start, goal } => {
-                    let walk_to = SidewalkSpot::bike_rack(start, map).unwrap();
-                    let mut legs = vec![
-                        TripLeg::Walk(walk_to.clone()),
-                        TripLeg::Drive(bike, goal.clone()),
-                    ];
-                    match goal {
-                        DrivingGoal::ParkNear(b) => {
-                            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
-                        }
-                        DrivingGoal::Border(_, _) => {}
-                    };
-                    trips.new_trip(person.id, info, legs)
-                }
-                TripSpec::UsingTransit {
-                    route,
-                    stop1,
-                    maybe_stop2,
-                    goal,
-                    ..
-                } => {
-                    let walk_to = SidewalkSpot::bus_stop(stop1, map);
-                    let legs = if let Some(stop2) = maybe_stop2 {
-                        vec![
-                            TripLeg::Walk(walk_to.clone()),
-                            TripLeg::RideBus(route, Some(stop2)),
-                            TripLeg::Walk(goal),
-                        ]
-                    } else {
-                        vec![
-                            TripLeg::Walk(walk_to.clone()),
-                            TripLeg::RideBus(route, None),
-                        ]
-                    };
-                    trips.new_trip(person.id, info, legs)
-                }
-            };
-
-            if let Some(msg) = cancellation_reason {
-                trips.cancel_unstarted_trip(trip, msg);
-            } else {
-                scheduler.push(departure, Command::StartTrip(trip, spec));
-            }
-        }
+        (person, info, self, legs)
     }
 }
 
