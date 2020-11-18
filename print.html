@@ -2421,6 +2421,68 @@ simplest way to express all the state transitons.</p>
 <p><img src="trafficsim/../mdbook-plantuml-img/1cd9d730c8982c5ba59b825b427e712fab82e681.svg" alt="" /></p>
 <h2><a class="header" href="#trips-starting-from-a-building" id="trips-starting-from-a-building">Trips starting from a building</a></h2>
 <p><img src="trafficsim/../mdbook-plantuml-img/92ec1d5cbfccd87df09b67ac1a2b26aebf81eee8.svg" alt="" /></p>
+<h2><a class="header" href="#spawning-code-overview" id="spawning-code-overview">Spawning code overview</a></h2>
+<p>As of November 2020, starting a traffic simulation works like this:</p>
+<ol>
+<li>Something creates a <code>Scenario</code>, which defines a bunch of people. Each person
+has a schedule of trips, carrying them between <code>TripEndpoints</code> via some
+<code>TripMode</code>, leaving at some <code>Time</code>.</li>
+<li>When a scenario is instantiated, every trip for every person passes through
+<code>TripSpec::maybe_new</code>. This transforms the origin, destination, and mode into
+a <code>TripSpec</code>.</li>
+<li><code>TripSpawner</code> populates the <code>TripManager</code> with all of these trips. Each
+<code>TripSpec</code> is turned into a list of <code>TripLegs</code>. The <code>TripSpec</code> is then passed
+to the discrete-event scheduler inside a <code>Command::StartTrip</code>. This way,
+<code>TripManager</code> knows about all trips immediately, and at the right time, each
+trip can be initiated.</li>
+<li>Later, the scheduler gets one of these commands, and calls
+<code>TripManager::start_trip</code> with the <code>TripSpec</code>. Each type of trip has its own
+initialization logic to kick off the first leg of the trip.</li>
+<li>Most trips have multiple legs. When the first car, bike, or pedestrian
+reaches their goal, <code>TripManager</code> gets called with some sort of transition
+function to initiate the next leg of the trip, or declare the trip finished.
+These transition functions also record stats from that leg of the trip, like
+total blocked time.</li>
+</ol>
+<p>What're the different <code>TripSpec</code> cases, and what <code>TripLegs</code> do they get turned
+into?</p>
+<ul>
+<li><code>VehicleAppearing</code>: Starts at a border. Drive, then maybe walk to the
+destination building.</li>
+<li><code>SpawningFailure</code>: No trip legs; just create and immediately cancel the trip.</li>
+<li><code>UsingParkedCar</code>: Starts at a building. Walk (to the parked car), drive, then
+maybe walk to the destination building (after parking again).</li>
+<li><code>JustWalking</code>: Just walk between two buildings/borders.</li>
+<li><code>UsingBike</code>: Starts at a building. Walk to the nearest bikeable lane, drive,
+then maybe walk to the destination building. (Note that starting a bike from a
+border uses <code>VehicleAppearing</code>.)</li>
+<li><code>UsingTransit</code>: Walk, ride the bus, maybe walk again. No transfers yet; only
+rides one bus between two stops.</li>
+</ul>
+<p><code>TripManager</code> has a whole bunch of transition functions:</p>
+<ul>
+<li><code>car_reached_parking_spot</code>: drive -&gt; walk, unless the destination building is
+where we parked</li>
+<li><code>ped_reached_parking_spot</code>: walk -&gt; drive</li>
+<li><code>ped_ready_to_bike</code>: walk -&gt; bike</li>
+<li><code>bike_reached_end</code>: bike -&gt; walk</li>
+<li><code>ped_reached_building</code>: walk -&gt; done</li>
+<li><code>ped_reached_bus_stop</code>: walk -&gt; wait or ride bus</li>
+<li><code>ped_boarded_bus</code>: waiting -&gt; ride bus</li>
+<li><code>person_left_bus</code>: riding bus -&gt; walk</li>
+<li><code>ped_reached_border</code>: walk -&gt; done</li>
+<li><code>transit_rider_reached_border</code>: ride bus -&gt; done</li>
+<li><code>car_or_bike_reached_border</code>: drive -&gt; done</li>
+</ul>
+<p>There are at least a few use cases motivating the cleanup of all of this
+structure:</p>
+<ul>
+<li>Capping trips through congested areas. Sometimes this just changes the driving
+route, but sometimes it needs to cancel trips, convert driving trips to
+walking/transit, or delay the trip's start.</li>
+<li>Multiple public transit rides in a single trip, aka transferring</li>
+<li>Handling live map edits in the middle of a trip</li>
+</ul>
 <h1><a class="header" href="#live-edits-1" id="live-edits-1">Live edits</a></h1>
 <p>When the player edits the map, there's an <a href="trafficsim/../map/edits.html">efficient process</a>
 for applying the edits at the map model and rendering layer. In the middle of a
