@@ -819,10 +819,10 @@
                         <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                             <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_all_people</span>().<span class="ident">len</span>() <span class="op">+</span> <span class="ident">i</span>),
                             <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
+                            <span class="ident">origin</span>: <span class="ident">from</span>.<span class="ident">clone</span>(),
                             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
                                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                                <span class="ident">from</span>.<span class="ident">clone</span>(),
                                 <span class="ident">to</span>.<span class="ident">clone</span>(),
                                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;mode&quot;</span>),
                             )],
@@ -1009,13 +1009,13 @@
                 <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                     <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_all_people</span>().<span class="ident">len</span>() <span class="op">+</span> <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
                     <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
+                        <span class="ident">lane</span>.<span class="ident">id</span>,
+                        <span class="ident">Scenario</span>::<span class="ident">rand_dist</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">lane</span>.<span class="ident">length</span>()),
+                    )),
                     <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
                         <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                        <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
-                            <span class="ident">lane</span>.<span class="ident">id</span>,
-                            <span class="ident">Scenario</span>::<span class="ident">rand_dist</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">lane</span>.<span class="ident">length</span>()),
-                        )),
                         <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>),
                         <span class="ident">mode</span>,
                     )],
@@ -1026,13 +1026,13 @@
                 <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                     <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_all_people</span>().<span class="ident">len</span>() <span class="op">+</span> <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
                     <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
+                        <span class="ident">lane</span>.<span class="ident">id</span>,
+                        <span class="ident">Scenario</span>::<span class="ident">rand_dist</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">lane</span>.<span class="ident">length</span>(), <span class="number">0.9</span> <span class="op">*</span> <span class="ident">lane</span>.<span class="ident">length</span>()),
+                    )),
                     <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
                         <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                        <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
-                            <span class="ident">lane</span>.<span class="ident">id</span>,
-                            <span class="ident">Scenario</span>::<span class="ident">rand_dist</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">lane</span>.<span class="ident">length</span>(), <span class="number">0.9</span> <span class="op">*</span> <span class="ident">lane</span>.<span class="ident">length</span>()),
-                        )),
                         <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>),
                         <span class="ident">TripMode</span>::<span class="ident">Walk</span>,
                     )],

@@ -550,6 +550,7 @@
 <span id="549">549</span>
 <span id="550">550</span>
 <span id="551">551</span>
+<span id="552">552</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -585,14 +586,16 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">PersonID</span>,
     <span class="doccomment">/// Just used for debugging</span>
     <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The first trip starts here</span>
+    <span class="kw">pub</span> <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>,
+    <span class="doccomment">/// Each trip starts at the destination of the previous trip</span>
     <span class="kw">pub</span> <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IndividTrip</span> {
     <span class="kw">pub</span> <span class="ident">depart</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">from</span>: <span class="ident">TripEndpoint</span>,
-    <span class="kw">pub</span> <span class="ident">to</span>: <span class="ident">TripEndpoint</span>,
+    <span class="kw">pub</span> <span class="ident">destination</span>: <span class="ident">TripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
     <span class="kw">pub</span> <span class="ident">cancelled</span>: <span class="ident">bool</span>,
@@ -604,14 +607,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">depart</span>: <span class="ident">Time</span>,
         <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
-        <span class="ident">from</span>: <span class="ident">TripEndpoint</span>,
-        <span class="ident">to</span>: <span class="ident">TripEndpoint</span>,
+        <span class="ident">destination</span>: <span class="ident">TripEndpoint</span>,
         <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     ) <span class="op">-&gt;</span> <span class="ident">IndividTrip</span> {
         <span class="ident">IndividTrip</span> {
             <span class="ident">depart</span>,
-            <span class="ident">from</span>,
-            <span class="ident">to</span>,
+            <span class="ident">destination</span>,
             <span class="ident">mode</span>,
             <span class="ident">purpose</span>,
             <span class="ident">cancelled</span>: <span class="bool-val">false</span>,
@@ -714,13 +715,14 @@
             <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">cars_initially_parked_at</span> {
                 <span class="ident">parked_cars</span>.<span class="ident">push</span>((<span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">clone</span>(), <span class="ident">b</span>));
             }
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">origin</span>.<span class="ident">clone</span>();
             <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">maybe_idx</span>) <span class="kw">in</span> <span class="ident">p</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">vehicle_foreach_trip</span>) {
                 <span class="comment">// The RNG call might change over edits for picking the spawning lane from a border</span>
                 <span class="comment">// with multiple choices for a vehicle type.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp_rng</span> <span class="op">=</span> <span class="ident">fork_rng</span>(<span class="ident">rng</span>);
                 <span class="kw">let</span> <span class="ident">spec</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">TripSpec</span>::<span class="ident">maybe_new</span>(
-                    <span class="ident">t</span>.<span class="ident">from</span>.<span class="ident">clone</span>(),
-                    <span class="ident">t</span>.<span class="ident">to</span>.<span class="ident">clone</span>(),
+                    <span class="ident">from</span>.<span class="ident">clone</span>(),
+                    <span class="ident">t</span>.<span class="ident">destination</span>.<span class="ident">clone</span>(),
                     <span class="ident">t</span>.<span class="ident">mode</span>,
                     <span class="ident">maybe_idx</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">id</span>),
                     <span class="ident">retry_if_no_room</span>,
@@ -739,8 +741,8 @@
                     <span class="ident">TripInfo</span> {
                         <span class="ident">departure</span>: <span class="ident">t</span>.<span class="ident">depart</span>,
                         <span class="ident">mode</span>: <span class="ident">t</span>.<span class="ident">mode</span>,
-                        <span class="ident">start</span>: <span class="ident">t</span>.<span class="ident">from</span>.<span class="ident">clone</span>(),
-                        <span class="ident">end</span>: <span class="ident">t</span>.<span class="ident">to</span>.<span class="ident">clone</span>(),
+                        <span class="ident">start</span>: <span class="ident">from</span>,
+                        <span class="ident">end</span>: <span class="ident">t</span>.<span class="ident">destination</span>.<span class="ident">clone</span>(),
                         <span class="ident">purpose</span>: <span class="ident">t</span>.<span class="ident">purpose</span>,
                         <span class="ident">modified</span>: <span class="ident">t</span>.<span class="ident">modified</span>,
                         <span class="ident">capped</span>: <span class="bool-val">false</span>,
@@ -751,6 +753,7 @@
                         },
                     },
                 ));
+                <span class="ident">from</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">destination</span>.<span class="ident">clone</span>();
             }
         }
 
@@ -987,33 +990,30 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PersonSpec</span> {
-    <span class="comment">// Verify that the trip start/endpoints of the person match up</span>
+    <span class="doccomment">/// Verify that a person&#39;s trips make sense</span>
     <span class="kw">fn</span> <span class="ident">check_schedule</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>)) {
-            <span class="kw">if</span> <span class="ident">pair</span>.<span class="number">0</span>.<span class="ident">depart</span> <span class="op">&gt;=</span> <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">depart</span> {
+        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
+            <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span> <span class="op">&gt;=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;{} {:?} starts two trips in the wrong order: {} then {}&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>.<span class="number">0</span>.<span class="ident">depart</span>, <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">depart</span>
-                ));
-            }
-
-            <span class="comment">// Once off-map, re-enter via any border node.</span>
-            <span class="kw">let</span> <span class="ident">end_bldg</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>.<span class="number">0</span>.<span class="ident">to</span> {
-                <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
-                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
-            };
-            <span class="kw">let</span> <span class="ident">start_bldg</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">from</span> {
-                <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
-                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
-            };
-
-            <span class="kw">if</span> <span class="ident">end_bldg</span> <span class="op">!=</span> <span class="ident">start_bldg</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;At {}, {} {:?} warps between some trips, from {:?} to {:?}&quot;</span>,
-                    <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">depart</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">end_bldg</span>, <span class="ident">start_bldg</span>
+                    <span class="self">self</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span>, <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span>
                 ));
             }
         }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">origin</span>.<span class="ident">clone</span>()];
+        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span> {
+            <span class="ident">endpts</span>.<span class="ident">push</span>(<span class="ident">t</span>.<span class="ident">destination</span>.<span class="ident">clone</span>());
+        }
+        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">endpts</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
+            <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">==</span> <span class="ident">pair</span>[<span class="number">1</span>] {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;{} {:?} has two adjacent trips between the same place: {:?}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>[<span class="number">0</span>]
+                ));
+            }
+        }
+
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1034,6 +1034,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">car_locations</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="comment">// TODO If the trip is cancelled, this should be affected...</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">origin</span>.<span class="ident">clone</span>();
         <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span> {
             <span class="kw">let</span> <span class="ident">use_for_trip</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">mode</span> {
                 <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
@@ -1045,7 +1046,7 @@
                     <span class="ident">bike_idx</span>
                 }
                 <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">=&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">need_parked_at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">from</span> {
+                    <span class="kw">let</span> <span class="ident">need_parked_at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">from</span> {
                         <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
                         <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
                     };
@@ -1069,7 +1070,7 @@
 
                     <span class="comment">// Where does this car wind up?</span>
                     <span class="ident">car_locations</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">idx</span> <span class="op">!=</span> <span class="kw-2">*</span><span class="ident">i</span>);
-                    <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">to</span> {
+                    <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">destination</span> {
                         <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> {
                             <span class="ident">car_locations</span>.<span class="ident">push</span>((<span class="ident">idx</span>, <span class="prelude-val">Some</span>(<span class="ident">b</span>)));
                         }
@@ -1081,6 +1082,7 @@
                     <span class="prelude-val">Some</span>(<span class="ident">idx</span>)
                 }
             };
+            <span class="ident">from</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">destination</span>.<span class="ident">clone</span>();
             <span class="ident">vehicle_foreach_trip</span>.<span class="ident">push</span>(<span class="ident">use_for_trip</span>);
         }
 

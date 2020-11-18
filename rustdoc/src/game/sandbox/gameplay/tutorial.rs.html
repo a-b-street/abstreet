@@ -2521,13 +2521,13 @@
                     <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                         <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="number">0</span>),
                         <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
+                        <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
+                            <span class="ident">start_lane</span>,
+                            <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start_lane</span>).<span class="ident">length</span>() <span class="op">*</span> <span class="number">0.8</span>,
+                        )),
                         <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                             <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
                             <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
-                                <span class="ident">start_lane</span>,
-                                <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start_lane</span>).<span class="ident">length</span>() <span class="op">*</span> <span class="number">0.8</span>,
-                            )),
                             <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">goal_bldg</span>),
                             <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
                         )],
@@ -2537,13 +2537,13 @@
                         <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                             <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>),
                             <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
+                            <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
+                                <span class="ident">lane_near_bldg</span>,
+                                <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane_near_bldg</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
+                            )),
                             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                                 <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
                                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                                <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
-                                    <span class="ident">lane_near_bldg</span>,
-                                    <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane_near_bldg</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
-                                )),
                                 <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">goal_bldg</span>),
                                 <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
                             )],

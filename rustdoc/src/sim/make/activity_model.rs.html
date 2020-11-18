@@ -328,11 +328,6 @@
 <span id="327">327</span>
 <span id="328">328</span>
 <span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.</span>
 <span class="doccomment">//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go</span>
@@ -612,15 +607,10 @@
         <span class="comment">// Fix this outside the parallelism</span>
         <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="number">0</span>),
         <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">origin</span>: <span class="ident">home</span>.<span class="ident">clone</span>(),
         <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(
-                <span class="ident">depart_am</span>,
-                <span class="ident">TripPurpose</span>::<span class="ident">Work</span>,
-                <span class="ident">home</span>.<span class="ident">clone</span>(),
-                <span class="ident">work</span>.<span class="ident">clone</span>(),
-                <span class="ident">mode</span>,
-            ),
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_pm</span>, <span class="ident">TripPurpose</span>::<span class="ident">Home</span>, <span class="ident">work</span>, <span class="ident">home</span>, <span class="ident">mode</span>),
+            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_am</span>, <span class="ident">TripPurpose</span>::<span class="ident">Work</span>, <span class="ident">work</span>, <span class="ident">mode</span>),
+            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_pm</span>, <span class="ident">TripPurpose</span>::<span class="ident">Home</span>, <span class="ident">home</span>, <span class="ident">mode</span>),
         ],
     })
 }

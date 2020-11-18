@@ -72,9 +72,6 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own</span>
 <span class="doccomment">//! simulation input data; import it here.</span>
@@ -132,20 +129,17 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">PersonSpec</span> {
                 <span class="ident">id</span>: <span class="ident">PersonID</span>(<span class="ident">results</span>.<span class="ident">len</span>()),
                 <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
+                <span class="ident">origin</span>: <span class="ident">lookup_pt</span>(<span class="ident">person</span>.<span class="ident">origin</span>)<span class="question-mark">?</span>,
                 <span class="ident">trips</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             };
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">lookup_pt</span>(<span class="ident">person</span>.<span class="ident">origin</span>)<span class="question-mark">?</span>;
             <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">person</span>.<span class="ident">trips</span> {
-                <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">destination</span>)<span class="question-mark">?</span>;
                 <span class="comment">// TODO Add space in the API to specify purpose, but probably make it optional.</span>
                 <span class="ident">spec</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                     <span class="ident">trip</span>.<span class="ident">departure</span>,
                     <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                    <span class="ident">from</span>.<span class="ident">clone</span>(),
-                    <span class="ident">to</span>.<span class="ident">clone</span>(),
+                    <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">destination</span>)<span class="question-mark">?</span>,
                     <span class="ident">trip</span>.<span class="ident">mode</span>,
                 ));
-                <span class="ident">from</span> <span class="op">=</span> <span class="ident">to</span>;
             }
             <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">spec</span>);
         }
