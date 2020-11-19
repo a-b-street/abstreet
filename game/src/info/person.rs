@@ -179,7 +179,7 @@ pub fn trips(
                     .has_prebaked()
                     .and_then(|_| app.prebaked().finished_trip_time(*t))
                 {
-                    let (after, _) = app.primary.sim.finished_trip_time(*t).unwrap();
+                    let (after, _, _) = app.primary.sim.finished_trip_details(*t).unwrap();
                     Text::from(cmp_duration_shorter(after, before))
                         .batch(ctx)
                         .centered_vert()

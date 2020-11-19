@@ -282,9 +282,15 @@ fn handle_command(
             let mut trips = Vec::new();
             for (_, id, mode, duration) in &sim.get_analytics().finished_trips {
                 let info = sim.trip_info(*id);
+                let distance_crossed = if mode.is_some() {
+                    sim.finished_trip_details(*id).unwrap().2
+                } else {
+                    Distance::ZERO
+                };
                 trips.push(FinishedTrip {
                     id: *id,
                     duration: *duration,
+                    distance_crossed,
                     mode: *mode,
                     capped: info.capped,
                 });
@@ -340,6 +346,7 @@ fn handle_command(
 struct FinishedTrip {
     id: TripID,
     duration: Duration,
+    distance_crossed: Distance,
     // TODO Hack: No TripMode means cancelled
     mode: Option<TripMode>,
     capped: bool,

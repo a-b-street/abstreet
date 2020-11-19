@@ -497,6 +497,7 @@ impl DrivingSimState {
                                 car.vehicle.id,
                                 i,
                                 car.total_blocked_time,
+                                car.router.get_path().total_length(),
                                 ctx,
                             );
                         }
@@ -547,6 +548,7 @@ impl DrivingSimState {
                             car.vehicle.id,
                             bike_rack,
                             car.total_blocked_time,
+                            car.router.get_path().total_length(),
                             ctx.map,
                             ctx.scheduler,
                         );
@@ -607,6 +609,7 @@ impl DrivingSimState {
                     car.vehicle.id,
                     spot,
                     car.total_blocked_time,
+                    car.router.get_path().total_length(),
                     ctx,
                 );
                 false

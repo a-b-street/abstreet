@@ -298,7 +298,7 @@ pub fn finished(
             total_trip_time.to_string(&app.opts.units).draw_text(ctx),
         ]));
 
-        let (_, waiting) = app.primary.sim.finished_trip_time(id).unwrap();
+        let (_, waiting, _) = app.primary.sim.finished_trip_details(id).unwrap();
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Total waiting time").secondary().draw(ctx)])
                 .force_width_pct(ctx, col_width),

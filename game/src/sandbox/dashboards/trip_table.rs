@@ -145,7 +145,7 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
             continue;
         };
 
-        let (_, waiting) = sim.finished_trip_time(*id).unwrap();
+        let (_, waiting, _) = sim.finished_trip_details(*id).unwrap();
 
         finished.push(FinishedTrip {
             id: *id,
@@ -488,7 +488,7 @@ fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
     };
     let mut unfinished = Vec::new();
     for (id, trip) in app.primary.sim.all_trip_info() {
-        if app.primary.sim.finished_trip_time(id).is_none() {
+        if app.primary.sim.finished_trip_details(id).is_none() {
             let duration_before = trip_times_before
                 .as_ref()
                 .and_then(|times| times.get(&id))

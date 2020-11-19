@@ -573,6 +573,7 @@ impl Sim {
                             create_ped.id,
                             ParkingSpot::Offstreet(*b2, *idx),
                             Duration::ZERO,
+                            Distance::ZERO,
                             &mut ctx,
                         );
                     }

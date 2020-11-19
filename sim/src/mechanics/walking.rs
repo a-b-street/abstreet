@@ -151,6 +151,7 @@ impl WalkingSimState {
                                     ped.id,
                                     spot,
                                     ped.total_blocked_time,
+                                    ped.path.total_length(),
                                     ctx,
                                 );
                                 self.peds.remove(&id);
@@ -173,6 +174,7 @@ impl WalkingSimState {
                                 ped.id,
                                 stop,
                                 ped.total_blocked_time,
+                                ped.path.total_length(),
                                 ctx,
                                 transit,
                             ) {
@@ -186,7 +188,14 @@ impl WalkingSimState {
                         SidewalkPOI::Border(i) => {
                             self.peds_per_traversable
                                 .remove(ped.path.current_step().as_traversable(), ped.id);
-                            trips.ped_reached_border(now, ped.id, i, ped.total_blocked_time, ctx);
+                            trips.ped_reached_border(
+                                now,
+                                ped.id,
+                                i,
+                                ped.total_blocked_time,
+                                ped.path.total_length(),
+                                ctx,
+                            );
                             self.peds.remove(&id);
                         }
                         SidewalkPOI::BikeRack(driving_pos) => {
@@ -261,7 +270,14 @@ impl WalkingSimState {
             PedState::EnteringBuilding(bldg, _) => {
                 self.peds_per_traversable
                     .remove(ped.path.current_step().as_traversable(), ped.id);
-                trips.ped_reached_building(now, ped.id, bldg, ped.total_blocked_time, ctx);
+                trips.ped_reached_building(
+                    now,
+                    ped.id,
+                    bldg,
+                    ped.total_blocked_time,
+                    ped.path.total_length(),
+                    ctx,
+                );
                 self.peds.remove(&id);
             }
             PedState::LeavingParkingLot(pl, _) => {
@@ -281,6 +297,7 @@ impl WalkingSimState {
                         _ => unreachable!(),
                     },
                     ped.total_blocked_time,
+                    ped.path.total_length(),
                     ctx,
                 );
                 self.peds.remove(&id);
@@ -288,7 +305,14 @@ impl WalkingSimState {
             PedState::StartingToBike(ref spot, _, _) => {
                 self.peds_per_traversable
                     .remove(ped.path.current_step().as_traversable(), ped.id);
-                trips.ped_ready_to_bike(now, ped.id, spot.clone(), ped.total_blocked_time, ctx);
+                trips.ped_ready_to_bike(
+                    now,
+                    ped.id,
+                    spot.clone(),
+                    ped.total_blocked_time,
+                    ped.path.total_length(),
+                    ctx,
+                );
                 self.peds.remove(&id);
             }
             PedState::FinishingBiking(ref spot, _, _) => {

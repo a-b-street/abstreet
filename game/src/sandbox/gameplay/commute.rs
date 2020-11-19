@@ -225,7 +225,7 @@ fn get_score(app: &App, trips: &Vec<TripID>) -> (Duration, Duration, usize) {
     let mut before = Duration::ZERO;
     let mut after = Duration::ZERO;
     for t in trips {
-        if let Some((total, _)) = app.primary.sim.finished_trip_time(*t) {
+        if let Some((total, _, _)) = app.primary.sim.finished_trip_details(*t) {
             done += 1;
             after += total;
             // Assume all trips completed before changes

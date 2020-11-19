@@ -113,9 +113,9 @@ impl Sim {
     pub fn all_trip_info(&self) -> Vec<(TripID, TripInfo)> {
         self.trips.all_trip_info()
     }
-    /// If trip is finished, returns (total time, total waiting time)
-    pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
-        self.trips.finished_trip_time(id)
+    /// If trip is finished, returns (total time, total waiting time, total distance)
+    pub fn finished_trip_details(&self, id: TripID) -> Option<(Duration, Duration, Distance)> {
+        self.trips.finished_trip_details(id)
     }
     // Returns the total time a trip was blocked for
     pub fn trip_blocked_time(&self, id: TripID) -> Duration {

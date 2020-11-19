@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, VecDeque};
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
-use geom::{Duration, Speed, Time};
+use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
@@ -100,6 +100,7 @@ impl TripManager {
             started: false,
             finished_at: None,
             total_blocked_time: Duration::ZERO,
+            total_distance: Distance::ZERO,
             legs: VecDeque::from(legs),
         };
         self.unfinished_trips += 1;
@@ -453,10 +454,12 @@ impl TripManager {
         car: CarID,
         spot: ParkingSpot,
         blocked_time: Duration,
+        distance_crossed: Distance,
         ctx: &mut Ctx,
     ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         trip.total_blocked_time += blocked_time;
+        trip.total_distance += distance_crossed;
 
         match trip.legs.pop_front() {
             Some(TripLeg::Drive(c, DrivingGoal::ParkNear(_))) => {
@@ -501,6 +504,7 @@ impl TripManager {
         ped: PedestrianID,
         spot: ParkingSpot,
         blocked_time: Duration,
+        distance_crossed: Distance,
         ctx: &mut Ctx,
     ) {
         self.events.push(Event::PedReachedParkingSpot(ped, spot));
@@ -510,6 +514,7 @@ impl TripManager {
             .unwrap()
             .0];
         trip.total_blocked_time += blocked_time;
+        trip.total_distance += distance_crossed;
 
         trip.assert_walking_leg(SidewalkSpot::deferred_parking_spot());
         let parked_car = ctx.parking.get_car_at_spot(spot).unwrap().clone();
@@ -590,6 +595,7 @@ impl TripManager {
         ped: PedestrianID,
         spot: SidewalkSpot,
         blocked_time: Duration,
+        distance_crossed: Distance,
         ctx: &mut Ctx,
     ) {
         let trip = &mut self.trips[self
@@ -598,6 +604,7 @@ impl TripManager {
             .unwrap()
             .0];
         trip.total_blocked_time += blocked_time;
+        trip.total_distance += distance_crossed;
 
         trip.assert_walking_leg(spot.clone());
         let (bike, drive_to) = match trip.legs[0] {
@@ -672,6 +679,7 @@ impl TripManager {
         bike: CarID,
         bike_rack: SidewalkSpot,
         blocked_time: Duration,
+        distance_crossed: Distance,
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
@@ -681,6 +689,7 @@ impl TripManager {
         ));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(bike)).unwrap().0];
         trip.total_blocked_time += blocked_time;
+        trip.total_distance += distance_crossed;
 
         match trip.legs.pop_front() {
             Some(TripLeg::Drive(c, DrivingGoal::ParkNear(_))) => {
@@ -707,6 +716,7 @@ impl TripManager {
         ped: PedestrianID,
         bldg: BuildingID,
         blocked_time: Duration,
+        distance_crossed: Distance,
         ctx: &mut Ctx,
     ) {
         let trip = &mut self.trips[self
@@ -715,6 +725,7 @@ impl TripManager {
             .unwrap()
             .0];
         trip.total_blocked_time += blocked_time;
+        trip.total_distance += distance_crossed;
 
         trip.assert_walking_leg(SidewalkSpot::building(bldg, ctx.map));
 
@@ -733,11 +744,13 @@ impl TripManager {
         ped: PedestrianID,
         stop: BusStopID,
         blocked_time: Duration,
+        distance_crossed: Distance,
         ctx: &mut Ctx,
         transit: &mut TransitSimState,
     ) -> Option<BusRouteID> {
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
         trip.total_blocked_time += blocked_time;
+        trip.total_distance += distance_crossed;
 
         match trip.legs[0] {
             TripLeg::Walk(ref spot) => {
@@ -793,6 +806,7 @@ impl TripManager {
             .unwrap()
             .0];
         trip.total_blocked_time += blocked_time;
+        // No distance crossed between waiting for a bus and boarding
 
         trip.legs.pop_front();
         walking.ped_boarded_bus(now, ped);
@@ -836,6 +850,7 @@ impl TripManager {
         ped: PedestrianID,
         i: IntersectionID,
         blocked_time: Duration,
+        distance_crossed: Distance,
         ctx: &mut Ctx,
     ) {
         let trip = &mut self.trips[self
@@ -844,6 +859,7 @@ impl TripManager {
             .unwrap()
             .0];
         trip.total_blocked_time += blocked_time;
+        trip.total_distance += distance_crossed;
 
         match trip.legs.pop_front() {
             Some(TripLeg::Walk(spot)) => match spot.connection {
@@ -899,10 +915,12 @@ impl TripManager {
         car: CarID,
         i: IntersectionID,
         blocked_time: Duration,
+        distance_crossed: Distance,
         ctx: &mut Ctx,
     ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         trip.total_blocked_time += blocked_time;
+        trip.total_distance += distance_crossed;
 
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(c, DrivingGoal::Border(int, _)) => {
@@ -1217,9 +1235,13 @@ impl TripManager {
     pub fn all_trip_info(&self) -> Vec<(TripID, TripInfo)> {
         self.trips.iter().map(|t| (t.id, t.info.clone())).collect()
     }
-    pub fn finished_trip_time(&self, id: TripID) -> Option<(Duration, Duration)> {
+    pub fn finished_trip_details(&self, id: TripID) -> Option<(Duration, Duration, Distance)> {
         let t = &self.trips[id.0];
-        Some((t.finished_at? - t.info.departure, t.total_blocked_time))
+        Some((
+            t.finished_at? - t.info.departure,
+            t.total_blocked_time,
+            t.total_distance,
+        ))
     }
     pub fn trip_blocked_time(&self, id: TripID) -> Duration {
         let t = &self.trips[id.0];
@@ -1305,6 +1327,7 @@ struct Trip {
     started: bool,
     finished_at: Option<Time>,
     total_blocked_time: Duration,
+    total_distance: Distance,
     legs: VecDeque<TripLeg>,
     person: PersonID,
 }
