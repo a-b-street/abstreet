@@ -18,7 +18,7 @@ use crate::{
 };
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub struct Router {
+pub(crate) struct Router {
     /// Front is always the current step
     path: Path,
     goal: Goal,
@@ -26,7 +26,7 @@ pub struct Router {
 }
 
 #[derive(Debug)]
-pub enum ActionAtEnd {
+pub(crate) enum ActionAtEnd {
     VanishAtBorder(IntersectionID),
     StartParking(ParkingSpot),
     GotoLaneEnd,

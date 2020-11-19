@@ -23,7 +23,7 @@ use crate::{
 //
 // Here be dragons, keep hands and feet inside the ride at all times...
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TripManager {
+pub(crate) struct TripManager {
     trips: Vec<Trip>,
     people: Vec<Person>,
     // For quick lookup of active agents
@@ -1088,9 +1088,6 @@ impl TripManager {
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }
-    pub fn get_active_trips(&self) -> Vec<TripID> {
-        self.active_trip_mode.values().cloned().collect()
-    }
     pub fn active_agents_and_trips(&self) -> &BTreeMap<AgentID, TripID> {
         &self.active_trip_mode
     }
@@ -1410,7 +1407,7 @@ impl Trip {
 /// These don't specify where the leg starts, since it might be unknown -- like when we drive and
 /// don't know where we'll wind up parking.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-pub enum TripLeg {
+pub(crate) enum TripLeg {
     Walk(SidewalkSpot),
     /// A person may own many vehicles, so specify which they use
     Drive(CarID, DrivingGoal),

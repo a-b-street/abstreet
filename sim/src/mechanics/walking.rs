@@ -24,7 +24,7 @@ const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 /// just "ghost" through each other. There's no queueing or slowdown when many people are
 /// overlapping. They're simply grouped together into a DrawPedCrowdInput for rendering.
 #[derive(Serialize, Deserialize, Clone)]
-pub struct WalkingSimState {
+pub(crate) struct WalkingSimState {
     peds: FixedMap<PedestrianID, Pedestrian>,
     #[serde(
         serialize_with = "serialize_multimap",
@@ -411,10 +411,6 @@ impl WalkingSimState {
         }
 
         peds
-    }
-
-    pub fn does_ped_exist(&self, id: PedestrianID) -> bool {
-        self.peds.contains_key(&id)
     }
 
     pub fn get_draw_peds_on(

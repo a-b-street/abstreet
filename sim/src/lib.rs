@@ -17,7 +17,7 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Distance, Pt2D, Speed, Time};
+use geom::{Distance, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
     Path, PathConstraints, PathRequest, Position,
@@ -66,21 +66,21 @@ mod transit;
 mod trips;
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
-pub const BIKE_LENGTH: Distance = Distance::const_meters(1.8);
+pub(crate) const BIKE_LENGTH: Distance = Distance::const_meters(1.8);
 // These two must be < PARKING_SPOT_LENGTH
-pub const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
-pub const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
+pub(crate) const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
+pub(crate) const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
 // Note this is more than MAX_CAR_LENGTH
-pub const BUS_LENGTH: Distance = Distance::const_meters(12.5);
-pub const LIGHT_RAIL_LENGTH: Distance = Distance::const_meters(60.0);
+pub(crate) const BUS_LENGTH: Distance = Distance::const_meters(12.5);
+pub(crate) const LIGHT_RAIL_LENGTH: Distance = Distance::const_meters(60.0);
 
 /// At all speeds (including at rest), cars must be at least this far apart, measured from front of
 /// one car to the back of the other.
-pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
+pub(crate) const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
 /// When spawning at borders, start the front of the vehicle this far along and gradually appear.
 /// Getting too close to EPSILON_DIST can lead to get_draw_car having no geometry at all.
-pub const SPAWN_DIST: Distance = Distance::const_meters(0.05);
+pub(crate) const SPAWN_DIST: Distance = Distance::const_meters(0.05);
 
 /// The numeric ID must be globally unique, without considering VehicleType. VehicleType is bundled
 /// for convenient debugging.
@@ -324,7 +324,7 @@ pub struct VehicleSpec {
 }
 
 impl VehicleSpec {
-    pub fn make(self, id: CarID, owner: Option<PersonID>) -> Vehicle {
+    pub(crate) fn make(self, id: CarID, owner: Option<PersonID>) -> Vehicle {
         assert_eq!(id.1, self.vehicle_type);
         Vehicle {
             id,
@@ -355,7 +355,7 @@ pub struct ParkedCar {
 /// It'd be nice to inline the goal_pos like SidewalkSpot does, but DrivingGoal is persisted in
 /// Scenarios, so this wouldn't survive map edits.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum DrivingGoal {
+pub(crate) enum DrivingGoal {
     ParkNear(BuildingID),
     Border(IntersectionID, LaneID),
 }
@@ -404,24 +404,17 @@ impl DrivingGoal {
             }
         }
     }
-
-    pub fn pt(&self, map: &Map) -> Pt2D {
-        match self {
-            DrivingGoal::ParkNear(b) => map.get_b(*b).polygon.center(),
-            DrivingGoal::Border(i, _) => map.get_i(*i).polygon.center(),
-        }
-    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
-pub struct SidewalkSpot {
+pub(crate) struct SidewalkSpot {
     pub connection: SidewalkPOI,
     pub sidewalk_pos: Position,
 }
 
 /// Point of interest, that is
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-pub enum SidewalkPOI {
+pub(crate) enum SidewalkPOI {
     /// Note that for offstreet parking, the path will be the same as the building's front path.
     ParkingSpot(ParkingSpot),
     /// Don't actually know where this goes yet!
@@ -536,7 +529,7 @@ impl SidewalkSpot {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
-pub struct TimeInterval {
+pub(crate) struct TimeInterval {
     // TODO Private fields
     pub start: Time,
     pub end: Time,
@@ -569,7 +562,7 @@ impl TimeInterval {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
-pub struct DistanceInterval {
+pub(crate) struct DistanceInterval {
     // TODO Private fields
     pub start: Distance,
     pub end: Distance,
@@ -599,7 +592,7 @@ impl DistanceInterval {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-pub struct CreatePedestrian {
+pub(crate) struct CreatePedestrian {
     pub id: PedestrianID,
     pub start: SidewalkSpot,
     pub speed: Speed,
@@ -611,7 +604,7 @@ pub struct CreatePedestrian {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
-pub struct CreateCar {
+pub(crate) struct CreateCar {
     pub vehicle: Vehicle,
     pub router: Router,
     pub req: PathRequest,

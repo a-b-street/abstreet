@@ -14,7 +14,7 @@ type ZoneIdx = usize;
 /// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per
 /// hour. CapSimState enforces this, just for driving trips.
 #[derive(Serialize, Deserialize, Clone)]
-pub struct CapSimState {
+pub(crate) struct CapSimState {
     lane_to_zone: BTreeMap<LaneID, ZoneIdx>,
     zones: Vec<Zone>,
     avoid_congestion: Option<AvoidCongestion>,

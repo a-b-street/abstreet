@@ -19,12 +19,12 @@ use crate::{
 const TIME_TO_WAIT_AT_BUS_STOP: Duration = Duration::const_seconds(10.0);
 
 // TODO Do something else.
-pub(crate) const BLIND_RETRY_TO_CREEP_FORWARDS: Duration = Duration::const_seconds(0.1);
-pub(crate) const BLIND_RETRY_TO_REACH_END_DIST: Duration = Duration::const_seconds(5.0);
+pub const BLIND_RETRY_TO_CREEP_FORWARDS: Duration = Duration::const_seconds(0.1);
+pub const BLIND_RETRY_TO_REACH_END_DIST: Duration = Duration::const_seconds(5.0);
 
 /// Simulates vehicles!
 #[derive(Serialize, Deserialize, Clone)]
-pub struct DrivingSimState {
+pub(crate) struct DrivingSimState {
     // This spends some space to save time. If a simulation contains 1 million cars over the course
     // of a day, but only 100,000 are ever active simultaneously, we store 900,000 `None`s. But we
     // gain much faster lookup, which has shown dramatic speedups in the scenarios being run so

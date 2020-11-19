@@ -59,7 +59,7 @@ impl PandemicModel {
 
     // Sorry, initialization order of simulations is still a bit messy. This'll be called at
     // Time::START_OF_DAY after all of the people have been created from a Scenario.
-    pub fn initialize(&mut self, population: &Vec<Person>, _scheduler: &mut Scheduler) {
+    pub(crate) fn initialize(&mut self, population: &Vec<Person>, _scheduler: &mut Scheduler) {
         assert!(!self.initialized);
         self.initialized = true;
 
@@ -154,7 +154,7 @@ impl PandemicModel {
             + self.count_dead()
     }
 
-    pub fn handle_event(&mut self, now: Time, ev: &Event, scheduler: &mut Scheduler) {
+    pub(crate) fn handle_event(&mut self, now: Time, ev: &Event, scheduler: &mut Scheduler) {
         assert!(self.initialized);
 
         match ev {
@@ -202,7 +202,7 @@ impl PandemicModel {
         }
     }
 
-    pub fn handle_cmd(&mut self, _now: Time, cmd: Cmd, _scheduler: &mut Scheduler) {
+    pub(crate) fn handle_cmd(&mut self, _now: Time, cmd: Cmd, _scheduler: &mut Scheduler) {
         assert!(self.initialized);
 
         // TODO Here we might enforce policies. Like severe -> become hospitalized

@@ -13,7 +13,7 @@ use crate::{
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-pub enum Command {
+pub(crate) enum Command {
     /// If true, retry when there's no room to spawn somewhere
     SpawnCar(CreateCar, bool),
     SpawnPed(CreatePedestrian),
@@ -124,7 +124,7 @@ impl Ord for Item {
 /// schedule Commands to happen at a specific time, and the Scheduler hands out the commands in
 /// order.
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Scheduler {
+pub(crate) struct Scheduler {
     items: BinaryHeap<Item>,
     queued_commands: HashMap<CommandType, (Command, Time)>,
 

@@ -13,7 +13,7 @@ use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 /// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is
 /// implemented.
 #[derive(Serialize, Deserialize, Clone)]
-pub struct Queue {
+pub(crate) struct Queue {
     pub id: Traversable,
     pub cars: VecDeque<CarID>,
     /// This car's back is still partly in this queue.

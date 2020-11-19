@@ -12,7 +12,7 @@ use crate::{
 /// capture and reproduce behavior in a gridlock-prone chunk of the map, without simulating
 /// everything.
 #[derive(Clone)]
-pub struct TrafficRecorder {
+pub(crate) struct TrafficRecorder {
     capture_points: BTreeSet<IntersectionID>,
     // TODO The RNG will determine vehicle length, so this won't be a perfect capture. Hopefully
     // good enough.

@@ -65,7 +65,7 @@ pub struct Sim {
     alerts: AlertHandler,
 }
 
-pub struct Ctx<'a> {
+pub(crate) struct Ctx<'a> {
     pub parking: &'a mut ParkingSimState,
     pub intersections: &'a mut IntersectionSimState,
     pub cap: &'a mut CapSimState,

@@ -27,7 +27,7 @@ const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.
 /// Most of the complexity comes from attempting to workaround
 /// <https://dabreegster.github.io/abstreet/trafficsim/gridlock.html>.
 #[derive(Serialize, Deserialize, Clone)]
-pub struct IntersectionSimState {
+pub(crate) struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,
     use_freeform_policy_everywhere: bool,
     dont_block_the_box: bool,

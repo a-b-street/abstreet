@@ -12,7 +12,7 @@ use crate::{
 
 /// Represents a single vehicle. Note "car" is a misnomer; it could also be a bus or bike.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Car {
+pub(crate) struct Car {
     pub vehicle: Vehicle,
     pub state: CarState,
     pub router: Router,
@@ -252,7 +252,7 @@ impl Car {
 /// See <https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html> for details about the
 /// state machine encoded here.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum CarState {
+pub(crate) enum CarState {
     Crossing(TimeInterval, DistanceInterval),
     Queued {
         blocked_since: Time,

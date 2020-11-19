@@ -50,7 +50,7 @@ enum BusState {
 /// Manages public transit vehicles (buses and trains) that follow a route. The transit model is
 /// currently kind of broken, so not describing the state machine yet.
 #[derive(Serialize, Deserialize, Clone)]
-pub struct TransitSimState {
+pub(crate) struct TransitSimState {
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
