@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `convert_osm/src/transit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transit.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../convert_osm/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `convert_osm/src/transit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transit.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../convert_osm/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -336,17 +338,17 @@
     <span class="ident">doc</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>,
     <span class="ident">boundary</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RawBusRoute</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RawBusRoute</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">full_name</span> <span class="op">=</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)<span class="question-mark">?</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="ident">short_name</span> <span class="op">=</span> <span class="ident">rel</span>
         .<span class="ident">tags</span>
         .<span class="ident">get</span>(<span class="string">&quot;ref&quot;</span>)
         .<span class="ident">cloned</span>()
-        .<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="ident">full_name</span>.<span class="ident">clone</span>());
+        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">full_name</span>.<span class="ident">clone</span>());
     <span class="kw">let</span> <span class="ident">is_bus</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;route&quot;</span>)<span class="question-mark">?</span>.<span class="ident">as_ref</span>() {
-        <span class="string">&quot;bus&quot;</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-        <span class="string">&quot;light_rail&quot;</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-        <span class="ident">x</span> <span class="op">=&gt;</span> {
+        <span class="string">&quot;bus&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+        <span class="string">&quot;light_rail&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+        <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;foot&quot;</span>, <span class="string">&quot;railway&quot;</span>, <span class="string">&quot;road&quot;</span>, <span class="string">&quot;tracks&quot;</span>, <span class="string">&quot;train&quot;</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>) {
                 <span class="comment">// TODO Handle these at some point</span>
                 <span class="macro">println</span><span class="macro">!</span>(
@@ -363,7 +365,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">platforms</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_ways</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> (<span class="ident">role</span>, <span class="ident">member</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">members</span> {
-        <span class="kw">if</span> <span class="ident">role</span> <span class="op">==</span> <span class="string">&quot;stop&quot;</span> {
+        <span class="kw">if</span> <span class="ident">role</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;stop&quot;</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OsmID</span>::<span class="ident">Node</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">member</span> {
                 <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">nodes</span>[<span class="ident">n</span>];
                 <span class="ident">stops</span>.<span class="ident">push</span>(<span class="ident">RawBusStop</span> {
@@ -371,35 +373,35 @@
                         .<span class="ident">tags</span>
                         .<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)
                         .<span class="ident">cloned</span>()
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stop #{}&quot;</span>, <span class="ident">stops</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>)),
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stop #{}&quot;</span>, <span class="ident">stops</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>)),
                     <span class="ident">vehicle_pos</span>: (<span class="kw-2">*</span><span class="ident">n</span>, <span class="ident">node</span>.<span class="ident">pt</span>),
                     <span class="ident">matched_road</span>: <span class="prelude-val">None</span>,
                     <span class="ident">ped_pos</span>: <span class="prelude-val">None</span>,
                 });
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">role</span> <span class="op">==</span> <span class="string">&quot;platform&quot;</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">role</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;platform&quot;</span> {
             <span class="kw">let</span> (<span class="ident">platform_name</span>, <span class="ident">pt</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">member</span> {
-                <span class="ident">OsmID</span>::<span class="ident">Node</span>(<span class="ident">n</span>) <span class="op">=&gt;</span> {
+                <span class="ident">OsmID</span>::<span class="ident">Node</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">nodes</span>[<span class="ident">n</span>];
                     (
                         <span class="ident">node</span>.<span class="ident">tags</span>
                             .<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)
                             .<span class="ident">cloned</span>()
-                            .<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stop #{}&quot;</span>, <span class="ident">platforms</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>)),
+                            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stop #{}&quot;</span>, <span class="ident">platforms</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>)),
                         <span class="ident">node</span>.<span class="ident">pt</span>,
                     )
                 }
-                <span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">w</span>) <span class="op">=&gt;</span> {
+                <span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">w</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">way</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">ways</span>[<span class="ident">w</span>];
                     (
                         <span class="ident">way</span>.<span class="ident">tags</span>
                             .<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)
                             .<span class="ident">cloned</span>()
-                            .<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stop #{}&quot;</span>, <span class="ident">platforms</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>)),
+                            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stop #{}&quot;</span>, <span class="ident">platforms</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>)),
                         <span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="ident">way</span>.<span class="ident">pts</span>),
                     )
                 }
-                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="kw">continue</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
             };
             <span class="ident">platforms</span>.<span class="ident">insert</span>(<span class="ident">platform_name</span>, <span class="ident">pt</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">member</span> {
@@ -413,11 +415,11 @@
     }
 
     <span class="kw">let</span> <span class="ident">all_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">NodeID</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">glue_route</span>(<span class="ident">all_ways</span>, <span class="ident">doc</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">nodes</span>) <span class="op">=&gt;</span> <span class="ident">nodes</span>
+        <span class="prelude-val">Ok</span>(<span class="ident">nodes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">nodes</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">osm_node_id</span><span class="op">|</span> (<span class="ident">osm_node_id</span>, <span class="ident">doc</span>.<span class="ident">nodes</span>[<span class="kw-2">&amp;</span><span class="ident">osm_node_id</span>].<span class="ident">pt</span>))
             .<span class="ident">collect</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">timer</span>.<span class="ident">error</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;Skipping route {} ({}): {}&quot;</span>,
                 <span class="ident">rel_id</span>, <span class="ident">full_name</span>, <span class="ident">err</span>
@@ -469,8 +471,8 @@
 
 <span class="comment">// Figure out the actual order of nodes in the route. We assume the ways are at least listed in</span>
 <span class="comment">// order. Match them up by endpoints. There are gaps sometimes, though!</span>
-<span class="kw">fn</span> <span class="ident">glue_route</span>(<span class="ident">all_ways</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WayID</span><span class="op">&gt;</span>, <span class="ident">doc</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NodeID</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">all_ways</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+<span class="kw">fn</span> <span class="ident">glue_route</span>(<span class="ident">all_ways</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WayID</span><span class="op">&gt;</span>, <span class="ident">doc</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NodeID</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">all_ways</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;route only has one way: {}&quot;</span>, <span class="ident">all_ways</span>[<span class="number">0</span>]));
     }
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
@@ -478,19 +480,19 @@
     <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">all_ways</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
         <span class="kw">let</span> <span class="ident">way1</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">ways</span>[<span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">0</span>]];
         <span class="kw">let</span> <span class="ident">way2</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">ways</span>[<span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">1</span>]];
-        <span class="kw">let</span> (<span class="ident">nodes1</span>, <span class="ident">nodes2</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">way1</span>.<span class="ident">nodes</span>[<span class="number">0</span>] <span class="op">==</span> <span class="ident">way2</span>.<span class="ident">nodes</span>[<span class="number">0</span>] {
+        <span class="kw">let</span> (<span class="ident">nodes1</span>, <span class="ident">nodes2</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">way1</span>.<span class="ident">nodes</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">way2</span>.<span class="ident">nodes</span>[<span class="number">0</span>] {
             (
                 <span class="ident">way1</span>.<span class="ident">nodes</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
                 <span class="ident">way2</span>.<span class="ident">nodes</span>.<span class="ident">clone</span>(),
             )
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way1</span>.<span class="ident">nodes</span>[<span class="number">0</span>] <span class="op">==</span> <span class="kw-2">*</span><span class="ident">way2</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way1</span>.<span class="ident">nodes</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">way2</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
             (
                 <span class="ident">way1</span>.<span class="ident">nodes</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
                 <span class="ident">way2</span>.<span class="ident">nodes</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
             )
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">way1</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="ident">way2</span>.<span class="ident">nodes</span>[<span class="number">0</span>] {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">way1</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">way2</span>.<span class="ident">nodes</span>[<span class="number">0</span>] {
             (<span class="ident">way1</span>.<span class="ident">nodes</span>.<span class="ident">clone</span>(), <span class="ident">way2</span>.<span class="ident">nodes</span>.<span class="ident">clone</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">way1</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">way2</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">way1</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">way2</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
             (
                 <span class="ident">way1</span>.<span class="ident">nodes</span>.<span class="ident">clone</span>(),
                 <span class="ident">way2</span>.<span class="ident">nodes</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
@@ -499,7 +501,7 @@
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;gap between {} and {}&quot;</span>, <span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]));
         };
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">pop</span>() {
-            <span class="kw">if</span> <span class="ident">n</span> <span class="op">!=</span> <span class="ident">nodes1</span>[<span class="number">0</span>] {
+            <span class="kw">if</span> <span class="ident">n</span> <span class="op">!</span><span class="op">=</span> <span class="ident">nodes1</span>[<span class="number">0</span>] {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;{} and {} match up, but last piece was {}&quot;</span>,
                     <span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">n</span>
@@ -523,7 +525,7 @@
     <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>,
     <span class="ident">pt_to_road</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RawBusRoute</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RawBusRoute</span>, <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="comment">// TODO RawBusStop should have an osm_node_id()</span>
 
     <span class="comment">// For every stop, figure out what road segment and direction it matches up to.</span>
@@ -531,7 +533,7 @@
         <span class="kw">let</span> <span class="ident">idx_in_route</span> <span class="op">=</span> <span class="ident">route</span>
             .<span class="ident">all_pts</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span>(<span class="ident">node</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">stop</span>.<span class="ident">vehicle_pos</span>.<span class="number">0</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">node</span>)
+            .<span class="ident">position</span>(<span class="op">|</span>(<span class="ident">node</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">stop</span>.<span class="ident">vehicle_pos</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">node</span>)
             .<span class="ident">ok_or</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} missing from route?!&quot;</span>, <span class="ident">stop</span>.<span class="ident">vehicle_pos</span>.<span class="number">0</span>))<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">raw</span>.<span class="ident">intersections</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">stop</span>.<span class="ident">vehicle_pos</span>.<span class="number">0</span>) {
@@ -585,9 +587,9 @@
 
         <span class="kw">let</span> <span class="ident">i1</span> <span class="op">=</span> <span class="ident">i1</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">i2</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">i1</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">i2</span> {
+        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i1</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> {
             <span class="ident">Direction</span>::<span class="ident">Fwd</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">i2</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">i1</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i1</span> {
             <span class="ident">Direction</span>::<span class="ident">Back</span>
         } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -612,22 +614,22 @@
         <span class="kw">let</span> <span class="ident">tags</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>
             .<span class="ident">roads</span>
             .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">||</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t an extracted road&quot;</span>, <span class="ident">road</span>))<span class="question-mark">?</span>
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t an extracted road&quot;</span>, <span class="ident">road</span>))<span class="question-mark">?</span>
             .<span class="ident">osm_tags</span>;
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_SIDEWALKS</span>, <span class="string">&quot;true&quot;</span>) {
             <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>).<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">current</span> <span class="op">==</span> <span class="string">&quot;none&quot;</span> {
+            <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;none&quot;</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(
                     <span class="ident">osm</span>::<span class="ident">SIDEWALK</span>,
-                    <span class="kw">if</span> <span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+                    <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
                         <span class="string">&quot;right&quot;</span>
                     } <span class="kw">else</span> {
                         <span class="string">&quot;left&quot;</span>
                     },
                 );
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">current</span> <span class="op">==</span> <span class="string">&quot;right&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction</span>::<span class="ident">Back</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;right&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Back</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;both&quot;</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">current</span> <span class="op">==</span> <span class="string">&quot;left&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;left&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;both&quot;</span>);
             } <span class="kw">else</span> {
                 <span class="kw">continue</span>;

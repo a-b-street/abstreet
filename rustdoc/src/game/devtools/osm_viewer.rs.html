@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/devtools/osm_viewer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>osm_viewer.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/devtools/osm_viewer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>osm_viewer.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -486,7 +488,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Viewer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">viewer</span> <span class="op">=</span> <span class="ident">Viewer</span> {
             <span class="ident">fixed_object_outline</span>: <span class="prelude-val">None</span>,
@@ -528,7 +530,7 @@
             <span class="self">self</span>.<span class="ident">calculate_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>),
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span> {
-                <span class="ident">biz_search_panel</span>.<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="ident">b</span>.<span class="ident">render</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;Search for businesses&quot;</span>))
+                <span class="ident">biz_search_panel</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">render</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;Search for businesses&quot;</span>))
             } <span class="kw">else</span> {
                 <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Search for businesses&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>)
             },
@@ -538,7 +540,7 @@
         <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">top_panel</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">calculate_tags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">calculate_tags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_some</span>() {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click something else to examine it&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
@@ -547,7 +549,7 @@
         }
 
         <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -574,13 +576,13 @@
                         <span class="kw">continue</span>;
                     }
                     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_PARKING</span>)
-                        <span class="op">&amp;&amp;</span> (<span class="ident">k</span> <span class="op">==</span> <span class="ident">osm</span>::<span class="ident">PARKING_RIGHT</span>
-                            <span class="op">||</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">osm</span>::<span class="ident">PARKING_LEFT</span>
-                            <span class="op">||</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">osm</span>::<span class="ident">PARKING_BOTH</span>)
+                        <span class="op">&amp;&amp;</span> (<span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm</span>::<span class="ident">PARKING_RIGHT</span>
+                            <span class="op">|</span><span class="op">|</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm</span>::<span class="ident">PARKING_LEFT</span>
+                            <span class="op">|</span><span class="op">|</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm</span>::<span class="ident">PARKING_BOTH</span>)
                     {
                         <span class="kw">continue</span>;
                     }
-                    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_SIDEWALKS</span>) <span class="op">&amp;&amp;</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">osm</span>::<span class="ident">SIDEWALK</span> {
+                    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_SIDEWALKS</span>) <span class="op">&amp;&amp;</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm</span>::<span class="ident">SIDEWALK</span> {
                         <span class="kw">continue</span>;
                     }
                     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -593,7 +595,7 @@
                     ]));
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>)).<span class="ident">build</span>(
@@ -603,7 +605,7 @@
                     ),
                 );
             }
-            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)) <span class="op">=&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>.<span class="ident">inner</span>())).<span class="ident">build</span>(
@@ -623,7 +625,7 @@
                 }
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
                     <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;&quot;</span>));
-                    <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                    <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;1 amenity:&quot;</span>));
                     } <span class="kw">else</span> {
                         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} amenities:&quot;</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>())));
@@ -654,7 +656,7 @@
                     }
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">pl</span>)) <span class="op">=&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">pl</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>);
                 <span class="ident">col</span>.<span class="ident">push</span>(
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>.<span class="ident">inner</span>())).<span class="ident">build</span>(
@@ -672,7 +674,7 @@
                     .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                 );
             }
-            <span class="kw">_</span> <span class="op">=&gt;</span> {
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Zoom in and select something to begin&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>)];
             }
         }
@@ -681,13 +683,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Viewer</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
             <span class="kw">let</span> <span class="ident">old_id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>();
             <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">old_id</span> <span class="op">!=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">old_id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
                 <span class="kw">let</span> <span class="ident">biz_search</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">take</span>(<span class="string">&quot;Search for businesses&quot;</span>);
                 <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">biz_search</span>));
             }
@@ -735,11 +737,11 @@
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">=&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
-                <span class="string">&quot;change map&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;change map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">CityPicker</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -751,13 +753,13 @@
                         }),
                     ));
                 }
-                <span class="string">&quot;settings&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;settings&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">OptionsPanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
-                <span class="string">&quot;search&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;search&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Navigator</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
-                <span class="string">&quot;About&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;About&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;About this OSM viewer&quot;</span>,
@@ -772,15 +774,15 @@
                         ],
                     ));
                 }
-                <span class="string">&quot;Search for businesses&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;Search for businesses&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">businesses</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BusinessSearch</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                     <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>);
                 }
-                <span class="string">&quot;Hide business search&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;Hide business search&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">businesses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>);
                 }
-                <span class="ident">x</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;open &quot;</span>) {
                         <span class="ident">open_browser</span>(<span class="ident">url</span>.<span class="ident">to_string</span>());
                     } <span class="kw">else</span> {
@@ -788,7 +790,7 @@
                     }
                 }
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
                 <span class="comment">// Update state from checkboxes</span>
                 <span class="ident">b</span>.<span class="ident">show</span>.<span class="ident">clear</span>();
@@ -801,13 +803,13 @@
 
                 <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">KeepWithMouseover</span>;
             }
-            <span class="kw">_</span> <span class="op">=&gt;</span> {}
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DrawBaselayer</span> {
+    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
         <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span>
     }
 
@@ -838,7 +840,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">BusinessSearch</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">BusinessSearch</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BusinessSearch</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counts</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
@@ -883,7 +885,7 @@
         <span class="kw">if</span> <span class="self">self</span>
             .<span class="ident">hovering_on_amenity</span>
             .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">current</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">current</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">amenity</span>)
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">current</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">amenity</span>)
             .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
         {
             <span class="kw">return</span>;
@@ -892,7 +894,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">get</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>()) <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-                <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">amenity_type</span> <span class="op">==</span> <span class="ident">amenity</span>) {
+                <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">amenity_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">amenity</span>) {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
                 }
             }
@@ -900,7 +902,7 @@
         <span class="self">self</span>.<span class="ident">hovering_on_amenity</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">amenity</span>, <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
     }
 
-    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Hide business search&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>));
         <span class="ident">col</span>.<span class="ident">push</span>(

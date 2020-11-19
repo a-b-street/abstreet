@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/scheduler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>scheduler.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../sim/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/scheduler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>scheduler.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../sim/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -343,41 +345,41 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Command</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_agent</span>(<span class="ident">id</span>: <span class="ident">AgentID</span>) <span class="op">-&gt;</span> <span class="ident">Command</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_agent</span>(<span class="ident">id</span>: <span class="ident">AgentID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Command</span> {
         <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="ident">c</span>),
-            <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">p</span>) <span class="op">=&gt;</span> <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="ident">p</span>),
-            <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="ident">c</span>),
+            <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="ident">p</span>),
+            <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">CommandType</span> {
+    <span class="kw">fn</span> <span class="ident">to_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CommandType</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="ident">create</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Car</span>(<span class="ident">create</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
-            <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="ident">create</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Ped</span>(<span class="ident">create</span>.<span class="ident">id</span>),
-            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="ident">id</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">StartTrip</span>(<span class="kw-2">*</span><span class="ident">id</span>),
-            <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">id</span>),
-            <span class="ident">Command</span>::<span class="ident">UpdateLaggyHead</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">CarLaggyHead</span>(<span class="kw-2">*</span><span class="ident">id</span>),
-            <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Ped</span>(<span class="kw-2">*</span><span class="ident">id</span>),
-            <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Intersection</span>(<span class="kw-2">*</span><span class="ident">id</span>),
-            <span class="ident">Command</span>::<span class="ident">Callback</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Callback</span>,
-            <span class="ident">Command</span>::<span class="ident">Pandemic</span>(<span class="kw-2">ref</span> <span class="ident">p</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Pandemic</span>(<span class="ident">p</span>.<span class="ident">clone</span>()),
-            <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="ident">r</span>, <span class="ident">t</span>) <span class="op">=&gt;</span> <span class="ident">CommandType</span>::<span class="ident">StartBus</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">*</span><span class="ident">t</span>),
+            <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="ident">create</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Car</span>(<span class="ident">create</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
+            <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="ident">create</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Ped</span>(<span class="ident">create</span>.<span class="ident">id</span>),
+            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="ident">id</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">StartTrip</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+            <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+            <span class="ident">Command</span>::<span class="ident">UpdateLaggyHead</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">CarLaggyHead</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+            <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Ped</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+            <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Intersection</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+            <span class="ident">Command</span>::<span class="ident">Callback</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Callback</span>,
+            <span class="ident">Command</span>::<span class="ident">Pandemic</span>(<span class="kw-2">ref</span> <span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">Pandemic</span>(<span class="ident">p</span>.<span class="ident">clone</span>()),
+            <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="ident">r</span>, <span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommandType</span>::<span class="ident">StartBus</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">*</span><span class="ident">t</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_simple_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">SimpleCommandType</span> {
+    <span class="kw">fn</span> <span class="ident">to_simple_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Car</span>,
-            <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Ped</span>,
-            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartTrip</span>,
-            <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Car</span>,
-            <span class="ident">Command</span>::<span class="ident">UpdateLaggyHead</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">CarLaggyHead</span>,
-            <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Ped</span>,
-            <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Intersection</span>,
-            <span class="ident">Command</span>::<span class="ident">Callback</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Callback</span>,
-            <span class="ident">Command</span>::<span class="ident">Pandemic</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Pandemic</span>,
-            <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartBus</span>,
+            <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Car</span>,
+            <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Ped</span>,
+            <span class="ident">Command</span>::<span class="ident">StartTrip</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartTrip</span>,
+            <span class="ident">Command</span>::<span class="ident">UpdateCar</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Car</span>,
+            <span class="ident">Command</span>::<span class="ident">UpdateLaggyHead</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">CarLaggyHead</span>,
+            <span class="ident">Command</span>::<span class="ident">UpdatePed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Ped</span>,
+            <span class="ident">Command</span>::<span class="ident">UpdateIntersection</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Intersection</span>,
+            <span class="ident">Command</span>::<span class="ident">Callback</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Callback</span>,
+            <span class="ident">Command</span>::<span class="ident">Pandemic</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">Pandemic</span>,
+            <span class="ident">Command</span>::<span class="ident">StartBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SimpleCommandType</span>::<span class="ident">StartBus</span>,
         }
     }
 }
@@ -416,16 +418,16 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">Item</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Item</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>) <span class="op">-&gt;</span> <span class="ident">Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
         <span class="comment">// BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.</span>
         <span class="kw">let</span> <span class="ident">ord</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">time</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">time</span>);
-        <span class="kw">if</span> <span class="ident">ord</span> <span class="op">!=</span> <span class="ident">Ordering</span>::<span class="ident">Equal</span> {
+        <span class="kw">if</span> <span class="ident">ord</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ordering</span>::<span class="ident">Equal</span> {
             <span class="kw">return</span> <span class="ident">ord</span>;
         }
         <span class="comment">// This is important! The tie-breaker if time is the same is ARBITRARY!</span>
@@ -450,7 +452,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Scheduler</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">Scheduler</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scheduler</span> {
         <span class="ident">Scheduler</span> {
             <span class="ident">items</span>: <span class="ident">BinaryHeap</span>::<span class="ident">new</span>(),
             <span class="ident">queued_commands</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
@@ -475,11 +477,11 @@
         <span class="kw">let</span> <span class="ident">cmd_type</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">to_type</span>();
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">entry</span>(<span class="ident">cmd_type</span>.<span class="ident">clone</span>()) {
-            <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">vacant</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">vacant</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">vacant</span>.<span class="ident">insert</span>((<span class="ident">cmd</span>, <span class="ident">time</span>));
                 <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">push</span>(<span class="ident">Item</span> { <span class="ident">time</span>, <span class="ident">cmd_type</span> });
             }
-            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">occupied</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">occupied</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> (<span class="ident">existing_cmd</span>, <span class="ident">existing_time</span>) <span class="op">=</span> <span class="ident">occupied</span>.<span class="ident">get</span>();
                 <span class="macro">panic</span><span class="macro">!</span>(
                     <span class="string">&quot;Can&#39;t push({}, {:?}) because ({}, {:?}) already queued&quot;</span>,
@@ -519,11 +521,11 @@
 
     <span class="doccomment">/// This next command might&#39;ve actually been rescheduled to a later time; the caller won&#39;t know</span>
     <span class="doccomment">/// that here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peek_next_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peek_next_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">peek</span>().<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">cmd</span><span class="op">|</span> <span class="ident">cmd</span>.<span class="ident">time</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_last_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_last_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
         <span class="self">self</span>.<span class="ident">last_time</span>
     }
 
@@ -533,15 +535,15 @@
     <span class="comment">//</span>
     <span class="comment">// TODO Above description is a little vague. This should be used with peek_next_time in a</span>
     <span class="comment">// particular way...</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Command</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Command</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
         <span class="self">self</span>.<span class="ident">latest_time</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">time</span>;
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">entry</span>(<span class="ident">item</span>.<span class="ident">cmd_type</span>) {
-            <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Command was cancelled</span>
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
-            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">occupied</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">occupied</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Command was re-scheduled for later.</span>
                 <span class="kw">if</span> <span class="ident">occupied</span>.<span class="ident">get</span>().<span class="number">1</span> <span class="op">&gt;</span> <span class="ident">item</span>.<span class="ident">time</span> {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -551,7 +553,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stats</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;delta times for events: {}&quot;</span>, <span class="self">self</span>.<span class="ident">delta_times</span>.<span class="ident">describe</span>()),
             <span class="string">&quot;count for each command type:&quot;</span>.<span class="ident">to_string</span>(),
@@ -568,37 +570,37 @@
     <span class="comment">// serialize paths inside Router for live agents. We need to defer calling make_router and just</span>
     <span class="comment">// store the input in CreateCar.</span>
     <span class="comment">// TODO Rethink all of this; probably broken by StartTrip.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_requests_for_savestate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_requests_for_savestate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reqs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">cmd</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">values</span>() {
             <span class="kw">match</span> <span class="ident">cmd</span> {
-                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">reqs</span>.<span class="ident">push</span>(<span class="ident">create_car</span>.<span class="ident">req</span>.<span class="ident">clone</span>());
                 }
-                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="ident">create_ped</span>) <span class="op">=&gt;</span> {
+                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="ident">create_ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">reqs</span>.<span class="ident">push</span>(<span class="ident">create_ped</span>.<span class="ident">req</span>.<span class="ident">clone</span>());
                 }
-                <span class="kw">_</span> <span class="op">=&gt;</span> {}
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
         <span class="ident">reqs</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">before_savestate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">before_savestate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">restore</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">cmd</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">values_mut</span>() {
             <span class="kw">match</span> <span class="ident">cmd</span> {
-                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">restore</span>.<span class="ident">push</span>(
                         <span class="ident">create_car</span>
                             .<span class="ident">router</span>
                             .<span class="ident">replace_path_for_serialization</span>(<span class="ident">Path</span>::<span class="ident">dummy</span>()),
                     );
                 }
-                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_ped</span>) <span class="op">=&gt;</span> {
+                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">restore</span>.<span class="ident">push</span>(<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">create_ped</span>.<span class="ident">path</span>, <span class="ident">Path</span>::<span class="ident">dummy</span>()));
                 }
-                <span class="kw">_</span> <span class="op">=&gt;</span> {}
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
         <span class="ident">restore</span>
@@ -608,15 +610,15 @@
         <span class="ident">restore</span>.<span class="ident">reverse</span>();
         <span class="kw">for</span> (<span class="ident">cmd</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">values_mut</span>() {
             <span class="kw">match</span> <span class="ident">cmd</span> {
-                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">create_car</span>
                         .<span class="ident">router</span>
                         .<span class="ident">replace_path_for_serialization</span>(<span class="ident">restore</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>());
                 }
-                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_ped</span>) <span class="op">=&gt;</span> {
+                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">create_ped</span>.<span class="ident">path</span> <span class="op">=</span> <span class="ident">restore</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
                 }
-                <span class="kw">_</span> <span class="op">=&gt;</span> {}
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">restore</span>.<span class="ident">is_empty</span>());

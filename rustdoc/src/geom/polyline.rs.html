@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `geom/src/polyline.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>polyline.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `geom/src/polyline.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>polyline.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -873,7 +875,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PolyLine</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Need at least two points for a PolyLine&quot;</span>));
         }
@@ -881,7 +883,7 @@
             <span class="ident">so_far</span> <span class="op">+</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">dist_to</span>(<span class="ident">pair</span>[<span class="number">1</span>])
         });
 
-        <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">==</span> <span class="ident">pair</span>[<span class="number">1</span>]) {
+        <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>]) {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;PL with total length {} and {} pts has ~dupe adjacent pts&quot;</span>,
                 <span class="ident">length</span>,
@@ -904,13 +906,13 @@
 
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="doccomment">/// Doesn&#39;t check for duplicates. Use at your own risk.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unchecked_new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&gt;=</span> <span class="number">2</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unchecked_new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>);
         <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">fold</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="op">|</span><span class="ident">so_far</span>, <span class="ident">pair</span><span class="op">|</span> {
             <span class="ident">so_far</span> <span class="op">+</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">dist_to</span>(<span class="ident">pair</span>[<span class="number">1</span>])
         });
@@ -919,13 +921,13 @@
     }
 
     <span class="doccomment">/// First dedupes adjacent points</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deduping_new</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deduping_new</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
         <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">pts</span>)
     }
 
     <span class="doccomment">/// Like make_polygons, but make sure the points actually form a ring.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_thick_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Ring</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_thick_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ring</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
         <span class="ident">side2</span>.<span class="ident">reverse</span>();
@@ -939,8 +941,8 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">self_width</span>: <span class="ident">Distance</span>,
         <span class="ident">boundary_width</span>: <span class="ident">Distance</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">self_width</span> <span class="op">&lt;=</span> <span class="ident">boundary_width</span> <span class="op">||</span> <span class="self">self</span>.<span class="ident">length</span>() <span class="op">&lt;=</span> <span class="ident">boundary_width</span> <span class="op">+</span> <span class="ident">EPSILON_DIST</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">self_width</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">boundary_width</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">length</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">boundary_width</span> <span class="op">+</span> <span class="ident">EPSILON_DIST</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">boundary_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">boundary_width</span> <span class="op">/</span> <span class="number">2.0</span>);
@@ -951,14 +953,14 @@
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reversed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reversed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
         <span class="ident">pts</span>.<span class="ident">reverse</span>();
         <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">PolyLine</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!=</span> <span class="ident">other</span>.<span class="ident">pts</span>[<span class="number">0</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">pts</span>[<span class="number">0</span>] {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;can&#39;t extend PL; last and first points don&#39;t match&quot;</span>
             ));
@@ -978,7 +980,7 @@
                 <span class="comment">// running amok.</span>
                 <span class="kw">for</span> (<span class="ident">other_rev_idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">other_pts</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">enumerate</span>() {
                     <span class="kw">if</span> <span class="ident">pl1</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>.<span class="ident">to_hashable</span>()) {
-                        <span class="kw">while</span> <span class="ident">self_pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!=</span> <span class="ident">pt</span> {
+                        <span class="kw">while</span> <span class="ident">self_pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">pt</span> {
                             <span class="ident">self_pts</span>.<span class="ident">pop</span>();
                         }
                         <span class="ident">other_pts</span> <span class="op">=</span> <span class="ident">other_pts</span>[<span class="ident">other_pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> <span class="op">-</span> <span class="ident">other_rev_idx</span>..].<span class="ident">to_vec</span>();
@@ -993,7 +995,7 @@
         }
 
         <span class="comment">// There&#39;s an exciting edge case: the next point to add is on self&#39;s last line.</span>
-        <span class="kw">if</span> <span class="ident">other_pts</span>.<span class="ident">len</span>() <span class="op">&gt;=</span> <span class="number">2</span> {
+        <span class="kw">if</span> <span class="ident">other_pts</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
             <span class="kw">let</span> <span class="ident">same_line</span> <span class="op">=</span> <span class="ident">self_pts</span>[<span class="ident">self_pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>]
                 .<span class="ident">angle_to</span>(<span class="ident">self_pts</span>[<span class="ident">self_pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>])
                 .<span class="ident">approx_eq</span>(<span class="ident">other_pts</span>[<span class="number">0</span>].<span class="ident">angle_to</span>(<span class="ident">other_pts</span>[<span class="number">1</span>]), <span class="number">0.1</span>);
@@ -1004,16 +1006,16 @@
         <span class="ident">self_pts</span>.<span class="ident">extend</span>(<span class="ident">other_pts</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>));
         <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">self_pts</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_extend</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">PolyLine</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_extend</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">extend</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_push</span>(<span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_push</span>(<span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">last_pt</span>(), <span class="ident">pt</span>]);
         <span class="self">self</span>.<span class="ident">must_extend</span>(<span class="ident">new</span>)
     }
 
     <span class="doccomment">/// One or both args might be empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="ident">first</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">second</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="ident">first</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">second</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">second</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">first</span>);
         }
@@ -1026,26 +1028,26 @@
             .<span class="ident">into_points</span>())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">points</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">points</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_points</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_points</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">pts</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Line</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Line</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
         <span class="self">self</span>.<span class="ident">pts</span>
             .<span class="ident">windows</span>(<span class="number">2</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
         <span class="self">self</span>.<span class="ident">length</span>
     }
 
     <span class="doccomment">/// Returns the excess distance left over from the end</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">Distance</span>), <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> <span class="op">||</span> <span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> <span class="op">||</span> <span class="ident">end</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">Distance</span>), <span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> <span class="op">|</span><span class="op">|</span> <span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> <span class="op">|</span><span class="op">|</span> <span class="ident">end</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t get a polyline slice [{}, {}]&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>));
         }
         <span class="kw">if</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">length</span>() {
@@ -1070,18 +1072,18 @@
             <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">length</span>();
 
             <span class="comment">// Does this line contain the first point of the slice?</span>
-            <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">dist_so_far</span> <span class="op">+</span> <span class="ident">length</span> <span class="op">&gt;=</span> <span class="ident">start</span> {
+            <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">dist_so_far</span> <span class="op">+</span> <span class="ident">length</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">start</span> {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">line</span>.<span class="ident">must_dist_along</span>(<span class="ident">start</span> <span class="op">-</span> <span class="ident">dist_so_far</span>));
             }
 
             <span class="comment">// Does this line contain the last point of the slice?</span>
-            <span class="kw">if</span> <span class="ident">dist_so_far</span> <span class="op">+</span> <span class="ident">length</span> <span class="op">&gt;=</span> <span class="ident">end</span> {
+            <span class="kw">if</span> <span class="ident">dist_so_far</span> <span class="op">+</span> <span class="ident">length</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">end</span> {
                 <span class="kw">let</span> <span class="ident">last_pt</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">must_dist_along</span>(<span class="ident">end</span> <span class="op">-</span> <span class="ident">dist_so_far</span>);
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">result</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="ident">last_pt</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">result</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">last_pt</span> {
                     <span class="ident">result</span>.<span class="ident">pop</span>();
                 }
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">last_pt</span>);
-                <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                     <span class="comment">// TODO Understand what happened here.</span>
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;slice({}, {}) on {} did something weird&quot;</span>,
@@ -1093,11 +1095,11 @@
 
             <span class="comment">// If we&#39;re in the middle, just collect the endpoint. But not if it&#39;s too close to the</span>
             <span class="comment">// previous point (namely, the start, which could be somewhere far along a line)</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">result</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!=</span> <span class="ident">line</span>.<span class="ident">pt2</span>() {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">result</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">line</span>.<span class="ident">pt2</span>() {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">line</span>.<span class="ident">pt2</span>());
             }
 
-            <span class="ident">dist_so_far</span> <span class="op">+=</span> <span class="ident">length</span>;
+            <span class="ident">dist_so_far</span> <span class="op">+</span><span class="op">=</span> <span class="ident">length</span>;
         }
 
         <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() {
@@ -1108,7 +1110,7 @@
                 <span class="self">self</span>.<span class="ident">length</span>()
             ));
         }
-        <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;Slice [{}, {}] on {} wound up a single point&quot;</span>,
                 <span class="ident">start</span>, <span class="ident">end</span>, <span class="self">self</span>
@@ -1120,10 +1122,10 @@
 
     <span class="doccomment">/// No excess leftover distance allowed.</span>
     <span class="comment">// TODO Lot of callers of this. Make safer later.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">start</span>, <span class="ident">end</span>).<span class="ident">unwrap</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_exact_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_exact_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">pl</span>, <span class="ident">leftover</span>) <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">slice</span>(<span class="ident">start</span>, <span class="ident">end</span>)
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;exact_slice({}, {}) yielded empty slice&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>))<span class="question-mark">?</span>;
@@ -1139,15 +1141,15 @@
         <span class="prelude-val">Ok</span>(<span class="ident">pl</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_half</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_half</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">second_half</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">second_half</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">length</span>())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist_along</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>), <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist_along</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>), <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">dist_along</span> <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;dist_along {} is negative&quot;</span>, <span class="ident">dist_along</span>));
         }
@@ -1163,16 +1165,16 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">length_remeasured</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">length</span>();
-            <span class="ident">length_remeasured</span> <span class="op">+=</span> <span class="ident">length</span>;
-            <span class="kw">let</span> <span class="ident">epsilon</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span> {
+            <span class="ident">length_remeasured</span> <span class="op">+</span><span class="op">=</span> <span class="ident">length</span>;
+            <span class="kw">let</span> <span class="ident">epsilon</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span> {
                 <span class="ident">EPSILON_DIST</span>
             } <span class="kw">else</span> {
                 <span class="ident">Distance</span>::<span class="ident">ZERO</span>
             };
-            <span class="kw">if</span> <span class="ident">dist_left</span> <span class="op">&lt;=</span> <span class="ident">length</span> <span class="op">+</span> <span class="ident">epsilon</span> {
+            <span class="kw">if</span> <span class="ident">dist_left</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">length</span> <span class="op">+</span> <span class="ident">epsilon</span> {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">l</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist_left</span>), <span class="ident">l</span>.<span class="ident">angle</span>()));
             }
-            <span class="ident">dist_left</span> <span class="op">-=</span> <span class="ident">length</span>;
+            <span class="ident">dist_left</span> <span class="op">-</span><span class="op">=</span> <span class="ident">length</span>;
         }
         <span class="comment">// Leaving this panic, because I haven&#39;t seen this in ages, and something is seriously</span>
         <span class="comment">// wrong if we get here</span>
@@ -1184,15 +1186,15 @@
             <span class="self">self</span>
         );
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist_along</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> (<span class="ident">Pt2D</span>, <span class="ident">Angle</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist_along</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Pt2D</span>, <span class="ident">Angle</span>) {
         <span class="self">self</span>.<span class="ident">dist_along</span>(<span class="ident">dist_along</span>).<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">middle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">middle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="comment">// If this fails, must be some super tiny line. Just return the first point in that case.</span>
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dist_along</span>(<span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>) {
-            <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=&gt;</span> <span class="ident">pt</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> {
+            <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pt</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">println</span><span class="macro">!</span>(
                     <span class="string">&quot;Guessing middle of PL with length {}: {}&quot;</span>,
                     <span class="self">self</span>.<span class="ident">length</span>(),
@@ -1203,48 +1205,48 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>]
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Line</span> {
         <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>], <span class="self">self</span>.<span class="ident">pts</span>[<span class="number">1</span>])
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Line</span> {
         <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>], <span class="self">self</span>.<span class="ident">pts</span>[<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>])
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_right</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_right</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">shift_with_corrections</span>(<span class="ident">width</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_shift_right</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_shift_right</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>).<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_left</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_left</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">shift_with_corrections</span>(<span class="op">-</span><span class="ident">width</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_shift_left</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_shift_left</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">shift_left</span>(<span class="ident">width</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="comment">// Things to remember about shifting polylines:</span>
     <span class="comment">// - the length before and after probably don&#39;t match up</span>
     <span class="comment">// - the number of points may not match</span>
-    <span class="kw">fn</span> <span class="ident">shift_with_corrections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">shift_with_corrections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span>, <span class="ident">MITER_THRESHOLD</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">deduping_new</span>(<span class="ident">raw</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() {
+        <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() {
             <span class="ident">fix_angles</span>(<span class="self">self</span>, <span class="ident">result</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">shift_with_sharp_angles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>, <span class="ident">miter_threshold</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
+    <span class="kw">fn</span> <span class="ident">shift_with_sharp_angles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>, <span class="ident">miter_threshold</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
             <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>], <span class="self">self</span>.<span class="ident">pts</span>[<span class="number">1</span>]).<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
             <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">l</span>.<span class="ident">pt1</span>(), <span class="ident">l</span>.<span class="ident">pt2</span>()];
         }
@@ -1261,7 +1263,7 @@
             <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="ident">pt1_raw</span>, <span class="ident">pt2_raw</span>).<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
             <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="ident">pt2_raw</span>, <span class="ident">pt3_raw</span>).<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
 
-            <span class="kw">if</span> <span class="ident">pt3_idx</span> <span class="op">==</span> <span class="number">2</span> {
+            <span class="kw">if</span> <span class="ident">pt3_idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">pt1</span>());
             }
 
@@ -1278,21 +1280,21 @@
                 <span class="comment">// and the original geometry is redundant.</span>
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">pt2</span>());
             }
-            <span class="kw">if</span> <span class="ident">pt3_idx</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+            <span class="kw">if</span> <span class="ident">pt3_idx</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">pt2</span>());
                 <span class="kw">break</span>;
             }
 
             <span class="ident">pt1_raw</span> <span class="op">=</span> <span class="ident">pt2_raw</span>;
             <span class="ident">pt2_raw</span> <span class="op">=</span> <span class="ident">pt3_raw</span>;
-            <span class="ident">pt3_idx</span> <span class="op">+=</span> <span class="number">1</span>;
+            <span class="ident">pt3_idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>());
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>());
         <span class="ident">result</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="comment">// TODO How to tune this?</span>
         <span class="self">self</span>.<span class="ident">make_polygons_with_miter_threshold</span>(<span class="ident">width</span>, <span class="ident">MITER_THRESHOLD</span>)
     }
@@ -1301,7 +1303,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">width</span>: <span class="ident">Distance</span>,
         <span class="ident">miter_threshold</span>: <span class="ident">f64</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="comment">// TODO Don&#39;t use the angle corrections yet -- they seem to do weird things.</span>
         <span class="kw">let</span> <span class="ident">side1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">miter_threshold</span>);
         <span class="kw">let</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">miter_threshold</span>);
@@ -1329,14 +1331,14 @@
         <span class="ident">width</span>: <span class="ident">Distance</span>,
         <span class="ident">dash_len</span>: <span class="ident">Distance</span>,
         <span class="ident">dash_separation</span>: <span class="ident">Distance</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">let</span> <span class="ident">total_length</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">length</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
         <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">dash_len</span> <span class="op">&gt;=</span> <span class="ident">total_length</span> {
+            <span class="kw">if</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">dash_len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">total_length</span> {
                 <span class="kw">break</span>;
             }
 
@@ -1344,7 +1346,7 @@
                 <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">start</span>, <span class="ident">start</span> <span class="op">+</span> <span class="ident">dash_len</span>)
                     .<span class="ident">make_polygons</span>(<span class="ident">width</span>),
             );
-            <span class="ident">start</span> <span class="op">+=</span> <span class="ident">dash_len</span> <span class="op">+</span> <span class="ident">dash_separation</span>;
+            <span class="ident">start</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dash_len</span> <span class="op">+</span> <span class="ident">dash_separation</span>;
         }
 
         <span class="ident">polygons</span>
@@ -1356,15 +1358,15 @@
         <span class="ident">width</span>: <span class="ident">Distance</span>,
         <span class="ident">dash_len</span>: <span class="ident">Distance</span>,
         <span class="ident">dash_separation</span>: <span class="ident">Distance</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">length</span>() <span class="op">&lt;=</span> <span class="ident">dash_separation</span> <span class="op">*</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">EPSILON_DIST</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">length</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">dash_separation</span> <span class="op">*</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">EPSILON_DIST</span> {
             <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">make_polygons</span>(<span class="ident">width</span>)];
         }
         <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">dash_separation</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">dash_separation</span>)
             .<span class="ident">exact_dashed_polygons</span>(<span class="ident">width</span>, <span class="ident">dash_len</span>, <span class="ident">dash_separation</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_arrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>, <span class="ident">cap</span>: <span class="ident">ArrowCap</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_arrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>, <span class="ident">cap</span>: <span class="ident">ArrowCap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> <span class="ident">head_size</span> <span class="op">=</span> <span class="ident">thickness</span> <span class="op">*</span> <span class="number">2.0</span>;
         <span class="kw">let</span> <span class="ident">triangle_height</span> <span class="op">=</span> <span class="ident">head_size</span> <span class="op">/</span> <span class="number">2.0_f64</span>.<span class="ident">sqrt</span>();
 
@@ -1384,7 +1386,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
         <span class="kw">match</span> <span class="ident">cap</span> {
-            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span> <span class="op">=&gt;</span> {
+            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner2</span>);
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">last_pt</span>());
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner1</span>);
@@ -1398,7 +1400,7 @@
         <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">to_polygon</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_double_arrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>, <span class="ident">cap</span>: <span class="ident">ArrowCap</span>) <span class="op">-&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_double_arrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>, <span class="ident">cap</span>: <span class="ident">ArrowCap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> <span class="ident">head_size</span> <span class="op">=</span> <span class="ident">thickness</span> <span class="op">*</span> <span class="number">2.0</span>;
         <span class="kw">let</span> <span class="ident">triangle_height</span> <span class="op">=</span> <span class="ident">head_size</span> <span class="op">/</span> <span class="number">2.0_f64</span>.<span class="ident">sqrt</span>();
 
@@ -1418,7 +1420,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
         <span class="kw">match</span> <span class="ident">cap</span> {
-            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span> <span class="op">=&gt;</span> {
+            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner2</span>);
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">last_pt</span>());
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner1</span>);
@@ -1436,7 +1438,7 @@
             .<span class="ident">first_pt</span>()
             .<span class="ident">project_away</span>(<span class="ident">head_size</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">45.0</span>));
         <span class="kw">match</span> <span class="ident">cap</span> {
-            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span> <span class="op">=&gt;</span> {
+            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner3</span>);
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">first_pt</span>());
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner4</span>);
@@ -1454,13 +1456,13 @@
         <span class="ident">dash_len</span>: <span class="ident">Distance</span>,
         <span class="ident">dash_separation</span>: <span class="ident">Distance</span>,
         <span class="ident">cap</span>: <span class="ident">ArrowCap</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">exact_dashed_polygons</span>(<span class="ident">width</span>, <span class="ident">dash_len</span>, <span class="ident">dash_separation</span>);
         <span class="comment">// And a cap on the arrow. In case the last line is long, trim it to be the dash</span>
         <span class="comment">// length.</span>
         <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_line</span>();
         <span class="kw">let</span> <span class="ident">last_len</span> <span class="op">=</span> <span class="ident">last_line</span>.<span class="ident">length</span>();
-        <span class="kw">let</span> <span class="ident">arrow_line</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">last_len</span> <span class="op">&lt;=</span> <span class="ident">dash_len</span> {
+        <span class="kw">let</span> <span class="ident">arrow_line</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">last_len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">dash_len</span> {
             <span class="ident">last_line</span>
         } <span class="kw">else</span> {
             <span class="ident">Line</span>::<span class="ident">must_new</span>(
@@ -1474,7 +1476,7 @@
 
     <span class="doccomment">/// Also return the angle of the line where the hit was found</span>
     <span class="comment">// TODO Also return distance along self of the hit</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">other</span>);
 
         <span class="comment">// There could be several collisions. Pick the &quot;first&quot; from self&#39;s perspective.</span>
@@ -1486,15 +1488,15 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">l2</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_distance</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_slice_ending_at</span>(<span class="ident">pt</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">length</span>()) {
                         <span class="kw">match</span> <span class="ident">closest_intersection_distance</span> {
-                            <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
+                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="ident">closest_intersection</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">l1</span>.<span class="ident">angle</span>()));
                                 <span class="ident">closest_intersection_distance</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_distance</span>);
                             }
-                            <span class="prelude-val">Some</span>(<span class="ident">existing_distance</span>) <span class="kw">if</span> <span class="ident">existing_distance</span> <span class="op">&gt;</span> <span class="ident">new_distance</span> <span class="op">=&gt;</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">existing_distance</span>) <span class="kw">if</span> <span class="ident">existing_distance</span> <span class="op">&gt;</span> <span class="ident">new_distance</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="ident">closest_intersection</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">l1</span>.<span class="ident">angle</span>()));
                                 <span class="ident">closest_intersection_distance</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_distance</span>);
                             }
-                            <span class="kw">_</span> <span class="op">=&gt;</span> {}
+                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
                         }
                     }
                 }
@@ -1504,7 +1506,7 @@
         <span class="comment">// TODO Why is any of this necessary? Found a test case at the intersection geometry for</span>
         <span class="comment">// https://www.openstreetmap.org/node/274088813 where this made a huge difference!</span>
         <span class="kw">if</span> <span class="ident">closest_intersection</span>.<span class="ident">is_none</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_pt</span>() <span class="op">==</span> <span class="ident">other</span>.<span class="ident">last_pt</span>() {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_pt</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">last_pt</span>() {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="self">self</span>.<span class="ident">last_pt</span>(), <span class="self">self</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>()));
             }
         }
@@ -1513,7 +1515,7 @@
     }
 
     <span class="comment">// TODO Also distance along</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection_infinite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">InfiniteLine</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection_infinite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">InfiniteLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hit</span>) <span class="op">=</span> <span class="ident">l</span>.<span class="ident">intersection_infinite</span>(<span class="ident">other</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">hit</span>);
@@ -1524,8 +1526,8 @@
 
     <span class="doccomment">/// Panics if the pt is not on the polyline. Returns None if the point is the first point</span>
     <span class="doccomment">/// (meaning the slice is empty).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice_ending_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">first_pt</span>() <span class="op">==</span> <span class="ident">pt</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice_ending_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">first_pt</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">pt</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
@@ -1533,11 +1535,11 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
             <span class="ident">pts</span>.<span class="ident">truncate</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
             <span class="comment">// Make sure the last line isn&#39;t too tiny</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="ident">pt</span> {
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">pt</span> {
                 <span class="ident">pts</span>.<span class="ident">pop</span>();
             }
             <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
-            <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+            <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
             <span class="prelude-val">Some</span>(<span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>))
@@ -1547,15 +1549,15 @@
     }
 
     <span class="doccomment">/// Returns None if the point is the last point.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice_starting_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_pt</span>() <span class="op">==</span> <span class="ident">pt</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice_starting_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_pt</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">pt</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
             <span class="ident">pts</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">split_off</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
-            <span class="kw">if</span> <span class="ident">pt</span> <span class="op">!=</span> <span class="ident">pts</span>[<span class="number">0</span>] {
+            <span class="kw">if</span> <span class="ident">pt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pts</span>[<span class="number">0</span>] {
                 <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">pt</span>);
             }
             <span class="prelude-val">Some</span>(<span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>))
@@ -1567,20 +1569,20 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along_of_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along_of_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_along</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dist</span>) <span class="op">=</span> <span class="ident">l</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">dist_along</span> <span class="op">+</span> <span class="ident">dist</span>, <span class="ident">l</span>.<span class="ident">angle</span>()));
             } <span class="kw">else</span> {
-                <span class="ident">dist_along</span> <span class="op">+=</span> <span class="ident">l</span>.<span class="ident">length</span>();
+                <span class="ident">dist_along</span> <span class="op">+</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">length</span>();
             }
         }
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_to_endpts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pt1</span> <span class="op">!=</span> <span class="ident">pt2</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_to_endpts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pt1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pt2</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt1</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt2</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
         <span class="kw">if</span> <span class="ident">dist1</span> <span class="op">&gt;</span> <span class="ident">dist2</span> {
@@ -1589,15 +1591,15 @@
         <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">dist1</span>, <span class="ident">dist2</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Bounds</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bounds</span> {
         <span class="ident">Bounds</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span>)
     }
 
     <span class="doccomment">/// If the current line is at least this long, return it. Otherwise, extend the end of it,</span>
     <span class="doccomment">/// following the angle of the last line.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend_to_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">min_len</span>: <span class="ident">Distance</span>) <span class="op">-&gt;</span> <span class="ident">PolyLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend_to_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">min_len</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="kw">let</span> <span class="ident">need_len</span> <span class="op">=</span> <span class="ident">min_len</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">length</span>();
-        <span class="kw">if</span> <span class="ident">need_len</span> <span class="op">&lt;=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
+        <span class="kw">if</span> <span class="ident">need_len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span> {
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">clone</span>();
         }
         <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_line</span>();
@@ -1616,7 +1618,7 @@
     }
 
     <span class="doccomment">/// Produces a GeoJSON linestring, optionally mapping the world-space points back to GPS.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">geojson</span>::<span class="ident">Geometry</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geojson</span>::<span class="ident">Geometry</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
             <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">gps</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span>) {
@@ -1632,7 +1634,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">PolyLine</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;PolyLine::new(vec![     // length {}&quot;</span>, <span class="self">self</span>.<span class="ident">length</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;  Pt2D::new({}, {}),&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())<span class="question-mark">?</span>;
@@ -1653,7 +1655,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">fix_angles</span>(<span class="ident">orig</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">result</span>: <span class="ident">PolyLine</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">fix_angles</span>(<span class="ident">orig</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">result</span>: <span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
 
     <span class="comment">// Check that the angles roughly match up between the original and shifted line</span>
@@ -1679,7 +1681,7 @@
 }
 
 <span class="comment">// Also returns the duplicates.</span>
-<span class="kw">fn</span> <span class="ident">to_set</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) <span class="op">-&gt;</span> (<span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>, <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>) {
+<span class="kw">fn</span> <span class="ident">to_set</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>, <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dupes</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {

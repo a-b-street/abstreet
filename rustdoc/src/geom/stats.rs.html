@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `geom/src/stats.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stats.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `geom/src/stats.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stats.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -205,7 +207,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Statistic</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statistic</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statistic</span><span class="op">&gt;</span> {
         <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Statistic</span>::<span class="ident">Min</span>,
             <span class="ident">Statistic</span>::<span class="ident">Mean</span>,
@@ -218,72 +220,72 @@
 }
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Statistic</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Statistic</span>::<span class="ident">Min</span> <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;minimum&quot;</span>),
-            <span class="ident">Statistic</span>::<span class="ident">Mean</span> <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;mean&quot;</span>),
-            <span class="ident">Statistic</span>::<span class="ident">P50</span> <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;50%ile&quot;</span>),
-            <span class="ident">Statistic</span>::<span class="ident">P90</span> <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;90%ile&quot;</span>),
-            <span class="ident">Statistic</span>::<span class="ident">P99</span> <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;99%ile&quot;</span>),
-            <span class="ident">Statistic</span>::<span class="ident">Max</span> <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;maximum&quot;</span>),
+            <span class="ident">Statistic</span>::<span class="ident">Min</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;minimum&quot;</span>),
+            <span class="ident">Statistic</span>::<span class="ident">Mean</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;mean&quot;</span>),
+            <span class="ident">Statistic</span>::<span class="ident">P50</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;50%ile&quot;</span>),
+            <span class="ident">Statistic</span>::<span class="ident">P90</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;90%ile&quot;</span>),
+            <span class="ident">Statistic</span>::<span class="ident">P99</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;99%ile&quot;</span>),
+            <span class="ident">Statistic</span>::<span class="ident">Max</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;maximum&quot;</span>),
         }
     }
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ord</span> <span class="op">+</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span> {
     <span class="comment">// TODO Weird name because I can&#39;t figure out associated type mess in FanChart</span>
-    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() <span class="op">-&gt;</span> <span class="ident">T</span>;
-    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span>;
-    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-&gt;</span> <span class="ident">T</span>;
+    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
+    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span>;
+    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Duration</span> {
-    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() <span class="op">-&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="ident">Duration</span>::<span class="ident">ZERO</span>
     }
-    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
         <span class="self">self</span>.<span class="ident">to_u64</span>()
     }
-    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="ident">Duration</span>::<span class="ident">from_u64</span>(<span class="ident">x</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">u16</span> {
-    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() <span class="op">-&gt;</span> <span class="ident">u16</span> {
+    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
         <span class="number">0</span>
     }
-    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
         <span class="self">self</span> <span class="kw">as</span> <span class="ident">u64</span>
     }
-    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-&gt;</span> <span class="ident">u16</span> {
+    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
         <span class="ident">u16</span>::<span class="ident">try_from</span>(<span class="ident">x</span>).<span class="ident">unwrap</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
-    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="number">0</span>
     }
-    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
         <span class="self">self</span> <span class="kw">as</span> <span class="ident">u64</span>
     }
-    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="ident">x</span> <span class="kw">as</span> <span class="ident">usize</span>
     }
 }
 
 <span class="comment">// TODO Maybe consider having a type-safe NonEmptyHistogram.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">count</span>: <span class="ident">usize</span>,
     <span class="ident">histogram</span>: <span class="ident">histogram</span>::<span class="ident">Histogram</span>,
     <span class="ident">min</span>: <span class="ident">T</span>,
     <span class="ident">max</span>: <span class="ident">T</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Histogram</span> {
             <span class="ident">count</span>: <span class="number">0</span>,
             <span class="ident">histogram</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
@@ -293,20 +295,20 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Default</span>::<span class="ident">default</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">T</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="self">self</span>.<span class="ident">min</span> <span class="op">=</span> <span class="ident">x</span>;
             <span class="self">self</span>.<span class="ident">max</span> <span class="op">=</span> <span class="ident">x</span>;
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">min</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">min</span>.<span class="ident">min</span>(<span class="ident">x</span>);
             <span class="self">self</span>.<span class="ident">max</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max</span>.<span class="ident">max</span>(<span class="ident">x</span>);
         }
-        <span class="self">self</span>.<span class="ident">count</span> <span class="op">+=</span> <span class="number">1</span>;
+        <span class="self">self</span>.<span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="self">self</span>.<span class="ident">histogram</span>
             .<span class="ident">increment</span>(<span class="ident">x</span>.<span class="ident">to_u64</span>())
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t add {}: {}&quot;</span>, <span class="ident">x</span>, <span class="ident">err</span>))
@@ -316,15 +318,15 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">T</span>) {
         <span class="comment">// TODO This doesn&#39;t update min/max! Why are we tracking that ourselves? Do we not trust</span>
         <span class="comment">// the lossiness of the underlying histogram?</span>
-        <span class="self">self</span>.<span class="ident">count</span> <span class="op">-=</span> <span class="number">1</span>;
+        <span class="self">self</span>.<span class="ident">count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
         <span class="self">self</span>.<span class="ident">histogram</span>
             .<span class="ident">decrement</span>(<span class="ident">x</span>.<span class="ident">to_u64</span>())
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t remove {}: {}&quot;</span>, <span class="ident">x</span>, <span class="ident">err</span>))
             .<span class="ident">unwrap</span>();
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="string">&quot;no data yet&quot;</span>.<span class="ident">to_string</span>();
         }
 
@@ -341,39 +343,39 @@
     }
 
     <span class="doccomment">/// None if empty</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percentile</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">p</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percentile</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">p</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(<span class="ident">T</span>::<span class="ident">from_u64</span>(<span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">percentile</span>(<span class="ident">p</span>).<span class="ident">unwrap</span>()))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">select</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stat</span>: <span class="ident">Statistic</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">select</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stat</span>: <span class="ident">Statistic</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stat</span> {
-            <span class="ident">Statistic</span>::<span class="ident">P50</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">percentile</span>(<span class="number">50.0</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Statistic</span>::<span class="ident">P90</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">percentile</span>(<span class="number">90.0</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Statistic</span>::<span class="ident">P99</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">percentile</span>(<span class="number">99.0</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Statistic</span>::<span class="ident">Min</span> <span class="op">=&gt;</span> {
+            <span class="ident">Statistic</span>::<span class="ident">P50</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">percentile</span>(<span class="number">50.0</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Statistic</span>::<span class="ident">P90</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">percentile</span>(<span class="number">90.0</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Statistic</span>::<span class="ident">P99</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">percentile</span>(<span class="number">99.0</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Statistic</span>::<span class="ident">Min</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">min</span>);
             }
-            <span class="ident">Statistic</span>::<span class="ident">Mean</span> <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">mean</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">Statistic</span>::<span class="ident">Max</span> <span class="op">=&gt;</span> {
+            <span class="ident">Statistic</span>::<span class="ident">Mean</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">histogram</span>.<span class="ident">mean</span>().<span class="ident">unwrap</span>(),
+            <span class="ident">Statistic</span>::<span class="ident">Max</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">max</span>);
             }
         };
         <span class="prelude-val">Some</span>(<span class="ident">T</span>::<span class="ident">from_u64</span>(<span class="ident">raw</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">count</span>
     }
 
     <span class="doccomment">/// Could implement PartialEq, but be a bit more clear how approximate this is</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seems_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">describe</span>() <span class="op">==</span> <span class="ident">other</span>.<span class="ident">describe</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seems_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">describe</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">describe</span>()
     }
 }
 </pre></div>

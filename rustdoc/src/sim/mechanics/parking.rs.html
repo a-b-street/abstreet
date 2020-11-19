@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/mechanics/parking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parking.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/mechanics/parking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parking.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1029,21 +1031,21 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ParkingSim</span> {
     <span class="doccomment">/// Returns any cars that got very abruptly evicted from existence, and also cars actively</span>
     <span class="doccomment">/// moving into a deleted spot.</span>
-    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>);
-    <span class="kw">fn</span> <span class="ident">get_free_onstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">get_free_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">get_free_lot_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pl</span>: <span class="ident">ParkingLotID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>);
+    <span class="kw">fn</span> <span class="ident">get_free_onstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">get_free_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">get_free_lot_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pl</span>: <span class="ident">ParkingLotID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">reserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">car</span>: <span class="ident">CarID</span>);
     <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>);
     <span class="kw">fn</span> <span class="ident">add_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>);
-    <span class="kw">fn</span> <span class="ident">get_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">get_draw_cars_in_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">get_draw_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">get_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">get_draw_cars_in_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">get_draw_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
     <span class="doccomment">/// There&#39;s no DrawCarInput for cars parked offstreet, so we need this.</span>
-    <span class="kw">fn</span> <span class="ident">canonical_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">get_all_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">is_free</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">get_car_at_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">canonical_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">get_all_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">is_free</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">get_car_at_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>;
     <span class="doccomment">/// The vehicle&#39;s front is currently at the given driving_pos. Returns all valid spots and their</span>
     <span class="doccomment">/// driving position.</span>
     <span class="kw">fn</span> <span class="ident">get_all_free_spots</span>(
@@ -1054,13 +1056,13 @@
         <span class="comment">// private spots.</span>
         <span class="ident">target</span>: <span class="ident">BuildingID</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">spot_to_driving_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Position</span>;
-    <span class="kw">fn</span> <span class="ident">spot_to_sidewalk_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Position</span>;
-    <span class="kw">fn</span> <span class="ident">get_owner_of_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">lookup_parked_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>;
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">spot_to_driving_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Position</span>;
+    <span class="kw">fn</span> <span class="ident">spot_to_sidewalk_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Position</span>;
+    <span class="kw">fn</span> <span class="ident">get_owner_of_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">lookup_parked_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>;
     <span class="doccomment">/// (Filled, available)</span>
-    <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>);
+    <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>);
     <span class="doccomment">/// Unrealistically assumes the driver has knowledge of currently free parking spots, even if</span>
     <span class="doccomment">/// they&#39;re far away. Since they don&#39;t reserve the spot in advance, somebody else can still beat</span>
     <span class="doccomment">/// them there, producing some nice, realistic churn if there&#39;s too much contention.</span>
@@ -1071,10 +1073,10 @@
         <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
         <span class="ident">target</span>: <span class="ident">BuildingID</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">bldg_to_parked_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>;
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">bldg_to_parked_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>;
 }
 
 <span class="attribute">#[<span class="ident">enum_dispatch</span>]</span>
@@ -1087,7 +1089,7 @@
 <span class="kw">impl</span> <span class="ident">ParkingSimState</span> {
     <span class="doccomment">/// Counterintuitive: any spots located in blackholes are just not represented here. If somebody</span>
     <span class="doccomment">/// tries to drive from a blackholed spot, they couldn&#39;t reach most places.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">infinite</span>: <span class="ident">bool</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">ParkingSimState</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">infinite</span>: <span class="ident">bool</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParkingSimState</span> {
         <span class="kw">if</span> <span class="ident">infinite</span> {
             <span class="ident">ParkingSimState</span>::<span class="ident">Infinite</span>(<span class="ident">InfiniteParkingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>))
         } <span class="kw">else</span> {
@@ -1095,10 +1097,10 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_infinite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_infinite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParkingSimState</span>::<span class="ident">Normal</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">ParkingSimState</span>::<span class="ident">Infinite</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">ParkingSimState</span>::<span class="ident">Normal</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParkingSimState</span>::<span class="ident">Infinite</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
         }
     }
 }
@@ -1151,7 +1153,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">NormalParkingSimState</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">NormalParkingSimState</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NormalParkingSimState</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">NormalParkingSimState</span> {
             <span class="ident">parked_cars</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             <span class="ident">occupants</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
@@ -1196,7 +1198,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ParkingSim</span> <span class="kw">for</span> <span class="ident">NormalParkingSimState</span> {
-    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> (<span class="ident">filled_before</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_all_parking_spots</span>();
         <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">NormalParkingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">timer</span>);
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">avail_after</span>) <span class="op">=</span> <span class="ident">new</span>.<span class="ident">get_all_parking_spots</span>();
@@ -1236,7 +1238,7 @@
         (<span class="ident">evicted</span>, <span class="ident">moving_into_deleted_spot</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_free_onstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_free_onstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lane</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">onstreet_lanes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>) {
             <span class="kw">for</span> <span class="ident">spot</span> <span class="kw">in</span> <span class="ident">lane</span>.<span class="ident">spots</span>() {
@@ -1248,7 +1250,7 @@
         <span class="ident">spots</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_free_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_free_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">num_spots_per_offstreet</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>) {
             <span class="kw">let</span> <span class="ident">spot</span> <span class="op">=</span> <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="ident">idx</span>);
@@ -1259,7 +1261,7 @@
         <span class="ident">spots</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_free_lot_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pl</span>: <span class="ident">ParkingLotID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_free_lot_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pl</span>: <span class="ident">ParkingLotID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">num_spots_per_lot</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>) {
             <span class="kw">let</span> <span class="ident">spot</span> <span class="op">=</span> <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="ident">idx</span>);
@@ -1276,13 +1278,13 @@
 
         <span class="comment">// Sanity check the spot exists</span>
         <span class="kw">match</span> <span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">l</span>, <span class="ident">idx</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">l</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">onstreet_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>].<span class="ident">spot_dist_along</span>.<span class="ident">len</span>());
             }
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="ident">idx</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">num_spots_per_offstreet</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>]);
             }
-            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="ident">idx</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">num_spots_per_lot</span>[<span class="kw-2">&amp;</span><span class="ident">pl</span>]);
             }
         }
@@ -1312,7 +1314,7 @@
         <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">insert</span>(<span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">p</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cars</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">lane</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">onstreet_lanes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
             <span class="kw">for</span> <span class="ident">spot</span> <span class="kw">in</span> <span class="ident">lane</span>.<span class="ident">spots</span>() {
@@ -1324,7 +1326,7 @@
         <span class="ident">cars</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_draw_cars_in_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_draw_cars_in_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cars</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">driving_to_lots</span>.<span class="ident">get</span>(<span class="ident">id</span>) {
             <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">num_spots_per_lot</span>[<span class="kw-2">&amp;</span><span class="ident">pl</span>] {
@@ -1338,10 +1340,10 @@
         <span class="ident">cars</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_draw_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_draw_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">lane</span>, <span class="ident">idx</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">lane</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">front_dist</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">onstreet_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">lane</span>].<span class="ident">dist_along_for_car</span>(<span class="ident">idx</span>, <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">vehicle</span>);
                 <span class="prelude-val">Some</span>(<span class="ident">DrawCarInput</span> {
                     <span class="ident">id</span>: <span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
@@ -1358,8 +1360,8 @@
                         .<span class="ident">exact_slice</span>(<span class="ident">front_dist</span> <span class="op">-</span> <span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>, <span class="ident">front_dist</span>),
                 })
             }
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
-            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="ident">idx</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>);
                 <span class="comment">// Some cars might be in the unrenderable extra_spots.</span>
                 <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">spots</span>.<span class="ident">get</span>(<span class="ident">idx</span>)<span class="question-mark">?</span>;
@@ -1383,33 +1385,33 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">canonical_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">canonical_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_draw_car</span>(<span class="ident">id</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="ident">body</span>.<span class="ident">last_pt</span>()),
-            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_draw_car</span>(<span class="ident">id</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="ident">body</span>.<span class="ident">last_pt</span>()),
+            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">car</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_draw_car</span>(<span class="ident">id</span>, <span class="ident">map</span>) {
                     <span class="prelude-val">Some</span>(<span class="ident">car</span>.<span class="ident">body</span>.<span class="ident">last_pt</span>())
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">polygon</span>.<span class="ident">center</span>())
                 }
             }
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>),
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get_all_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_all_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parked_cars</span>
             .<span class="ident">keys</span>()
             .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">get_draw_car</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">map</span>))
             .<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">is_free</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_free</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="op">!</span><span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_car_at_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_car_at_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parked_cars</span>[<span class="kw-2">&amp;</span><span class="ident">car</span>])
     }
@@ -1422,7 +1424,7 @@
         <span class="comment">// private spots.</span>
         <span class="ident">target</span>: <span class="ident">BuildingID</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">driving_to_parking_lanes</span>.<span class="ident">get</span>(<span class="ident">driving_pos</span>.<span class="ident">lane</span>()) {
@@ -1438,7 +1440,7 @@
 
         <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">bldg_dist</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">driving_to_offstreet</span>.<span class="ident">get</span>(<span class="ident">driving_pos</span>.<span class="ident">lane</span>()) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">parking</span> {
-                <span class="kw">if</span> <span class="ident">target</span> <span class="op">!=</span> <span class="kw-2">*</span><span class="ident">b</span> {
+                <span class="kw">if</span> <span class="ident">target</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">b</span> {
                     <span class="kw">continue</span>;
                 }
             }
@@ -1470,9 +1472,9 @@
             .<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">spot_to_driving_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Position</span> {
+    <span class="kw">fn</span> <span class="ident">spot_to_driving_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Position</span> {
         <span class="kw">match</span> <span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">l</span>, <span class="ident">idx</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">l</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">onstreet_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>];
                 <span class="ident">Position</span>::<span class="ident">new</span>(<span class="ident">l</span>, <span class="ident">lane</span>.<span class="ident">dist_along_for_car</span>(<span class="ident">idx</span>, <span class="ident">vehicle</span>)).<span class="ident">equiv_pos_for_long_object</span>(
                     <span class="ident">lane</span>.<span class="ident">driving_lane</span>,
@@ -1480,14 +1482,14 @@
                     <span class="ident">map</span>,
                 )
             }
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="number">0</span>,
-            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">driving_pos</span>,
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="number">0</span>,
+            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">driving_pos</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">spot_to_sidewalk_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Position</span> {
+    <span class="kw">fn</span> <span class="ident">spot_to_sidewalk_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Position</span> {
         <span class="kw">match</span> <span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">l</span>, <span class="ident">idx</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="ident">l</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">onstreet_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>];
                 <span class="comment">// Always centered in the entire parking spot</span>
                 <span class="ident">Position</span>::<span class="ident">new</span>(
@@ -1496,19 +1498,19 @@
                 )
                 .<span class="ident">equiv_pos</span>(<span class="ident">lane</span>.<span class="ident">sidewalk</span>, <span class="ident">map</span>)
             }
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk_pos</span>,
-            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_pos</span>,
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk_pos</span>,
+            <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_pos</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get_owner_of_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_owner_of_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">owner</span>)
     }
-    <span class="kw">fn</span> <span class="ident">lookup_parked_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">lookup_parked_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spots</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">onstreet_lanes</span>.<span class="ident">values</span>() {
             <span class="ident">spots</span>.<span class="ident">extend</span>(<span class="ident">lane</span>.<span class="ident">spots</span>());
@@ -1542,7 +1544,7 @@
         <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
         <span class="ident">target</span>: <span class="ident">BuildingID</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backrefs</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
         <span class="comment">// Don&#39;t travel far.</span>
         <span class="comment">// This is a max-heap, so negate all distances. Tie breaker is lane ID, arbitrary but</span>
@@ -1554,7 +1556,7 @@
             <span class="kw">let</span> (<span class="ident">dist_so_far</span>, <span class="ident">current</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
             <span class="comment">// If the current lane has a spot open, we wouldn&#39;t be asking. This can happen if a spot</span>
             <span class="comment">// opens up on the &#39;start&#39; lane, but behind the car.</span>
-            <span class="kw">if</span> <span class="ident">current</span> <span class="op">!=</span> <span class="ident">start</span> {
+            <span class="kw">if</span> <span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="ident">start</span> {
                 <span class="comment">// Pick the closest to the start of the lane, since that&#39;s closest to where we came</span>
                 <span class="comment">// from</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">spot</span>, <span class="ident">pos</span>)) <span class="op">=</span> <span class="self">self</span>
@@ -1565,7 +1567,7 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">current</span>)];
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">current</span>;
                     <span class="kw">loop</span> {
-                        <span class="kw">if</span> <span class="ident">current</span> <span class="op">==</span> <span class="ident">start</span> {
+                        <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="ident">start</span> {
                             <span class="comment">// Don&#39;t include PathStep::Lane(start)</span>
                             <span class="ident">steps</span>.<span class="ident">pop</span>();
                             <span class="ident">steps</span>.<span class="ident">reverse</span>();
@@ -1591,11 +1593,11 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
         <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parked_cars</span>
             .<span class="ident">values</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
@@ -1607,7 +1609,7 @@
             .<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">bldg_to_parked_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bldg_to_parked_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cars</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">num_spots_per_offstreet</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>) {
             <span class="kw">let</span> <span class="ident">spot</span> <span class="op">=</span> <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="ident">idx</span>);
@@ -1629,8 +1631,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ParkingLane</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParkingLane</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">!=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParkingLane</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
@@ -1664,12 +1666,12 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">dist_along_for_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot_idx</span>: <span class="ident">usize</span>, <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">dist_along_for_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot_idx</span>: <span class="ident">usize</span>, <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
         <span class="comment">// Find the offset to center this particular car in the parking spot</span>
         <span class="self">self</span>.<span class="ident">spot_dist_along</span>[<span class="ident">spot_idx</span>] <span class="op">-</span> (<span class="ident">map_model</span>::<span class="ident">PARKING_SPOT_LENGTH</span> <span class="op">-</span> <span class="ident">vehicle</span>.<span class="ident">length</span>) <span class="op">/</span> <span class="number">2.0</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spots</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">spot_dist_along</span>.<span class="ident">len</span>() {
             <span class="ident">spots</span>.<span class="ident">push</span>(<span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="self">self</span>.<span class="ident">parking_lane</span>, <span class="ident">idx</span>));
@@ -1717,7 +1719,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">InfiniteParkingSimState</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">InfiniteParkingSimState</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InfiniteParkingSimState</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">InfiniteParkingSimState</span> {
             <span class="ident">parked_cars</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             <span class="ident">occupants</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
@@ -1764,7 +1766,7 @@
         <span class="ident">sim</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_free_bldg_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-&gt;</span> <span class="ident">ParkingSpot</span> {
+    <span class="kw">fn</span> <span class="ident">get_free_bldg_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParkingSpot</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">redirect</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">blackholed_building_redirects</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
             <span class="comment">// This won&#39;t recurse endlessly; the redirect is not a key in</span>
             <span class="comment">// blackholed_building_redirects.</span>
@@ -1777,13 +1779,13 @@
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_free</span>(<span class="ident">spot</span>) {
                 <span class="kw">return</span> <span class="ident">spot</span>;
             }
-            <span class="ident">i</span> <span class="op">+=</span> <span class="number">1</span>;
+            <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ParkingSim</span> <span class="kw">for</span> <span class="ident">InfiniteParkingSimState</span> {
-    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>) {
         <span class="comment">// Can live edits possibly affect anything?</span>
         <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfiniteParkingSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>);
         <span class="self">self</span>.<span class="ident">driving_to_offstreet</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">driving_to_offstreet</span>;
@@ -1792,16 +1794,16 @@
         (<span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">get_free_onstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">LaneID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_free_onstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
         <span class="ident">Vec</span>::<span class="ident">new</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">get_free_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_free_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
         <span class="comment">// Just returns the next free spot</span>
         <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">get_free_bldg_spot</span>(<span class="ident">b</span>)]
     }
 
-    <span class="kw">fn</span> <span class="ident">get_free_lot_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">ParkingLotID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_free_lot_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">ParkingLotID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
         <span class="ident">Vec</span>::<span class="ident">new</span>()
     }
 
@@ -1834,35 +1836,35 @@
         <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">insert</span>(<span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">p</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">LaneID</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">LaneID</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="ident">Vec</span>::<span class="ident">new</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">get_draw_cars_in_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">LaneID</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_draw_cars_in_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">LaneID</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="ident">Vec</span>::<span class="ident">new</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">get_draw_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">CarID</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_draw_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">CarID</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">canonical_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">canonical_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get_all_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_all_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="ident">Vec</span>::<span class="ident">new</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">is_free</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_free</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="op">!</span><span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_car_at_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_car_at_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parked_cars</span>[<span class="kw-2">&amp;</span><span class="ident">car</span>])
     }
@@ -1873,15 +1875,15 @@
         <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
         <span class="ident">target</span>: <span class="ident">BuildingID</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
         <span class="comment">// The target building may be blackholed, so fallback to a building on one of the</span>
         <span class="comment">// penultimate lanes, when the search begins.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bldg</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">bldg_dist</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">driving_to_offstreet</span>.<span class="ident">get</span>(<span class="ident">driving_pos</span>.<span class="ident">lane</span>()) {
-            <span class="kw">if</span> <span class="ident">driving_pos</span>.<span class="ident">dist_along</span>() <span class="op">&gt;=</span> <span class="kw-2">*</span><span class="ident">bldg_dist</span> {
+            <span class="kw">if</span> <span class="ident">driving_pos</span>.<span class="ident">dist_along</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">bldg_dist</span> {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="ident">target</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">b</span> {
+            <span class="kw">if</span> <span class="ident">target</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">b</span> {
                 <span class="ident">bldg</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">target</span>);
                 <span class="kw">break</span>;
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">bldg</span>.<span class="ident">is_none</span>() {
@@ -1897,28 +1899,28 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">spot_to_driving_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Position</span> {
+    <span class="kw">fn</span> <span class="ident">spot_to_driving_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Position</span> {
         <span class="kw">match</span> <span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="number">0</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="number">0</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">spot_to_sidewalk_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Position</span> {
+    <span class="kw">fn</span> <span class="ident">spot_to_sidewalk_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Position</span> {
         <span class="kw">match</span> <span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk_pos</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk_pos</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get_owner_of_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_owner_of_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">owner</span>)
     }
-    <span class="kw">fn</span> <span class="ident">lookup_parked_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">lookup_parked_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">get_all_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>) {
         <span class="macro">unreachable</span><span class="macro">!</span>()
     }
 
@@ -1928,7 +1930,7 @@
         <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
         <span class="ident">target</span>: <span class="ident">BuildingID</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
         <span class="comment">// TODO This impl is copied from NormalParkingSimState. Instead, we already know the</span>
         <span class="comment">// redirect... could just path to it.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backrefs</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
@@ -1942,7 +1944,7 @@
             <span class="kw">let</span> (<span class="ident">dist_so_far</span>, <span class="ident">current</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
             <span class="comment">// If the current lane has a spot open, we wouldn&#39;t be asking. This can happen if a spot</span>
             <span class="comment">// opens up on the &#39;start&#39; lane, but behind the car.</span>
-            <span class="kw">if</span> <span class="ident">current</span> <span class="op">!=</span> <span class="ident">start</span> {
+            <span class="kw">if</span> <span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="ident">start</span> {
                 <span class="comment">// Pick the closest to the start of the lane, since that&#39;s closest to where we came</span>
                 <span class="comment">// from</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">spot</span>, <span class="ident">pos</span>)) <span class="op">=</span> <span class="self">self</span>
@@ -1953,7 +1955,7 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">current</span>)];
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">current</span>;
                     <span class="kw">loop</span> {
-                        <span class="kw">if</span> <span class="ident">current</span> <span class="op">==</span> <span class="ident">start</span> {
+                        <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="ident">start</span> {
                             <span class="comment">// Don&#39;t include PathStep::Lane(start)</span>
                             <span class="ident">steps</span>.<span class="ident">pop</span>();
                             <span class="ident">steps</span>.<span class="ident">reverse</span>();
@@ -1979,11 +1981,11 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
         <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parked_cars</span>
             .<span class="ident">values</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
@@ -1995,12 +1997,12 @@
             .<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">bldg_to_parked_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bldg_to_parked_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
         <span class="comment">// TODO This is a very inefficient impl</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cars</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">spot</span>, <span class="ident">car</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">occupants</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">bldg</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">spot</span> {
-                <span class="kw">if</span> <span class="ident">b</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">bldg</span> {
+                <span class="kw">if</span> <span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">bldg</span> {
                     <span class="ident">cars</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">car</span>);
                 }
             }

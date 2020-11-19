@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/make/activity_model.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>activity_model.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/make/activity_model.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>activity_model.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -344,7 +346,7 @@
 
 <span class="kw">impl</span> <span class="ident">ScenarioGenerator</span> {
     <span class="doccomment">/// Designed in https://github.com/dabreegster/abstreet/issues/154</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proletariat_robot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">Scenario</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proletariat_robot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">residents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">workers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
@@ -353,28 +355,28 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">bldg_type</span> {
-                <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">resident_cap</span>) <span class="op">=&gt;</span> {
+                <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">resident_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">resident_cap</span> {
                         <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
                     }
-                    <span class="ident">num_bldg_residential</span> <span class="op">+=</span> <span class="number">1</span>;
+                    <span class="ident">num_bldg_residential</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">resident_cap</span>, <span class="ident">worker_cap</span>) <span class="op">=&gt;</span> {
+                <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">resident_cap</span>, <span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">resident_cap</span> {
                         <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
                     }
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">worker_cap</span> {
                         <span class="ident">workers</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
                     }
-                    <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">+=</span> <span class="number">1</span>;
+                    <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>(<span class="ident">worker_cap</span>) <span class="op">=&gt;</span> {
+                <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>(<span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">worker_cap</span> {
                         <span class="ident">workers</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
                     }
-                    <span class="ident">num_bldg_commercial</span> <span class="op">+=</span> <span class="number">1</span>;
+                    <span class="ident">num_bldg_commercial</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">BuildingType</span>::<span class="ident">Empty</span> <span class="op">=&gt;</span> {}
+                <span class="ident">BuildingType</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
 
@@ -398,7 +400,7 @@
         <span class="comment">// bound probabilities to ensure we&#39;re getting some diveristy of agents</span>
         <span class="kw">let</span> <span class="ident">lower_bound_prob</span> <span class="op">=</span> <span class="number">0.05</span>;
         <span class="kw">let</span> <span class="ident">upper_bound_prob</span> <span class="op">=</span> <span class="number">0.90</span>;
-        <span class="kw">let</span> <span class="ident">prob_local_resident</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">workers_cap</span> <span class="op">==</span> <span class="number">0</span> {
+        <span class="kw">let</span> <span class="ident">prob_local_resident</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">workers_cap</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="ident">lower_bound_prob</span>
         } <span class="kw">else</span> {
             <span class="ident">f64</span>::<span class="ident">min</span>(
@@ -472,20 +474,20 @@
                 };
 
                 <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">work</span>) {
-                    (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
-                        <span class="ident">num_trips_local</span> <span class="op">+=</span> <span class="number">1</span>;
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">num_trips_local</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
-                        <span class="ident">num_trips_commuting_out</span> <span class="op">+=</span> <span class="number">1</span>;
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">num_trips_commuting_out</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
-                        <span class="ident">num_trips_commuting_in</span> <span class="op">+=</span> <span class="number">1</span>;
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">num_trips_commuting_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> {
-                        <span class="ident">num_trips_passthru</span> <span class="op">+=</span> <span class="number">1</span>;
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">num_trips_passthru</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>), <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-                    (<span class="kw">_</span>, <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    (<span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    (<span class="kw">_</span>, <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                 };
 
                 (<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">fork_rng</span>(<span class="ident">rng</span>))
@@ -499,8 +501,8 @@
                     <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
                     <span class="ident">person_params</span>,
                     <span class="op">|</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">create_prole</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">person</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>),
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">person</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>),
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Unable to create person. error: {}&quot;</span>, <span class="ident">e</span>);
                             <span class="prelude-val">None</span>
                         }
@@ -533,8 +535,8 @@
     <span class="ident">work</span>: <span class="ident">TripEndpoint</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
-) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PersonSpec</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;&gt;</span> {
-    <span class="kw">if</span> <span class="ident">home</span> <span class="op">==</span> <span class="ident">work</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PersonSpec</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">home</span> <span class="op">=</span><span class="op">=</span> <span class="ident">work</span> {
         <span class="comment">// TODO: handle edge-case of working and living in the same building...  maybe more likely</span>
         <span class="comment">// to go for a walk later in the day or something</span>
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;TODO: handle working and living in the same building&quot;</span>.<span class="ident">into</span>());
@@ -542,7 +544,7 @@
 
     <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">work</span>) {
         <span class="comment">// commuting entirely within map</span>
-        (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">home_bldg</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">work_bldg</span>)) <span class="op">=&gt;</span> {
+        (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">home_bldg</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">work_bldg</span>)) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Decide mode based on walking distance. If the buildings aren&#39;t connected,</span>
             <span class="comment">// probably a bug in importing; just skip this person.</span>
             <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dist</span>) <span class="op">=</span> <span class="ident">map</span>
@@ -564,7 +566,7 @@
             <span class="ident">select_trip_mode</span>(<span class="ident">dist</span>, <span class="ident">rng</span>)
         }
         <span class="comment">// if you exit or leave the map, we assume driving</span>
-        <span class="kw">_</span> <span class="op">=&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
     };
 
     <span class="comment">// TODO This will cause a single morning and afternoon rush. Outside of these times,</span>
@@ -605,7 +607,7 @@
     })
 }
 
-<span class="kw">fn</span> <span class="ident">select_trip_mode</span>(<span class="ident">distance</span>: <span class="ident">Distance</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-&gt;</span> <span class="ident">TripMode</span> {
+<span class="kw">fn</span> <span class="ident">select_trip_mode</span>(<span class="ident">distance</span>: <span class="ident">Distance</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripMode</span> {
     <span class="comment">// TODO Make this probabilistic</span>
     <span class="comment">// for example probability of walking currently has massive differences</span>
     <span class="comment">// at thresholds, it would be nicer to change this gradually</span>
@@ -644,7 +646,7 @@
     <span class="ident">TripMode</span>::<span class="ident">Drive</span>
 }
 
-<span class="kw">fn</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Time</span>, <span class="ident">high</span>: <span class="ident">Time</span>) <span class="op">-&gt;</span> <span class="ident">Time</span> {
+<span class="kw">fn</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Time</span>, <span class="ident">high</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
     <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>(), <span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
 }

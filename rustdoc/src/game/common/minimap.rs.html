@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/common/minimap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>minimap.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/common/minimap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>minimap.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -506,7 +508,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Minimap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">extra_controls</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">Minimap</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">extra_controls</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Minimap</span> {
         <span class="comment">// Initially pick a zoom to fit the smaller of the entire map&#39;s width or height in the</span>
         <span class="comment">// minimap. Arbitrary and probably pretty weird.</span>
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>();
@@ -515,7 +517,7 @@
             <span class="ident">extra_controls</span>,
             <span class="ident">dragging</span>: <span class="bool-val">false</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">zoomed</span>: <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>,
+            <span class="ident">zoomed</span>: <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>,
             <span class="ident">layer</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span>.<span class="ident">is_none</span>(),
 
             <span class="ident">zoom_lvl</span>: <span class="number">0</span>,
@@ -585,7 +587,7 @@
                 <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="ident">col</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel</span>),
                 <span class="comment">// Enable the Z-order picker in dev mode or the OSM viewer (when the extra_controls</span>
                 <span class="comment">// for agents and layers are hidden).</span>
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">||</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">extra_controls</span> {
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">extra_controls</span> {
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Z-order:&quot;</span>).<span class="ident">small</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                         <span class="ident">Spinner</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">zorder_range</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">show_zorder</span>)
@@ -641,7 +643,7 @@
         .<span class="ident">build_custom</span>(<span class="ident">ctx</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">map_to_minimap_pct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> (<span class="ident">f64</span>, <span class="ident">f64</span>) {
+    <span class="kw">fn</span> <span class="ident">map_to_minimap_pct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">f64</span>, <span class="ident">f64</span>) {
         <span class="kw">let</span> <span class="ident">inner_rect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;minimap&quot;</span>);
         <span class="kw">let</span> <span class="ident">pct_x</span> <span class="op">=</span> (<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">offset_x</span>) <span class="op">/</span> <span class="ident">inner_rect</span>.<span class="ident">width</span>();
         <span class="kw">let</span> <span class="ident">pct_y</span> <span class="op">=</span> (<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">offset_y</span>) <span class="op">/</span> <span class="ident">inner_rect</span>.<span class="ident">height</span>();
@@ -679,10 +681,10 @@
         <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">=</span> <span class="ident">off_y</span>.<span class="ident">max</span>(<span class="number">0.0</span>).<span class="ident">min</span>(<span class="ident">bounds</span>.<span class="ident">max_y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">height</span>());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>;
         <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span>.<span class="ident">is_none</span>();
-        <span class="kw">if</span> <span class="ident">zoomed</span> <span class="op">!=</span> <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">||</span> <span class="ident">layer</span> <span class="op">!=</span> <span class="self">self</span>.<span class="ident">layer</span> {
+        <span class="kw">if</span> <span class="ident">zoomed</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">|</span><span class="op">|</span> <span class="ident">layer</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">layer</span> {
             <span class="kw">let</span> <span class="ident">just_zoomed_in</span> <span class="op">=</span> <span class="ident">zoomed</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">zoomed</span>;
 
             <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">zoomed</span>;
@@ -701,7 +703,7 @@
                 <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
             ] {
                 <span class="kw">let</span> (<span class="ident">pct_x</span>, <span class="ident">pct_y</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">map_to_minimap_pct</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">screen_to_map</span>(<span class="ident">pt</span>));
-                <span class="kw">if</span> <span class="ident">pct_x</span> <span class="op">&lt;</span> <span class="number">0.0</span> <span class="op">||</span> <span class="ident">pct_x</span> <span class="op">&gt;</span> <span class="number">1.0</span> <span class="op">||</span> <span class="ident">pct_y</span> <span class="op">&lt;</span> <span class="number">0.0</span> <span class="op">||</span> <span class="ident">pct_y</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
+                <span class="kw">if</span> <span class="ident">pct_x</span> <span class="op">&lt;</span> <span class="number">0.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">pct_x</span> <span class="op">&gt;</span> <span class="number">1.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">pct_y</span> <span class="op">&lt;</span> <span class="number">0.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">pct_y</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
                     <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="kw">break</span>;
                 }
@@ -726,51 +728,51 @@
 
         <span class="kw">let</span> <span class="ident">pan_speed</span> <span class="op">=</span> <span class="number">100.0</span>;
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">x</span> {
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;pan up&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">-=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
+            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pan up&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">-</span><span class="op">=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">KeepWithMouseover</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;pan down&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">+=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pan down&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">KeepWithMouseover</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;pan left&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">-=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pan left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">-</span><span class="op">=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">KeepWithMouseover</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;pan right&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">+=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pan right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">KeepWithMouseover</span>);
                 }
                 <span class="comment">// TODO Make the center of the cursor still point to the same thing. Same math as</span>
                 <span class="comment">// Canvas.</span>
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom in&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">!=</span> <span class="number">3</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;zoom in&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
                         <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">+</span> <span class="number">1</span>);
                     }
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom out&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">!=</span> <span class="number">0</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;zoom out&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">-</span> <span class="number">1</span>);
                     }
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom to level 1&quot;</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;zoom to level 1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom to level 2&quot;</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;zoom to level 2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">1</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom to level 3&quot;</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;zoom to level 3&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">2</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom to level 4&quot;</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;zoom to level 4&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">3</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;search&quot;</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;search&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Navigator</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom out fully&quot;</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;zoom out fully&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Warping</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>().<span class="ident">center</span>(),
@@ -779,7 +781,7 @@
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
                     )));
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom in fully&quot;</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;zoom in fully&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Warping</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>(),
@@ -788,12 +790,12 @@
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
                     )));
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;change layers&quot;</span> <span class="op">=&gt;</span> {
+                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;change layers&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PickLayer</span>::<span class="ident">pick</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
-                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">has_widget</span>(<span class="string">&quot;Car&quot;</span>) {
                     <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">cars</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Car&quot;</span>);
                     <span class="ident">app</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">bikes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Bike&quot;</span>);
@@ -805,7 +807,7 @@
                 }
                 <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
-            <span class="kw">_</span> <span class="op">=&gt;</span> {}
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoomed</span> {
@@ -906,9 +908,9 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_tool_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">make_tool_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        (<span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
+        (<span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
             <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/minimap/zoom_out_fully.svg&quot;</span>).<span class="ident">build</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;zoom out fully&quot;</span>,
@@ -931,7 +933,7 @@
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">make_horiz_viz_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">make_horiz_viz_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">unzoomed_agents</span>;
     <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Checkbox</span>::<span class="ident">colored</span>(<span class="ident">ctx</span>, <span class="string">&quot;Car&quot;</span>, <span class="ident">a</span>.<span class="ident">car_color</span>, <span class="ident">a</span>.<span class="ident">cars</span>).<span class="ident">margin_right</span>(<span class="number">24</span>),
@@ -941,7 +943,7 @@
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">make_vert_viz_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">make_vert_viz_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">unzoomed_agents</span>;
     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Checkbox</span>::<span class="ident">colored</span>(<span class="ident">ctx</span>, <span class="string">&quot;Car&quot;</span>, <span class="ident">a</span>.<span class="ident">car_color</span>, <span class="ident">a</span>.<span class="ident">cars</span>),

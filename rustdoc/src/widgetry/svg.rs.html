@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/svg.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>svg.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `widgetry/src/svg.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>svg.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -259,7 +261,7 @@
 <span class="comment">// Code here adapted from</span>
 <span class="comment">// https://github.com/nical/lyon/blob/0d0ee771180fb317b986d9cf30266722e0773e01/examples/wgpu_svg/src/main.rs</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg</span>(<span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg</span>(<span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>) {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">get_cached_svg</span>(<span class="ident">filename</span>) {
         <span class="kw">return</span> <span class="ident">pair</span>;
     }
@@ -273,13 +275,13 @@
     <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="ident">usvg</span>::<span class="ident">Tree</span>::<span class="ident">from_data</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>, <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Options</span>::<span class="ident">default</span>()).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
     <span class="kw">match</span> <span class="ident">add_svg_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">HIGH_QUALITY</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">bounds</span>) <span class="op">=&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">bounds</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">prerender</span>
                 .<span class="ident">assets</span>
                 .<span class="ident">cache_svg</span>(<span class="ident">filename</span>.<span class="ident">to_string</span>(), <span class="ident">batch</span>.<span class="ident">clone</span>(), <span class="ident">bounds</span>.<span class="ident">clone</span>());
             (<span class="ident">batch</span>, <span class="ident">bounds</span>)
         }
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">filename</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">filename</span>, <span class="ident">err</span>),
     }
 }
 
@@ -290,11 +292,11 @@
     <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>,
     <span class="ident">svg_tree</span>: <span class="ident">usvg</span>::<span class="ident">Tree</span>,
     <span class="ident">tolerance</span>: <span class="ident">f32</span>,
-) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bounds</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bounds</span>, <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fill_tess</span> <span class="op">=</span> <span class="ident">tessellation</span>::<span class="ident">FillTessellator</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stroke_tess</span> <span class="op">=</span> <span class="ident">tessellation</span>::<span class="ident">StrokeTessellator</span>::<span class="ident">new</span>();
     <span class="comment">// TODO This breaks on start.svg; the order there matters. color1, color2, then color1 again.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mesh_per_color</span>: <span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">Fill</span>, <span class="ident">VertexBuffers</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">u16</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="ident">VecMap</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mesh_per_color</span>: <span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">Fill</span>, <span class="ident">VertexBuffers</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecMap</span>::<span class="ident">new</span>();
 
     <span class="kw">for</span> <span class="ident">node</span> <span class="kw">in</span> <span class="ident">svg_tree</span>.<span class="ident">root</span>().<span class="ident">descendants</span>() {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">usvg</span>::<span class="ident">NodeKind</span>::<span class="ident">Path</span>(<span class="kw-2">ref</span> <span class="ident">p</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">node</span>.<span class="ident">borrow</span>() {
@@ -344,7 +346,7 @@
     ]))
 }
 
-<span class="kw">fn</span> <span class="ident">point</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">f64</span>, <span class="ident">y</span>: <span class="kw-2">&amp;</span><span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Point</span> {
+<span class="kw">fn</span> <span class="ident">point</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">f64</span>, <span class="ident">y</span>: <span class="kw-2">&amp;</span><span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Point</span> {
     <span class="ident">Point</span>::<span class="ident">new</span>((<span class="kw-2">*</span><span class="ident">x</span>) <span class="kw">as</span> <span class="ident">f32</span>, (<span class="kw-2">*</span><span class="ident">y</span>) <span class="kw">as</span> <span class="ident">f32</span>)
 }
 
@@ -358,14 +360,14 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;l</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">PathConvIter</span><span class="op">&lt;</span><span class="lifetime">&#39;l</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">PathEvent</span>;
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathEvent</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathEvent</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">deferred</span>.<span class="ident">is_some</span>() {
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">deferred</span>.<span class="ident">take</span>();
         }
 
         <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>();
         <span class="kw">match</span> <span class="ident">next</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">usvg</span>::<span class="ident">PathSegment</span>::<span class="ident">MoveTo</span> { <span class="ident">x</span>, <span class="ident">y</span> }) <span class="op">=&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">usvg</span>::<span class="ident">PathSegment</span>::<span class="ident">MoveTo</span> { <span class="ident">x</span>, <span class="ident">y</span> }) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">needs_end</span> {
                     <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prev</span>;
                     <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">first</span>;
@@ -383,7 +385,7 @@
                     <span class="prelude-val">Some</span>(<span class="ident">PathEvent</span>::<span class="ident">Begin</span> { <span class="ident">at</span>: <span class="self">self</span>.<span class="ident">first</span> })
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="ident">usvg</span>::<span class="ident">PathSegment</span>::<span class="ident">LineTo</span> { <span class="ident">x</span>, <span class="ident">y</span> }) <span class="op">=&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">usvg</span>::<span class="ident">PathSegment</span>::<span class="ident">LineTo</span> { <span class="ident">x</span>, <span class="ident">y</span> }) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">needs_end</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prev</span>;
                 <span class="self">self</span>.<span class="ident">prev</span> <span class="op">=</span> <span class="ident">point</span>(<span class="ident">x</span>, <span class="ident">y</span>);
@@ -399,7 +401,7 @@
                 <span class="ident">y2</span>,
                 <span class="ident">x</span>,
                 <span class="ident">y</span>,
-            }) <span class="op">=&gt;</span> {
+            }) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">needs_end</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prev</span>;
                 <span class="self">self</span>.<span class="ident">prev</span> <span class="op">=</span> <span class="ident">point</span>(<span class="ident">x</span>, <span class="ident">y</span>);
@@ -410,7 +412,7 @@
                     <span class="ident">to</span>: <span class="self">self</span>.<span class="ident">prev</span>,
                 })
             }
-            <span class="prelude-val">Some</span>(<span class="ident">usvg</span>::<span class="ident">PathSegment</span>::<span class="ident">ClosePath</span>) <span class="op">=&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">usvg</span>::<span class="ident">PathSegment</span>::<span class="ident">ClosePath</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">needs_end</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="self">self</span>.<span class="ident">prev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">first</span>;
                 <span class="prelude-val">Some</span>(<span class="ident">PathEvent</span>::<span class="ident">End</span> {
@@ -419,7 +421,7 @@
                     <span class="ident">close</span>: <span class="bool-val">true</span>,
                 })
             }
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">needs_end</span> {
                     <span class="self">self</span>.<span class="ident">needs_end</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prev</span>;
@@ -437,7 +439,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">convert_path</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">usvg</span>::<span class="ident">Path</span>) <span class="op">-&gt;</span> <span class="ident">PathConvIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">convert_path</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">usvg</span>::<span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PathConvIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">PathConvIter</span> {
         <span class="ident">iter</span>: <span class="ident">p</span>.<span class="ident">data</span>.<span class="number">0</span>.<span class="ident">iter</span>(),
         <span class="ident">first</span>: <span class="ident">Point</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
@@ -451,17 +453,17 @@
     <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Stroke</span>,
     <span class="ident">tolerance</span>: <span class="ident">f32</span>,
     <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Tree</span>,
-) <span class="op">-&gt;</span> (<span class="ident">Fill</span>, <span class="ident">tessellation</span>::<span class="ident">StrokeOptions</span>) {
+) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Fill</span>, <span class="ident">tessellation</span>::<span class="ident">StrokeOptions</span>) {
     <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">convert_color</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">paint</span>, <span class="ident">s</span>.<span class="ident">opacity</span>.<span class="ident">value</span>(), <span class="ident">tree</span>);
     <span class="kw">let</span> <span class="ident">linecap</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">linecap</span> {
-        <span class="ident">usvg</span>::<span class="ident">LineCap</span>::<span class="ident">Butt</span> <span class="op">=&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineCap</span>::<span class="ident">Butt</span>,
-        <span class="ident">usvg</span>::<span class="ident">LineCap</span>::<span class="ident">Square</span> <span class="op">=&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineCap</span>::<span class="ident">Square</span>,
-        <span class="ident">usvg</span>::<span class="ident">LineCap</span>::<span class="ident">Round</span> <span class="op">=&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineCap</span>::<span class="ident">Round</span>,
+        <span class="ident">usvg</span>::<span class="ident">LineCap</span>::<span class="ident">Butt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineCap</span>::<span class="ident">Butt</span>,
+        <span class="ident">usvg</span>::<span class="ident">LineCap</span>::<span class="ident">Square</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineCap</span>::<span class="ident">Square</span>,
+        <span class="ident">usvg</span>::<span class="ident">LineCap</span>::<span class="ident">Round</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineCap</span>::<span class="ident">Round</span>,
     };
     <span class="kw">let</span> <span class="ident">linejoin</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">linejoin</span> {
-        <span class="ident">usvg</span>::<span class="ident">LineJoin</span>::<span class="ident">Miter</span> <span class="op">=&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineJoin</span>::<span class="ident">Miter</span>,
-        <span class="ident">usvg</span>::<span class="ident">LineJoin</span>::<span class="ident">Bevel</span> <span class="op">=&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineJoin</span>::<span class="ident">Bevel</span>,
-        <span class="ident">usvg</span>::<span class="ident">LineJoin</span>::<span class="ident">Round</span> <span class="op">=&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineJoin</span>::<span class="ident">Round</span>,
+        <span class="ident">usvg</span>::<span class="ident">LineJoin</span>::<span class="ident">Miter</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineJoin</span>::<span class="ident">Miter</span>,
+        <span class="ident">usvg</span>::<span class="ident">LineJoin</span>::<span class="ident">Bevel</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineJoin</span>::<span class="ident">Bevel</span>,
+        <span class="ident">usvg</span>::<span class="ident">LineJoin</span>::<span class="ident">Round</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tessellation</span>::<span class="ident">LineJoin</span>::<span class="ident">Round</span>,
     };
 
     <span class="kw">let</span> <span class="ident">opt</span> <span class="op">=</span> <span class="ident">tessellation</span>::<span class="ident">StrokeOptions</span>::<span class="ident">tolerance</span>(<span class="ident">tolerance</span>)
@@ -472,17 +474,17 @@
     (<span class="ident">color</span>, <span class="ident">opt</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">convert_color</span>(<span class="ident">paint</span>: <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Paint</span>, <span class="ident">opacity</span>: <span class="ident">f64</span>, <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Tree</span>) <span class="op">-&gt;</span> <span class="ident">Fill</span> {
+<span class="kw">fn</span> <span class="ident">convert_color</span>(<span class="ident">paint</span>: <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Paint</span>, <span class="ident">opacity</span>: <span class="ident">f64</span>, <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">Tree</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fill</span> {
     <span class="kw">match</span> <span class="ident">paint</span> {
-        <span class="ident">usvg</span>::<span class="ident">Paint</span>::<span class="ident">Color</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> <span class="ident">Fill</span>::<span class="ident">Color</span>(<span class="ident">Color</span>::<span class="ident">rgba</span>(
+        <span class="ident">usvg</span>::<span class="ident">Paint</span>::<span class="ident">Color</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Fill</span>::<span class="ident">Color</span>(<span class="ident">Color</span>::<span class="ident">rgba</span>(
             <span class="ident">c</span>.<span class="ident">red</span> <span class="kw">as</span> <span class="ident">usize</span>,
             <span class="ident">c</span>.<span class="ident">green</span> <span class="kw">as</span> <span class="ident">usize</span>,
             <span class="ident">c</span>.<span class="ident">blue</span> <span class="kw">as</span> <span class="ident">usize</span>,
             <span class="ident">opacity</span> <span class="kw">as</span> <span class="ident">f32</span>,
         )),
-        <span class="ident">usvg</span>::<span class="ident">Paint</span>::<span class="ident">Link</span>(<span class="ident">name</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">tree</span>.<span class="ident">defs_by_id</span>(<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">borrow</span>() {
-            <span class="ident">usvg</span>::<span class="ident">NodeKind</span>::<span class="ident">LinearGradient</span>(<span class="kw-2">ref</span> <span class="ident">lg</span>) <span class="op">=&gt;</span> <span class="ident">LinearGradient</span>::<span class="ident">new</span>(<span class="ident">lg</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unsupported color style {}&quot;</span>, <span class="ident">name</span>),
+        <span class="ident">usvg</span>::<span class="ident">Paint</span>::<span class="ident">Link</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">tree</span>.<span class="ident">defs_by_id</span>(<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">borrow</span>() {
+            <span class="ident">usvg</span>::<span class="ident">NodeKind</span>::<span class="ident">LinearGradient</span>(<span class="kw-2">ref</span> <span class="ident">lg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LinearGradient</span>::<span class="ident">new</span>(<span class="ident">lg</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unsupported color style {}&quot;</span>, <span class="ident">name</span>),
         },
     }
 }

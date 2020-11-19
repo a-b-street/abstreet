@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `map_model/src/objects/lane.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lane.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `map_model/src/objects/lane.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lane.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -395,7 +397,7 @@
 );
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">LaneID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Lane #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
@@ -416,59 +418,59 @@
 }
 
 <span class="kw">impl</span> <span class="ident">LaneType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_for_moving_vehicles</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_for_moving_vehicles</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">supports_any_movement</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">supports_any_movement</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=&gt;</span> <span class="string">&quot;a general-purpose driving lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=&gt;</span> <span class="string">&quot;a protected bike lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=&gt;</span> <span class="string">&quot;a bus-only lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=&gt;</span> <span class="string">&quot;an on-street parking lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=&gt;</span> <span class="string">&quot;a sidewalk&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=&gt;</span> <span class="string">&quot;a shoulder&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=&gt;</span> <span class="string">&quot;a shared left-turn lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=&gt;</span> <span class="string">&quot;a lane that&#39;s closed for construction&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=&gt;</span> <span class="string">&quot;a light rail track&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a general-purpose driving lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a protected bike lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a bus-only lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;an on-street parking lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a sidewalk&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a shoulder&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a shared left-turn lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a lane that&#39;s closed for construction&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a light rail track&quot;</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">short_name</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">short_name</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=&gt;</span> <span class="string">&quot;driving lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=&gt;</span> <span class="string">&quot;bike lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=&gt;</span> <span class="string">&quot;bus lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=&gt;</span> <span class="string">&quot;parking lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=&gt;</span> <span class="string">&quot;sidewalk&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=&gt;</span> <span class="string">&quot;shoulder&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=&gt;</span> <span class="string">&quot;left-turn lane&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=&gt;</span> <span class="string">&quot;construction&quot;</span>,
-            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=&gt;</span> <span class="string">&quot;light rail track&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;driving lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;bike lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;bus lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;parking lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;sidewalk&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;shoulder&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;left-turn lane&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;construction&quot;</span>,
+            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;light rail track&quot;</span>,
         }
     }
 }
@@ -496,23 +498,23 @@
 
 <span class="kw">impl</span> <span class="ident">Lane</span> {
     <span class="comment">// TODO most of these are wrappers; stop doing this?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">first_pt</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">last_pt</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Line</span> {
         <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">first_line</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Line</span> {
         <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">last_line</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">endpoint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-&gt;</span> <span class="ident">Pt2D</span> {
-        <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">src_i</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">endpoint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
+        <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">src_i</span> {
             <span class="self">self</span>.<span class="ident">first_pt</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">dst_i</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">dst_i</span> {
             <span class="self">self</span>.<span class="ident">last_pt</span>()
         } <span class="kw">else</span> {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t an endpoint of {}&quot;</span>, <span class="ident">i</span>, <span class="self">self</span>.<span class="ident">id</span>);
@@ -520,78 +522,78 @@
     }
 
     <span class="doccomment">/// pt2 will be endpoint</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-&gt;</span> <span class="ident">Line</span> {
-        <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">src_i</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Line</span> {
+        <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">src_i</span> {
             <span class="self">self</span>.<span class="ident">first_line</span>().<span class="ident">reverse</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">dst_i</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">dst_i</span> {
             <span class="self">self</span>.<span class="ident">last_line</span>()
         } <span class="kw">else</span> {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t an endpoint of {}&quot;</span>, <span class="ident">i</span>, <span class="self">self</span>.<span class="ident">id</span>);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along_of_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along_of_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lane_center_pts</span>
             .<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>)
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">dist</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">dist</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
         <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">length</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
         <span class="comment">// TODO I think we&#39;re assuming there are no loop lanes</span>
         <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">src_i</span>, <span class="self">self</span>.<span class="ident">dst_i</span>]
     }
 
     <span class="comment">// TODO different types for each lane type might be reasonable</span>
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">number_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">number_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lane_type</span>, <span class="ident">LaneType</span>::<span class="ident">Parking</span>);
         <span class="comment">// No spots next to intersections</span>
         <span class="kw">let</span> <span class="ident">spots</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">PARKING_SPOT_LENGTH</span>).<span class="ident">floor</span>() <span class="op">-</span> <span class="number">2.0</span>;
-        <span class="kw">if</span> <span class="ident">spots</span> <span class="op">&gt;=</span> <span class="number">1.0</span> {
+        <span class="kw">if</span> <span class="ident">spots</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.0</span> {
             <span class="ident">spots</span> <span class="kw">as</span> <span class="ident">usize</span>
         } <span class="kw">else</span> {
             <span class="number">0</span>
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_biking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Biking</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_biking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Biking</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_bus</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_bus</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_walkable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">||</span> <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_walkable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sidewalk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sidewalk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_shoulder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_shoulder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_light_rail</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">LightRail</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_light_rail</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">LightRail</span>
     }
 
     <span class="comment">// TODO Store this natively if this winds up being useful.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_directed_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">DirectedRoadID</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_directed_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DirectedRoadID</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">parent</span>);
         <span class="ident">DirectedRoadID</span> {
             <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
@@ -599,17 +601,17 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turn_restrictions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turn_restrictions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_driving</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
         <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">dir</span>(<span class="self">self</span>.<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_FWD</span>) {
+        <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_FWD</span>) {
             <span class="ident">road</span>.<span class="ident">osm_tags</span>
                 .<span class="ident">get</span>(<span class="string">&quot;turn:lanes:forward&quot;</span>)
-                .<span class="ident">or_else</span>(<span class="op">||</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;turn:lanes&quot;</span>))<span class="question-mark">?</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction</span>::<span class="ident">Back</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_BACK</span>) {
+                .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;turn:lanes&quot;</span>))<span class="question-mark">?</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Back</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">ENDPT_BACK</span>) {
             <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;turn:lanes:backward&quot;</span>)<span class="question-mark">?</span>
         } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -619,43 +621,43 @@
         <span class="kw">let</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">road</span>
             .<span class="ident">children</span>(<span class="ident">dir</span>)
             .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">||</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span>)
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span>)
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">id</span>)
             .<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!=</span> <span class="ident">lanes</span>.<span class="ident">len</span>() {
+        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">lanes</span>.<span class="ident">len</span>() {
             <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;{}&#39;s turn restrictions don&#39;t match the lanes&quot;</span>, <span class="ident">road</span>.<span class="ident">orig_id</span>);
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="comment">// TODO More warnings if this fails</span>
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">l</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span>)<span class="question-mark">?</span>];
+        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>)<span class="question-mark">?</span>];
         <span class="comment">// TODO Probably the target lane should get marked as LaneType::Bus</span>
-        <span class="kw">if</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;no&quot;</span> <span class="op">||</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;none&quot;</span> <span class="op">||</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;yes&quot;</span> <span class="op">||</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;psv&quot;</span> <span class="op">||</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;bus&quot;</span> {
+        <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;no&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;none&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;yes&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;psv&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;bus&quot;</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="comment">// Empty means no restrictions</span>
-        <span class="kw">if</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;&quot;</span> {
+        <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;&quot;</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(
             <span class="ident">part</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>)
                 .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">s</span> {
-                    <span class="string">&quot;left&quot;</span> <span class="op">|</span> <span class="string">&quot;left\\left&quot;</span> <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Left</span>],
-                    <span class="string">&quot;right&quot;</span> <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Right</span>],
+                    <span class="string">&quot;left&quot;</span> <span class="op">|</span> <span class="string">&quot;left\\left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Left</span>],
+                    <span class="string">&quot;right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Right</span>],
                     <span class="comment">// TODO What is blank supposed to mean? From few observed cases, same as through</span>
-                    <span class="string">&quot;through&quot;</span> <span class="op">|</span> <span class="string">&quot;&quot;</span> <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>],
+                    <span class="string">&quot;through&quot;</span> <span class="op">|</span> <span class="string">&quot;&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>],
                     <span class="comment">// TODO Check this more carefully</span>
-                    <span class="string">&quot;slight_right&quot;</span> <span class="op">|</span> <span class="string">&quot;slight right&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_right&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_right&quot;</span> <span class="op">=&gt;</span> {
+                    <span class="string">&quot;slight_right&quot;</span> <span class="op">|</span> <span class="string">&quot;slight right&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_right&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>, <span class="ident">TurnType</span>::<span class="ident">Right</span>]
                     }
-                    <span class="string">&quot;slight_left&quot;</span> <span class="op">|</span> <span class="string">&quot;slight left&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_left&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_left&quot;</span> <span class="op">=&gt;</span> {
+                    <span class="string">&quot;slight_left&quot;</span> <span class="op">|</span> <span class="string">&quot;slight left&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_left&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Straight</span>, <span class="ident">TurnType</span>::<span class="ident">Left</span>]
                     }
-                    <span class="string">&quot;reverse&quot;</span> <span class="op">=&gt;</span> {
+                    <span class="string">&quot;reverse&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="comment">// TODO We need TurnType::UTurn. Until then, u-turns usually show up as</span>
                         <span class="comment">// left turns.</span>
                         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TurnType</span>::<span class="ident">Left</span>]
                     }
-                    <span class="ident">s</span> <span class="op">=&gt;</span> {
+                    <span class="ident">s</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Unknown turn restriction {}&quot;</span>, <span class="ident">s</span>);
                         <span class="macro">vec</span><span class="macro">!</span>[]
                     }
@@ -669,11 +671,11 @@
     <span class="doccomment">/// outermost lanes on a road. Returns the polygon and all visited lanes.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// TODO This process currently fails for some starting positions; orienting is weird.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_around_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_around_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">start</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">start</span>).<span class="ident">lanes_ltr</span>()[<span class="number">0</span>].<span class="number">0</span> <span class="op">==</span> <span class="ident">start</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">start</span>).<span class="ident">lanes_ltr</span>()[<span class="number">0</span>].<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">start</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>);
@@ -685,7 +687,7 @@
             .<span class="ident">unwrap</span>()
             .<span class="ident">into_points</span>();
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last_pt</span>) <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">cloned</span>() {
-                <span class="kw">if</span> <span class="ident">last_pt</span> <span class="op">!=</span> <span class="ident">lane_pts</span>[<span class="number">0</span>] {
+                <span class="kw">if</span> <span class="ident">last_pt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">lane_pts</span>[<span class="number">0</span>] {
                     <span class="kw">let</span> <span class="ident">last_i</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fwd</span> { <span class="ident">l</span>.<span class="ident">src_i</span> } <span class="kw">else</span> { <span class="ident">l</span>.<span class="ident">dst_i</span> };
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">map</span>
                         .<span class="ident">get_i</span>(<span class="ident">last_i</span>)
@@ -708,17 +710,17 @@
                 .<span class="ident">get_i</span>(<span class="ident">i</span>)
                 .<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>.<span class="ident">all_roads</span>());
             <span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_footway</span>());
-            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">l</span>.<span class="ident">parent</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">parent</span>).<span class="ident">unwrap</span>();
             <span class="comment">// Get the next road counter-clockwise</span>
             <span class="kw">let</span> <span class="ident">next_road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="number">1</span>));
             <span class="comment">// Depending on if this road points to or from the intersection, get the left- or</span>
             <span class="comment">// right-most lane.</span>
-            <span class="kw">let</span> <span class="ident">next_lane</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">next_road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span> {
+            <span class="kw">let</span> <span class="ident">next_lane</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">next_road</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
                 <span class="ident">next_road</span>.<span class="ident">lanes_ltr</span>()[<span class="number">0</span>].<span class="number">0</span>
             } <span class="kw">else</span> {
                 <span class="ident">next_road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span>
             };
-            <span class="kw">if</span> <span class="ident">next_lane</span> <span class="op">==</span> <span class="ident">start</span> {
+            <span class="kw">if</span> <span class="ident">next_lane</span> <span class="op">=</span><span class="op">=</span> <span class="ident">start</span> {
                 <span class="kw">break</span>;
             }
             <span class="kw">if</span> <span class="ident">visited</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>) {
@@ -727,7 +729,7 @@
             }
             <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">current</span>);
             <span class="ident">current</span> <span class="op">=</span> <span class="ident">next_lane</span>;
-            <span class="ident">fwd</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>).<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span>;
+            <span class="ident">fwd</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>).<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>;
         }
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
         <span class="ident">pts</span>.<span class="ident">dedup</span>();

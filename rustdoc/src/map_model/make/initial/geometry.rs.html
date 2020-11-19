@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `map_model/src/make/initial/geometry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>geometry.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `map_model/src/make/initial/geometry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>geometry.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -609,7 +611,7 @@
     <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>), <span class="ident">String</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>), <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">is_empty</span>() {
         <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} has no roads&quot;</span>, <span class="ident">i</span>.<span class="ident">id</span>);
     }
@@ -622,9 +624,9 @@
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="ident">id</span>];
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span>.<span class="ident">id</span> {
+        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">reversed</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span>.<span class="ident">id</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()
         } <span class="kw">else</span> {
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Incident road {} doesn&#39;t have an endpoint at {}&quot;</span>, <span class="ident">id</span>, <span class="ident">i</span>.<span class="ident">id</span>);
@@ -640,13 +642,13 @@
         <span class="ident">l</span>.<span class="ident">pt1</span>().<span class="ident">angle_to</span>(<span class="ident">intersection_center</span>).<span class="ident">normalized_degrees</span>() <span class="kw">as</span> <span class="ident">i64</span>
     });
 
-    <span class="kw">if</span> <span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+    <span class="kw">if</span> <span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="kw">return</span> <span class="ident">deadend</span>(<span class="ident">roads</span>, <span class="ident">i</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">lines</span>);
     }
     <span class="kw">let</span> <span class="ident">rollback</span> <span class="op">=</span> <span class="ident">lines</span>
         .<span class="ident">iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">roads</span>[<span class="ident">r</span>].<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()))
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="ident">on_off_ramp</span>(<span class="ident">roads</span>, <span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">lines</span>.<span class="ident">clone</span>()) {
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     } <span class="kw">else</span> {
@@ -662,7 +664,7 @@
     <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
     <span class="ident">lines</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>), <span class="ident">String</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>), <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
@@ -687,7 +689,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_road_centers</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">PolyLine</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
     <span class="kw">for</span> (<span class="ident">r1</span>, <span class="ident">pl1</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road_lines</span> {
         <span class="comment">// road_center ends at the intersection.</span>
-        <span class="kw">let</span> <span class="ident">road_center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">roads</span>[<span class="ident">r1</span>].<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
+        <span class="kw">let</span> <span class="ident">road_center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">roads</span>[<span class="ident">r1</span>].<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">roads</span>[<span class="ident">r1</span>].<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()
         } <span class="kw">else</span> {
             <span class="ident">roads</span>[<span class="ident">r1</span>].<span class="ident">trimmed_center_pts</span>.<span class="ident">reversed</span>()
@@ -695,7 +697,7 @@
 
         <span class="comment">// Always trim back a minimum amount, if possible.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shortest_center</span> <span class="op">=</span>
-            <span class="kw">if</span> <span class="ident">road_center</span>.<span class="ident">length</span>() <span class="op">&gt;=</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span> <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">EPSILON_DIST</span> {
+            <span class="kw">if</span> <span class="ident">road_center</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span> <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">EPSILON_DIST</span> {
                 <span class="ident">road_center</span>.<span class="ident">exact_slice</span>(
                     <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
                     <span class="ident">road_center</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span>,
@@ -705,7 +707,7 @@
             };
 
         <span class="kw">for</span> (<span class="ident">r2</span>, <span class="ident">pl2</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road_lines</span> {
-            <span class="kw">if</span> <span class="ident">r1</span> <span class="op">==</span> <span class="ident">r2</span> {
+            <span class="kw">if</span> <span class="ident">r1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r2</span> {
                 <span class="kw">continue</span>;
             }
 
@@ -718,7 +720,7 @@
                 <span class="kw">let</span> <span class="ident">ii2</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="ident">r1</span>].<span class="ident">dst_i</span>;
                 <span class="kw">let</span> <span class="ident">ii3</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="ident">r2</span>].<span class="ident">src_i</span>;
                 <span class="kw">let</span> <span class="ident">ii4</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="ident">r2</span>].<span class="ident">dst_i</span>;
-                (<span class="ident">ii1</span> <span class="op">==</span> <span class="ident">ii3</span> <span class="op">&amp;&amp;</span> <span class="ident">ii2</span> <span class="op">==</span> <span class="ident">ii4</span>) <span class="op">||</span> (<span class="ident">ii1</span> <span class="op">==</span> <span class="ident">ii4</span> <span class="op">&amp;&amp;</span> <span class="ident">ii2</span> <span class="op">==</span> <span class="ident">ii3</span>)
+                (<span class="ident">ii1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ii3</span> <span class="op">&amp;&amp;</span> <span class="ident">ii2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ii4</span>) <span class="op">|</span><span class="op">|</span> (<span class="ident">ii1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ii4</span> <span class="op">&amp;&amp;</span> <span class="ident">ii2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ii3</span>)
             };
             <span class="kw">let</span> (<span class="ident">use_pl1</span>, <span class="ident">use_pl2</span>): (<span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">same_endpoints</span> {
                 (<span class="ident">pl1</span>.<span class="ident">second_half</span>(), <span class="ident">pl2</span>.<span class="ident">second_half</span>())
@@ -726,7 +728,7 @@
                 (<span class="ident">pl1</span>.<span class="ident">clone</span>(), <span class="ident">pl2</span>.<span class="ident">clone</span>())
             };
 
-            <span class="kw">if</span> <span class="ident">use_pl1</span> <span class="op">==</span> <span class="ident">use_pl2</span> {
+            <span class="kw">if</span> <span class="ident">use_pl1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">use_pl2</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;{} and {} have overlapping segments. You likely need to fix OSM and make the \
                      two ways meet at exactly one node.&quot;</span>,
@@ -769,7 +771,7 @@
             }
         }
 
-        <span class="kw">let</span> <span class="ident">new_center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">roads</span>[<span class="ident">r1</span>].<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
+        <span class="kw">let</span> <span class="ident">new_center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">roads</span>[<span class="ident">r1</span>].<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">shortest_center</span>
         } <span class="kw">else</span> {
             <span class="ident">shortest_center</span>.<span class="ident">reversed</span>()
@@ -800,7 +802,7 @@
         <span class="comment">// Always take the second_half here to handle roads that intersect at multiple points.</span>
         <span class="comment">// TODO Should maybe do reversed() to fwd_pl here too. And why not make all the lines</span>
         <span class="comment">// passed in point AWAY from the intersection instead?</span>
-        <span class="kw">if</span> <span class="ident">fwd_pl</span>.<span class="ident">length</span>() <span class="op">&gt;=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> <span class="op">&amp;&amp;</span> <span class="ident">adj_fwd_pl</span>.<span class="ident">length</span>() <span class="op">&gt;=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> {
+        <span class="kw">if</span> <span class="ident">fwd_pl</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> <span class="op">&amp;&amp;</span> <span class="ident">adj_fwd_pl</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hit</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">fwd_pl</span>.<span class="ident">second_half</span>().<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">adj_fwd_pl</span>.<span class="ident">second_half</span>()) {
                 <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">hit</span>);
             }
@@ -813,7 +815,7 @@
         }
 
         <span class="comment">// Shift those final centers out again to find the main endpoints for the polygon.</span>
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
+        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">last_pt</span>());
             <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">last_pt</span>());
         } <span class="kw">else</span> {
@@ -821,7 +823,7 @@
             <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">first_pt</span>());
         }
 
-        <span class="kw">if</span> <span class="ident">back_pl</span>.<span class="ident">length</span>() <span class="op">&gt;=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> <span class="op">&amp;&amp;</span> <span class="ident">adj_back_pl</span>.<span class="ident">length</span>() <span class="op">&gt;=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> {
+        <span class="kw">if</span> <span class="ident">back_pl</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> <span class="op">&amp;&amp;</span> <span class="ident">adj_back_pl</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">EPSILON_DIST</span> <span class="op">*</span> <span class="number">3.0</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hit</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">back_pl</span>
                 .<span class="ident">second_half</span>()
                 .<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">adj_back_pl</span>.<span class="ident">second_half</span>())
@@ -849,7 +851,7 @@
     <span class="ident">deduped</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">angle_to</span>(<span class="ident">center</span>).<span class="ident">normalized_degrees</span>() <span class="kw">as</span> <span class="ident">i64</span>);
     <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">approx_dedupe</span>(<span class="ident">deduped</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>));
     <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">close_off_polygon</span>(<span class="ident">deduped</span>);
-    <span class="kw">if</span> <span class="ident">main_result</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">deduped</span>.<span class="ident">len</span>() {
+    <span class="kw">if</span> <span class="ident">main_result</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">deduped</span>.<span class="ident">len</span>() {
         <span class="prelude-val">Ok</span>((<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">main_result</span>).<span class="ident">to_polygon</span>(), <span class="ident">debug</span>))
     } <span class="kw">else</span> {
         <span class="ident">timer</span>.<span class="ident">warn</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -871,7 +873,7 @@
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
     <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
     <span class="ident">lines</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span>,
-) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>), <span class="ident">String</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>), <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span> <span class="op">*</span> <span class="number">4.0</span>;
 
     <span class="kw">let</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">pl_a</span>, <span class="kw-2">mut</span> <span class="ident">pl_b</span>) <span class="op">=</span> <span class="ident">lines</span>[<span class="number">0</span>].<span class="ident">clone</span>();
@@ -884,8 +886,8 @@
 
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">len_with_buffer</span> <span class="op">=</span> <span class="ident">len</span> <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">EPSILON_DIST</span>;
-    <span class="kw">let</span> <span class="ident">trimmed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">length</span>() <span class="op">&gt;=</span> <span class="ident">len_with_buffer</span> {
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span> {
+    <span class="kw">let</span> <span class="ident">trimmed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">len_with_buffer</span> {
+        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">r</span>
                 .<span class="ident">trimmed_center_pts</span>
                 .<span class="ident">exact_slice</span>(<span class="ident">len</span>, <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">length</span>());
@@ -896,7 +898,7 @@
         }
         <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()
     } <span class="kw">else</span> {
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span> {
+        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">extend_to_length</span>(<span class="ident">len_with_buffer</span>)
         } <span class="kw">else</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>
@@ -910,7 +912,7 @@
     <span class="comment">// points, so shift the center out again to find the endpoints.</span>
     <span class="comment">// TODO Refactor with generalized_trim_back.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pl_b</span>.<span class="ident">last_pt</span>(), <span class="ident">pl_a</span>.<span class="ident">last_pt</span>()];
-    <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
+    <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
         <span class="ident">endpts</span>.<span class="ident">push</span>(<span class="ident">trimmed</span>.<span class="ident">shift_right</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">last_pt</span>());
         <span class="ident">endpts</span>.<span class="ident">push</span>(<span class="ident">trimmed</span>.<span class="ident">shift_left</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">last_pt</span>());
     } <span class="kw">else</span> {
@@ -925,7 +927,7 @@
     ))
 }
 
-<span class="kw">fn</span> <span class="ident">close_off_polygon</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">close_off_polygon</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">approx_eq</span>(<span class="ident">pts</span>[<span class="number">0</span>], <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>)) {
         <span class="ident">pts</span>.<span class="ident">pop</span>();
     }
@@ -948,8 +950,8 @@
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
     <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
     <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span>,
-) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">!=</span> <span class="number">3</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
     <span class="comment">// TODO Really this should apply based on some geometric consideration (one of the endpoints</span>
@@ -983,7 +985,7 @@
     <span class="comment">// TODO Use this abstraction for all the code here?</span>
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">right</span>, <span class="ident">left</span>) <span class="kw">in</span> <span class="ident">lines</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
+        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()
         } <span class="kw">else</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">reversed</span>()
@@ -997,7 +999,7 @@
     }
 
     <span class="comment">// Break ties by preferring the outbound roads for thin</span>
-    <span class="ident">pieces</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> (<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">id</span>].<span class="ident">half_width</span>, <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">i</span>));
+    <span class="ident">pieces</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> (<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">id</span>].<span class="ident">half_width</span>, <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>));
     <span class="kw">let</span> <span class="ident">thick1</span> <span class="op">=</span> <span class="ident">pieces</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">thick2</span> <span class="op">=</span> <span class="ident">pieces</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">thin</span> <span class="op">=</span> <span class="ident">pieces</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
@@ -1008,7 +1010,7 @@
     <span class="kw">for</span> <span class="ident">thin_pl</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">right</span>] {
         <span class="kw">for</span> <span class="ident">thick</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">&amp;</span><span class="ident">thick1</span>, <span class="kw-2">&amp;</span><span class="ident">thick2</span>] {
             <span class="kw">for</span> <span class="ident">thick_pl</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">right</span>] {
-                <span class="kw">if</span> <span class="ident">thin_pl</span> <span class="op">==</span> <span class="ident">thick_pl</span> {
+                <span class="kw">if</span> <span class="ident">thin_pl</span> <span class="op">=</span><span class="op">=</span> <span class="ident">thick_pl</span> {
                     <span class="comment">// How? Just bail.</span>
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
@@ -1070,14 +1072,14 @@
     {
         <span class="comment">// Trim the thin</span>
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">trimmed_thin</span>, <span class="kw-2">mut</span> <span class="ident">trimmed_thick</span>, <span class="ident">thick_id</span>) <span class="op">=</span> <span class="ident">best_hit</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">id</span>].<span class="ident">dst_i</span> <span class="op">!=</span> <span class="ident">i</span> {
+        <span class="kw">if</span> <span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">id</span>].<span class="ident">dst_i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">trimmed_thin</span> <span class="op">=</span> <span class="ident">trimmed_thin</span>.<span class="ident">reversed</span>();
         }
         <span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">trimmed_thin</span>;
 
         <span class="comment">// Trim the thick</span>
         <span class="comment">// extra ends at the intersection</span>
-        <span class="kw">let</span> <span class="ident">extra</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">thick_id</span>].<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
+        <span class="kw">let</span> <span class="ident">extra</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">thick_id</span>].<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">thick_id</span>]
                 .<span class="ident">trimmed_center_pts</span>
                 .<span class="ident">get_slice_starting_at</span>(<span class="ident">trimmed_thick</span>.<span class="ident">last_pt</span>())<span class="question-mark">?</span>
@@ -1090,20 +1092,20 @@
         };
         <span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">thick_id</span>).<span class="ident">unwrap</span>().<span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">trimmed_thick</span>;
         <span class="comment">// Give the merge point some length</span>
-        <span class="kw">if</span> <span class="ident">extra</span>.<span class="ident">length</span>() <span class="op">&lt;=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span> <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">EPSILON_DIST</span> {
+        <span class="kw">if</span> <span class="ident">extra</span>.<span class="ident">length</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span> <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">EPSILON_DIST</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">let</span> <span class="ident">extra</span> <span class="op">=</span> <span class="ident">extra</span>.<span class="ident">exact_slice</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span>, <span class="ident">extra</span>.<span class="ident">length</span>());
 
         <span class="comment">// Now the crazy part -- take the other thick, and LENGTHEN it</span>
         <span class="kw">let</span> <span class="ident">other</span> <span class="op">=</span> <span class="ident">roads</span>
-            .<span class="ident">get_mut</span>(<span class="kw">if</span> <span class="ident">thick1</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">thick_id</span> {
+            .<span class="ident">get_mut</span>(<span class="kw">if</span> <span class="ident">thick1</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">thick_id</span> {
                 <span class="kw-2">&amp;</span><span class="ident">thick2</span>.<span class="ident">id</span>
             } <span class="kw">else</span> {
                 <span class="kw-2">&amp;</span><span class="ident">thick1</span>.<span class="ident">id</span>
             })
             .<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
+        <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">other</span>.<span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">other</span>
                 .<span class="ident">trimmed_center_pts</span>
                 .<span class="ident">clone</span>()
@@ -1119,7 +1121,7 @@
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">thin</span>.<span class="ident">id</span>, <span class="ident">thick1</span>.<span class="ident">id</span>, <span class="ident">thick2</span>.<span class="ident">id</span>] {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
         <span class="comment">// Shift those final centers out again to find the main endpoints for the polygon.</span>
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
+        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="ident">endpoints</span>.<span class="ident">push</span>(
                 <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>
                     .<span class="ident">shift_right</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)

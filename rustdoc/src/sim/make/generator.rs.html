@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/make/generator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generator.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/make/generator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generator.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -240,7 +242,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ScenarioGenerator</span> {
     <span class="kw">pub</span> <span class="ident">scenario_name</span>: <span class="ident">String</span>,
 
-    <span class="kw">pub</span> <span class="ident">only_seed_buses</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">only_seed_buses</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">spawn_over_time</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SpawnOverTime</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">border_spawn_over_time</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BorderSpawnOverTime</span><span class="op">&gt;</span>,
 }
@@ -275,7 +277,7 @@
 
 <span class="kw">impl</span> <span class="ident">ScenarioGenerator</span> {
     <span class="comment">// TODO may need to fork the RNG a bit more</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-&gt;</span> <span class="ident">Scenario</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario</span>::<span class="ident">empty</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>);
         <span class="ident">scenario</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">only_seed_buses</span>.<span class="ident">clone</span>();
 
@@ -312,7 +314,7 @@
         <span class="ident">scenario</span>.<span class="ident">remove_weird_schedules</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_run</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">ScenarioGenerator</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_run</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScenarioGenerator</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ScenarioGenerator</span> {
             <span class="ident">scenario_name</span>: <span class="string">&quot;small_run&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">only_seed_buses</span>: <span class="prelude-val">None</span>,
@@ -356,7 +358,7 @@
         <span class="ident">s</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">ScenarioGenerator</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScenarioGenerator</span> {
         <span class="ident">ScenarioGenerator</span> {
             <span class="ident">scenario_name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
             <span class="ident">only_seed_buses</span>: <span class="prelude-val">Some</span>(<span class="ident">BTreeSet</span>::<span class="ident">new</span>()),
@@ -366,7 +368,7 @@
     }
 
     <span class="comment">// No border agents here, because making the count work is hard.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scaled_run</span>(<span class="ident">num_agents</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">ScenarioGenerator</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scaled_run</span>(<span class="ident">num_agents</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScenarioGenerator</span> {
         <span class="ident">ScenarioGenerator</span> {
             <span class="ident">scenario_name</span>: <span class="string">&quot;scaled_run&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">only_seed_buses</span>: <span class="prelude-val">Some</span>(<span class="ident">BTreeSet</span>::<span class="ident">new</span>()),
@@ -405,7 +407,7 @@
             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                 <span class="ident">depart</span>,
                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_else</span>(<span class="op">||</span> {
+                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
                     <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>)
                 }),
                 <span class="ident">mode</span>,
@@ -423,7 +425,7 @@
             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                 <span class="ident">depart</span>,
                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_else</span>(<span class="op">||</span> {
+                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
                     <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>)
                 }),
                 <span class="ident">mode</span>,
@@ -432,7 +434,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Time</span>, <span class="ident">high</span>: <span class="ident">Time</span>) <span class="op">-&gt;</span> <span class="ident">Time</span> {
+<span class="kw">fn</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Time</span>, <span class="ident">high</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
     <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>(), <span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
 }

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/pandemic/pandemic.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pandemic.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `sim/src/pandemic/pandemic.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pandemic.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -491,7 +493,7 @@
 <span class="comment">// from there.</span>
 
 <span class="kw">impl</span> <span class="ident">PandemicModel</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rng</span>: <span class="ident">XorShiftRng</span>) <span class="op">-&gt;</span> <span class="ident">PandemicModel</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rng</span>: <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PandemicModel</span> {
         <span class="ident">PandemicModel</span> {
             <span class="ident">pop</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
 
@@ -539,62 +541,62 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Sane</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+                <span class="ident">State</span>::<span class="ident">Sane</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             })
             .<span class="ident">count</span>()
         <span class="comment">// self.sane.len()</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Exposed</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+                <span class="ident">State</span>::<span class="ident">Exposed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             })
             .<span class="ident">count</span>()
         <span class="comment">// self.exposed.len()</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_infected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_infected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="comment">// self.infected.len()</span>
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Infectious</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State</span>::<span class="ident">Hospitalized</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+                <span class="ident">State</span>::<span class="ident">Infectious</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State</span>::<span class="ident">Hospitalized</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             })
             .<span class="ident">count</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Recovered</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+                <span class="ident">State</span>::<span class="ident">Recovered</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             })
             .<span class="ident">count</span>()
         <span class="comment">// self.recovered.len()</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Dead</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+                <span class="ident">State</span>::<span class="ident">Dead</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             })
             .<span class="ident">count</span>()
         <span class="comment">// self.recovered.len()</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_total</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_total</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">count_sane</span>()
             <span class="op">+</span> <span class="self">self</span>.<span class="ident">count_exposed</span>()
             <span class="op">+</span> <span class="self">self</span>.<span class="ident">count_infected</span>()
@@ -606,23 +608,23 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">initialized</span>);
 
         <span class="kw">match</span> <span class="ident">ev</span> {
-            <span class="ident">Event</span>::<span class="ident">PersonEntersBuilding</span>(<span class="ident">person</span>, <span class="ident">bldg</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Event</span>::<span class="ident">PersonEntersBuilding</span>(<span class="ident">person</span>, <span class="ident">bldg</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bldg</span>);
             }
-            <span class="ident">Event</span>::<span class="ident">PersonLeavesBuilding</span>(<span class="ident">person</span>, <span class="ident">bldg</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Event</span>::<span class="ident">PersonLeavesBuilding</span>(<span class="ident">person</span>, <span class="ident">bldg</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">others</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bldg</span>) {
                     <span class="self">self</span>.<span class="ident">transmission</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="ident">others</span>, <span class="ident">scheduler</span>);
                 } <span class="kw">else</span> {
                     <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} left {}, but they weren&#39;t inside&quot;</span>, <span class="ident">person</span>, <span class="ident">bldg</span>);
                 }
             }
-            <span class="ident">Event</span>::<span class="ident">TripPhaseStarting</span>(<span class="kw">_</span>, <span class="ident">p</span>, <span class="kw">_</span>, <span class="ident">tpt</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Event</span>::<span class="ident">TripPhaseStarting</span>(<span class="kw">_</span>, <span class="ident">p</span>, <span class="kw">_</span>, <span class="ident">tpt</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span>;
                 <span class="kw">match</span> <span class="ident">tpt</span> {
-                    <span class="ident">TripPhaseType</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="ident">stop</span>) <span class="op">=&gt;</span> {
+                    <span class="ident">TripPhaseType</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="ident">stop</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="self">self</span>.<span class="ident">bus_stops</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">stop</span>);
                     }
-                    <span class="ident">TripPhaseType</span>::<span class="ident">RidingBus</span>(<span class="kw">_</span>, <span class="ident">stop</span>, <span class="ident">bus</span>) <span class="op">=&gt;</span> {
+                    <span class="ident">TripPhaseType</span>::<span class="ident">RidingBus</span>(<span class="kw">_</span>, <span class="ident">stop</span>, <span class="ident">bus</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">others</span> <span class="op">=</span> <span class="self">self</span>
                             .<span class="ident">bus_stops</span>
                             .<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">stop</span>)
@@ -632,7 +634,7 @@
                         <span class="self">self</span>.<span class="ident">buses</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bus</span>);
                         <span class="self">self</span>.<span class="ident">person_to_bus</span>.<span class="ident">insert</span>(<span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bus</span>);
                     }
-                    <span class="ident">TripPhaseType</span>::<span class="ident">Walking</span> <span class="op">=&gt;</span> {
+                    <span class="ident">TripPhaseType</span>::<span class="ident">Walking</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="comment">// A person can start walking for many reasons, but the only possible state</span>
                         <span class="comment">// transition after riding a bus is walking, so use this to detect the end</span>
                         <span class="comment">// of a bus ride.</span>
@@ -641,12 +643,12 @@
                             <span class="self">self</span>.<span class="ident">transmission</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">others</span>, <span class="ident">scheduler</span>);
                         }
                     }
-                    <span class="kw">_</span> <span class="op">=&gt;</span> {
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="self">self</span>.<span class="ident">transition</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">scheduler</span>);
                     }
                 }
             }
-            <span class="kw">_</span> <span class="op">=&gt;</span> {}
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
     }
 
@@ -657,58 +659,58 @@
         <span class="comment">// Symptomatic -&gt; stay quaratined, and/or track contacts to quarantine them too (or test</span>
         <span class="comment">// them)</span>
         <span class="kw">match</span> <span class="ident">cmd</span> {
-            <span class="ident">Cmd</span>::<span class="ident">BecomeHospitalized</span>(<span class="ident">_person</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Cmd</span>::<span class="ident">BecomeHospitalized</span>(<span class="ident">_person</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// self.hospitalized.insert(person);</span>
             }
-            <span class="ident">Cmd</span>::<span class="ident">BecomeQuarantined</span>(<span class="ident">_person</span>) <span class="op">=&gt;</span> {
+            <span class="ident">Cmd</span>::<span class="ident">BecomeQuarantined</span>(<span class="ident">_person</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// self.quarantined.insert(person);</span>
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=&gt;</span> <span class="ident">state</span>.<span class="ident">get_time</span>(),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">get_time</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=&gt;</span> <span class="ident">state</span>.<span class="ident">is_sane</span>(),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">is_sane</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_infectious</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_infectious</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=&gt;</span> <span class="ident">state</span>.<span class="ident">is_infectious</span>(),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">is_infectious</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=&gt;</span> <span class="ident">state</span>.<span class="ident">is_exposed</span>(),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">is_exposed</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=&gt;</span> <span class="ident">state</span>.<span class="ident">is_recovered</span>(),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">is_recovered</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=&gt;</span> <span class="ident">state</span>.<span class="ident">is_dead</span>(),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">is_dead</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">infectious_contact</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>, <span class="ident">other</span>: <span class="ident">PersonID</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">infectious_contact</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>, <span class="ident">other</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_sane</span>(<span class="ident">person</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_infectious</span>(<span class="ident">other</span>) {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_infectious</span>(<span class="ident">person</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_sane</span>(<span class="ident">other</span>) {
@@ -780,11 +782,11 @@
     <span class="comment">// TODO This is an awkward data structure; abstutil::MultiMap is also bad, because key removal</span>
     <span class="comment">// would require knowing the time. Want something closer to</span>
     <span class="comment">// https://guava.dev/releases/19.0/api/docs/com/google/common/collect/Table.html.</span>
-    <span class="ident">occupants</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">Time</span>)<span class="op">&gt;&gt;</span>,
+    <span class="ident">occupants</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span> <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">SharedSpace</span> {
             <span class="ident">occupants</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
         }
@@ -805,12 +807,12 @@
         <span class="ident">now</span>: <span class="ident">Time</span>,
         <span class="ident">person</span>: <span class="ident">PersonID</span>,
         <span class="ident">space</span>: <span class="ident">T</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">Duration</span>)<span class="op">&gt;&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// TODO Messy to mutate state inside a retain closure</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inside_since</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="ident">occupants</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">entry</span>(<span class="ident">space</span>).<span class="ident">or_insert_with</span>(<span class="ident">Vec</span>::<span class="ident">new</span>);
         <span class="ident">occupants</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="ident">t</span>)<span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">p</span> <span class="op">==</span> <span class="ident">person</span> {
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">p</span> <span class="op">=</span><span class="op">=</span> <span class="ident">person</span> {
                 <span class="ident">inside_since</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
                 <span class="bool-val">false</span>
             } <span class="kw">else</span> {
@@ -833,7 +835,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">fn</span> <span class="ident">time</span>(<span class="ident">x</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">fn</span> <span class="ident">time</span>(<span class="ident">x</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
         <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="ident">x</span>)
     }
 

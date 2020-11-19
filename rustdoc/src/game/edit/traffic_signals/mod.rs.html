@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/edit/traffic_signals/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/edit/traffic_signals/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -960,12 +962,12 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
         <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
         <span class="kw">let</span> <span class="ident">original</span> <span class="op">=</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
         <span class="kw">let</span> <span class="ident">synced</span> <span class="op">=</span> <span class="ident">BundleEdits</span>::<span class="ident">synchronize</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
-        <span class="kw">let</span> <span class="ident">warn_changed</span> <span class="op">=</span> <span class="ident">original</span> <span class="op">!=</span> <span class="ident">synced</span>;
+        <span class="kw">let</span> <span class="ident">warn_changed</span> <span class="op">=</span> <span class="ident">original</span> <span class="op">!</span><span class="op">=</span> <span class="ident">synced</span>;
         <span class="ident">synced</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">TrafficSignalEditor</span> {
@@ -988,7 +990,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">change_stage</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">==</span> <span class="ident">idx</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">make_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>, <span class="self">self</span>.<span class="ident">current_stage</span>);
             <span class="ident">new</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">side_panel</span>);
             <span class="self">self</span>.<span class="ident">side_panel</span> <span class="op">=</span> <span class="ident">new</span>;
@@ -1036,9 +1038,9 @@
             ) {
                 <span class="kw">if</span> <span class="self">self</span>
                     .<span class="ident">movement_selected</span>
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">x</span> <span class="op">!=</span> <span class="ident">m</span>.<span class="ident">id</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">m</span>.<span class="ident">id</span>)
                     .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
-                    <span class="op">||</span> <span class="ident">m</span>.<span class="ident">id</span>.<span class="ident">crosswalk</span>
+                    <span class="op">|</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">id</span>.<span class="ident">crosswalk</span>
                 {
                     <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">draw</span>);
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">id</span>)
@@ -1064,7 +1066,7 @@
         <span class="comment">// Draw the selected thing on top of everything else</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">selected</span>, <span class="ident">next_priority</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">movement_selected</span> {
             <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">movements</span> {
-                <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">selected</span> {
+                <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">selected</span> {
                     <span class="ident">m</span>.<span class="ident">draw_selected_movement</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">next_priority</span>);
                     <span class="kw">break</span>;
                 }
@@ -1077,7 +1079,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TrafficSignalEditor</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">warn_changed</span> {
             <span class="self">self</span>.<span class="ident">warn_changed</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
@@ -1096,8 +1098,8 @@
         <span class="kw">let</span> <span class="ident">num_stages</span> <span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>();
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">side_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Edit entire signal&quot;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Edit entire signal&quot;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">edits</span>::<span class="ident">edit_entire_signal</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -1106,14 +1108,14 @@
                         <span class="self">self</span>.<span class="ident">original</span>.<span class="ident">clone</span>(),
                     ));
                 }
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Tune offsets between signals&quot;</span> {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Tune offsets between signals&quot;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">offsets</span>::<span class="ident">ShowAbsolute</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
                     ));
                 }
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Add a new stage&quot;</span> {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Add a new stage&quot;</span> {
                     <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">num_stages</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
                         <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">Stage</span>::<span class="ident">new</span>());
                     });
@@ -1150,7 +1152,7 @@
                 }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;stage &quot;</span>) {
                     <span class="comment">// 123, Intersection #456</span>
-                    <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&quot;, Intersection #&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
+                    <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&quot;, Intersection #&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
                     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
                     <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>);
@@ -1171,12 +1173,12 @@
                 }
                 <span class="macro">unreachable</span><span class="macro">!</span>()
             }
-            <span class="kw">_</span> <span class="op">=&gt;</span> {}
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Finish&quot;</span> <span class="op">=&gt;</span> {
+            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bundle</span>) <span class="op">=</span> <span class="ident">check_for_missing_turns</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>) {
                         <span class="ident">bundle</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
                         <span class="self">self</span>.<span class="ident">command_stack</span>.<span class="ident">push</span>(<span class="ident">bundle</span>.<span class="ident">clone</span>());
@@ -1201,8 +1203,8 @@
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                     }
                 }
-                <span class="string">&quot;Cancel&quot;</span> <span class="op">=&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>) <span class="op">==</span> <span class="self">self</span>.<span class="ident">original</span> {
+                <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>) <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">original</span> {
                         <span class="self">self</span>.<span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
                         <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                     }
@@ -1214,11 +1216,11 @@
                         }),
                     ));
                 }
-                <span class="string">&quot;Edit multiple signals&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;Edit multiple signals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// First commit the current changes, so we enter SignalPicker with clean state.</span>
                     <span class="comment">// This UX flow is a little unintuitive.</span>
                     <span class="kw">let</span> <span class="ident">changes</span> <span class="op">=</span> <span class="ident">check_for_missing_turns</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>)
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>));
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>));
                     <span class="self">self</span>.<span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
                     <span class="ident">changes</span>.<span class="ident">commit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">picker</span>::<span class="ident">SignalPicker</span>::<span class="ident">new</span>(
@@ -1227,7 +1229,7 @@
                         <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
                     ));
                 }
-                <span class="string">&quot;Export&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;Export&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">for</span> <span class="ident">signal</span> <span class="kw">in</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>).<span class="ident">signals</span> {
                         <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">export</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
                         <span class="ident">abstutil</span>::<span class="ident">write_json</span>(
@@ -1236,7 +1238,7 @@
                         );
                     }
                 }
-                <span class="string">&quot;Preview&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;Preview&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Might have to do this first!</span>
                     <span class="ident">app</span>.<span class="ident">primary</span>
                         .<span class="ident">map</span>
@@ -1249,7 +1251,7 @@
                         <span class="self">self</span>.<span class="ident">current_stage</span>,
                     ));
                 }
-                <span class="string">&quot;undo&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;undo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">redo_stack</span>
                         .<span class="ident">push</span>(<span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>));
                     <span class="self">self</span>.<span class="ident">command_stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="ident">apply</span>(<span class="ident">app</span>);
@@ -1257,7 +1259,7 @@
                     <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
-                <span class="string">&quot;redo&quot;</span> <span class="op">=&gt;</span> {
+                <span class="string">&quot;redo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">command_stack</span>
                         .<span class="ident">push</span>(<span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>));
                     <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="ident">apply</span>(<span class="ident">app</span>);
@@ -1265,17 +1267,17 @@
                     <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
-                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
-            <span class="kw">_</span> <span class="op">=&gt;</span> {}
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">!=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
                 <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">-</span> <span class="number">1</span>);
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">!=</span> <span class="ident">num_stages</span> <span class="op">-</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">!</span><span class="op">=</span> <span class="ident">num_stages</span> <span class="op">-</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">DownArrow</span>) {
                 <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">+</span> <span class="number">1</span>);
             }
         }
@@ -1290,7 +1292,7 @@
                     <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">hitbox</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
                         <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current_stage</span>];
                         <span class="kw">let</span> <span class="ident">next_priority</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_movement</span>(<span class="ident">m</span>.<span class="ident">id</span>) {
-                            <span class="ident">TurnPriority</span>::<span class="ident">Banned</span> <span class="op">=&gt;</span> {
+                            <span class="ident">TurnPriority</span>::<span class="ident">Banned</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">m</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>) {
                                     <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Protected</span>)
                                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">id</span>.<span class="ident">crosswalk</span> {
@@ -1299,8 +1301,8 @@
                                     <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Yield</span>)
                                 }
                             }
-                            <span class="ident">TurnPriority</span>::<span class="ident">Yield</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Banned</span>),
-                            <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=&gt;</span> {
+                            <span class="ident">TurnPriority</span>::<span class="ident">Yield</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Banned</span>),
+                            <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">id</span>.<span class="ident">crosswalk</span> {
                                     <span class="prelude-val">Some</span>(<span class="ident">TurnPriority</span>::<span class="ident">Banned</span>)
                                 } <span class="kw">else</span> {
@@ -1314,7 +1316,7 @@
                 }
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">movement_selected</span> <span class="op">!=</span> <span class="ident">old</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">movement_selected</span> <span class="op">!</span><span class="op">=</span> <span class="ident">old</span> {
                 <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span>);
             }
         }
@@ -1333,7 +1335,7 @@
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_stage</span>;
                     <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">clone</span>();
                     <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                        <span class="kw">if</span> <span class="ident">ts</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">id</span>.<span class="ident">parent</span> {
+                        <span class="kw">if</span> <span class="ident">ts</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">id</span>.<span class="ident">parent</span> {
                             <span class="ident">ts</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">edit_movement</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>], <span class="ident">pri</span>);
                         }
                     });
@@ -1345,7 +1347,7 @@
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DrawBaselayer</span> {
+    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
         <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span>
     }
 
@@ -1391,7 +1393,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">Panel</span> {
+<span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
         <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Preview&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">P</span>)),
@@ -1461,13 +1463,13 @@
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="ident">selected</span>: <span class="ident">usize</span>,
-) <span class="op">-&gt;</span> <span class="ident">Panel</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="comment">// Use any member for stage duration</span>
     <span class="kw">let</span> <span class="ident">canonical_signal</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>());
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-    <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+    <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="ident">i</span>.<span class="ident">to_string</span>()).<span class="ident">big_heading_plain</span>());
 
@@ -1490,7 +1492,7 @@
                 <span class="ident">members</span>
                     .<span class="ident">iter</span>()
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;#{}&quot;</span>, <span class="ident">i</span>.<span class="number">0</span>))
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>()
+                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
                     .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
             )
             .<span class="ident">secondary</span>(),
@@ -1502,13 +1504,13 @@
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
         <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">canonical_signal</span>.<span class="ident">stages</span> {
-            <span class="ident">total</span> <span class="op">+=</span> <span class="ident">s</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
+            <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
         }
         <span class="comment">// TODO Say &quot;normally&quot; to account for adaptive stages?</span>
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;One full cycle lasts {}&quot;</span>, <span class="ident">total</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
     }
 
-    <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+    <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Edit entire signal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">E</span>));
     } <span class="kw">else</span> {
         <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Tune offsets between signals&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">O</span>));
@@ -1526,12 +1528,12 @@
 
         <span class="kw">let</span> <span class="ident">stage_controls</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
+                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↑&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move up stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
                 },
-                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;↓&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;move down stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>), <span class="prelude-val">None</span>)
@@ -1541,14 +1543,14 @@
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="kw">match</span> <span class="ident">canonical_stage</span>.<span class="ident">phase_type</span> {
-                        <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
-                        <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
+                        <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
+                        <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
                     }
                     .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                     <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit.svg&quot;</span>).<span class="ident">build</span>(
                         <span class="ident">ctx</span>,
                         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;change duration of stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>),
-                        <span class="kw">if</span> <span class="ident">selected</span> <span class="op">==</span> <span class="ident">idx</span> { <span class="ident">Key</span>::<span class="ident">X</span>.<span class="ident">into</span>() } <span class="kw">else</span> { <span class="prelude-val">None</span> },
+                        <span class="kw">if</span> <span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> { <span class="ident">Key</span>::<span class="ident">X</span>.<span class="ident">into</span>() } <span class="kw">else</span> { <span class="prelude-val">None</span> },
                     ),
                     <span class="kw">if</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                         <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/delete.svg&quot;</span>)
@@ -1563,7 +1565,7 @@
         ])
         .<span class="ident">padding</span>(<span class="number">10</span>);
 
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">selected</span> {
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">selected</span> {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_controls</span>.<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#2A2A2A&quot;</span>)));
         } <span class="kw">else</span> {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">stage_controls</span>);
@@ -1591,7 +1593,7 @@
 
     <span class="kw">fn</span> <span class="ident">commit</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
         <span class="comment">// Skip if there&#39;s no change</span>
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">signals</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">id</span>).<span class="ident">collect</span>()) {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">signals</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">id</span>).<span class="ident">collect</span>()) {
             <span class="kw">return</span>;
         }
 
@@ -1607,7 +1609,7 @@
         <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_current</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">BundleEdits</span> {
+    <span class="kw">fn</span> <span class="ident">get_current</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BundleEdits</span> {
         <span class="kw">let</span> <span class="ident">signals</span> <span class="op">=</span> <span class="ident">members</span>
             .<span class="ident">iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">clone</span>())
@@ -1617,7 +1619,7 @@
 
     <span class="comment">// If the intersections haven&#39;t been edited together before, the number of stages and the</span>
     <span class="comment">// durations might not match up. Just initially force them to align somehow.</span>
-    <span class="kw">fn</span> <span class="ident">synchronize</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">BundleEdits</span> {
+    <span class="kw">fn</span> <span class="ident">synchronize</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BundleEdits</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
         <span class="comment">// Pick one of the members with the most stages as canonical.</span>
         <span class="kw">let</span> <span class="ident">canonical</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(
@@ -1631,7 +1633,7 @@
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">members</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">clone</span>();
             <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">canonical_stage</span>) <span class="kw">in</span> <span class="ident">canonical</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                <span class="kw">if</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">idx</span> {
+                <span class="kw">if</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
                     <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">Stage</span>::<span class="ident">new</span>());
                 }
                 <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span> <span class="op">=</span> <span class="ident">canonical_stage</span>.<span class="ident">phase_type</span>.<span class="ident">clone</span>();
@@ -1644,7 +1646,7 @@
 }
 
 <span class="comment">// If None, nothing missing.</span>
-<span class="kw">fn</span> <span class="ident">check_for_missing_turns</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BundleEdits</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">check_for_missing_turns</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BundleEdits</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_missing</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">members</span> {
         <span class="ident">all_missing</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">missing_turns</span>());
@@ -1659,7 +1661,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">Stage</span>::<span class="ident">new</span>();
         <span class="comment">// TODO Could do this more efficiently</span>
         <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">all_missing</span> {
-            <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">parent</span> <span class="op">!=</span> <span class="ident">signal</span>.<span class="ident">id</span> {
+            <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">parent</span> <span class="op">!</span><span class="op">=</span> <span class="ident">signal</span>.<span class="ident">id</span> {
                 <span class="kw">continue</span>;
             }
             <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">crosswalk</span> {
@@ -1679,7 +1681,7 @@
     <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="ident">idx</span>: <span class="ident">usize</span>,
     <span class="ident">translations</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>,
-) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
     <span class="kw">for</span> (<span class="ident">i</span>, (<span class="ident">dx</span>, <span class="ident">dy</span>)) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">translations</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">piece</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
@@ -1725,8 +1727,8 @@
 }
 
 <span class="comment">// TODO Move to geom?</span>
-<span class="kw">fn</span> <span class="ident">squish_polygons_together</span>(<span class="kw-2">mut</span> <span class="ident">polygons</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">polygons</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+<span class="kw">fn</span> <span class="ident">squish_polygons_together</span>(<span class="kw-2">mut</span> <span class="ident">polygons</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">polygons</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
         <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="number">0.0</span>, <span class="number">0.0</span>)];
     }
 
@@ -1754,18 +1756,18 @@
         <span class="kw">if</span> <span class="ident">polygons</span>
             .<span class="ident">iter</span>()
             .<span class="ident">enumerate</span>()
-            .<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">p</span>)<span class="op">|</span> <span class="ident">i</span> <span class="op">!=</span> <span class="ident">idx</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">translated</span>.<span class="ident">intersection</span>(<span class="ident">p</span>).<span class="ident">is_empty</span>())
+            .<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">p</span>)<span class="op">|</span> <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">idx</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">translated</span>.<span class="ident">intersection</span>(<span class="ident">p</span>).<span class="ident">is_empty</span>())
         {
             <span class="comment">// Stop moving this polygon</span>
         } <span class="kw">else</span> {
-            <span class="ident">translations</span>[<span class="ident">idx</span>].<span class="number">0</span> <span class="op">+=</span> <span class="ident">pt</span>.<span class="ident">x</span>();
-            <span class="ident">translations</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">+=</span> <span class="ident">pt</span>.<span class="ident">y</span>();
+            <span class="ident">translations</span>[<span class="ident">idx</span>].<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pt</span>.<span class="ident">x</span>();
+            <span class="ident">translations</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pt</span>.<span class="ident">y</span>();
             <span class="ident">polygons</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">translated</span>;
             <span class="ident">indices</span>.<span class="ident">push_back</span>(<span class="ident">idx</span>);
         }
 
-        <span class="ident">attempts</span> <span class="op">+=</span> <span class="number">1</span>;
-        <span class="kw">if</span> <span class="ident">attempts</span> <span class="op">==</span> <span class="number">100</span> {
+        <span class="ident">attempts</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">if</span> <span class="ident">attempts</span> <span class="op">=</span><span class="op">=</span> <span class="number">100</span> {
             <span class="kw">break</span>;
         }
     }
@@ -1773,7 +1775,7 @@
     <span class="ident">translations</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">GeomBatch</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">holes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">members</span> {
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>);

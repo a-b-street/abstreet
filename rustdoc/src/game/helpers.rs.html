@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/helpers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>helpers.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../game/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/helpers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>helpers.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../game/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -345,54 +347,54 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ID</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_agent</span>(<span class="ident">id</span>: <span class="ident">AgentID</span>) <span class="op">-&gt;</span> <span class="ident">ID</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_agent</span>(<span class="ident">id</span>: <span class="ident">AgentID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ID</span> {
         <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>),
-            <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>),
-            <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="ident">bus</span>) <span class="op">=&gt;</span> <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">bus</span>),
+            <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>),
+            <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>),
+            <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="ident">bus</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">bus</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">id</span>)),
-            <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>)),
+            <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">id</span>)),
+            <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>)),
             <span class="comment">// PedCrowd doesn&#39;t map to a single agent.</span>
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canonical_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">primary</span>: <span class="kw-2">&amp;</span><span class="ident">PerMap</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canonical_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">primary</span>: <span class="kw-2">&amp;</span><span class="ident">PerMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_r</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">first_pt</span>()),
-            <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_l</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">first_pt</span>()),
-            <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_i</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
-            <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_b</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
-            <span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_pl</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
-            <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>
+            <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_r</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">first_pt</span>()),
+            <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_l</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">first_pt</span>()),
+            <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_i</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
+            <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_b</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
+            <span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_pl</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
+            <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>
                 .<span class="ident">sim</span>
                 .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">primary</span>.<span class="ident">map</span>),
-            <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>
+            <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>
                 .<span class="ident">sim</span>
                 .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">primary</span>.<span class="ident">map</span>),
-            <span class="ident">ID</span>::<span class="ident">PedCrowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>
+            <span class="ident">ID</span>::<span class="ident">PedCrowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>
                 .<span class="ident">sim</span>
                 .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="ident">members</span>[<span class="number">0</span>]), <span class="kw-2">&amp;</span><span class="ident">primary</span>.<span class="ident">map</span>),
-            <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>
+            <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>
                 .<span class="ident">map</span>
                 .<span class="ident">maybe_get_bs</span>(<span class="ident">id</span>)
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">bs</span><span class="op">|</span> <span class="ident">bs</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">primary</span>.<span class="ident">map</span>)),
-            <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="ident">id</span>) <span class="op">=&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_a</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
+            <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_a</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_names</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">TextSpan</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span><span class="op">&gt;</span>(<span class="ident">txt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Text</span>, <span class="ident">styler</span>: <span class="ident">F</span>, <span class="ident">names</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_names</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">TextSpan</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span><span class="op">&gt;</span>(<span class="ident">txt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Text</span>, <span class="ident">styler</span>: <span class="ident">F</span>, <span class="ident">names</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">names</span>.<span class="ident">len</span>();
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">n</span>) <span class="kw">in</span> <span class="ident">names</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!=</span> <span class="number">0</span> {
-            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">len</span> <span class="op">-</span> <span class="number">1</span> {
-                <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">2</span> {
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> <span class="op">-</span> <span class="number">1</span> {
+                <span class="kw">if</span> <span class="ident">len</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
                     <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; and &quot;</span>));
                 } <span class="kw">else</span> {
                     <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;, and &quot;</span>));
@@ -406,33 +408,33 @@
 }
 
 <span class="comment">// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nice_map_name</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nice_map_name</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
     <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
-        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;ballard&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Ballard&quot;</span>,
-        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;downtown&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Downtown Seattle&quot;</span>,
-        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;huge_seattle&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Seattle (entire area)&quot;</span>,
-        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;lakeslice&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Lake Washington corridor&quot;</span>,
-        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;montlake&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Montlake and Eastlake&quot;</span>,
-        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;south_seattle&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;South Seattle&quot;</span>,
-        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;udistrict&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;University District&quot;</span>,
-        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;west_seattle&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;West Seattle&quot;</span>,
-        (<span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Berlin (city center)&quot;</span>,
-        (<span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Kraków (city center)&quot;</span>,
-        (<span class="string">&quot;leeds&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Leeds (city center)&quot;</span>,
-        (<span class="string">&quot;london&quot;</span>, <span class="string">&quot;southbank&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;London (Southbank)&quot;</span>,
-        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Paris (city center)&quot;</span>,
-        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;north&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Paris (north)&quot;</span>,
-        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;south&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Paris (south)&quot;</span>,
-        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;east&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Paris (east)&quot;</span>,
-        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;west&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Paris (west)&quot;</span>,
-        (<span class="string">&quot;tel_aviv&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Tel Aviv (city center)&quot;</span>,
-        (<span class="string">&quot;xian&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=&gt;</span> <span class="string">&quot;Xi&#39;an (city center)&quot;</span>,
-        <span class="kw">_</span> <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;ballard&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Ballard&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;downtown&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Downtown Seattle&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;huge_seattle&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Seattle (entire area)&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;lakeslice&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Lake Washington corridor&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;montlake&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Montlake and Eastlake&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;south_seattle&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;South Seattle&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;udistrict&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;University District&quot;</span>,
+        (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;west_seattle&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;West Seattle&quot;</span>,
+        (<span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Berlin (city center)&quot;</span>,
+        (<span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Kraków (city center)&quot;</span>,
+        (<span class="string">&quot;leeds&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Leeds (city center)&quot;</span>,
+        (<span class="string">&quot;london&quot;</span>, <span class="string">&quot;southbank&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;London (Southbank)&quot;</span>,
+        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Paris (city center)&quot;</span>,
+        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;north&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Paris (north)&quot;</span>,
+        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;south&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Paris (south)&quot;</span>,
+        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;east&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Paris (east)&quot;</span>,
+        (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;west&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Paris (west)&quot;</span>,
+        (<span class="string">&quot;tel_aviv&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Tel Aviv (city center)&quot;</span>,
+        (<span class="string">&quot;xian&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Xi&#39;an (city center)&quot;</span>,
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
     }
 }
 
 <span class="comment">// Shorter is better</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cmp_duration_shorter</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">after</span>: <span class="ident">Duration</span>, <span class="ident">before</span>: <span class="ident">Duration</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cmp_duration_shorter</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">after</span>: <span class="ident">Duration</span>, <span class="ident">before</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">after</span>.<span class="ident">epsilon_eq</span>(<span class="ident">before</span>) {
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;same&quot;</span>)]
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">after</span> <span class="op">&lt;</span> <span class="ident">before</span> {
@@ -450,113 +452,113 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color_for_mode</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">m</span>: <span class="ident">TripMode</span>) <span class="op">-&gt;</span> <span class="ident">Color</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color_for_mode</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">m</span>: <span class="ident">TripMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
     <span class="kw">match</span> <span class="ident">m</span> {
-        <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_pedestrian</span>,
-        <span class="ident">TripMode</span>::<span class="ident">Bike</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bike</span>,
-        <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bus</span>,
-        <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_car</span>,
+        <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_pedestrian</span>,
+        <span class="ident">TripMode</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bike</span>,
+        <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bus</span>,
+        <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_car</span>,
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color_for_agent_type</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">a</span>: <span class="ident">AgentType</span>) <span class="op">-&gt;</span> <span class="ident">Color</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color_for_agent_type</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">a</span>: <span class="ident">AgentType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
     <span class="kw">match</span> <span class="ident">a</span> {
-        <span class="ident">AgentType</span>::<span class="ident">Pedestrian</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_pedestrian</span>,
-        <span class="ident">AgentType</span>::<span class="ident">Bike</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bike</span>,
-        <span class="ident">AgentType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">AgentType</span>::<span class="ident">Train</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bus</span>,
-        <span class="ident">AgentType</span>::<span class="ident">TransitRider</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_trip</span>,
-        <span class="ident">AgentType</span>::<span class="ident">Car</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_car</span>,
+        <span class="ident">AgentType</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_pedestrian</span>,
+        <span class="ident">AgentType</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bike</span>,
+        <span class="ident">AgentType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">AgentType</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bus</span>,
+        <span class="ident">AgentType</span>::<span class="ident">TransitRider</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_trip</span>,
+        <span class="ident">AgentType</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_car</span>,
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color_for_trip_phase</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">tpt</span>: <span class="ident">TripPhaseType</span>) <span class="op">-&gt;</span> <span class="ident">Color</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color_for_trip_phase</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">tpt</span>: <span class="ident">TripPhaseType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
     <span class="kw">match</span> <span class="ident">tpt</span> {
-        <span class="ident">TripPhaseType</span>::<span class="ident">Driving</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_car</span>,
-        <span class="ident">TripPhaseType</span>::<span class="ident">Walking</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_pedestrian</span>,
-        <span class="ident">TripPhaseType</span>::<span class="ident">Biking</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bike_trip</span>,
-        <span class="ident">TripPhaseType</span>::<span class="ident">Parking</span> <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_trip</span>,
-        <span class="ident">TripPhaseType</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_layer</span>,
-        <span class="ident">TripPhaseType</span>::<span class="ident">RidingBus</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_trip</span>,
-        <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span> <span class="op">|</span> <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-        <span class="ident">TripPhaseType</span>::<span class="ident">DelayedStart</span> <span class="op">=&gt;</span> <span class="ident">Color</span>::<span class="ident">YELLOW</span>,
+        <span class="ident">TripPhaseType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_car</span>,
+        <span class="ident">TripPhaseType</span>::<span class="ident">Walking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_pedestrian</span>,
+        <span class="ident">TripPhaseType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bike_trip</span>,
+        <span class="ident">TripPhaseType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_trip</span>,
+        <span class="ident">TripPhaseType</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_layer</span>,
+        <span class="ident">TripPhaseType</span>::<span class="ident">RidingBus</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_trip</span>,
+        <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span> <span class="op">|</span> <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="ident">TripPhaseType</span>::<span class="ident">DelayedStart</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">YELLOW</span>,
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">amenity_type</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">amenity_type</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
     <span class="comment">// NOTE: names are used in amenities function in other file</span>
     <span class="comment">// TODO: create categories for:</span>
     <span class="comment">// hairdresser beauty chemist</span>
     <span class="comment">// car_repair</span>
     <span class="comment">// laundry</span>
-    <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;supermarket&quot;</span> <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;convenience&quot;</span> {
+    <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;supermarket&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;convenience&quot;</span> {
         <span class="prelude-val">Some</span>(<span class="string">&quot;groceries&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;restaurant&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;cafe&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;fast_food&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;food_court&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;ice_cream&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;pastry&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;deli&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;greengrocer&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;bakery&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;butcher&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;confectionery&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;beverages&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;alcohol&quot;</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;restaurant&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;cafe&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;fast_food&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;food_court&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;ice_cream&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pastry&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;deli&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;greengrocer&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;bakery&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;butcher&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;confectionery&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;beverages&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;alcohol&quot;</span>
     {
         <span class="prelude-val">Some</span>(<span class="string">&quot;food&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;pub&quot;</span> <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;bar&quot;</span> <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;nightclub&quot;</span> <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;lounge&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pub&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;bar&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;nightclub&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;lounge&quot;</span> {
         <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;doctors&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;dentist&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;clinic&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;hospital&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;pharmacy&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;chiropractor&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;optician&quot;</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;doctors&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;dentist&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;clinic&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;hospital&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pharmacy&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;chiropractor&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;optician&quot;</span>
     {
         <span class="prelude-val">Some</span>(<span class="string">&quot;medical&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;place_of_worship&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;place_of_worship&quot;</span> {
         <span class="prelude-val">Some</span>(<span class="string">&quot;church / temple&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;college&quot;</span> <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;school&quot;</span> <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;university&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;college&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;school&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;university&quot;</span> {
         <span class="prelude-val">Some</span>(<span class="string">&quot;education&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;bank&quot;</span> <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;post_office&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;bank&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;post_office&quot;</span> {
         <span class="prelude-val">Some</span>(<span class="string">&quot;bank / post office&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;theatre&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;arts_centre&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;library&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;cinema&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;art_gallery&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;museum&quot;</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;theatre&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;arts_centre&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;library&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;cinema&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;art_gallery&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;museum&quot;</span>
     {
         <span class="prelude-val">Some</span>(<span class="string">&quot;culture&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;childcare&quot;</span> <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;kindergarten&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;childcare&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;kindergarten&quot;</span> {
         <span class="prelude-val">Some</span>(<span class="string">&quot;childcare&quot;</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;second_hand&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;clothes&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;furniture&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;shoes&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;department_store&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;car&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;kiosk&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;hardware&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;mobile_phone&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;florist&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;electronics&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;car_parts&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;doityourself&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;jewelry&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;variety_store&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;gift&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;bicycle&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;books&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;sports&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;travel_agency&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;stationery&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;pet&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;computer&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;tyres&quot;</span>
-        <span class="op">||</span> <span class="ident">a</span> <span class="op">==</span> <span class="string">&quot;newsagent&quot;</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;second_hand&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;clothes&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;furniture&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;shoes&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;department_store&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;car&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;kiosk&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;hardware&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;mobile_phone&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;florist&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;electronics&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;car_parts&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;doityourself&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;jewelry&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;variety_store&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;gift&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;bicycle&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;books&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;sports&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;travel_agency&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;stationery&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pet&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;computer&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;tyres&quot;</span>
+        <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;newsagent&quot;</span>
     {
         <span class="prelude-val">Some</span>(<span class="string">&quot;shopping&quot;</span>)
     } <span class="kw">else</span> {
@@ -565,7 +567,7 @@
 }
 
 <span class="comment">// TODO Well, there goes the nice consolidation of stuff in BtnBuilder. :\</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey_btn</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">label</span>: <span class="ident">I</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey_btn</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">label</span>: <span class="ident">I</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
     <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">key</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>));
@@ -573,7 +575,7 @@
     <span class="ident">Btn</span>::<span class="ident">text_bg</span>(<span class="ident">label</span>, <span class="ident">txt</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">section_bg</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">key</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersections_from_roads</span>(<span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersections_from_roads</span>(<span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">roads</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
@@ -593,7 +595,7 @@
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">current_state</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
-) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filters</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">TripMode</span>::<span class="ident">all</span>() {
         <span class="ident">filters</span>.<span class="ident">push</span>(
@@ -613,7 +615,7 @@
     <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">webbrowser</span>::<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>);
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_tips</span>() <span class="op">-&gt;</span> <span class="ident">Text</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_tips</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
     <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Line</span>(<span class="string">&quot;Recent changes (November 8)&quot;</span>),
         <span class="ident">Line</span>(<span class="string">&quot;&quot;</span>),

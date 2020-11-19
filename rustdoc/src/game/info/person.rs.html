@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/info/person.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>person.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `game/src/info/person.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>person.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -696,7 +698,7 @@
     <span class="ident">id</span>: <span class="ident">PersonID</span>,
     <span class="ident">open_trips</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">OpenTrip</span><span class="op">&gt;</span>,
     <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">header</span>(
         <span class="ident">ctx</span>,
         <span class="ident">app</span>,
@@ -724,7 +726,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wheres_waldo</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">t</span>) <span class="kw">in</span> <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> (<span class="ident">trip_status</span>, <span class="ident">color</span>, <span class="ident">maybe_info</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="kw-2">*</span><span class="ident">t</span>) {
-            <span class="ident">TripResult</span>::<span class="ident">TripNotStarted</span> <span class="op">=&gt;</span> {
+            <span class="ident">TripResult</span>::<span class="ident">TripNotStarted</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">wheres_waldo</span> {
                     <span class="ident">wheres_waldo</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">current_status</span>(<span class="ident">ctx</span>, <span class="ident">person</span>, <span class="ident">map</span>));
@@ -747,7 +749,7 @@
                     )
                 }
             }
-            <span class="ident">TripResult</span>::<span class="prelude-val">Ok</span>(<span class="ident">a</span>) <span class="op">=&gt;</span> {
+            <span class="ident">TripResult</span>::<span class="prelude-val">Ok</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">wheres_waldo</span>);
                 <span class="ident">wheres_waldo</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 (
@@ -758,7 +760,7 @@
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip</span>::<span class="ident">ongoing</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">a</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
                 )
             }
-            <span class="ident">TripResult</span>::<span class="ident">ModeChange</span> <span class="op">=&gt;</span> {
+            <span class="ident">TripResult</span>::<span class="ident">ModeChange</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO No details. Weird case.</span>
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">wheres_waldo</span>);
                 <span class="ident">wheres_waldo</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -768,7 +770,7 @@
                     <span class="ident">open_trips</span>.<span class="ident">get</span>(<span class="ident">t</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Widget</span>::<span class="ident">nothing</span>()),
                 )
             }
-            <span class="ident">TripResult</span>::<span class="ident">TripDone</span> <span class="op">=&gt;</span> {
+            <span class="ident">TripResult</span>::<span class="ident">TripDone</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">wheres_waldo</span>);
                 (
                     <span class="string">&quot;finished&quot;</span>,
@@ -780,7 +782,7 @@
                     },
                 )
             }
-            <span class="ident">TripResult</span>::<span class="ident">TripCancelled</span> <span class="op">=&gt;</span> {
+            <span class="ident">TripResult</span>::<span class="ident">TripCancelled</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Cancelled trips can happen anywhere in the schedule right now</span>
                 (
                     <span class="string">&quot;cancelled&quot;</span>,
@@ -790,7 +792,7 @@
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip</span>::<span class="ident">cancelled</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
                 )
             }
-            <span class="ident">TripResult</span>::<span class="ident">TripDoesntExist</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">TripResult</span>::<span class="ident">TripDoesntExist</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         };
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">t</span>);
 
@@ -803,10 +805,10 @@
                 <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(
                     <span class="ident">ctx</span>.<span class="ident">prerender</span>,
                     <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">mode</span> {
-                        <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">=&gt;</span> <span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>,
-                        <span class="ident">TripMode</span>::<span class="ident">Bike</span> <span class="op">=&gt;</span> <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>,
-                        <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">=&gt;</span> <span class="string">&quot;system/assets/meters/car.svg&quot;</span>,
-                        <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=&gt;</span> <span class="string">&quot;system/assets/meters/bus.svg&quot;</span>,
+                        <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>,
+                        <span class="ident">TripMode</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>,
+                        <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;system/assets/meters/car.svg&quot;</span>,
+                        <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;system/assets/meters/bus.svg&quot;</span>,
                     },
                 )
                 <span class="comment">// we want the icon to be about the same height as the text</span>
@@ -845,12 +847,12 @@
             } <span class="kw">else</span> {
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
-            <span class="kw">if</span> <span class="ident">trip_status</span> <span class="op">==</span> <span class="string">&quot;finished&quot;</span> {
+            <span class="kw">if</span> <span class="ident">trip_status</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;finished&quot;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">before</span>) <span class="op">=</span> <span class="ident">app</span>
                     .<span class="ident">has_prebaked</span>()
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trip_time</span>(<span class="kw-2">*</span><span class="ident">t</span>))
                 {
-                    <span class="kw">let</span> (<span class="ident">after</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">finished_trip_time</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> (<span class="ident">after</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">finished_trip_details</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">unwrap</span>();
                     <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">cmp_duration_shorter</span>(<span class="ident">after</span>, <span class="ident">before</span>))
                         .<span class="ident">batch</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>()
@@ -901,7 +903,7 @@
                 ),
                 <span class="prelude-val">None</span>,
             )
-            .<span class="ident">margin_above</span>(<span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">16</span> }),
+            .<span class="ident">margin_above</span>(<span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">16</span> }),
         );
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">maybe_info</span> {
@@ -937,7 +939,7 @@
     <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>,
     <span class="ident">id</span>: <span class="ident">PersonID</span>,
     <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab</span>::<span class="ident">PersonBio</span>(<span class="ident">id</span>), <span class="ident">is_paused</span>);
     <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">id</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">id</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">u64</span>);
@@ -993,7 +995,7 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_bike</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">vehicles</span> {
-        <span class="kw">if</span> <span class="ident">v</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
+        <span class="kw">if</span> <span class="ident">v</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
             <span class="ident">has_bike</span> <span class="op">=</span> <span class="bool-val">true</span>;
         } <span class="kw">else</span> {
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">is_some</span>() {
@@ -1005,10 +1007,10 @@
                     .<span class="ident">insert</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>), <span class="ident">Tab</span>::<span class="ident">ParkedCar</span>(<span class="ident">v</span>.<span class="ident">id</span>));
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">person</span>.<span class="ident">state</span> {
                 <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="ident">t</span>) {
-                    <span class="ident">TripResult</span>::<span class="prelude-val">Ok</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">x</span>)) <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">v</span>.<span class="ident">id</span> <span class="op">=&gt;</span> {
+                    <span class="ident">TripResult</span>::<span class="prelude-val">Ok</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">x</span>)) <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">v</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (currently driving)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
                     }
-                    <span class="kw">_</span> <span class="op">=&gt;</span> {
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
                     }
                 }
@@ -1030,7 +1032,7 @@
     <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>,
     <span class="ident">id</span>: <span class="ident">PersonID</span>,
     <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab</span>::<span class="ident">PersonSchedule</span>(<span class="ident">id</span>), <span class="ident">is_paused</span>);
     <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">id</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">id</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">u64</span>);
@@ -1040,7 +1042,7 @@
     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">trips</span> {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">t</span>);
         <span class="kw">let</span> <span class="ident">at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> {
+            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
                 <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
                     <span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>()
@@ -1049,12 +1051,12 @@
                         .<span class="ident">amenities</span>
                         .<span class="ident">iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()))
-                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
+                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (at {})&quot;</span>, <span class="ident">list</span>.<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>(), <span class="ident">b</span>.<span class="ident">address</span>)
                 }
             }
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;off-map&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;suddenly appear&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;off-map&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;suddenly appear&quot;</span>.<span class="ident">to_string</span>(),
         };
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -1070,7 +1072,7 @@
     <span class="comment">// Where do they spend the night?</span>
     <span class="kw">let</span> <span class="ident">last_trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
     <span class="kw">let</span> <span class="ident">at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">last_trip</span>.<span class="ident">end</span> {
-        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> {
+        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
             <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
                 <span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>()
@@ -1079,12 +1081,12 @@
                     .<span class="ident">amenities</span>
                     .<span class="ident">iter</span>()
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()))
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>();
+                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (at {})&quot;</span>, <span class="ident">list</span>.<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>(), <span class="ident">b</span>.<span class="ident">address</span>)
             }
         }
-        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;off-map&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;suddenly disappear&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;off-map&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;suddenly disappear&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -1103,7 +1105,7 @@
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>,
     <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PedestrianID</span><span class="op">&gt;</span>,
-) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1145,7 +1147,7 @@
     <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>,
     <span class="ident">id</span>: <span class="ident">CarID</span>,
     <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1184,7 +1186,7 @@
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">id</span>) {
         <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">spot</span> {
-            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(
                     <span class="ident">app</span>.<span class="ident">primary</span>
                         .<span class="ident">sim</span>
@@ -1192,7 +1194,7 @@
                         .<span class="ident">unwrap</span>(),
                 );
             }
-            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParkingSpot</span>::<span class="ident">Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">ctx</span>.<span class="ident">canvas</span>
                     .<span class="ident">center_on_map_pt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">center</span>());
                 <span class="ident">rows</span>.<span class="ident">push</span>(
@@ -1222,32 +1224,32 @@
     <span class="ident">id</span>: <span class="ident">PersonID</span>,
     <span class="ident">tab</span>: <span class="ident">Tab</span>,
     <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
 
     <span class="kw">let</span> (<span class="ident">current_trip</span>, (<span class="ident">descr</span>, <span class="ident">maybe_icon</span>)) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">id</span>).<span class="ident">state</span> {
-        <span class="ident">PersonState</span>::<span class="ident">Inside</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> {
+        <span class="ident">PersonState</span>::<span class="ident">Inside</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">ctx</span>.<span class="ident">canvas</span>
                 .<span class="ident">center_on_map_pt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>);
             <span class="ident">building</span>::<span class="ident">draw_occupants</span>(<span class="ident">details</span>, <span class="ident">app</span>, <span class="ident">b</span>, <span class="prelude-val">Some</span>(<span class="ident">id</span>));
             (<span class="prelude-val">None</span>, (<span class="string">&quot;indoors&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)))
         }
-        <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">t</span>) <span class="op">=&gt;</span> (
+        <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> (
             <span class="prelude-val">Some</span>(<span class="ident">t</span>),
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="ident">t</span>).<span class="ident">ok</span>() {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">canonical_pt_for_agent</span>(<span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
                     <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">pt</span>);
                 }
                 <span class="kw">match</span> <span class="ident">a</span> {
-                    <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
+                    <span class="ident">AgentID</span>::<span class="ident">Pedestrian</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         (<span class="string">&quot;walking&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>))
                     }
-                    <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="number">1</span> {
-                        <span class="ident">VehicleType</span>::<span class="ident">Car</span> <span class="op">=&gt;</span> (<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)),
-                        <span class="ident">VehicleType</span>::<span class="ident">Bike</span> <span class="op">=&gt;</span> (<span class="string">&quot;biking&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)),
-                        <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">VehicleType</span>::<span class="ident">Train</span> <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="number">1</span> {
+                        <span class="ident">VehicleType</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)),
+                        <span class="ident">VehicleType</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;biking&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)),
+                        <span class="ident">VehicleType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">VehicleType</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                     },
-                    <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
+                    <span class="ident">AgentID</span>::<span class="ident">BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         (<span class="string">&quot;riding a bus&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/bus.svg&quot;</span>))
                     }
                 }
@@ -1256,7 +1258,7 @@
                 (<span class="string">&quot;...&quot;</span>, <span class="prelude-val">None</span>)
             },
         ),
-        <span class="ident">PersonState</span>::<span class="ident">OffMap</span> <span class="op">=&gt;</span> (<span class="prelude-val">None</span>, (<span class="string">&quot;off map&quot;</span>, <span class="prelude-val">None</span>)),
+        <span class="ident">PersonState</span>::<span class="ident">OffMap</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="prelude-val">None</span>, (<span class="string">&quot;off map&quot;</span>, <span class="prelude-val">None</span>)),
     };
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -1310,20 +1312,20 @@
     <span class="ident">rows</span>
 }
 
-<span class="kw">fn</span> <span class="ident">current_status</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">person</span>: <span class="kw-2">&amp;</span><span class="ident">Person</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">current_status</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">person</span>: <span class="kw-2">&amp;</span><span class="ident">Person</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     (<span class="kw">match</span> <span class="ident">person</span>.<span class="ident">state</span> {
-        <span class="ident">PersonState</span>::<span class="ident">Inside</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> {
+        <span class="ident">PersonState</span>::<span class="ident">Inside</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// TODO hyperlink</span>
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Currently inside {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">address</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
         }
-        <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-        <span class="ident">PersonState</span>::<span class="ident">OffMap</span> <span class="op">=&gt;</span> <span class="string">&quot;Currently outside the map boundaries&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+        <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="ident">PersonState</span>::<span class="ident">OffMap</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Currently outside the map boundaries&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
     })
     .<span class="ident">margin_vert</span>(<span class="number">16</span>)
 }
 
 <span class="comment">// TODO Dedupe with the version in helpers</span>
-<span class="kw">fn</span> <span class="ident">cmp_duration_shorter</span>(<span class="ident">after</span>: <span class="ident">Duration</span>, <span class="ident">before</span>: <span class="ident">Duration</span>) <span class="op">-&gt;</span> <span class="ident">TextSpan</span> {
+<span class="kw">fn</span> <span class="ident">cmp_duration_shorter</span>(<span class="ident">after</span>: <span class="ident">Duration</span>, <span class="ident">before</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
     <span class="kw">if</span> <span class="ident">after</span>.<span class="ident">epsilon_eq</span>(<span class="ident">before</span>) {
         <span class="ident">Line</span>(<span class="string">&quot;no change&quot;</span>).<span class="ident">small</span>()
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">after</span> <span class="op">&lt;</span> <span class="ident">before</span> {
