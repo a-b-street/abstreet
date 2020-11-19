@@ -555,6 +555,10 @@
 <span id="554">554</span>
 <span id="555">555</span>
 <span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
@@ -955,6 +959,7 @@
     <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">glow</span>::<span class="ident">TEXTURE_2D_ARRAY</span>;
     <span class="kw">let</span> <span class="ident">mipmap_level</span> <span class="op">=</span> <span class="number">1</span>;
     <span class="kw">let</span> <span class="ident">internal_format</span> <span class="op">=</span> <span class="ident">glow</span>::<span class="ident">RGBA</span>;
+    <span class="kw">let</span> <span class="ident">bytes_per_pixel</span> <span class="op">=</span> <span class="number">4</span>;
 
     <span class="kw">let</span> <span class="ident">texture_id</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gl</span>.<span class="ident">create_texture</span>()<span class="question-mark">?</span> };
     <span class="kw">unsafe</span> {
@@ -990,11 +995,39 @@
         <span class="ident">sprite_count</span>
     );
 
+    <span class="comment">// Allocate the storage.</span>
+    <span class="kw">unsafe</span> {
+        <span class="ident">gl</span>.<span class="ident">tex_storage_3d</span>(
+            <span class="ident">target</span>,
+            <span class="ident">mipmap_level</span>,
+            <span class="ident">internal_format</span>,
+            <span class="ident">sprite_length</span> <span class="kw">as</span> <span class="ident">i32</span>,
+            <span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span>,
+            <span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
+        );
+    }
+
+    <span class="comment">// Upload pixel data.</span>
+    <span class="comment">//</span>
+    <span class="comment">// From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management</span>
+    <span class="comment">// &gt; The first 0 refers to the mipmap level (level 0, since there&#39;s only 1)</span>
+    <span class="comment">// &gt; The following 2 zeroes refers to the x and y offsets in case you only want to</span>
+    <span class="comment">// &gt; specify a subrectangle.</span>
+    <span class="comment">// &gt; The final 0 refers to the layer index offset (we start from index 0 and have 2</span>
+    <span class="comment">// &gt; levels).</span>
+    <span class="comment">// &gt; Altogether you can specify a 3D box subset of the overall texture, but only one</span>
+    <span class="comment">// &gt; mip level at a time.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">formatted_pixel_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">img</span>.<span class="ident">pixels</span>().<span class="ident">len</span>() <span class="op">*</span> <span class="ident">bytes_per_pixel</span>);
+
     <span class="comment">// In order to avoid branching in our shader logic, all shapes are rendered with a texture.</span>
     <span class="comment">// Even &quot;non-textured&quot; styles like Fill::Color, use a &quot;default&quot; no-op (pure white) texture,</span>
     <span class="comment">// which we generate here.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">formatted_pixels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">image</span>::<span class="ident">Rgba</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span> <span class="op">=</span>
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">image</span>::<span class="ident">Rgba</span>([<span class="number">255</span>; <span class="number">4</span>]); (<span class="ident">sprite_length</span> <span class="op">*</span> <span class="ident">sprite_length</span>) <span class="kw">as</span> <span class="ident">usize</span>];
+    <span class="ident">formatted_pixel_bytes</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="number">255</span>;
+        (<span class="ident">sprite_length</span> <span class="op">*</span> <span class="ident">sprite_height</span>) <span class="kw">as</span> <span class="ident">usize</span>
+            <span class="op">*</span> <span class="ident">bytes_per_pixel</span>
+    ]);
 
     <span class="comment">// OpenGL texture arrays expect each texture&#39;s bytes to be contiguous, but it&#39;s conventional to</span>
     <span class="comment">// store textures in a grid within a single spritesheet image, where a row and column traverses</span>
@@ -1025,35 +1058,10 @@
                 <span class="ident">sprite_height</span>,
             );
             <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">sprite_cell</span>.<span class="ident">pixels</span>() {
-                <span class="ident">formatted_pixels</span>.<span class="ident">push</span>(<span class="ident">p</span>.<span class="number">2</span>.<span class="ident">clone</span>());
+                <span class="ident">formatted_pixel_bytes</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="number">2</span> .<span class="number">0</span>);
             }
         }
     }
-
-    <span class="comment">// Allocate the storage.</span>
-    <span class="kw">unsafe</span> {
-        <span class="ident">gl</span>.<span class="ident">tex_storage_3d</span>(
-            <span class="ident">target</span>,
-            <span class="ident">mipmap_level</span>,
-            <span class="ident">internal_format</span>,
-            <span class="ident">sprite_length</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
-        );
-    }
-
-    <span class="comment">// Upload pixel data.</span>
-    <span class="comment">//</span>
-    <span class="comment">// From: https://www.khronos.org/opengl/wiki/Array_Texture#Creation_and_Management</span>
-    <span class="comment">// &gt; The first 0 refers to the mipmap level (level 0, since there&#39;s only 1)</span>
-    <span class="comment">// &gt; The following 2 zeroes refers to the x and y offsets in case you only want to</span>
-    <span class="comment">// &gt; specify a subrectangle.</span>
-    <span class="comment">// &gt; The final 0 refers to the layer index offset (we start from index 0 and have 2</span>
-    <span class="comment">// &gt; levels).</span>
-    <span class="comment">// &gt; Altogether you can specify a 3D box subset of the overall texture, but only one</span>
-    <span class="comment">// &gt; mip level at a time.</span>
-    <span class="kw">let</span> <span class="ident">formatted_pixel_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">formatted_pixels</span>.<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="number">0</span>.<span class="ident">to_vec</span>()).<span class="ident">collect</span>();
 
     <span class="comment">// prepare and generate mipmaps</span>
     <span class="kw">unsafe</span> {
