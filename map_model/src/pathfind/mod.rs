@@ -10,6 +10,7 @@ use abstutil::Timer;
 use geom::{Distance, PolyLine, EPSILON_DIST};
 
 pub use self::ch::ContractionHierarchyPathfinder;
+pub use self::dijkstra::build_graph_for_pedestrians;
 pub use self::driving::driving_cost;
 pub use self::walking::{walking_cost, WalkingNode};
 use crate::{

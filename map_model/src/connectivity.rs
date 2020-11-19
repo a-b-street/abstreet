@@ -4,10 +4,10 @@ use std::collections::{HashMap, HashSet};
 
 use petgraph::graphmap::DiGraphMap;
 
-use geom::Distance;
+use geom::Duration;
 
-pub use crate::pathfind::driving_cost;
-use crate::{BuildingID, LaneID, Map, PathConstraints, PathRequest};
+pub use crate::pathfind::{build_graph_for_pedestrians, driving_cost, WalkingNode};
+use crate::{BuildingID, LaneID, Map, PathConstraints};
 
 /// Calculate the srongy connected components (SCC) of the part of the map accessible by constraints
 /// (ie, the graph of sidewalks or driving+bike lanes). The largest component is the "main" graph;
@@ -46,23 +46,21 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
     (largest_group, disconnected)
 }
 
-/// Starting from one building, calculate the cost to all others.
-// TODO Also take a PathConstraints and use different cost functions based on that -- maybe just
-// total time?
-pub fn all_costs_from(map: &Map, start: BuildingID) -> HashMap<BuildingID, Distance> {
+/// Starting from one building, calculate the cost to all others. If a destination isn't reachable,
+/// it won't be included in the results.
+pub fn all_costs_from(map: &Map, start: BuildingID) -> HashMap<BuildingID, Duration> {
+    // TODO This is hardcoded to walking; take a PathConstraints.
+    let graph = build_graph_for_pedestrians(map);
+    let start = WalkingNode::closest(map.get_b(start).sidewalk_pos, map);
+    let cost_per_node = petgraph::algo::dijkstra(&graph, start, None, |(_, _, cost)| *cost);
+
+    // Assign every building a cost based on which end of the sidewalk it's closest to
+    // TODO We could try to get a little more accurate by accounting for the distance from that
+    // end of the sidewalk to the building
     let mut results = HashMap::new();
-    let start = map.get_b(start).sidewalk_pos;
-    // TODO This is SO inefficient. Flood out and mark off buildings as we go. Granularity of lane
-    // makes more sense.
     for b in map.all_buildings() {
-        if let Some(path) = map.pathfind(PathRequest {
-            start,
-            end: b.sidewalk_pos,
-            constraints: PathConstraints::Pedestrian,
-        }) {
-            // TODO Distance isn't an interesting thing to show at all, we want the path cost
-            // (probably in time)
-            results.insert(b.id, path.total_length());
+        if let Some(seconds) = cost_per_node.get(&WalkingNode::closest(b.sidewalk_pos, map)) {
+            results.insert(b.id, Duration::seconds(*seconds as f64));
         }
     }
     results

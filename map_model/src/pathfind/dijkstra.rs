@@ -21,17 +21,24 @@ pub fn pathfind(req: PathRequest, map: &Map) -> Option<Path> {
         return Some(Path::new(map, steps, req.end.dist_along(), Vec::new()));
     }
 
+    let graph = build_graph_for_vehicles(map, req.constraints);
+    calc_path(graph, req, map)
+}
+
+pub fn build_graph_for_vehicles(
+    map: &Map,
+    constraints: PathConstraints,
+) -> DiGraphMap<LaneID, TurnID> {
     // TODO Handle zones.
     let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
     for l in map.all_lanes() {
-        if req.constraints.can_use(l, map) {
-            for turn in map.get_turns_for(l.id, req.constraints) {
+        if constraints.can_use(l, map) {
+            for turn in map.get_turns_for(l.id, constraints) {
                 graph.add_edge(turn.id.src, turn.id.dst, turn.id);
             }
         }
     }
-
-    calc_path(graph, req, map)
+    graph
 }
 
 pub fn pathfind_avoiding_lanes(
@@ -76,7 +83,8 @@ fn calc_path(graph: DiGraphMap<LaneID, TurnID>, req: PathRequest, map: &Map) -> 
 }
 
 // TODO Not happy this works so differently
-fn pathfind_walking(req: PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
+
+pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, usize> {
     let mut graph: DiGraphMap<WalkingNode, usize> = DiGraphMap::new();
     for l in map.all_lanes() {
         if l.is_walkable() {
@@ -98,6 +106,11 @@ fn pathfind_walking(req: PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
             }
         }
     }
+    graph
+}
+
+fn pathfind_walking(req: PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
+    let graph = build_graph_for_pedestrians(map);
 
     let closest_start = WalkingNode::closest(req.start, map);
     let closest_end = WalkingNode::closest(req.end, map);

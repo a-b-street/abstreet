@@ -1,4 +1,4 @@
-use geom::{Distance, Polygon};
+use geom::{Duration, Polygon};
 use map_model::{connectivity, BuildingID};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
@@ -19,8 +19,8 @@ impl Isochrone {
         // in a 2D grid of costs. Use a 100x100 meter resolution.
         let bounds = app.primary.map.get_bounds();
         let resolution_m = 100.0;
-        // The costs we're storing are currenly distances, but the contour crate needs f64, so
-        // just store the number of meters.
+        // The costs we're storing are currenly durations, but the contour crate needs f64, so
+        // just store the number of seconds.
         let mut grid: Grid<f64> = Grid::new(
             (bounds.width() / resolution_m).ceil() as usize,
             (bounds.height() / resolution_m).ceil() as usize,
@@ -36,27 +36,32 @@ impl Isochrone {
                 ((pt.y() - bounds.min_y) / resolution_m) as usize,
             );
             // Don't add! If two buildings map to the same cell, we should pick a finer resolution.
-            grid.data[idx] = cost.inner_meters();
+            grid.data[idx] = cost.inner_seconds();
         }
 
         // Generate polygons covering the contour line where the cost in the grid crosses these
         // threshold values.
         let thresholds = vec![
             0.1,
-            Distance::miles(0.5).inner_meters(),
-            Distance::miles(3.0).inner_meters(),
-            Distance::miles(6.0).inner_meters(),
+            Duration::minutes(5).inner_seconds(),
+            Duration::minutes(10).inner_seconds(),
+            Duration::minutes(15).inner_seconds(),
         ];
         // And color the polygon for each threshold
         let colors = vec![
-            Color::BLACK.alpha(0.5),
             Color::GREEN.alpha(0.5),
-            Color::BLUE.alpha(0.5),
+            Color::ORANGE.alpha(0.5),
             Color::RED.alpha(0.5),
         ];
         let smooth = false;
         let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
         let mut batch = GeomBatch::new();
+        // The last feature returned will be larger than the last threshold value. We don't want to
+        // display that at all. zip() will omit this last pair, since colors.len() ==
+        // thresholds.len() - 1.
+        //
+        // TODO Actually, this still isn't working. I think each polygon is everything > the
+        // threshold, not everything between two thresholds?
         for (feature, color) in c
             .contours(&grid.data, &thresholds)
             .unwrap()
