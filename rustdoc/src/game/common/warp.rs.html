@@ -269,11 +269,14 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Pt2D</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">ParkingLotID</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Warper</span>, <span class="ident">Widget</span>,
@@ -379,7 +382,9 @@
                     <span class="ident">Line</span>(<span class="string">&quot;P&quot;</span>).<span class="ident">fg</span>(<span class="ident">c</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;erson, &quot;</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;R&quot;</span>).<span class="ident">fg</span>(<span class="ident">c</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;oute&quot;</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;oute, parking &quot;</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;L&quot;</span>).<span class="ident">fg</span>(<span class="ident">c</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;ot&quot;</span>),
                 ])
                 .<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -470,6 +475,7 @@
                 ]));
             }
             <span class="string">&#39;l&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">LaneID</span>(<span class="ident">idx</span>)),
+            <span class="string">&#39;L&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">ParkingLotID</span>(<span class="ident">idx</span>)),
             <span class="string">&#39;i&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">IntersectionID</span>(<span class="ident">idx</span>)),
             <span class="string">&#39;b&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">BuildingID</span>(<span class="ident">idx</span>)),
             <span class="string">&#39;a&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="ident">AreaID</span>(<span class="ident">idx</span>)),
