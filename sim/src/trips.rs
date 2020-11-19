@@ -39,6 +39,7 @@ pub struct TripManager {
     events: Vec<Event>,
 }
 
+// Initialization
 impl TripManager {
     pub fn new() -> TripManager {
         TripManager {
@@ -127,6 +128,318 @@ impl TripManager {
         id
     }
 
+    pub fn start_trip(&mut self, now: Time, trip: TripID, spec: TripSpec, ctx: &mut Ctx) {
+        assert!(self.trips[trip.0].info.cancellation_reason.is_none());
+
+        let person = &mut self.people[self.trips[trip.0].person.0];
+        if let PersonState::Trip(_) = person.state {
+            // Previous trip isn't done. Defer this one!
+            if false {
+                self.events.push(Event::Alert(
+                    AlertLocation::Person(person.id),
+                    format!(
+                        "{} is still doing a trip, so not starting {} yet",
+                        person.id, trip
+                    ),
+                ));
+            }
+            person.delayed_trips.push((trip, spec));
+            self.events.push(Event::TripPhaseStarting(
+                trip,
+                person.id,
+                None,
+                TripPhaseType::DelayedStart,
+            ));
+            return;
+        }
+        self.trips[trip.0].started = true;
+
+        // Defer calculating the path until now, to handle live map edits.
+        let maybe_req = spec.get_pathfinding_request(ctx.map);
+        let maybe_path = maybe_req.clone().and_then(|req| ctx.map.pathfind(req));
+
+        match spec {
+            TripSpec::VehicleAppearing {
+                start_pos,
+                goal,
+                retry_if_no_room,
+                use_vehicle,
+            } => {
+                assert_eq!(person.state, PersonState::OffMap);
+                self.events.push(Event::PersonEntersMap(
+                    person.id,
+                    AgentID::Car(use_vehicle),
+                    ctx.map.get_l(start_pos.lane()).src_i,
+                ));
+                person.state = PersonState::Trip(trip);
+
+                let vehicle = person.get_vehicle(use_vehicle);
+                assert!(ctx.parking.lookup_parked_car(vehicle.id).is_none());
+                let req = maybe_req.unwrap();
+                let person = person.id;
+                match maybe_path
+                    .ok_or_else(|| {
+                        format!(
+                            "VehicleAppearing trip couldn't find the first path: {}",
+                            req
+                        )
+                    })
+                    .and_then(|path| {
+                        ctx.cap.validate_path(
+                            &req,
+                            path,
+                            now,
+                            vehicle.id,
+                            &mut self.trips[trip.0].info.capped,
+                            ctx.intersections,
+                            ctx.map,
+                        )
+                    }) {
+                    Ok(path) => {
+                        let router = goal.make_router(vehicle.id, path, ctx.map);
+                        ctx.scheduler.push(
+                            now,
+                            Command::SpawnCar(
+                                CreateCar::for_appearing(
+                                    vehicle, start_pos, router, req, trip, person,
+                                ),
+                                retry_if_no_room,
+                            ),
+                        );
+                    }
+                    Err(err) => {
+                        self.cancel_trip(now, trip, err, Some(vehicle), ctx);
+                    }
+                }
+            }
+            TripSpec::SpawningFailure {
+                use_vehicle, error, ..
+            } => {
+                let vehicle = use_vehicle.map(|v| person.get_vehicle(v));
+                self.cancel_trip(now, trip, error, vehicle, ctx);
+            }
+            TripSpec::UsingParkedCar {
+                car, start_bldg, ..
+            } => {
+                assert_eq!(person.state, PersonState::Inside(start_bldg));
+                person.state = PersonState::Trip(trip);
+
+                if let Some(parked_car) = ctx.parking.lookup_parked_car(car).cloned() {
+                    let start = SidewalkSpot::building(start_bldg, ctx.map);
+                    let walking_goal =
+                        SidewalkSpot::parking_spot(parked_car.spot, ctx.map, ctx.parking);
+                    let req = PathRequest {
+                        start: start.sidewalk_pos,
+                        end: walking_goal.sidewalk_pos,
+                        constraints: PathConstraints::Pedestrian,
+                    };
+                    if let Some(path) = ctx.map.pathfind(req.clone()) {
+                        ctx.scheduler.push(
+                            now,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: person.ped,
+                                speed: person.ped_speed,
+                                start,
+                                goal: walking_goal,
+                                path,
+                                req,
+                                trip,
+                                person: person.id,
+                            }),
+                        );
+                    } else {
+                        // Move the car to the destination
+                        ctx.parking.remove_parked_car(parked_car.clone());
+                        self.cancel_trip(
+                            now,
+                            trip,
+                            format!("UsingParkedCar trip couldn't find the walking path {}", req),
+                            Some(parked_car.vehicle),
+                            ctx,
+                        );
+                    }
+                } else {
+                    // This should only happen when a driving trip has been cancelled and there was
+                    // absolutely no room to warp the car.
+                    self.cancel_trip(
+                        now,
+                        trip,
+                        format!("should have {} parked somewhere, but it's unavailable", car),
+                        None,
+                        ctx,
+                    );
+                }
+            }
+            TripSpec::JustWalking { start, goal } => {
+                assert_eq!(
+                    person.state,
+                    match start.connection {
+                        SidewalkPOI::Building(b) => PersonState::Inside(b),
+                        SidewalkPOI::Border(i) => {
+                            self.events.push(Event::PersonEntersMap(
+                                person.id,
+                                AgentID::Pedestrian(person.ped),
+                                i,
+                            ));
+                            PersonState::OffMap
+                        }
+                        SidewalkPOI::SuddenlyAppear => {
+                            // Unclear which end of the sidewalk this person should be associated
+                            // with. For interactively spawned people, doesn't really matter.
+                            self.events.push(Event::PersonEntersMap(
+                                person.id,
+                                AgentID::Pedestrian(person.ped),
+                                ctx.map.get_l(start.sidewalk_pos.lane()).src_i,
+                            ));
+                            PersonState::OffMap
+                        }
+                        _ => unreachable!(),
+                    }
+                );
+                person.state = PersonState::Trip(trip);
+
+                let req = maybe_req.unwrap();
+                if let Some(path) = maybe_path {
+                    ctx.scheduler.push(
+                        now,
+                        Command::SpawnPed(CreatePedestrian {
+                            id: person.ped,
+                            speed: person.ped_speed,
+                            start,
+                            goal,
+                            path,
+                            req,
+                            trip,
+                            person: person.id,
+                        }),
+                    );
+                } else {
+                    self.cancel_trip(
+                        now,
+                        trip,
+                        format!("JustWalking trip couldn't find the first path {}", req),
+                        None,
+                        ctx,
+                    );
+                }
+            }
+            TripSpec::UsingBike { start, .. } => {
+                assert_eq!(person.state, PersonState::Inside(start));
+                person.state = PersonState::Trip(trip);
+
+                if let Some(walk_to) = SidewalkSpot::bike_rack(start, ctx.map) {
+                    let req = maybe_req.unwrap();
+                    if let Some(path) = maybe_path {
+                        // Where we start biking may have slightly changed due to live map edits!
+                        match self.trips[trip.0].legs.front_mut() {
+                            Some(TripLeg::Walk(ref mut spot)) => {
+                                if spot.clone() != walk_to {
+                                    // We could assert both have a BikeRack connection, but eh
+                                    *spot = walk_to.clone();
+                                }
+                            }
+                            _ => unreachable!(),
+                        }
+
+                        ctx.scheduler.push(
+                            now,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: person.ped,
+                                speed: person.ped_speed,
+                                start: SidewalkSpot::building(start, ctx.map),
+                                goal: walk_to,
+                                path,
+                                req,
+                                trip,
+                                person: person.id,
+                            }),
+                        );
+                    } else {
+                        self.cancel_trip(
+                            now,
+                            trip,
+                            format!("UsingBike trip couldn't find the first path {}", req),
+                            None,
+                            ctx,
+                        );
+                    }
+                } else {
+                    self.cancel_trip(
+                        now,
+                        trip,
+                        format!(
+                            "UsingBike trip couldn't find a way to start biking from {}",
+                            start
+                        ),
+                        None,
+                        ctx,
+                    );
+                }
+            }
+            TripSpec::UsingTransit { start, stop1, .. } => {
+                assert_eq!(
+                    person.state,
+                    match start.connection {
+                        SidewalkPOI::Building(b) => PersonState::Inside(b),
+                        SidewalkPOI::Border(i) => {
+                            self.events.push(Event::PersonEntersMap(
+                                person.id,
+                                AgentID::Pedestrian(person.ped),
+                                i,
+                            ));
+                            PersonState::OffMap
+                        }
+                        SidewalkPOI::SuddenlyAppear => {
+                            // Unclear which end of the sidewalk this person should be associated
+                            // with. For interactively spawned people, doesn't really matter.
+                            self.events.push(Event::PersonEntersMap(
+                                person.id,
+                                AgentID::Pedestrian(person.ped),
+                                ctx.map.get_l(start.sidewalk_pos.lane()).src_i,
+                            ));
+                            PersonState::OffMap
+                        }
+                        _ => unreachable!(),
+                    }
+                );
+                person.state = PersonState::Trip(trip);
+
+                let walk_to = SidewalkSpot::bus_stop(stop1, ctx.map);
+                let req = maybe_req.unwrap();
+                if let Some(path) = maybe_path {
+                    ctx.scheduler.push(
+                        now,
+                        Command::SpawnPed(CreatePedestrian {
+                            id: person.ped,
+                            speed: person.ped_speed,
+                            start,
+                            goal: walk_to,
+                            path,
+                            req,
+                            trip,
+                            person: person.id,
+                        }),
+                    );
+                } else {
+                    self.cancel_trip(
+                        now,
+                        trip,
+                        format!("UsingTransit trip couldn't find the first path {}", req),
+                        None,
+                        ctx,
+                    );
+                }
+            }
+        }
+    }
+
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        std::mem::replace(&mut self.events, Vec::new())
+    }
+}
+
+// Transitions between different legs of a trip
+impl TripManager {
     pub fn agent_starting_trip_leg(&mut self, agent: AgentID, t: TripID) {
         if let Some(other) = self.active_trip_mode.get(&agent) {
             panic!("{} is doing both {} and {}?", agent, t, other);
@@ -647,6 +960,27 @@ impl TripManager {
         self.person_finished_trip(now, person, ctx);
     }
 
+    fn person_finished_trip(&mut self, now: Time, person: PersonID, ctx: &mut Ctx) {
+        let person = &mut self.people[person.0];
+        if person.delayed_trips.is_empty() {
+            return;
+        }
+        let (trip, spec) = person.delayed_trips.remove(0);
+        if false {
+            self.events.push(Event::Alert(
+                AlertLocation::Person(person.id),
+                format!(
+                    "{} just freed up, so starting delayed trip {}",
+                    person.id, trip
+                ),
+            ));
+        }
+        self.start_trip(now, trip, spec, ctx);
+    }
+}
+
+// Cancelling trips
+impl TripManager {
     /// Cancel a trip before it's started. The person will stay where they are.
     pub fn cancel_unstarted_trip(&mut self, id: TripID, reason: String) {
         let trip = &mut self.trips[id.0];
@@ -747,7 +1081,10 @@ impl TripManager {
     pub fn trip_abruptly_cancelled(&mut self, trip: TripID, agent: AgentID) {
         assert_eq!(self.active_trip_mode.remove(&agent), Some(trip));
     }
+}
 
+// Queries
+impl TripManager {
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }
@@ -892,10 +1229,6 @@ impl TripManager {
         self.unfinished_trips == 0
     }
 
-    pub fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
-    }
-
     pub fn trip_info(&self, id: TripID) -> TripInfo {
         self.trips[id.0].info.clone()
     }
@@ -929,329 +1262,6 @@ impl TripManager {
 
     pub fn trip_to_person(&self, id: TripID) -> PersonID {
         self.trips[id.0].person
-    }
-
-    fn person_finished_trip(&mut self, now: Time, person: PersonID, ctx: &mut Ctx) {
-        let person = &mut self.people[person.0];
-        if person.delayed_trips.is_empty() {
-            return;
-        }
-        let (trip, spec) = person.delayed_trips.remove(0);
-        if false {
-            self.events.push(Event::Alert(
-                AlertLocation::Person(person.id),
-                format!(
-                    "{} just freed up, so starting delayed trip {}",
-                    person.id, trip
-                ),
-            ));
-        }
-        self.start_trip(now, trip, spec, ctx);
-    }
-
-    pub fn start_trip(&mut self, now: Time, trip: TripID, spec: TripSpec, ctx: &mut Ctx) {
-        assert!(self.trips[trip.0].info.cancellation_reason.is_none());
-
-        let person = &mut self.people[self.trips[trip.0].person.0];
-        if let PersonState::Trip(_) = person.state {
-            // Previous trip isn't done. Defer this one!
-            if false {
-                self.events.push(Event::Alert(
-                    AlertLocation::Person(person.id),
-                    format!(
-                        "{} is still doing a trip, so not starting {} yet",
-                        person.id, trip
-                    ),
-                ));
-            }
-            person.delayed_trips.push((trip, spec));
-            self.events.push(Event::TripPhaseStarting(
-                trip,
-                person.id,
-                None,
-                TripPhaseType::DelayedStart,
-            ));
-            return;
-        }
-        self.trips[trip.0].started = true;
-
-        // Defer calculating the path until now, to handle live map edits.
-        let maybe_req = spec.get_pathfinding_request(ctx.map);
-        let maybe_path = maybe_req.clone().and_then(|req| ctx.map.pathfind(req));
-
-        match spec {
-            TripSpec::VehicleAppearing {
-                start_pos,
-                goal,
-                retry_if_no_room,
-                use_vehicle,
-            } => {
-                assert_eq!(person.state, PersonState::OffMap);
-                self.events.push(Event::PersonEntersMap(
-                    person.id,
-                    AgentID::Car(use_vehicle),
-                    ctx.map.get_l(start_pos.lane()).src_i,
-                ));
-                person.state = PersonState::Trip(trip);
-
-                let vehicle = person.get_vehicle(use_vehicle);
-                assert!(ctx.parking.lookup_parked_car(vehicle.id).is_none());
-                let req = maybe_req.unwrap();
-                let person = person.id;
-                match maybe_path
-                    .ok_or_else(|| {
-                        format!(
-                            "VehicleAppearing trip couldn't find the first path: {}",
-                            req
-                        )
-                    })
-                    .and_then(|path| {
-                        ctx.cap.validate_path(
-                            &req,
-                            path,
-                            now,
-                            vehicle.id,
-                            &mut self.trips[trip.0].info.capped,
-                            ctx.intersections,
-                            ctx.map,
-                        )
-                    }) {
-                    Ok(path) => {
-                        let router = goal.make_router(vehicle.id, path, ctx.map);
-                        ctx.scheduler.push(
-                            now,
-                            Command::SpawnCar(
-                                CreateCar::for_appearing(
-                                    vehicle, start_pos, router, req, trip, person,
-                                ),
-                                retry_if_no_room,
-                            ),
-                        );
-                    }
-                    Err(err) => {
-                        self.cancel_trip(now, trip, err, Some(vehicle), ctx);
-                    }
-                }
-            }
-            TripSpec::SpawningFailure {
-                use_vehicle, error, ..
-            } => {
-                let vehicle = use_vehicle.map(|v| person.get_vehicle(v));
-                self.cancel_trip(now, trip, error, vehicle, ctx);
-            }
-            TripSpec::UsingParkedCar {
-                car, start_bldg, ..
-            } => {
-                assert_eq!(person.state, PersonState::Inside(start_bldg));
-                person.state = PersonState::Trip(trip);
-
-                if let Some(parked_car) = ctx.parking.lookup_parked_car(car).cloned() {
-                    let start = SidewalkSpot::building(start_bldg, ctx.map);
-                    let walking_goal =
-                        SidewalkSpot::parking_spot(parked_car.spot, ctx.map, ctx.parking);
-                    let req = PathRequest {
-                        start: start.sidewalk_pos,
-                        end: walking_goal.sidewalk_pos,
-                        constraints: PathConstraints::Pedestrian,
-                    };
-                    if let Some(path) = ctx.map.pathfind(req.clone()) {
-                        ctx.scheduler.push(
-                            now,
-                            Command::SpawnPed(CreatePedestrian {
-                                id: person.ped,
-                                speed: person.ped_speed,
-                                start,
-                                goal: walking_goal,
-                                path,
-                                req,
-                                trip,
-                                person: person.id,
-                            }),
-                        );
-                    } else {
-                        // Move the car to the destination
-                        ctx.parking.remove_parked_car(parked_car.clone());
-                        self.cancel_trip(
-                            now,
-                            trip,
-                            format!("UsingParkedCar trip couldn't find the walking path {}", req),
-                            Some(parked_car.vehicle),
-                            ctx,
-                        );
-                    }
-                } else {
-                    // This should only happen when a driving trip has been cancelled and there was
-                    // absolutely no room to warp the car.
-                    self.cancel_trip(
-                        now,
-                        trip,
-                        format!("should have {} parked somewhere, but it's unavailable", car),
-                        None,
-                        ctx,
-                    );
-                }
-            }
-            TripSpec::JustWalking { start, goal } => {
-                assert_eq!(
-                    person.state,
-                    match start.connection {
-                        SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(i) => {
-                            self.events.push(Event::PersonEntersMap(
-                                person.id,
-                                AgentID::Pedestrian(person.ped),
-                                i,
-                            ));
-                            PersonState::OffMap
-                        }
-                        SidewalkPOI::SuddenlyAppear => {
-                            // Unclear which end of the sidewalk this person should be associated
-                            // with. For interactively spawned people, doesn't really matter.
-                            self.events.push(Event::PersonEntersMap(
-                                person.id,
-                                AgentID::Pedestrian(person.ped),
-                                ctx.map.get_l(start.sidewalk_pos.lane()).src_i,
-                            ));
-                            PersonState::OffMap
-                        }
-                        _ => unreachable!(),
-                    }
-                );
-                person.state = PersonState::Trip(trip);
-
-                let req = maybe_req.unwrap();
-                if let Some(path) = maybe_path {
-                    ctx.scheduler.push(
-                        now,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: person.ped,
-                            speed: person.ped_speed,
-                            start,
-                            goal,
-                            path,
-                            req,
-                            trip,
-                            person: person.id,
-                        }),
-                    );
-                } else {
-                    self.cancel_trip(
-                        now,
-                        trip,
-                        format!("JustWalking trip couldn't find the first path {}", req),
-                        None,
-                        ctx,
-                    );
-                }
-            }
-            TripSpec::UsingBike { start, .. } => {
-                assert_eq!(person.state, PersonState::Inside(start));
-                person.state = PersonState::Trip(trip);
-
-                if let Some(walk_to) = SidewalkSpot::bike_rack(start, ctx.map) {
-                    let req = maybe_req.unwrap();
-                    if let Some(path) = maybe_path {
-                        // Where we start biking may have slightly changed due to live map edits!
-                        match self.trips[trip.0].legs.front_mut() {
-                            Some(TripLeg::Walk(ref mut spot)) => {
-                                if spot.clone() != walk_to {
-                                    // We could assert both have a BikeRack connection, but eh
-                                    *spot = walk_to.clone();
-                                }
-                            }
-                            _ => unreachable!(),
-                        }
-
-                        ctx.scheduler.push(
-                            now,
-                            Command::SpawnPed(CreatePedestrian {
-                                id: person.ped,
-                                speed: person.ped_speed,
-                                start: SidewalkSpot::building(start, ctx.map),
-                                goal: walk_to,
-                                path,
-                                req,
-                                trip,
-                                person: person.id,
-                            }),
-                        );
-                    } else {
-                        self.cancel_trip(
-                            now,
-                            trip,
-                            format!("UsingBike trip couldn't find the first path {}", req),
-                            None,
-                            ctx,
-                        );
-                    }
-                } else {
-                    self.cancel_trip(
-                        now,
-                        trip,
-                        format!(
-                            "UsingBike trip couldn't find a way to start biking from {}",
-                            start
-                        ),
-                        None,
-                        ctx,
-                    );
-                }
-            }
-            TripSpec::UsingTransit { start, stop1, .. } => {
-                assert_eq!(
-                    person.state,
-                    match start.connection {
-                        SidewalkPOI::Building(b) => PersonState::Inside(b),
-                        SidewalkPOI::Border(i) => {
-                            self.events.push(Event::PersonEntersMap(
-                                person.id,
-                                AgentID::Pedestrian(person.ped),
-                                i,
-                            ));
-                            PersonState::OffMap
-                        }
-                        SidewalkPOI::SuddenlyAppear => {
-                            // Unclear which end of the sidewalk this person should be associated
-                            // with. For interactively spawned people, doesn't really matter.
-                            self.events.push(Event::PersonEntersMap(
-                                person.id,
-                                AgentID::Pedestrian(person.ped),
-                                ctx.map.get_l(start.sidewalk_pos.lane()).src_i,
-                            ));
-                            PersonState::OffMap
-                        }
-                        _ => unreachable!(),
-                    }
-                );
-                person.state = PersonState::Trip(trip);
-
-                let walk_to = SidewalkSpot::bus_stop(stop1, ctx.map);
-                let req = maybe_req.unwrap();
-                if let Some(path) = maybe_path {
-                    ctx.scheduler.push(
-                        now,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: person.ped,
-                            speed: person.ped_speed,
-                            start,
-                            goal: walk_to,
-                            path,
-                            req,
-                            trip,
-                            person: person.id,
-                        }),
-                    );
-                } else {
-                    self.cancel_trip(
-                        now,
-                        trip,
-                        format!("UsingTransit trip couldn't find the first path {}", req),
-                        None,
-                        ctx,
-                    );
-                }
-            }
-        }
     }
 
     pub fn all_arrivals_at_border(&self, at: IntersectionID) -> Vec<(Time, AgentType)> {
@@ -1585,7 +1595,7 @@ pub struct Person {
 }
 
 impl Person {
-    pub(crate) fn get_vehicle(&self, id: CarID) -> Vehicle {
+    fn get_vehicle(&self, id: CarID) -> Vehicle {
         self.vehicles.iter().find(|v| v.id == id).unwrap().clone()
     }
 }
@@ -1595,43 +1605,6 @@ pub enum PersonState {
     Trip(TripID),
     Inside(BuildingID),
     OffMap,
-}
-
-// TODO Move these to make/spawner?
-impl TripEndpoint {
-    pub(crate) fn start_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot, String> {
-        match self {
-            TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(*b, map)),
-            TripEndpoint::Border(i) => SidewalkSpot::start_at_border(*i, map)
-                .ok_or_else(|| format!("can't start walking from {}", i)),
-            TripEndpoint::SuddenlyAppear(pos) => Ok(SidewalkSpot::suddenly_appear(*pos, map)),
-        }
-    }
-
-    pub(crate) fn end_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot, String> {
-        match self {
-            TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(*b, map)),
-            TripEndpoint::Border(i) => SidewalkSpot::end_at_border(*i, map)
-                .ok_or_else(|| format!("can't end walking at {}", i)),
-            TripEndpoint::SuddenlyAppear(_) => unreachable!(),
-        }
-    }
-
-    pub(crate) fn driving_goal(
-        &self,
-        constraints: PathConstraints,
-        map: &Map,
-    ) -> Result<DrivingGoal, String> {
-        match self {
-            TripEndpoint::Bldg(b) => Ok(DrivingGoal::ParkNear(*b)),
-            TripEndpoint::Border(i) => map
-                .get_i(*i)
-                .some_incoming_road(map)
-                .and_then(|dr| DrivingGoal::end_at_border(dr, constraints, map))
-                .ok_or_else(|| format!("can't end at {} for {:?}", i, constraints)),
-            TripEndpoint::SuddenlyAppear(_) => unreachable!(),
-        }
-    }
 }
 
 /// The number of active vehicles and commuters, broken into different categories.
