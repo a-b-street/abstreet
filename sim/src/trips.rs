@@ -468,21 +468,14 @@ impl TripManager {
         match &trip.legs[0] {
             TripLeg::Walk(to) => match (spot, &to.connection) {
                 (ParkingSpot::Offstreet(b1, _), SidewalkPOI::Building(b2)) if b1 == *b2 => {
-                    // Do the relevant parts of ped_reached_parking_spot.
                     assert_eq!(trip.legs.len(), 1);
-                    assert!(!trip.finished_at.is_some());
-                    trip.finished_at = Some(now);
-                    self.unfinished_trips -= 1;
-                    self.events.push(Event::TripFinished {
-                        trip: trip.id,
-                        mode: trip.info.mode,
-                        total_time: now - trip.info.departure,
-                        blocked_time: trip.total_blocked_time,
-                    });
-                    let person = trip.person;
-                    self.people[person.0].state = PersonState::Inside(b1);
-                    self.events.push(Event::PersonEntersBuilding(person, b1));
-                    self.person_finished_trip(now, person, ctx);
+                    trip.legs.pop_front().unwrap();
+
+                    self.people[trip.person.0].state = PersonState::Inside(b1);
+                    self.events
+                        .push(Event::PersonEntersBuilding(trip.person, b1));
+                    let id = trip.id;
+                    self.trip_finished(now, id, ctx);
                     return;
                 }
                 _ => {}
@@ -724,20 +717,13 @@ impl TripManager {
         trip.total_blocked_time += blocked_time;
 
         trip.assert_walking_leg(SidewalkSpot::building(bldg, ctx.map));
-        assert!(trip.legs.is_empty());
-        assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(now);
-        self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished {
-            trip: trip.id,
-            mode: trip.info.mode,
-            total_time: now - trip.info.departure,
-            blocked_time: trip.total_blocked_time,
-        });
-        let person = trip.person;
-        self.people[person.0].state = PersonState::Inside(bldg);
-        self.events.push(Event::PersonEntersBuilding(person, bldg));
-        self.person_finished_trip(now, person, ctx);
+
+        self.people[trip.person.0].state = PersonState::Inside(bldg);
+        self.events
+            .push(Event::PersonEntersBuilding(trip.person, bldg));
+
+        let id = trip.id;
+        self.trip_finished(now, id, ctx);
     }
 
     /// If no route is returned, the pedestrian boarded a bus immediately.
@@ -866,26 +852,18 @@ impl TripManager {
             },
             _ => unreachable!(),
         }
-        assert!(trip.legs.is_empty());
-        assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(now);
-        self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished {
-            trip: trip.id,
-            mode: trip.info.mode,
-            total_time: now - trip.info.departure,
-            blocked_time: trip.total_blocked_time,
-        });
-        let person = trip.person;
+
         if let TripEndpoint::Border(_) = trip.info.end {
             self.events.push(Event::PersonLeavesMap(
-                person,
+                trip.person,
                 Some(AgentID::Pedestrian(ped)),
                 i,
             ));
         }
-        self.people[person.0].state = PersonState::OffMap;
-        self.person_finished_trip(now, person, ctx);
+        self.people[trip.person.0].state = PersonState::OffMap;
+
+        let id = trip.id;
+        self.trip_finished(now, id, ctx);
     }
 
     pub fn transit_rider_reached_border(
@@ -902,25 +880,17 @@ impl TripManager {
             Some(TripLeg::RideBus(_, maybe_spot2)) => assert!(maybe_spot2.is_none()),
             _ => unreachable!(),
         }
-        assert!(trip.legs.is_empty());
-        assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(now);
-        self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished {
-            trip: trip.id,
-            mode: trip.info.mode,
-            total_time: now - trip.info.departure,
-            blocked_time: trip.total_blocked_time,
-        });
-        let person = trip.person;
+
         if let TripEndpoint::Border(i) = trip.info.end {
             self.events
-                .push(Event::PersonLeavesMap(person, Some(agent), i));
+                .push(Event::PersonLeavesMap(trip.person, Some(agent), i));
         } else {
             unreachable!()
         }
-        self.people[person.0].state = PersonState::OffMap;
-        self.person_finished_trip(now, person, ctx);
+        self.people[trip.person.0].state = PersonState::OffMap;
+
+        let id = trip.id;
+        self.trip_finished(now, id, ctx);
     }
 
     pub fn car_or_bike_reached_border(
@@ -941,6 +911,22 @@ impl TripManager {
             }
             _ => unreachable!(),
         };
+
+        self.people[trip.person.0].state = PersonState::OffMap;
+        if let TripEndpoint::Border(_) = trip.info.end {
+            self.events.push(Event::PersonLeavesMap(
+                trip.person,
+                Some(AgentID::Car(car)),
+                i,
+            ));
+        }
+
+        let id = trip.id;
+        self.trip_finished(now, id, ctx);
+    }
+
+    fn trip_finished(&mut self, now: Time, id: TripID, ctx: &mut Ctx) {
+        let trip = &mut self.trips[id.0];
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
@@ -951,17 +937,13 @@ impl TripManager {
             total_time: now - trip.info.departure,
             blocked_time: trip.total_blocked_time,
         });
+
         let person = trip.person;
-        self.people[person.0].state = PersonState::OffMap;
-        if let TripEndpoint::Border(_) = trip.info.end {
-            self.events
-                .push(Event::PersonLeavesMap(person, Some(AgentID::Car(car)), i));
-        }
-        self.person_finished_trip(now, person, ctx);
+        self.start_delayed_trip(now, person, ctx);
     }
 
-    fn person_finished_trip(&mut self, now: Time, person: PersonID, ctx: &mut Ctx) {
-        let person = &mut self.people[person.0];
+    fn start_delayed_trip(&mut self, now: Time, id: PersonID, ctx: &mut Ctx) {
+        let person = &mut self.people[id.0];
         if person.delayed_trips.is_empty() {
             return;
         }
@@ -1075,7 +1057,7 @@ impl TripManager {
             }
         }
 
-        self.person_finished_trip(now, person, ctx);
+        self.start_delayed_trip(now, person, ctx);
     }
 
     pub fn trip_abruptly_cancelled(&mut self, trip: TripID, agent: AgentID) {
