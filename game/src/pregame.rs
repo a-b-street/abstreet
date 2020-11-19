@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use instant::Instant;
+use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
@@ -140,7 +141,12 @@ impl MainMenu {
                         txt
                     })
                     .build_def(ctx, Key::P),
+                Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
+            ])
+            .centered(),
+            Widget::row(vec![
                 Btn::text_bg2("OpenStreetMap viewer").build_def(ctx, Key::V),
+                Btn::text_bg2("15-minute neighborhoods").build_def(ctx, Key::N),
                 Btn::text_bg2("Contribute parking data to OpenStreetMap")
                     .tooltip({
                         let mut txt =
@@ -149,7 +155,6 @@ impl MainMenu {
                         txt
                     })
                     .build_def(ctx, Key::M),
-                Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
             ])
             .centered(),
             Widget::col(vec![
@@ -214,6 +219,14 @@ impl State<App> for MainMenu {
                 }
                 "OpenStreetMap viewer" => {
                     return Transition::Push(crate::devtools::osm_viewer::Viewer::new(ctx, app));
+                }
+                "15-minute neighborhoods" => {
+                    // Start with a random building
+                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
+                    let start = app.primary.map.all_buildings().choose(&mut rng).unwrap().id;
+                    return Transition::Push(crate::devtools::fifteen_min::Viewer::new(
+                        ctx, app, start,
+                    ));
                 }
                 "Contribute parking data to OpenStreetMap" => {
                     return Transition::Push(crate::devtools::mapping::ParkingMapper::new(

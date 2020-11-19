@@ -15,7 +15,7 @@ pub use self::misc_tools::TurnExplorer;
 use self::misc_tools::{RoutePreview, TrafficRecorder};
 use crate::app::App;
 use crate::colors::ColorSchemeChoice;
-use crate::common::{tool_panel, CommonState, ContextualActions, IsochroneViewer, Minimap};
+use crate::common::{tool_panel, CommonState, ContextualActions, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
@@ -537,11 +537,6 @@ impl ContextualActions for Actions {
                         actions.push((Key::E, "edit lane".to_string()));
                     }
                 }
-                ID::Building(_) => {
-                    if app.opts.dev {
-                        actions.push((Key::I, "explore isochrone from here".to_string()));
-                    }
-                }
                 _ => {}
             }
         }
@@ -587,9 +582,6 @@ impl ContextualActions for Actions {
                 Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
                 Transition::Push(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
             ]),
-            (ID::Building(b), "explore isochrone from here") => {
-                Transition::Push(IsochroneViewer::new(ctx, app, b))
-            }
             (_, "follow (run the simulation)") => {
                 *close_panel = false;
                 Transition::ModifyState(Box::new(|state, ctx, app| {

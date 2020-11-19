@@ -1,3 +1,6 @@
+//! This directory contains extra/experimental tools not directly related to A/B Street the game.
+//! Eventually some might be split into separate crates.
+
 use abstutil::Timer;
 use geom::{LonLat, Percent};
 use widgetry::{
@@ -12,6 +15,7 @@ use crate::helpers::nice_map_name;
 
 mod collisions;
 mod destinations;
+pub mod fifteen_min;
 mod kml;
 pub mod mapping;
 pub mod osm_viewer;

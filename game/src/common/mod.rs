@@ -8,8 +8,7 @@ use widgetry::{
 
 pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
-pub use self::heatmap::{make_heatmap, HeatmapOptions};
-pub use self::isochrone::IsochroneViewer;
+pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
 pub use self::minimap::Minimap;
 pub use self::navigate::Navigator;
 pub use self::warp::Warping;
@@ -22,7 +21,6 @@ pub use crate::info::{ContextualActions, Tab};
 mod city_picker;
 mod colors;
 mod heatmap;
-mod isochrone;
 mod minimap;
 mod navigate;
 #[cfg(not(target_arch = "wasm32"))]
