@@ -483,6 +483,7 @@
 <span id="480">480</span>
 <span id="481">481</span>
 <span id="482">482</span>
+<span id="483">483</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody</span>
 <span class="doccomment">//! should use public transit.</span>
@@ -870,6 +871,7 @@
     }
 }
 
+<span class="doccomment">/// The cost is time in seconds, rounded to a usize</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walking_cost</span>(<span class="ident">dist</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="ident">walking_speed</span> <span class="op">=</span> <span class="ident">Speed</span>::<span class="ident">meters_per_second</span>(<span class="number">1.34</span>);
     <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">dist</span> <span class="op">/</span> <span class="ident">walking_speed</span>;
