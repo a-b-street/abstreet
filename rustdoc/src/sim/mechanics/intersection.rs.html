@@ -937,7 +937,7 @@
 <span class="doccomment">/// Most of the complexity comes from attempting to workaround</span>
 <span class="doccomment">/// &lt;https://dabreegster.github.io/abstreet/trafficsim/gridlock.html&gt;.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntersectionSimState</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">IntersectionSimState</span> {
     <span class="ident">state</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">State</span><span class="op">&gt;</span>,
     <span class="ident">use_freeform_policy_everywhere</span>: <span class="ident">bool</span>,
     <span class="ident">dont_block_the_box</span>: <span class="ident">bool</span>,

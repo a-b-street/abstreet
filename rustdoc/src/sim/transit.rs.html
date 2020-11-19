@@ -473,7 +473,7 @@
 <span class="doccomment">/// Manages public transit vehicles (buses and trains) that follow a route. The transit model is</span>
 <span class="doccomment">/// currently kind of broken, so not describing the state machine yet.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TransitSimState</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TransitSimState</span> {
     <span class="attribute">#[<span class="ident">serde</span>(
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
         <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>

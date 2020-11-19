@@ -305,7 +305,7 @@
 
 <span class="doccomment">/// Represents a single vehicle. Note &quot;car&quot; is a misnomer; it could also be a bus or bike.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Car</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Car</span> {
     <span class="kw">pub</span> <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
     <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">CarState</span>,
     <span class="kw">pub</span> <span class="ident">router</span>: <span class="ident">Router</span>,
@@ -545,7 +545,7 @@
 <span class="doccomment">/// See &lt;https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html&gt; for details about the</span>
 <span class="doccomment">/// state machine encoded here.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CarState</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">CarState</span> {
     <span class="ident">Crossing</span>(<span class="ident">TimeInterval</span>, <span class="ident">DistanceInterval</span>),
     <span class="ident">Queued</span> {
         <span class="ident">blocked_since</span>: <span class="ident">Time</span>,

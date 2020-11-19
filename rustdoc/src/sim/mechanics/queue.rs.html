@@ -359,7 +359,7 @@
 <span class="doccomment">/// https://dabreegster.github.io/abstreet/trafficsim/discrete_event.html#exact-positions is</span>
 <span class="doccomment">/// implemented.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Queue</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Queue</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Traversable</span>,
     <span class="kw">pub</span> <span class="ident">cars</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// This car&#39;s back is still partly in this queue.</span>

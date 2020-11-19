@@ -871,10 +871,6 @@
 <span id="868">868</span>
 <span id="869">869</span>
 <span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -902,7 +898,7 @@
 <span class="doccomment">/// just &quot;ghost&quot; through each other. There&#39;s no queueing or slowdown when many people are</span>
 <span class="doccomment">/// overlapping. They&#39;re simply grouped together into a DrawPedCrowdInput for rendering.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WalkingSimState</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">WalkingSimState</span> {
     <span class="ident">peds</span>: <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">PedestrianID</span>, <span class="ident">Pedestrian</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">serde</span>(
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_multimap&quot;</span>,
@@ -1289,10 +1285,6 @@
         }
 
         <span class="ident">peds</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">does_ped_exist</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_draw_peds_on</span>(

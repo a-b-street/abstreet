@@ -114,7 +114,7 @@
 <span class="doccomment">/// capture and reproduce behavior in a gridlock-prone chunk of the map, without simulating</span>
 <span class="doccomment">/// everything.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TrafficRecorder</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TrafficRecorder</span> {
     <span class="ident">capture_points</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="comment">// TODO The RNG will determine vehicle length, so this won&#39;t be a perfect capture. Hopefully</span>
     <span class="comment">// good enough.</span>

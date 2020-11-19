@@ -191,7 +191,7 @@
 <span class="doccomment">/// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per</span>
 <span class="doccomment">/// hour. CapSimState enforces this, just for driving trips.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CapSimState</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">CapSimState</span> {
     <span class="ident">lane_to_zone</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">ZoneIdx</span><span class="op">&gt;</span>,
     <span class="ident">zones</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span>,
     <span class="ident">avoid_congestion</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AvoidCongestion</span><span class="op">&gt;</span>,

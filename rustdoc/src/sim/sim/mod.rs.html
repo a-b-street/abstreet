@@ -1114,7 +1114,7 @@
     <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ctx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Ctx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">ParkingSimState</span>,
     <span class="kw">pub</span> <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">IntersectionSimState</span>,
     <span class="kw">pub</span> <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">CapSimState</span>,

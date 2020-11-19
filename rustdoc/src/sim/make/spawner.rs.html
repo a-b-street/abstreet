@@ -385,7 +385,7 @@
 
 <span class="comment">// TODO Some of these fields are unused now that we separately pass TripEndpoint</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripSpec</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">TripSpec</span> {
     <span class="doccomment">/// Can be used to spawn from a border or anywhere for interactive debugging.</span>
     <span class="ident">VehicleAppearing</span> {
         <span class="ident">start_pos</span>: <span class="ident">Position</span>,

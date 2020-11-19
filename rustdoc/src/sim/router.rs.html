@@ -468,7 +468,7 @@
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Router</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Router</span> {
     <span class="doccomment">/// Front is always the current step</span>
     <span class="ident">path</span>: <span class="ident">Path</span>,
     <span class="ident">goal</span>: <span class="ident">Goal</span>,
@@ -476,7 +476,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ActionAtEnd</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">ActionAtEnd</span> {
     <span class="ident">VanishAtBorder</span>(<span class="ident">IntersectionID</span>),
     <span class="ident">StartParking</span>(<span class="ident">ParkingSpot</span>),
     <span class="ident">GotoLaneEnd</span>,

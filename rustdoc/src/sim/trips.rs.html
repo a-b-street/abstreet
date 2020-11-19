@@ -1628,9 +1628,6 @@
 <span id="1625">1625</span>
 <span id="1626">1626</span>
 <span id="1627">1627</span>
-<span id="1628">1628</span>
-<span id="1629">1629</span>
-<span id="1630">1630</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -1657,7 +1654,7 @@
 <span class="comment">//</span>
 <span class="comment">// Here be dragons, keep hands and feet inside the ride at all times...</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripManager</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TripManager</span> {
     <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span>,
     <span class="ident">people</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Person</span><span class="op">&gt;</span>,
     <span class="comment">// For quick lookup of active agents</span>
@@ -2722,9 +2719,6 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_active_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">active_trip_mode</span>.<span class="ident">values</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>()
-    }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_agents_and_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentID</span>, <span class="ident">TripID</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">active_trip_mode</span>
     }
@@ -3044,7 +3038,7 @@
 <span class="doccomment">/// These don&#39;t specify where the leg starts, since it might be unknown -- like when we drive and</span>
 <span class="doccomment">/// don&#39;t know where we&#39;ll wind up parking.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripLeg</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">TripLeg</span> {
     <span class="ident">Walk</span>(<span class="ident">SidewalkSpot</span>),
     <span class="doccomment">/// A person may own many vehicles, so specify which they use</span>
     <span class="ident">Drive</span>(<span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>),
