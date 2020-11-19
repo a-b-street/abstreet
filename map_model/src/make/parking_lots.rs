@@ -114,7 +114,7 @@ pub fn make_all_parking_lots(
     timer.start_iter("match parking aisles", aisles.len());
     for (aisle_id, pts) in aisles {
         timer.next();
-        // Use the center of all the aisle points to match it to a lot
+        // Use the center of all the aisle points to match it to lots
         let candidates: Vec<ParkingLotID> = closest
             .all_close_pts(Pt2D::center(&pts), Distance::meters(500.0))
             .into_iter()
@@ -123,21 +123,22 @@ pub fn make_all_parking_lots(
 
         match Ring::split_points(pts) {
             Ok((polylines, rings)) => {
-                'PL: for pl in polylines {
+                for pl in polylines {
                     for id in &candidates {
                         let lot = &mut results[id.0];
                         if let Some(segment) = lot.polygon.clip_polyline(&pl) {
                             lot.aisles.push(segment);
-                            continue 'PL;
+                            // A single aisle sometimes covers two adjacent parking lots -- like
+                            // https://www.openstreetmap.org/way/688540935. So allow for all
+                            // possible matches.
                         }
                     }
                 }
-                'RING: for ring in rings {
+                for ring in rings {
                     for id in &candidates {
                         let lot = &mut results[id.0];
                         if let Some(segment) = lot.polygon.clip_ring(&ring) {
                             lot.aisles.push(segment);
-                            continue 'RING;
                         }
                     }
                 }

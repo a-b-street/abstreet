@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use geom::Pt2D;
-use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, RoadID};
+use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, ParkingLotID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use widgetry::{
     Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Warper, Widget,
@@ -107,7 +107,9 @@ impl DebugWarp {
                     Line("P").fg(c),
                     Line("erson, "),
                     Line("R").fg(c),
-                    Line("oute"),
+                    Line("oute, parking "),
+                    Line("L").fg(c),
+                    Line("ot"),
                 ])
                 .draw(ctx),
                 Text::from_all(vec![
@@ -198,6 +200,7 @@ fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
                 ]));
             }
             'l' => ID::Lane(LaneID(idx)),
+            'L' => ID::ParkingLot(ParkingLotID(idx)),
             'i' => ID::Intersection(IntersectionID(idx)),
             'b' => ID::Building(BuildingID(idx)),
             'a' => ID::Area(AreaID(idx)),
