@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Isochrone","Represents the area reachable from a single building."]]});

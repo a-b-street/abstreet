@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["tool_panel",""]],"mod":[["city_picker",""],["colors",""],["heatmap",""],["isochrone",""],["minimap",""],["navigate",""],["updater",""],["warp",""]],"struct":[["CommonState",""]]});
+initSidebarItems({"fn":[["tool_panel",""]],"mod":[["city_picker",""],["colors",""],["heatmap",""],["minimap",""],["navigate",""],["updater",""],["warp",""]],"struct":[["CommonState",""]]});
