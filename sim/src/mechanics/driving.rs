@@ -10,7 +10,7 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::sim::Ctx;
 use crate::{
-    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DistanceInterval,
+    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DelayCause, DistanceInterval,
     DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSpot, PersonID,
     SimOptions, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent, Vehicle,
     WalkingSimState, FOLLOWING_DISTANCE,
@@ -49,6 +49,7 @@ pub(crate) struct DrivingSimState {
     time_to_park_offstreet: Duration,
 }
 
+// Mutations
 impl DrivingSimState {
     pub fn new(map: &Map, opts: &SimOptions) -> DrivingSimState {
         let mut sim = DrivingSimState {
@@ -851,6 +852,50 @@ impl DrivingSimState {
         }
     }
 
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        std::mem::replace(&mut self.events, Vec::new())
+    }
+
+    pub fn handle_live_edits(&mut self, map: &Map) {
+        // Calculate all queues that should exist now.
+        let mut new_queues = HashSet::new();
+        for l in map.all_lanes() {
+            if l.lane_type.is_for_moving_vehicles() {
+                new_queues.insert(Traversable::Lane(l.id));
+            }
+        }
+        for t in map.all_turns().values() {
+            if !t.between_sidewalks() {
+                new_queues.insert(Traversable::Turn(t.id));
+            }
+        }
+
+        // Delete any old queues.
+        self.queues.retain(|k, v| {
+            if new_queues.remove(k) {
+                // No changes
+                true
+            } else {
+                // Make sure it's empty!
+                if v.laggy_head.is_some() || !v.cars.is_empty() {
+                    panic!(
+                        "After live map edits, deleted queue {} still has vehicles! {:?}, {:?}",
+                        k, v.laggy_head, v.cars
+                    );
+                }
+                false
+            }
+        });
+
+        // Create any new queues
+        for key in new_queues {
+            self.queues.insert(key, Queue::new(key, map));
+        }
+    }
+}
+
+// Queries
+impl DrivingSimState {
     /// Note the ordering of results is non-deterministic!
     pub fn get_unzoomed_agents(&self, now: Time, map: &Map) -> Vec<UnzoomedAgent> {
         let mut result = Vec::new();
@@ -1062,10 +1107,6 @@ impl DrivingSimState {
         }
     }
 
-    pub fn collect_events(&mut self) -> Vec<Event> {
-        std::mem::replace(&mut self.events, Vec::new())
-    }
-
     pub fn target_lane_penalty(&self, l: LaneID) -> (usize, usize) {
         self.queues[&Traversable::Lane(l)].target_lane_penalty()
     }
@@ -1112,43 +1153,6 @@ impl DrivingSimState {
         affected
     }
 
-    pub fn handle_live_edits(&mut self, map: &Map) {
-        // Calculate all queues that should exist now.
-        let mut new_queues = HashSet::new();
-        for l in map.all_lanes() {
-            if l.lane_type.is_for_moving_vehicles() {
-                new_queues.insert(Traversable::Lane(l.id));
-            }
-        }
-        for t in map.all_turns().values() {
-            if !t.between_sidewalks() {
-                new_queues.insert(Traversable::Turn(t.id));
-            }
-        }
-
-        // Delete any old queues.
-        self.queues.retain(|k, v| {
-            if new_queues.remove(k) {
-                // No changes
-                true
-            } else {
-                // Make sure it's empty!
-                if v.laggy_head.is_some() || !v.cars.is_empty() {
-                    panic!(
-                        "After live map edits, deleted queue {} still has vehicles! {:?}, {:?}",
-                        k, v.laggy_head, v.cars
-                    );
-                }
-                false
-            }
-        });
-
-        // Create any new queues
-        for key in new_queues {
-            self.queues.insert(key, Queue::new(key, map));
-        }
-    }
-
     pub fn all_waiting_people(&self, now: Time, delays: &mut BTreeMap<PersonID, Duration>) {
         for c in self.cars.values() {
             if let Some((_, person)) = c.trip_and_person {
@@ -1163,6 +1167,37 @@ impl DrivingSimState {
     pub fn debug_queue_lengths(&self, l: LaneID) -> Option<(Distance, Distance)> {
         let queue = self.queues.get(&Traversable::Lane(l))?;
         Some((queue.reserved_length, queue.geom_len))
+    }
+
+    pub fn populate_blocked_by(
+        &self,
+        now: Time,
+        graph: &mut BTreeMap<AgentID, (Duration, DelayCause)>,
+    ) {
+        // Just look for every case where somebody is behind someone else, whether or not they're
+        // blocked by them and waiting.
+        for queue in self.queues.values() {
+            if let Some(head) = queue.laggy_head {
+                if let Some(next) = queue.cars.front() {
+                    graph.insert(
+                        AgentID::Car(*next),
+                        (
+                            self.cars[&head].state.time_spent_waiting(now),
+                            DelayCause::Agent(AgentID::Car(head)),
+                        ),
+                    );
+                }
+            }
+            for (head, tail) in queue.cars.iter().zip(queue.cars.iter().skip(1)) {
+                graph.insert(
+                    AgentID::Car(*tail),
+                    (
+                        self.cars[tail].state.time_spent_waiting(now),
+                        DelayCause::Agent(AgentID::Car(*head)),
+                    ),
+                );
+            }
+        }
     }
 }
 

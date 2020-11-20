@@ -15,7 +15,7 @@ use map_model::{
     PathRequest, Position, Traversable,
 };
 
-pub use self::queries::AgentProperties;
+pub use self::queries::{AgentProperties, DelayCause};
 use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
     Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,

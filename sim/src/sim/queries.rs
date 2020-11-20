@@ -266,6 +266,16 @@ impl Sim {
         self.intersections.get_blocked_by(a)
     }
 
+    /// For every agent that's currently not moving, figure out how long they've been waiting and
+    /// why they're blocked.
+    pub fn get_blocked_by_graph(&self, map: &Map) -> BTreeMap<AgentID, (Duration, DelayCause)> {
+        let mut graph = BTreeMap::new();
+        self.driving.populate_blocked_by(self.time, &mut graph);
+        self.intersections
+            .populate_blocked_by(self.time, &mut graph, map);
+        graph
+    }
+
     /// (bus, stop index it's coming from, percent to next stop, location)
     pub fn status_of_buses(
         &self,
@@ -472,4 +482,14 @@ pub struct AgentProperties {
     // TODO More continuous on a single lane
     pub dist_crossed: Distance,
     pub total_dist: Distance,
+}
+
+/// Why is an agent delayed? If there are multiple reasons, arbitrarily pick one -- ie, somebody
+/// could be blocked by two conflicting turns.
+pub enum DelayCause {
+    /// Queued behind someone, or someone's doing a conflicting turn, or someone's eating up space
+    /// in a target queue
+    Agent(AgentID),
+    /// Waiting on a traffic signal to change, or pausing at a stop sign before proceeding
+    Intersection(IntersectionID),
 }

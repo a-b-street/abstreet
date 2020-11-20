@@ -13,7 +13,9 @@ use map_model::{
 
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
-use crate::{AgentID, AlertLocation, CarID, Command, Event, Scheduler, SimOptions, Speed};
+use crate::{
+    AgentID, AlertLocation, CarID, Command, DelayCause, Event, Scheduler, SimOptions, Speed,
+};
 
 const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.2);
@@ -77,6 +79,7 @@ struct Request {
     turn: TurnID,
 }
 
+// Mutations
 impl IntersectionSimState {
     pub fn new(map: &Map, scheduler: &mut Scheduler, opts: &SimOptions) -> IntersectionSimState {
         let mut sim = IntersectionSimState {
@@ -111,15 +114,6 @@ impl IntersectionSimState {
             sim.state.insert(i.id, state);
         }
         sim
-    }
-
-    pub fn nobody_headed_towards(&self, lane: LaneID, i: IntersectionID) -> bool {
-        let state = &self.state[&i];
-        !state
-            .accepted
-            .iter()
-            .chain(state.reserved.iter())
-            .any(|req| req.turn.dst == lane)
     }
 
     pub fn turn_finished(
@@ -474,81 +468,8 @@ impl IntersectionSimState {
         true
     }
 
-    pub fn debug(&self, id: IntersectionID, map: &Map) {
-        println!("{}", abstutil::to_json(&self.state[&id]));
-        if let Some(ref sign) = map.maybe_get_stop_sign(id) {
-            println!("{}", abstutil::to_json(sign));
-        } else if let Some(ref signal) = map.maybe_get_traffic_signal(id) {
-            println!("{}", abstutil::to_json(signal));
-        } else {
-            println!("Border");
-        }
-    }
-
-    pub fn get_accepted_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID)> {
-        self.state[&id]
-            .accepted
-            .iter()
-            .map(|req| (req.agent, req.turn))
-            .collect()
-    }
-
-    pub fn get_waiting_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID, Time)> {
-        self.state[&id]
-            .waiting
-            .iter()
-            .map(|(req, time)| (req.agent, req.turn, *time))
-            .collect()
-    }
-
-    pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
-        let mut blocked_by = HashSet::new();
-        if let AgentID::Car(c) = a {
-            for (c1, c2) in &self.blocked_by {
-                if *c1 == c {
-                    blocked_by.insert(AgentID::Car(*c2));
-                }
-            }
-        }
-        blocked_by
-    }
-
     pub fn collect_events(&mut self) -> Vec<Event> {
         std::mem::replace(&mut self.events, Vec::new())
-    }
-
-    /// returns intersections with travelers waiting for at least `threshold` since `now`, ordered
-    /// so the longest delayed intersection is first.
-    pub fn delayed_intersections(
-        &self,
-        now: Time,
-        threshold: Duration,
-    ) -> Vec<(IntersectionID, Time)> {
-        let mut candidates = Vec::new();
-        for state in self.state.values() {
-            if let Some(earliest) = state.waiting.values().min() {
-                if now - *earliest >= threshold {
-                    candidates.push((state.id, *earliest));
-                }
-            }
-        }
-        candidates.sort_by_key(|(_, t)| *t);
-        candidates
-    }
-
-    pub fn current_stage_and_remaining_time(
-        &self,
-        now: Time,
-        i: IntersectionID,
-    ) -> (usize, Duration) {
-        let state = &self.state[&i].signal.as_ref().unwrap();
-        if now > state.stage_ends_at {
-            panic!(
-                "At {}, but {} should have advanced its stage at {}",
-                now, i, state.stage_ends_at
-            );
-        }
-        (state.current_stage, state.stage_ends_at - now)
     }
 
     pub fn handle_live_edited_traffic_signals(
@@ -612,6 +533,91 @@ impl IntersectionSimState {
             panic!("After live map edits, intersection state refers to deleted turns!");
         }
     }
+}
+
+// Queries
+impl IntersectionSimState {
+    pub fn nobody_headed_towards(&self, lane: LaneID, i: IntersectionID) -> bool {
+        let state = &self.state[&i];
+        !state
+            .accepted
+            .iter()
+            .chain(state.reserved.iter())
+            .any(|req| req.turn.dst == lane)
+    }
+
+    pub fn debug(&self, id: IntersectionID, map: &Map) {
+        println!("{}", abstutil::to_json(&self.state[&id]));
+        if let Some(ref sign) = map.maybe_get_stop_sign(id) {
+            println!("{}", abstutil::to_json(sign));
+        } else if let Some(ref signal) = map.maybe_get_traffic_signal(id) {
+            println!("{}", abstutil::to_json(signal));
+        } else {
+            println!("Border");
+        }
+    }
+
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID)> {
+        self.state[&id]
+            .accepted
+            .iter()
+            .map(|req| (req.agent, req.turn))
+            .collect()
+    }
+
+    pub fn get_waiting_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID, Time)> {
+        self.state[&id]
+            .waiting
+            .iter()
+            .map(|(req, time)| (req.agent, req.turn, *time))
+            .collect()
+    }
+
+    pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
+        let mut blocked_by = HashSet::new();
+        if let AgentID::Car(c) = a {
+            for (c1, c2) in &self.blocked_by {
+                if *c1 == c {
+                    blocked_by.insert(AgentID::Car(*c2));
+                }
+            }
+        }
+        blocked_by
+    }
+
+    /// returns intersections with travelers waiting for at least `threshold` since `now`, ordered
+    /// so the longest delayed intersection is first.
+    pub fn delayed_intersections(
+        &self,
+        now: Time,
+        threshold: Duration,
+    ) -> Vec<(IntersectionID, Time)> {
+        let mut candidates = Vec::new();
+        for state in self.state.values() {
+            if let Some(earliest) = state.waiting.values().min() {
+                if now - *earliest >= threshold {
+                    candidates.push((state.id, *earliest));
+                }
+            }
+        }
+        candidates.sort_by_key(|(_, t)| *t);
+        candidates
+    }
+
+    pub fn current_stage_and_remaining_time(
+        &self,
+        now: Time,
+        i: IntersectionID,
+    ) -> (usize, Duration) {
+        let state = &self.state[&i].signal.as_ref().unwrap();
+        if now > state.stage_ends_at {
+            panic!(
+                "At {}, but {} should have advanced its stage at {}",
+                now, i, state.stage_ends_at
+            );
+        }
+        (state.current_stage, state.stage_ends_at - now)
+    }
 
     pub fn describe_stats(&self) -> Vec<String> {
         vec![
@@ -635,8 +641,35 @@ impl IntersectionSimState {
             ),
         ]
     }
+
+    pub fn populate_blocked_by(
+        &self,
+        now: Time,
+        graph: &mut BTreeMap<AgentID, (Duration, DelayCause)>,
+        map: &Map,
+    ) {
+        // Don't use self.blocked_by -- that gets complicated with uber-turns and such.
+        for state in self.state.values() {
+            for (req, started_at) in &state.waiting {
+                let turn = map.get_t(req.turn);
+                let cause = match state
+                    .accepted
+                    .iter()
+                    .find(|other| turn.conflicts_with(map.get_t(other.turn)))
+                {
+                    Some(other) => DelayCause::Agent(other.agent),
+                    // The agent must be pausing at a stop sign or before making an unprotected
+                    // movement, aka, in the middle of WAIT_AT_STOP_SIGN or
+                    // WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL.
+                    None => DelayCause::Intersection(state.id),
+                };
+                graph.insert(req.agent, (now - *started_at, cause));
+            }
+        }
+    }
 }
 
+// Stuff to support maybe_start_turn
 impl IntersectionSimState {
     fn stop_sign_policy(
         &mut self,

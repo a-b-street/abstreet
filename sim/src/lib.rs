@@ -45,7 +45,7 @@ pub(crate) use self::pandemic::PandemicModel;
 pub(crate) use self::recorder::TrafficRecorder;
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
-pub use self::sim::{AgentProperties, AlertHandler, Sim, SimCallback, SimOptions};
+pub use self::sim::{AgentProperties, AlertHandler, DelayCause, Sim, SimCallback, SimOptions};
 pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{CommutersVehiclesCounts, Person, PersonState, TripInfo, TripResult};
 pub use self::trips::{TripEndpoint, TripMode};

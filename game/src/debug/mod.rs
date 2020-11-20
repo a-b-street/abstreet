@@ -19,6 +19,7 @@ use crate::options::OptionsPanel;
 use crate::render::{calculate_corners, DrawOptions};
 use crate::sandbox::GameplayMode;
 
+mod blocked_by;
 mod floodfill;
 mod objects;
 pub mod path_counter;
@@ -68,6 +69,7 @@ impl DebugMode {
                     Btn::text_fg("find degenerate roads").build_def(ctx, None),
                     Btn::text_fg("find large intersections").build_def(ctx, None),
                     Btn::text_fg("sim internal stats").build_def(ctx, None),
+                    Btn::text_fg("blocked-by graph").build_def(ctx, Key::B),
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
@@ -249,6 +251,9 @@ impl State<App> for DebugMode {
                         "Simulation internal stats",
                         app.primary.sim.describe_internal_stats(),
                     ));
+                }
+                "blocked-by graph" => {
+                    return Transition::Push(blocked_by::Viewer::new(ctx, app));
                 }
                 _ => unreachable!(),
             },
