@@ -237,22 +237,11 @@ impl Path {
         self.steps.push_back(step);
     }
 
-    // TODO This is a brittle, tied to exactly what opportunistically_lanechange does.
-    pub fn approaching_uber_turn(&self) -> bool {
-        if self.steps.len() < 5 || self.uber_turns.is_empty() {
-            return false;
-        }
-        if let PathStep::Turn(t) = self.steps[1] {
-            if self.uber_turns[0].path[0] == t {
-                return true;
-            }
-        }
-        if let PathStep::Turn(t) = self.steps[3] {
-            if self.uber_turns[0].path[0] == t {
-                return true;
-            }
-        }
-        false
+    pub fn is_upcoming_uber_turn_component(&self, t: TurnID) -> bool {
+        self.uber_turns
+            .front()
+            .map(|ut| ut.path.contains(&t))
+            .unwrap_or(false)
     }
 
     /// Trusting the caller to do this in valid ways.
@@ -260,6 +249,20 @@ impl Path {
         assert!(self.currently_inside_ut.is_none());
         assert!(idx != 0);
         self.total_length -= self.steps[idx].as_traversable().length(map);
+
+        // When replacing a turn, also update any references to it in uber_turns
+        if let PathStep::Turn(old_turn) = self.steps[idx] {
+            for uts in &mut self.uber_turns {
+                if let Some(turn_idx) = uts.path.iter().position(|i| i == &old_turn) {
+                    if let PathStep::Turn(new_turn) = step {
+                        uts.path[turn_idx] = new_turn;
+                    } else {
+                        panic!("expected turn, but found {:?}", step);
+                    }
+                }
+            }
+        }
+
         self.steps[idx] = step;
         self.total_length += self.steps[idx].as_traversable().length(map);
 

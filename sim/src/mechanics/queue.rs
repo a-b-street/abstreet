@@ -258,7 +258,12 @@ impl Queue {
 
     pub fn free_reserved_space(&mut self, car: &Car) {
         self.reserved_length -= car.vehicle.length + FOLLOWING_DISTANCE;
-        assert!(self.reserved_length >= Distance::ZERO);
+        assert!(
+            self.reserved_length >= Distance::ZERO,
+            "invalid reserved length: {:?}, car: {:?}",
+            self.reserved_length,
+            car
+        );
     }
 
     pub fn target_lane_penalty(&self) -> (usize, usize) {

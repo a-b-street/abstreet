@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
-    Position, Traversable, TurnID,
+    Position, Traversable, Turn, TurnID,
 };
 
 use crate::mechanics::Queue;
@@ -334,59 +334,34 @@ impl Router {
         map: &Map,
         handle_uber_turns: bool,
     ) {
-        if handle_uber_turns
-            && (self.path.approaching_uber_turn() || self.path.currently_inside_ut().is_some())
-        {
+        // if we're already in the uber-turn, we're committed, but if we're about to enter one, lock
+        // in the best path through it now.
+        if handle_uber_turns && self.path.currently_inside_ut().is_some() {
             return;
         }
-        let (current_turn, next_lane) = {
-            let steps = self.path.get_steps();
-            if steps.len() < 5 {
-                return;
-            }
-            match (steps[1], steps[4]) {
-                (PathStep::Turn(t), PathStep::Lane(l)) => (t, l),
-                _ => {
+
+        let mut segment = 0;
+        loop {
+            let (current_turn, next_lane) = {
+                let steps = self.path.get_steps();
+                if steps.len() < 5 + segment * 2 {
                     return;
                 }
-            }
-        };
-
-        let orig_target_lane = current_turn.dst;
-        let parent = map.get_parent(orig_target_lane);
-        let next_parent = map.get_l(next_lane).src_i;
-
-        // Look for other candidates, and assign a cost to each.
-        let constraints = self.owner.1.to_constraints();
-        let dir = parent.dir(orig_target_lane);
-        let (_, turn1, best_lane, turn2) = parent
-            .lanes_ltr()
-            .into_iter()
-            .filter(|(l, d, _)| dir == *d && constraints.can_use(map.get_l(*l), map))
-            .filter_map(|(l, _, _)| {
-                let t1 = TurnID {
-                    parent: current_turn.parent,
-                    src: current_turn.src,
-                    dst: l,
-                };
-                if let Some(turn1) = map.maybe_get_t(t1) {
-                    // Make sure we can go from this lane to next_lane.
-                    if let Some(turn2) = map.maybe_get_t(TurnID {
-                        parent: next_parent,
-                        src: l,
-                        dst: next_lane,
-                    }) {
-                        Some((turn1, l, turn2))
-                    } else {
-                        None
+                match (steps[1 + segment * 2], steps[4 + segment * 2]) {
+                    (PathStep::Turn(t), PathStep::Lane(l)) => (t, l),
+                    _ => {
+                        return;
                     }
-                } else {
-                    None
                 }
-            })
-            .map(|(turn1, l, turn2)| {
+            };
+
+            let orig_target_lane = current_turn.dst;
+            let parent = map.get_parent(orig_target_lane);
+            let next_parent = map.get_l(next_lane).src_i;
+
+            let compute_cost = |turn1: &Turn, lane: LaneID| {
                 let (lt, lc, mut slow_lane) = turn1.penalty(map);
-                let (vehicles, mut bike) = queues[&Traversable::Lane(l)].target_lane_penalty();
+                let (vehicles, mut bike) = queues[&Traversable::Lane(lane)].target_lane_penalty();
 
                 // The magic happens here. We have different penalties:
                 //
@@ -399,29 +374,89 @@ impl Router {
                 // 4) Are there lots of vehicles stacked up in one lane?
                 // 5) Are we changing lanes?
                 //
-                // A linear combination of these penalties is hard to reason about. Instead, we
+                // A linear combination of these penalties is hard to reason about. We mostly
                 // make our choice based on each penalty in order, breaking ties by moving onto the
-                // next thing.
+                // next thing. With one exception: To produce more realistic behavior, we combine
+                // `vehicles + lc` as one score to avoid switching lanes just to get around one car.
                 if self.owner.1 == VehicleType::Bike {
                     bike = 0;
                 } else {
                     slow_lane = 0;
                 }
-                let cost = (lt, bike, slow_lane, vehicles, lc);
 
-                (cost, turn1, l, turn2)
-            })
-            .min_by_key(|(cost, _, _, _)| *cost)
-            .unwrap();
-        // TODO Only switch if the target queue is some amount better; don't oscillate
-        // unnecessarily.
-        if best_lane == orig_target_lane {
-            return;
+                (lt, bike, slow_lane, vehicles + lc)
+            };
+
+            // Look for other candidates, and assign a cost to each.
+            let mut original_cost = None;
+            let constraints = self.owner.1.to_constraints();
+            let dir = parent.dir(orig_target_lane);
+            let best = parent
+                .lanes_ltr()
+                .into_iter()
+                .filter(|(l, d, _)| dir == *d && constraints.can_use(map.get_l(*l), map))
+                .filter_map(|(l, _, _)| {
+                    // Make sure we can go from this lane to next_lane.
+
+                    let t1 = TurnID {
+                        parent: current_turn.parent,
+                        src: current_turn.src,
+                        dst: l,
+                    };
+                    let turn1 = map.maybe_get_t(t1)?;
+
+                    let t2 = TurnID {
+                        parent: next_parent,
+                        src: l,
+                        dst: next_lane,
+                    };
+                    let turn2 = map.maybe_get_t(t2)?;
+
+                    return Some((turn1, l, turn2));
+                })
+                .map(|(turn1, l, turn2)| {
+                    let cost = compute_cost(turn1, l);
+                    if turn1.id == current_turn {
+                        original_cost = Some(cost);
+                    }
+                    (cost, turn1, l, turn2)
+                })
+                .min_by_key(|(cost, _, _, _)| *cost);
+
+            if best.is_none() {
+                error!("no valid paths found: {:?}", self.owner);
+                return;
+            }
+            let (best_cost, turn1, best_lane, turn2) = best.unwrap();
+
+            if original_cost.is_none() {
+                error!("original_cost was unexpectedly None {:?}", self.owner);
+                return;
+            }
+            let original_cost = original_cost.unwrap();
+
+            // Only switch if the target queue is some amount better; don't oscillate
+            // unnecessarily.
+            if best_cost < original_cost {
+                debug!(
+                    "changing lanes {:?} -> {:?}, cost: {:?} -> {:?}",
+                    orig_target_lane, best_lane, original_cost, best_cost
+                );
+                self.path
+                    .modify_step(1 + segment * 2, PathStep::Turn(turn1.id), map);
+                self.path
+                    .modify_step(2 + segment * 2, PathStep::Lane(best_lane), map);
+                self.path
+                    .modify_step(3 + segment * 2, PathStep::Turn(turn2.id), map);
+            }
+
+            if self.path.is_upcoming_uber_turn_component(turn2.id) {
+                segment += 1;
+            } else {
+                // finished
+                break;
+            }
         }
-
-        self.path.modify_step(1, PathStep::Turn(turn1.id), map);
-        self.path.modify_step(2, PathStep::Lane(best_lane), map);
-        self.path.modify_step(3, PathStep::Turn(turn2.id), map);
     }
 
     pub fn is_parking(&self) -> bool {

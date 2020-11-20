@@ -52,6 +52,7 @@ pub(crate) struct IntersectionSimState {
 #[derive(Clone, Serialize, Deserialize)]
 struct State {
     id: IntersectionID,
+    // The in-progress turns which any potential new turns must not conflict with
     accepted: BTreeSet<Request>,
     // Track when a request is first made.
     #[serde(
