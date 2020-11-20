@@ -647,22 +647,29 @@ impl IntersectionSimState {
         now: Time,
         graph: &mut BTreeMap<AgentID, (Duration, DelayCause)>,
         map: &Map,
+        cars: &FixedMap<CarID, Car>,
+        queues: &HashMap<Traversable, Queue>,
     ) {
         // Don't use self.blocked_by -- that gets complicated with uber-turns and such.
         for state in self.state.values() {
             for (req, started_at) in &state.waiting {
                 let turn = map.get_t(req.turn);
-                let cause = match state
-                    .accepted
-                    .iter()
-                    .find(|other| turn.conflicts_with(map.get_t(other.turn)))
-                {
-                    Some(other) => DelayCause::Agent(other.agent),
-                    // The agent must be pausing at a stop sign or before making an unprotected
-                    // movement, aka, in the middle of WAIT_AT_STOP_SIGN or
-                    // WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL.
-                    None => DelayCause::Intersection(state.id),
-                };
+                // In the absence of other explanations, the agent must be pausing at a stop sign
+                // or before making an unprotected movement, aka, in the middle of
+                // WAIT_AT_STOP_SIGN or WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL.
+                let mut cause = DelayCause::Intersection(state.id);
+                if let Some(other) = state.accepted.iter().find(|other| {
+                    turn.conflicts_with(map.get_t(other.turn)) || turn.id == other.turn
+                }) {
+                    cause = DelayCause::Agent(other.agent);
+                } else if let AgentID::Car(car) = req.agent {
+                    let queue = &queues[&Traversable::Lane(req.turn.dst)];
+                    if !queue.room_for_car(cars.get(&car).unwrap()) {
+                        // TODO Or it's reserved due to an uber turn or something
+                        let blocker = queue.cars.back().cloned().or(queue.laggy_head).unwrap();
+                        cause = DelayCause::Agent(AgentID::Car(blocker));
+                    }
+                }
                 graph.insert(req.agent, (now - *started_at, cause));
             }
         }

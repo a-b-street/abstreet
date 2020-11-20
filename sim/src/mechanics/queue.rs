@@ -244,18 +244,13 @@ impl Queue {
         // case, it just means the car won't totally fit on the queue at once, which is fine.
         // Reserve the normal amount of space; the next car trying to enter will get rejected.
         // Also allow this don't-block-the-box prevention to be disabled.
-        let dist = car.vehicle.length + FOLLOWING_DISTANCE;
-        if self.reserved_length + dist < self.geom_len
-            || self.reserved_length == Distance::ZERO
-            || force_entry
-        {
-            self.reserved_length += dist;
+        if self.room_for_car(car) || force_entry {
+            self.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
             return true;
         }
         false
     }
 
-    // TODO Refactor
     pub fn room_for_car(&self, car: &Car) -> bool {
         self.reserved_length == Distance::ZERO
             || self.reserved_length + car.vehicle.length + FOLLOWING_DISTANCE < self.geom_len

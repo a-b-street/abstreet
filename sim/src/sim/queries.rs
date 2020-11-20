@@ -269,11 +269,9 @@ impl Sim {
     /// For every agent that's currently not moving, figure out how long they've been waiting and
     /// why they're blocked.
     pub fn get_blocked_by_graph(&self, map: &Map) -> BTreeMap<AgentID, (Duration, DelayCause)> {
-        let mut graph = BTreeMap::new();
-        self.driving.populate_blocked_by(self.time, &mut graph);
-        self.intersections
-            .populate_blocked_by(self.time, &mut graph, map);
-        graph
+        // Pedestrians can only be blocked at intersections, which is handled inside this call
+        self.driving
+            .get_blocked_by_graph(self.time, map, &self.intersections)
     }
 
     /// (bus, stop index it's coming from, percent to next stop, location)

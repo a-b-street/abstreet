@@ -1169,11 +1169,14 @@ impl DrivingSimState {
         Some((queue.reserved_length, queue.geom_len))
     }
 
-    pub fn populate_blocked_by(
+    pub fn get_blocked_by_graph(
         &self,
         now: Time,
-        graph: &mut BTreeMap<AgentID, (Duration, DelayCause)>,
-    ) {
+        map: &Map,
+        intersections: &IntersectionSimState,
+    ) -> BTreeMap<AgentID, (Duration, DelayCause)> {
+        let mut graph = BTreeMap::new();
+
         // Just look for every case where somebody is behind someone else, whether or not they're
         // blocked by them and waiting.
         for queue in self.queues.values() {
@@ -1198,6 +1201,9 @@ impl DrivingSimState {
                 );
             }
         }
+
+        intersections.populate_blocked_by(now, &mut graph, map, &self.cars, &self.queues);
+        graph
     }
 }
 
