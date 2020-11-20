@@ -338,11 +338,6 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">VecDeque</span>};
 
@@ -590,18 +585,13 @@
         <span class="comment">// case, it just means the car won&#39;t totally fit on the queue at once, which is fine.</span>
         <span class="comment">// Reserve the normal amount of space; the next car trying to enter will get rejected.</span>
         <span class="comment">// Also allow this don&#39;t-block-the-box prevention to be disabled.</span>
-        <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+</span> <span class="ident">dist</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">geom_len</span>
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">force_entry</span>
-        {
-            <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dist</span>;
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">room_for_car</span>(<span class="ident">car</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">force_entry</span> {
+            <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>;
             <span class="kw">return</span> <span class="bool-val">true</span>;
         }
         <span class="bool-val">false</span>
     }
 
-    <span class="comment">// TODO Refactor</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">room_for_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>
             <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reserved_length</span> <span class="op">+</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">geom_len</span>

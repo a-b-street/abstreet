@@ -494,8 +494,6 @@
 <span id="491">491</span>
 <span id="492">492</span>
 <span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -768,11 +766,9 @@
     <span class="doccomment">/// For every agent that&#39;s currently not moving, figure out how long they&#39;ve been waiting and</span>
     <span class="doccomment">/// why they&#39;re blocked.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_by_graph</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentID</span>, (<span class="ident">Duration</span>, <span class="ident">DelayCause</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-        <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">populate_blocked_by</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">graph</span>);
-        <span class="self">self</span>.<span class="ident">intersections</span>
-            .<span class="ident">populate_blocked_by</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">graph</span>, <span class="ident">map</span>);
-        <span class="ident">graph</span>
+        <span class="comment">// Pedestrians can only be blocked at intersections, which is handled inside this call</span>
+        <span class="self">self</span>.<span class="ident">driving</span>
+            .<span class="ident">get_blocked_by_graph</span>(<span class="self">self</span>.<span class="ident">time</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>)
     }
 
     <span class="doccomment">/// (bus, stop index it&#39;s coming from, percent to next stop, location)</span>

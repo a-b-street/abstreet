@@ -1209,6 +1209,12 @@
 <span id="1206">1206</span>
 <span id="1207">1207</span>
 <span id="1208">1208</span>
+<span id="1209">1209</span>
+<span id="1210">1210</span>
+<span id="1211">1211</span>
+<span id="1212">1212</span>
+<span id="1213">1213</span>
+<span id="1214">1214</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -2381,11 +2387,14 @@
         <span class="prelude-val">Some</span>((<span class="ident">queue</span>.<span class="ident">reserved_length</span>, <span class="ident">queue</span>.<span class="ident">geom_len</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">populate_blocked_by</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_by_graph</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">graph</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentID</span>, (<span class="ident">Duration</span>, <span class="ident">DelayCause</span>)<span class="op">&gt;</span>,
-    ) {
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="ident">IntersectionSimState</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentID</span>, (<span class="ident">Duration</span>, <span class="ident">DelayCause</span>)<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+
         <span class="comment">// Just look for every case where somebody is behind someone else, whether or not they&#39;re</span>
         <span class="comment">// blocked by them and waiting.</span>
         <span class="kw">for</span> <span class="ident">queue</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">queues</span>.<span class="ident">values</span>() {
@@ -2410,6 +2419,9 @@
                 );
             }
         }
+
+        <span class="ident">intersections</span>.<span class="ident">populate_blocked_by</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">graph</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>);
+        <span class="ident">graph</span>
     }
 }
 
