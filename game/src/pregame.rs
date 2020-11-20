@@ -8,7 +8,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::{Duration, Line, Percent, Pt2D, Speed};
 use map_model::PermanentMapEdits;
-use sim::ScenarioGenerator;
+use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
     hotkeys, Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor,
     State, Text, UpdateType, Widget,
@@ -34,6 +34,9 @@ impl TitleScreen {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> TitleScreen {
         let mut rng = app.primary.current_flags.sim_flags.make_rng();
         let mut timer = Timer::new("screensaver traffic");
+        let mut opts = SimOptions::new("screensaver");
+        opts.alerts = AlertHandler::Silence;
+        app.primary.sim = Sim::new(&app.primary.map, opts, &mut timer);
         ScenarioGenerator::small_run(&app.primary.map)
             .generate(&app.primary.map, &mut rng, &mut timer)
             .instantiate(&mut app.primary.sim, &app.primary.map, &mut rng, &mut timer);
