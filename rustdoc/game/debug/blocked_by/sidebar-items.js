@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Viewer","Visualize the graph of what agents are blocked by others."]]});

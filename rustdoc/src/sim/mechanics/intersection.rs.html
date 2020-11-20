@@ -907,6 +907,39 @@
 <span id="904">904</span>
 <span id="905">905</span>
 <span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -923,7 +956,9 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::<span class="ident">Car</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">Event</span>, <span class="ident">Scheduler</span>, <span class="ident">SimOptions</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">AgentID</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">DelayCause</span>, <span class="ident">Event</span>, <span class="ident">Scheduler</span>, <span class="ident">SimOptions</span>, <span class="ident">Speed</span>,
+};
 
 <span class="kw">const</span> <span class="ident">WAIT_AT_STOP_SIGN</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.5</span>);
 <span class="kw">const</span> <span class="ident">WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">0.2</span>);
@@ -987,6 +1022,7 @@
     <span class="ident">turn</span>: <span class="ident">TurnID</span>,
 }
 
+<span class="comment">// Mutations</span>
 <span class="kw">impl</span> <span class="ident">IntersectionSimState</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">SimOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IntersectionSimState</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">IntersectionSimState</span> {
@@ -1021,15 +1057,6 @@
             <span class="ident">sim</span>.<span class="ident">state</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">state</span>);
         }
         <span class="ident">sim</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nobody_headed_towards</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>];
-        <span class="op">!</span><span class="ident">state</span>
-            .<span class="ident">accepted</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">chain</span>(<span class="ident">state</span>.<span class="ident">reserved</span>.<span class="ident">iter</span>())
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">dst</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lane</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">turn_finished</span>(
@@ -1384,81 +1411,8 @@
         <span class="bool-val">true</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]));
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sign</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">id</span>) {
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="ident">sign</span>));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">id</span>) {
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="ident">signal</span>));
-        } <span class="kw">else</span> {
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Border&quot;</span>);
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_accepted_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TurnID</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
-            .<span class="ident">accepted</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> (<span class="ident">req</span>.<span class="ident">agent</span>, <span class="ident">req</span>.<span class="ident">turn</span>))
-            .<span class="ident">collect</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_waiting_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TurnID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
-            .<span class="ident">waiting</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">req</span>, <span class="ident">time</span>)<span class="op">|</span> (<span class="ident">req</span>.<span class="ident">agent</span>, <span class="ident">req</span>.<span class="ident">turn</span>, <span class="kw-2">*</span><span class="ident">time</span>))
-            .<span class="ident">collect</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">a</span>: <span class="ident">AgentID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocked_by</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">a</span> {
-            <span class="kw">for</span> (<span class="ident">c1</span>, <span class="ident">c2</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocked_by</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">c1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
-                    <span class="ident">blocked_by</span>.<span class="ident">insert</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">c2</span>));
-                }
-            }
-        }
-        <span class="ident">blocked_by</span>
-    }
-
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
         <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
-    }
-
-    <span class="doccomment">/// returns intersections with travelers waiting for at least `threshold` since `now`, ordered</span>
-    <span class="doccomment">/// so the longest delayed intersection is first.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delayed_intersections</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">threshold</span>: <span class="ident">Duration</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">IntersectionID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">values</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">earliest</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">waiting</span>.<span class="ident">values</span>().<span class="ident">min</span>() {
-                <span class="kw">if</span> <span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">earliest</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">threshold</span> {
-                    <span class="ident">candidates</span>.<span class="ident">push</span>((<span class="ident">state</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">earliest</span>));
-                }
-            }
-        }
-        <span class="ident">candidates</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">t</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span>);
-        <span class="ident">candidates</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_stage_and_remaining_time</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">Duration</span>) {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">signal</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="ident">now</span> <span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">stage_ends_at</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(
-                <span class="string">&quot;At {}, but {} should have advanced its stage at {}&quot;</span>,
-                <span class="ident">now</span>, <span class="ident">i</span>, <span class="ident">state</span>.<span class="ident">stage_ends_at</span>
-            );
-        }
-        (<span class="ident">state</span>.<span class="ident">current_stage</span>, <span class="ident">state</span>.<span class="ident">stage_ends_at</span> <span class="op">-</span> <span class="ident">now</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_live_edited_traffic_signals</span>(
@@ -1522,6 +1476,91 @@
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;After live map edits, intersection state refers to deleted turns!&quot;</span>);
         }
     }
+}
+
+<span class="comment">// Queries</span>
+<span class="kw">impl</span> <span class="ident">IntersectionSimState</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nobody_headed_towards</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>];
+        <span class="op">!</span><span class="ident">state</span>
+            .<span class="ident">accepted</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">chain</span>(<span class="ident">state</span>.<span class="ident">reserved</span>.<span class="ident">iter</span>())
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">dst</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lane</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
+        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sign</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">id</span>) {
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="ident">sign</span>));
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">id</span>) {
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="ident">signal</span>));
+        } <span class="kw">else</span> {
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Border&quot;</span>);
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_accepted_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TurnID</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
+            .<span class="ident">accepted</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> (<span class="ident">req</span>.<span class="ident">agent</span>, <span class="ident">req</span>.<span class="ident">turn</span>))
+            .<span class="ident">collect</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_waiting_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TurnID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
+            .<span class="ident">waiting</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">req</span>, <span class="ident">time</span>)<span class="op">|</span> (<span class="ident">req</span>.<span class="ident">agent</span>, <span class="ident">req</span>.<span class="ident">turn</span>, <span class="kw-2">*</span><span class="ident">time</span>))
+            .<span class="ident">collect</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">a</span>: <span class="ident">AgentID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocked_by</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">a</span> {
+            <span class="kw">for</span> (<span class="ident">c1</span>, <span class="ident">c2</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocked_by</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">c1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+                    <span class="ident">blocked_by</span>.<span class="ident">insert</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">c2</span>));
+                }
+            }
+        }
+        <span class="ident">blocked_by</span>
+    }
+
+    <span class="doccomment">/// returns intersections with travelers waiting for at least `threshold` since `now`, ordered</span>
+    <span class="doccomment">/// so the longest delayed intersection is first.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delayed_intersections</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">now</span>: <span class="ident">Time</span>,
+        <span class="ident">threshold</span>: <span class="ident">Duration</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">IntersectionID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">values</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">earliest</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">waiting</span>.<span class="ident">values</span>().<span class="ident">min</span>() {
+                <span class="kw">if</span> <span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">earliest</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">threshold</span> {
+                    <span class="ident">candidates</span>.<span class="ident">push</span>((<span class="ident">state</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">earliest</span>));
+                }
+            }
+        }
+        <span class="ident">candidates</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">t</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span>);
+        <span class="ident">candidates</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_stage_and_remaining_time</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">now</span>: <span class="ident">Time</span>,
+        <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">Duration</span>) {
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">signal</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
+        <span class="kw">if</span> <span class="ident">now</span> <span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">stage_ends_at</span> {
+            <span class="macro">panic</span><span class="macro">!</span>(
+                <span class="string">&quot;At {}, but {} should have advanced its stage at {}&quot;</span>,
+                <span class="ident">now</span>, <span class="ident">i</span>, <span class="ident">state</span>.<span class="ident">stage_ends_at</span>
+            );
+        }
+        (<span class="ident">state</span>.<span class="ident">current_stage</span>, <span class="ident">state</span>.<span class="ident">stage_ends_at</span> <span class="op">-</span> <span class="ident">now</span>)
+    }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe_stats</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="macro">vec</span><span class="macro">!</span>[
@@ -1545,8 +1584,35 @@
             ),
         ]
     }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">populate_blocked_by</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">now</span>: <span class="ident">Time</span>,
+        <span class="ident">graph</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentID</span>, (<span class="ident">Duration</span>, <span class="ident">DelayCause</span>)<span class="op">&gt;</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+    ) {
+        <span class="comment">// Don&#39;t use self.blocked_by -- that gets complicated with uber-turns and such.</span>
+        <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">values</span>() {
+            <span class="kw">for</span> (<span class="ident">req</span>, <span class="ident">started_at</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">waiting</span> {
+                <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">req</span>.<span class="ident">turn</span>);
+                <span class="kw">let</span> <span class="ident">cause</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">state</span>
+                    .<span class="ident">accepted</span>
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">find</span>(<span class="op">|</span><span class="ident">other</span><span class="op">|</span> <span class="ident">turn</span>.<span class="ident">conflicts_with</span>(<span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">other</span>.<span class="ident">turn</span>)))
+                {
+                    <span class="prelude-val">Some</span>(<span class="ident">other</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DelayCause</span>::<span class="ident">Agent</span>(<span class="ident">other</span>.<span class="ident">agent</span>),
+                    <span class="comment">// The agent must be pausing at a stop sign or before making an unprotected</span>
+                    <span class="comment">// movement, aka, in the middle of WAIT_AT_STOP_SIGN or</span>
+                    <span class="comment">// WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL.</span>
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DelayCause</span>::<span class="ident">Intersection</span>(<span class="ident">state</span>.<span class="ident">id</span>),
+                };
+                <span class="ident">graph</span>.<span class="ident">insert</span>(<span class="ident">req</span>.<span class="ident">agent</span>, (<span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">started_at</span>, <span class="ident">cause</span>));
+            }
+        }
+    }
 }
 
+<span class="comment">// Stuff to support maybe_start_turn</span>
 <span class="kw">impl</span> <span class="ident">IntersectionSimState</span> {
     <span class="kw">fn</span> <span class="ident">stop_sign_policy</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,

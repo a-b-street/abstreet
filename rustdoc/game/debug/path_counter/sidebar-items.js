@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PathCounter",""]]});
+initSidebarItems({"struct":[["PathCounter","A state to count the number of trips that will cross different roads."]]});
