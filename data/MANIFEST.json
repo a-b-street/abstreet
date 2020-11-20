@@ -352,6 +352,14 @@
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
       "size_bytes": 3047098014
     },
+    "data/input/seattle/zoning_parcels.bin": {
+      "checksum": "3e6272a58de99bc631919962eaf93e62",
+      "size_bytes": 411106182
+    },
+    "data/input/seattle/zoning_parcels.kml": {
+      "checksum": "c9fc2eb5ab8d1481b45f90a0297dac8e",
+      "size_bytes": 777469024
+    },
     "data/input/tel_aviv/footways.bin": {
       "checksum": "4fb70e32d0cc3ddeaa8924c240bc9d5b",
       "size_bytes": 544579

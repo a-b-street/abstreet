@@ -71,6 +71,15 @@ fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
         "https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0");
         abstutil::write_binary("data/input/seattle/collisions.bin".to_string(), &collisions);
     }
+
+    // From https://data-seattlecitygis.opendata.arcgis.com/datasets/parcels-1
+    download_kml(
+        "input/seattle/zoning_parcels.bin",
+        "https://opendata.arcgis.com/datasets/42863f1debdc47488a1c2b9edd38053e_2.kml",
+        &bounds,
+        true,
+        timer,
+    );
 }
 
 pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {

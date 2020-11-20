@@ -4,9 +4,9 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use aabb_quadtree::QuadTree;
 
-use abstutil::{prettyprint_usize, Parallelism};
+use abstutil::{prettyprint_usize, Parallelism, Timer};
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
-use kml::ExtraShapes;
+use kml::{ExtraShape, ExtraShapes};
 use map_model::BuildingID;
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -15,7 +15,7 @@ use widgetry::{
 
 use crate::app::App;
 use crate::colors::ColorScheme;
-use crate::game::{ChooseSomething, Transition};
+use crate::game::{ChooseSomething, PopupMsg, Transition};
 
 pub struct ViewKML {
     panel: Panel,
@@ -41,69 +41,9 @@ const THICKNESS: Distance = Distance::const_meters(2.0);
 impl ViewKML {
     pub fn new(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State<App>> {
         ctx.loading_screen("load kml", |ctx, mut timer| {
-            let raw_shapes = if let Some(ref path) = path {
-                if path.ends_with(".kml") {
-                    let shapes =
-                        kml::load(&path, &app.primary.map.get_gps_bounds(), true, &mut timer)
-                            .unwrap();
-                    // Assuming this is some huge file, conveniently convert the extract to .bin.
-                    // The new file will show up as untracked in git, so it'll be obvious this
-                    // happened.
-                    abstutil::write_binary(path.replace(".kml", ".bin"), &shapes);
-                    shapes
-                } else if path.ends_with(".csv") {
-                    let shapes =
-                        ExtraShapes::load_csv(&path, &app.primary.map.get_gps_bounds(), &mut timer)
-                            .unwrap();
-                    // Assuming this is some huge file, conveniently convert the extract to .bin.
-                    // The new file will show up as untracked in git, so it'll be obvious this
-                    // happened.
-                    abstutil::write_binary(path.replace(".csv", ".bin"), &shapes);
-                    shapes
-                } else {
-                    abstutil::read_binary::<ExtraShapes>(path.to_string(), &mut timer)
-                }
-            } else {
-                ExtraShapes { shapes: Vec::new() }
-            };
-            let bounds = app.primary.map.get_gps_bounds();
-            let boundary = app.primary.map.get_boundary_polygon();
-            let dataset_name = path
-                .as_ref()
-                .map(abstutil::basename)
-                .unwrap_or("no file".to_string());
-            let bldg_lookup: HashMap<String, BuildingID> = app
-                .primary
-                .map
-                .all_buildings()
-                .iter()
-                .map(|b| (b.orig_id.inner().to_string(), b.id))
-                .collect();
-            let cs = &app.cs;
-            let objects: Vec<Object> = timer
-                .parallelize(
-                    "convert shapes",
-                    Parallelism::Fastest,
-                    raw_shapes.shapes.into_iter().enumerate().collect(),
-                    |(idx, shape)| {
-                        let pts = bounds.convert(&shape.points);
-                        if pts.iter().any(|pt| boundary.contains_pt(*pt)) {
-                            Some(make_object(
-                                cs,
-                                &bldg_lookup,
-                                shape.attributes,
-                                pts,
-                                &dataset_name,
-                                idx,
-                            ))
-                        } else {
-                            None
-                        }
-                    },
-                )
-                .into_iter()
-                .flatten()
-                .collect();
+            // Enable to write a smaller .bin only with the shapes matching the bounds.
+            let dump_clipped_shapes = false;
+            let (dataset_name, objects) = load_objects(app, path, dump_clipped_shapes, &mut timer);
 
             let mut batch = GeomBatch::new();
             let mut quadtree = QuadTree::default(app.primary.map.get_bounds().as_bbox());
@@ -178,6 +118,20 @@ impl State<App> for ViewKML {
                 }
             }
         }
+        if let Some(idx) = self.selected {
+            if ctx.normal_left_click() {
+                self.selected = None;
+                return Transition::Push(PopupMsg::new(
+                    ctx,
+                    "Parcel",
+                    self.objects[idx]
+                        .attribs
+                        .iter()
+                        .map(|(k, v)| format!("{} = {}", k, v))
+                        .collect(),
+                ));
+            }
+        }
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -250,6 +204,92 @@ impl State<App> for ViewKML {
             }
         }
     }
+}
+
+/// Loads and clips objects to the current map. Also returns the dataset name.
+fn load_objects(
+    app: &App,
+    path: Option<String>,
+    dump_clipped_shapes: bool,
+    timer: &mut Timer,
+) -> (String, Vec<Object>) {
+    let map = &app.primary.map;
+    let bounds = map.get_gps_bounds();
+
+    let raw_shapes = if let Some(ref path) = path {
+        if path.ends_with(".kml") {
+            let shapes = kml::load(&path, bounds, true, timer).unwrap();
+            // Assuming this is some huge file, conveniently convert the extract to .bin.
+            // The new file will show up as untracked in git, so it'll be obvious this
+            // happened.
+            abstutil::write_binary(path.replace(".kml", ".bin"), &shapes);
+            shapes
+        } else if path.ends_with(".csv") {
+            let shapes = ExtraShapes::load_csv(&path, bounds, timer).unwrap();
+            // Assuming this is some huge file, conveniently convert the extract to .bin.
+            // The new file will show up as untracked in git, so it'll be obvious this
+            // happened.
+            abstutil::write_binary(path.replace(".csv", ".bin"), &shapes);
+            shapes
+        } else {
+            abstutil::read_binary::<ExtraShapes>(path.to_string(), timer)
+        }
+    } else {
+        ExtraShapes { shapes: Vec::new() }
+    };
+    let boundary = map.get_boundary_polygon();
+    let dataset_name = path
+        .as_ref()
+        .map(abstutil::basename)
+        .unwrap_or("no file".to_string());
+    let bldg_lookup: HashMap<String, BuildingID> = map
+        .all_buildings()
+        .iter()
+        .map(|b| (b.orig_id.inner().to_string(), b.id))
+        .collect();
+    let cs = &app.cs;
+
+    let pairs: Vec<(Object, ExtraShape)> = timer
+        .parallelize(
+            "convert shapes",
+            Parallelism::Fastest,
+            raw_shapes.shapes.into_iter().enumerate().collect(),
+            |(idx, shape)| {
+                let pts = bounds.convert(&shape.points);
+                if pts.iter().any(|pt| boundary.contains_pt(*pt)) {
+                    Some((
+                        make_object(
+                            cs,
+                            &bldg_lookup,
+                            shape.attributes.clone(),
+                            pts,
+                            &dataset_name,
+                            idx,
+                        ),
+                        shape,
+                    ))
+                } else {
+                    None
+                }
+            },
+        )
+        .into_iter()
+        .flatten()
+        .collect();
+    let mut objects = Vec::new();
+    let mut clipped_shapes = Vec::new();
+    for (obj, shape) in pairs {
+        objects.push(obj);
+        clipped_shapes.push(shape);
+    }
+    if path.is_some() && dump_clipped_shapes {
+        abstutil::write_binary(
+            format!("{}_clipped_for_{}.bin", dataset_name, map.get_name().map),
+            &clipped_shapes,
+        );
+    }
+
+    (dataset_name, objects)
 }
 
 fn make_object(
