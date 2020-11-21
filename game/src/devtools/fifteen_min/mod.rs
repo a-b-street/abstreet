@@ -46,6 +46,7 @@ impl Viewer {
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         let start = app.primary.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, start.id);
+
         let highlight_start = draw_star(ctx, start.polygon.center());
         let panel = build_panel(ctx, start, &isochrone);
 
@@ -96,6 +97,18 @@ impl State<App> for Viewer {
                 "close" => {
                     return Transition::Pop;
                 }
+                "About" => {
+                    return Transition::Push(PopupMsg::new(
+                        ctx,
+                        "15 minute neighborhoods",
+                        vec![
+                            "What if you could access most of your daily needs with a 15-minute walk or bike ride from your house?",
+                            "Wouldn't it be nice to not rely on a climate unfriendly motor vehicle and get stuck in traffic for these simple errands?", 
+                            "Different cities around the world are talking about what design and policy changes could lead to 15 minute neighborhoods.", 
+                            "This tool lets you see what commercial amenities are near you right now, using data from OpenStreetMap.",
+                        ],
+                    ));
+                }
                 // If we reach here, we must've clicked one of the buttons for an amenity
                 category => {
                     // Describe all of the specific amenities matching this category
@@ -143,6 +156,7 @@ fn draw_star(ctx: &mut EventCtx, center: Pt2D) -> Drawable {
 
 fn build_panel(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -> Panel {
     let mut rows = Vec::new();
+    
     rows.push(Widget::row(vec![
         Line("15-minute neighborhood explorer")
             .small_heading()
@@ -156,11 +170,17 @@ fn build_panel(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -> P
         ])
         .draw(ctx),
     );
+
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(
             Btn::text_fg(format!("{}: {}", amenity, buildings.len())).build(ctx, *amenity, None),
         );
     }
+
+    // Start of toolbar
+    rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
+
+    rows.push(Btn::plaintext("About").build_def(ctx, None));
 
     Panel::new(Widget::col(rows))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
