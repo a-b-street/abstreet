@@ -84,7 +84,7 @@ impl State<App> for Viewer {
                 self.hovering_on_bldg.as_ref().map(|h| ID::Building(h.id));
         }
 
-        if ctx.input.left_mouse_button_pressed() {
+        if ctx.normal_left_click() {
             if let Some(ref hover) = self.hovering_on_bldg {
                 let start = app.primary.map.get_b(hover.id);
                 self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
