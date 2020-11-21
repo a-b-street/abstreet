@@ -322,7 +322,7 @@
                 <span class="self">self</span>.<span class="ident">hovering_on_bldg</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">h</span>.<span class="ident">id</span>));
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">hover</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_bldg</span> {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">hover</span>.<span class="ident">id</span>);
                 <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">constraints</span>);
