@@ -75,12 +75,8 @@ impl State<App> for Viewer {
         // Allow panning and zooming
         ctx.canvas_movement();
 
-        if ctx.redo_mouseover() {
-            app.recalculate_current_selection(ctx);
-        }
-
         if ctx.input.left_mouse_button_pressed() {
-            if let Some(ID::Building(building_id)) = app.primary.current_selection.clone() {
+            if let Some(ID::Building(building_id)) = app.mouseover_unzoomed_buildings(ctx) {
                 let building = app.primary.map.get_b(building_id);
                 debug!("clicked on building: {:?}", building);
                 self.isochrone = Isochrone::new(ctx, app, building_id);
