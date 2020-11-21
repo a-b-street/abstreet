@@ -121,6 +121,23 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -139,8 +156,8 @@
 
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">isochrone</span>::<span class="ident">Isochrone</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">ID</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">amenity_type</span>, <span class="ident">ID</span>};
 
 <span class="kw">mod</span> <span class="ident">isochrone</span>;
 
@@ -162,9 +179,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">start</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">start</span>);
         <span class="kw">let</span> <span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>);
-        <span class="comment">// Draw a star on the start building.</span>
-        <span class="kw">let</span> <span class="ident">highlight_start_batch</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>.<span class="ident">polygon</span>.<span class="ident">center</span>());
-        <span class="kw">let</span> <span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">highlight_start_batch</span>);
+        <span class="kw">let</span> <span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>.<span class="ident">polygon</span>.<span class="ident">center</span>());
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>, <span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="ident">isochrone</span>);
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Viewer</span> {
@@ -183,15 +198,9 @@
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">start</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_buildings</span>(<span class="ident">ctx</span>) {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">start</span>);
-                <span class="kw">let</span> <span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>);
-                <span class="comment">// Draw a star on the start building.</span>
-                <span class="kw">let</span> <span class="ident">highlight_start_batch</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>.<span class="ident">polygon</span>.<span class="ident">center</span>());
-                <span class="kw">let</span> <span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">highlight_start_batch</span>);
-                <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>, <span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="ident">isochrone</span>);
-
-                <span class="self">self</span>.<span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">highlight_start</span>;
-                <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>;
-                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">isochrone</span>;
+                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>);
+                <span class="self">self</span>.<span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>.<span class="ident">polygon</span>.<span class="ident">center</span>());
+                <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>, <span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isochrone</span>);
             }
         }
 
@@ -200,7 +209,25 @@
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="comment">// If we reach here, we must&#39;ve clicked one of the buttons for an amenity</span>
+                <span class="ident">category</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// Describe all of the specific amenities matching this category</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">details</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">amenities_reachable</span>.<span class="ident">get</span>(<span class="ident">category</span>) {
+                        <span class="kw">let</span> <span class="ident">bldg</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>);
+                        <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">bldg</span>.<span class="ident">amenities</span> {
+                            <span class="kw">if</span> <span class="ident">amenity_type</span>(<span class="kw-2">&amp;</span><span class="ident">amenity</span>.<span class="ident">amenity_type</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) {
+                                <span class="ident">details</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(
+                                    <span class="string">&quot;{} ({} away) has {}&quot;</span>,
+                                    <span class="ident">bldg</span>.<span class="ident">address</span>,
+                                    <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">time_to_reach_building</span>[<span class="kw-2">&amp;</span><span class="ident">bldg</span>.<span class="ident">id</span>],
+                                    <span class="ident">amenity</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>())
+                                ));
+                            }
+                        }
+                    }
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">category</span>, <span class="ident">details</span>));
+                }
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
@@ -215,10 +242,13 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
-    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
-        .<span class="ident">centered_on</span>(<span class="ident">center</span>)
-        .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
+<span class="doccomment">/// Draw a star on the start building.</span>
+<span class="kw">fn</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+    <span class="ident">ctx</span>.<span class="ident">upload</span>(
+        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+            .<span class="ident">centered_on</span>(<span class="ident">center</span>)
+            .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)),
+    )
 }
 
 <span class="kw">fn</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">start</span>: <span class="kw-2">&amp;</span><span class="ident">Building</span>, <span class="ident">isochrone</span>: <span class="kw-2">&amp;</span><span class="ident">Isochrone</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
@@ -229,17 +259,21 @@
             .<span class="ident">draw</span>(<span class="ident">ctx</span>),
         <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
     ]));
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Starting from: &quot;</span>).<span class="ident">secondary</span>(),
-        <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>.<span class="ident">address</span>),
-    ]);
+    <span class="ident">rows</span>.<span class="ident">push</span>(
+        <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="string">&quot;Starting from: &quot;</span>).<span class="ident">secondary</span>(),
+            <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>.<span class="ident">address</span>),
+        ])
+        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+    );
     <span class="kw">for</span> (<span class="ident">amenity</span>, <span class="ident">buildings</span>) <span class="kw">in</span> <span class="ident">isochrone</span>.<span class="ident">amenities_reachable</span>.<span class="ident">borrow</span>() {
-        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">amenity</span>, <span class="ident">buildings</span>.<span class="ident">len</span>())));
+        <span class="ident">rows</span>.<span class="ident">push</span>(
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">amenity</span>, <span class="ident">buildings</span>.<span class="ident">len</span>())).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">amenity</span>, <span class="prelude-val">None</span>),
+        );
     }
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
 
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 </pre></div>
