@@ -575,15 +575,10 @@
 <span id="572">572</span>
 <span id="573">573</span>
 <span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
@@ -806,11 +801,8 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">osm_viewer</span>::<span class="ident">Viewer</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;15-minute neighborhoods&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="comment">// Start with a random building</span>
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>();
-                    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>;
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">fifteen_min</span>::<span class="ident">Viewer</span>::<span class="ident">new</span>(
-                        <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>,
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">fifteen_min</span>::<span class="ident">Viewer</span>::<span class="ident">random_start</span>(
+                        <span class="ident">ctx</span>, <span class="ident">app</span>,
                     ));
                 }
                 <span class="string">&quot;Contribute parking data to OpenStreetMap&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
