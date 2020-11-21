@@ -14,7 +14,7 @@ use widgetry::{
 
 use self::isochrone::Isochrone;
 use crate::app::App;
-use crate::game::Transition;
+use crate::game::{Transition, PopupMsg};
 
 mod isochrone;
 
@@ -36,21 +36,27 @@ impl Viewer {
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         let start = app.primary.map.get_b(start);
 
+        let title = Line("15-minute neighborhood explorer")
+            .small_heading()
+            .draw(ctx);
+
+        let address_input = Text::from_all(vec![
+            Line("Starting from: ").secondary(),
+            Line(&start.address),
+        ]);
+
         let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
-                Line("15-minute neighborhood explorer")
-                    .small_heading()
-                    .draw(ctx),
+                title,
                 Btn::close(ctx),
             ]),
-            Text::from_all(vec![
-                Line("Starting from: ").secondary(),
-                Line(&start.address),
+            address_input.draw(ctx),
+            Widget::row(vec![
+                Btn::plaintext("About").build_def(ctx, None),
             ])
-            .draw(ctx),
         ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx);
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx);
 
         // Draw a star on the start building.
         let highlight_start = GeomBatch::load_svg(ctx.prerender, "system/assets/tools/star.svg")
@@ -74,7 +80,22 @@ impl State<App> for Viewer {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
-                }
+                },
+                "About" => {
+                    return Transition::Push(PopupMsg::new(
+                        ctx,
+                        "About this OSM viewer",
+                        vec![
+                            "If you have an idea about what this viewer should do, get in touch \
+                             at abstreet.org!",
+                            "",
+                            "Note major liberties have been taken with inferring where sidewalks \
+                             and crosswalks exist.",
+                            "Separate footpaths, bicycle trails, tram lines, etc are not imported \
+                             yet.",
+                        ],
+                    ));
+                },
                 _ => unreachable!(),
             },
             _ => {}
