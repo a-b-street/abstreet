@@ -218,6 +218,7 @@ fn make_input_graph(
     input_graph
 }
 
+/// Roughly equivalent to seconds
 pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
     // TODO Could cost turns differently.
 

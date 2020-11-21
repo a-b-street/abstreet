@@ -6,7 +6,9 @@ use petgraph::graphmap::DiGraphMap;
 
 use geom::Duration;
 
-pub use crate::pathfind::{build_graph_for_pedestrians, driving_cost, WalkingNode};
+pub use crate::pathfind::{
+    build_graph_for_pedestrians, build_graph_for_vehicles, driving_cost, WalkingNode,
+};
 use crate::{BuildingID, LaneID, Map, PathConstraints};
 
 /// Calculate the srongy connected components (SCC) of the part of the map accessible by constraints
@@ -73,7 +75,37 @@ pub fn all_costs_from(
             }
         }
     } else {
-        // TODO
+        // TODO We have a graph of LaneIDs, but mapping a building to one isn't straightforward. In
+        // the common case it'll be fine, but some buildings are isolated from the graph by some
+        // sidewalks.
+        let mut bldg_to_lane = HashMap::new();
+        for b in map.all_buildings() {
+            if constraints == PathConstraints::Car {
+                if let Some((pos, _)) = b.driving_connection(map) {
+                    bldg_to_lane.insert(b.id, pos.lane());
+                }
+            } else if constraints == PathConstraints::Bike {
+                if let Some((pos, _)) = b.biking_connection(map) {
+                    bldg_to_lane.insert(b.id, pos.lane());
+                }
+            }
+        }
+
+        if let Some(start_lane) = bldg_to_lane.get(&start) {
+            let graph = build_graph_for_vehicles(map, constraints);
+            let cost_per_lane =
+                petgraph::algo::dijkstra(&graph, *start_lane, None, |(_, _, turn)| {
+                    driving_cost(map.get_l(turn.src), map.get_t(*turn), constraints, map)
+                });
+            for (b, lane) in bldg_to_lane {
+                if let Some(seconds) = cost_per_lane.get(&lane) {
+                    let duration = Duration::seconds(*seconds as f64);
+                    if duration <= time_limit {
+                        results.insert(b, duration);
+                    }
+                }
+            }
+        }
     }
 
     results

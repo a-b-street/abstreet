@@ -84,8 +84,10 @@ impl State<App> for Viewer {
                 self.hovering_on_bldg.as_ref().map(|h| ID::Building(h.id));
         }
 
-        if ctx.normal_left_click() {
-            if let Some(ref hover) = self.hovering_on_bldg {
+        // Don't call normal_left_click unless we're hovering on something in map-space; otherwise
+        // panel.event never sees clicks.
+        if let Some(ref hover) = self.hovering_on_bldg {
+            if ctx.normal_left_click() {
                 let start = app.primary.map.get_b(hover.id);
                 self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
                 self.highlight_start = draw_star(ctx, start.polygon.center());
@@ -218,6 +220,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     // Start of toolbar
     rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
 
+    // TODO Why does this look backwards?
     rows.push(Checkbox::toggle(
         ctx,
         "walking / biking",
