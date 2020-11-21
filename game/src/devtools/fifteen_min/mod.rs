@@ -4,6 +4,8 @@
 //!
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
+use rand::seq::SliceRandom;
+
 use map_model::BuildingID;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
@@ -24,6 +26,13 @@ pub struct Viewer {
 }
 
 impl Viewer {
+    /// Start with a random building
+    pub fn random_start(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        let mut rng = app.primary.current_flags.sim_flags.make_rng();
+        let start = app.primary.map.all_buildings().choose(&mut rng).unwrap().id;
+        Viewer::new(ctx, app, start)
+    }
+
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         let start = app.primary.map.get_b(start);
 

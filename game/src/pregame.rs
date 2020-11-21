@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use instant::Instant;
-use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
@@ -224,11 +223,8 @@ impl State<App> for MainMenu {
                     return Transition::Push(crate::devtools::osm_viewer::Viewer::new(ctx, app));
                 }
                 "15-minute neighborhoods" => {
-                    // Start with a random building
-                    let mut rng = app.primary.current_flags.sim_flags.make_rng();
-                    let start = app.primary.map.all_buildings().choose(&mut rng).unwrap().id;
-                    return Transition::Push(crate::devtools::fifteen_min::Viewer::new(
-                        ctx, app, start,
+                    return Transition::Push(crate::devtools::fifteen_min::Viewer::random_start(
+                        ctx, app,
                     ));
                 }
                 "Contribute parking data to OpenStreetMap" => {
