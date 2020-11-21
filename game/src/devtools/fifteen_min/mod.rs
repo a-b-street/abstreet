@@ -39,25 +39,6 @@ impl Viewer {
         let start = app.primary.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, start.id);
 
-        let mut rows = Vec::new();
-
-        rows.push(Widget::row(vec![
-            Line("15-minute neighborhood explorer")
-                .small_heading()
-                .draw(ctx),
-            Btn::close(ctx),
-        ]));
-
-        let mut txt = Text::from_all(vec![
-            Line("Starting from: ").secondary(),
-            Line(&start.address),
-        ]);
-
-        for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
-            txt.add(Line(format!("{}: {}", amenity, buildings.len())));
-        }
-        rows.push(txt.draw(ctx));
-
         let highlight_start = draw_star(ctx, start.polygon.center());
         let panel = build_panel(ctx, start, &isochrone);
 
@@ -168,9 +149,7 @@ fn build_panel(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -> P
     // Start of toolbar
     rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
 
-    let about_button = Widget::row(vec![Btn::plaintext("About").build_def(ctx, None)]);
-
-    rows.push(about_button);
+    rows.push(Btn::plaintext("About").build_def(ctx, None));
 
     Panel::new(Widget::col(rows))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
