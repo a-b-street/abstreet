@@ -25,6 +25,14 @@ pub struct Viewer {
     panel: Panel,
     highlight_start: Drawable,
     isochrone: Isochrone,
+
+    hovering_on_bldg: Option<HoverOnBuilding>,
+}
+
+struct HoverOnBuilding {
+    id: BuildingID,
+    tooltip: Text,
+    // TODO Draw a route preview
 }
 
 impl Viewer {
@@ -45,6 +53,8 @@ impl Viewer {
             panel,
             highlight_start: highlight_start,
             isochrone,
+
+            hovering_on_bldg: None,
         })
     }
 }
@@ -54,9 +64,27 @@ impl State<App> for Viewer {
         // Allow panning and zooming
         ctx.canvas_movement();
 
+        if ctx.redo_mouseover() {
+            self.hovering_on_bldg = match app.mouseover_unzoomed_buildings(ctx) {
+                Some(ID::Building(id)) => Some(HoverOnBuilding {
+                    id,
+                    tooltip: if let Some(time) = self.isochrone.time_to_reach_building.get(&id) {
+                        Text::from(Line(format!("{} away", time)))
+                    } else {
+                        Text::from(Line("This is more than 15 minutes away"))
+                    },
+                }),
+                _ => None,
+            };
+
+            // Also update this to conveniently get an outline drawn
+            app.primary.current_selection =
+                self.hovering_on_bldg.as_ref().map(|h| ID::Building(h.id));
+        }
+
         if ctx.input.left_mouse_button_pressed() {
-            if let Some(ID::Building(start)) = app.mouseover_unzoomed_buildings(ctx) {
-                let start = app.primary.map.get_b(start);
+            if let Some(ref hover) = self.hovering_on_bldg {
+                let start = app.primary.map.get_b(hover.id);
                 self.isochrone = Isochrone::new(ctx, app, start.id);
                 self.highlight_start = draw_star(ctx, start.polygon.center());
                 self.panel = build_panel(ctx, start, &self.isochrone);
@@ -98,6 +126,9 @@ impl State<App> for Viewer {
         g.redraw(&self.isochrone.draw);
         g.redraw(&self.highlight_start);
         self.panel.draw(g);
+        if let Some(ref hover) = self.hovering_on_bldg {
+            g.draw_mouse_tooltip(hover.tooltip.clone());
+        }
     }
 }
 
