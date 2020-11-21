@@ -11,10 +11,9 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         .with_maximized(true);
     // TODO If people are hitting problems with context not matching what their GPU provides, dig up
     // backend_glium.rs from git and bring the fallback behavior here. (Ideally, there'd be
-    // something in glutin to directly express this.) multisampling: 2 looks bad, 4 looks fine
+    // something in glutin to directly express this) multisampling: 2 looks bad, 4 looks fine
     let context = match glutin::ContextBuilder::new()
-        .with_multisampling(4)
-        .with_depth_buffer(2)
+        .with_vsync(true)
         .build_windowed(window, &event_loop)
     {
         Ok(ctx) => ctx,
@@ -30,10 +29,10 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
 
     unsafe {
         let shaders = [
-            (glow::VERTEX_SHADER, include_str!("shaders/vertex_140.glsl")),
+            (glow::VERTEX_SHADER, include_str!("shaders/vertex_300.glsl")),
             (
                 glow::FRAGMENT_SHADER,
-                include_str!("shaders/fragment_140.glsl"),
+                include_str!("shaders/fragment_300.glsl"),
             ),
         ]
         .iter()
