@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use abstutil::MultiMap;
 use geom::{Duration, Polygon};
-use map_model::{connectivity, BuildingID};
+use map_model::{connectivity, BuildingID, PathConstraints};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 use crate::app::App;
@@ -11,6 +11,10 @@ use crate::helpers::amenity_type;
 
 /// Represents the area reachable from a single building.
 pub struct Isochrone {
+    /// The center of the isochrone
+    pub start: BuildingID,
+    /// What mode of travel we're using
+    pub constraints: PathConstraints,
     /// Colored polygon contours, uploaded to the GPU and ready for drawing
     pub draw: Drawable,
     /// How far away is each building from the start?
@@ -20,9 +24,18 @@ pub struct Isochrone {
 }
 
 impl Isochrone {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Isochrone {
-        let time_to_reach_building =
-            connectivity::all_costs_from(&app.primary.map, start, Duration::minutes(15));
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        start: BuildingID,
+        constraints: PathConstraints,
+    ) -> Isochrone {
+        let time_to_reach_building = connectivity::all_costs_from(
+            &app.primary.map,
+            start,
+            Duration::minutes(15),
+            constraints,
+        );
         let draw = draw_isochrone(app, &time_to_reach_building).upload(ctx);
 
         let mut amenities_reachable = MultiMap::new();
@@ -36,6 +49,8 @@ impl Isochrone {
         }
 
         Isochrone {
+            start,
+            constraints,
             draw,
             time_to_reach_building,
             amenities_reachable,

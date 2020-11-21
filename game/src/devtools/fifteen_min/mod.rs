@@ -7,10 +7,10 @@
 use rand::seq::SliceRandom;
 
 use geom::Pt2D;
-use map_model::{Building, BuildingID};
+use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    RewriteColor, State, Text, VerticalAlignment, Widget,
+    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    Outcome, Panel, RewriteColor, State, Text, VerticalAlignment, Widget,
 };
 
 use self::isochrone::Isochrone;
@@ -44,9 +44,9 @@ impl Viewer {
     }
 
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
+        let constraints = PathConstraints::Pedestrian;
         let start = app.primary.map.get_b(start);
-        let isochrone = Isochrone::new(ctx, app, start.id);
-
+        let isochrone = Isochrone::new(ctx, app, start.id, constraints);
         let highlight_start = draw_star(ctx, start.polygon.center());
         let panel = build_panel(ctx, start, &isochrone);
 
@@ -86,7 +86,7 @@ impl State<App> for Viewer {
         if ctx.input.left_mouse_button_pressed() {
             if let Some(ref hover) = self.hovering_on_bldg {
                 let start = app.primary.map.get_b(hover.id);
-                self.isochrone = Isochrone::new(ctx, app, start.id);
+                self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
                 self.highlight_start = draw_star(ctx, start.polygon.center());
                 self.panel = build_panel(ctx, start, &self.isochrone);
             }
@@ -102,10 +102,14 @@ impl State<App> for Viewer {
                         ctx,
                         "15 minute neighborhoods",
                         vec![
-                            "What if you could access most of your daily needs with a 15-minute walk or bike ride from your house?",
-                            "Wouldn't it be nice to not rely on a climate unfriendly motor vehicle and get stuck in traffic for these simple errands?", 
-                            "Different cities around the world are talking about what design and policy changes could lead to 15 minute neighborhoods.", 
-                            "This tool lets you see what commercial amenities are near you right now, using data from OpenStreetMap.",
+                            "What if you could access most of your daily needs with a 15-minute \
+                             walk or bike ride from your house?",
+                            "Wouldn't it be nice to not rely on a climate unfriendly motor \
+                             vehicle and get stuck in traffic for these simple errands?",
+                            "Different cities around the world are talking about what design and \
+                             policy changes could lead to 15 minute neighborhoods.",
+                            "This tool lets you see what commercial amenities are near you right \
+                             now, using data from OpenStreetMap.",
                         ],
                     ));
                 }
@@ -129,6 +133,19 @@ impl State<App> for Viewer {
                     return Transition::Push(PopupMsg::new(ctx, category, details));
                 }
             },
+            Outcome::Changed => {
+                let constraints = if self.panel.is_checked("walking / biking") {
+                    PathConstraints::Bike
+                } else {
+                    PathConstraints::Pedestrian
+                };
+                self.isochrone = Isochrone::new(ctx, app, self.isochrone.start, constraints);
+                self.panel = build_panel(
+                    ctx,
+                    app.primary.map.get_b(self.isochrone.start),
+                    &self.isochrone,
+                );
+            }
             _ => {}
         }
 
@@ -156,7 +173,7 @@ fn draw_star(ctx: &mut EventCtx, center: Pt2D) -> Drawable {
 
 fn build_panel(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -> Panel {
     let mut rows = Vec::new();
-    
+
     rows.push(Widget::row(vec![
         Line("15-minute neighborhood explorer")
             .small_heading()
@@ -180,6 +197,14 @@ fn build_panel(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -> P
     // Start of toolbar
     rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
 
+    rows.push(Checkbox::toggle(
+        ctx,
+        "walking / biking",
+        "walking",
+        "biking",
+        None,
+        isochrone.constraints == PathConstraints::Bike,
+    ));
     rows.push(Btn::plaintext("About").build_def(ctx, None));
 
     Panel::new(Widget::col(rows))

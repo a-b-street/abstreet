@@ -52,23 +52,29 @@ pub fn all_costs_from(
     map: &Map,
     start: BuildingID,
     time_limit: Duration,
+    constraints: PathConstraints,
 ) -> HashMap<BuildingID, Duration> {
-    // TODO This is hardcoded to walking; take a PathConstraints.
-    let graph = build_graph_for_pedestrians(map);
-    let start = WalkingNode::closest(map.get_b(start).sidewalk_pos, map);
-    let cost_per_node = petgraph::algo::dijkstra(&graph, start, None, |(_, _, cost)| *cost);
-
-    // Assign every building a cost based on which end of the sidewalk it's closest to
-    // TODO We could try to get a little more accurate by accounting for the distance from that
-    // end of the sidewalk to the building
     let mut results = HashMap::new();
-    for b in map.all_buildings() {
-        if let Some(seconds) = cost_per_node.get(&WalkingNode::closest(b.sidewalk_pos, map)) {
-            let duration = Duration::seconds(*seconds as f64);
-            if duration <= time_limit {
-                results.insert(b.id, duration);
+
+    if constraints == PathConstraints::Pedestrian {
+        let graph = build_graph_for_pedestrians(map);
+        let start = WalkingNode::closest(map.get_b(start).sidewalk_pos, map);
+        let cost_per_node = petgraph::algo::dijkstra(&graph, start, None, |(_, _, cost)| *cost);
+
+        // Assign every building a cost based on which end of the sidewalk it's closest to
+        // TODO We could try to get a little more accurate by accounting for the distance from that
+        // end of the sidewalk to the building
+        for b in map.all_buildings() {
+            if let Some(seconds) = cost_per_node.get(&WalkingNode::closest(b.sidewalk_pos, map)) {
+                let duration = Duration::seconds(*seconds as f64);
+                if duration <= time_limit {
+                    results.insert(b.id, duration);
+                }
             }
         }
+    } else {
+        // TODO
     }
+
     results
 }
