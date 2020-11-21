@@ -235,6 +235,9 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -322,8 +325,10 @@
                 <span class="self">self</span>.<span class="ident">hovering_on_bldg</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">h</span>.<span class="ident">id</span>));
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">hover</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_bldg</span> {
+        <span class="comment">// Don&#39;t call normal_left_click unless we&#39;re hovering on something in map-space; otherwise</span>
+        <span class="comment">// panel.event never sees clicks.</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">hover</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_bldg</span> {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">hover</span>.<span class="ident">id</span>);
                 <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">constraints</span>);
                 <span class="self">self</span>.<span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>.<span class="ident">polygon</span>.<span class="ident">center</span>());
@@ -456,6 +461,7 @@
     <span class="comment">// Start of toolbar</span>
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>).<span class="ident">margin_above</span>(<span class="number">10</span>));
 
+    <span class="comment">// TODO Why does this look backwards?</span>
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
         <span class="ident">ctx</span>,
         <span class="string">&quot;walking / biking&quot;</span>,
