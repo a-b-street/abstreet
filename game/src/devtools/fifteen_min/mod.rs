@@ -6,6 +6,7 @@
 
 use rand::seq::SliceRandom;
 
+use geom::Pt2D;
 use map_model::BuildingID;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
@@ -15,6 +16,7 @@ use widgetry::{
 use self::isochrone::Isochrone;
 use crate::app::App;
 use crate::game::Transition;
+use crate::helpers::ID;
 
 mod isochrone;
 
@@ -58,9 +60,7 @@ impl Viewer {
             .build(ctx);
 
         // Draw a star on the start building.
-        let highlight_start = GeomBatch::load_svg(ctx.prerender, "system/assets/tools/star.svg")
-            .centered_on(start.polygon.center())
-            .color(RewriteColor::ChangeAll(Color::YELLOW));
+        let highlight_start = draw_star(start.polygon.center(), ctx);
 
         Box::new(Viewer {
             panel,
@@ -71,9 +71,23 @@ impl Viewer {
 }
 
 impl State<App> for Viewer {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         // Allow panning and zooming
         ctx.canvas_movement();
+
+        if ctx.redo_mouseover() {
+            app.recalculate_current_selection(ctx);
+        }
+
+        if ctx.input.left_mouse_button_pressed() {
+            if let Some(ID::Building(building_id)) = app.primary.current_selection.clone() {
+                let building = app.primary.map.get_b(building_id);
+                debug!("clicked on building: {:?}", building);
+                self.isochrone = Isochrone::new(ctx, app, building_id);
+                let star = draw_star(building.polygon.center(), ctx);
+                self.highlight_start = ctx.upload(star);
+            }
+        }
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -93,4 +107,10 @@ impl State<App> for Viewer {
         g.redraw(&self.highlight_start);
         self.panel.draw(g);
     }
+}
+
+fn draw_star(center: Pt2D, ctx: &mut EventCtx) -> GeomBatch {
+    GeomBatch::load_svg(ctx.prerender, "system/assets/tools/star.svg")
+        .centered_on(center)
+        .color(RewriteColor::ChangeAll(Color::YELLOW))
 }
