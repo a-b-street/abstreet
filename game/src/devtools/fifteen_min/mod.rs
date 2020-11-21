@@ -112,5 +112,5 @@ impl State<App> for Viewer {
 fn draw_star(center: Pt2D, ctx: &mut EventCtx) -> GeomBatch {
     GeomBatch::load_svg(ctx.prerender, "system/assets/tools/star.svg")
         .centered_on(center)
-        .color(RewriteColor::ChangeAll(Color::YELLOW))
+        .color(RewriteColor::ChangeAll(Color::BLACK))
 }
