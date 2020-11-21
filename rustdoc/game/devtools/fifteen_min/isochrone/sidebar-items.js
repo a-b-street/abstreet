@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Isochrone","Represents the area reachable from a single building."]]});
+initSidebarItems({"fn":[["draw_isochrone",""]],"struct":[["Isochrone","Represents the area reachable from a single building."]]});
