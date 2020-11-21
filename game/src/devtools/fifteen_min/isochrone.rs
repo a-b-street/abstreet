@@ -28,7 +28,9 @@ impl Isochrone {
         );
 
         // Calculate the cost from the start building to every other building in the map
-        for (b, cost) in connectivity::all_costs_from(&app.primary.map, start) {
+        for (b, cost) in
+            connectivity::all_costs_from(&app.primary.map, start, Duration::minutes(15))
+        {
             // What grid cell does the building belong to?
             let pt = app.primary.map.get_b(b).polygon.center();
             let idx = grid.idx(

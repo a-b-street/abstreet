@@ -47,8 +47,12 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
 }
 
 /// Starting from one building, calculate the cost to all others. If a destination isn't reachable,
-/// it won't be included in the results.
-pub fn all_costs_from(map: &Map, start: BuildingID) -> HashMap<BuildingID, Duration> {
+/// it won't be included in the results. Ignore results greater than the time_limit away.
+pub fn all_costs_from(
+    map: &Map,
+    start: BuildingID,
+    time_limit: Duration,
+) -> HashMap<BuildingID, Duration> {
     // TODO This is hardcoded to walking; take a PathConstraints.
     let graph = build_graph_for_pedestrians(map);
     let start = WalkingNode::closest(map.get_b(start).sidewalk_pos, map);
@@ -60,7 +64,10 @@ pub fn all_costs_from(map: &Map, start: BuildingID) -> HashMap<BuildingID, Durat
     let mut results = HashMap::new();
     for b in map.all_buildings() {
         if let Some(seconds) = cost_per_node.get(&WalkingNode::closest(b.sidewalk_pos, map)) {
-            results.insert(b.id, Duration::seconds(*seconds as f64));
+            let duration = Duration::seconds(*seconds as f64);
+            if duration <= time_limit {
+                results.insert(b.id, duration);
+            }
         }
     }
     results
