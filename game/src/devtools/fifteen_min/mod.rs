@@ -9,14 +9,15 @@ use rand::seq::SliceRandom;
 use geom::Pt2D;
 use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, RewriteColor, State, Text, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, RewriteColor, State, Text, VerticalAlignment, Widget,
 };
 
 use self::isochrone::Isochrone;
 use crate::app::App;
+use crate::common::CityPicker;
 use crate::game::{PopupMsg, Transition};
-use crate::helpers::{amenity_type, ID};
+use crate::helpers::{amenity_type, nice_map_name, ID};
 
 mod isochrone;
 
@@ -48,7 +49,7 @@ impl Viewer {
         let start = app.primary.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, start.id, constraints);
         let highlight_start = draw_star(ctx, start.polygon.center());
-        let panel = build_panel(ctx, start, &isochrone);
+        let panel = build_panel(ctx, app, start, &isochrone);
 
         Box::new(Viewer {
             panel,
@@ -88,12 +89,24 @@ impl State<App> for Viewer {
                 let start = app.primary.map.get_b(hover.id);
                 self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
                 self.highlight_start = draw_star(ctx, start.polygon.center());
-                self.panel = build_panel(ctx, start, &self.isochrone);
+                self.panel = build_panel(ctx, app, start, &self.isochrone);
             }
         }
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
+                "change map" => {
+                    return Transition::Push(CityPicker::new(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| {
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(Self::random_start(ctx, app)),
+                            ])
+                        }),
+                    ));
+                }
                 "close" => {
                     return Transition::Pop;
                 }
@@ -142,6 +155,7 @@ impl State<App> for Viewer {
                 self.isochrone = Isochrone::new(ctx, app, self.isochrone.start, constraints);
                 self.panel = build_panel(
                     ctx,
+                    app,
                     app.primary.map.get_b(self.isochrone.start),
                     &self.isochrone,
                 );
@@ -171,7 +185,7 @@ fn draw_star(ctx: &mut EventCtx, center: Pt2D) -> Drawable {
     )
 }
 
-fn build_panel(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -> Panel {
+fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
     let mut rows = Vec::new();
 
     rows.push(Widget::row(vec![
@@ -180,6 +194,13 @@ fn build_panel(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -> P
             .draw(ctx),
         Btn::close(ctx),
     ]));
+
+    rows.push(Widget::row(vec![Btn::pop_up(
+        ctx,
+        Some(nice_map_name(app.primary.map.get_name())),
+    )
+    .build(ctx, "change map", lctrl(Key::L))]));
+
     rows.push(
         Text::from_all(vec![
             Line("Starting from: ").secondary(),
