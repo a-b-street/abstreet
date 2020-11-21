@@ -34,34 +34,37 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     let program = unsafe { gl.create_program().expect("Cannot create program") };
 
     unsafe {
-        let shaders = [
-            (glow::VERTEX_SHADER, include_str!("shaders/vertex_140.glsl")),
-            (
-                glow::FRAGMENT_SHADER,
-                include_str!("shaders/fragment_140.glsl"),
-            ),
-        ]
-        .iter()
-        .map(|(shader_type, source)| {
-            let shader = gl
-                .create_shader(*shader_type)
-                .expect("Cannot create shader");
-            gl.shader_source(shader, source);
-            gl.compile_shader(shader);
-            if !gl.get_shader_compile_status(shader) {
-                panic!(gl.get_shader_info_log(shader));
-            }
-            gl.attach_shader(program, shader);
-            shader
+        let shaders = compile_shaders(
+            &gl,
+            include_str!("shaders/vertex_140.glsl"),
+            include_str!("shaders/fragment_140.glsl"),
+        )
+        .map_err(|err| {
+            warn!(
+                "unable to compile default shaderrs, falling back to v300. error: {:?}",
+                err
+            );
+            compile_shaders(
+                &gl,
+                include_str!("shaders/vertex_300.glsl"),
+                include_str!("shaders/fragment_300.glsl"),
+            )
         })
-        .collect::<Vec<_>>();
+        .unwrap_or_else(|err| {
+            panic!("error building shader: {:?}", err);
+        });
+
+        for shader in shaders.iter() {
+            gl.attach_shader(program, *shader);
+        }
+
         gl.link_program(program);
         if !gl.get_program_link_status(program) {
             panic!(gl.get_program_info_log(program));
         }
-        for shader in shaders {
-            gl.detach_shader(program, shader);
-            gl.delete_shader(shader);
+        for shader in shaders.iter() {
+            gl.detach_shader(program, *shader);
+            gl.delete_shader(*shader);
         }
         gl.use_program(Some(program));
 
@@ -102,4 +105,30 @@ impl WindowAdapter {
     pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {
         self.0.swap_buffers().unwrap();
     }
+}
+
+unsafe fn compile_shaders(
+    gl: &glow::Context,
+    vertex_source: &str,
+    fragment_source: &str,
+) -> Result<[u32; 2], Box<dyn std::error::Error>> {
+    unsafe fn compile_shader(
+        gl: &glow::Context,
+        shader_type: u32,
+        shader_source: &str,
+    ) -> Result<u32, Box<dyn std::error::Error>> {
+        let shader = gl.create_shader(shader_type)?;
+        gl.shader_source(shader, shader_source);
+        gl.compile_shader(shader);
+        if gl.get_shader_compile_status(shader) {
+            Ok(shader)
+        } else {
+            Err(format!("error compiling shader: {}", gl.get_shader_info_log(shader)).into())
+        }
+    };
+
+    Ok([
+        compile_shader(gl, glow::VERTEX_SHADER, vertex_source)?,
+        compile_shader(gl, glow::FRAGMENT_SHADER, fragment_source)?,
+    ])
 }
