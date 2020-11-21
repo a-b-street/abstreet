@@ -35,22 +35,27 @@ impl Viewer {
 
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         let start = app.primary.map.get_b(start);
+        let isochrone = Isochrone::new(ctx, app, start.id);
 
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Line("15-minute neighborhood explorer")
-                    .small_heading()
-                    .draw(ctx),
-                Btn::close(ctx),
-            ]),
-            Text::from_all(vec![
-                Line("Starting from: ").secondary(),
-                Line(&start.address),
-            ])
-            .draw(ctx),
-        ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx);
+        let mut rows = Vec::new();
+        rows.push(Widget::row(vec![
+            Line("15-minute neighborhood explorer")
+                .small_heading()
+                .draw(ctx),
+            Btn::close(ctx),
+        ]));
+        let mut txt = Text::from_all(vec![
+            Line("Starting from: ").secondary(),
+            Line(&start.address),
+        ]);
+        for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
+            txt.add(Line(format!("{}: {}", amenity, buildings.len())));
+        }
+        rows.push(txt.draw(ctx));
+
+        let panel = Panel::new(Widget::col(rows))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx);
 
         // Draw a star on the start building.
         let highlight_start = GeomBatch::load_svg(ctx.prerender, "system/assets/tools/star.svg")
@@ -60,7 +65,7 @@ impl Viewer {
         Box::new(Viewer {
             panel,
             highlight_start: ctx.upload(highlight_start),
-            isochrone: Isochrone::new(ctx, app, start.id),
+            isochrone,
         })
     }
 }
