@@ -105,8 +105,7 @@ pub fn serialize_multimap<
     map: &MultiMap<K, V>,
     s: S,
 ) -> Result<S::Ok, S::Error> {
-    // TODO maybe need to sort to have deterministic output
-    map.raw_map().iter().collect::<Vec<(_, _)>>().serialize(s)
+    map.borrow().iter().collect::<Vec<(_, _)>>().serialize(s)
 }
 
 /// Deserializes a MultiMap.

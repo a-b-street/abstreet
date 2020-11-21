@@ -54,7 +54,7 @@ where
         self.map.len()
     }
 
-    pub(crate) fn raw_map(&self) -> &BTreeMap<K, BTreeSet<V>> {
+    pub fn borrow(&self) -> &BTreeMap<K, BTreeSet<V>> {
         &self.map
     }
 

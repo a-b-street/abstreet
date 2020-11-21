@@ -35,26 +35,33 @@ impl Viewer {
 
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         let start = app.primary.map.get_b(start);
+        let isochrone = Isochrone::new(ctx, app, start.id);
 
-        let title = Line("15-minute neighborhood explorer")
-            .small_heading()
-            .draw(ctx);
-
-        let address_input = Text::from_all(vec![
+        let mut rows = Vec::new();
+        
+        rows.push(Widget::row(vec![
+            Line("15-minute neighborhood explorer")
+                .small_heading()
+                .draw(ctx),
+            Btn::close(ctx),
+        ]));
+        
+        let mut txt = Text::from_all(vec![
             Line("Starting from: ").secondary(),
             Line(&start.address),
         ]);
+        
+        let about_button = Widget::row(vec![
+            Btn::text_fg("About").build_def(ctx, None),
+        ]);
 
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                title,
-                Btn::close(ctx),
-            ]),
-            address_input.draw(ctx),
-            Widget::row(vec![
-                Btn::plaintext("About").build_def(ctx, None),
-            ])
-        ]))
+        for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
+            txt.add(Line(format!("{}: {}", amenity, buildings.len())));
+        }
+        rows.push(txt.draw(ctx));
+        rows.push(about_button);
+
+        let panel = Panel::new(Widget::col(rows))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx);
 
@@ -66,7 +73,7 @@ impl Viewer {
         Box::new(Viewer {
             panel,
             highlight_start: ctx.upload(highlight_start),
-            isochrone: Isochrone::new(ctx, app, start.id),
+            isochrone,
         })
     }
 }
@@ -84,15 +91,12 @@ impl State<App> for Viewer {
                 "About" => {
                     return Transition::Push(PopupMsg::new(
                         ctx,
-                        "About this OSM viewer",
+                        "15 minute neighborhoods",
                         vec![
-                            "If you have an idea about what this viewer should do, get in touch \
-                             at abstreet.org!",
-                            "",
-                            "Note major liberties have been taken with inferring where sidewalks \
-                             and crosswalks exist.",
-                            "Separate footpaths, bicycle trails, tram lines, etc are not imported \
-                             yet.",
+                            "What if you could access most of your daily needs with a 15-minute walk or bike ride from your house?",
+                            "Wouldn't it be nice to not rely on a climate unfriendly motor vehicle and get stuck in traffic for these simple errands?", 
+                            "Different cities around the world are talking about what design and policy changes could lead to 15 minute neighborhoods.", 
+                            "This tool lets you see what commercial amenities are near you right now, using data from OpenStreetMap.",
                         ],
                     ));
                 },
