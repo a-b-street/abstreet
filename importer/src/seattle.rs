@@ -80,6 +80,16 @@ fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
         true,
         timer,
     );
+
+    // From
+    // https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail
+    download_kml(
+        "input/seattle/land_use.bin",
+        "https://opendata.arcgis.com/datasets/dd29065b5d01420e9686570c2b77502b_0.kml",
+        &bounds,
+        false,
+        timer,
+    );
 }
 
 pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {

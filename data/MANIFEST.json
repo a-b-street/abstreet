@@ -240,6 +240,14 @@
       "checksum": "e8efe1d2e130e248942188284d88ab09",
       "size_bytes": 3356184
     },
+    "data/input/seattle/land_use.bin": {
+      "checksum": "44bdba6b792decc141f11cf33cf14de1",
+      "size_bytes": 5590985
+    },
+    "data/input/seattle/land_use.kml": {
+      "checksum": "b94e889399abc2781215c08b65c833f3",
+      "size_bytes": 11780867
+    },
     "data/input/seattle/offstreet_parking.bin": {
       "checksum": "a33c05e8962dfe10a7a14b9eb6413803",
       "size_bytes": 297209
