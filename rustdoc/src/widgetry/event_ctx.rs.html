@@ -262,6 +262,10 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -271,8 +275,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Percent</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">svg</span>, <span class="ident">text</span>, <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">Event</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
-    <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">UserInput</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">svg</span>, <span class="ident">text</span>, <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">Event</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Panel</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">UserInput</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
@@ -369,6 +373,10 @@
 
     <span class="kw">fn</span> <span class="ident">is_dragging</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_canvas_from</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_just_ended</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_key_down</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">keys_held</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
     }
 
     <span class="comment">// Delegation to assets</span>
