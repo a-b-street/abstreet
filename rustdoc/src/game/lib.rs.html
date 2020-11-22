@@ -219,6 +219,12 @@
 <span id="216">216</span>
 <span id="217">217</span>
 <span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
@@ -337,6 +343,7 @@
     <span class="kw">let</span> <span class="ident">start_with_edits</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--edits&quot;</span>);
     <span class="kw">let</span> <span class="ident">osm_viewer</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--osm&quot;</span>);
     <span class="kw">let</span> <span class="ident">fifteen_min</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--15min&quot;</span>);
+    <span class="kw">let</span> <span class="ident">experiment</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--experiment&quot;</span>);
 
     <span class="ident">args</span>.<span class="ident">done</span>();
 
@@ -349,6 +356,7 @@
             <span class="ident">mode</span>,
             <span class="ident">osm_viewer</span>,
             <span class="ident">fifteen_min</span>,
+            <span class="ident">experiment</span>,
         )
     });
 }
@@ -361,12 +369,14 @@
     <span class="ident">maybe_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span>,
     <span class="ident">osm_viewer</span>: <span class="ident">bool</span>,
     <span class="ident">fifteen_min</span>: <span class="ident">bool</span>,
+    <span class="ident">experiment</span>: <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">App</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">dev</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;player/save&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">osm_viewer</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">fifteen_min</span>
+        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">experiment</span>
         <span class="op">&amp;&amp;</span> <span class="ident">maybe_mode</span>.<span class="ident">is_none</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span>::<span class="ident">new</span>(<span class="ident">flags</span>, <span class="ident">opts</span>, <span class="ident">ctx</span>, <span class="ident">title</span>);
 
@@ -410,6 +420,8 @@
         <span class="macro">vec</span><span class="macro">!</span>[<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">fifteen_min</span>::<span class="ident">Viewer</span>::<span class="ident">random_start</span>(
             <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>,
         )]
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">experiment</span> {
+        <span class="macro">vec</span><span class="macro">!</span>[<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">controls</span>::<span class="ident">Experiment</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)]
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">maybe_mode</span>
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>()));

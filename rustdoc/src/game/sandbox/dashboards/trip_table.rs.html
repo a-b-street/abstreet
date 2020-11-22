@@ -684,6 +684,7 @@
 <span id="681">681</span>
 <span id="682">682</span>
 <span id="683">683</span>
+<span id="684">684</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -789,8 +790,8 @@
     <span class="comment">// Only make one pass through prebaked data</span>
     <span class="kw">let</span> <span class="ident">trip_times_before</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">times</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="ident">maybe_mode</span>, <span class="ident">dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trips</span> {
-            <span class="kw">if</span> <span class="ident">maybe_mode</span>.<span class="ident">is_some</span>() {
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trips</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">maybe_dt</span> {
                 <span class="ident">times</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">dt</span>);
             }
         }
@@ -800,7 +801,7 @@
     };
 
     <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>;
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="ident">maybe_mode</span>, <span class="ident">duration_after</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
+    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="ident">mode</span>, <span class="ident">maybe_duration_after</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">starts_off_map</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
             <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
@@ -816,13 +817,13 @@
             <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">ZERO</span>)
         };
 
-        <span class="kw">if</span> <span class="ident">maybe_mode</span>.<span class="ident">is_none</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">duration_before</span>.<span class="ident">is_none</span>() {
+        <span class="kw">if</span> <span class="ident">maybe_duration_after</span>.<span class="ident">is_none</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">duration_before</span>.<span class="ident">is_none</span>() {
             <span class="kw">let</span> <span class="ident">reason</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">cancellation_reason</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;trip succeeded now, but not before the current proposal&quot;</span>
             ));
             <span class="ident">cancelled</span>.<span class="ident">push</span>(<span class="ident">CancelledTrip</span> {
                 <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
-                <span class="ident">mode</span>: <span class="ident">trip</span>.<span class="ident">mode</span>,
+                <span class="ident">mode</span>: <span class="kw-2">*</span><span class="ident">mode</span>,
                 <span class="ident">departure</span>: <span class="ident">trip</span>.<span class="ident">departure</span>,
                 <span class="ident">starts_off_map</span>,
                 <span class="ident">ends_off_map</span>,
@@ -834,18 +835,19 @@
 
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">waiting</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">finished_trip_details</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
 
+        <span class="kw">let</span> <span class="ident">duration_after</span> <span class="op">=</span> <span class="ident">maybe_duration_after</span>.<span class="ident">unwrap</span>();
         <span class="ident">finished</span>.<span class="ident">push</span>(<span class="ident">FinishedTrip</span> {
             <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
-            <span class="ident">mode</span>: <span class="ident">trip</span>.<span class="ident">mode</span>,
+            <span class="ident">mode</span>: <span class="kw-2">*</span><span class="ident">mode</span>,
             <span class="ident">departure</span>: <span class="ident">trip</span>.<span class="ident">departure</span>,
             <span class="ident">modified</span>: <span class="ident">trip</span>.<span class="ident">modified</span>,
             <span class="ident">capped</span>: <span class="ident">trip</span>.<span class="ident">capped</span>,
             <span class="ident">starts_off_map</span>,
             <span class="ident">ends_off_map</span>,
-            <span class="ident">duration_after</span>: <span class="kw-2">*</span><span class="ident">duration_after</span>,
+            <span class="ident">duration_after</span>,
             <span class="ident">duration_before</span>: <span class="ident">duration_before</span>.<span class="ident">unwrap</span>(),
             <span class="ident">waiting</span>,
-            <span class="ident">percent_waiting</span>: (<span class="number">100.0</span> <span class="op">*</span> <span class="ident">waiting</span> <span class="op">/</span> <span class="kw-2">*</span><span class="ident">duration_after</span>) <span class="kw">as</span> <span class="ident">usize</span>,
+            <span class="ident">percent_waiting</span>: (<span class="number">100.0</span> <span class="op">*</span> <span class="ident">waiting</span> <span class="op">/</span> <span class="ident">duration_after</span>) <span class="kw">as</span> <span class="ident">usize</span>,
         });
     }
 
@@ -1164,8 +1166,8 @@
     <span class="comment">// Only make one pass through prebaked data</span>
     <span class="kw">let</span> <span class="ident">trip_times_before</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">times</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="ident">maybe_mode</span>, <span class="ident">dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trips</span> {
-            <span class="kw">if</span> <span class="ident">maybe_mode</span>.<span class="ident">is_some</span>() {
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trips</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">maybe_dt</span> {
                 <span class="ident">times</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">dt</span>);
             }
         }
@@ -1263,8 +1265,8 @@
     <span class="kw">let</span> (<span class="ident">finished</span>, <span class="ident">unfinished</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_trips</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cancelled</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="comment">// TODO Can we avoid iterating through this again?</span>
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">maybe_mode</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
-        <span class="kw">if</span> <span class="ident">maybe_mode</span>.<span class="ident">is_none</span>() {
+    <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
+        <span class="kw">if</span> <span class="ident">maybe_dt</span>.<span class="ident">is_none</span>() {
             <span class="ident">cancelled</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
     }

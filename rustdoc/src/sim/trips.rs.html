@@ -1628,6 +1628,8 @@
 <span id="1625">1625</span>
 <span id="1626">1626</span>
 <span id="1627">1627</span>
+<span id="1628">1628</span>
+<span id="1629">1629</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -2617,7 +2619,8 @@
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>];
         <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
         <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">cancellation_reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">reason</span>);
-        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>));
+        <span class="self">self</span>.<span class="ident">events</span>
+            .<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>, <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">mode</span>));
     }
 
     <span class="doccomment">/// Cancel a trip after it&#39;s started. The person will be magically warped to their destination,</span>
@@ -2633,7 +2636,8 @@
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>];
         <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
         <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">cancellation_reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">reason</span>);
-        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>));
+        <span class="self">self</span>.<span class="ident">events</span>
+            .<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>, <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">mode</span>));
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">person</span>;
 
         <span class="comment">// Maintain consistentency for anyone listening to events</span>

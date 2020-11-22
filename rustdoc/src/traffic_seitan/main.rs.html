@@ -197,8 +197,8 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cancelled</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">maybe_mode</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
-        <span class="kw">if</span> <span class="ident">maybe_mode</span>.<span class="ident">is_some</span>() {
+    <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
+        <span class="kw">if</span> <span class="ident">maybe_dt</span>.<span class="ident">is_some</span>() {
             <span class="ident">finished</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         } <span class="kw">else</span> {
             <span class="ident">cancelled</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;

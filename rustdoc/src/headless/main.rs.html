@@ -532,7 +532,6 @@
 <span id="529">529</span>
 <span id="530">530</span>
 <span id="531">531</span>
-<span id="532">532</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -816,16 +815,16 @@
         <span class="comment">// Querying data</span>
         <span class="string">&quot;/data/get-finished-trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-            <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="ident">mode</span>, <span class="ident">duration</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
+            <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="ident">mode</span>, <span class="ident">maybe_duration</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
                 <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">id</span>);
-                <span class="kw">let</span> <span class="ident">distance_crossed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">mode</span>.<span class="ident">is_some</span>() {
+                <span class="kw">let</span> <span class="ident">distance_crossed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">maybe_duration</span>.<span class="ident">is_some</span>() {
                     <span class="ident">sim</span>.<span class="ident">finished_trip_details</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="number">2</span>
                 } <span class="kw">else</span> {
                     <span class="ident">Distance</span>::<span class="ident">ZERO</span>
                 };
                 <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">FinishedTrip</span> {
                     <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
-                    <span class="ident">duration</span>: <span class="kw-2">*</span><span class="ident">duration</span>,
+                    <span class="ident">duration</span>: <span class="kw-2">*</span><span class="ident">maybe_duration</span>,
                     <span class="ident">distance_crossed</span>,
                     <span class="ident">mode</span>: <span class="kw-2">*</span><span class="ident">mode</span>,
                     <span class="ident">capped</span>: <span class="ident">info</span>.<span class="ident">capped</span>,
@@ -881,10 +880,9 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">FinishedTrip</span> {
     <span class="ident">id</span>: <span class="ident">TripID</span>,
-    <span class="ident">duration</span>: <span class="ident">Duration</span>,
+    <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">distance_crossed</span>: <span class="ident">Distance</span>,
-    <span class="comment">// TODO Hack: No TripMode means cancelled</span>
-    <span class="ident">mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
+    <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     <span class="ident">capped</span>: <span class="ident">bool</span>,
 }
 

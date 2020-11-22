@@ -1119,8 +1119,8 @@ agents.</li>
 <ul>
 <li><strong>GET /data/get-finished-trips</strong>: Returns a JSON list of all finished trips.
 Each tuple is (time the trip finished in seconds after midnight, trip ID,
-mode, duration of trip in seconds). The mode is either a string like &quot;Walk&quot;
-or &quot;Drive&quot;, or null if the trip was cancelled for any reason.</li>
+mode, duration of trip in seconds). The mode is a string like &quot;Walk&quot; or
+&quot;Drive&quot;. If the trip was cancelled for any reason, duration will be null.</li>
 <li><strong>GET /data/get-agent-positions</strong>: Returns a JSON list of all active agents.
 Vehicle type (or pedestrian), person ID, and position is included.</li>
 <li><strong>GET /data/get-road-thruput</strong>: Returns a JSON list of (road, agent type,
