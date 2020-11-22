@@ -11,8 +11,7 @@ use crate::app_state::App;
 use crate::assets::Assets;
 use crate::tools::screenshot::screenshot_everything;
 use crate::{
-    Canvas, Event, EventCtx, GfxCtx, Key, Prerender, SharedAppState, Style, Text, UpdateType,
-    UserInput,
+    Canvas, Event, EventCtx, GfxCtx, Prerender, SharedAppState, Style, Text, UpdateType, UserInput,
 };
 
 const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
@@ -73,17 +72,10 @@ impl<A: SharedAppState> State<A> {
                 self.canvas.window_height = inner_size.height;
             }
 
-            if input.event == Event::KeyPress(Key::LeftControl) {
-                self.canvas.lctrl_held = true;
-            }
-            if input.event == Event::KeyRelease(Key::LeftControl) {
-                self.canvas.lctrl_held = false;
-            }
-            if input.event == Event::KeyPress(Key::LeftShift) {
-                self.canvas.lshift_held = true;
-            }
-            if input.event == Event::KeyRelease(Key::LeftShift) {
-                self.canvas.lshift_held = false;
+            if let Event::KeyPress(key) = input.event {
+                self.canvas.keys_held.insert(key);
+            } else if let Event::KeyRelease(key) = input.event {
+                self.canvas.keys_held.remove(&key);
             }
 
             if let Some(pt) = input.get_moved_mouse() {

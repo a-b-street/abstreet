@@ -82,7 +82,7 @@ impl DebugMode {
             .build(ctx),
             common: CommonState::new(),
             tool_panel: tool_panel(ctx),
-            objects: objects::ObjectDebugger::new(),
+            objects: objects::ObjectDebugger,
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
             search_results: None,
@@ -326,8 +326,6 @@ impl State<App> for DebugMode {
                 self.highlighted_agents = None;
             }
         }
-
-        self.objects.event(ctx);
 
         if let Some(t) = self.common.event(ctx, app, &mut Actions {}) {
             return t;

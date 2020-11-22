@@ -1,31 +1,15 @@
 use map_model::{Map, PathConstraints};
 use sim::{AgentID, Sim};
-use widgetry::{EventCtx, GfxCtx, Key, Line, Text};
+use widgetry::{GfxCtx, Key, Line, Text};
 
 use crate::app::App;
 use crate::helpers::ID;
 
-pub struct ObjectDebugger {
-    debug_tooltip_key_held: bool,
-}
+pub struct ObjectDebugger;
 
 impl ObjectDebugger {
-    pub fn new() -> ObjectDebugger {
-        ObjectDebugger {
-            debug_tooltip_key_held: false,
-        }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx) {
-        if self.debug_tooltip_key_held {
-            self.debug_tooltip_key_held = !ctx.input.key_released(Key::LeftControl);
-        } else {
-            self.debug_tooltip_key_held = ctx.input.pressed(Key::LeftControl);
-        }
-    }
-
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if self.debug_tooltip_key_held {
+        if g.is_key_down(Key::LeftControl) {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
                 let mut txt = Text::new();
                 txt.add(Line(pt.to_string()));

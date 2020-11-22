@@ -101,7 +101,7 @@ impl WidgetImpl for TextBox {
                     }
                 }
                 _ => {
-                    if let Some(c) = key.to_char(ctx.canvas.lshift_held) {
+                    if let Some(c) = key.to_char(ctx.is_key_down(Key::LeftShift)) {
                         output.outcome = Outcome::Changed;
                         self.line.insert(self.cursor_x, c);
                         self.cursor_x += 1;

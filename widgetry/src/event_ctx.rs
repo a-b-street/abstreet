@@ -6,8 +6,8 @@ use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::{Percent, Polygon};
 
 use crate::{
-    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel,
-    Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment, Widget,
+    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Panel, Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment, Widget,
 };
 
 #[derive(Clone, PartialEq, Debug)]
@@ -104,6 +104,10 @@ impl<'a> EventCtx<'a> {
 
     fn is_dragging(&self) -> bool {
         self.canvas.drag_canvas_from.is_some() || self.canvas.drag_just_ended
+    }
+
+    pub fn is_key_down(&self, key: Key) -> bool {
+        self.canvas.keys_held.contains(&key)
     }
 
     // Delegation to assets

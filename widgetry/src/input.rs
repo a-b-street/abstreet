@@ -16,7 +16,7 @@ impl UserInput {
         UserInput {
             event,
             event_consumed: false,
-            lctrl_held: canvas.lctrl_held,
+            lctrl_held: canvas.keys_held.contains(&Key::LeftControl),
         }
     }
 

@@ -73,22 +73,12 @@ trait Controller {
 }
 
 struct InstantController {
-    left_key_pressed: bool,
-    right_key_pressed: bool,
-    up_key_pressed: bool,
-    down_key_pressed: bool,
-
     speed: Speed,
 }
 
 impl InstantController {
     fn new(speed: Speed) -> InstantController {
         InstantController {
-            left_key_pressed: false,
-            right_key_pressed: false,
-            up_key_pressed: false,
-            down_key_pressed: false,
-
             // TODO Hack
             speed: 5.0 * speed,
         }
@@ -97,31 +87,6 @@ impl InstantController {
 
 impl Controller for InstantController {
     fn displacement(&mut self, ctx: &mut EventCtx) -> (f64, f64) {
-        if ctx.input.pressed(Key::LeftArrow) {
-            self.left_key_pressed = true;
-        }
-        if ctx.input.key_released(Key::LeftArrow) {
-            self.left_key_pressed = false;
-        }
-        if ctx.input.pressed(Key::RightArrow) {
-            self.right_key_pressed = true;
-        }
-        if ctx.input.key_released(Key::RightArrow) {
-            self.right_key_pressed = false;
-        }
-        if ctx.input.pressed(Key::UpArrow) {
-            self.up_key_pressed = true;
-        }
-        if ctx.input.key_released(Key::UpArrow) {
-            self.up_key_pressed = false;
-        }
-        if ctx.input.pressed(Key::DownArrow) {
-            self.down_key_pressed = true;
-        }
-        if ctx.input.key_released(Key::DownArrow) {
-            self.down_key_pressed = false;
-        }
-
         let mut dx = 0.0;
         let mut dy = 0.0;
 
@@ -129,16 +94,16 @@ impl Controller for InstantController {
             ctx.input.use_update_event();
 
             let dist = (dt * self.speed).inner_meters();
-            if self.left_key_pressed {
+            if ctx.is_key_down(Key::LeftArrow) {
                 dx -= dist;
             }
-            if self.right_key_pressed {
+            if ctx.is_key_down(Key::RightArrow) {
                 dx += dist;
             }
-            if self.up_key_pressed {
+            if ctx.is_key_down(Key::UpArrow) {
                 dy -= dist;
             }
-            if self.down_key_pressed {
+            if ctx.is_key_down(Key::DownArrow) {
                 dy += dist;
             }
         }
@@ -148,10 +113,6 @@ impl Controller for InstantController {
 }
 
 struct RotateController {
-    left_key_pressed: bool,
-    right_key_pressed: bool,
-    up_key_pressed: bool,
-
     angle: Angle,
     rot_speed_degrees: f64,
     fwd_speed: Speed,
@@ -160,10 +121,6 @@ struct RotateController {
 impl RotateController {
     fn new(fwd_speed: Speed) -> RotateController {
         RotateController {
-            left_key_pressed: false,
-            right_key_pressed: false,
-            up_key_pressed: false,
-
             angle: Angle::ZERO,
             rot_speed_degrees: 100.0,
             // TODO Hack
@@ -174,43 +131,24 @@ impl RotateController {
 
 impl Controller for RotateController {
     fn displacement(&mut self, ctx: &mut EventCtx) -> (f64, f64) {
-        if ctx.input.pressed(Key::LeftArrow) {
-            self.left_key_pressed = true;
-        }
-        if ctx.input.key_released(Key::LeftArrow) {
-            self.left_key_pressed = false;
-        }
-        if ctx.input.pressed(Key::RightArrow) {
-            self.right_key_pressed = true;
-        }
-        if ctx.input.key_released(Key::RightArrow) {
-            self.right_key_pressed = false;
-        }
-        if ctx.input.pressed(Key::UpArrow) {
-            self.up_key_pressed = true;
-        }
-        if ctx.input.key_released(Key::UpArrow) {
-            self.up_key_pressed = false;
-        }
-
         let mut dx = 0.0;
         let mut dy = 0.0;
 
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
 
-            if self.left_key_pressed {
+            if ctx.is_key_down(Key::LeftArrow) {
                 self.angle = self
                     .angle
                     .rotate_degs(-self.rot_speed_degrees * dt.inner_seconds());
             }
-            if self.right_key_pressed {
+            if ctx.is_key_down(Key::RightArrow) {
                 self.angle = self
                     .angle
                     .rotate_degs(self.rot_speed_degrees * dt.inner_seconds());
             }
 
-            if self.up_key_pressed {
+            if ctx.is_key_down(Key::UpArrow) {
                 let dist = dt * self.fwd_speed;
                 let pt = Pt2D::new(0.0, 0.0).project_away(dist, self.angle);
                 dx = pt.x();

@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashSet;
 
 use serde::{Deserialize, Serialize};
 
@@ -45,8 +46,7 @@ pub struct Canvas {
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
 
     // Kind of just widgetry state awkwardly stuck here...
-    pub(crate) lctrl_held: bool,
-    pub(crate) lshift_held: bool,
+    pub(crate) keys_held: HashSet<Key>,
 }
 
 impl Canvas {
@@ -74,8 +74,7 @@ impl Canvas {
 
             covered_areas: RefCell::new(Vec::new()),
 
-            lctrl_held: false,
-            lshift_held: false,
+            keys_held: HashSet::new(),
         }
     }
 
@@ -90,7 +89,7 @@ impl Canvas {
         if self.get_cursor_in_map_space().is_some() {
             if self.touchpad_to_move {
                 if let Some((scroll_x, scroll_y)) = input.get_mouse_scroll() {
-                    if self.lctrl_held {
+                    if self.keys_held.contains(&Key::LeftControl) {
                         self.zoom(scroll_y, self.cursor);
                     } else {
                         // Woo, inversion is different for the two. :P

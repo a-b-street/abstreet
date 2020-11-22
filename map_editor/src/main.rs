@@ -34,7 +34,6 @@ struct MainState {
     state: State,
     panel: Panel,
     popup: Option<Drawable>,
-    info_key_held: bool,
 
     last_id: Option<ID>,
 }
@@ -45,8 +44,7 @@ enum State {
     MovingBuilding(osm::OsmID),
     MovingRoadPoint(OriginalRoad, usize),
     CreatingRoad(osm::NodeID),
-    // bool is show_tooltip
-    PreviewIntersection(Drawable, bool),
+    PreviewIntersection(Drawable),
 }
 
 impl MainState {
@@ -83,7 +81,6 @@ impl MainState {
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
                 .build(ctx),
                 popup: None,
-                info_key_held: false,
 
                 last_id: None,
             },
@@ -93,12 +90,6 @@ impl MainState {
 
 impl widgetry::State<App> for MainState {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
-        if self.info_key_held {
-            self.info_key_held = !ctx.input.key_released(Key::LeftAlt);
-        } else {
-            self.info_key_held = ctx.input.pressed(Key::LeftAlt);
-        }
-
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
             app.model.world.handle_mouseover(ctx);
@@ -147,7 +138,7 @@ impl widgetry::State<App> for MainState {
                             app.model.world.handle_mouseover(ctx);
                         } else if !app.model.intersection_geom && ctx.input.pressed(Key::P) {
                             let draw = preview_intersection(i, &app.model, ctx);
-                            self.state = State::PreviewIntersection(draw, false);
+                            self.state = State::PreviewIntersection(draw);
                         }
                     }
                     Some(ID::Building(b)) => {
@@ -192,7 +183,7 @@ impl widgetry::State<App> for MainState {
                                 "preview all intersections" => {
                                     if !app.model.intersection_geom {
                                         let draw = preview_all_intersections(&app.model, ctx);
-                                        self.state = State::PreviewIntersection(draw, false);
+                                        self.state = State::PreviewIntersection(draw);
                                     }
                                 }
                                 _ => unreachable!(),
@@ -253,14 +244,7 @@ impl widgetry::State<App> for MainState {
                     }
                 }
             }
-            State::PreviewIntersection(_, ref mut show_tooltip) => {
-                if *show_tooltip && ctx.input.key_released(Key::RightAlt) {
-                    *show_tooltip = false;
-                } else if !*show_tooltip && ctx.input.pressed(Key::RightAlt) {
-                    *show_tooltip = true;
-                }
-
-                // TODO Woops, not communicating this kind of thing anymore
+            State::PreviewIntersection(_) => {
                 if ctx.input.pressed(Key::P) {
                     self.state = State::Viewing;
                     app.model.world.handle_mouseover(ctx);
@@ -269,7 +253,7 @@ impl widgetry::State<App> for MainState {
         }
 
         self.popup = None;
-        if self.info_key_held {
+        if ctx.is_key_down(Key::LeftAlt) {
             if let Some(id) = app.model.world.get_selection() {
                 let txt = app.model.describe_obj(id);
                 // TODO We used to display actions and hotkeys here
@@ -294,7 +278,7 @@ impl widgetry::State<App> for MainState {
             app.model.map.boundary_polygon.clone(),
         );
         match self.state {
-            State::PreviewIntersection(_, _) => app.model.world.draw(g, |id| match id {
+            State::PreviewIntersection(_) => app.model.world.draw(g, |id| match id {
                 ID::Intersection(_) => false,
                 _ => true,
             }),
@@ -313,10 +297,10 @@ impl widgetry::State<App> for MainState {
             | State::MovingIntersection(_)
             | State::MovingBuilding(_)
             | State::MovingRoadPoint(_, _) => {}
-            State::PreviewIntersection(ref draw, show_tooltip) => {
+            State::PreviewIntersection(ref draw) => {
                 g.redraw(draw);
 
-                if show_tooltip {
+                if g.is_key_down(Key::RightAlt) {
                     // TODO Argh, covers up mouseover tooltip.
                     if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
                         g.draw_mouse_tooltip(Text::from(Line(cursor.to_string())));
