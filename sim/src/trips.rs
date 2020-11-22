@@ -986,7 +986,8 @@ impl TripManager {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
         trip.info.cancellation_reason = Some(reason);
-        self.events.push(Event::TripCancelled(trip.id));
+        self.events
+            .push(Event::TripCancelled(trip.id, trip.info.mode));
     }
 
     /// Cancel a trip after it's started. The person will be magically warped to their destination,
@@ -1002,7 +1003,8 @@ impl TripManager {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
         trip.info.cancellation_reason = Some(reason);
-        self.events.push(Event::TripCancelled(trip.id));
+        self.events
+            .push(Event::TripCancelled(trip.id, trip.info.mode));
         let person = trip.person;
 
         // Maintain consistentency for anyone listening to events

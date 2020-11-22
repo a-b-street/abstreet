@@ -33,7 +33,7 @@ def run_sim(args, modifiers=[], edits=None):
     trip_times = {}
     capped_trips = set()
     for trip in raw_trips:
-        if trip['mode'] is None:
+        if trip['duration'] is None:
             num_cancelled += 1
         else:
             trip_times[trip['id']] = trip['duration']

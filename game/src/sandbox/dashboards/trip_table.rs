@@ -102,8 +102,8 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
     // Only make one pass through prebaked data
     let trip_times_before = if app.has_prebaked().is_some() {
         let mut times = HashMap::new();
-        for (_, id, maybe_mode, dt) in &app.prebaked().finished_trips {
-            if maybe_mode.is_some() {
+        for (_, id, _, maybe_dt) in &app.prebaked().finished_trips {
+            if let Some(dt) = maybe_dt {
                 times.insert(*id, *dt);
             }
         }
@@ -113,7 +113,7 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
     };
 
     let sim = &app.primary.sim;
-    for (_, id, maybe_mode, duration_after) in &sim.get_analytics().finished_trips {
+    for (_, id, mode, maybe_duration_after) in &sim.get_analytics().finished_trips {
         let trip = sim.trip_info(*id);
         let starts_off_map = match trip.start {
             TripEndpoint::Border(_) => true,
@@ -129,13 +129,13 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
             Some(Duration::ZERO)
         };
 
-        if maybe_mode.is_none() || duration_before.is_none() {
+        if maybe_duration_after.is_none() || duration_before.is_none() {
             let reason = trip.cancellation_reason.clone().unwrap_or(format!(
                 "trip succeeded now, but not before the current proposal"
             ));
             cancelled.push(CancelledTrip {
                 id: *id,
-                mode: trip.mode,
+                mode: *mode,
                 departure: trip.departure,
                 starts_off_map,
                 ends_off_map,
@@ -147,18 +147,19 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
 
         let (_, waiting, _) = sim.finished_trip_details(*id).unwrap();
 
+        let duration_after = maybe_duration_after.unwrap();
         finished.push(FinishedTrip {
             id: *id,
-            mode: trip.mode,
+            mode: *mode,
             departure: trip.departure,
             modified: trip.modified,
             capped: trip.capped,
             starts_off_map,
             ends_off_map,
-            duration_after: *duration_after,
+            duration_after,
             duration_before: duration_before.unwrap(),
             waiting,
-            percent_waiting: (100.0 * waiting / *duration_after) as usize,
+            percent_waiting: (100.0 * waiting / duration_after) as usize,
         });
     }
 
@@ -477,8 +478,8 @@ fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
     // Only make one pass through prebaked data
     let trip_times_before = if app.has_prebaked().is_some() {
         let mut times = HashMap::new();
-        for (_, id, maybe_mode, dt) in &app.prebaked().finished_trips {
-            if maybe_mode.is_some() {
+        for (_, id, _, maybe_dt) in &app.prebaked().finished_trips {
+            if let Some(dt) = maybe_dt {
                 times.insert(*id, *dt);
             }
         }
@@ -576,8 +577,8 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
     let (finished, unfinished) = app.primary.sim.num_trips();
     let mut cancelled = 0;
     // TODO Can we avoid iterating through this again?
-    for (_, _, maybe_mode, _) in &app.primary.sim.get_analytics().finished_trips {
-        if maybe_mode.is_none() {
+    for (_, _, _, maybe_dt) in &app.primary.sim.get_analytics().finished_trips {
+        if maybe_dt.is_none() {
             cancelled += 1;
         }
     }

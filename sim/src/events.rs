@@ -48,7 +48,7 @@ pub enum Event {
         total_time: Duration,
         blocked_time: Duration,
     },
-    TripCancelled(TripID),
+    TripCancelled(TripID, TripMode),
     TripPhaseStarting(TripID, PersonID, Option<PathRequest>, TripPhaseType),
     /// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn
     TripIntersectionDelay(TripID, TurnID, AgentID, Duration),

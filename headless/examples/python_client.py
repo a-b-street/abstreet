@@ -114,7 +114,7 @@ def run_experiment():
     # cancelled trips.
     trips = {}
     for trip in raw_trips:
-        if trip['mode'] is not None:
+        if trip['duration'] is not None:
             trips[trip['id']] = trip['duration']
 
     # The direction is a dict, but Python can't handle dicts as keys. Stringify

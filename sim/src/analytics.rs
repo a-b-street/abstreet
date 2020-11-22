@@ -41,9 +41,8 @@ pub struct Analytics {
     pub passengers_alighting: BTreeMap<BusStopID, Vec<(Time, BusRouteID)>>,
 
     pub started_trips: BTreeMap<TripID, Time>,
-    // TODO Hack: No TripMode means cancelled
-    /// Finish time, ID, mode, trip duration
-    pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
+    /// Finish time, ID, mode, trip duration if successful (or None if cancelled)
+    pub finished_trips: Vec<(Time, TripID, TripMode, Option<Duration>)>,
 
     /// Records how long was spent waiting at each turn (Intersection) for a given trip
     /// Over a certain threshold
@@ -187,10 +186,10 @@ impl Analytics {
         } = ev
         {
             self.finished_trips
-                .push((time, trip, Some(mode), total_time));
-        } else if let Event::TripCancelled(id) = ev {
+                .push((time, trip, mode, Some(total_time)));
+        } else if let Event::TripCancelled(id, mode) = ev {
             self.started_trips.entry(id).or_insert(time);
-            self.finished_trips.push((time, id, None, Duration::ZERO));
+            self.finished_trips.push((time, id, mode, None));
         }
 
         // Trip Intersection delay
@@ -267,7 +266,7 @@ impl Analytics {
             Event::TripPhaseStarting(id, _, maybe_req, phase_type) => {
                 self.trip_log.push((time, id, maybe_req, phase_type));
             }
-            Event::TripCancelled(id) => {
+            Event::TripCancelled(id, _) => {
                 self.trip_log
                     .push((time, id, None, TripPhaseType::Cancelled));
             }
@@ -301,13 +300,9 @@ impl Analytics {
     /// Ignores the current time. Returns None for cancelled trips.
     pub fn finished_trip_time(&self, trip: TripID) -> Option<Duration> {
         // TODO This is so inefficient!
-        for (_, id, maybe_mode, dt) in &self.finished_trips {
+        for (_, id, _, maybe_dt) in &self.finished_trips {
             if *id == trip {
-                if maybe_mode.is_some() {
-                    return Some(*dt);
-                } else {
-                    return None;
-                }
+                return maybe_dt.clone();
             }
         }
         None
@@ -320,21 +315,21 @@ impl Analytics {
         before: &Analytics,
     ) -> Vec<(TripID, Duration, Duration, TripMode)> {
         let mut a = BTreeMap::new();
-        for (t, id, maybe_mode, dt) in &self.finished_trips {
+        for (t, id, _, maybe_dt) in &self.finished_trips {
             if *t > now {
                 break;
             }
-            if maybe_mode.is_some() {
+            if let Some(dt) = maybe_dt {
                 a.insert(*id, *dt);
             }
         }
 
         let mut results = Vec::new();
-        for (t, id, maybe_mode, dt) in &before.finished_trips {
+        for (t, id, mode, maybe_dt) in &before.finished_trips {
             if *t > now {
                 break;
             }
-            if let Some(mode) = maybe_mode {
+            if let Some(dt) = maybe_dt {
                 if let Some(dt1) = a.remove(id) {
                     results.push((*id, *dt, dt1, *mode));
                 }

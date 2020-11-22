@@ -63,8 +63,8 @@ fn run(map: &mut Map, sim: &mut Sim, rng: &mut XorShiftRng, timer: &mut Timer) {
 
     let mut finished = 0;
     let mut cancelled = 0;
-    for (_, _, maybe_mode, _) in &sim.get_analytics().finished_trips {
-        if maybe_mode.is_some() {
+    for (_, _, _, maybe_dt) in &sim.get_analytics().finished_trips {
+        if maybe_dt.is_some() {
             finished += 1;
         } else {
             cancelled += 1;

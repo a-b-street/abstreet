@@ -280,16 +280,16 @@ fn handle_command(
         // Querying data
         "/data/get-finished-trips" => {
             let mut trips = Vec::new();
-            for (_, id, mode, duration) in &sim.get_analytics().finished_trips {
+            for (_, id, mode, maybe_duration) in &sim.get_analytics().finished_trips {
                 let info = sim.trip_info(*id);
-                let distance_crossed = if mode.is_some() {
+                let distance_crossed = if maybe_duration.is_some() {
                     sim.finished_trip_details(*id).unwrap().2
                 } else {
                     Distance::ZERO
                 };
                 trips.push(FinishedTrip {
                     id: *id,
-                    duration: *duration,
+                    duration: *maybe_duration,
                     distance_crossed,
                     mode: *mode,
                     capped: info.capped,
@@ -345,10 +345,9 @@ fn handle_command(
 #[derive(Serialize)]
 struct FinishedTrip {
     id: TripID,
-    duration: Duration,
+    duration: Option<Duration>,
     distance_crossed: Distance,
-    // TODO Hack: No TripMode means cancelled
-    mode: Option<TripMode>,
+    mode: TripMode,
     capped: bool,
 }
 
