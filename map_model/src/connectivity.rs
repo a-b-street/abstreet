@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 
 use petgraph::graphmap::DiGraphMap;
 
-use geom::Duration;
+use geom::{Distance, Duration, Speed};
 
 pub use crate::pathfind::{
     build_graph_for_pedestrians, build_graph_for_vehicles, driving_cost, WalkingNode,
@@ -91,6 +91,9 @@ pub fn all_costs_from(
             }
         }
 
+        // TODO Copied from simulation code :(
+        let max_bike_speed = Speed::miles_per_hour(10.0);
+
         if let Some(start_lane) = bldg_to_lane.get(&start) {
             let graph = build_graph_for_vehicles(map, constraints);
             let cost_per_lane =
@@ -98,8 +101,9 @@ pub fn all_costs_from(
                     driving_cost(map.get_l(turn.src), map.get_t(*turn), constraints, map)
                 });
             for (b, lane) in bldg_to_lane {
-                if let Some(seconds) = cost_per_lane.get(&lane) {
-                    let duration = Duration::seconds(*seconds as f64);
+                if let Some(meters) = cost_per_lane.get(&lane) {
+                    let distance = Distance::meters(*meters as f64);
+                    let duration = distance / max_bike_speed;
                     if duration <= time_limit {
                         results.insert(b, duration);
                     }

@@ -218,7 +218,7 @@ fn make_input_graph(
     input_graph
 }
 
-/// Roughly equivalent to seconds
+/// Different unit based on constraints.
 pub fn driving_cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> f64 {
     // TODO Could cost turns differently.
 

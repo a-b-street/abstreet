@@ -150,9 +150,9 @@ impl State<App> for Viewer {
             },
             Outcome::Changed => {
                 let constraints = if self.panel.is_checked("walking / biking") {
-                    PathConstraints::Bike
-                } else {
                     PathConstraints::Pedestrian
+                } else {
+                    PathConstraints::Bike
                 };
                 self.isochrone = Isochrone::new(ctx, app, self.isochrone.start, constraints);
                 self.panel = build_panel(
@@ -220,14 +220,13 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     // Start of toolbar
     rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
 
-    // TODO Why does this look backwards?
     rows.push(Checkbox::toggle(
         ctx,
         "walking / biking",
         "walking",
         "biking",
         None,
-        isochrone.constraints == PathConstraints::Bike,
+        isochrone.constraints == PathConstraints::Pedestrian,
     ));
     rows.push(Btn::plaintext("About").build_def(ctx, None));
 
