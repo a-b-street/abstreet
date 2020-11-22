@@ -4,7 +4,7 @@ use abstutil::MultiMap;
 use geom::{Duration, Polygon};
 use map_gui::tools::{amenity_type, Grid};
 use map_gui::SimpleApp;
-use map_model::{connectivity, BuildingID, PathConstraints};
+use map_model::{connectivity, BuildingID, Map, PathConstraints, PathRequest};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 /// Represents the area reachable from a single building.
@@ -49,6 +49,16 @@ impl Isochrone {
             time_to_reach_building,
             amenities_reachable,
         }
+    }
+
+    pub fn path_to(&self, map: &Map, destination_id: BuildingID) -> Option<map_model::Path> {
+        let path_request = PathRequest {
+            start: map.get_b(self.start).sidewalk_pos,
+            end: map.get_b(destination_id).sidewalk_pos,
+            constraints: self.constraints,
+        };
+
+        map.pathfind(path_request)
     }
 }
 
