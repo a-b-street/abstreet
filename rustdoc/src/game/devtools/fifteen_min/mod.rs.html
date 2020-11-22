@@ -237,7 +237,6 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
-<span id="237">237</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -391,9 +390,9 @@
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;walking / biking&quot;</span>) {
-                    <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>
-                } <span class="kw">else</span> {
                     <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>
                 };
                 <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">start</span>, <span class="ident">constraints</span>);
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(
@@ -461,14 +460,13 @@
     <span class="comment">// Start of toolbar</span>
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>).<span class="ident">margin_above</span>(<span class="number">10</span>));
 
-    <span class="comment">// TODO Why does this look backwards?</span>
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
         <span class="ident">ctx</span>,
         <span class="string">&quot;walking / biking&quot;</span>,
         <span class="string">&quot;walking&quot;</span>,
         <span class="string">&quot;biking&quot;</span>,
         <span class="prelude-val">None</span>,
-        <span class="ident">isochrone</span>.<span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
+        <span class="ident">isochrone</span>.<span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
     ));
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
 
