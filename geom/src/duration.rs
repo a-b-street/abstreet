@@ -196,15 +196,15 @@ impl Duration {
 
     /// Describes the duration according to formatting rules.
     pub fn to_string(self, fmt: &UnitFmt) -> String {
-        if self == Duration::ZERO {
-            return "0s".to_string();
-        }
-
         let mut s = String::new();
         if self < Duration::ZERO {
             s = "-".to_string();
         }
         let (hours, minutes, seconds, remainder) = self.get_parts();
+        if hours == 0 && minutes == 0 && seconds == 0 && remainder == 0 {
+            return "0s".to_string();
+        }
+
         if hours != 0 {
             s = format!("{}{}h", s, hours);
         }
@@ -356,6 +356,7 @@ mod tests {
         };
 
         assert_eq!("0s", Duration::ZERO.to_string(&dont_round));
+        assert_eq!("0s", Duration::seconds(0.001).to_string(&dont_round));
         assert_eq!("1m30.1s", Duration::seconds(90.123).to_string(&dont_round));
         assert_eq!("1m30s", Duration::seconds(90.123).to_string(&round));
     }
