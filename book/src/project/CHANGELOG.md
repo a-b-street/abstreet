@@ -654,3 +654,9 @@ changes here.
 - slight performance improvements by avoiding applying no-op edits
 - new tests for lane-changing behavior, used to more safely allow more realistic behavior blocking "degenerate" intersections
 - experimenting with filling in gaps between one-way roads, to represent medians
+
+0.2.20
+
+- prototyped a new 15-minute neighborhood tool
+- overhaul internal simulation input code -- better performance, way simpler
+- debug tool to record traffic around a few intersections and replay later
