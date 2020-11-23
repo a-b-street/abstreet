@@ -10,7 +10,7 @@ use widgetry::{
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::game::{ChooseSomething, PromptInput, Transition};
-use crate::render::DrawOptions;
+use map_gui::render::DrawOptions;
 
 // TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio
 // button-ish thing to start?

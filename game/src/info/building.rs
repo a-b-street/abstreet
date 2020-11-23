@@ -7,7 +7,7 @@ use widgetry::{Btn, Color, EventCtx, Line, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_table, make_tabs, Details, Tab};
-use crate::render::DrawPedestrian;
+use map_gui::render::DrawPedestrian;
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::BldgInfo(id));

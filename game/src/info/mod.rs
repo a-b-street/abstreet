@@ -498,7 +498,7 @@ impl InfoPanel {
                             false,
                             Some(Transition::Push(Warping::new(
                                 ctx,
-                                id.canonical_point(&app.primary).unwrap(),
+                                app.primary.canonical_point(id.clone()).unwrap(),
                                 Some(10.0),
                                 Some(id),
                                 &mut app.primary,
@@ -512,7 +512,7 @@ impl InfoPanel {
                         false,
                         Some(Transition::Push(Warping::new(
                             ctx,
-                            id.canonical_point(&app.primary).unwrap(),
+                            app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
                             None,
                             &mut app.primary,

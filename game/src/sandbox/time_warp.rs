@@ -11,8 +11,8 @@ use crate::app::{App, FindDelayedIntersections, ShowEverything};
 use crate::common::Warping;
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
-use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
+use map_gui::render::DrawOptions;
 
 // TODO Text entry would be great
 pub struct JumpToTime {
@@ -322,7 +322,7 @@ impl State<App> for TimeWarpScreen {
                             Some(Box::new(crate::layer::traffic::TrafficJams::new(ctx, app)));
                         return Transition::Replace(Warping::new(
                             ctx,
-                            id.canonical_point(&app.primary).unwrap(),
+                            app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
                             Some(id),
                             &mut app.primary,

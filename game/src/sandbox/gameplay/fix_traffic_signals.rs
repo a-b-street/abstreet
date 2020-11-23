@@ -132,7 +132,7 @@ impl GameplayState for FixTrafficSignals {
                         Transition::Push(final_score(ctx, app, self.mode.clone(), true)),
                         Transition::Push(Warping::new(
                             ctx,
-                            ID::Intersection(i).canonical_point(&app.primary).unwrap(),
+                            app.primary.canonical_point(ID::Intersection(i)).unwrap(),
                             Some(10.0),
                             None,
                             &mut app.primary,
@@ -210,7 +210,7 @@ impl GameplayState for FixTrafficSignals {
                         .0;
                     return Some(Transition::Push(Warping::new(
                         ctx,
-                        ID::Intersection(i).canonical_point(&app.primary).unwrap(),
+                        app.primary.canonical_point(ID::Intersection(i)).unwrap(),
                         Some(10.0),
                         None,
                         &mut app.primary,

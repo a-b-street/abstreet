@@ -16,8 +16,8 @@ use crate::app::App;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, TrafficSignalEditor};
 use crate::game::Transition;
-use crate::render::DrawIntersection;
 use crate::sandbox::GameplayMode;
+use map_gui::render::DrawIntersection;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
 // sure what to do about the player orphaning a section of the map.

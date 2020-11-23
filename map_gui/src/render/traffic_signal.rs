@@ -4,10 +4,10 @@ use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
 use map_model::{IntersectionID, Movement, Stage, TurnPriority, SIDEWALK_THICKNESS};
 use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
-use crate::app::App;
 use crate::options::TrafficSignalStyle;
 use crate::render::intersection::make_crosswalk;
 use crate::render::BIG_ARROW_THICKNESS;
+use crate::AppLike;
 
 pub fn draw_signal_stage(
     prerender: &Prerender,
@@ -16,10 +16,10 @@ pub fn draw_signal_stage(
     i: IntersectionID,
     time_left: Option<Duration>,
     batch: &mut GeomBatch,
-    app: &App,
+    app: &dyn AppLike,
     signal_style: TrafficSignalStyle,
 ) {
-    let signal = app.primary.map.get_traffic_signal(i);
+    let signal = app.map().get_traffic_signal(i);
 
     match signal_style {
         TrafficSignalStyle::BAP => {
@@ -64,7 +64,7 @@ pub fn draw_signal_stage(
                             if yellow_light {
                                 yellow
                             } else {
-                                app.cs.signal_protected_turn.alpha(percent)
+                                app.cs().signal_protected_turn.alpha(percent)
                             },
                             pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                         );
@@ -100,7 +100,7 @@ pub fn draw_signal_stage(
                     if yellow_light {
                         yellow
                     } else {
-                        app.cs.signal_protected_turn.alpha(percent)
+                        app.cs().signal_protected_turn.alpha(percent)
                     },
                     pl.exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
                         .dashed_arrow(
@@ -119,9 +119,9 @@ pub fn draw_signal_stage(
                 let arrow = signal.movements[m]
                     .geom
                     .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
-                batch.push(app.cs.signal_permitted_turn.alpha(0.3), arrow.clone());
+                batch.push(app.cs().signal_permitted_turn.alpha(0.3), arrow.clone());
                 if let Ok(p) = arrow.to_outline(BIG_ARROW_THICKNESS / 2.0) {
-                    batch.push(app.cs.signal_permitted_turn, p);
+                    batch.push(app.cs().signal_permitted_turn, p);
                 }
             }
             for m in &stage.protected_movements {
@@ -130,13 +130,13 @@ pub fn draw_signal_stage(
                     // always drawn, so this awkwardly doubles some of them.
                     make_crosswalk(
                         batch,
-                        app.primary.map.get_t(signal.movements[m].members[0]),
-                        &app.primary.map,
-                        &app.cs,
+                        app.map().get_t(signal.movements[m].members[0]),
+                        app.map(),
+                        app.cs(),
                     );
                 } else {
                     batch.push(
-                        app.cs.signal_protected_turn,
+                        app.cs().signal_protected_turn,
                         signal.movements[m]
                             .geom
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
@@ -148,14 +148,14 @@ pub fn draw_signal_stage(
             }
         }
         TrafficSignalStyle::IndividualTurnArrows => {
-            for turn in app.primary.map.get_turns_in_intersection(i) {
+            for turn in app.map().get_turns_in_intersection(i) {
                 if turn.between_sidewalks() {
                     continue;
                 }
                 match stage.get_priority_of_turn(turn.id, signal) {
                     TurnPriority::Protected => {
                         batch.push(
-                            app.cs.signal_protected_turn,
+                            app.cs().signal_protected_turn,
                             turn.geom
                                 .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                         );
@@ -165,9 +165,9 @@ pub fn draw_signal_stage(
                             .geom
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
                         if let Ok(p) = arrow.to_outline(BIG_ARROW_THICKNESS / 2.0) {
-                            batch.push(app.cs.signal_permitted_turn, p);
+                            batch.push(app.cs().signal_permitted_turn, p);
                         } else {
-                            batch.push(app.cs.signal_permitted_turn, arrow);
+                            batch.push(app.cs().signal_permitted_turn, arrow);
                         }
                     }
                     TurnPriority::Banned => {}
@@ -181,14 +181,14 @@ pub fn draw_signal_stage(
 }
 
 pub fn draw_stage_number(
-    app: &App,
+    app: &dyn AppLike,
     prerender: &Prerender,
     i: IntersectionID,
     idx: usize,
     batch: &mut GeomBatch,
 ) {
     let radius = Distance::meters(1.0);
-    let center = app.primary.map.get_i(i).polygon.polylabel();
+    let center = app.map().get_i(i).polygon.polylabel();
     batch.push(
         Color::hex("#5B5B5B"),
         Circle::new(center, radius).to_polygon(),
@@ -202,7 +202,7 @@ pub fn draw_stage_number(
 }
 
 fn draw_time_left(
-    app: &App,
+    app: &dyn AppLike,
     prerender: &Prerender,
     stage: &Stage,
     i: IntersectionID,
@@ -211,18 +211,18 @@ fn draw_time_left(
     batch: &mut GeomBatch,
 ) {
     let radius = Distance::meters(2.0);
-    let center = app.primary.map.get_i(i).polygon.center();
+    let center = app.map().get_i(i).polygon.center();
     let percent = time_left / stage.phase_type.simple_duration();
     batch.push(
-        app.cs.signal_box,
+        app.cs().signal_box,
         Circle::new(center, 1.2 * radius).to_polygon(),
     );
     batch.push(
-        app.cs.signal_spinner.alpha(0.3),
+        app.cs().signal_spinner.alpha(0.3),
         Circle::new(center, radius).to_polygon(),
     );
     batch.push(
-        app.cs.signal_spinner,
+        app.cs().signal_spinner,
         Circle::new(center, radius).to_partial_polygon(percent),
     );
     batch.append(

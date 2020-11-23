@@ -9,7 +9,7 @@ use widgetry::{
 
 use crate::app::{App, ShowEverything};
 use crate::game::Transition;
-use crate::render::{DrawOptions, DrawUberTurnGroup, BIG_ARROW_THICKNESS};
+use map_gui::render::{DrawOptions, DrawUberTurnGroup, BIG_ARROW_THICKNESS};
 
 pub struct ClusterTrafficSignalEditor {
     panel: Panel,

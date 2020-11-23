@@ -96,7 +96,7 @@ impl Tutorial {
                 self.warped = true;
                 return Some(Transition::Push(Warping::new(
                     ctx,
-                    id.canonical_point(&app.primary).unwrap(),
+                    app.primary.canonical_point(id.clone()).unwrap(),
                     Some(zoom),
                     None,
                     &mut app.primary,

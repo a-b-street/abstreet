@@ -4,11 +4,10 @@ use widgetry::{
     TextExt, Widget,
 };
 
-use crate::app::App;
 use crate::colors::ColorSchemeChoice;
-use crate::game::Transition;
 use crate::helpers::grey_out_map;
 use crate::render::DrawBuilding;
+use crate::AppLike;
 
 /// Options controlling the UI.
 // TODO SimOptions stuff too
@@ -96,7 +95,7 @@ pub struct OptionsPanel {
 }
 
 impl OptionsPanel {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new<A: AppLike>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
         Box::new(OptionsPanel {
             panel: Panel::new(Widget::col(vec![
                 Widget::custom_row(vec![
@@ -136,7 +135,7 @@ impl OptionsPanel {
                             .named("gui_scroll_speed"),
                     ]),
                 ])
-                .bg(app.cs.section_bg)
+                .bg(app.cs().section_bg)
                 .padding(8),
                 "Appearance".draw_text(ctx),
                 Widget::col(vec![
@@ -145,7 +144,7 @@ impl OptionsPanel {
                         Widget::dropdown(
                             ctx,
                             "Traffic signal rendering",
-                            app.opts.traffic_signal_style.clone(),
+                            app.opts().traffic_signal_style.clone(),
                             vec![
                                 Choice::new("Default (Brian's style)", TrafficSignalStyle::BAP),
                                 Choice::new("Yuwen's style", TrafficSignalStyle::Yuwen),
@@ -161,7 +160,7 @@ impl OptionsPanel {
                         Widget::dropdown(
                             ctx,
                             "Camera angle",
-                            app.opts.camera_angle.clone(),
+                            app.opts().camera_angle.clone(),
                             vec![
                                 Choice::new("Top-down", CameraAngle::TopDown),
                                 Choice::new("Isometric (northeast)", CameraAngle::IsometricNE),
@@ -177,7 +176,7 @@ impl OptionsPanel {
                         Widget::dropdown(
                             ctx,
                             "Color scheme",
-                            app.opts.color_scheme,
+                            app.opts().color_scheme,
                             ColorSchemeChoice::choices(),
                         ),
                     ]),
@@ -186,7 +185,7 @@ impl OptionsPanel {
                         Widget::dropdown(
                             ctx,
                             "min zoom",
-                            app.opts.min_zoom_for_detail,
+                            app.opts().min_zoom_for_detail,
                             vec![
                                 Choice::new("1.0", 1.0),
                                 Choice::new("2.0", 2.0),
@@ -199,10 +198,10 @@ impl OptionsPanel {
                     ]),
                     Widget::row(vec![
                         "Language".draw_text(ctx),
-                        Widget::dropdown(ctx, "language", app.opts.language.clone(), {
+                        Widget::dropdown(ctx, "language", app.opts().language.clone(), {
                             let mut choices = Vec::new();
                             choices.push(Choice::new("Map native language", None));
-                            for lang in app.primary.map.get_languages() {
+                            for lang in app.map().get_languages() {
                                 choices.push(Choice::new(lang, Some(lang.to_string())));
                             }
                             choices
@@ -214,22 +213,22 @@ impl OptionsPanel {
                         "metric",
                         "imperial",
                         None,
-                        app.opts.units.metric,
+                        app.opts().units.metric,
                     ),
                 ])
-                .bg(app.cs.section_bg)
+                .bg(app.cs().section_bg)
                 .padding(8),
                 "Debug".draw_text(ctx),
                 Widget::col(vec![
-                    Checkbox::checkbox(ctx, "Enable developer mode", None, app.opts.dev),
+                    Checkbox::checkbox(ctx, "Enable developer mode", None, app.opts().dev),
                     Checkbox::checkbox(
                         ctx,
                         "Draw all agents to debug geometry (Slow!)",
                         None,
-                        app.opts.debug_all_agents,
+                        app.opts().debug_all_agents,
                     ),
                 ])
-                .bg(app.cs.section_bg)
+                .bg(app.cs().section_bg)
                 .padding(8),
                 Btn::text_bg2("Apply")
                     .build_def(ctx, Key::Enter)
@@ -240,16 +239,17 @@ impl OptionsPanel {
     }
 }
 
-impl State<App> for OptionsPanel {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl<A: AppLike> State<A> for OptionsPanel {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> widgetry::Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
-                    return Transition::Pop;
+                    return widgetry::Transition::Pop;
                 }
                 "Apply" => {
-                    app.opts.dev = self.panel.is_checked("Enable developer mode");
-                    app.opts.debug_all_agents = self
+                    let mut opts = app.opts().clone();
+                    opts.dev = self.panel.is_checked("Enable developer mode");
+                    opts.debug_all_agents = self
                         .panel
                         .is_checked("Draw all agents to debug geometry (Slow!)");
 
@@ -266,43 +266,41 @@ impl State<App> for OptionsPanel {
                     ctx.canvas.gui_scroll_speed = self.panel.spinner("gui_scroll_speed") as usize;
 
                     let style = self.panel.dropdown_value("Traffic signal rendering");
-                    if app.opts.traffic_signal_style != style {
-                        app.opts.traffic_signal_style = style;
+                    if opts.traffic_signal_style != style {
+                        opts.traffic_signal_style = style;
                         println!("Rerendering traffic signals...");
-                        for i in &mut app.primary.draw_map.intersections {
+                        for i in &mut app.mut_draw_map().intersections {
                             *i.draw_traffic_signal.borrow_mut() = None;
                         }
                     }
 
                     let camera_angle = self.panel.dropdown_value("Camera angle");
-                    if app.opts.camera_angle != camera_angle {
-                        app.opts.camera_angle = camera_angle;
+                    if opts.camera_angle != camera_angle {
+                        opts.camera_angle = camera_angle;
                         ctx.loading_screen("rerendering buildings", |ctx, timer| {
                             let mut all_buildings = GeomBatch::new();
                             let mut all_building_paths = GeomBatch::new();
                             let mut all_building_outlines = GeomBatch::new();
-                            timer.start_iter(
-                                "rendering buildings",
-                                app.primary.map.all_buildings().len(),
-                            );
-                            for b in app.primary.map.all_buildings() {
+                            timer
+                                .start_iter("rendering buildings", app.map().all_buildings().len());
+                            for b in app.map().all_buildings() {
                                 timer.next();
                                 DrawBuilding::new(
                                     ctx,
                                     b,
-                                    &app.primary.map,
-                                    &app.cs,
-                                    &app.opts,
+                                    app.map(),
+                                    app.cs(),
+                                    &opts,
                                     &mut all_buildings,
                                     &mut all_building_paths,
                                     &mut all_building_outlines,
                                 );
                             }
                             timer.start("upload geometry");
-                            app.primary.draw_map.draw_all_buildings = all_buildings.upload(ctx);
-                            app.primary.draw_map.draw_all_building_paths =
+                            app.mut_draw_map().draw_all_buildings = all_buildings.upload(ctx);
+                            app.mut_draw_map().draw_all_building_paths =
                                 all_building_paths.upload(ctx);
-                            app.primary.draw_map.draw_all_building_outlines =
+                            app.mut_draw_map().draw_all_building_outlines =
                                 all_building_outlines.upload(ctx);
                             timer.stop("upload geometry");
                         });
@@ -310,31 +308,33 @@ impl State<App> for OptionsPanel {
 
                     if app.change_color_scheme(ctx, self.panel.dropdown_value("Color scheme")) {
                         // If the player picks a different scheme, don't undo it later.
-                        app.opts.toggle_day_night_colors = false;
+                        opts.toggle_day_night_colors = false;
                     }
 
-                    app.opts.min_zoom_for_detail = self.panel.dropdown_value("min zoom");
-                    app.opts.units.metric = self.panel.is_checked("metric / imperial units");
+                    opts.min_zoom_for_detail = self.panel.dropdown_value("min zoom");
+                    opts.units.metric = self.panel.is_checked("metric / imperial units");
 
                     let language = self.panel.dropdown_value("language");
-                    if language != app.opts.language {
-                        app.opts.language = language;
-                        for r in &mut app.primary.draw_map.roads {
+                    if language != opts.language {
+                        opts.language = language;
+                        for r in &mut app.mut_draw_map().roads {
                             r.clear_rendering();
                         }
                     }
 
-                    return Transition::Pop;
+                    *app.mut_opts() = opts;
+
+                    return widgetry::Transition::Pop;
                 }
                 _ => unreachable!(),
             },
             _ => {}
         }
 
-        Transition::Keep
+        widgetry::Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
         grey_out_map(g, app);
         self.panel.draw(g);
     }

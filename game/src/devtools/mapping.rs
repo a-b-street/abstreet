@@ -321,7 +321,7 @@ impl State<App> for ParkingMapper {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     app.opts.min_zoom_for_detail =
-                        crate::options::Options::default().min_zoom_for_detail;
+                        map_gui::options::Options::default().min_zoom_for_detail;
                     return Transition::Pop;
                 }
                 "Generate OsmChange file" => {

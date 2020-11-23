@@ -14,8 +14,8 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::colors::ColorScheme;
 use crate::game::{ChooseSomething, PopupMsg, Transition};
+use map_gui::colors::ColorScheme;
 
 pub struct ViewKML {
     panel: Panel,

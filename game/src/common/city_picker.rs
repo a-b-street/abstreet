@@ -10,7 +10,7 @@ use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{grey_out_map, nice_map_name, open_browser};
 use crate::load::MapLoader;
-use crate::render::DrawArea;
+use map_gui::render::DrawArea;
 
 pub struct CityPicker {
     panel: Panel,

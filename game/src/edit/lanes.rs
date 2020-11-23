@@ -12,8 +12,8 @@ use crate::edit::{
 };
 use crate::game::Transition;
 use crate::helpers::ID;
-use crate::render::Renderable;
 use crate::sandbox::GameplayMode;
+use map_gui::render::Renderable;
 
 pub struct LaneEditor {
     l: LaneID,
