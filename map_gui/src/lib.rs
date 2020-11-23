@@ -2,7 +2,7 @@
 //! state, based around drawing and interacting with a Map.
 
 use abstutil::{CmdArgs, Timer};
-use geom::{Duration, Time};
+use geom::{Circle, Distance, Duration, Time};
 use map_model::{IntersectionID, Map};
 use sim::Sim;
 use widgetry::{EventCtx, GfxCtx, SharedAppState};
@@ -131,6 +131,71 @@ impl SimpleApp {
                 _ => {}
             };
         }
+    }
+
+    pub fn mouseover_unzoomed_roads_and_intersections(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(ctx, true, false)
+    }
+    pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(ctx, false, true)
+    }
+    pub fn mouseover_unzoomed_everything(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(ctx, true, true)
+    }
+
+    fn calculate_current_selection(
+        &self,
+        ctx: &EventCtx,
+        unzoomed_roads_and_intersections: bool,
+        unzoomed_buildings: bool,
+    ) -> Option<ID> {
+        // Unzoomed mode. Ignore when debugging areas.
+        if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
+            && !(unzoomed_roads_and_intersections || unzoomed_buildings)
+        {
+            return None;
+        }
+
+        let pt = ctx.canvas.get_cursor_in_map_space()?;
+
+        let mut objects = self.draw_map.get_renderables_back_to_front(
+            Circle::new(pt, Distance::meters(3.0)).get_bounds(),
+            &self.map,
+        );
+        objects.reverse();
+
+        for obj in objects {
+            match obj.get_id() {
+                ID::Road(_) => {
+                    if !unzoomed_roads_and_intersections
+                        || ctx.canvas.cam_zoom >= self.opts.min_zoom_for_detail
+                    {
+                        continue;
+                    }
+                }
+                ID::Intersection(_) => {
+                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
+                        && !unzoomed_roads_and_intersections
+                    {
+                        continue;
+                    }
+                }
+                ID::Building(_) => {
+                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail && !unzoomed_buildings {
+                        continue;
+                    }
+                }
+                _ => {
+                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail {
+                        continue;
+                    }
+                }
+            }
+            if obj.contains_pt(pt, &self.map) {
+                return Some(obj.get_id());
+            }
+        }
+        None
     }
 }
 

@@ -197,13 +197,11 @@ impl State<SimpleApp> for ParkingMapper {
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            let mut maybe_r = None;
-            // TODO
-            /*match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+            let mut maybe_r = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 Some(ID::Road(r)) => Some(r),
                 Some(ID::Lane(l)) => Some(map.get_l(l).parent),
                 _ => None,
-            };*/
+            };
             if let Some(r) = maybe_r {
                 if map.get_r(r).is_light_rail() {
                     maybe_r = None;
