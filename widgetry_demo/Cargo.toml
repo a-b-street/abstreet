@@ -8,7 +8,7 @@ edition = "2018"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default = ["widgetry/glow-backend"]
+default = ["widgetry/native-backend"]
 wasm = ["console_log", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
@@ -19,4 +19,4 @@ rand = "0.7.0"
 rand_xorshift = "0.2.0"
 svg_face = "0.1.2"
 wasm-bindgen = { version = "0.2.68", optional = true }
-widgetry = { path = "../widgetry", default-features=false }
+widgetry = { path = "../widgetry" }

@@ -6,7 +6,7 @@ use glow::HasContext;
 use crate::drawing::Uniforms;
 use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
 
-#[cfg(feature = "glow-backend")]
+#[cfg(feature = "native-backend")]
 pub use crate::backend_glow_native::setup;
 
 #[cfg(feature = "wasm-backend")]
@@ -189,7 +189,7 @@ impl Drop for Buffer {
 #[cfg(feature = "wasm-backend")]
 type WindowAdapter = crate::backend_glow_wasm::WindowAdapter;
 
-#[cfg(feature = "glow-backend")]
+#[cfg(feature = "native-backend")]
 type WindowAdapter = crate::backend_glow_native::WindowAdapter;
 
 pub struct PrerenderInnards {

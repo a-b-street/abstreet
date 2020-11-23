@@ -5,8 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [features]
-default = ["glow-backend"]
-glow-backend = ["glow", "glutin", "usvg/text", "usvg/text_native"]
+native-backend = ["glow", "glutin", "usvg/text", "usvg/text_native"]
 wasm-backend = ["glow/web-sys", "instant/wasm-bindgen", "usvg/text", "usvg/text_web-sys", "wasm-bindgen", "web-sys", "winit/web-sys"]
 
 [dependencies]

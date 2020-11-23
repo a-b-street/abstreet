@@ -11,7 +11,7 @@ license = "Apache-2.0"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default = ["built", "widgetry/glow-backend", "reqwest"]
+default = ["built", "widgetry/native-backend", "reqwest"]
 # Just a marker to jump straight into the OSM viewer
 osm_viewer = []
 wasm = ["console_log", "futures", "futures-channel", "js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys", "widgetry/wasm-backend"]
@@ -54,7 +54,7 @@ sim = { path = "../sim" }
 wasm-bindgen = { version = "0.2.68", optional = true }
 wasm-bindgen-futures = { version = "0.4.18", optional = true }
 webbrowser = "0.5.5"
-widgetry = { path = "../widgetry", default-features=false }
+widgetry = { path = "../widgetry" }
 xmltree = "0.10.1"
 
 [build-dependencies]

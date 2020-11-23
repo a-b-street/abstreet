@@ -62,9 +62,9 @@ pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetO
 
 mod app_state;
 mod assets;
-#[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
+#[cfg(any(feature = "native-backend", feature = "wasm-backend"))]
 mod backend_glow;
-#[cfg(feature = "glow-backend")]
+#[cfg(feature = "native-backend")]
 mod backend_glow_native;
 #[cfg(feature = "wasm-backend")]
 mod backend_glow_wasm;
@@ -84,7 +84,7 @@ mod tools;
 mod widgets;
 
 mod backend {
-    #[cfg(any(feature = "glow-backend", feature = "wasm-backend"))]
+    #[cfg(any(feature = "native-backend", feature = "wasm-backend"))]
     pub use crate::backend_glow::*;
 }
 
