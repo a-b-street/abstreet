@@ -7,6 +7,7 @@
 use rand::seq::SliceRandom;
 
 use geom::Pt2D;
+use map_gui::common::CityPicker;
 use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -15,7 +16,6 @@ use widgetry::{
 
 use self::isochrone::Isochrone;
 use crate::app::App;
-use crate::common::CityPicker;
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{amenity_type, nice_map_name, ID};
 

@@ -5,6 +5,7 @@ use osm::WayID;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
+use map_gui::common::CityPicker;
 use map_model::{osm, RoadID};
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -12,7 +13,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::{CityPicker, ColorLegend};
+use crate::common::ColorLegend;
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 

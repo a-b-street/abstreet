@@ -4,11 +4,10 @@
 use serde::de::DeserializeOwned;
 
 use abstutil::{MapName, Timer};
-use sim::Sim;
-use widgetry::{Color, EventCtx, GfxCtx, State};
+use widgetry::{Color, EventCtx, GfxCtx, State, Transition};
 
-use crate::app::App;
-use crate::game::{PopupMsg, Transition};
+use crate::game::PopupMsg;
+use crate::AppLike;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use native_loader::FileLoader;
@@ -19,20 +18,20 @@ pub use wasm_loader::FileLoader;
 pub struct MapLoader;
 
 impl MapLoader {
-    pub fn new(
+    pub fn new<A: AppLike + 'static>(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &A,
         name: MapName,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State<App>> {
-        if app.primary.map.get_name() == &name {
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
+        if app.map().get_name() == &name {
             return Box::new(MapAlreadyLoaded {
                 on_load: Some(on_load),
             });
         }
 
         // TODO If we want to load montlake on the web, just pull from bundled data.
-        FileLoader::<map_model::Map>::new(
+        FileLoader::<A, map_model::Map>::new(
             ctx,
             name.path(),
             Box::new(move |ctx, app, timer, map| {
@@ -41,12 +40,7 @@ impl MapLoader {
                         // Kind of a hack. We can't generically call Map::new with the FileLoader.
                         map.map_loaded_directly();
 
-                        let sim = Sim::new(
-                            &map,
-                            app.primary.current_flags.sim_flags.opts.clone(),
-                            timer,
-                        );
-                        app.map_switched(ctx, map, sim, timer);
+                        app.map_switched(ctx, map, timer);
 
                         (on_load)(ctx, app)
                     }
@@ -61,37 +55,37 @@ impl MapLoader {
     }
 }
 
-struct MapAlreadyLoaded {
-    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>>,
+struct MapAlreadyLoaded<A: AppLike> {
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
 }
-impl State<App> for MapAlreadyLoaded {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl<A: AppLike + 'static> State<A> for MapAlreadyLoaded<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         (self.on_load.take().unwrap())(ctx, app)
     }
-    fn draw(&self, _: &mut GfxCtx, _: &App) {}
+    fn draw(&self, _: &mut GfxCtx, _: &A) {}
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 mod native_loader {
     use super::*;
 
-    pub struct FileLoader<T> {
+    pub struct FileLoader<A: AppLike, T> {
         path: String,
         // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
         // if a caller fails to pop the FileLoader state in their transitions!
         on_load: Option<
-            Box<dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Result<T, String>) -> Transition>,
+            Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T, String>) -> Transition<A>>,
         >,
     }
 
-    impl<T: 'static + DeserializeOwned> FileLoader<T> {
+    impl<A: AppLike + 'static, T: 'static + DeserializeOwned> FileLoader<A, T> {
         pub fn new(
             _: &mut EventCtx,
             path: String,
             on_load: Box<
-                dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Result<T, String>) -> Transition,
+                dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T, String>) -> Transition<A>,
             >,
-        ) -> Box<dyn State<App>> {
+        ) -> Box<dyn State<A>> {
             Box::new(FileLoader {
                 path,
                 on_load: Some(on_load),
@@ -99,8 +93,8 @@ mod native_loader {
         }
     }
 
-    impl<T: 'static + DeserializeOwned> State<App> for FileLoader<T> {
-        fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+    impl<A: AppLike + 'static, T: 'static + DeserializeOwned> State<A> for FileLoader<A, T> {
+        fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
                 let file = if self.path.ends_with(".bin") {
                     abstutil::maybe_read_binary(self.path.clone(), timer)
@@ -112,7 +106,7 @@ mod native_loader {
             })
         }
 
-        fn draw(&self, g: &mut GfxCtx, _: &App) {
+        fn draw(&self, g: &mut GfxCtx, _: &A) {
             g.clear(Color::BLACK);
         }
     }
@@ -134,24 +128,24 @@ mod wasm_loader {
     // Instead of blockingly reading a file within ctx.loading_screen, on the web have to
     // asynchronously make an HTTP request and keep "polling" for completion in a way that's
     // compatible with winit's event loop.
-    pub struct FileLoader<T> {
+    pub struct FileLoader<A: AppLike, T> {
         response: oneshot::Receiver<Result<Vec<u8>, String>>,
         on_load: Option<
-            Box<dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Result<T, String>) -> Transition>,
+            Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T, String>) -> Transition<A>>,
         >,
         panel: Panel,
         started: Instant,
         url: String,
     }
 
-    impl<T: 'static + DeserializeOwned> FileLoader<T> {
+    impl<A: AppLike + 'static, T: 'static + DeserializeOwned> FileLoader<A, T> {
         pub fn new(
             ctx: &mut EventCtx,
             path: String,
             on_load: Box<
-                dyn FnOnce(&mut EventCtx, &mut App, &mut Timer, Result<T, String>) -> Transition,
+                dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T, String>) -> Transition<A>,
             >,
-        ) -> Box<dyn State<App>> {
+        ) -> Box<dyn State<A>> {
             // Note that files are only gzipepd on S3. When running locally, we just symlink the
             // data/ directory, where files aren't compressed.
             let url = if cfg!(feature = "wasm_s3") {
@@ -208,8 +202,8 @@ mod wasm_loader {
         }
     }
 
-    impl<T: 'static + DeserializeOwned> State<App> for FileLoader<T> {
-        fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+    impl<A: AppLike + 'static, T: 'static + DeserializeOwned> State<A> for FileLoader<A, T> {
+        fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
             if let Some(maybe_resp) = self.response.try_recv().unwrap() {
                 // TODO We stop drawing and start blocking at this point. It can take a
                 // while. Any way to make it still be nonblockingish? Maybe put some of the work
@@ -246,7 +240,7 @@ mod wasm_loader {
             Transition::Keep
         }
 
-        fn draw(&self, g: &mut GfxCtx, _: &App) {
+        fn draw(&self, g: &mut GfxCtx, _: &A) {
             // TODO Progress bar for bytes received
             g.clear(Color::BLACK);
             self.panel.draw(g);

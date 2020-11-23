@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::{MapName, Parallelism, Tags, Timer};
 use geom::{Distance, Pt2D};
+use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawOptions};
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
@@ -16,7 +17,6 @@ use crate::app::{App, ShowLayers, ShowObject};
 use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{ChooseSomething, PopupMsg, PromptInput, Transition};
 use crate::helpers::ID;
-use crate::load::MapLoader;
 use crate::sandbox::GameplayMode;
 
 mod blocked_by;

@@ -121,20 +121,6 @@ impl App {
         }
     }
 
-    pub fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, sim: Sim, timer: &mut Timer) {
-        ctx.canvas.save_camera_state(self.primary.map.get_name());
-        self.primary = PerMap::map_loaded(
-            map,
-            sim,
-            false,
-            self.primary.current_flags.clone(),
-            &self.opts,
-            &self.cs,
-            ctx,
-            timer,
-        )
-    }
-
     pub fn draw(&self, g: &mut GfxCtx, opts: DrawOptions, show_objs: &dyn ShowObject) {
         let map = &self.primary.map;
         let draw_map = &self.primary.draw_map;
@@ -470,6 +456,26 @@ impl map_gui::AppLike for App {
     #[inline]
     fn mut_opts(&mut self) -> &mut Options {
         &mut self.opts
+    }
+
+    fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer) {
+        let sim = Sim::new(
+            &map,
+            self.primary.current_flags.sim_flags.opts.clone(),
+            timer,
+        );
+
+        ctx.canvas.save_camera_state(self.primary.map.get_name());
+        self.primary = PerMap::map_loaded(
+            map,
+            sim,
+            false,
+            self.primary.current_flags.clone(),
+            &self.opts,
+            &self.cs,
+            ctx,
+            timer,
+        )
     }
 }
 

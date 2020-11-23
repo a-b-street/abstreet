@@ -1,7 +1,7 @@
 //! Several distinct tools/applications all share the same general structure for their shared GUI
 //! state, based around drawing and interacting with a Map.
 
-use abstutil::CmdArgs;
+use abstutil::{CmdArgs, Timer};
 use map_model::Map;
 use sim::Sim;
 use widgetry::{EventCtx, GfxCtx, SharedAppState};
@@ -14,7 +14,9 @@ use render::DrawMap;
 
 pub mod colors;
 pub mod common;
+pub mod game;
 pub mod helpers;
+pub mod load;
 pub mod options;
 pub mod render;
 
@@ -30,6 +32,7 @@ pub trait AppLike {
     fn mut_draw_map(&mut self) -> &mut DrawMap;
     fn opts(&self) -> &Options;
     fn mut_opts(&mut self) -> &mut Options;
+    fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer);
 
     /// Change the color scheme. Idempotent. Return true if there was a change.
     fn change_color_scheme(&mut self, ctx: &mut EventCtx, cs: ColorSchemeChoice) -> bool {
@@ -154,6 +157,12 @@ impl AppLike for SimpleApp {
     #[inline]
     fn mut_opts(&mut self) -> &mut Options {
         &mut self.opts
+    }
+
+    fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer) {
+        ctx.canvas.save_camera_state(self.map().get_name());
+        self.map = map;
+        self.draw_map = DrawMap::new(&self.map, &self.opts, &self.cs, ctx, timer);
     }
 }
 

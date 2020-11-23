@@ -3,13 +3,13 @@
 
 use abstutil::Timer;
 use geom::{LonLat, Percent};
+use map_gui::common::CityPicker;
 use widgetry::{
     lctrl, Btn, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::common::CityPicker;
 use crate::game::{ChooseSomething, Transition};
 use crate::helpers::nice_map_name;
 

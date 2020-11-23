@@ -5,6 +5,7 @@ pub use time_warp::TimeWarpScreen;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
+use map_gui::load::{FileLoader, MapLoader};
 use map_gui::AppLike;
 use sim::{Analytics, Scenario};
 use widgetry::{
@@ -23,7 +24,6 @@ use crate::edit::{
 use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
-use crate::load::{FileLoader, MapLoader};
 use crate::pregame::MainMenu;
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::options::OptionsPanel;
@@ -688,7 +688,7 @@ impl State<App> for SandboxLoader {
                                 }
                             }
 
-                            return Transition::Push(FileLoader::<Scenario>::new(
+                            return Transition::Push(FileLoader::<App, Scenario>::new(
                                 ctx,
                                 path,
                                 Box::new(|_, _, _, scenario| {
@@ -742,7 +742,7 @@ impl State<App> for SandboxLoader {
                         continue;
                     }
 
-                    return Transition::Push(FileLoader::<Analytics>::new(
+                    return Transition::Push(FileLoader::<App, Analytics>::new(
                         ctx,
                         abstutil::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
                         Box::new(move |_, _, _, prebaked| {

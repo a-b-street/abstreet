@@ -6,7 +6,6 @@ use widgetry::{
     ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
 };
 
-pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, DivergingScale};
 pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
 pub use self::minimap::Minimap;
@@ -18,13 +17,10 @@ use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
 
-mod city_picker;
 mod colors;
 mod heatmap;
 mod minimap;
 mod navigate;
-#[cfg(not(target_arch = "wasm32"))]
-mod updater;
 mod warp;
 
 // TODO This is now just used in two modes...
