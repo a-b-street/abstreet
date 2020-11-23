@@ -3,13 +3,11 @@ use std::collections::HashSet;
 use map_model::RoadID;
 use widgetry::{
     Autocomplete, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    State, Text, Widget,
+    State, Text, Transition, Widget,
 };
 
-use crate::app::App;
-use crate::common::Warping;
-use crate::game::Transition;
 use crate::helpers::{grey_out_map, ID};
+use crate::AppLike;
 
 // TODO Canonicalize names, handling abbreviations like east/e and street/st
 pub struct Navigator {
@@ -17,7 +15,7 @@ pub struct Navigator {
 }
 
 impl Navigator {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
         Box::new(Navigator {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -26,11 +24,10 @@ impl Navigator {
                 ]),
                 Autocomplete::new(
                     ctx,
-                    app.primary
-                        .map
+                    app.map()
                         .all_roads()
                         .iter()
-                        .map(|r| (r.get_name(app.opts.language.as_ref()), r.id))
+                        .map(|r| (r.get_name(app.opts().language.as_ref()), r.id))
                         .collect(),
                 )
                 .named("street"),
@@ -41,8 +38,8 @@ impl Navigator {
     }
 }
 
-impl State<App> for Navigator {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl<A: AppLike + 'static> State<A> for Navigator {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -69,7 +66,7 @@ impl State<App> for Navigator {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
         grey_out_map(g, app);
         self.panel.draw(g);
     }
@@ -82,13 +79,17 @@ struct CrossStreet {
 }
 
 impl CrossStreet {
-    fn new(ctx: &mut EventCtx, app: &App, first: Vec<RoadID>) -> Box<dyn State<App>> {
-        let map = &app.primary.map;
+    fn new<A: AppLike + 'static>(
+        ctx: &mut EventCtx,
+        app: &A,
+        first: Vec<RoadID>,
+    ) -> Box<dyn State<A>> {
+        let map = app.map();
         let mut cross_streets = HashSet::new();
         let mut batch = GeomBatch::new();
         for r in &first {
             let road = map.get_r(*r);
-            batch.push(Color::RED, road.get_thick_polygon(&app.primary.map));
+            batch.push(Color::RED, road.get_thick_polygon(map));
             for i in &[road.src_i, road.dst_i] {
                 for cross in &map.get_i(*i).roads {
                     cross_streets.insert(*cross);
@@ -108,7 +109,7 @@ impl CrossStreet {
                         // TODO This isn't so clear...
                         txt.add(Line(format!(
                             "(Or just quit to go to {})",
-                            map.get_r(first[0]).get_name(app.opts.language.as_ref()),
+                            map.get_r(first[0]).get_name(app.opts().language.as_ref()),
                         )));
                         txt.draw(ctx)
                     },
@@ -118,7 +119,7 @@ impl CrossStreet {
                     ctx,
                     cross_streets
                         .into_iter()
-                        .map(|r| (map.get_r(r).get_name(app.opts.language.as_ref()), r))
+                        .map(|r| (map.get_r(r).get_name(app.opts().language.as_ref()), r))
                         .collect(),
                 )
                 .named("street"),
@@ -130,21 +131,20 @@ impl CrossStreet {
     }
 }
 
-impl State<App> for CrossStreet {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let map = &app.primary.map;
+impl<A: AppLike + 'static> State<A> for CrossStreet {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        let map = app.map();
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     // Just warp to somewhere on the first road
-                    let road = map.get_r(self.first[0]);
-                    return Transition::Replace(Warping::new(
+                    let pt = map.get_r(self.first[0]).center_pts.middle();
+                    return Transition::Replace(app.make_warper(
                         ctx,
-                        road.center_pts.middle(),
-                        Some(app.opts.min_zoom_for_detail),
+                        pt,
+                        Some(app.opts().min_zoom_for_detail),
                         None,
-                        &mut app.primary,
                     ));
                 }
                 _ => unreachable!(),
@@ -164,12 +164,12 @@ impl State<App> for CrossStreet {
                 }
             }
             if let Some(i) = found {
-                return Transition::Replace(Warping::new(
+                let pt = map.get_i(i).polygon.center();
+                return Transition::Replace(app.make_warper(
                     ctx,
-                    map.get_i(i).polygon.center(),
-                    Some(app.opts.min_zoom_for_detail),
+                    pt,
+                    Some(app.opts().min_zoom_for_detail),
                     Some(ID::Intersection(i)),
-                    &mut app.primary,
                 ));
             } else {
                 return Transition::Pop;
@@ -183,7 +183,7 @@ impl State<App> for CrossStreet {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
         g.redraw(&self.draw);
         grey_out_map(g, app);
         self.panel.draw(g);
@@ -195,7 +195,7 @@ struct SearchBuildings {
 }
 
 impl SearchBuildings {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
         Box::new(SearchBuildings {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -206,8 +206,7 @@ impl SearchBuildings {
                 ]),
                 Autocomplete::new(
                     ctx,
-                    app.primary
-                        .map
+                    app.map()
                         .all_buildings()
                         .iter()
                         .flat_map(|b| {
@@ -217,7 +216,7 @@ impl SearchBuildings {
                             }
                             if let Some(ref names) = b.name {
                                 results.push((
-                                    names.get(app.opts.language.as_ref()).to_string(),
+                                    names.get(app.opts().language.as_ref()).to_string(),
                                     b.id,
                                 ));
                             }
@@ -225,7 +224,7 @@ impl SearchBuildings {
                                 results.push((
                                     format!(
                                         "{} (at {})",
-                                        a.names.get(app.opts.language.as_ref()),
+                                        a.names.get(app.opts().language.as_ref()),
                                         b.address
                                     ),
                                     b.id,
@@ -243,8 +242,8 @@ impl SearchBuildings {
     }
 }
 
-impl State<App> for SearchBuildings {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl<A: AppLike + 'static> State<A> for SearchBuildings {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -261,13 +260,13 @@ impl State<App> for SearchBuildings {
             if bldgs.is_empty() {
                 return Transition::Pop;
             }
-            let b = app.primary.map.get_b(bldgs[0]);
-            return Transition::Replace(Warping::new(
+            let b = app.map().get_b(bldgs[0]);
+            let pt = b.label_center;
+            return Transition::Replace(app.make_warper(
                 ctx,
-                b.label_center,
-                Some(app.opts.min_zoom_for_detail),
-                Some(ID::Building(b.id)),
-                &mut app.primary,
+                pt,
+                Some(app.opts().min_zoom_for_detail),
+                Some(ID::Building(bldgs[0])),
             ));
         }
 
@@ -278,7 +277,7 @@ impl State<App> for SearchBuildings {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
         grey_out_map(g, app);
         self.panel.draw(g);
     }

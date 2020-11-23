@@ -1,12 +1,13 @@
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
+use map_gui::common::Navigator;
 use widgetry::{
     Btn, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::common::{Navigator, Warping};
+use crate::common::Warping;
 use crate::game::Transition;
 use crate::layer::PickLayer;
 

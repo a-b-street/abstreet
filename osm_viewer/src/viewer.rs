@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
-use map_gui::common::CityPicker;
+use map_gui::common::{CityPicker, Navigator};
 use map_gui::game::PopupMsg;
 use map_gui::helpers::{nice_map_name, open_browser, ID};
 use map_gui::misc_tools::TurnExplorer;
@@ -291,7 +291,7 @@ impl State<SimpleApp> for Viewer {
                     return Transition::Push(OptionsPanel::new(ctx, app));
                 }
                 "search" => {
-                    //return Transition::Push(Navigator::new(ctx, app));
+                    return Transition::Push(Navigator::new(ctx, app));
                 }
                 "About" => {
                     return Transition::Push(PopupMsg::new(
