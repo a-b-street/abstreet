@@ -8,7 +8,7 @@ use sim::Sim;
 use widgetry::{EventCtx, GfxCtx, SharedAppState};
 
 use crate::helpers::ID;
-use crate::render::DrawOptions;
+use crate::render::{DrawOptions, Renderable};
 use colors::{ColorScheme, ColorSchemeChoice};
 use options::Options;
 use render::DrawMap;
@@ -18,6 +18,7 @@ pub mod common;
 pub mod game;
 pub mod helpers;
 pub mod load;
+pub mod misc_tools;
 pub mod options;
 pub mod render;
 
@@ -34,6 +35,7 @@ pub trait AppLike {
     fn opts(&self) -> &Options;
     fn mut_opts(&mut self) -> &mut Options;
     fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer);
+    fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions);
 
     // For traffic signal rendering
     fn sim_time(&self) -> Time {
@@ -67,6 +69,7 @@ pub struct SimpleApp {
     pub draw_map: DrawMap,
     pub cs: ColorScheme,
     pub opts: Options,
+    pub current_selection: Option<ID>,
 }
 
 impl SimpleApp {
@@ -88,19 +91,44 @@ impl SimpleApp {
                 draw_map,
                 cs,
                 opts,
+                current_selection: None,
             }
         })
     }
 
-    fn draw_unzoomed(&self, g: &mut GfxCtx) {
+    pub fn draw_unzoomed(&self, g: &mut GfxCtx) {
+        g.clear(self.cs.void_background);
+        g.redraw(&self.draw_map.boundary_polygon);
         g.redraw(&self.draw_map.draw_all_areas);
         g.redraw(&self.draw_map.draw_all_unzoomed_parking_lots);
         g.redraw(&self.draw_map.draw_all_unzoomed_roads_and_intersections);
         g.redraw(&self.draw_map.draw_all_buildings);
         // Not the building paths
+
+        // Still show some shape selection when zoomed out.
+        // TODO Refactor! Ideally use get_obj
+        if let Some(ID::Area(id)) = self.current_selection {
+            g.draw_polygon(
+                self.cs.selected,
+                self.draw_map.get_a(id).get_outline(&self.map),
+            );
+        } else if let Some(ID::Road(id)) = self.current_selection {
+            g.draw_polygon(
+                self.cs.selected,
+                self.draw_map.get_r(id).get_outline(&self.map),
+            );
+        } else if let Some(ID::Intersection(id)) = self.current_selection {
+            // Actually, don't use get_outline here! Full polygon is easier to see.
+            g.draw_polygon(self.cs.selected, self.map.get_i(id).polygon.clone());
+        } else if let Some(ID::Building(id)) = self.current_selection {
+            g.draw_polygon(self.cs.selected, self.map.get_b(id).polygon.clone());
+        }
     }
 
-    fn draw_zoomed(&self, g: &mut GfxCtx, opts: DrawOptions) {
+    pub fn draw_zoomed(&self, g: &mut GfxCtx, opts: DrawOptions) {
+        g.clear(self.cs.void_background);
+        g.redraw(&self.draw_map.boundary_polygon);
+
         let objects = self
             .draw_map
             .get_renderables_back_to_front(g.get_screen_bounds(), &self.map);
@@ -129,8 +157,17 @@ impl SimpleApp {
                     }
                 }
                 _ => {}
-            };
+            }
+
+            if self.current_selection == Some(obj.get_id()) {
+                g.draw_polygon(self.cs.selected, obj.get_outline(&self.map));
+            }
         }
+    }
+
+    /// Assumes some defaults.
+    pub fn recalculate_current_selection(&mut self, ctx: &EventCtx) {
+        self.current_selection = self.calculate_current_selection(ctx, false, false);
     }
 
     pub fn mouseover_unzoomed_roads_and_intersections(&self, ctx: &EventCtx) -> Option<ID> {
@@ -239,6 +276,14 @@ impl AppLike for SimpleApp {
         self.draw_map = DrawMap::new(ctx, &self.map, &self.opts, &self.cs, timer);
     }
 
+    fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {
+        if g.canvas.cam_zoom < self.opts.min_zoom_for_detail {
+            self.draw_unzoomed(g);
+        } else {
+            self.draw_zoomed(g, opts);
+        }
+    }
+
     fn sim_time(&self) -> Time {
         Time::START_OF_DAY
     }
@@ -255,13 +300,6 @@ impl AppLike for SimpleApp {
 
 impl SharedAppState for SimpleApp {
     fn draw_default(&self, g: &mut GfxCtx) {
-        g.clear(self.cs.void_background);
-        g.redraw(&self.draw_map.boundary_polygon);
-
-        if g.canvas.cam_zoom < self.opts.min_zoom_for_detail {
-            self.draw_unzoomed(g);
-        } else {
-            self.draw_zoomed(g, DrawOptions::new());
-        }
+        self.draw_with_opts(g, DrawOptions::new());
     }
 }

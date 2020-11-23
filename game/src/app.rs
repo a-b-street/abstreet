@@ -216,7 +216,7 @@ impl App {
                         }
                     }
                     _ => {}
-                };
+                }
 
                 if self.primary.current_selection == Some(obj.get_id()) {
                     g.draw_polygon(self.cs.selected, obj.get_outline(map));
@@ -476,6 +476,10 @@ impl map_gui::AppLike for App {
             ctx,
             timer,
         )
+    }
+
+    fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {
+        self.draw(g, opts, &ShowEverything::new());
     }
 }
 

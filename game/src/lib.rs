@@ -85,21 +85,12 @@ pub fn main(mut args: CmdArgs) {
         ));
     }
     let start_with_edits = args.optional("--edits");
-    let osm_viewer = args.enabled("--osm");
     let fifteen_min = args.enabled("--15min");
 
     args.done();
 
     widgetry::run(settings, |ctx| {
-        setup_app(
-            ctx,
-            flags,
-            opts,
-            start_with_edits,
-            mode,
-            osm_viewer,
-            fifteen_min,
-        )
+        setup_app(ctx, flags, opts, start_with_edits, mode, fifteen_min)
     });
 }
 
@@ -109,13 +100,11 @@ fn setup_app(
     opts: Options,
     start_with_edits: Option<String>,
     maybe_mode: Option<GameplayMode>,
-    osm_viewer: bool,
     fifteen_min: bool,
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
         && !flags.sim_flags.load.contains("/scenarios/")
-        && !osm_viewer
         && !fifteen_min
         && maybe_mode.is_none();
     let mut app = App::new(flags, opts, ctx, title);
@@ -154,8 +143,6 @@ fn setup_app(
 
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, &mut app))]
-    } else if osm_viewer {
-        vec![crate::devtools::osm_viewer::Viewer::new(ctx, &mut app)]
     } else if fifteen_min {
         vec![crate::devtools::fifteen_min::Viewer::random_start(
             ctx, &app,
@@ -181,10 +168,5 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(start)]
 pub fn run() {
     console_log::init_with_level(log::Level::Debug).unwrap();
-
-    if cfg!(feature = "osm_viewer") {
-        main(CmdArgs::from_args(vec!["--osm".to_string()]))
-    } else {
-        main(CmdArgs::new());
-    }
+    main(CmdArgs::new());
 }

@@ -141,6 +141,7 @@ Other:
 - `tests`: integration tests
 - `experiment`: ...
 - `parking_mapper`: a standalone tool to help map street parking in OSM
+- `osm_viewer`: a standalone tool to render OSM in detail
 
 ## Code conventions
 

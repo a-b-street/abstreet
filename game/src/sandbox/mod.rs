@@ -6,6 +6,7 @@ pub use time_warp::TimeWarpScreen;
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::load::{FileLoader, MapLoader};
+use map_gui::misc_tools::TurnExplorer;
 use map_gui::AppLike;
 use sim::{Analytics, Scenario};
 use widgetry::{
@@ -13,7 +14,6 @@ use widgetry::{
     Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
-pub use self::misc_tools::TurnExplorer;
 use self::misc_tools::{RoutePreview, TrafficRecorder};
 use crate::app::App;
 use crate::common::{tool_panel, CommonState, ContextualActions, Minimap};
