@@ -439,10 +439,8 @@ impl App {
         ctx.set_style(self.cs.gui_style.clone());
 
         ctx.loading_screen("rerendering map colors", |ctx, timer| {
-            let (draw_map, zorder_range) =
+            self.primary.draw_map =
                 DrawMap::new(&self.primary.map, &self.opts, &self.cs, ctx, timer);
-            self.primary.draw_map = draw_map;
-            self.primary.zorder_range = zorder_range;
         });
 
         true
@@ -530,7 +528,6 @@ pub struct PerMap {
     pub last_warped_from: Option<(Pt2D, f64)>,
     pub sim_cb: Option<Box<dyn SimCallback>>,
     pub show_zorder: isize,
-    pub zorder_range: (isize, isize),
     /// If we ever left edit mode and resumed without restarting from midnight, this is true.
     pub dirty_from_edits: bool,
     /// Any ScenarioModifiers in effect?
@@ -566,19 +563,18 @@ impl PerMap {
         timer: &mut Timer,
     ) -> PerMap {
         timer.start("draw_map");
-        let (draw_map, zorder_range) = DrawMap::new(&map, opts, cs, ctx, timer);
+        let draw_map = DrawMap::new(&map, opts, cs, ctx, timer);
         timer.stop("draw_map");
 
         let per_map = PerMap {
             map,
+            show_zorder: draw_map.zorder_range.1,
             draw_map,
             sim,
             current_selection: None,
             current_flags: flags,
             last_warped_from: None,
             sim_cb: None,
-            zorder_range,
-            show_zorder: zorder_range.1,
             dirty_from_edits: false,
             has_modified_trips: false,
             unedited_map: RefCell::new(None),

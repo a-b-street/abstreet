@@ -111,8 +111,12 @@ impl Minimap {
                 if app.opts.dev || !self.extra_controls {
                     Widget::col(vec![
                         Line("Z-order:").small().draw(ctx),
-                        Spinner::new(ctx, app.primary.zorder_range, app.primary.show_zorder)
-                            .named("zorder"),
+                        Spinner::new(
+                            ctx,
+                            app.primary.draw_map.zorder_range,
+                            app.primary.show_zorder,
+                        )
+                        .named("zorder"),
                     ])
                     .margin_above(10)
                 } else {

@@ -46,23 +46,28 @@ pub struct DrawMap {
     pub draw_all_unzoomed_parking_lots: Drawable,
     pub draw_all_areas: Drawable,
 
+    pub zorder_range: (isize, isize),
+
     quadtree: QuadTree<ID>,
 }
 
 impl DrawMap {
-    /// Returns the DrawMap and also the zorder_range (low, high)
     pub fn new(
         map: &Map,
         opts: &Options,
         cs: &ColorScheme,
         ctx: &EventCtx,
         timer: &mut Timer,
-    ) -> (DrawMap, (isize, isize)) {
+    ) -> DrawMap {
         let mut roads: Vec<DrawRoad> = Vec::new();
+        let mut low_z = 0;
+        let mut high_z = 0;
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
             roads.push(DrawRoad::new(r));
+            low_z = low_z.min(r.zorder);
+            high_z = high_z.max(r.zorder);
         }
 
         let mut lanes: Vec<DrawLane> = Vec::new();
@@ -172,7 +177,7 @@ impl DrawMap {
             abstutil::prettyprint_usize(ctx.prerender.get_total_bytes_uploaded() / 1024 / 1024)
         ));
 
-        let draw_map = DrawMap {
+        DrawMap {
             roads,
             lanes,
             intersections,
@@ -195,16 +200,9 @@ impl DrawMap {
             }),
 
             quadtree,
-        };
 
-        let mut low_z = 0;
-        let mut high_z = 0;
-        for r in map.all_roads() {
-            low_z = low_z.min(r.zorder);
-            high_z = high_z.max(r.zorder);
+            zorder_range: (low_z, high_z),
         }
-
-        (draw_map, (low_z, high_z))
     }
 
     pub fn regenerate_unzoomed_layer(
