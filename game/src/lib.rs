@@ -21,7 +21,6 @@ mod game;
 mod helpers;
 mod info;
 mod layer;
-mod load;
 mod pregame;
 mod sandbox;
 
@@ -37,8 +36,8 @@ pub fn main(mut args: CmdArgs) {
     let mut opts = Options::default();
     opts.update_from_args(&mut args);
     if args.enabled("--day_night") {
-        self.toggle_day_night_colors = true;
-        self.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
+        opts.toggle_day_night_colors = true;
+        opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
     }
     let mut settings = widgetry::Settings::new("A/B Street");
     settings.window_icon(abstutil::path("system/assets/pregame/icon.png"));

@@ -1,8 +1,10 @@
 use geom::{Angle, Circle, Distance, Pt2D, Speed};
+use map_gui::common::CityPicker;
+use map_gui::helpers::nice_map_name;
 use map_gui::SimpleApp;
 use widgetry::{
-    Btn, Checkbox, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    Transition, UpdateType, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
 pub struct Game {
@@ -12,7 +14,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<SimpleApp>> {
+    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
         Box::new(Game {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -20,6 +22,11 @@ impl Game {
                     Btn::close(ctx),
                 ]),
                 Checkbox::toggle(ctx, "control type", "rotate", "instant", Key::Tab, false),
+                Widget::row(vec![Btn::pop_up(
+                    ctx,
+                    Some(nice_map_name(app.map.get_name())),
+                )
+                .build(ctx, "change map", lctrl(Key::L))]),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -30,7 +37,7 @@ impl Game {
 }
 
 impl State<SimpleApp> for Game {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut SimpleApp) -> Transition<SimpleApp> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
         let (dx, dy) = self.controls.displacement(ctx);
         self.sleigh = self.sleigh.offset(dx, dy);
         ctx.canvas.center_on_map_pt(self.sleigh);
@@ -39,6 +46,18 @@ impl State<SimpleApp> for Game {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
+                }
+                "change map" => {
+                    return Transition::Push(CityPicker::new(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| {
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(Game::new(ctx, app)),
+                            ])
+                        }),
+                    ));
                 }
                 _ => unreachable!(),
             },

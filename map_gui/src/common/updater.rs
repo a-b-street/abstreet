@@ -3,24 +3,26 @@ use std::error::Error;
 use std::fs::File;
 
 use abstutil::{DataPacks, Manifest, Timer};
-use widgetry::{Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Widget};
+use widgetry::{
+    Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Transition, Widget,
+};
 
-use crate::app::App;
-use crate::game::{PopupMsg, Transition};
+use crate::game::PopupMsg;
+use crate::AppLike;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
 const NEXT_RELEASE: &str = "0.2.21";
 
-pub struct Picker {
+pub struct Picker<A: AppLike> {
     panel: Panel,
-    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>>,
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
 }
 
-impl Picker {
+impl<A: AppLike + 'static> Picker<A> {
     pub fn new(
         ctx: &mut EventCtx,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State<App>> {
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
         let manifest = Manifest::load();
         let data_packs = DataPacks::load_or_create();
 
@@ -49,8 +51,8 @@ impl Picker {
     }
 }
 
-impl State<App> for Picker {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl<A: AppLike + 'static> State<A> for Picker<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -86,7 +88,7 @@ impl State<App> for Picker {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &A) {
         self.panel.draw(g);
     }
 }

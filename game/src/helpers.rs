@@ -1,8 +1,7 @@
 use std::collections::BTreeSet;
 
-use abstutil::MapName;
 use geom::Duration;
-pub use map_gui::helpers::{grey_out_map, ID};
+pub use map_gui::helpers::{grey_out_map, nice_map_name, open_browser, ID};
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
@@ -24,32 +23,6 @@ pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names:
             }
         }
         txt.append(styler(Line(n)));
-    }
-}
-
-// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
-pub fn nice_map_name(name: &MapName) -> &str {
-    match (name.city.as_ref(), name.map.as_ref()) {
-        ("seattle", "ballard") => "Ballard",
-        ("seattle", "downtown") => "Downtown Seattle",
-        ("seattle", "huge_seattle") => "Seattle (entire area)",
-        ("seattle", "lakeslice") => "Lake Washington corridor",
-        ("seattle", "montlake") => "Montlake and Eastlake",
-        ("seattle", "south_seattle") => "South Seattle",
-        ("seattle", "udistrict") => "University District",
-        ("seattle", "west_seattle") => "West Seattle",
-        ("berlin", "center") => "Berlin (city center)",
-        ("krakow", "center") => "Kraków (city center)",
-        ("leeds", "center") => "Leeds (city center)",
-        ("london", "southbank") => "London (Southbank)",
-        ("paris", "center") => "Paris (city center)",
-        ("paris", "north") => "Paris (north)",
-        ("paris", "south") => "Paris (south)",
-        ("paris", "east") => "Paris (east)",
-        ("paris", "west") => "Paris (west)",
-        ("tel_aviv", "center") => "Tel Aviv (city center)",
-        ("xian", "center") => "Xi'an (city center)",
-        _ => &name.map,
     }
 }
 
@@ -229,8 +202,4 @@ pub fn checkbox_per_mode(
         );
     }
     Widget::custom_row(filters)
-}
-
-pub fn open_browser(url: String) {
-    let _ = webbrowser::open(&url);
 }

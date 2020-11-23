@@ -1,42 +1,36 @@
 use abstutil::{prettyprint_usize, MapName};
 use geom::{Distance, Percent, Polygon, Pt2D};
-use map_gui::render::DrawArea;
 use map_model::City;
 use widgetry::{
     Autocomplete, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, ScreenPt, State, Text, TextExt, Widget,
+    Panel, ScreenPt, State, Text, TextExt, Transition, Widget,
 };
 
-use crate::app::App;
-use crate::game::Transition;
 use crate::helpers::{grey_out_map, nice_map_name, open_browser};
 use crate::load::MapLoader;
+use crate::render::DrawArea;
+use crate::AppLike;
 
-pub struct CityPicker {
+pub struct CityPicker<A: AppLike> {
     panel: Panel,
     // In untranslated screen-space
     regions: Vec<(MapName, Color, Polygon)>,
     selected: Option<usize>,
     // Wrapped in an Option just to make calling from event() work.
-    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>>,
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
 }
 
-impl CityPicker {
+impl<A: AppLike + 'static> CityPicker<A> {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &mut App,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State<App>> {
-        app.primary.current_selection = None;
-
+        app: &mut A,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
         let mut batch = GeomBatch::new();
         let mut regions = Vec::new();
 
         if let Ok(city) = abstutil::maybe_read_binary::<City>(
-            abstutil::path(format!(
-                "system/{}/city.bin",
-                app.primary.map.get_city_name()
-            )),
+            abstutil::path(format!("system/{}/city.bin", app.map().get_city_name())),
             &mut abstutil::Timer::throwaway(),
         ) {
             let bounds = city.boundary.get_bounds();
@@ -44,14 +38,14 @@ impl CityPicker {
             let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
                 .min(0.8 * ctx.canvas.window_height / bounds.height());
 
-            batch.push(app.cs.map_background.clone(), city.boundary);
+            batch.push(app.cs().map_background.clone(), city.boundary);
             for (area_type, polygon) in city.areas {
-                batch.push(DrawArea::fill(area_type, &app.cs), polygon);
+                batch.push(DrawArea::fill(area_type, app.cs()), polygon);
             }
 
             for (name, polygon) in city.regions {
-                let color = app.cs.rotating_color_agents(regions.len());
-                if &name == app.primary.map.get_name() {
+                let color = app.cs().rotating_color_agents(regions.len());
+                if &name == app.map().get_name() {
                     batch.push(color.alpha(0.5), polygon.clone());
                 } else {
                     batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
@@ -71,7 +65,7 @@ impl CityPicker {
                     Text::from(Line(nice_map_name(&name)).fg(*color)),
                 )
                 .tooltip(Text::new());
-                this_city.push(if &name == app.primary.map.get_name() {
+                this_city.push(if &name == app.map().get_name() {
                     btn.inactive(ctx)
                 } else {
                     btn.build_def(ctx, None)
@@ -98,7 +92,7 @@ impl CityPicker {
         if !this_city.is_empty() {
             this_city.insert(
                 0,
-                format!("More regions in {}", app.primary.map.get_city_name()).draw_text(ctx),
+                format!("More regions in {}", app.map().get_city_name()).draw_text(ctx),
             );
         }
 
@@ -141,8 +135,8 @@ impl CityPicker {
     }
 }
 
-impl State<App> for CityPicker {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl<A: AppLike + 'static> State<A> for CityPicker<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -188,14 +182,14 @@ impl State<App> for CityPicker {
                 if rect.contains(cursor) {
                     let pt = Pt2D::new(cursor.x - rect.x1, cursor.y - rect.y1);
                     for (idx, (name, _, poly)) in self.regions.iter().enumerate() {
-                        if name != app.primary.map.get_name() && poly.contains_pt(pt) {
+                        if name != app.map().get_name() && poly.contains_pt(pt) {
                             self.selected = Some(idx);
                             break;
                         }
                     }
                 } else if let Some(btn) = self.panel.currently_hovering() {
                     for (idx, (name, _, _)) in self.regions.iter().enumerate() {
-                        if name != app.primary.map.get_name() && &name.map == btn {
+                        if name != app.map().get_name() && &name.map == btn {
                             self.selected = Some(idx);
                             break;
                         }
@@ -205,10 +199,7 @@ impl State<App> for CityPicker {
         }
         if let Some(idx) = self.selected {
             let name = &self.regions[idx].0;
-            if app
-                .per_obj
-                .left_click(ctx, format!("switch to {}", nice_map_name(name)))
-            {
+            if ctx.normal_left_click() {
                 return Transition::Replace(MapLoader::new(
                     ctx,
                     app,
@@ -225,7 +216,7 @@ impl State<App> for CityPicker {
         DrawBaselayer::PreviousState
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
         grey_out_map(g, app);
         self.panel.draw(g);
 
@@ -246,17 +237,17 @@ impl State<App> for CityPicker {
     }
 }
 
-struct AllCityPicker {
+struct AllCityPicker<A: AppLike> {
     panel: Panel,
     // Wrapped in an Option just to make calling from event() work.
-    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>>,
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
 }
 
-impl AllCityPicker {
+impl<A: AppLike + 'static> AllCityPicker<A> {
     fn new(
         ctx: &mut EventCtx,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Transition>,
-    ) -> Box<dyn State<App>> {
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
         let mut autocomplete_entries = Vec::new();
         let mut buttons = Vec::new();
 
@@ -290,8 +281,8 @@ impl AllCityPicker {
     }
 }
 
-impl State<App> for AllCityPicker {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl<A: AppLike + 'static> State<A> for AllCityPicker<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -326,7 +317,7 @@ impl State<App> for AllCityPicker {
         DrawBaselayer::PreviousState
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
         grey_out_map(g, app);
         self.panel.draw(g);
     }

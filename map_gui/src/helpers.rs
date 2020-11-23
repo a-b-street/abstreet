@@ -1,3 +1,4 @@
+use abstutil::MapName;
 use geom::Polygon;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, ParkingLotID, RoadID};
 use sim::{AgentID, CarID, PedestrianID};
@@ -62,4 +63,34 @@ pub fn grey_out_map(g: &mut GfxCtx, app: &dyn AppLike) {
         Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
     );
     g.unfork();
+}
+
+// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
+pub fn nice_map_name(name: &MapName) -> &str {
+    match (name.city.as_ref(), name.map.as_ref()) {
+        ("seattle", "ballard") => "Ballard",
+        ("seattle", "downtown") => "Downtown Seattle",
+        ("seattle", "huge_seattle") => "Seattle (entire area)",
+        ("seattle", "lakeslice") => "Lake Washington corridor",
+        ("seattle", "montlake") => "Montlake and Eastlake",
+        ("seattle", "south_seattle") => "South Seattle",
+        ("seattle", "udistrict") => "University District",
+        ("seattle", "west_seattle") => "West Seattle",
+        ("berlin", "center") => "Berlin (city center)",
+        ("krakow", "center") => "Kraków (city center)",
+        ("leeds", "center") => "Leeds (city center)",
+        ("london", "southbank") => "London (Southbank)",
+        ("paris", "center") => "Paris (city center)",
+        ("paris", "north") => "Paris (north)",
+        ("paris", "south") => "Paris (south)",
+        ("paris", "east") => "Paris (east)",
+        ("paris", "west") => "Paris (west)",
+        ("tel_aviv", "center") => "Tel Aviv (city center)",
+        ("xian", "center") => "Xi'an (city center)",
+        _ => &name.map,
+    }
+}
+
+pub fn open_browser(url: String) {
+    let _ = webbrowser::open(&url);
 }

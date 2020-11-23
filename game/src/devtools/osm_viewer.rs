@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
+use map_gui::common::CityPicker;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_model::osm;
@@ -12,7 +13,7 @@ use widgetry::{
 };
 
 use crate::app::{App, ShowEverything};
-use crate::common::{CityPicker, Minimap, Navigator};
+use crate::common::{Minimap, Navigator};
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 use crate::sandbox::TurnExplorer;
