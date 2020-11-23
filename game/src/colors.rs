@@ -1,6 +1,6 @@
 use map_model::osm::RoadRank;
 use map_model::LaneType;
-use widgetry::{Choice, Color, Fill, Style, Texture};
+use widgetry::{Choice, Color, EventCtx, Fill, Style, Texture};
 
 use crate::common::ColorScale;
 use crate::helpers::loading_tips;
@@ -149,7 +149,7 @@ pub struct ColorScheme {
 }
 
 impl ColorScheme {
-    pub fn new(scheme: ColorSchemeChoice) -> ColorScheme {
+    pub fn new(ctx: &mut EventCtx, scheme: ColorSchemeChoice) -> ColorScheme {
         let mut cs = match scheme {
             ColorSchemeChoice::Standard => ColorScheme::standard(),
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
@@ -165,6 +165,7 @@ impl ColorScheme {
             ColorSchemeChoice::NegativeSpace => ColorScheme::negative_space(),
         };
         cs.scheme = scheme;
+        ctx.set_style(cs.gui_style.clone());
         cs
     }
 

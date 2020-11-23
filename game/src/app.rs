@@ -35,8 +35,7 @@ pub struct App {
 
 impl App {
     pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> App {
-        let cs = ColorScheme::new(opts.color_scheme);
-        ctx.set_style(cs.gui_style.clone());
+        let cs = ColorScheme::new(ctx, opts.color_scheme);
 
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             assert!(flags.sim_flags.modifiers.is_empty());
@@ -429,8 +428,7 @@ impl App {
             return false;
         }
         self.opts.color_scheme = cs;
-        self.cs = ColorScheme::new(self.opts.color_scheme);
-        ctx.set_style(self.cs.gui_style.clone());
+        self.cs = ColorScheme::new(ctx, self.opts.color_scheme);
 
         ctx.loading_screen("rerendering map colors", |ctx, timer| {
             self.primary.draw_map =
