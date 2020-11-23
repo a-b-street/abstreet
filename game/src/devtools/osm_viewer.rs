@@ -246,7 +246,7 @@ impl State<App> for Viewer {
                 let outline = app
                     .primary
                     .draw_map
-                    .get_obj(ctx, id, app, &mut app.primary.draw_map.agents.borrow_mut())
+                    .get_obj(ctx, id, app, &mut app.primary.agents.borrow_mut())
                     .unwrap()
                     .get_outline(&app.primary.map);
                 let mut batch = GeomBatch::from(vec![(app.cs.perma_selected_object, outline)]);

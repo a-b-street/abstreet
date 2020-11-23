@@ -180,7 +180,7 @@ impl App {
                 g.draw_polygon(self.cs.selected, map.get_b(id).polygon.clone());
             }
 
-            let mut cache = self.primary.draw_map.agents.borrow_mut();
+            let mut cache = self.primary.agents.borrow_mut();
             cache.draw_unzoomed_agents(g, self);
 
             if let Some(a) = self
@@ -199,7 +199,7 @@ impl App {
                 }
             }
         } else {
-            let mut cache = draw_map.agents.borrow_mut();
+            let mut cache = self.primary.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(
                 g.get_screen_bounds(),
                 &g.prerender,
@@ -286,7 +286,7 @@ impl App {
 
         let pt = ctx.canvas.get_cursor_in_map_space()?;
 
-        let mut cache = self.primary.draw_map.agents.borrow_mut();
+        let mut cache = self.primary.agents.borrow_mut();
         let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
@@ -516,6 +516,7 @@ pub struct PerMap {
     pub map: Map,
     pub draw_map: DrawMap,
     pub sim: Sim,
+    pub agents: RefCell<AgentCache>,
 
     pub current_selection: Option<ID>,
     pub current_flags: Flags,
@@ -565,6 +566,7 @@ impl PerMap {
             show_zorder: draw_map.zorder_range.1,
             draw_map,
             sim,
+            agents: RefCell::new(AgentCache::new(cs)),
             current_selection: None,
             current_flags: flags,
             last_warped_from: None,

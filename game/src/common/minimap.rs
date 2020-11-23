@@ -64,7 +64,6 @@ impl Minimap {
             self.panel = Panel::new(Widget::row(vec![
                 make_tool_panel(ctx, app).align_right(),
                 app.primary
-                    .draw_map
                     .agents
                     .borrow()
                     .unzoomed_agents
@@ -159,7 +158,6 @@ impl Minimap {
                 Widget::row(vec![minimap_controls, zoom_col]),
                 if self.extra_controls {
                     app.primary
-                        .draw_map
                         .agents
                         .borrow()
                         .unzoomed_agents
@@ -333,7 +331,6 @@ impl Minimap {
             Outcome::Changed => {
                 if self.panel.has_widget("Car") {
                     app.primary
-                        .draw_map
                         .agents
                         .borrow_mut()
                         .unzoomed_agents
@@ -415,7 +412,7 @@ impl Minimap {
             l.draw_minimap(g);
         }
 
-        let mut cache = app.primary.draw_map.agents.borrow_mut();
+        let mut cache = app.primary.agents.borrow_mut();
         cache.draw_unzoomed_agents(g, app);
 
         // The cursor

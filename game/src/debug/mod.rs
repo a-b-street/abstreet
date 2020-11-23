@@ -305,7 +305,7 @@ impl State<App> for DebugMode {
                             ctx,
                             ID::from_agent(a),
                             app,
-                            &mut app.primary.draw_map.agents.borrow_mut(),
+                            &mut app.primary.agents.borrow_mut(),
                         ) {
                             batch.push(Color::PURPLE, obj.get_outline(&app.primary.map));
                         } else {

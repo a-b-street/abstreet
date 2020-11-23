@@ -251,7 +251,7 @@ impl State<App> for SandboxMode {
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         app.primary.layer = None;
-        app.primary.draw_map.agents.borrow_mut().unzoomed_agents = UnzoomedAgents::new(&app.cs);
+        app.primary.agents.borrow_mut().unzoomed_agents = UnzoomedAgents::new(&app.cs);
         self.gameplay.on_destroy(app);
     }
 }
@@ -810,7 +810,6 @@ fn mouseover_unzoomed_agent_circle(ctx: &mut EventCtx, app: &mut App) {
 
     for (id, _, _) in app
         .primary
-        .draw_map
         .agents
         .borrow_mut()
         .calculate_unzoomed_agents(ctx, app)

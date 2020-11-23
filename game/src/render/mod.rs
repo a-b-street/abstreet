@@ -6,15 +6,17 @@ use widgetry::{GfxCtx, Prerender};
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
+pub use crate::render::agents::{AgentCache, UnzoomedAgents};
 pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
 pub use crate::render::building::DrawBuilding;
 use crate::render::car::DrawCar;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
-pub use crate::render::map::{AgentCache, DrawMap, UnzoomedAgents};
+pub use crate::render::map::DrawMap;
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::turn::{DrawMovement, DrawUberTurnGroup};
 
+mod agents;
 mod area;
 mod bike;
 mod building;
