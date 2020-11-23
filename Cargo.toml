@@ -13,6 +13,7 @@ members = [
   "map_editor",
   "map_gui",
   "map_model",
+  "osm_viewer",
   "parking_mapper",
   "sim",
   "tests",

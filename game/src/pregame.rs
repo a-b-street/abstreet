@@ -144,10 +144,6 @@ impl MainMenu {
                     })
                     .build_def(ctx, Key::P),
                 Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
-            ])
-            .centered(),
-            Widget::row(vec![
-                Btn::text_bg2("OpenStreetMap viewer").build_def(ctx, Key::V),
                 Btn::text_bg2("15-minute neighborhoods").build_def(ctx, Key::N),
             ])
             .centered(),
@@ -210,9 +206,6 @@ impl State<App> for MainMenu {
                 }
                 "Community Proposals" => {
                     return Transition::Push(Proposals::new(ctx, app, None));
-                }
-                "OpenStreetMap viewer" => {
-                    return Transition::Push(crate::devtools::osm_viewer::Viewer::new(ctx, app));
                 }
                 "15-minute neighborhoods" => {
                     return Transition::Push(crate::devtools::fifteen_min::Viewer::random_start(

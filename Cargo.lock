@@ -2164,6 +2164,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "osm_viewer"
+version = "0.1.0"
+dependencies = [
+ "abstutil",
+ "geom",
+ "map_gui",
+ "map_model",
+ "widgetry",
+]
+
+[[package]]
 name = "osmesa-sys"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

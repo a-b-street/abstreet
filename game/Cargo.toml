@@ -12,8 +12,6 @@ crate-type = ["cdylib", "lib"]
 
 [features]
 default = ["built", "map_gui/native", "widgetry/native-backend"]
-# Just a marker to jump straight into the OSM viewer
-osm_viewer = []
 wasm = ["console_log", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 # Just a marker to not use localhost URLs
 wasm_s3 = []

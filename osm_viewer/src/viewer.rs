@@ -3,34 +3,31 @@ use std::collections::BTreeSet;
 use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
 use map_gui::common::CityPicker;
+use map_gui::game::PopupMsg;
+use map_gui::helpers::{nice_map_name, open_browser, ID};
+use map_gui::misc_tools::TurnExplorer;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
+use map_gui::SimpleApp;
 use map_model::osm;
 use widgetry::{
     lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment,
-    Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt, Transition,
+    VerticalAlignment, Widget,
 };
-
-use crate::app::{App, ShowEverything};
-use crate::common::{Minimap, Navigator};
-use crate::game::{PopupMsg, Transition};
-use crate::helpers::{nice_map_name, open_browser, ID};
-use crate::sandbox::TurnExplorer;
 
 pub struct Viewer {
     top_panel: Panel,
     fixed_object_outline: Option<Drawable>,
-    minimap: Minimap,
+    //minimap: Minimap,
     businesses: Option<BusinessSearch>,
 }
 
 impl Viewer {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        app.primary.current_selection = None;
+    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
         let mut viewer = Viewer {
             fixed_object_outline: None,
-            minimap: Minimap::new(ctx, app, false),
+            //minimap: Minimap::new(ctx, app, false),
             businesses: None,
             top_panel: Panel::empty(ctx),
         };
@@ -43,7 +40,7 @@ impl Viewer {
     fn recalculate_top_panel(
         &mut self,
         ctx: &mut EventCtx,
-        app: &App,
+        app: &SimpleApp,
         biz_search_panel: Option<Widget>,
     ) {
         let top_panel = Panel::new(Widget::col(vec![
@@ -53,7 +50,7 @@ impl Viewer {
             ]),
             Widget::row(vec![
                 "Change map:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
+                Btn::pop_up(ctx, Some(nice_map_name(app.map.get_name()))).build(
                     ctx,
                     "change map",
                     lctrl(Key::L),
@@ -78,7 +75,7 @@ impl Viewer {
         self.top_panel = top_panel;
     }
 
-    fn calculate_tags(&self, ctx: &EventCtx, app: &App) -> Widget {
+    fn calculate_tags(&self, ctx: &EventCtx, app: &SimpleApp) -> Widget {
         let mut col = Vec::new();
         if self.fixed_object_outline.is_some() {
             col.push("Click something else to examine it".draw_text(ctx));
@@ -86,9 +83,9 @@ impl Viewer {
             col.push("Click to examine".draw_text(ctx));
         }
 
-        match app.primary.current_selection {
+        match app.current_selection {
             Some(ID::Lane(l)) => {
-                let r = app.primary.map.get_parent(l);
+                let r = app.map.get_parent(l);
                 col.push(
                     Widget::row(vec![
                         Btn::text_bg2(format!("Open OSM way {}", r.orig_id.osm_way_id.0)).build(
@@ -134,7 +131,7 @@ impl Viewer {
                 }
             }
             Some(ID::Intersection(i)) => {
-                let i = app.primary.map.get_i(i);
+                let i = app.map.get_i(i);
                 col.push(
                     Btn::text_bg2(format!("Open OSM node {}", i.orig_id.0)).build(
                         ctx,
@@ -144,7 +141,7 @@ impl Viewer {
                 );
             }
             Some(ID::Building(b)) => {
-                let b = app.primary.map.get_b(b);
+                let b = app.map.get_b(b);
                 col.push(
                     Btn::text_bg2(format!("Open OSM ID {}", b.orig_id.inner())).build(
                         ctx,
@@ -195,7 +192,7 @@ impl Viewer {
                 }
             }
             Some(ID::ParkingLot(pl)) => {
-                let pl = app.primary.map.get_pl(pl);
+                let pl = app.map.get_pl(pl);
                 col.push(
                     Btn::text_bg2(format!("Open OSM ID {}", pl.osm_id.inner())).build(
                         ctx,
@@ -220,14 +217,14 @@ impl Viewer {
     }
 }
 
-impl State<App> for Viewer {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl State<SimpleApp> for Viewer {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            let old_id = app.primary.current_selection.clone();
+            let old_id = app.current_selection.clone();
             app.recalculate_current_selection(ctx);
 
-            if self.fixed_object_outline.is_none() && old_id != app.primary.current_selection {
+            if self.fixed_object_outline.is_none() && old_id != app.current_selection {
                 let biz_search = self.top_panel.take("Search for businesses");
                 self.recalculate_top_panel(ctx, app, Some(biz_search));
             }
@@ -242,18 +239,17 @@ impl State<App> for Viewer {
         }
 
         if ctx.canvas.get_cursor_in_map_space().is_some() && ctx.normal_left_click() {
-            if let Some(id) = app.primary.current_selection.clone() {
+            if let Some(id) = app.current_selection.clone() {
                 // get_obj must succeed, because we can only click static map elements.
                 let outline = app
-                    .primary
                     .draw_map
-                    .get_obj(ctx, id, app, &mut app.primary.agents.borrow_mut())
+                    .get_obj(ctx, id, app, &mut map_gui::render::AgentCache::new(&app.cs))
                     .unwrap()
-                    .get_outline(&app.primary.map);
+                    .get_outline(&app.map);
                 let mut batch = GeomBatch::from(vec![(app.cs.perma_selected_object, outline)]);
 
-                if let Some(ID::Lane(l)) = app.primary.current_selection {
-                    for turn in app.primary.map.get_turns_from_lane(l) {
+                if let Some(ID::Lane(l)) = app.current_selection {
+                    for turn in app.map.get_turns_from_lane(l) {
                         batch.push(
                             TurnExplorer::color_turn_type(turn.turn_type),
                             turn.geom
@@ -270,9 +266,9 @@ impl State<App> for Viewer {
             self.recalculate_top_panel(ctx, app, Some(biz_search));
         }
 
-        if let Some(t) = self.minimap.event(ctx, app) {
+        /*if let Some(t) = self.minimap.event(ctx, app) {
             return t;
-        }
+        }*/
 
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -295,7 +291,7 @@ impl State<App> for Viewer {
                     return Transition::Push(OptionsPanel::new(ctx, app));
                 }
                 "search" => {
-                    return Transition::Push(Navigator::new(ctx, app));
+                    //return Transition::Push(Navigator::new(ctx, app));
                 }
                 "About" => {
                     return Transition::Push(PopupMsg::new(
@@ -351,13 +347,17 @@ impl State<App> for Viewer {
         DrawBaselayer::Custom
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        let mut opts = DrawOptions::new();
-        opts.show_building_paths = false;
-        app.draw(g, opts, &ShowEverything::new());
+    fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            app.draw_unzoomed(g);
+        } else {
+            let mut opts = DrawOptions::new();
+            opts.show_building_paths = false;
+            app.draw_zoomed(g, opts);
+        }
 
         self.top_panel.draw(g);
-        self.minimap.draw(g, app);
+        //self.minimap.draw(g, app);
         if let Some(ref d) = self.fixed_object_outline {
             g.redraw(d);
         }
@@ -378,9 +378,9 @@ struct BusinessSearch {
 }
 
 impl BusinessSearch {
-    fn new(ctx: &mut EventCtx, app: &App) -> BusinessSearch {
+    fn new(ctx: &mut EventCtx, app: &SimpleApp) -> BusinessSearch {
         let mut counts = Counter::new();
-        for b in app.primary.map.all_buildings() {
+        for b in app.map.all_buildings() {
             for a in &b.amenities {
                 counts.inc(a.amenity_type.clone());
             }
@@ -400,9 +400,9 @@ impl BusinessSearch {
     }
 
     // Updates the highlighted buildings
-    fn update(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn update(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
         let mut batch = GeomBatch::new();
-        for b in app.primary.map.all_buildings() {
+        for b in app.map.all_buildings() {
             if b.amenities
                 .iter()
                 .any(|a| self.show.contains(&a.amenity_type))
@@ -413,7 +413,12 @@ impl BusinessSearch {
         self.highlight = ctx.upload(batch);
     }
 
-    fn hovering_on_amenity(&mut self, ctx: &mut EventCtx, app: &App, amenity: Option<String>) {
+    fn hovering_on_amenity(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        amenity: Option<String>,
+    ) {
         if amenity.is_none() {
             self.hovering_on_amenity = None;
             return;
@@ -431,7 +436,7 @@ impl BusinessSearch {
 
         let mut batch = GeomBatch::new();
         if self.counts.get(amenity.clone()) > 0 {
-            for b in app.primary.map.all_buildings() {
+            for b in app.map.all_buildings() {
                 if b.amenities.iter().any(|a| a.amenity_type == amenity) {
                     batch.push(Color::BLUE, b.polygon.clone());
                 }
