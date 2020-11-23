@@ -10,7 +10,7 @@ use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, Traversable,
 };
 use sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender};
+use widgetry::{Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Prerender, Widget};
 
 use crate::app::App;
 use crate::colors::ColorScheme;
@@ -194,6 +194,7 @@ impl DrawMap {
             draw_all_areas,
 
             agents: RefCell::new(AgentCache {
+                unzoomed_agents: UnzoomedAgents::new(cs),
                 time: None,
                 agents_per_on: HashMap::new(),
                 unzoomed: None,
@@ -355,6 +356,9 @@ impl DrawMap {
 }
 
 pub struct AgentCache {
+    /// This is controlled almost entirely by the minimap panel. It has no meaning in edit mode.
+    pub unzoomed_agents: UnzoomedAgents,
+
     // This time applies to agents_per_on. unzoomed has its own possibly separate Time!
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
@@ -417,7 +421,7 @@ impl AgentCache {
         let now = app.primary.sim.time();
         let mut recalc = true;
         if let Some((time, ref orig_agents, _, _)) = self.unzoomed {
-            if now == time && app.unzoomed_agents == orig_agents.clone() {
+            if now == time && self.unzoomed_agents == orig_agents.clone() {
                 recalc = false;
             }
         }
@@ -435,7 +439,7 @@ impl AgentCache {
                 Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
 
             for agent in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
-                if let Some(color) = app.unzoomed_agents.color(&agent) {
+                if let Some(color) = self.unzoomed_agents.color(&agent) {
                     let circle = if agent.id.to_vehicle_type().is_some() {
                         car_circle.translate(agent.pos.x(), agent.pos.y())
                     } else {
@@ -448,7 +452,7 @@ impl AgentCache {
 
             let draw = prerender.as_ref().upload(batch);
 
-            self.unzoomed = Some((now, app.unzoomed_agents.clone(), quadtree, draw));
+            self.unzoomed = Some((now, self.unzoomed_agents.clone(), quadtree, draw));
         }
 
         &self.unzoomed.as_ref().unwrap().2
@@ -476,15 +480,15 @@ impl AgentCache {
 
 #[derive(PartialEq, Clone)]
 pub struct UnzoomedAgents {
-    pub cars: bool,
-    pub bikes: bool,
-    pub buses_and_trains: bool,
-    pub peds: bool,
+    cars: bool,
+    bikes: bool,
+    buses_and_trains: bool,
+    peds: bool,
 
-    pub car_color: Color,
-    pub bike_color: Color,
-    pub bus_color: Color,
-    pub ped_color: Color,
+    car_color: Color,
+    bike_color: Color,
+    bus_color: Color,
+    ped_color: Color,
 }
 
 impl UnzoomedAgents {
@@ -502,7 +506,7 @@ impl UnzoomedAgents {
         }
     }
 
-    pub fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
+    fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
         match agent.id.to_vehicle_type() {
             Some(VehicleType::Car) => {
                 if self.cars {
@@ -533,5 +537,30 @@ impl UnzoomedAgents {
                 }
             }
         }
+    }
+
+    pub fn make_horiz_viz_panel(&self, ctx: &mut EventCtx) -> Widget {
+        Widget::custom_row(vec![
+            Checkbox::colored(ctx, "Car", self.car_color, self.cars).margin_right(24),
+            Checkbox::colored(ctx, "Bike", self.bike_color, self.bikes).margin_right(24),
+            Checkbox::colored(ctx, "Bus", self.bus_color, self.buses_and_trains).margin_right(24),
+            Checkbox::colored(ctx, "Pedestrian", self.ped_color, self.peds).margin_right(8),
+        ])
+    }
+
+    pub fn make_vert_viz_panel(&self, ctx: &mut EventCtx) -> Widget {
+        Widget::col(vec![
+            Checkbox::colored(ctx, "Car", self.car_color, self.cars),
+            Checkbox::colored(ctx, "Bike", self.bike_color, self.bikes),
+            Checkbox::colored(ctx, "Bus", self.bus_color, self.buses_and_trains),
+            Checkbox::colored(ctx, "Pedestrian", self.ped_color, self.peds),
+        ])
+    }
+
+    pub fn update(&mut self, panel: &Panel) {
+        self.cars = panel.is_checked("Car");
+        self.bikes = panel.is_checked("Bike");
+        self.buses_and_trains = panel.is_checked("Bus");
+        self.peds = panel.is_checked("Pedestrian");
     }
 }

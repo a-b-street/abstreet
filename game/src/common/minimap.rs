@@ -1,8 +1,8 @@
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
-    Btn, Checkbox, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
+    Btn, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -63,7 +63,12 @@ impl Minimap {
 
             self.panel = Panel::new(Widget::row(vec![
                 make_tool_panel(ctx, app).align_right(),
-                make_vert_viz_panel(ctx, app)
+                app.primary
+                    .draw_map
+                    .agents
+                    .borrow()
+                    .unzoomed_agents
+                    .make_vert_viz_panel(ctx)
                     .bg(app.cs.panel_bg)
                     .padding(16),
             ]))
@@ -153,7 +158,12 @@ impl Minimap {
             Widget::col(vec![
                 Widget::row(vec![minimap_controls, zoom_col]),
                 if self.extra_controls {
-                    make_horiz_viz_panel(ctx, app)
+                    app.primary
+                        .draw_map
+                        .agents
+                        .borrow()
+                        .unzoomed_agents
+                        .make_horiz_viz_panel(ctx)
                 } else {
                     Widget::nothing()
                 },
@@ -322,10 +332,12 @@ impl Minimap {
             },
             Outcome::Changed => {
                 if self.panel.has_widget("Car") {
-                    app.unzoomed_agents.cars = self.panel.is_checked("Car");
-                    app.unzoomed_agents.bikes = self.panel.is_checked("Bike");
-                    app.unzoomed_agents.buses_and_trains = self.panel.is_checked("Bus");
-                    app.unzoomed_agents.peds = self.panel.is_checked("Pedestrian");
+                    app.primary
+                        .draw_map
+                        .agents
+                        .borrow_mut()
+                        .unzoomed_agents
+                        .update(&self.panel);
                 }
                 if self.panel.has_widget("zorder") {
                     app.primary.show_zorder = self.panel.spinner("zorder");
@@ -455,25 +467,5 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         Btn::svg_def("system/assets/tools/search.svg")
             .build(ctx, "search", Key::K)
             .bg(app.cs.inner_panel),
-    ])
-}
-
-fn make_horiz_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    let a = &app.unzoomed_agents;
-    Widget::custom_row(vec![
-        Checkbox::colored(ctx, "Car", a.car_color, a.cars).margin_right(24),
-        Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes).margin_right(24),
-        Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains).margin_right(24),
-        Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds).margin_right(8),
-    ])
-}
-
-fn make_vert_viz_panel(ctx: &mut EventCtx, app: &App) -> Widget {
-    let a = &app.unzoomed_agents;
-    Widget::col(vec![
-        Checkbox::colored(ctx, "Car", a.car_color, a.cars),
-        Checkbox::colored(ctx, "Bike", a.bike_color, a.bikes),
-        Checkbox::colored(ctx, "Bus", a.bus_color, a.buses_and_trains),
-        Checkbox::colored(ctx, "Pedestrian", a.ped_color, a.peds),
     ])
 }

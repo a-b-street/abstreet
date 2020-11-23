@@ -16,9 +16,7 @@ use crate::edit::apply_map_edits;
 use crate::helpers::ID;
 use crate::layer::Layer;
 use crate::options::Options;
-use crate::render::{
-    unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents,
-};
+use crate::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
 use crate::sandbox::{GameplayMode, TutorialState};
 
 /// The top-level data that lasts through the entire game, no matter what state the game is in.
@@ -27,9 +25,6 @@ pub struct App {
     // naming, because that mode will return someday.
     pub primary: PerMap,
     pub cs: ColorScheme,
-    // TODO This is a bit weird to keep here; it's controlled almost entirely by the minimap panel.
-    // It has no meaning in edit mode.
-    pub unzoomed_agents: UnzoomedAgents,
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
@@ -51,7 +46,6 @@ impl App {
 
         App {
             primary,
-            unzoomed_agents: UnzoomedAgents::new(&cs),
             cs,
             opts,
             per_obj: PerObjectActions::new(),

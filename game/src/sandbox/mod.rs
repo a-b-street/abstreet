@@ -251,7 +251,7 @@ impl State<App> for SandboxMode {
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         app.primary.layer = None;
-        app.unzoomed_agents = UnzoomedAgents::new(&app.cs);
+        app.primary.draw_map.agents.borrow_mut().unzoomed_agents = UnzoomedAgents::new(&app.cs);
         self.gameplay.on_destroy(app);
     }
 }
