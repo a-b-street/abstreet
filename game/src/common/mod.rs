@@ -1,12 +1,12 @@
 use std::collections::BTreeSet;
 
 use geom::Polygon;
+pub use map_gui::common::{ColorDiscrete, ColorLegend, ColorNetwork, DivergingScale};
 use widgetry::{
     lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
     ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
 };
 
-pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, DivergingScale};
 pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
 pub use self::minimap::Minimap;
 pub use self::navigate::Navigator;
@@ -17,7 +17,6 @@ use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
 
-mod colors;
 mod heatmap;
 mod minimap;
 mod navigate;

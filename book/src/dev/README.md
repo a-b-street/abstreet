@@ -140,6 +140,7 @@ Other:
 - `traffic_seitan`: a bug-finding tool that randomly generates live map edits
 - `tests`: integration tests
 - `experiment`: ...
+- `parking_mapper`: a standalone tool to help map street parking in OSM
 
 ## Code conventions
 

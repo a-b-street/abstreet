@@ -11,7 +11,7 @@ license = "Apache-2.0"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default = ["built", "map_gui/native", "widgetry/native-backend", "reqwest"]
+default = ["built", "map_gui/native", "widgetry/native-backend"]
 # Just a marker to jump straight into the OSM viewer
 osm_viewer = []
 wasm = ["console_log", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
@@ -43,14 +43,12 @@ map_model = { path = "../map_model" }
 petname = "1.0.12"
 rand = "0.7.0"
 rand_xorshift = "0.2.0"
-reqwest = { version = "0.10.8", optional = true, default-features=false, features=["blocking", "rustls-tls"] }
 serde = "1.0.116"
 serde_json = "1.0.57"
 svg_face = "0.1.2"
 sim = { path = "../sim" }
 wasm-bindgen = { version = "0.2.68", optional = true }
 widgetry = { path = "../widgetry" }
-xmltree = "0.10.1"
 
 [build-dependencies]
 built = "0.4.2"

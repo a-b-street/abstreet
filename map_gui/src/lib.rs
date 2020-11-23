@@ -2,7 +2,8 @@
 //! state, based around drawing and interacting with a Map.
 
 use abstutil::{CmdArgs, Timer};
-use map_model::Map;
+use geom::{Duration, Time};
+use map_model::{IntersectionID, Map};
 use sim::Sim;
 use widgetry::{EventCtx, GfxCtx, SharedAppState};
 
@@ -34,6 +35,14 @@ pub trait AppLike {
     fn mut_opts(&mut self) -> &mut Options;
     fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer);
 
+    // For traffic signal rendering
+    fn sim_time(&self) -> Time {
+        self.sim().time()
+    }
+    fn current_stage_and_remaining_time(&self, id: IntersectionID) -> (usize, Duration) {
+        self.sim().current_stage_and_remaining_time(id)
+    }
+
     /// Change the color scheme. Idempotent. Return true if there was a change.
     fn change_color_scheme(&mut self, ctx: &mut EventCtx, cs: ColorSchemeChoice) -> bool {
         if self.opts().color_scheme == cs {
@@ -43,7 +52,7 @@ pub trait AppLike {
         *self.mut_cs() = ColorScheme::new(ctx, self.opts().color_scheme);
 
         ctx.loading_screen("rerendering map colors", |ctx, timer| {
-            *self.mut_draw_map() = DrawMap::new(self.map(), self.opts(), self.cs(), ctx, timer);
+            *self.mut_draw_map() = DrawMap::new(ctx, self.map(), self.opts(), self.cs(), timer);
         });
 
         true
@@ -72,7 +81,7 @@ impl SimpleApp {
 
             let cs = ColorScheme::new(ctx, opts.color_scheme);
             let map = Map::new(map_path, &mut timer);
-            let draw_map = DrawMap::new(&map, &opts, &cs, ctx, timer);
+            let draw_map = DrawMap::new(ctx, &map, &opts, &cs, timer);
             // TODO Should we refactor the whole camera state / initial focusing thing?
             SimpleApp {
                 map,
@@ -162,7 +171,20 @@ impl AppLike for SimpleApp {
     fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer) {
         ctx.canvas.save_camera_state(self.map().get_name());
         self.map = map;
-        self.draw_map = DrawMap::new(&self.map, &self.opts, &self.cs, ctx, timer);
+        self.draw_map = DrawMap::new(ctx, &self.map, &self.opts, &self.cs, timer);
+    }
+
+    fn sim_time(&self) -> Time {
+        Time::START_OF_DAY
+    }
+
+    fn current_stage_and_remaining_time(&self, id: IntersectionID) -> (usize, Duration) {
+        (
+            0,
+            self.map.get_traffic_signal(id).stages[0]
+                .phase_type
+                .simple_duration(),
+        )
     }
 }
 

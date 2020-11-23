@@ -43,10 +43,10 @@ pub struct DrawMap {
 
 impl DrawMap {
     pub fn new(
+        ctx: &mut EventCtx,
         map: &Map,
         opts: &Options,
         cs: &ColorScheme,
-        ctx: &EventCtx,
         timer: &mut Timer,
     ) -> DrawMap {
         let mut roads: Vec<DrawRoad> = Vec::new();
@@ -166,6 +166,9 @@ impl DrawMap {
             "static DrawMap consumes {} MB on the GPU",
             abstutil::prettyprint_usize(ctx.prerender.get_total_bytes_uploaded() / 1024 / 1024)
         ));
+
+        let bounds = map.get_bounds();
+        ctx.canvas.map_dims = (bounds.width(), bounds.height());
 
         DrawMap {
             roads,

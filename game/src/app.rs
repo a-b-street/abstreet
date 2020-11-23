@@ -583,7 +583,7 @@ impl PerMap {
         timer: &mut Timer,
     ) -> PerMap {
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, opts, cs, ctx, timer);
+        let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
         timer.stop("draw_map");
 
         let per_map = PerMap {
@@ -619,8 +619,6 @@ impl PerMap {
                     .and_then(|l| per_map.canonical_point(ID::Lane(l.id)))
             })
             .expect("Can't get canonical_point of a random building or lane");
-        let bounds = per_map.map.get_bounds();
-        ctx.canvas.map_dims = (bounds.width(), bounds.height());
 
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);

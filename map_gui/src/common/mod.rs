@@ -1,5 +1,5 @@
 pub use self::city_picker::CityPicker;
-pub use colors::ColorScale;
+pub use colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 
 mod city_picker;
 mod colors;

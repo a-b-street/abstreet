@@ -164,10 +164,10 @@ impl Renderable for DrawIntersection {
                 let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
                 let recalc = maybe_redraw
                     .as_ref()
-                    .map(|(t, _)| *t != app.sim().time())
+                    .map(|(t, _)| *t != app.sim_time())
                     .unwrap_or(true);
                 if recalc {
-                    let (idx, remaining) = app.sim().current_stage_and_remaining_time(self.id);
+                    let (idx, remaining) = app.current_stage_and_remaining_time(self.id);
                     let mut batch = GeomBatch::new();
                     traffic_signal::draw_signal_stage(
                         g.prerender,
@@ -179,7 +179,7 @@ impl Renderable for DrawIntersection {
                         app,
                         app.opts().traffic_signal_style.clone(),
                     );
-                    *maybe_redraw = Some((app.sim().time(), g.prerender.upload(batch)));
+                    *maybe_redraw = Some((app.sim_time(), g.prerender.upload(batch)));
                 }
                 let (_, batch) = maybe_redraw.as_ref().unwrap();
                 g.redraw(batch);

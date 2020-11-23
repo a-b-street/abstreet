@@ -5,17 +5,15 @@ use osm::WayID;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
-use map_gui::common::CityPicker;
+use map_gui::common::{CityPicker, ColorLegend};
+use map_gui::game::PopupMsg;
+use map_gui::helpers::{nice_map_name, open_browser, ID};
+use map_gui::SimpleApp;
 use map_model::{osm, RoadID};
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Menu, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    Line, Menu, Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
-
-use crate::app::App;
-use crate::common::ColorLegend;
-use crate::game::{PopupMsg, Transition};
-use crate::helpers::{nice_map_name, open_browser, ID};
 
 pub struct ParkingMapper {
     panel: Panel,
@@ -45,20 +43,17 @@ pub enum Value {
 }
 
 impl ParkingMapper {
-    pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        app.primary.current_selection = None;
+    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
         ParkingMapper::make(ctx, app, Show::TODO, BTreeMap::new())
     }
 
     fn make(
         ctx: &mut EventCtx,
-        app: &mut App,
+        app: &SimpleApp,
         show: Show,
         data: BTreeMap<WayID, Value>,
-    ) -> Box<dyn State<App>> {
-        app.opts.min_zoom_for_detail = 2.0;
-
-        let map = &app.primary.map;
+    ) -> Box<dyn State<SimpleApp>> {
+        let map = &app.map;
 
         let color = match show {
             Show::TODO => Color::RED,
@@ -138,7 +133,7 @@ impl ParkingMapper {
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),
-                    Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
+                    Btn::pop_up(ctx, Some(nice_map_name(map.get_name()))).build(
                         ctx,
                         "change map",
                         None,
@@ -196,17 +191,19 @@ impl ParkingMapper {
     }
 }
 
-impl State<App> for ParkingMapper {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let map = &app.primary.map;
+impl State<SimpleApp> for ParkingMapper {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
+        let map = &app.map;
 
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            let mut maybe_r = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+            let mut maybe_r = None;
+            // TODO
+            /*match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 Some(ID::Road(r)) => Some(r),
                 Some(ID::Lane(l)) => Some(map.get_l(l).parent),
                 _ => None,
-            };
+            };*/
             if let Some(r) = maybe_r {
                 if map.get_r(r).is_light_rail() {
                     maybe_r = None;
@@ -274,7 +271,7 @@ impl State<App> for ParkingMapper {
                     .replace(ctx, "info", "Select a road".draw_text(ctx));
             }
         }
-        if self.selected.is_some() && app.per_obj.left_click(ctx, "map parking") {
+        if self.selected.is_some() && ctx.normal_left_click() {
             return Transition::Push(ChangeWay::new(
                 ctx,
                 app,
@@ -284,9 +281,7 @@ impl State<App> for ParkingMapper {
             ));
         }
         if self.selected.is_some() && ctx.input.pressed(Key::N) {
-            let osm_way_id = app
-                .primary
-                .map
+            let osm_way_id = map
                 .get_r(*self.selected.as_ref().unwrap().0.iter().next().unwrap())
                 .orig_id
                 .osm_way_id;
@@ -296,7 +291,7 @@ impl State<App> for ParkingMapper {
         }
         if self.selected.is_some() && ctx.input.pressed(Key::S) {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                let gps = pt.to_gps(app.primary.map.get_gps_bounds());
+                let gps = pt.to_gps(map.get_gps_bounds());
                 open_browser(format!(
                     "https://www.bing.com/maps?cp={}~{}&style=x",
                     gps.y(),
@@ -308,9 +303,7 @@ impl State<App> for ParkingMapper {
             if ctx.input.pressed(Key::E) {
                 open_browser(format!(
                     "https://www.openstreetmap.org/edit?way={}",
-                    app.primary
-                        .map
-                        .get_r(*roads.iter().next().unwrap())
+                    map.get_r(*roads.iter().next().unwrap())
                         .orig_id
                         .osm_way_id
                         .0
@@ -321,8 +314,6 @@ impl State<App> for ParkingMapper {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
-                    app.opts.min_zoom_for_detail =
-                        map_gui::options::Options::default().min_zoom_for_detail;
                     return Transition::Pop;
                 }
                 "Generate OsmChange file" => {
@@ -384,7 +375,7 @@ impl State<App> for ParkingMapper {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
         g.redraw(&self.draw_layer);
         if let Some((_, ref roads)) = self.selected {
             g.redraw(roads);
@@ -404,12 +395,12 @@ struct ChangeWay {
 impl ChangeWay {
     fn new(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &SimpleApp,
         selected: &HashSet<RoadID>,
         show: Show,
         data: BTreeMap<WayID, Value>,
-    ) -> Box<dyn State<App>> {
-        let map = &app.primary.map;
+    ) -> Box<dyn State<SimpleApp>> {
+        let map = &app.map;
         let osm_way_id = map
             .get_r(*selected.iter().next().unwrap())
             .orig_id
@@ -466,8 +457,8 @@ impl ChangeWay {
     }
 }
 
-impl State<App> for ChangeWay {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl State<SimpleApp> for ChangeWay {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
         ctx.canvas_movement();
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -506,20 +497,12 @@ impl State<App> for ChangeWay {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
         g.redraw(&self.draw);
         self.panel.draw(g);
     }
 }
 
-#[cfg(target_arch = "wasm32")]
-fn generate_osmc(_: &BTreeMap<WayID, Value>, _: bool, _: &mut Timer) -> Result<(), Box<dyn Error>> {
-    Err("Woops, mapping mode isn't supported on the web yet"
-        .to_string()
-        .into())
-}
-
-#[cfg(not(target_arch = "wasm32"))]
 fn generate_osmc(
     data: &BTreeMap<WayID, Value>,
     in_seattle: bool,
@@ -618,8 +601,8 @@ fn generate_osmc(
     Ok(())
 }
 
-fn find_divided_highways(app: &App) -> HashSet<RoadID> {
-    let map = &app.primary.map;
+fn find_divided_highways(app: &SimpleApp) -> HashSet<RoadID> {
+    let map = &app.map;
     let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
     // TODO Consider not even filtering by oneway. I keep finding mistakes where people split a
     // road, but didn't mark one side oneway!
@@ -661,8 +644,8 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
 }
 
 // TODO Lots of false positives here... why?
-fn find_overlapping_stuff(app: &App, timer: &mut Timer) -> Vec<Polygon> {
-    let map = &app.primary.map;
+fn find_overlapping_stuff(app: &SimpleApp, timer: &mut Timer) -> Vec<Polygon> {
+    let map = &app.map;
     let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
     for r in map.all_roads() {
         if r.osm_tags.contains_key("tunnel") {
