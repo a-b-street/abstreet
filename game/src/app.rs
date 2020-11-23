@@ -514,9 +514,6 @@ impl ShowObject for ShowEverything {
 #[derive(Clone)]
 pub struct Flags {
     pub sim_flags: SimFlags,
-    /// Number of agents to generate when requested. If unspecified, trips to/from borders will be
-    /// included.
-    pub num_agents: Option<usize>,
     /// If true, all map edits immediately apply to the live simulation. Otherwise, most edits
     /// require resetting to midnight.
     pub live_map_edits: bool,

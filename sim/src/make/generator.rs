@@ -144,24 +144,6 @@ impl ScenarioGenerator {
             border_spawn_over_time: Vec::new(),
         }
     }
-
-    // No border agents here, because making the count work is hard.
-    pub fn scaled_run(num_agents: usize) -> ScenarioGenerator {
-        ScenarioGenerator {
-            scenario_name: "scaled_run".to_string(),
-            only_seed_buses: Some(BTreeSet::new()),
-            spawn_over_time: vec![SpawnOverTime {
-                num_agents: num_agents,
-                start_time: Time::START_OF_DAY,
-                stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
-                goal: None,
-                percent_driving: 0.5,
-                percent_biking: 0.5,
-                percent_use_transit: 0.5,
-            }],
-            border_spawn_over_time: Vec::new(),
-        }
-    }
 }
 
 impl SpawnOverTime {

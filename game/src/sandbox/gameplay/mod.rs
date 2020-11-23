@@ -94,13 +94,7 @@ impl GameplayMode {
         }
     }
 
-    pub fn scenario(
-        &self,
-        map: &Map,
-        num_agents: Option<usize>,
-        mut rng: XorShiftRng,
-        timer: &mut Timer,
-    ) -> LoadScenario {
+    pub fn scenario(&self, map: &Map, mut rng: XorShiftRng, timer: &mut Timer) -> LoadScenario {
         let name = match self {
             GameplayMode::Freeform(_) => {
                 let mut s = Scenario::empty(map, "empty");
@@ -115,14 +109,7 @@ impl GameplayMode {
             _ => "weekday".to_string(),
         };
         if name == "random" {
-            LoadScenario::Scenario(
-                (if let Some(n) = num_agents {
-                    ScenarioGenerator::scaled_run(n)
-                } else {
-                    ScenarioGenerator::small_run(map)
-                })
-                .generate(map, &mut rng, timer),
-            )
+            LoadScenario::Scenario(ScenarioGenerator::small_run(map).generate(map, &mut rng, timer))
         } else if name == "home_to_work" {
             LoadScenario::Scenario(ScenarioGenerator::proletariat_robot(map, &mut rng, timer))
         } else {

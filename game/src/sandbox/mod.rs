@@ -665,7 +665,6 @@ impl State<App> for SandboxLoader {
                     match ctx.loading_screen("load scenario", |_, mut timer| {
                         self.mode.scenario(
                             &app.primary.map,
-                            app.primary.current_flags.num_agents,
                             app.primary.current_flags.sim_flags.make_rng(),
                             &mut timer,
                         )
