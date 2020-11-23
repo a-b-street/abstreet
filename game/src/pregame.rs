@@ -149,14 +149,6 @@ impl MainMenu {
             Widget::row(vec![
                 Btn::text_bg2("OpenStreetMap viewer").build_def(ctx, Key::V),
                 Btn::text_bg2("15-minute neighborhoods").build_def(ctx, Key::N),
-                Btn::text_bg2("Contribute parking data to OpenStreetMap")
-                    .tooltip({
-                        let mut txt =
-                            Text::tooltip(ctx, Key::M, "Contribute parking data to OpenStreetMap");
-                        txt.add(Line("Improve parking data in OpenStreetMap").small());
-                        txt
-                    })
-                    .build_def(ctx, Key::M),
             ])
             .centered(),
             Widget::col(vec![
@@ -224,11 +216,6 @@ impl State<App> for MainMenu {
                 }
                 "15-minute neighborhoods" => {
                     return Transition::Push(crate::devtools::fifteen_min::Viewer::random_start(
-                        ctx, app,
-                    ));
-                }
-                "Contribute parking data to OpenStreetMap" => {
-                    return Transition::Push(crate::devtools::mapping::ParkingMapper::new(
                         ctx, app,
                     ));
                 }

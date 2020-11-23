@@ -17,7 +17,6 @@ mod collisions;
 mod destinations;
 pub mod fifteen_min;
 mod kml;
-pub mod mapping;
 pub mod osm_viewer;
 mod polygon;
 mod scenario;

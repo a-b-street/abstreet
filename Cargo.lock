@@ -959,7 +959,6 @@ dependencies = [
  "petname",
  "rand",
  "rand_xorshift",
- "reqwest",
  "serde",
  "serde_json",
  "sim",
@@ -967,7 +966,6 @@ dependencies = [
  "walkdir",
  "wasm-bindgen",
  "widgetry",
- "xmltree",
 ]
 
 [[package]]
@@ -2207,6 +2205,19 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "parking_mapper"
+version = "0.1.0"
+dependencies = [
+ "abstutil",
+ "geom",
+ "map_gui",
+ "map_model",
+ "reqwest",
+ "widgetry",
+ "xmltree",
 ]
 
 [[package]]
