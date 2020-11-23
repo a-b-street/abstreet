@@ -144,7 +144,6 @@ impl MainMenu {
                     })
                     .build_def(ctx, Key::P),
                 Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
-                Btn::text_bg2("15-minute neighborhoods").build_def(ctx, Key::N),
             ])
             .centered(),
             Widget::col(vec![
@@ -206,11 +205,6 @@ impl State<App> for MainMenu {
                 }
                 "Community Proposals" => {
                     return Transition::Push(Proposals::new(ctx, app, None));
-                }
-                "15-minute neighborhoods" => {
-                    return Transition::Push(crate::devtools::fifteen_min::Viewer::random_start(
-                        ctx, app,
-                    ));
                 }
                 "Internal Dev Tools" => {
                     return Transition::Push(DevToolsMode::new(ctx, app));

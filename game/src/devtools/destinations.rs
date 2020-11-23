@@ -1,4 +1,5 @@
 use abstutil::Counter;
+use map_gui::common::{make_heatmap, HeatmapOptions};
 use map_model::BuildingID;
 use sim::{Scenario, TripEndpoint};
 use widgetry::{
@@ -7,7 +8,6 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::{make_heatmap, HeatmapOptions};
 use crate::game::Transition;
 use crate::helpers::{amenity_type, ID};
 

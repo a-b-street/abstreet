@@ -4,22 +4,18 @@
 //!
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
-use rand::seq::SliceRandom;
-
 use geom::Pt2D;
 use map_gui::common::CityPicker;
+use map_gui::game::PopupMsg;
+use map_gui::helpers::{amenity_type, nice_map_name, ID};
+use map_gui::SimpleApp;
 use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, RewriteColor, State, Text, VerticalAlignment, Widget,
+    Line, Outcome, Panel, RewriteColor, State, Text, Transition, VerticalAlignment, Widget,
 };
 
-use self::isochrone::Isochrone;
-use crate::app::App;
-use crate::game::{PopupMsg, Transition};
-use crate::helpers::{amenity_type, nice_map_name, ID};
-
-mod isochrone;
+use crate::isochrone::Isochrone;
 
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
 pub struct Viewer {
@@ -38,15 +34,19 @@ struct HoverOnBuilding {
 
 impl Viewer {
     /// Start with a random building
-    pub fn random_start(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        let mut rng = app.primary.current_flags.sim_flags.make_rng();
-        let start = app.primary.map.all_buildings().choose(&mut rng).unwrap().id;
+    pub fn random_start(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
+        let bldgs = app.map.all_buildings();
+        let start = bldgs[bldgs.len() / 2].id;
         Viewer::new(ctx, app, start)
     }
 
-    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        start: BuildingID,
+    ) -> Box<dyn State<SimpleApp>> {
         let constraints = PathConstraints::Pedestrian;
-        let start = app.primary.map.get_b(start);
+        let start = app.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, start.id, constraints);
         let highlight_start = draw_star(ctx, start.polygon.center());
         let panel = build_panel(ctx, app, start, &isochrone);
@@ -61,8 +61,8 @@ impl Viewer {
     }
 }
 
-impl State<App> for Viewer {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+impl State<SimpleApp> for Viewer {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
         // Allow panning and zooming
         ctx.canvas_movement();
 
@@ -80,15 +80,14 @@ impl State<App> for Viewer {
             };
 
             // Also update this to conveniently get an outline drawn
-            app.primary.current_selection =
-                self.hovering_on_bldg.as_ref().map(|h| ID::Building(h.id));
+            app.current_selection = self.hovering_on_bldg.as_ref().map(|h| ID::Building(h.id));
         }
 
         // Don't call normal_left_click unless we're hovering on something in map-space; otherwise
         // panel.event never sees clicks.
         if let Some(ref hover) = self.hovering_on_bldg {
             if ctx.normal_left_click() {
-                let start = app.primary.map.get_b(hover.id);
+                let start = app.map.get_b(hover.id);
                 self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
                 self.highlight_start = draw_star(ctx, start.polygon.center());
                 self.panel = build_panel(ctx, app, start, &self.isochrone);
@@ -133,7 +132,7 @@ impl State<App> for Viewer {
                     // Describe all of the specific amenities matching this category
                     let mut details = Vec::new();
                     for b in self.isochrone.amenities_reachable.get(category) {
-                        let bldg = app.primary.map.get_b(*b);
+                        let bldg = app.map.get_b(*b);
                         for amenity in &bldg.amenities {
                             if amenity_type(&amenity.amenity_type) == Some(category) {
                                 details.push(format!(
@@ -158,7 +157,7 @@ impl State<App> for Viewer {
                 self.panel = build_panel(
                     ctx,
                     app,
-                    app.primary.map.get_b(self.isochrone.start),
+                    app.map.get_b(self.isochrone.start),
                     &self.isochrone,
                 );
             }
@@ -168,7 +167,7 @@ impl State<App> for Viewer {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
         g.redraw(&self.isochrone.draw);
         g.redraw(&self.highlight_start);
         self.panel.draw(g);
@@ -187,7 +186,12 @@ fn draw_star(ctx: &mut EventCtx, center: Pt2D) -> Drawable {
     )
 }
 
-fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
+fn build_panel(
+    ctx: &mut EventCtx,
+    app: &SimpleApp,
+    start: &Building,
+    isochrone: &Isochrone,
+) -> Panel {
     let mut rows = Vec::new();
 
     rows.push(Widget::row(vec![
@@ -199,7 +203,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
 
     rows.push(Widget::row(vec![Btn::pop_up(
         ctx,
-        Some(nice_map_name(app.primary.map.get_name())),
+        Some(nice_map_name(app.map.get_name())),
     )
     .build(ctx, "change map", lctrl(Key::L))]));
 

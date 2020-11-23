@@ -7,7 +7,6 @@ use widgetry::{
     ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,
 };
 
-pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
 pub use self::minimap::Minimap;
 pub use self::warp::Warping;
 use crate::app::App;
@@ -16,7 +15,6 @@ use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};
 
-mod heatmap;
 mod minimap;
 mod warp;
 

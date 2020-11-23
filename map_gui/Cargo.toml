@@ -12,9 +12,11 @@ wasm = ["futures", "futures-channel", "js-sys", "wasm-bindgen", "wasm-bindgen-fu
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 colorous = "1.0.3"
+contour = { git = "https://github.com/dabreegster/contour-rs" }
 flate2 = "1.0.19"
 futures = { version = "0.3.8", optional = true }
 futures-channel = { version = "0.3.8", optional = true }
+geojson = "0.20.1"
 geom = { path = "../geom" }
 instant = "0.1.7"
 js-sys = { version = "0.3.45", optional = true }

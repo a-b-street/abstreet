@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::Duration;
-pub use map_gui::helpers::{grey_out_map, nice_map_name, open_browser, ID};
+pub use map_gui::helpers::{amenity_type, grey_out_map, nice_map_name, open_browser, ID};
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
@@ -74,88 +74,6 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
         TripPhaseType::RidingBus(_, _, _) => app.cs.bus_trip,
         TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
         TripPhaseType::DelayedStart => Color::YELLOW,
-    }
-}
-
-pub fn amenity_type(a: &str) -> Option<&'static str> {
-    // NOTE: names are used in amenities function in other file
-    // TODO: create categories for:
-    // hairdresser beauty chemist
-    // car_repair
-    // laundry
-    if a == "supermarket" || a == "convenience" {
-        Some("groceries")
-    } else if a == "restaurant"
-        || a == "cafe"
-        || a == "fast_food"
-        || a == "food_court"
-        || a == "ice_cream"
-        || a == "pastry"
-        || a == "deli"
-        || a == "greengrocer"
-        || a == "bakery"
-        || a == "butcher"
-        || a == "confectionery"
-        || a == "beverages"
-        || a == "alcohol"
-    {
-        Some("food")
-    } else if a == "pub" || a == "bar" || a == "nightclub" || a == "lounge" {
-        Some("bar")
-    } else if a == "doctors"
-        || a == "dentist"
-        || a == "clinic"
-        || a == "hospital"
-        || a == "pharmacy"
-        || a == "chiropractor"
-        || a == "optician"
-    {
-        Some("medical")
-    } else if a == "place_of_worship" {
-        Some("church / temple")
-    } else if a == "college" || a == "school" || a == "university" {
-        Some("education")
-    } else if a == "bank" || a == "post_office" {
-        Some("bank / post office")
-    } else if a == "theatre"
-        || a == "arts_centre"
-        || a == "library"
-        || a == "cinema"
-        || a == "art_gallery"
-        || a == "museum"
-    {
-        Some("culture")
-    } else if a == "childcare" || a == "kindergarten" {
-        Some("childcare")
-    } else if a == "second_hand"
-        || a == "clothes"
-        || a == "furniture"
-        || a == "shoes"
-        || a == "department_store"
-        || a == "car"
-        || a == "kiosk"
-        || a == "hardware"
-        || a == "mobile_phone"
-        || a == "florist"
-        || a == "electronics"
-        || a == "car_parts"
-        || a == "doityourself"
-        || a == "jewelry"
-        || a == "variety_store"
-        || a == "gift"
-        || a == "bicycle"
-        || a == "books"
-        || a == "sports"
-        || a == "travel_agency"
-        || a == "stationery"
-        || a == "pet"
-        || a == "computer"
-        || a == "tyres"
-        || a == "newsagent"
-    {
-        Some("shopping")
-    } else {
-        None
     }
 }
 

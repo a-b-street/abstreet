@@ -1,0 +1,17 @@
+[package]
+name = "fifteen_min"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2018"
+
+[features]
+default = ["map_gui/native", "widgetry/native-backend"]
+
+[dependencies]
+abstutil = { path = "../abstutil" }
+contour = { git = "https://github.com/dabreegster/contour-rs" }
+geojson = "0.20.1"
+geom = { path = "../geom" }
+map_gui = { path = "../map_gui" }
+map_model = { path = "../map_model" }
+widgetry = { path = "../widgetry" }

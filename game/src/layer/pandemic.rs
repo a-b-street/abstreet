@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
+use map_gui::common::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
@@ -9,7 +10,6 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::{make_heatmap, HeatmapOptions};
 use crate::layer::{Layer, LayerOutcome};
 
 // TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to

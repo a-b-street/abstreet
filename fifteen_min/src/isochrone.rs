@@ -2,12 +2,11 @@ use std::collections::HashMap;
 
 use abstutil::MultiMap;
 use geom::{Duration, Polygon};
+use map_gui::common::Grid;
+use map_gui::helpers::amenity_type;
+use map_gui::SimpleApp;
 use map_model::{connectivity, BuildingID, PathConstraints};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
-
-use crate::app::App;
-use crate::common::Grid;
-use crate::helpers::amenity_type;
 
 /// Represents the area reachable from a single building.
 pub struct Isochrone {
@@ -26,21 +25,17 @@ pub struct Isochrone {
 impl Isochrone {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &SimpleApp,
         start: BuildingID,
         constraints: PathConstraints,
     ) -> Isochrone {
-        let time_to_reach_building = connectivity::all_costs_from(
-            &app.primary.map,
-            start,
-            Duration::minutes(15),
-            constraints,
-        );
+        let time_to_reach_building =
+            connectivity::all_costs_from(&app.map, start, Duration::minutes(15), constraints);
         let draw = draw_isochrone(app, &time_to_reach_building).upload(ctx);
 
         let mut amenities_reachable = MultiMap::new();
         for b in time_to_reach_building.keys() {
-            let bldg = app.primary.map.get_b(*b);
+            let bldg = app.map.get_b(*b);
             for amenity in &bldg.amenities {
                 if let Some(category) = amenity_type(&amenity.amenity_type) {
                     amenities_reachable.insert(category, bldg.id);
@@ -58,10 +53,13 @@ impl Isochrone {
     }
 }
 
-fn draw_isochrone(app: &App, time_to_reach_building: &HashMap<BuildingID, Duration>) -> GeomBatch {
+fn draw_isochrone(
+    app: &SimpleApp,
+    time_to_reach_building: &HashMap<BuildingID, Duration>,
+) -> GeomBatch {
     // To generate the polygons covering areas between 0-5 mins, 5-10 mins, etc, we have to feed
     // in a 2D grid of costs. Use a 100x100 meter resolution.
-    let bounds = app.primary.map.get_bounds();
+    let bounds = app.map.get_bounds();
     let resolution_m = 100.0;
     // The costs we're storing are currenly durations, but the contour crate needs f64, so
     // just store the number of seconds.
@@ -74,7 +72,7 @@ fn draw_isochrone(app: &App, time_to_reach_building: &HashMap<BuildingID, Durati
     // Calculate the cost from the start building to every other building in the map
     for (b, cost) in time_to_reach_building {
         // What grid cell does the building belong to?
-        let pt = app.primary.map.get_b(*b).polygon.center();
+        let pt = app.map.get_b(*b).polygon.center();
         let idx = grid.idx(
             ((pt.x() - bounds.min_x) / resolution_m) as usize,
             ((pt.y() - bounds.min_y) / resolution_m) as usize,

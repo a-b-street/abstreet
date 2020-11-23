@@ -5,6 +5,7 @@ members = [
   "collisions",
   "convert_osm",
   "experiment",
+  "fifteen_min",
   "game",
   "geom",
   "headless",
