@@ -767,9 +767,6 @@
 <span id="764">764</span>
 <span id="765">765</span>
 <span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
-<span id="769">769</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -1287,9 +1284,6 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Flags</span> {
     <span class="kw">pub</span> <span class="ident">sim_flags</span>: <span class="ident">SimFlags</span>,
-    <span class="doccomment">/// Number of agents to generate when requested. If unspecified, trips to/from borders will be</span>
-    <span class="doccomment">/// included.</span>
-    <span class="kw">pub</span> <span class="ident">num_agents</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
     <span class="doccomment">/// If true, all map edits immediately apply to the live simulation. Otherwise, most edits</span>
     <span class="doccomment">/// require resetting to midnight.</span>
     <span class="kw">pub</span> <span class="ident">live_map_edits</span>: <span class="ident">bool</span>,
