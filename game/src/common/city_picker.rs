@@ -1,5 +1,6 @@
 use abstutil::{prettyprint_usize, MapName};
 use geom::{Distance, Percent, Polygon, Pt2D};
+use map_gui::render::DrawArea;
 use map_model::City;
 use widgetry::{
     Autocomplete, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
@@ -10,7 +11,6 @@ use crate::app::App;
 use crate::game::Transition;
 use crate::helpers::{grey_out_map, nice_map_name, open_browser};
 use crate::load::MapLoader;
-use map_gui::render::DrawArea;
 
 pub struct CityPicker {
     panel: Panel,

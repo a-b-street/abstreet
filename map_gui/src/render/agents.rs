@@ -8,11 +8,11 @@ use map_model::{Map, Traversable};
 use sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
 use widgetry::{Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Prerender, Widget};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::render::{
     draw_vehicle, unzoomed_agent_radius, DrawPedCrowd, DrawPedestrian, Renderable,
 };
+use crate::AppLike;
 
 pub struct AgentCache {
     /// This is controlled almost entirely by the minimap panel. It has no meaning in edit mode.
@@ -84,9 +84,9 @@ impl AgentCache {
     pub fn calculate_unzoomed_agents<P: AsRef<Prerender>>(
         &mut self,
         prerender: &mut P,
-        app: &App,
+        app: &dyn AppLike,
     ) -> &QuadTree<AgentID> {
-        let now = app.primary.sim.time();
+        let now = app.sim().time();
         let mut recalc = true;
         if let Some((time, ref orig_agents, _, _)) = self.unzoomed {
             if now == time && self.unzoomed_agents == orig_agents.clone() {
@@ -96,7 +96,7 @@ impl AgentCache {
 
         if recalc {
             let mut batch = GeomBatch::new();
-            let mut quadtree = QuadTree::default(app.primary.map.get_bounds().as_bbox());
+            let mut quadtree = QuadTree::default(app.map().get_bounds().as_bbox());
             // It's quite silly to produce triangles for the same circle over and over again. ;)
             let car_circle = Circle::new(
                 Pt2D::new(0.0, 0.0),
@@ -106,7 +106,7 @@ impl AgentCache {
             let ped_circle =
                 Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
 
-            for agent in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
+            for agent in app.sim().get_unzoomed_agents(app.map()) {
                 if let Some(color) = self.unzoomed_agents.color(&agent) {
                     let circle = if agent.id.to_vehicle_type().is_some() {
                         car_circle.translate(agent.pos.x(), agent.pos.y())
@@ -126,19 +126,19 @@ impl AgentCache {
         &self.unzoomed.as_ref().unwrap().2
     }
 
-    pub fn draw_unzoomed_agents(&mut self, g: &mut GfxCtx, app: &App) {
+    pub fn draw_unzoomed_agents(&mut self, g: &mut GfxCtx, app: &dyn AppLike) {
         self.calculate_unzoomed_agents(g, app);
         g.redraw(&self.unzoomed.as_ref().unwrap().3);
 
-        if app.opts.debug_all_agents {
+        if app.opts().debug_all_agents {
             let mut cnt = 0;
-            for input in app.primary.sim.get_all_draw_cars(&app.primary.map) {
+            for input in app.sim().get_all_draw_cars(app.map()) {
                 cnt += 1;
-                draw_vehicle(input, &app.primary.map, g.prerender, &app.cs);
+                draw_vehicle(input, app.map(), g.prerender, app.cs());
             }
             println!(
                 "At {}, debugged {} cars",
-                app.primary.sim.time(),
+                app.sim().time(),
                 abstutil::prettyprint_usize(cnt)
             );
             // Pedestrians aren't the ones crashing

@@ -706,6 +706,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "experiment"
+version = "0.1.0"
+dependencies = [
+ "geom",
+ "map_gui",
+ "widgetry",
+]
+
+[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -2,6 +2,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
+use map_gui::options::TrafficSignalStyle;
+use map_gui::render::traffic_signal::draw_signal_stage;
 use map_model::{IntersectionID, IntersectionType, PhaseType};
 use sim::AgentType;
 use widgetry::{
@@ -12,8 +14,6 @@ use widgetry::{
 use crate::app::App;
 use crate::helpers::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
-use map_gui::options::TrafficSignalStyle;
-use map_gui::render::traffic_signal::draw_signal_stage;
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {
     let mut rows = header(ctx, app, details, id, Tab::IntersectionInfo(id));

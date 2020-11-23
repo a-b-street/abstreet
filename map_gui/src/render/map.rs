@@ -313,12 +313,66 @@ impl DrawMap {
         agents.get(on).into_iter().find(|r| r.get_id() == id)
     }
 
-    // Unsorted, unexpanded, raw result.
+    /// Unsorted, unexpanded, raw result.
     pub fn get_matching_objects(&self, bounds: Bounds) -> Vec<ID> {
         let mut results: Vec<ID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(bounds.as_bbox()) {
             results.push(id.clone());
         }
         results
+    }
+
+    /// A simple variation of the one in game that shows all layers, ignores dynamic agents.
+    pub fn get_renderables_back_to_front(&self, bounds: Bounds, map: &Map) -> Vec<&dyn Renderable> {
+        let mut areas: Vec<&dyn Renderable> = Vec::new();
+        let mut parking_lots: Vec<&dyn Renderable> = Vec::new();
+        let mut lanes: Vec<&dyn Renderable> = Vec::new();
+        let mut roads: Vec<&dyn Renderable> = Vec::new();
+        let mut intersections: Vec<&dyn Renderable> = Vec::new();
+        let mut buildings: Vec<&dyn Renderable> = Vec::new();
+        let mut bus_stops: Vec<&dyn Renderable> = Vec::new();
+
+        for id in self.get_matching_objects(bounds) {
+            match id {
+                ID::Area(id) => areas.push(self.get_a(id)),
+                ID::Lane(id) => {
+                    lanes.push(self.get_l(id));
+                    for bs in &map.get_l(id).bus_stops {
+                        bus_stops.push(self.get_bs(*bs));
+                    }
+                }
+                ID::Road(id) => {
+                    roads.push(self.get_r(id));
+                }
+                ID::Intersection(id) => {
+                    intersections.push(self.get_i(id));
+                }
+                ID::Building(id) => buildings.push(self.get_b(id)),
+                ID::ParkingLot(id) => {
+                    parking_lots.push(self.get_pl(id));
+                }
+
+                ID::BusStop(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                    panic!("{:?} shouldn't be in the quadtree", id)
+                }
+            }
+        }
+
+        // From background to foreground Z-order
+        let mut borrows: Vec<&dyn Renderable> = Vec::new();
+        borrows.extend(areas);
+        borrows.extend(parking_lots);
+        borrows.extend(lanes);
+        borrows.extend(roads);
+        borrows.extend(intersections);
+        borrows.extend(buildings);
+        borrows.extend(bus_stops);
+
+        //borrows.retain(|x| x.get_zorder() <= self.primary.show_zorder);
+
+        // This is a stable sort.
+        borrows.sort_by_key(|x| x.get_zorder());
+
+        borrows
     }
 }

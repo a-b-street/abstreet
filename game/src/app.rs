@@ -6,6 +6,9 @@ use rand::seq::SliceRandom;
 
 use abstutil::{MapName, Timer};
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
+use map_gui::colors::ColorScheme;
+use map_gui::options::Options;
+use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState};
@@ -15,11 +18,6 @@ use crate::edit::apply_map_edits;
 use crate::helpers::ID;
 use crate::layer::Layer;
 use crate::sandbox::{GameplayMode, TutorialState};
-use map_gui::colors::{ColorScheme, ColorSchemeChoice};
-use map_gui::options::Options;
-use map_gui::render::{
-    unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents,
-};
 
 /// The top-level data that lasts through the entire game, no matter what state the game is in.
 pub struct App {
@@ -454,6 +452,10 @@ impl map_gui::AppLike for App {
         &self.cs
     }
     #[inline]
+    fn mut_cs(&mut self) -> &mut ColorScheme {
+        &mut self.cs
+    }
+    #[inline]
     fn draw_map(&self) -> &DrawMap {
         &self.primary.draw_map
     }
@@ -468,24 +470,6 @@ impl map_gui::AppLike for App {
     #[inline]
     fn mut_opts(&mut self) -> &mut Options {
         &mut self.opts
-    }
-    #[inline]
-    fn unzoomed_agents(&self) -> &UnzoomedAgents {
-        &self.unzoomed_agents
-    }
-    fn change_color_scheme(&mut self, ctx: &mut EventCtx, cs: ColorSchemeChoice) -> bool {
-        if self.opts.color_scheme == cs {
-            return false;
-        }
-        self.opts.color_scheme = cs;
-        self.cs = ColorScheme::new(ctx, self.opts.color_scheme);
-
-        ctx.loading_screen("rerendering map colors", |ctx, timer| {
-            self.primary.draw_map =
-                DrawMap::new(&self.primary.map, &self.opts, &self.cs, ctx, timer);
-        });
-
-        true
     }
 }
 

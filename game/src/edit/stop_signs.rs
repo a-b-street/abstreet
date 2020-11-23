@@ -4,6 +4,7 @@ use maplit::btreeset;
 
 use abstutil::Timer;
 use geom::Polygon;
+use map_gui::render::DrawIntersection;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
@@ -17,7 +18,6 @@ use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, TrafficSignalEditor};
 use crate::game::Transition;
 use crate::sandbox::GameplayMode;
-use map_gui::render::DrawIntersection;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
 // sure what to do about the player orphaning a section of the map.

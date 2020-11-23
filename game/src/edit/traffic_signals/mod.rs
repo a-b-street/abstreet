@@ -2,6 +2,8 @@ use std::collections::{BTreeSet, VecDeque};
 
 use abstutil::Timer;
 use geom::{Distance, Duration, Line, Polygon, Pt2D};
+use map_gui::options::TrafficSignalStyle;
+use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
 use map_model::{
     ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
     TurnPriority,
@@ -17,8 +19,6 @@ use crate::common::{CommonState, Warping};
 use crate::edit::{apply_map_edits, ConfirmDiscard};
 use crate::game::{PopupMsg, Transition};
 use crate::sandbox::GameplayMode;
-use map_gui::options::TrafficSignalStyle;
-use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
 
 mod edits;
 mod offsets;

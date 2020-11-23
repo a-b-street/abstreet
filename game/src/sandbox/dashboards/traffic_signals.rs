@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
 use geom::{ArrowCap, Distance, Duration, Polygon, Time};
+use map_gui::render::DrawOptions;
 use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
 use sim::TripEndpoint;
 use widgetry::{
@@ -13,7 +14,6 @@ use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::game::Transition;
 use crate::helpers::ID;
-use map_gui::render::DrawOptions;
 
 pub struct TrafficSignalDemand {
     panel: Panel,

@@ -7,6 +7,7 @@ use aabb_quadtree::QuadTree;
 use abstutil::{prettyprint_usize, Parallelism, Timer};
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
+use map_gui::colors::ColorScheme;
 use map_model::BuildingID;
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -15,7 +16,6 @@ use widgetry::{
 
 use crate::app::App;
 use crate::game::{ChooseSomething, PopupMsg, Transition};
-use map_gui::colors::ColorScheme;
 
 pub struct ViewKML {
     panel: Panel,
