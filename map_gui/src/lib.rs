@@ -2,10 +2,10 @@
 //! state, based around drawing and interacting with a Map.
 
 use abstutil::{CmdArgs, Timer};
-use geom::{Circle, Distance, Duration, Time};
+use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map};
 use sim::Sim;
-use widgetry::{EventCtx, GfxCtx, SharedAppState};
+use widgetry::{EventCtx, GfxCtx, SharedAppState, State, Transition, Warper};
 
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
@@ -36,6 +36,15 @@ pub trait AppLike {
     fn mut_opts(&mut self) -> &mut Options;
     fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer);
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions);
+    fn make_warper(
+        &mut self,
+        ctx: &EventCtx,
+        pt: Pt2D,
+        target_cam_zoom: Option<f64>,
+        id: Option<ID>,
+    ) -> Box<dyn State<Self>>
+    where
+        Self: Sized;
 
     // For traffic signal rendering
     fn sim_time(&self) -> Time {
@@ -284,6 +293,18 @@ impl AppLike for SimpleApp {
         }
     }
 
+    fn make_warper(
+        &mut self,
+        ctx: &EventCtx,
+        pt: Pt2D,
+        target_cam_zoom: Option<f64>,
+        _: Option<ID>,
+    ) -> Box<dyn State<SimpleApp>> {
+        Box::new(SimpleWarper {
+            warper: Warper::new(ctx, pt, target_cam_zoom),
+        })
+    }
+
     fn sim_time(&self) -> Time {
         Time::START_OF_DAY
     }
@@ -302,4 +323,20 @@ impl SharedAppState for SimpleApp {
     fn draw_default(&self, g: &mut GfxCtx) {
         self.draw_with_opts(g, DrawOptions::new());
     }
+}
+
+struct SimpleWarper {
+    warper: Warper,
+}
+
+impl State<SimpleApp> for SimpleWarper {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut SimpleApp) -> Transition<SimpleApp> {
+        if self.warper.event(ctx) {
+            Transition::Keep
+        } else {
+            Transition::Pop
+        }
+    }
+
+    fn draw(&self, _: &mut GfxCtx, _: &SimpleApp) {}
 }

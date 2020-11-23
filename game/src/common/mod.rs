@@ -9,7 +9,6 @@ use widgetry::{
 
 pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
 pub use self::minimap::Minimap;
-pub use self::navigate::Navigator;
 pub use self::warp::Warping;
 use crate::app::App;
 use crate::game::Transition;
@@ -19,7 +18,6 @@ pub use crate::info::{ContextualActions, Tab};
 
 mod heatmap;
 mod minimap;
-mod navigate;
 mod warp;
 
 // TODO This is now just used in two modes...
