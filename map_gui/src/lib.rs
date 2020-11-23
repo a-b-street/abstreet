@@ -1,15 +1,16 @@
 //! Several distinct tools/applications all share the same general structure for their shared GUI
 //! state, based around drawing and interacting with a Map.
 
-use colors::{ColorScheme, ColorSchemeChoice};
+use abstutil::CmdArgs;
 use map_model::Map;
-use options::Options;
-use render::DrawMap;
 use sim::Sim;
 use widgetry::{EventCtx, GfxCtx, SharedAppState};
 
 use crate::helpers::ID;
 use crate::render::DrawOptions;
+use colors::{ColorScheme, ColorSchemeChoice};
+use options::Options;
+use render::DrawMap;
 
 pub mod colors;
 pub mod common;
@@ -57,11 +58,17 @@ pub struct SimpleApp {
 }
 
 impl SimpleApp {
-    pub fn new(ctx: &mut EventCtx) -> SimpleApp {
+    pub fn new(ctx: &mut EventCtx, mut args: CmdArgs) -> SimpleApp {
         ctx.loading_screen("load map", |ctx, mut timer| {
-            let opts = Options::default();
+            let mut opts = Options::default();
+            opts.update_from_args(&mut args);
+            let map_path = args
+                .optional_free()
+                .unwrap_or(abstutil::MapName::seattle("montlake").path());
+            args.done();
+
             let cs = ColorScheme::new(ctx, opts.color_scheme);
-            let map = Map::new(abstutil::MapName::seattle("montlake").path(), &mut timer);
+            let map = Map::new(map_path, &mut timer);
             let draw_map = DrawMap::new(&map, &opts, &cs, ctx, timer);
             // TODO Should we refactor the whole camera state / initial focusing thing?
             SimpleApp {

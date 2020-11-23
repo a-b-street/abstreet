@@ -8,6 +8,7 @@ edition = "2018"
 default = ["widgetry/native-backend"]
 
 [dependencies]
+abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 map_gui = { path = "../map_gui" }
 widgetry = { path = "../widgetry" }
