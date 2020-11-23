@@ -2,10 +2,10 @@ use geom::Polygon;
 use map_model::{Area, AreaID, AreaType, Map};
 use widgetry::{Color, EventCtx, Fill, GeomBatch, GfxCtx, Line, Text};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
+use crate::AppLike;
 
 pub struct DrawArea {
     pub id: AreaID,
@@ -51,7 +51,7 @@ impl Renderable for DrawArea {
         ID::Area(self.id)
     }
 
-    fn draw(&self, _: &mut GfxCtx, _: &App, _: &DrawOptions) {}
+    fn draw(&self, _: &mut GfxCtx, _: &dyn AppLike, _: &DrawOptions) {}
 
     fn get_outline(&self, map: &Map) -> Polygon {
         // Since areas are so big, don't just draw the outline

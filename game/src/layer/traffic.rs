@@ -15,7 +15,7 @@ use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
 use crate::helpers::ID;
 use crate::layer::{Layer, LayerOutcome};
-use crate::render::unzoomed_agent_radius;
+use map_gui::render::unzoomed_agent_radius;
 
 pub struct Backpressure {
     time: Time,

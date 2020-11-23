@@ -12,7 +12,7 @@ use crate::app::{App, ShowEverything};
 use crate::common::{ColorLegend, CommonState};
 use crate::game::Transition;
 use crate::helpers::ID;
-use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
+use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 /// Draws a preview of the path for the agent under the mouse cursor.
 pub struct RoutePreview {

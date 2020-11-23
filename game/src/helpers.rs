@@ -1,70 +1,13 @@
 use std::collections::BTreeSet;
 
 use abstutil::MapName;
-use geom::{Duration, Polygon, Pt2D};
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
-use sim::{AgentID, AgentType, CarID, PedestrianID, TripMode, TripPhaseType};
-use widgetry::{Btn, Checkbox, Color, EventCtx, GfxCtx, Key, Line, Text, TextSpan, Widget};
+use geom::Duration;
+pub use map_gui::helpers::{grey_out_map, ID};
+use map_model::{IntersectionID, Map, RoadID};
+use sim::{AgentType, TripMode, TripPhaseType};
+use widgetry::{Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
 
-use crate::app::{App, PerMap};
-
-// Aside from Road and Trip, everything here can actually be selected.
-#[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
-pub enum ID {
-    Road(RoadID),
-    Lane(LaneID),
-    Intersection(IntersectionID),
-    Building(BuildingID),
-    ParkingLot(ParkingLotID),
-    Car(CarID),
-    Pedestrian(PedestrianID),
-    PedCrowd(Vec<PedestrianID>),
-    BusStop(BusStopID),
-    Area(AreaID),
-}
-
-impl ID {
-    pub fn from_agent(id: AgentID) -> ID {
-        match id {
-            AgentID::Car(id) => ID::Car(id),
-            AgentID::Pedestrian(id) => ID::Pedestrian(id),
-            AgentID::BusPassenger(_, bus) => ID::Car(bus),
-        }
-    }
-
-    pub fn agent_id(&self) -> Option<AgentID> {
-        match *self {
-            ID::Car(id) => Some(AgentID::Car(id)),
-            ID::Pedestrian(id) => Some(AgentID::Pedestrian(id)),
-            // PedCrowd doesn't map to a single agent.
-            _ => None,
-        }
-    }
-
-    pub fn canonical_point(&self, primary: &PerMap) -> Option<Pt2D> {
-        match *self {
-            ID::Road(id) => primary.map.maybe_get_r(id).map(|r| r.center_pts.first_pt()),
-            ID::Lane(id) => primary.map.maybe_get_l(id).map(|l| l.first_pt()),
-            ID::Intersection(id) => primary.map.maybe_get_i(id).map(|i| i.polygon.center()),
-            ID::Building(id) => primary.map.maybe_get_b(id).map(|b| b.polygon.center()),
-            ID::ParkingLot(id) => primary.map.maybe_get_pl(id).map(|pl| pl.polygon.center()),
-            ID::Car(id) => primary
-                .sim
-                .canonical_pt_for_agent(AgentID::Car(id), &primary.map),
-            ID::Pedestrian(id) => primary
-                .sim
-                .canonical_pt_for_agent(AgentID::Pedestrian(id), &primary.map),
-            ID::PedCrowd(ref members) => primary
-                .sim
-                .canonical_pt_for_agent(AgentID::Pedestrian(members[0]), &primary.map),
-            ID::BusStop(id) => primary
-                .map
-                .maybe_get_bs(id)
-                .map(|bs| bs.sidewalk_pos.pt(&primary.map)),
-            ID::Area(id) => primary.map.maybe_get_a(id).map(|a| a.polygon.center()),
-        }
-    }
-}
+use crate::app::App;
 
 pub fn list_names<F: Fn(TextSpan) -> TextSpan>(txt: &mut Text, styler: F, names: BTreeSet<String>) {
     let len = names.len();
@@ -290,30 +233,4 @@ pub fn checkbox_per_mode(
 
 pub fn open_browser(url: String) {
     let _ = webbrowser::open(&url);
-}
-
-pub fn loading_tips() -> Text {
-    Text::from_multiline(vec![
-        Line("Recent changes (November 8)"),
-        Line(""),
-        Line("- Download more cities from within the game"),
-        Line("- You can now click agents while zoomed out"),
-        Line("- New OpenStreetMap viewer, open it from the splash screen"),
-        Line("- A web version has launched!"),
-        Line("- Slow segments of a trip shown in the info panel"),
-        Line("- Alleyways are now included in the map"),
-        Line("- Check out the trip tables and summary changes (press 'q')"),
-        Line("- Try out the new traffic signal editor!"),
-    ])
-}
-
-/// Make it clear the map can't be interacted with right now.
-pub fn grey_out_map(g: &mut GfxCtx, app: &App) {
-    g.fork_screenspace();
-    // TODO - OSD height
-    g.draw_polygon(
-        app.cs.fade_map_dark,
-        Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
-    );
-    g.unfork();
 }

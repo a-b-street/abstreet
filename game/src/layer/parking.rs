@@ -14,7 +14,7 @@ use widgetry::{
 use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
-use crate::render::unzoomed_agent_radius;
+use map_gui::render::unzoomed_agent_radius;
 
 pub struct Occupancy {
     time: Time,

@@ -7,9 +7,9 @@ use map_model::{
 };
 use widgetry::{Drawable, GeomBatch, GfxCtx, RewriteColor};
 
-use crate::app::App;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::AppLike;
 
 pub struct DrawLane {
     pub id: LaneID,
@@ -33,22 +33,23 @@ impl DrawLane {
         *self.draw_default.borrow_mut() = None;
     }
 
-    fn render(&self, g: &mut GfxCtx, app: &App) -> Drawable {
-        let map = &app.primary.map;
+    fn render(&self, g: &mut GfxCtx, app: &dyn AppLike) -> Drawable {
+        let map = app.map();
         let lane = map.get_l(self.id);
         let road = map.get_r(lane.parent);
 
         let mut draw = GeomBatch::new();
         if !lane.is_light_rail() {
             draw.push(
-                app.cs.zoomed_road_surface(lane.lane_type, road.get_rank()),
+                app.cs()
+                    .zoomed_road_surface(lane.lane_type, road.get_rank()),
                 self.polygon.clone(),
             );
         }
-        let general_road_marking = app.cs.general_road_marking(road.get_rank());
+        let general_road_marking = app.cs().general_road_marking(road.get_rank());
         match lane.lane_type {
             LaneType::Sidewalk => {
-                if let Some(c) = app.cs.sidewalk_lines {
+                if let Some(c) = app.cs().sidewalk_lines {
                     draw.extend(c, calculate_sidewalk_lines(lane));
                 } else {
                     // Otherwise, draw a border at both edges
@@ -81,13 +82,13 @@ impl DrawLane {
             LaneType::SharedLeftTurn => {
                 let thickness = Distance::meters(0.25);
                 draw.push(
-                    app.cs.road_center_line(road.get_rank()),
+                    app.cs().road_center_line(road.get_rank()),
                     lane.lane_center_pts
                         .must_shift_right((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),
                 );
                 draw.push(
-                    app.cs.road_center_line(road.get_rank()),
+                    app.cs().road_center_line(road.get_rank()),
                     lane.lane_center_pts
                         .must_shift_left((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),
@@ -97,13 +98,13 @@ impl DrawLane {
             LaneType::LightRail => {
                 let track_width = lane.width / 4.0;
                 draw.push(
-                    app.cs.light_rail_track,
+                    app.cs().light_rail_track,
                     lane.lane_center_pts
                         .must_shift_right((lane.width - track_width) / 2.5)
                         .make_polygons(track_width),
                 );
                 draw.push(
-                    app.cs.light_rail_track,
+                    app.cs().light_rail_track,
                     lane.lane_center_pts
                         .must_shift_left((lane.width - track_width) / 2.5)
                         .make_polygons(track_width),
@@ -117,7 +118,7 @@ impl DrawLane {
                     // Reuse perp_line. Project away an arbitrary amount
                     let pt2 = pt.project_away(Distance::meters(1.0), angle);
                     draw.push(
-                        app.cs.light_rail_track,
+                        app.cs().light_rail_track,
                         perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(track_width),
                     );
                     dist_along += tile_every;
@@ -179,7 +180,7 @@ impl DrawLane {
         }
 
         if road.is_private() {
-            draw.push(app.cs.private_road.alpha(0.5), self.polygon.clone());
+            draw.push(app.cs().private_road.alpha(0.5), self.polygon.clone());
         }
 
         if self.zorder < 0 {
@@ -195,7 +196,7 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike, _: &DrawOptions) {
         // Lazily calculate, because these are expensive to all do up-front, and most players won't
         // exhaustively see every lane during a single session
         let mut draw = self.draw_default.borrow_mut();

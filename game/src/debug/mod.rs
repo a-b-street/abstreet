@@ -15,9 +15,9 @@ use crate::common::{tool_panel, CommonState, ContextualActions};
 use crate::game::{ChooseSomething, PopupMsg, PromptInput, Transition};
 use crate::helpers::ID;
 use crate::load::MapLoader;
-use crate::options::OptionsPanel;
-use crate::render::{calculate_corners, DrawOptions};
 use crate::sandbox::GameplayMode;
+use map_gui::options::OptionsPanel;
+use map_gui::render::{calculate_corners, DrawOptions};
 
 mod blocked_by;
 mod floodfill;

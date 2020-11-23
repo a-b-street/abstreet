@@ -7,17 +7,19 @@ use rand::seq::SliceRandom;
 use abstutil::{MapName, Timer};
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map, Traversable};
-use sim::{Analytics, Scenario, Sim, SimCallback, SimFlags};
+use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState};
 
 use crate::challenges::HighScore;
-use crate::colors::{ColorScheme, ColorSchemeChoice};
 use crate::edit::apply_map_edits;
 use crate::helpers::ID;
 use crate::layer::Layer;
-use crate::options::Options;
-use crate::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
 use crate::sandbox::{GameplayMode, TutorialState};
+use map_gui::colors::{ColorScheme, ColorSchemeChoice};
+use map_gui::options::Options;
+use map_gui::render::{
+    unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable, UnzoomedAgents,
+};
 
 /// The top-level data that lasts through the entire game, no matter what state the game is in.
 pub struct App {
@@ -422,8 +424,56 @@ impl App {
         borrows
     }
 
-    /// Change the color scheme. Idempotent. Return true if there was a change.
-    pub fn change_color_scheme(&mut self, ctx: &mut EventCtx, cs: ColorSchemeChoice) -> bool {
+    /// Ensure the map edits are blank, reset the simulation, and blank out prebaked results.
+    pub fn clear_everything(&mut self, ctx: &mut EventCtx) {
+        ctx.loading_screen("reset map and sim", |ctx, mut timer| {
+            apply_map_edits(ctx, self, self.primary.map.new_edits());
+            self.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+
+            self.primary.clear_sim();
+            self.set_prebaked(None);
+        });
+    }
+}
+
+// I haven't measured build or runtime impact of inlining vs not, but I assume for these simple
+// accessors it makes sense.
+impl map_gui::AppLike for App {
+    #[inline]
+    fn map(&self) -> &Map {
+        &self.primary.map
+    }
+    #[inline]
+    fn sim(&self) -> &Sim {
+        &self.primary.sim
+    }
+    #[inline]
+    fn cs(&self) -> &ColorScheme {
+        &self.cs
+    }
+    #[inline]
+    fn draw_map(&self) -> &DrawMap {
+        &self.primary.draw_map
+    }
+    #[inline]
+    fn mut_draw_map(&mut self) -> &mut DrawMap {
+        &mut self.primary.draw_map
+    }
+    #[inline]
+    fn opts(&self) -> &Options {
+        &self.opts
+    }
+    #[inline]
+    fn mut_opts(&mut self) -> &mut Options {
+        &mut self.opts
+    }
+    #[inline]
+    fn unzoomed_agents(&self) -> &UnzoomedAgents {
+        &self.unzoomed_agents
+    }
+    fn change_color_scheme(&mut self, ctx: &mut EventCtx, cs: ColorSchemeChoice) -> bool {
         if self.opts.color_scheme == cs {
             return false;
         }
@@ -436,19 +486,6 @@ impl App {
         });
 
         true
-    }
-
-    /// Ensure the map edits are blank, reset the simulation, and blank out prebaked results.
-    pub fn clear_everything(&mut self, ctx: &mut EventCtx) {
-        ctx.loading_screen("reset map and sim", |ctx, mut timer| {
-            apply_map_edits(ctx, self, self.primary.map.new_edits());
-            self.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut timer);
-
-            self.primary.clear_sim();
-            self.set_prebaked(None);
-        });
     }
 }
 
@@ -583,13 +620,13 @@ impl PerMap {
             .map
             .all_buildings()
             .choose(&mut rng)
-            .and_then(|b| ID::Building(b.id).canonical_point(&per_map))
+            .and_then(|b| per_map.canonical_point(ID::Building(b.id)))
             .or_else(|| {
                 per_map
                     .map
                     .all_lanes()
                     .choose(&mut rng)
-                    .and_then(|l| ID::Lane(l.id).canonical_point(&per_map))
+                    .and_then(|l| per_map.canonical_point(ID::Lane(l.id)))
             })
             .expect("Can't get canonical_point of a random building or lane");
         let bounds = per_map.map.get_bounds();
@@ -632,6 +669,28 @@ impl PerMap {
         if orig_map.is_none() {
             let mut timer = Timer::new("load unedited map");
             *orig_map = Some(Map::new(self.map.get_name().path(), &mut timer));
+        }
+    }
+
+    pub fn canonical_point(&self, id: ID) -> Option<Pt2D> {
+        match id {
+            ID::Road(id) => self.map.maybe_get_r(id).map(|r| r.center_pts.first_pt()),
+            ID::Lane(id) => self.map.maybe_get_l(id).map(|l| l.first_pt()),
+            ID::Intersection(id) => self.map.maybe_get_i(id).map(|i| i.polygon.center()),
+            ID::Building(id) => self.map.maybe_get_b(id).map(|b| b.polygon.center()),
+            ID::ParkingLot(id) => self.map.maybe_get_pl(id).map(|pl| pl.polygon.center()),
+            ID::Car(id) => self.sim.canonical_pt_for_agent(AgentID::Car(id), &self.map),
+            ID::Pedestrian(id) => self
+                .sim
+                .canonical_pt_for_agent(AgentID::Pedestrian(id), &self.map),
+            ID::PedCrowd(ref members) => self
+                .sim
+                .canonical_pt_for_agent(AgentID::Pedestrian(members[0]), &self.map),
+            ID::BusStop(id) => self
+                .map
+                .maybe_get_bs(id)
+                .map(|bs| bs.sidewalk_pos.pt(&self.map)),
+            ID::Area(id) => self.map.maybe_get_a(id).map(|a| a.polygon.center()),
         }
     }
 }

@@ -42,6 +42,7 @@ kml = { path = "../kml" }
 log = "0.4.11"
 lttb = "0.2.0"
 maplit = "1.0.2"
+map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
 petname = "1.0.12"
 rand = "0.7.0"

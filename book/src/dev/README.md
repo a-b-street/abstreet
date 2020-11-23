@@ -124,6 +124,7 @@ Traffic simulation:
 Graphics:
 
 - `game`: the GUI and main gameplay
+- `map_gui`: common code to interact with `map_model` maps
 - `widgetry`: a GUI and 2D OpenGL rendering library, using glium + winit +
   glutin
 

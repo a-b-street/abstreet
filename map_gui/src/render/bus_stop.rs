@@ -2,10 +2,10 @@ use geom::{Angle, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::AppLike;
 
 const RADIUS: Distance = Distance::const_meters(1.0);
 
@@ -68,7 +68,7 @@ impl Renderable for DrawBusStop {
         ID::BusStop(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &dyn AppLike, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

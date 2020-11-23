@@ -5,6 +5,7 @@ pub use time_warp::TimeWarpScreen;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
+use map_gui::AppLike;
 use sim::{Analytics, Scenario};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -14,7 +15,6 @@ use widgetry::{
 pub use self::misc_tools::TurnExplorer;
 use self::misc_tools::{RoutePreview, TrafficRecorder};
 use crate::app::App;
-use crate::colors::ColorSchemeChoice;
 use crate::common::{tool_panel, CommonState, ContextualActions, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
@@ -24,9 +24,10 @@ use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
 use crate::load::{FileLoader, MapLoader};
-use crate::options::OptionsPanel;
 use crate::pregame::MainMenu;
-use crate::render::{unzoomed_agent_radius, UnzoomedAgents};
+use map_gui::colors::ColorSchemeChoice;
+use map_gui::options::OptionsPanel;
+use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
 
 pub mod dashboards;
 pub mod gameplay;

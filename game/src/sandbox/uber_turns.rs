@@ -13,7 +13,7 @@ use crate::common::CommonState;
 use crate::edit::ClusterTrafficSignalEditor;
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::ID;
-use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
+use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 pub struct UberTurnPicker {
     members: BTreeSet<IntersectionID>,

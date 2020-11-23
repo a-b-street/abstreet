@@ -7,7 +7,6 @@ use geom::{Bounds, Polygon};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::options::Options;
@@ -18,6 +17,7 @@ use crate::render::lane::DrawLane;
 use crate::render::parking_lot::DrawParkingLot;
 use crate::render::road::DrawRoad;
 use crate::render::{AgentCache, DrawArea, Renderable};
+use crate::AppLike;
 
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,
@@ -270,7 +270,7 @@ impl DrawMap {
         &'a self,
         ctx: &EventCtx,
         id: ID,
-        app: &App,
+        app: &dyn AppLike,
         agents: &'a mut AgentCache,
     ) -> Option<&'a dyn Renderable> {
         let on = match id {
@@ -291,21 +291,12 @@ impl DrawMap {
             }
             ID::Car(id) => {
                 // Cars might be parked in a garage!
-                app.primary.sim.get_draw_car(id, &app.primary.map)?.on
+                app.sim().get_draw_car(id, app.map())?.on
             }
-            ID::Pedestrian(id) => {
-                app.primary
-                    .sim
-                    .get_draw_ped(id, &app.primary.map)
-                    .unwrap()
-                    .on
-            }
+            ID::Pedestrian(id) => app.sim().get_draw_ped(id, app.map()).unwrap().on,
             ID::PedCrowd(ref members) => {
                 // If the first member has vanished, just give up
-                app.primary
-                    .sim
-                    .get_draw_ped(members[0], &app.primary.map)?
-                    .on
+                app.sim().get_draw_ped(members[0], app.map())?.on
             }
             ID::BusStop(id) => {
                 return Some(self.get_bs(id));
@@ -315,13 +306,7 @@ impl DrawMap {
             }
         };
 
-        agents.populate_if_needed(
-            on,
-            &app.primary.map,
-            &app.primary.sim,
-            &app.cs,
-            ctx.prerender,
-        );
+        agents.populate_if_needed(on, app.map(), app.sim(), app.cs(), ctx.prerender);
 
         // Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
         // individuals

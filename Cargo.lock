@@ -947,6 +947,7 @@ dependencies = [
  "kml",
  "log",
  "lttb",
+ "map_gui",
  "map_model",
  "maplit",
  "petname",
@@ -1747,6 +1748,19 @@ dependencies = [
  "abstutil",
  "geom",
  "map_model",
+ "widgetry",
+]
+
+[[package]]
+name = "map_gui"
+version = "0.1.0"
+dependencies = [
+ "aabb-quadtree",
+ "abstutil",
+ "colorous",
+ "geom",
+ "map_model",
+ "sim",
  "widgetry",
 ]
 

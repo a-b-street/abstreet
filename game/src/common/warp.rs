@@ -256,7 +256,7 @@ fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             return None;
         }
     };
-    if let Some(pt) = id.canonical_point(&app.primary) {
+    if let Some(pt) = app.primary.canonical_point(id.clone()) {
         println!("Warping to {:?}", id);
         Some(Transition::Replace(Warping::new(
             ctx,

@@ -3,7 +3,6 @@ use map_model::{IntersectionID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use sim::{DrawCarInput, VehicleType};
 use widgetry::{GfxCtx, Prerender};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 pub use crate::render::agents::{AgentCache, UnzoomedAgents};
@@ -15,6 +14,7 @@ pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::map::DrawMap;
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::turn::{DrawMovement, DrawUberTurnGroup};
+use crate::AppLike;
 
 mod agents;
 mod area;
@@ -44,7 +44,7 @@ pub trait Renderable {
     // Renderables are better off storing the inner ID directly.
     fn get_id(&self) -> ID;
     // Only traffic signals need UI. :\
-    fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions);
+    fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike, opts: &DrawOptions);
     // Higher z-ordered objects are drawn later. Default to low so roads at -1 don't vanish.
     fn get_zorder(&self) -> isize {
         -5

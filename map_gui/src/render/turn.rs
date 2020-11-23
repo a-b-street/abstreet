@@ -7,9 +7,9 @@ use map_model::{
 };
 use widgetry::{Color, GeomBatch, Prerender};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::render::{traffic_signal, BIG_ARROW_THICKNESS};
+use crate::AppLike;
 
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(1.5);
 
@@ -115,11 +115,11 @@ impl DrawMovement {
 
     pub fn draw_selected_movement(
         &self,
-        app: &App,
+        app: &dyn AppLike,
         batch: &mut GeomBatch,
         next_priority: Option<TurnPriority>,
     ) {
-        let movement = &app.primary.map.get_traffic_signal(self.id.parent).movements[&self.id];
+        let movement = &app.map().get_traffic_signal(self.id.parent).movements[&self.id];
         let pl = &movement.geom;
 
         let green = Color::hex("#72CE36");

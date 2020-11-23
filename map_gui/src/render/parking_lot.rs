@@ -6,10 +6,10 @@ use map_model::{
 };
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::AppLike;
 
 pub struct DrawParkingLot {
     pub id: ParkingLotID,
@@ -49,10 +49,10 @@ impl Renderable for DrawParkingLot {
         ID::ParkingLot(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike, _: &DrawOptions) {
         let mut draw = self.draw.borrow_mut();
         if draw.is_none() {
-            let lot = app.primary.map.get_pl(self.id);
+            let lot = app.map().get_pl(self.id);
 
             // Trim the front path line away from the sidewalk's center line, so that it doesn't
             // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
@@ -60,27 +60,23 @@ impl Renderable for DrawParkingLot {
             let front_path_line = orig_line
                 .slice(
                     Distance::ZERO,
-                    orig_line.length() - app.primary.map.get_l(lot.sidewalk_pos.lane()).width / 2.0,
+                    orig_line.length() - app.map().get_l(lot.sidewalk_pos.lane()).width / 2.0,
                 )
                 .unwrap_or_else(|| orig_line.clone());
 
             let mut batch = GeomBatch::new();
             // TODO This isn't getting clipped to the parking lot boundary properly, so just stick
             // this on the lowest order for now.
-            let rank = app
-                .primary
-                .map
-                .get_parent(lot.sidewalk_pos.lane())
-                .get_rank();
+            let rank = app.map().get_parent(lot.sidewalk_pos.lane()).get_rank();
             batch.push(
-                app.cs.zoomed_road_surface(LaneType::Sidewalk, rank),
+                app.cs().zoomed_road_surface(LaneType::Sidewalk, rank),
                 front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
             );
-            batch.push(app.cs.parking_lot, lot.polygon.clone());
+            batch.push(app.cs().parking_lot, lot.polygon.clone());
             for aisle in &lot.aisles {
                 let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
                 batch.push(
-                    app.cs
+                    app.cs()
                         .zoomed_road_surface(LaneType::Driving, osm::RoadRank::Local),
                     PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
                 );
@@ -92,7 +88,7 @@ impl Renderable for DrawParkingLot {
                 let right = pt.project_away(width / 2.0, angle.rotate_degs(-90.0));
 
                 batch.push(
-                    app.cs.general_road_marking(rank),
+                    app.cs().general_road_marking(rank),
                     PolyLine::must_new(vec![
                         left.project_away(height, *angle),
                         left,

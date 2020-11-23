@@ -3,10 +3,10 @@ use map_model::{Map, SIDEWALK_THICKNESS};
 use sim::{CarID, DrawCarInput};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
+use crate::AppLike;
 
 pub struct DrawBike {
     pub id: CarID,
@@ -116,7 +116,7 @@ impl Renderable for DrawBike {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &dyn AppLike, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

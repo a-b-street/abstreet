@@ -13,9 +13,9 @@ use crate::app::{App, ShowEverything};
 use crate::common::{CityPicker, Minimap, Navigator};
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
-use crate::options::OptionsPanel;
-use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use crate::sandbox::TurnExplorer;
+use map_gui::options::OptionsPanel;
+use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 pub struct Viewer {
     top_panel: Panel,

@@ -4,11 +4,11 @@ use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring};
 use map_model::{Building, BuildingID, LaneType, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
-use crate::app::App;
 use crate::colors::{ColorScheme, ColorSchemeChoice};
 use crate::helpers::ID;
 use crate::options::{CameraAngle, Options};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::AppLike;
 
 pub struct DrawBuilding {
     pub id: BuildingID,
@@ -227,17 +227,18 @@ impl Renderable for DrawBuilding {
         ID::Building(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike, opts: &DrawOptions) {
         if opts.label_buildings {
             // Labels are expensive to compute up-front, so do it lazily, since we don't really
             // zoom in on all buildings in a single session anyway
             let mut label = self.label.borrow_mut();
             if label.is_none() {
                 let mut batch = GeomBatch::new();
-                let b = app.primary.map.get_b(self.id);
+                let b = app.map().get_b(self.id);
                 if let Some(a) = b.amenities.iter().next() {
-                    let mut txt =
-                        Text::from(Line(a.names.get(app.opts.language.as_ref())).fg(Color::BLACK));
+                    let mut txt = Text::from(
+                        Line(a.names.get(app.opts().language.as_ref())).fg(Color::BLACK),
+                    );
                     if b.amenities.len() > 1 {
                         txt.append(Line(format!(" (+{})", b.amenities.len() - 1)).fg(Color::BLACK));
                     }

@@ -3,10 +3,10 @@ use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::AppLike;
 
 const CAR_WIDTH: Distance = Distance::const_meters(1.75);
 
@@ -203,7 +203,7 @@ impl Renderable for DrawCar {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &dyn AppLike, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

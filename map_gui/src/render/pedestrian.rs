@@ -3,10 +3,10 @@ use map_model::{DrivingSide, Map, SIDEWALK_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::AppLike;
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,
@@ -173,7 +173,7 @@ impl Renderable for DrawPedestrian {
         ID::Pedestrian(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &dyn AppLike, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 
@@ -253,7 +253,7 @@ impl Renderable for DrawPedCrowd {
         ID::PedCrowd(self.members.clone())
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App, _: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, _: &dyn AppLike, _: &DrawOptions) {
         g.redraw(&self.draw_default);
     }
 

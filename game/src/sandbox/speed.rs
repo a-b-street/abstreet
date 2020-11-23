@@ -300,7 +300,7 @@ impl SpeedControls {
                     Transition::Push(popup),
                     Transition::Push(Warping::new(
                         ctx,
-                        id.canonical_point(&app.primary).unwrap(),
+                        app.primary.canonical_point(id).unwrap(),
                         Some(10.0),
                         None,
                         &mut app.primary,

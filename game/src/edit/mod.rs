@@ -21,9 +21,9 @@ use crate::common::{tool_panel, ColorLegend, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
-use crate::options::OptionsPanel;
-use crate::render::DrawMap;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
+use map_gui::options::OptionsPanel;
+use map_gui::render::DrawMap;
 
 mod bulk;
 mod cluster_traffic_signals;
@@ -283,7 +283,7 @@ impl State<App> for EditMode {
                     if let Some(id) = maybe_id {
                         return Transition::Push(Warping::new(
                             ctx,
-                            id.canonical_point(&app.primary).unwrap(),
+                            app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
                             Some(id),
                             &mut app.primary,
@@ -295,7 +295,7 @@ impl State<App> for EditMode {
                     if let Some(id) = cmd_to_id(&app.primary.map.get_edits().commands[idx - 1]) {
                         return Transition::Push(Warping::new(
                             ctx,
-                            id.canonical_point(&app.primary).unwrap(),
+                            app.primary.canonical_point(id.clone()).unwrap(),
                             Some(10.0),
                             Some(id),
                             &mut app.primary,
@@ -326,11 +326,11 @@ impl State<App> for EditMode {
         }
 
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            if let Some(id) = &app.primary.current_selection {
+            if let Some(id) = app.primary.current_selection.clone() {
                 if app.per_obj.left_click(ctx, "edit this") {
                     return Transition::Push(Warping::new(
                         ctx,
-                        id.canonical_point(&app.primary).unwrap(),
+                        app.primary.canonical_point(id).unwrap(),
                         Some(10.0),
                         None,
                         &mut app.primary,

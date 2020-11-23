@@ -7,12 +7,12 @@ use map_model::{
 };
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, RewriteColor};
 
-use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{
     traffic_signal, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
+use crate::AppLike;
 
 pub struct DrawIntersection {
     pub id: IntersectionID,
@@ -37,8 +37,8 @@ impl DrawIntersection {
         *self.draw_traffic_signal.borrow_mut() = None;
     }
 
-    fn render(&self, g: &mut GfxCtx, app: &App) -> Drawable {
-        let map = &app.primary.map;
+    fn render(&self, g: &mut GfxCtx, app: &dyn AppLike) -> Drawable {
+        let map = app.map();
         let i = map.get_i(self.id);
 
         // Order matters... main polygon first, then sidewalk corners.
@@ -46,15 +46,15 @@ impl DrawIntersection {
         let rank = i.get_rank(map);
         default_geom.push(
             if i.is_footway(map) {
-                app.cs.zoomed_road_surface(LaneType::Sidewalk, rank)
+                app.cs().zoomed_road_surface(LaneType::Sidewalk, rank)
             } else {
-                app.cs.zoomed_intersection_surface(rank)
+                app.cs().zoomed_intersection_surface(rank)
             },
             i.polygon.clone(),
         );
-        if app.cs.sidewalk_lines.is_some() {
+        if app.cs().sidewalk_lines.is_some() {
             default_geom.extend(
-                app.cs.zoomed_road_surface(LaneType::Sidewalk, rank),
+                app.cs().zoomed_road_surface(LaneType::Sidewalk, rank),
                 calculate_corners(i, map),
             );
         } else {
@@ -66,19 +66,19 @@ impl DrawIntersection {
             if turn.turn_type == TurnType::Crosswalk
                 && !turn.other_crosswalk_ids.iter().any(|id| *id < turn.id)
             {
-                make_crosswalk(&mut default_geom, turn, map, &app.cs);
+                make_crosswalk(&mut default_geom, turn, map, app.cs());
             }
         }
 
         if i.is_private(map) {
-            default_geom.push(app.cs.private_road.alpha(0.5), i.polygon.clone());
+            default_geom.push(app.cs().private_road.alpha(0.5), i.polygon.clone());
         }
 
         match i.intersection_type {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
                 default_geom.extend(
-                    app.cs.road_center_line(r.get_rank()),
+                    app.cs().road_center_line(r.get_rank()),
                     calculate_border_arrows(i, r, map),
                 );
             }
@@ -86,8 +86,8 @@ impl DrawIntersection {
                 for ss in map.get_stop_sign(i.id).roads.values() {
                     if ss.must_stop {
                         if let Some((octagon, pole)) = DrawIntersection::stop_sign_geom(ss, map) {
-                            default_geom.push(app.cs.stop_sign, octagon);
-                            default_geom.push(app.cs.stop_sign_pole, pole);
+                            default_geom.push(app.cs().stop_sign, octagon);
+                            default_geom.push(app.cs().stop_sign_pole, pole);
                         }
                     }
                 }
@@ -150,7 +150,7 @@ impl Renderable for DrawIntersection {
         ID::Intersection(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App, opts: &DrawOptions) {
+    fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike, opts: &DrawOptions) {
         // Lazily calculate, because these are expensive to all do up-front, and most players won't
         // exhaustively see every intersection during a single session
         let mut draw = self.draw_default.borrow_mut();
@@ -159,16 +159,15 @@ impl Renderable for DrawIntersection {
         }
         g.redraw(draw.as_ref().unwrap());
 
-        if let Some(signal) = app.primary.map.maybe_get_traffic_signal(self.id) {
+        if let Some(signal) = app.map().maybe_get_traffic_signal(self.id) {
             if !opts.suppress_traffic_signal_details.contains(&self.id) {
                 let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
                 let recalc = maybe_redraw
                     .as_ref()
-                    .map(|(t, _)| *t != app.primary.sim.time())
+                    .map(|(t, _)| *t != app.sim().time())
                     .unwrap_or(true);
                 if recalc {
-                    let (idx, remaining) =
-                        app.primary.sim.current_stage_and_remaining_time(self.id);
+                    let (idx, remaining) = app.sim().current_stage_and_remaining_time(self.id);
                     let mut batch = GeomBatch::new();
                     traffic_signal::draw_signal_stage(
                         g.prerender,
@@ -178,9 +177,9 @@ impl Renderable for DrawIntersection {
                         Some(remaining),
                         &mut batch,
                         app,
-                        app.opts.traffic_signal_style.clone(),
+                        app.opts().traffic_signal_style.clone(),
                     );
-                    *maybe_redraw = Some((app.primary.sim.time(), g.prerender.upload(batch)));
+                    *maybe_redraw = Some((app.sim().time(), g.prerender.upload(batch)));
                 }
                 let (_, batch) = maybe_redraw.as_ref().unwrap();
                 g.redraw(batch);
@@ -256,11 +255,11 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
 }
 
 // calculate_corners smooths edges, but we don't want to do that when drawing explicit borders.
-fn calculate_corners_with_borders(batch: &mut GeomBatch, app: &App, i: &Intersection) {
-    let map = &app.primary.map;
+fn calculate_corners_with_borders(batch: &mut GeomBatch, app: &dyn AppLike, i: &Intersection) {
+    let map = app.map();
     let rank = i.get_rank(map);
-    let surface_color = app.cs.zoomed_road_surface(LaneType::Sidewalk, rank);
-    let border_color = app.cs.general_road_marking(rank);
+    let surface_color = app.cs().zoomed_road_surface(LaneType::Sidewalk, rank);
+    let border_color = app.cs().general_road_marking(rank);
 
     for turn in map.get_turns_in_intersection(i.id) {
         if turn.turn_type != TurnType::SharedSidewalkCorner {

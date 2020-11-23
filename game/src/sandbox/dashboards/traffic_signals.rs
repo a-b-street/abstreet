@@ -13,7 +13,7 @@ use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::game::Transition;
 use crate::helpers::ID;
-use crate::render::DrawOptions;
+use map_gui::render::DrawOptions;
 
 pub struct TrafficSignalDemand {
     panel: Panel,
