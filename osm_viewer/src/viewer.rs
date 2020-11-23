@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
-use map_gui::common::{CityPicker, Navigator};
+use map_gui::common::{CityPicker, Navigator, SimpleMinimap};
 use map_gui::game::PopupMsg;
 use map_gui::helpers::{nice_map_name, open_browser, ID};
 use map_gui::misc_tools::TurnExplorer;
@@ -19,7 +19,7 @@ use widgetry::{
 pub struct Viewer {
     top_panel: Panel,
     fixed_object_outline: Option<Drawable>,
-    //minimap: Minimap,
+    minimap: SimpleMinimap,
     businesses: Option<BusinessSearch>,
 }
 
@@ -27,7 +27,7 @@ impl Viewer {
     pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
         let mut viewer = Viewer {
             fixed_object_outline: None,
-            //minimap: Minimap::new(ctx, app, false),
+            minimap: SimpleMinimap::new(ctx, app),
             businesses: None,
             top_panel: Panel::empty(ctx),
         };
@@ -266,9 +266,9 @@ impl State<SimpleApp> for Viewer {
             self.recalculate_top_panel(ctx, app, Some(biz_search));
         }
 
-        /*if let Some(t) = self.minimap.event(ctx, app) {
+        if let Some(t) = self.minimap.event(ctx, app) {
             return t;
-        }*/
+        }
 
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -357,7 +357,7 @@ impl State<SimpleApp> for Viewer {
         }
 
         self.top_panel.draw(g);
-        //self.minimap.draw(g, app);
+        self.minimap.draw(g, app);
         if let Some(ref d) = self.fixed_object_outline {
             g.redraw(d);
         }

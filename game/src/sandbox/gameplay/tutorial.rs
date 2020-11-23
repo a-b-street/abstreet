@@ -907,7 +907,7 @@ impl TutorialState {
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
         ctx.canvas.cam_zoom = 100.0;
-        let minimap = Minimap::new(ctx, app, true);
+        let minimap = Minimap::new(ctx, app);
         ctx.canvas.cam_zoom = orig_zoom;
 
         let map = &app.primary.map;

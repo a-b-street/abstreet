@@ -79,6 +79,7 @@ pub struct SimpleApp {
     pub cs: ColorScheme,
     pub opts: Options,
     pub current_selection: Option<ID>,
+    pub show_zorder: isize,
 }
 
 impl SimpleApp {
@@ -94,6 +95,7 @@ impl SimpleApp {
             let cs = ColorScheme::new(ctx, opts.color_scheme);
             let map = Map::new(map_path, &mut timer);
             let draw_map = DrawMap::new(ctx, &map, &opts, &cs, timer);
+            let show_zorder = draw_map.zorder_range.1;
             // TODO Should we refactor the whole camera state / initial focusing thing?
             SimpleApp {
                 map,
@@ -101,6 +103,7 @@ impl SimpleApp {
                 cs,
                 opts,
                 current_selection: None,
+                show_zorder,
             }
         })
     }
@@ -138,9 +141,11 @@ impl SimpleApp {
         g.clear(self.cs.void_background);
         g.redraw(&self.draw_map.boundary_polygon);
 
-        let objects = self
-            .draw_map
-            .get_renderables_back_to_front(g.get_screen_bounds(), &self.map);
+        let objects = self.draw_map.get_renderables_back_to_front(
+            g.get_screen_bounds(),
+            self.show_zorder,
+            &self.map,
+        );
 
         let mut drawn_all_buildings = false;
         let mut drawn_all_areas = false;
@@ -206,6 +211,7 @@ impl SimpleApp {
 
         let mut objects = self.draw_map.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
+            self.show_zorder,
             &self.map,
         );
         objects.reverse();
@@ -283,6 +289,7 @@ impl AppLike for SimpleApp {
         ctx.canvas.save_camera_state(self.map().get_name());
         self.map = map;
         self.draw_map = DrawMap::new(ctx, &self.map, &self.opts, &self.cs, timer);
+        self.show_zorder = self.draw_map.zorder_range.1
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {

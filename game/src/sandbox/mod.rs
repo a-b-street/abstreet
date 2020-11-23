@@ -875,7 +875,7 @@ impl SandboxControls {
                 None
             },
             minimap: if gameplay.has_minimap() {
-                Some(Minimap::new(ctx, app, true))
+                Some(Minimap::new(ctx, app))
             } else {
                 None
             },

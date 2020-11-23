@@ -326,7 +326,12 @@ impl DrawMap {
     }
 
     /// A simple variation of the one in game that shows all layers, ignores dynamic agents.
-    pub fn get_renderables_back_to_front(&self, bounds: Bounds, map: &Map) -> Vec<&dyn Renderable> {
+    pub fn get_renderables_back_to_front(
+        &self,
+        bounds: Bounds,
+        show_zorder: isize,
+        map: &Map,
+    ) -> Vec<&dyn Renderable> {
         let mut areas: Vec<&dyn Renderable> = Vec::new();
         let mut parking_lots: Vec<&dyn Renderable> = Vec::new();
         let mut lanes: Vec<&dyn Renderable> = Vec::new();
@@ -371,7 +376,7 @@ impl DrawMap {
         borrows.extend(buildings);
         borrows.extend(bus_stops);
 
-        //borrows.retain(|x| x.get_zorder() <= self.primary.show_zorder);
+        borrows.retain(|x| x.get_zorder() <= show_zorder);
 
         // This is a stable sort.
         borrows.sort_by_key(|x| x.get_zorder());
