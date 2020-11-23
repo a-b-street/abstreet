@@ -14,7 +14,6 @@ use crate::game::{ChooseSomething, Transition};
 use crate::helpers::nice_map_name;
 
 mod collisions;
-pub mod controls;
 mod destinations;
 pub mod fifteen_min;
 mod kml;

@@ -1,14 +1,13 @@
 [package]
-name = "map_gui"
+name = "experiment"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
+[features]
+default = ["widgetry/native-backend"]
+
 [dependencies]
-aabb-quadtree = "0.1.0"
-abstutil = { path = "../abstutil" }
-colorous = "1.0.3"
 geom = { path = "../geom" }
-map_model = { path = "../map_model" }
-sim = { path = "../sim" }
+map_gui = { path = "../map_gui" }
 widgetry = { path = "../widgetry" }

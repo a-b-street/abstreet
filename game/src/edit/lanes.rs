@@ -1,3 +1,4 @@
+use map_gui::render::Renderable;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
     Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
@@ -13,7 +14,6 @@ use crate::edit::{
 use crate::game::Transition;
 use crate::helpers::ID;
 use crate::sandbox::GameplayMode;
-use map_gui::render::Renderable;
 
 pub struct LaneEditor {
     l: LaneID,

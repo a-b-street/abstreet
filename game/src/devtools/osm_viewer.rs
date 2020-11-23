@@ -2,6 +2,8 @@ use std::collections::BTreeSet;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
+use map_gui::options::OptionsPanel;
+use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_model::osm;
 use widgetry::{
     lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -14,8 +16,6 @@ use crate::common::{CityPicker, Minimap, Navigator};
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{nice_map_name, open_browser, ID};
 use crate::sandbox::TurnExplorer;
-use map_gui::options::OptionsPanel;
-use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 pub struct Viewer {
     top_panel: Panel,

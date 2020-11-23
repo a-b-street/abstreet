@@ -2,6 +2,7 @@ use instant::Instant;
 
 use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Pt2D, Ring, Time};
+use map_gui::render::DrawOptions;
 use widgetry::{
     Btn, Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
     Panel, Slider, State, Text, UpdateType, Widget,
@@ -12,7 +13,6 @@ use crate::common::Warping;
 use crate::game::{PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::{GameplayMode, SandboxMode};
-use map_gui::render::DrawOptions;
 
 // TODO Text entry would be great
 pub struct JumpToTime {

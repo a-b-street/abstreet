@@ -4,6 +4,8 @@ use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::Speed;
+use map_gui::options::OptionsPanel;
+use map_gui::render::DrawMap;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
@@ -22,8 +24,6 @@ use crate::debug::DebugMode;
 use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
-use map_gui::options::OptionsPanel;
-use map_gui::render::DrawMap;
 
 mod bulk;
 mod cluster_traffic_signals;

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
+use map_gui::render::DrawOptions;
 use widgetry::{
     lctrl, Btn, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, VerticalAlignment,
@@ -10,7 +11,6 @@ use widgetry::{
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
 use crate::game::{ChooseSomething, PromptInput, Transition};
-use map_gui::render::DrawOptions;
 
 // TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio
 // button-ish thing to start?

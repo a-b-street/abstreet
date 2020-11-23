@@ -139,6 +139,7 @@ Other:
 - `collisions`: an experimental data format for real-world collision data
 - `traffic_seitan`: a bug-finding tool that randomly generates live map edits
 - `tests`: integration tests
+- `experiment`: ...
 
 ## Code conventions
 

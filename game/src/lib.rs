@@ -2,13 +2,13 @@
 extern crate log;
 
 use abstutil::CmdArgs;
+use map_gui::options::Options;
 use sim::SimFlags;
 use widgetry::{EventCtx, State};
 
 use crate::app::{App, Flags};
 use crate::pregame::TitleScreen;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use map_gui::options::Options;
 
 mod app;
 mod challenges;
@@ -111,7 +111,6 @@ pub fn main(mut args: CmdArgs) {
     let start_with_edits = args.optional("--edits");
     let osm_viewer = args.enabled("--osm");
     let fifteen_min = args.enabled("--15min");
-    let experiment = args.enabled("--experiment");
 
     args.done();
 
@@ -124,7 +123,6 @@ pub fn main(mut args: CmdArgs) {
             mode,
             osm_viewer,
             fifteen_min,
-            experiment,
         )
     });
 }
@@ -137,14 +135,12 @@ fn setup_app(
     maybe_mode: Option<GameplayMode>,
     osm_viewer: bool,
     fifteen_min: bool,
-    experiment: bool,
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
         && !flags.sim_flags.load.contains("/scenarios/")
         && !osm_viewer
         && !fifteen_min
-        && !experiment
         && maybe_mode.is_none();
     let mut app = App::new(flags, opts, ctx, title);
 
@@ -188,8 +184,6 @@ fn setup_app(
         vec![crate::devtools::fifteen_min::Viewer::random_start(
             ctx, &app,
         )]
-    } else if experiment {
-        vec![crate::devtools::controls::Experiment::new(ctx)]
     } else {
         let mode = maybe_mode
             .unwrap_or_else(|| GameplayMode::Freeform(app.primary.map.get_name().clone()));

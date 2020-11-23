@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::{ArrowCap, Distance, Time};
+use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_model::{IntersectionID, LaneID, TurnType};
 use sim::AgentID;
 use widgetry::{
@@ -12,7 +13,6 @@ use crate::app::{App, ShowEverything};
 use crate::common::{ColorLegend, CommonState};
 use crate::game::Transition;
 use crate::helpers::ID;
-use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 
 /// Draws a preview of the path for the agent under the mouse cursor.
 pub struct RoutePreview {

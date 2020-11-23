@@ -1,21 +1,19 @@
 use geom::{Angle, Circle, Distance, Pt2D, Speed};
+use map_gui::SimpleApp;
 use widgetry::{
     Btn, Checkbox, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    UpdateType, VerticalAlignment, Widget,
+    Transition, UpdateType, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::game::Transition;
-
-pub struct Experiment {
+pub struct Game {
     panel: Panel,
     controls: Box<dyn Controller>,
     sleigh: Pt2D,
 }
 
-impl Experiment {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        Box::new(Experiment {
+impl Game {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<SimpleApp>> {
+        Box::new(Game {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Experiment").small_heading().draw(ctx),
@@ -31,8 +29,8 @@ impl Experiment {
     }
 }
 
-impl State<App> for Experiment {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+impl State<SimpleApp> for Game {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut SimpleApp) -> Transition<SimpleApp> {
         let (dx, dy) = self.controls.displacement(ctx);
         self.sleigh = self.sleigh.offset(dx, dy);
         ctx.canvas.center_on_map_pt(self.sleigh);
@@ -58,7 +56,7 @@ impl State<App> for Experiment {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
         self.panel.draw(g);
 
         g.draw_polygon(

@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use abstutil::{prettyprint_usize, Counter, Parallelism};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
+use map_gui::render::unzoomed_agent_radius;
 use map_model::{
     BuildingID, Map, OffstreetParking, ParkingLotID, PathConstraints, PathRequest, RoadID,
 };
@@ -14,7 +15,6 @@ use widgetry::{
 use crate::app::App;
 use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
-use map_gui::render::unzoomed_agent_radius;
 
 pub struct Occupancy {
     time: Time,
