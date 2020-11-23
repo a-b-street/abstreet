@@ -1,3 +1,4 @@
+use abstutil::CmdArgs;
 use geom::{Duration, UnitFmt};
 use widgetry::{
     Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
@@ -68,6 +69,33 @@ impl Options {
                 // TODO Should default be based on the map?
                 metric: false,
             },
+        }
+    }
+
+    /// Update the options using command-line flags.
+    pub fn update_from_args(&mut self, args: &mut CmdArgs) {
+        self.dev = args.enabled("--dev");
+        if args.enabled("--lowzoom") {
+            self.min_zoom_for_detail = 1.0;
+        }
+        if let Some(x) = args.optional("--color_scheme") {
+            let mut ok = false;
+            let mut options = Vec::new();
+            for c in ColorSchemeChoice::choices() {
+                options.push(c.label.clone());
+                if c.label == x {
+                    self.color_scheme = c.data;
+                    ok = true;
+                    break;
+                }
+            }
+            if !ok {
+                panic!(
+                    "Invalid --color_scheme={}. Choices: {}",
+                    x,
+                    options.join(", ")
+                );
+            }
         }
     }
 }

@@ -709,6 +709,7 @@ dependencies = [
 name = "experiment"
 version = "0.1.0"
 dependencies = [
+ "abstutil",
  "geom",
  "map_gui",
  "widgetry",

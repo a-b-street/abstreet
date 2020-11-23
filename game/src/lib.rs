@@ -35,33 +35,10 @@ pub fn main(mut args: CmdArgs) {
         live_map_edits: args.enabled("--live_map_edits"),
     };
     let mut opts = Options::default();
-    opts.dev = args.enabled("--dev");
-    if args.enabled("--lowzoom") {
-        opts.min_zoom_for_detail = 1.0;
-    }
+    opts.update_from_args(&mut args);
     if args.enabled("--day_night") {
-        opts.toggle_day_night_colors = true;
-        opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
-    }
-
-    if let Some(x) = args.optional("--color_scheme") {
-        let mut ok = false;
-        let mut options = Vec::new();
-        for c in map_gui::colors::ColorSchemeChoice::choices() {
-            options.push(c.label.clone());
-            if c.label == x {
-                opts.color_scheme = c.data;
-                ok = true;
-                break;
-            }
-        }
-        if !ok {
-            panic!(
-                "Invalid --color_scheme={}. Choices: {}",
-                x,
-                options.join(", ")
-            );
-        }
+        self.toggle_day_night_colors = true;
+        self.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
     }
     let mut settings = widgetry::Settings::new("A/B Street");
     settings.window_icon(abstutil::path("system/assets/pregame/icon.png"));
