@@ -85,12 +85,11 @@ pub fn main(mut args: CmdArgs) {
         ));
     }
     let start_with_edits = args.optional("--edits");
-    let fifteen_min = args.enabled("--15min");
 
     args.done();
 
     widgetry::run(settings, |ctx| {
-        setup_app(ctx, flags, opts, start_with_edits, mode, fifteen_min)
+        setup_app(ctx, flags, opts, start_with_edits, mode)
     });
 }
 
@@ -100,12 +99,10 @@ fn setup_app(
     opts: Options,
     start_with_edits: Option<String>,
     maybe_mode: Option<GameplayMode>,
-    fifteen_min: bool,
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
         && !flags.sim_flags.load.contains("/scenarios/")
-        && !fifteen_min
         && maybe_mode.is_none();
     let mut app = App::new(flags, opts, ctx, title);
 
@@ -143,10 +140,6 @@ fn setup_app(
 
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, &mut app))]
-    } else if fifteen_min {
-        vec![crate::devtools::fifteen_min::Viewer::random_start(
-            ctx, &app,
-        )]
     } else {
         let mode = maybe_mode
             .unwrap_or_else(|| GameplayMode::Freeform(app.primary.map.get_name().clone()));

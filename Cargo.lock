@@ -748,6 +748,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "fifteen_min"
+version = "0.1.0"
+dependencies = [
+ "abstutil",
+ "contour",
+ "geojson",
+ "geom",
+ "map_gui",
+ "map_model",
+ "widgetry",
+]
+
+[[package]]
 name = "fixedbitset"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1759,9 +1772,11 @@ dependencies = [
  "aabb-quadtree",
  "abstutil",
  "colorous",
+ "contour",
  "flate2",
  "futures",
  "futures-channel",
+ "geojson",
  "geom",
  "instant",
  "js-sys",

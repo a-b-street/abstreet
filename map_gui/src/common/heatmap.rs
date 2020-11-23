@@ -1,8 +1,7 @@
 use geom::{Bounds, Histogram, Polygon, Pt2D, Statistic};
-use map_gui::common::ColorScale;
 use widgetry::{Checkbox, Choice, Color, EventCtx, GeomBatch, Panel, Spinner, TextExt, Widget};
 
-use crate::common::ColorLegend;
+use crate::common::{ColorLegend, ColorScale};
 
 const NEIGHBORS: [[isize; 2]; 9] = [
     [0, 0],

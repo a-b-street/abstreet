@@ -15,7 +15,6 @@ use crate::helpers::nice_map_name;
 
 mod collisions;
 mod destinations;
-pub mod fifteen_min;
 mod kml;
 mod polygon;
 mod scenario;
