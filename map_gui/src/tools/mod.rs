@@ -18,9 +18,9 @@ mod colors;
 mod heatmap;
 mod minimap;
 mod navigate;
-#[cfg(not(target_arch = "wasm32"))]
 mod turn_explorer;
 mod ui;
+#[cfg(not(target_arch = "wasm32"))]
 mod updater;
 
 // TODO This is A/B Street specific
