@@ -547,15 +547,15 @@
         (<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">home_bldg</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">work_bldg</span>)) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Decide mode based on walking distance. If the buildings aren&#39;t connected,</span>
             <span class="comment">// probably a bug in importing; just skip this person.</span>
-            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dist</span>) <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">pathfind</span>(<span class="ident">PathRequest</span> {
-                    <span class="ident">start</span>: <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">home_bldg</span>).<span class="ident">sidewalk_pos</span>,
-                    <span class="ident">end</span>: <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">work_bldg</span>).<span class="ident">sidewalk_pos</span>,
-                    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-                })
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">total_length</span>())
+            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">PathRequest</span>::<span class="ident">between_buildings</span>(
+                <span class="ident">map</span>,
+                <span class="kw-2">*</span><span class="ident">home_bldg</span>,
+                <span class="kw-2">*</span><span class="ident">work_bldg</span>,
+                <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+            )
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>))
             {
-                <span class="ident">dist</span>
+                <span class="ident">path</span>.<span class="ident">total_length</span>()
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;no path found&quot;</span>.<span class="ident">into</span>());
             };
