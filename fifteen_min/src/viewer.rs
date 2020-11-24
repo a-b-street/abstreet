@@ -28,6 +28,7 @@ struct HoverOnBuilding {
     id: BuildingID,
     tooltip: Text,
     drawn_route: Option<Drawable>,
+    scale_factor: f64,
 }
 
 impl Viewer {
@@ -64,9 +65,19 @@ impl State<SimpleApp> for Viewer {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
+            let scale_factor = if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+                1.0
+            } else {
+                10.0
+            };
             self.hovering_on_bldg = match app.mouseover_unzoomed_buildings(ctx) {
                 Some(ID::Building(hover_id)) => match self.hovering_on_bldg.take() {
-                    Some(previous_hover) if previous_hover.id == hover_id => Some(previous_hover),
+                    Some(previous_hover)
+                        if (previous_hover.id, previous_hover.scale_factor)
+                            == (hover_id, scale_factor) =>
+                    {
+                        Some(previous_hover)
+                    }
                     _ => {
                         debug!("drawing new hover");
                         let drawn_route = self
@@ -74,12 +85,6 @@ impl State<SimpleApp> for Viewer {
                             .path_to(&app.map, hover_id)
                             .and_then(|path| path.trace(&app.map, Distance::ZERO, None))
                             .map(|polyline| {
-                                let scale_factor =
-                                    if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
-                                        1.0
-                                    } else {
-                                        10.0
-                                    };
                                 let dashed_lines = polyline.dashed_lines(
                                     Distance::meters(0.75 * scale_factor),
                                     Distance::meters(1.0 * scale_factor),
@@ -101,6 +106,7 @@ impl State<SimpleApp> for Viewer {
                             } else {
                                 Text::from(Line("This is more than 15 minutes away"))
                             },
+                            scale_factor,
                             drawn_route,
                         })
                     }
