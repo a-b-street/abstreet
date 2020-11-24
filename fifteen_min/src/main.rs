@@ -1,6 +1,9 @@
 mod isochrone;
 mod viewer;
 
+#[macro_use]
+extern crate log;
+
 fn main() {
     widgetry::run(widgetry::Settings::new("15-minute neighborhoods"), |ctx| {
         let app = map_gui::SimpleApp::new(ctx, abstutil::CmdArgs::new());
