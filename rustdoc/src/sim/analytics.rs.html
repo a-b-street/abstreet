@@ -655,8 +655,6 @@
 <span id="652">652</span>
 <span id="653">653</span>
 <span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -726,9 +724,7 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">alerts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">AlertLocation</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
 
-    <span class="doccomment">/// After we restore from a savestate, don&#39;t record anything. This is only going to make sense</span>
-    <span class="doccomment">/// if savestates are only used for quickly previewing against prebaked results, where we have</span>
-    <span class="doccomment">/// the full Analytics anyway.</span>
+    <span class="doccomment">/// For benchmarking, we may want to disable collecting data.</span>
     <span class="ident">record_anything</span>: <span class="ident">bool</span>,
 }
 

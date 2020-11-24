@@ -252,66 +252,6 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">Entry</span>;
@@ -321,7 +261,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Histogram</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BusRouteID</span>, <span class="ident">IntersectionID</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">pandemic</span>, <span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">CreateCar</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">PedestrianID</span>, <span class="ident">TripID</span>, <span class="ident">TripSpec</span>,
@@ -562,66 +502,6 @@
             <span class="ident">stats</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}: {}&quot;</span>, <span class="ident">cmd</span>, <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="kw-2">*</span><span class="ident">cnt</span>)));
         }
         <span class="ident">stats</span>
-    }
-
-    <span class="doccomment">/// It&#39;s much more efficient to save without the paths, and to recalculate them when loading</span>
-    <span class="doccomment">/// later.</span>
-    <span class="comment">// TODO Why not just implement Default on Path and use skip_serializing? Because we want to</span>
-    <span class="comment">// serialize paths inside Router for live agents. We need to defer calling make_router and just</span>
-    <span class="comment">// store the input in CreateCar.</span>
-    <span class="comment">// TODO Rethink all of this; probably broken by StartTrip.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_requests_for_savestate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reqs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> (<span class="ident">cmd</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">values</span>() {
-            <span class="kw">match</span> <span class="ident">cmd</span> {
-                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">reqs</span>.<span class="ident">push</span>(<span class="ident">create_car</span>.<span class="ident">req</span>.<span class="ident">clone</span>());
-                }
-                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="ident">create_ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">reqs</span>.<span class="ident">push</span>(<span class="ident">create_ped</span>.<span class="ident">req</span>.<span class="ident">clone</span>());
-                }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
-            }
-        }
-        <span class="ident">reqs</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">before_savestate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">restore</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> (<span class="ident">cmd</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">values_mut</span>() {
-            <span class="kw">match</span> <span class="ident">cmd</span> {
-                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">restore</span>.<span class="ident">push</span>(
-                        <span class="ident">create_car</span>
-                            .<span class="ident">router</span>
-                            .<span class="ident">replace_path_for_serialization</span>(<span class="ident">Path</span>::<span class="ident">dummy</span>()),
-                    );
-                }
-                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">restore</span>.<span class="ident">push</span>(<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">create_ped</span>.<span class="ident">path</span>, <span class="ident">Path</span>::<span class="ident">dummy</span>()));
-                }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
-            }
-        }
-        <span class="ident">restore</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">after_savestate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">restore</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) {
-        <span class="ident">restore</span>.<span class="ident">reverse</span>();
-        <span class="kw">for</span> (<span class="ident">cmd</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">queued_commands</span>.<span class="ident">values_mut</span>() {
-            <span class="kw">match</span> <span class="ident">cmd</span> {
-                <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_car</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">create_car</span>
-                        .<span class="ident">router</span>
-                        .<span class="ident">replace_path_for_serialization</span>(<span class="ident">restore</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>());
-                }
-                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">create_ped</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">create_ped</span>.<span class="ident">path</span> <span class="op">=</span> <span class="ident">restore</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-                }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
-            }
-        }
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">restore</span>.<span class="ident">is_empty</span>());
     }
 }
 </pre></div>

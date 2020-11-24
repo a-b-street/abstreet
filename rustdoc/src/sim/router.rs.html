@@ -443,10 +443,6 @@
 <span id="440">440</span>
 <span id="441">441</span>
 <span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
 <span class="doccomment">//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
@@ -872,10 +868,6 @@
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">1</span>, <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">turn1</span>.<span class="ident">id</span>), <span class="ident">map</span>);
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">2</span>, <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">best_lane</span>), <span class="ident">map</span>);
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">3</span>, <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">turn2</span>.<span class="ident">id</span>), <span class="ident">map</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace_path_for_serialization</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Path</span> {
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">path</span>, <span class="ident">path</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
