@@ -4,7 +4,7 @@
 //!
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
-use geom::Pt2D;
+use geom::{Distance, Pt2D};
 use map_gui::tools::{amenity_type, nice_map_name, CityPicker, PopupMsg};
 use map_gui::{SimpleApp, ID};
 use map_model::{Building, BuildingID, PathConstraints};
@@ -27,7 +27,8 @@ pub struct Viewer {
 struct HoverOnBuilding {
     id: BuildingID,
     tooltip: Text,
-    // TODO Draw a route preview
+    drawn_route: Option<Drawable>,
+    scale_factor: f64,
 }
 
 impl Viewer {
@@ -53,7 +54,6 @@ impl Viewer {
             panel,
             highlight_start: highlight_start,
             isochrone,
-
             hovering_on_bldg: None,
         })
     }
@@ -65,15 +65,49 @@ impl State<SimpleApp> for Viewer {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
+            let scale_factor = if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+                1.0
+            } else {
+                10.0
+            };
             self.hovering_on_bldg = match app.mouseover_unzoomed_buildings(ctx) {
-                Some(ID::Building(id)) => Some(HoverOnBuilding {
-                    id,
-                    tooltip: if let Some(time) = self.isochrone.time_to_reach_building.get(&id) {
-                        Text::from(Line(format!("{} away", time)))
-                    } else {
-                        Text::from(Line("This is more than 15 minutes away"))
-                    },
-                }),
+                Some(ID::Building(hover_id)) => match self.hovering_on_bldg.take() {
+                    Some(previous_hover)
+                        if (previous_hover.id, previous_hover.scale_factor)
+                            == (hover_id, scale_factor) =>
+                    {
+                        Some(previous_hover)
+                    }
+                    _ => {
+                        debug!("drawing new hover");
+                        let drawn_route = self
+                            .isochrone
+                            .path_to(&app.map, hover_id)
+                            .and_then(|path| path.trace(&app.map, Distance::ZERO, None))
+                            .map(|polyline| {
+                                let dashed_lines = polyline.dashed_lines(
+                                    Distance::meters(0.75 * scale_factor),
+                                    Distance::meters(1.0 * scale_factor),
+                                    Distance::meters(0.4 * scale_factor),
+                                );
+                                let mut batch = GeomBatch::new();
+                                batch.extend(Color::BLACK, dashed_lines);
+                                ctx.prerender.upload(batch)
+                            });
+                        Some(HoverOnBuilding {
+                            id: hover_id,
+                            tooltip: if let Some(time) =
+                                self.isochrone.time_to_reach_building.get(&hover_id)
+                            {
+                                Text::from(Line(format!("{} away", time)))
+                            } else {
+                                Text::from(Line("This is more than 15 minutes away"))
+                            },
+                            scale_factor,
+                            drawn_route,
+                        })
+                    }
+                },
                 _ => None,
             };
 
@@ -85,10 +119,14 @@ impl State<SimpleApp> for Viewer {
         // panel.event never sees clicks.
         if let Some(ref hover) = self.hovering_on_bldg {
             if ctx.normal_left_click() {
+                debug!("selected new");
                 let start = app.map.get_b(hover.id);
                 self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
                 self.highlight_start = draw_star(ctx, start.polygon.center());
                 self.panel = build_panel(ctx, app, start, &self.isochrone);
+                // Any previous hover is from the perspective of the old `highlight_start`.
+                // Remove it so we don't have a dotted line to the previous isochrone's origin
+                self.hovering_on_bldg = None;
             }
         }
 
@@ -171,6 +209,9 @@ impl State<SimpleApp> for Viewer {
         self.panel.draw(g);
         if let Some(ref hover) = self.hovering_on_bldg {
             g.draw_mouse_tooltip(hover.tooltip.clone());
+            if let Some(ref drawn_route) = hover.drawn_route {
+                g.redraw(drawn_route);
+            }
         }
     }
 }

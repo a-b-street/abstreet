@@ -12,6 +12,7 @@ abstutil = { path = "../abstutil" }
 contour = { git = "https://github.com/dabreegster/contour-rs" }
 geojson = "0.20.1"
 geom = { path = "../geom" }
+log = "0.4"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
 widgetry = { path = "../widgetry" }

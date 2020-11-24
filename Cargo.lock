@@ -755,6 +755,7 @@ dependencies = [
  "contour",
  "geojson",
  "geom",
+ "log",
  "map_gui",
  "map_model",
  "widgetry",
