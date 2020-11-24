@@ -1,6 +1,6 @@
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
-use map_gui::common::Navigator;
+use map_gui::tools::Navigator;
 use widgetry::{
     Btn, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, ScreenPt, Spinner, VerticalAlignment, Widget,
@@ -109,7 +109,7 @@ impl Minimap {
                         Spinner::new(
                             ctx,
                             app.primary.draw_map.zorder_range,
-                            app.primary.show_zorder,
+                            app.primary.draw_map.show_zorder,
                         )
                         .named("zorder"),
                     ])
@@ -320,7 +320,7 @@ impl Minimap {
                         .update(&self.panel);
                 }
                 if self.panel.has_widget("zorder") {
-                    app.primary.show_zorder = self.panel.spinner("zorder");
+                    app.primary.draw_map.show_zorder = self.panel.spinner("zorder");
                 }
                 self.recreate_panel(ctx, app);
             }

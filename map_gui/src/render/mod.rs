@@ -1,10 +1,11 @@
+//! Render static and dynamic map elements.
+
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use sim::{DrawCarInput, VehicleType};
 use widgetry::{GfxCtx, Prerender};
 
 use crate::colors::ColorScheme;
-use crate::helpers::ID;
 pub use crate::render::agents::{AgentCache, UnzoomedAgents};
 pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
@@ -14,7 +15,7 @@ pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::map::DrawMap;
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::turn::{DrawMovement, DrawUberTurnGroup};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 mod agents;
 mod area;

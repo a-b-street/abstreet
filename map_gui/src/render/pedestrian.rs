@@ -4,9 +4,8 @@ use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
 use crate::colors::ColorScheme;
-use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,

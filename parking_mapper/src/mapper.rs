@@ -5,10 +5,8 @@ use osm::WayID;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
-use map_gui::common::{CityPicker, ColorLegend};
-use map_gui::game::PopupMsg;
-use map_gui::helpers::{nice_map_name, open_browser, ID};
-use map_gui::SimpleApp;
+use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg};
+use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,

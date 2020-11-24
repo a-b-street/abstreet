@@ -5,10 +5,8 @@
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
 use geom::Pt2D;
-use map_gui::common::CityPicker;
-use map_gui::game::PopupMsg;
-use map_gui::helpers::{amenity_type, nice_map_name, ID};
-use map_gui::SimpleApp;
+use map_gui::tools::{amenity_type, nice_map_name, CityPicker, PopupMsg};
+use map_gui::{SimpleApp, ID};
 use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,

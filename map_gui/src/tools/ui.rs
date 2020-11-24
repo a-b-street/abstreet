@@ -1,4 +1,4 @@
-//! Everything here should ideally be lifted to widgetry as common states.
+//! Generic UI tools. Some of this should perhaps be lifted to widgetry.
 
 use widgetry::{
     hotkeys, Btn, Choice, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -6,9 +6,10 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
-use crate::helpers::grey_out_map;
+use crate::tools::grey_out_map;
 use crate::AppLike;
 
+/// Choose something from a menu, then feed the answer to a callback.
 pub struct ChooseSomething<A: AppLike, T> {
     panel: Panel,
     cb: Box<dyn Fn(T, &mut EventCtx, &mut A) -> Transition<A>>,
@@ -82,6 +83,7 @@ impl<A: AppLike + 'static, T: 'static> State<A> for ChooseSomething<A, T> {
     }
 }
 
+/// Prompt for arbitrary text input, then feed the answer to a callback.
 pub struct PromptInput<A: AppLike> {
     panel: Panel,
     cb: Box<dyn Fn(String, &mut EventCtx, &mut A) -> Transition<A>>,
@@ -135,6 +137,7 @@ impl<A: AppLike + 'static> State<A> for PromptInput<A> {
     }
 }
 
+/// Display a message dialog.
 pub struct PopupMsg {
     panel: Panel,
     unzoomed: Drawable,

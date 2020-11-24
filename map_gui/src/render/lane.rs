@@ -7,9 +7,8 @@ use map_model::{
 };
 use widgetry::{Drawable, GeomBatch, GfxCtx, RewriteColor};
 
-use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 pub struct DrawLane {
     pub id: LaneID,

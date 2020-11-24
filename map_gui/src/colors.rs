@@ -1,9 +1,11 @@
+//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to
+//! encourage deduplication. The player can also switch between different color schemes.
+
 use map_model::osm::RoadRank;
 use map_model::LaneType;
 use widgetry::{Choice, Color, EventCtx, Fill, Style, Texture};
 
-use crate::common::ColorScale;
-use crate::helpers::loading_tips;
+use crate::tools::{loading_tips, ColorScale};
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain

@@ -1,4 +1,4 @@
-use map_gui::common::HeatmapOptions;
+use map_gui::tools::HeatmapOptions;
 use widgetry::{
     Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
 };

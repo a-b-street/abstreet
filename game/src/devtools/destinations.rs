@@ -1,5 +1,5 @@
 use abstutil::Counter;
-use map_gui::common::{make_heatmap, HeatmapOptions};
+use map_gui::tools::{make_heatmap, HeatmapOptions};
 use map_model::BuildingID;
 use sim::{Scenario, TripEndpoint};
 use widgetry::{

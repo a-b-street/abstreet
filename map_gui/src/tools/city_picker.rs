@@ -6,11 +6,12 @@ use widgetry::{
     Panel, ScreenPt, State, Text, TextExt, Transition, Widget,
 };
 
-use crate::helpers::{grey_out_map, nice_map_name, open_browser};
 use crate::load::MapLoader;
 use crate::render::DrawArea;
+use crate::tools::{grey_out_map, nice_map_name, open_browser};
 use crate::AppLike;
 
+/// Lets the player switch maps.
 pub struct CityPicker<A: AppLike> {
     panel: Panel,
     // In untranslated screen-space
@@ -157,7 +158,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     let _ = "just stop this from counting as an attribute on an expression";
                     #[cfg(not(target_arch = "wasm32"))]
                     {
-                        return Transition::Replace(crate::common::updater::Picker::new(
+                        return Transition::Replace(crate::tools::updater::Picker::new(
                             ctx,
                             self.on_load.take().unwrap(),
                         ));

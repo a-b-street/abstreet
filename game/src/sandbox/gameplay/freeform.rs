@@ -3,7 +3,7 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
-use map_gui::common::CityPicker;
+use map_gui::tools::CityPicker;
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{

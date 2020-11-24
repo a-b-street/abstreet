@@ -7,7 +7,7 @@ use widgetry::{
     Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Transition, Widget,
 };
 
-use crate::game::PopupMsg;
+use crate::tools::PopupMsg;
 use crate::AppLike;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
@@ -72,7 +72,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
 
                     let messages = ctx.loading_screen("sync files", |_, timer| sync(timer));
                     return Transition::Multi(vec![
-                        Transition::Replace(crate::common::CityPicker::new(
+                        Transition::Replace(crate::tools::CityPicker::new(
                             ctx,
                             app,
                             self.on_load.take().unwrap(),

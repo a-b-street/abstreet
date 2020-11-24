@@ -6,8 +6,8 @@ use widgetry::{
     State, Text, Transition, Widget,
 };
 
-use crate::helpers::{grey_out_map, ID};
-use crate::AppLike;
+use crate::tools::grey_out_map;
+use crate::{AppLike, ID};
 
 // TODO Canonicalize names, handling abbreviations like east/e and street/st
 pub struct Navigator {

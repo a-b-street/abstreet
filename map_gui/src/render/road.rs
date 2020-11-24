@@ -4,9 +4,8 @@ use geom::{Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Line, Text};
 
-use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 pub struct DrawRoad {
     pub id: RoadID,

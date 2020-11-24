@@ -47,7 +47,7 @@ pub fn main(mut args: CmdArgs) {
     if let Some(s) = args.optional_parse("--scale_factor", |s| s.parse::<f64>()) {
         settings.scale_factor(s);
     }
-    settings.loading_tips(map_gui::helpers::loading_tips());
+    settings.loading_tips(map_gui::tools::loading_tips());
 
     let mut mode = None;
     if let Some(x) = args.optional("--challenge") {

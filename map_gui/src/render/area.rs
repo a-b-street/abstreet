@@ -3,9 +3,8 @@ use map_model::{Area, AreaID, AreaType, Map};
 use widgetry::{Color, EventCtx, Fill, GeomBatch, GfxCtx, Line, Text};
 
 use crate::colors::ColorScheme;
-use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 pub struct DrawArea {
     pub id: AreaID,

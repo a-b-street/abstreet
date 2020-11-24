@@ -1,44 +1,29 @@
+//! Assorted tools and UI states that're useful for applications built to display maps.
+
 use abstutil::MapName;
 use geom::Polygon;
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, ParkingLotID, RoadID};
-use sim::{AgentID, CarID, PedestrianID};
 use widgetry::{GfxCtx, Line, Text};
 
+pub use self::city_picker::CityPicker;
+pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
+pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
+pub use self::minimap::SimpleMinimap;
+pub use self::navigate::Navigator;
+pub use self::turn_explorer::TurnExplorer;
+pub use self::ui::{ChooseSomething, PopupMsg, PromptInput};
 use crate::AppLike;
 
-#[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
-pub enum ID {
-    Road(RoadID),
-    Lane(LaneID),
-    Intersection(IntersectionID),
-    Building(BuildingID),
-    ParkingLot(ParkingLotID),
-    Car(CarID),
-    Pedestrian(PedestrianID),
-    PedCrowd(Vec<PedestrianID>),
-    BusStop(BusStopID),
-    Area(AreaID),
-}
+mod city_picker;
+mod colors;
+mod heatmap;
+mod minimap;
+mod navigate;
+#[cfg(not(target_arch = "wasm32"))]
+mod turn_explorer;
+mod ui;
+mod updater;
 
-impl ID {
-    pub fn from_agent(id: AgentID) -> ID {
-        match id {
-            AgentID::Car(id) => ID::Car(id),
-            AgentID::Pedestrian(id) => ID::Pedestrian(id),
-            AgentID::BusPassenger(_, bus) => ID::Car(bus),
-        }
-    }
-
-    pub fn agent_id(&self) -> Option<AgentID> {
-        match *self {
-            ID::Car(id) => Some(AgentID::Car(id)),
-            ID::Pedestrian(id) => Some(AgentID::Pedestrian(id)),
-            // PedCrowd doesn't map to a single agent.
-            _ => None,
-        }
-    }
-}
-
+// TODO This is A/B Street specific
 pub fn loading_tips() -> Text {
     Text::from_multiline(vec![
         Line("Recent changes (November 8)"),

@@ -5,10 +5,11 @@ use widgetry::{
     Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
-use crate::common::ColorLegend;
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
+use crate::tools::ColorLegend;
 use crate::AppLike;
 
+/// A tool to explore all of the turns from a single lane.
 pub struct TurnExplorer {
     l: LaneID,
     // 0 means all turns, otherwise one particular turn

@@ -5,10 +5,9 @@ use map_model::{Building, BuildingID, LaneType, Map, OffstreetParking, NORMAL_LA
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
 use crate::colors::{ColorScheme, ColorSchemeChoice};
-use crate::helpers::ID;
 use crate::options::{CameraAngle, Options};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 pub struct DrawBuilding {
     pub id: BuildingID,

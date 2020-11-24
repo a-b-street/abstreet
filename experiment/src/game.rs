@@ -1,6 +1,5 @@
 use geom::{Angle, Circle, Distance, Pt2D, Speed};
-use map_gui::common::CityPicker;
-use map_gui::helpers::nice_map_name;
+use map_gui::tools::{nice_map_name, CityPicker};
 use map_gui::SimpleApp;
 use widgetry::{
     lctrl, Btn, Checkbox, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
