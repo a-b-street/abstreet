@@ -8,7 +8,7 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, MapName, Parallelism, Timer};
+use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, MapName, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRoute, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints,
@@ -53,9 +53,6 @@ pub struct Sim {
     run_name: String,
     step_count: usize,
 
-    // Don't serialize, to reduce prebaked savestate size. Analytics are saved once covering the
-    // full day and can be trimmed to any time.
-    #[serde(skip_serializing, skip_deserializing)]
     analytics: Analytics,
     // This is created interactively, and there's no reason to preserve one for savestates.
     #[serde(skip_serializing, skip_deserializing)]
@@ -773,8 +770,6 @@ impl Sim {
     }
 
     pub fn save(&mut self) -> String {
-        let restore = self.scheduler.before_savestate();
-
         if false {
             println!("sim savestate breakdown:");
             println!(
@@ -814,8 +809,6 @@ impl Sim {
         let path = self.save_path(self.time);
         abstutil::write_binary(path.clone(), self);
 
-        self.scheduler.after_savestate(restore);
-
         path
     }
 
@@ -829,22 +822,9 @@ impl Sim {
 
     pub fn load_savestate(
         path: String,
-        map: &Map,
         timer: &mut Timer,
     ) -> Result<Sim, Box<dyn std::error::Error>> {
-        let mut sim: Sim = abstutil::maybe_read_binary(path, timer)?;
-        sim.restore_paths(map, timer);
-        Ok(sim)
-    }
-
-    pub fn restore_paths(&mut self, map: &Map, timer: &mut Timer) {
-        let paths = timer.parallelize(
-            "calculate paths",
-            Parallelism::Fastest,
-            self.scheduler.get_requests_for_savestate(),
-            |req| map.pathfind(req).unwrap(),
-        );
-        self.scheduler.after_savestate(paths);
+        abstutil::maybe_read_binary(path, timer)
     }
 }
 

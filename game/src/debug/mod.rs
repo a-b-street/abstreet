@@ -140,9 +140,10 @@ impl State<App> for DebugMode {
                                 .primary
                                 .sim
                                 .find_previous_savestate(app.primary.sim.time());
-                            match prev_state.clone().and_then(|path| {
-                                Sim::load_savestate(path, &app.primary.map, &mut timer).ok()
-                            }) {
+                            match prev_state
+                                .clone()
+                                .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                            {
                                 Some(new_sim) => {
                                     app.primary.sim = new_sim;
                                     app.recalculate_current_selection(ctx);
@@ -166,9 +167,10 @@ impl State<App> for DebugMode {
                     if let Some(t) = ctx.loading_screen("load next savestate", |ctx, mut timer| {
                         let next_state =
                             app.primary.sim.find_next_savestate(app.primary.sim.time());
-                        match next_state.clone().and_then(|path| {
-                            Sim::load_savestate(path, &app.primary.map, &mut timer).ok()
-                        }) {
+                        match next_state
+                            .clone()
+                            .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                        {
                             Some(new_sim) => {
                                 app.primary.sim = new_sim;
                                 app.recalculate_current_selection(ctx);
@@ -194,9 +196,8 @@ impl State<App> for DebugMode {
                             let ss_path = format!("{}/{}.bin", app.primary.sim.save_dir(), ss);
 
                             ctx.loading_screen("load savestate", |ctx, mut timer| {
-                                app.primary.sim =
-                                    Sim::load_savestate(ss_path, &app.primary.map, &mut timer)
-                                        .expect("Can't load savestate");
+                                app.primary.sim = Sim::load_savestate(ss_path, &mut timer)
+                                    .expect("Can't load savestate");
                                 app.recalculate_current_selection(ctx);
                             });
                             Transition::Pop

@@ -66,9 +66,7 @@ pub struct Analytics {
 
     pub(crate) alerts: Vec<(Time, AlertLocation, String)>,
 
-    /// After we restore from a savestate, don't record anything. This is only going to make sense
-    /// if savestates are only used for quickly previewing against prebaked results, where we have
-    /// the full Analytics anyway.
+    /// For benchmarking, we may want to disable collecting data.
     record_anything: bool,
 }
 

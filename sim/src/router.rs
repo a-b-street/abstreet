@@ -424,10 +424,6 @@ impl Router {
         self.path.modify_step(3, PathStep::Turn(turn2.id), map);
     }
 
-    pub fn replace_path_for_serialization(&mut self, path: Path) -> Path {
-        std::mem::replace(&mut self.path, path)
-    }
-
     pub fn is_parking(&self) -> bool {
         match self.goal {
             Goal::ParkNearBuilding {

@@ -63,7 +63,7 @@ impl SimFlags {
         if self.load.starts_with(&abstutil::path("player/saves/")) {
             timer.note(format!("Resuming from {}", self.load));
 
-            let mut sim: Sim = abstutil::read_binary(self.load.clone(), timer);
+            let sim: Sim = abstutil::read_binary(self.load.clone(), timer);
 
             let mut map = Map::new(sim.map_name.path(), timer);
             match MapEdits::load(
@@ -79,7 +79,6 @@ impl SimFlags {
                     panic!("Couldn't load edits \"{}\": {}", sim.edits_name, err);
                 }
             }
-            sim.restore_paths(&map, timer);
 
             (map, sim, rng)
         } else if self.load.contains("/scenarios/") {

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Counter;
 use geom::{Duration, Histogram, Time};
-use map_model::{BusRouteID, IntersectionID, Path, PathRequest};
+use map_model::{BusRouteID, IntersectionID};
 
 use crate::{
     pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, TripID, TripSpec,
@@ -247,65 +247,5 @@ impl Scheduler {
             stats.push(format!("{:?}: {}", cmd, abstutil::prettyprint_usize(*cnt)));
         }
         stats
-    }
-
-    /// It's much more efficient to save without the paths, and to recalculate them when loading
-    /// later.
-    // TODO Why not just implement Default on Path and use skip_serializing? Because we want to
-    // serialize paths inside Router for live agents. We need to defer calling make_router and just
-    // store the input in CreateCar.
-    // TODO Rethink all of this; probably broken by StartTrip.
-    pub fn get_requests_for_savestate(&self) -> Vec<PathRequest> {
-        let mut reqs = Vec::new();
-        for (cmd, _) in self.queued_commands.values() {
-            match cmd {
-                Command::SpawnCar(ref create_car, _) => {
-                    reqs.push(create_car.req.clone());
-                }
-                Command::SpawnPed(ref create_ped) => {
-                    reqs.push(create_ped.req.clone());
-                }
-                _ => {}
-            }
-        }
-        reqs
-    }
-
-    pub fn before_savestate(&mut self) -> Vec<Path> {
-        let mut restore = Vec::new();
-        for (cmd, _) in self.queued_commands.values_mut() {
-            match cmd {
-                Command::SpawnCar(ref mut create_car, _) => {
-                    restore.push(
-                        create_car
-                            .router
-                            .replace_path_for_serialization(Path::dummy()),
-                    );
-                }
-                Command::SpawnPed(ref mut create_ped) => {
-                    restore.push(std::mem::replace(&mut create_ped.path, Path::dummy()));
-                }
-                _ => {}
-            }
-        }
-        restore
-    }
-
-    pub fn after_savestate(&mut self, mut restore: Vec<Path>) {
-        restore.reverse();
-        for (cmd, _) in self.queued_commands.values_mut() {
-            match cmd {
-                Command::SpawnCar(ref mut create_car, _) => {
-                    create_car
-                        .router
-                        .replace_path_for_serialization(restore.pop().unwrap());
-                }
-                Command::SpawnPed(ref mut create_ped) => {
-                    create_ped.path = restore.pop().unwrap();
-                }
-                _ => {}
-            }
-        }
-        assert!(restore.is_empty());
     }
 }
