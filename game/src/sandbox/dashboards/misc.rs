@@ -6,9 +6,8 @@ use widgetry::{
     PlotOptions, Series, State, TextExt, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
-use crate::common::Tab;
+use crate::app::{App, Transition};
+use crate::info::Tab;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 

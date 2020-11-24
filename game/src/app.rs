@@ -9,6 +9,7 @@ use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
+use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
@@ -16,7 +17,6 @@ use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 use crate::challenges::HighScore;
 use crate::common::Warping;
 use crate::edit::apply_map_edits;
-use crate::helpers::ID;
 use crate::layer::Layer;
 use crate::sandbox::{GameplayMode, TutorialState};
 

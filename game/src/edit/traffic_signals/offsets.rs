@@ -3,6 +3,7 @@ use std::collections::BTreeSet;
 use maplit::btreeset;
 
 use geom::{Distance, Duration};
+use map_gui::ID;
 use map_model::IntersectionID;
 use sim::Scenario;
 use widgetry::{
@@ -10,11 +11,9 @@ use widgetry::{
     RewriteColor, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
+use crate::app::{App, Transition};
 use crate::common::CommonState;
 use crate::edit::traffic_signals::fade_irrelevant;
-use crate::helpers::ID;
 
 pub struct ShowAbsolute {
     members: BTreeSet<IntersectionID>,

@@ -1,5 +1,6 @@
 use geom::{Duration, Polygon, Time};
 use map_gui::tools::PopupMsg;
+use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
     Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
@@ -8,7 +9,6 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::common::Warping;
-use crate::helpers::ID;
 use crate::sandbox::time_warp::JumpToTime;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 

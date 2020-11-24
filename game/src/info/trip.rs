@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use maplit::btreemap;
 
 use geom::{Distance, Duration, Percent, Polygon, Pt2D, Time};
+use map_gui::ID;
 use map_model::{Map, Path, PathStep};
 use sim::{AgentID, PersonID, TripEndpoint, TripID, TripPhase, TripPhaseType};
 use widgetry::{
@@ -11,7 +12,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::helpers::{color_for_trip_phase, ID};
+use crate::common::color_for_trip_phase;
 use crate::info::{make_table, Details, Tab};
 
 #[derive(Clone)]

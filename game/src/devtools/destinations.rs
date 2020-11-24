@@ -1,5 +1,6 @@
 use abstutil::Counter;
-use map_gui::tools::{make_heatmap, HeatmapOptions};
+use map_gui::tools::{amenity_type, make_heatmap, HeatmapOptions};
+use map_gui::ID;
 use map_model::BuildingID;
 use sim::{Scenario, TripEndpoint};
 use widgetry::{
@@ -7,9 +8,7 @@ use widgetry::{
     Outcome, Panel, State, Text, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
-use crate::helpers::{amenity_type, ID};
+use crate::app::{App, Transition};
 
 pub struct PopularDestinations {
     per_bldg: Counter<BuildingID>,

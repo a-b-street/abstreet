@@ -1,11 +1,10 @@
-use map_gui::tools::HeatmapOptions;
+use map_gui::tools::{grey_out_map, HeatmapOptions};
 use widgetry::{
     Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
-use crate::helpers::{grey_out_map, hotkey_btn};
+use crate::app::{App, Transition};
+use crate::common::hotkey_btn;
 use crate::sandbox::dashboards;
 
 mod elevation;

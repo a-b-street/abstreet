@@ -12,7 +12,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::helpers::color_for_agent_type;
+use crate::common::color_for_agent_type;
 use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Vec<Widget> {

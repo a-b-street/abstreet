@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::{Distance, Time};
+use map_gui::ID;
 use map_model::IntersectionID;
 use sim::AgentID;
 use widgetry::{
@@ -8,10 +9,8 @@ use widgetry::{
     Panel, State, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
+use crate::app::{App, Transition};
 use crate::common::CommonState;
-use crate::helpers::ID;
 
 /// Draws a preview of the path for the agent under the mouse cursor.
 pub struct RoutePreview {

@@ -3,7 +3,8 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
-use map_gui::tools::{ChooseSomething, CityPicker, PopupMsg, PromptInput};
+use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker, PopupMsg, PromptInput};
+use map_gui::ID;
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
@@ -14,7 +15,6 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::CommonState;
 use crate::edit::EditMode;
-use crate::helpers::{nice_map_name, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 

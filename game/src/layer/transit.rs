@@ -1,3 +1,4 @@
+use map_gui::tools::ColorDiscrete;
 use map_model::{PathConstraints, PathStep};
 use widgetry::{
     Btn, Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, TextExt,
@@ -5,7 +6,6 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::ColorDiscrete;
 use crate::layer::{Layer, LayerOutcome};
 
 pub struct TransitNetwork {

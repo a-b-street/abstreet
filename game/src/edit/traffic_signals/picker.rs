@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
     hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
@@ -10,7 +11,6 @@ use crate::app::App;
 use crate::app::Transition;
 use crate::common::CommonState;
 use crate::edit::TrafficSignalEditor;
-use crate::helpers::ID;
 use crate::sandbox::gameplay::GameplayMode;
 
 pub struct SignalPicker {

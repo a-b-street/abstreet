@@ -1,4 +1,6 @@
 use abstutil::Counter;
+use map_gui::tools::{ColorLegend, ColorNetwork};
+use map_gui::ID;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, Text,
@@ -7,8 +9,7 @@ use widgetry::{
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::common::{ColorLegend, ColorNetwork, CommonState};
-use crate::helpers::ID;
+use crate::common::CommonState;
 
 /// A state to count the number of trips that will cross different roads.
 pub struct PathCounter {

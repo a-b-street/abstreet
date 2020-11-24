@@ -1,15 +1,14 @@
 use abstutil::{prettyprint_usize, Counter};
 use collisions::{CollisionDataset, Severity};
 use geom::{Circle, Distance, Duration, FindClosest, Polygon, Time};
+use map_gui::tools::ColorNetwork;
+use map_gui::ID;
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
     Outcome, Panel, Slider, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
-use crate::common::ColorNetwork;
-use crate::helpers::ID;
+use crate::app::{App, Transition};
 
 pub struct CollisionsViewer {
     data: CollisionDataset,

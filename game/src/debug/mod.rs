@@ -6,6 +6,7 @@ use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
+use map_gui::ID;
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use widgetry::{
@@ -15,8 +16,8 @@ use widgetry::{
 };
 
 use crate::app::{App, ShowLayers, ShowObject, Transition};
-use crate::common::{tool_panel, CommonState, ContextualActions};
-use crate::helpers::ID;
+use crate::common::{tool_panel, CommonState};
+use crate::info::ContextualActions;
 use crate::sandbox::GameplayMode;
 
 mod blocked_by;

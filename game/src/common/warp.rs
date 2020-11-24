@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 
 use geom::Pt2D;
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{grey_out_map, PopupMsg};
+use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, ParkingLotID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use widgetry::{
@@ -9,9 +10,7 @@ use widgetry::{
 };
 
 use crate::app::{App, PerMap, Transition};
-use crate::common::Tab;
-use crate::helpers::{grey_out_map, ID};
-use crate::info::OpenTrip;
+use crate::info::{OpenTrip, Tab};
 use crate::sandbox::SandboxMode;
 
 const WARP_TO_CAM_ZOOM: f64 = 10.0;

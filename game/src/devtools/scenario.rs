@@ -1,13 +1,13 @@
 use abstutil::prettyprint_usize;
+use map_gui::tools::ColorDiscrete;
 use sim::Scenario;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
     Text, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
-use crate::common::{ColorDiscrete, CommonState};
+use crate::app::{App, Transition};
+use crate::common::CommonState;
 use crate::devtools::destinations::PopularDestinations;
 
 pub struct ScenarioManager {

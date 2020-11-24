@@ -1,3 +1,4 @@
+use map_gui::tools::grey_out_map;
 use widgetry::{
     hotkeys, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
     RewriteColor, State, Text, Widget,
@@ -5,7 +6,6 @@ use widgetry::{
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::helpers::grey_out_map;
 
 pub struct CutsceneBuilder {
     name: String,

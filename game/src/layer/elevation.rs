@@ -1,11 +1,11 @@
 use geom::{ArrowCap, Distance, PolyLine};
+use map_gui::tools::{ColorLegend, ColorNetwork};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, Text,
     TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork};
 use crate::layer::{Layer, LayerOutcome};
 
 pub struct Elevation {

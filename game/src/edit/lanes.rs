@@ -1,4 +1,5 @@
 use map_gui::render::Renderable;
+use map_gui::ID;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
     Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
@@ -12,7 +13,6 @@ use crate::edit::zones::ZoneEditor;
 use crate::edit::{
     apply_map_edits, can_edit_lane, maybe_edit_intersection, speed_limit_choices, try_change_lt,
 };
-use crate::helpers::ID;
 use crate::sandbox::GameplayMode;
 
 pub struct LaneEditor {

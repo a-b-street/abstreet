@@ -3,7 +3,8 @@ use instant::Instant;
 use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use map_gui::render::DrawOptions;
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{grey_out_map, PopupMsg};
+use map_gui::ID;
 use widgetry::{
     Btn, Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
     Panel, Slider, State, Text, UpdateType, Widget,
@@ -11,7 +12,6 @@ use widgetry::{
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
 use crate::common::Warping;
-use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::{GameplayMode, SandboxMode};
 
 // TODO Text entry would be great

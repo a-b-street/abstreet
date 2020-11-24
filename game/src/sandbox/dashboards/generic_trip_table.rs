@@ -5,9 +5,8 @@ use widgetry::{
     State,
 };
 
-use crate::app::App;
-use crate::app::Transition;
-use crate::helpers::color_for_trip_phase;
+use crate::app::{App, Transition};
+use crate::common::color_for_trip_phase;
 use crate::info::{OpenTrip, Tab};
 use crate::sandbox::dashboards::table::Table;
 use crate::sandbox::dashboards::trip_table;

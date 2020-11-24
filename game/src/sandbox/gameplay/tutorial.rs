@@ -2,7 +2,8 @@ use std::collections::BTreeSet;
 
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{grey_out_map, PopupMsg};
+use map_gui::ID;
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
 use sim::{
@@ -18,7 +19,6 @@ use crate::app::{App, Transition};
 use crate::common::{tool_panel, Minimap, Warping};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
-use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
     maybe_exit_sandbox, spawn_agents_around, Actions, AgentMeter, SandboxControls, SandboxMode,

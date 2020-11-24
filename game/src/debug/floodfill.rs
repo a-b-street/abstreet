@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use map_gui::tools::ColorDiscrete;
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use widgetry::{
     Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
@@ -8,7 +9,6 @@ use widgetry::{
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::common::ColorDiscrete;
 
 pub struct Floodfiller {
     panel: Panel,

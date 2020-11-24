@@ -1,5 +1,7 @@
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
+use map_gui::tools::{amenity_type, ColorDiscrete, ColorLegend, ColorNetwork};
+use map_gui::ID;
 use map_model::{LaneType, PathConstraints};
 use sim::AgentType;
 use widgetry::{
@@ -8,8 +10,6 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::{ColorDiscrete, ColorLegend, ColorNetwork};
-use crate::helpers::{amenity_type, ID};
 use crate::layer::{Layer, LayerOutcome};
 
 pub struct BikeNetwork {

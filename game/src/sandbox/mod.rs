@@ -8,6 +8,7 @@ use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::load::{FileLoader, MapLoader};
 use map_gui::tools::{ChooseSomething, PopupMsg, TurnExplorer};
 use map_gui::AppLike;
+use map_gui::ID;
 use sim::{Analytics, Scenario};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -16,12 +17,12 @@ use widgetry::{
 
 use self::misc_tools::{RoutePreview, TrafficRecorder};
 use crate::app::{App, Transition};
-use crate::common::{tool_panel, CommonState, ContextualActions, Minimap};
+use crate::common::{tool_panel, CommonState, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
 };
-use crate::helpers::ID;
+use crate::info::ContextualActions;
 use crate::layer::PickLayer;
 use crate::pregame::MainMenu;
 use map_gui::colors::ColorSchemeChoice;

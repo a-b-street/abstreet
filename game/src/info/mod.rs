@@ -3,6 +3,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Time};
+use map_gui::tools::open_browser;
+use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
     AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
@@ -13,12 +15,10 @@ use widgetry::{
     LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
-use crate::common::Warping;
+use crate::app::{App, Transition};
+use crate::common::{color_for_agent_type, hotkey_btn, Warping};
 use crate::debug::path_counter::PathCounter;
 use crate::edit::{EditMode, RouteEditor};
-use crate::helpers::{color_for_agent_type, hotkey_btn, open_browser, ID};
 use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
 
 mod building;

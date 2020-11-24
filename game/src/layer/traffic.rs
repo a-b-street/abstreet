@@ -5,6 +5,8 @@ use maplit::btreeset;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
+use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale};
+use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::VehicleType;
 use widgetry::{
@@ -13,8 +15,6 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::{ColorLegend, ColorNetwork, DivergingScale};
-use crate::helpers::ID;
 use crate::layer::{Layer, LayerOutcome};
 
 pub struct Backpressure {

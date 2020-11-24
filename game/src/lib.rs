@@ -17,7 +17,6 @@ mod cutscene;
 mod debug;
 mod devtools;
 mod edit;
-mod helpers;
 mod info;
 mod layer;
 mod pregame;

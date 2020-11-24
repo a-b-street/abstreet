@@ -12,7 +12,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::helpers::color_for_mode;
+use crate::common::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 
 pub struct TripSummaries {

@@ -1,9 +1,9 @@
+use map_gui::ID;
 use map_model::{Map, PathConstraints};
 use sim::{AgentID, Sim};
 use widgetry::{GfxCtx, Key, Line, Text};
 
 use crate::app::App;
-use crate::helpers::ID;
 
 pub struct ObjectDebugger;
 

@@ -6,7 +6,7 @@ use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, State, Text, Widget};
 
 use crate::app::App;
-use crate::helpers::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
+use crate::common::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
 use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;

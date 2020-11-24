@@ -4,6 +4,7 @@ use maplit::hashset;
 
 use abstutil::{prettyprint_usize, Counter, MultiMap};
 use geom::{Distance, PolyLine, Polygon, Time};
+use map_gui::tools::ColorLegend;
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
@@ -11,10 +12,8 @@ use widgetry::{
     Outcome, Panel, RewriteColor, Slider, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::app::Transition;
-use crate::common::{ColorLegend, CommonState};
-use crate::helpers::checkbox_per_mode;
+use crate::app::{App, Transition};
+use crate::common::{checkbox_per_mode, CommonState};
 
 pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,

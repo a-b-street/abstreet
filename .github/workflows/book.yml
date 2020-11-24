@@ -37,7 +37,7 @@ jobs:
         run: |
             cargo doc --no-deps --workspace --exclude widgetry --document-private-items
             cd widgetry
-            cargo doc --no-deps --document-private-items
+            cargo doc --no-deps --document-private-items --features native-backend
             cd ..
             mv target/doc book/book/rustdoc
 

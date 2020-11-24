@@ -1,4 +1,5 @@
 use geom::{Duration, Time};
+use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
     Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
@@ -11,7 +12,6 @@ use crate::challenges::HighScore;
 use crate::common::Warping;
 use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
-use crate::helpers::ID;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
