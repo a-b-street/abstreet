@@ -8,14 +8,14 @@ use abstutil::{prettyprint_usize, Parallelism, Timer};
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_gui::colors::ColorScheme;
+use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_model::BuildingID;
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::game::{ChooseSomething, PopupMsg, Transition};
+use crate::app::{App, Transition};
 
 pub struct ViewKML {
     panel: Panel,

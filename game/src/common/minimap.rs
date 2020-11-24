@@ -7,8 +7,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::Warping;
-use crate::game::Transition;
 use crate::layer::PickLayer;
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).

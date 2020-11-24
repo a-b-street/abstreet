@@ -10,7 +10,7 @@ use widgetry::{
 pub use self::minimap::Minimap;
 pub use self::warp::Warping;
 use crate::app::App;
-use crate::game::Transition;
+use crate::app::Transition;
 use crate::helpers::{list_names, ID};
 use crate::info::InfoPanel;
 pub use crate::info::{ContextualActions, Tab};

@@ -6,6 +6,7 @@ use abstutil::{prettyprint_usize, Timer};
 use geom::Speed;
 use map_gui::options::OptionsPanel;
 use map_gui::render::DrawMap;
+use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
@@ -18,10 +19,9 @@ pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
 pub use self::validate::{check_blackholes, check_sidewalk_connectivity, try_change_lt};
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::common::{tool_panel, ColorLegend, CommonState, Warping};
 use crate::debug::DebugMode;
-use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 

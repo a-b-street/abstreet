@@ -6,9 +6,9 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::{ColorDiscrete, CommonState};
 use crate::devtools::destinations::PopularDestinations;
-use crate::game::Transition;
 
 pub struct ScenarioManager {
     panel: Panel,

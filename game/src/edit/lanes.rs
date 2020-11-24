@@ -6,12 +6,12 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::CommonState;
 use crate::edit::zones::ZoneEditor;
 use crate::edit::{
     apply_map_edits, can_edit_lane, maybe_edit_intersection, speed_limit_choices, try_change_lt,
 };
-use crate::game::Transition;
 use crate::helpers::ID;
 use crate::sandbox::GameplayMode;
 

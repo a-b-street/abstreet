@@ -1,5 +1,6 @@
 use abstutil::Timer;
 use geom::Duration;
+use map_gui::tools::ChooseSomething;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
 };
@@ -8,10 +9,9 @@ use widgetry::{
     State, TextExt, Widget,
 };
 
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
-use crate::game::{ChooseSomething, Transition};
 use crate::sandbox::GameplayMode;
 
 pub struct ChangeDuration {

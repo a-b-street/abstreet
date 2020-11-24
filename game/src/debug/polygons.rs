@@ -1,11 +1,11 @@
 use geom::{Polygon, Pt2D, Triangle};
+use map_gui::tools::PopupMsg;
 use widgetry::{
     Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
-use crate::game::{PopupMsg, Transition};
+use crate::app::{App, Transition};
 
 pub struct PolygonDebugger {
     panel: Panel,

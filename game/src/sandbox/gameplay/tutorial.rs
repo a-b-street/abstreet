@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
+use map_gui::tools::PopupMsg;
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
 use sim::{
@@ -13,11 +14,10 @@ use widgetry::{
     RewriteColor, ScreenPt, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::common::{tool_panel, Minimap, Warping};
 use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
-use crate::game::{PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{

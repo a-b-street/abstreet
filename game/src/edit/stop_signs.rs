@@ -14,9 +14,9 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, TrafficSignalEditor};
-use crate::game::Transition;
 use crate::sandbox::GameplayMode;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not

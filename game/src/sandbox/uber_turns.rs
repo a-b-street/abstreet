@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use geom::ArrowCap;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
+use map_gui::tools::PopupMsg;
 use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
 use widgetry::{
     Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -9,10 +10,9 @@ use widgetry::{
     Widget,
 };
 
-use crate::app::{App, ShowEverything};
+use crate::app::{App, ShowEverything, Transition};
 use crate::common::CommonState;
 use crate::edit::ClusterTrafficSignalEditor;
-use crate::game::{PopupMsg, Transition};
 use crate::helpers::ID;
 
 pub struct UberTurnPicker {

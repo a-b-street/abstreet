@@ -6,8 +6,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::{ColorLegend, ColorNetwork, CommonState};
-use crate::game::Transition;
 use crate::helpers::ID;
 
 /// A state to count the number of trips that will cross different roads.

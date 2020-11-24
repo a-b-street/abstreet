@@ -6,8 +6,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::edit::apply_map_edits;
-use crate::game::Transition;
 
 pub struct RouteEditor {
     panel: Panel,

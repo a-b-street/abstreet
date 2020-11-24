@@ -10,7 +10,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::game::Transition;
+use crate::app::Transition;
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
 

@@ -3,14 +3,14 @@ use instant::Instant;
 use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use map_gui::render::DrawOptions;
+use map_gui::tools::PopupMsg;
 use widgetry::{
     Btn, Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
     Panel, Slider, State, Text, UpdateType, Widget,
 };
 
-use crate::app::{App, FindDelayedIntersections, ShowEverything};
+use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
 use crate::common::Warping;
-use crate::game::{PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::sandbox::{GameplayMode, SandboxMode};
 

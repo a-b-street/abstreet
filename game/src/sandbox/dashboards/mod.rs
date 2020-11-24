@@ -5,7 +5,7 @@ pub use trip_table::FinishedTripTable;
 use widgetry::{Btn, Choice, EventCtx, Line, Panel, TextExt, Widget};
 
 use crate::app::App;
-use crate::game::Transition;
+use crate::app::Transition;
 
 mod commuter;
 mod generic_trip_table;

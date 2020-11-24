@@ -11,9 +11,9 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::CommonState;
 use crate::edit::traffic_signals::fade_irrelevant;
-use crate::game::Transition;
 use crate::helpers::ID;
 
 pub struct ShowAbsolute {
