@@ -56,82 +56,67 @@ fn endpoints(
     // TODO It'd be nice to fix depart_at, trip_time, and trip_dist. Assume constant speed
     // through the trip. But when I last tried this, the distance was way off. :\
 
-    // If this isn't huge_seattle, use the large map to find the real path somebody might take,
-    // then try to match that to a border in the smaller map.
-    let maybe_other_border = if let Some((huge_map, huge_osm_id_to_bldg)) = maybe_huge_map {
-        let maybe_b1 = from
-            .osm_building
-            .and_then(|id| huge_osm_id_to_bldg.get(&id))
-            .cloned();
-        let maybe_b2 = to
-            .osm_building
-            .and_then(|id| huge_osm_id_to_bldg.get(&id))
-            .cloned();
-        if let (Some(b1), Some(b2)) = (maybe_b1, maybe_b2) {
-            // TODO Super rough...
-            let start = if constraints == PathConstraints::Pedestrian {
-                Some(huge_map.get_b(b1).sidewalk_pos)
-            } else {
-                huge_map
-                    .get_b(b1)
-                    .driving_connection(huge_map)
-                    .map(|(pos, _)| pos)
-            };
-            let end = if constraints == PathConstraints::Pedestrian {
-                Some(huge_map.get_b(b2).sidewalk_pos)
-            } else {
-                huge_map
-                    .get_b(b2)
-                    .driving_connection(huge_map)
-                    .map(|(pos, _)| pos)
-            };
-            if let Some(path) = start.and_then(|start| {
-                end.and_then(|end| {
-                    huge_map.pathfind(PathRequest {
-                        start,
-                        end,
-                        constraints,
-                    })
-                })
-            }) {
-                // Do any of the usable borders match the path?
-                // TODO Calculate this once
-                let mut node_id_to_border = HashMap::new();
-                for (i, _) in usable_borders {
-                    node_id_to_border.insert(map.get_i(*i).orig_id, *i);
-                }
-                let mut found_border = None;
-                for step in path.get_steps() {
-                    if let PathStep::Turn(t) = step {
-                        if let Some(i) = node_id_to_border.get(&huge_map.get_i(t.parent).orig_id) {
-                            found_border = Some(*i);
-                            break;
-                        }
-                    }
-                }
-                found_border
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    } else {
-        None
-    };
-    // Fallback to finding the nearest border with straight-line distance
-    let border_i = maybe_other_border.or_else(|| {
-        usable_borders
-            .iter()
-            .min_by_key(|(_, pt)| pt.fast_dist(border_endpt.pos))
-            .map(|(id, _)| *id)
-    })?;
+    let border_i = maybe_huge_map
+        .and_then(|(huge_map, huge_osm_id_to_bldg)| {
+            other_border(
+                from,
+                to,
+                constraints,
+                huge_map,
+                huge_osm_id_to_bldg,
+                map,
+                usable_borders,
+            )
+        })
+        .or_else(|| {
+            // Fallback to finding the nearest border with straight-line distance
+            usable_borders
+                .iter()
+                .min_by_key(|(_, pt)| pt.fast_dist(border_endpt.pos))
+                .map(|(id, _)| *id)
+        })?;
     let border = TripEndpoint::Border(border_i);
     if let Some(b) = from_bldg {
         Some((TripEndpoint::Bldg(b), border))
     } else {
         Some((border, TripEndpoint::Bldg(to_bldg.unwrap())))
     }
+}
+
+// Use the large map to find the real path somebody might take, then try to match that to a border
+// in the smaller map.
+fn other_border(
+    from: &Endpoint,
+    to: &Endpoint,
+    constraints: PathConstraints,
+    huge_map: &Map,
+    huge_osm_id_to_bldg: &HashMap<osm::OsmID, BuildingID>,
+    map: &Map,
+    usable_borders: &Vec<(IntersectionID, LonLat)>,
+) -> Option<IntersectionID> {
+    let b1 = *from
+        .osm_building
+        .and_then(|id| huge_osm_id_to_bldg.get(&id))?;
+    let b2 = *to
+        .osm_building
+        .and_then(|id| huge_osm_id_to_bldg.get(&id))?;
+    let req = PathRequest::between_buildings(huge_map, b1, b2, constraints)?;
+    let path = huge_map.pathfind(req)?;
+
+    // Do any of the usable borders match the path?
+    // TODO Calculate this once
+    let mut node_id_to_border = HashMap::new();
+    for (i, _) in usable_borders {
+        node_id_to_border.insert(map.get_i(*i).orig_id, *i);
+    }
+    for step in path.get_steps() {
+        if let PathStep::Turn(t) = step {
+            if let Some(i) = node_id_to_border.get(&huge_map.get_i(t.parent).orig_id) {
+                return Some(*i);
+            }
+        }
+    }
+    None
 }
 
 fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> Vec<Trip> {
