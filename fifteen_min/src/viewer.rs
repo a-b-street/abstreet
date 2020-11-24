@@ -4,7 +4,7 @@
 //!
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, Pt2D};
 use map_gui::tools::{amenity_type, nice_map_name, CityPicker, PopupMsg};
 use map_gui::{SimpleApp, ID};
 use map_model::{Building, BuildingID, PathConstraints};
@@ -90,11 +90,8 @@ impl State<SimpleApp> for Viewer {
                                     Distance::meters(1.0 * scale_factor),
                                     Distance::meters(0.4 * scale_factor),
                                 );
-                                let colored_lines: Vec<(Color, Polygon)> = dashed_lines
-                                    .into_iter()
-                                    .map(|poly| (Color::BLACK, poly))
-                                    .collect();
-                                let batch = GeomBatch::from(colored_lines);
+                                let mut batch = GeomBatch::new();
+                                batch.extend(Color::BLACK, dashed_lines);
                                 ctx.prerender.upload(batch)
                             });
                         Some(HoverOnBuilding {
