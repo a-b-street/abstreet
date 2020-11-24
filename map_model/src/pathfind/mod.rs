@@ -14,8 +14,8 @@ pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles};
 pub use self::driving::driving_cost;
 pub use self::walking::{walking_cost, WalkingNode};
 use crate::{
-    osm, BusRouteID, BusStopID, Lane, LaneID, LaneType, Map, Position, Traversable, TurnID,
-    UberTurn,
+    osm, BuildingID, BusRouteID, BusStopID, Lane, LaneID, LaneType, Map, Position, Traversable,
+    TurnID, UberTurn,
 };
 
 mod ch;
@@ -521,6 +521,38 @@ impl fmt::Display for PathRequest {
             self.end.lane(),
             self.constraints,
         )
+    }
+}
+
+impl PathRequest {
+    /// Determines the start and end position to travel between two buildings for a certain mode.
+    /// The path won't cover modality transfers -- if somebody has to walk between the building and
+    /// a parking spot or bikeable position, that won't be captured here.
+    pub fn between_buildings(
+        map: &Map,
+        from: BuildingID,
+        to: BuildingID,
+        constraints: PathConstraints,
+    ) -> Option<PathRequest> {
+        let from = map.get_b(from);
+        let to = map.get_b(to);
+        let (start, end) = match constraints {
+            PathConstraints::Pedestrian => (from.sidewalk_pos, to.sidewalk_pos),
+            PathConstraints::Bike => (from.biking_connection(map)?.0, to.biking_connection(map)?.0),
+            PathConstraints::Car => (
+                from.driving_connection(map)?.0,
+                to.driving_connection(map)?.0,
+            ),
+            // These two aren't useful here. A pedestrian using transit would pass in
+            // PathConstraints::Pedestrian. There's no reason yet to find a route for a bus or
+            // train to travel between buildings.
+            PathConstraints::Bus | PathConstraints::Train => unimplemented!(),
+        };
+        Some(PathRequest {
+            start,
+            end,
+            constraints,
+        })
     }
 }
 

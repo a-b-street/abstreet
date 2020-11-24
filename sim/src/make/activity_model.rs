@@ -219,15 +219,15 @@ fn create_prole(
         (TripEndpoint::Bldg(home_bldg), TripEndpoint::Bldg(work_bldg)) => {
             // Decide mode based on walking distance. If the buildings aren't connected,
             // probably a bug in importing; just skip this person.
-            let dist = if let Some(dist) = map
-                .pathfind(PathRequest {
-                    start: map.get_b(*home_bldg).sidewalk_pos,
-                    end: map.get_b(*work_bldg).sidewalk_pos,
-                    constraints: PathConstraints::Pedestrian,
-                })
-                .map(|p| p.total_length())
+            let dist = if let Some(path) = PathRequest::between_buildings(
+                map,
+                *home_bldg,
+                *work_bldg,
+                PathConstraints::Pedestrian,
+            )
+            .and_then(|req| map.pathfind(req))
             {
-                dist
+                path.total_length()
             } else {
                 return Err("no path found".into());
             };
