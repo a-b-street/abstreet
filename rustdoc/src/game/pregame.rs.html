@@ -548,33 +548,6 @@
 <span id="545">545</span>
 <span id="546">546</span>
 <span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -584,6 +557,8 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Percent</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -591,13 +566,10 @@
     <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">ChallengesPicker</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">DevToolsMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">apply_map_edits</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">PopupMsg</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">open_browser</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">Tutorial</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
 
@@ -724,19 +696,6 @@
                 <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Internal Dev Tools&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
             ])
             .<span class="ident">centered</span>(),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;OpenStreetMap viewer&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">V</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;15-minute neighborhoods&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">N</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Contribute parking data to OpenStreetMap&quot;</span>)
-                    .<span class="ident">tooltip</span>({
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span>
-                            <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">M</span>, <span class="string">&quot;Contribute parking data to OpenStreetMap&quot;</span>);
-                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Improve parking data in OpenStreetMap&quot;</span>).<span class="ident">small</span>());
-                        <span class="ident">txt</span>
-                    })
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">M</span>),
-            ])
-            .<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
@@ -796,19 +755,6 @@
                 }
                 <span class="string">&quot;Community Proposals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Proposals</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>));
-                }
-                <span class="string">&quot;OpenStreetMap viewer&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">osm_viewer</span>::<span class="ident">Viewer</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
-                }
-                <span class="string">&quot;15-minute neighborhoods&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">fifteen_min</span>::<span class="ident">Viewer</span>::<span class="ident">random_start</span>(
-                        <span class="ident">ctx</span>, <span class="ident">app</span>,
-                    ));
-                }
-                <span class="string">&quot;Contribute parking data to OpenStreetMap&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">mapping</span>::<span class="ident">ParkingMapper</span>::<span class="ident">new</span>(
-                        <span class="ident">ctx</span>, <span class="ident">app</span>,
-                    ));
                 }
                 <span class="string">&quot;Internal Dev Tools&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">DevToolsMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));

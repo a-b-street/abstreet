@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["tool_panel",""]],"mod":[["city_picker",""],["colors",""],["heatmap",""],["minimap",""],["navigate",""],["updater",""],["warp",""]],"struct":[["CommonState",""]]});
+initSidebarItems({"fn":[["checkbox_per_mode",""],["cmp_duration_shorter",""],["color_for_agent_type",""],["color_for_mode",""],["color_for_trip_phase",""],["hotkey_btn",""],["intersections_from_roads",""],["list_names",""],["tool_panel",""]],"mod":[["minimap",""],["warp",""]],"struct":[["CommonState",""]]});

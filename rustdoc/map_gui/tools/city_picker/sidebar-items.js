@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AllCityPicker",""],["CityPicker","Lets the player switch maps."]]});

@@ -160,35 +160,23 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This directory contains extra/experimental tools not directly related to A/B Street the game.</span>
 <span class="doccomment">//! Eventually some might be split into separate crates.</span>
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Percent</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">ChooseSomething</span>, <span class="ident">CityPicker</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
     <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CityPicker</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::<span class="ident">nice_map_name</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 
 <span class="kw">mod</span> <span class="ident">collisions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">controls</span>;
 <span class="kw">mod</span> <span class="ident">destinations</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fifteen_min</span>;
 <span class="kw">mod</span> <span class="ident">kml</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mapping</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">osm_viewer</span>;
 <span class="kw">mod</span> <span class="ident">polygon</span>;
 <span class="kw">mod</span> <span class="ident">scenario</span>;
 <span class="kw">mod</span> <span class="ident">story</span>;

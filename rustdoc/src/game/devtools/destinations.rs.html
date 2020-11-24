@@ -165,9 +165,10 @@
 <span id="162">162</span>
 <span id="163">163</span>
 <span id="164">164</span>
-<span id="165">165</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">amenity_type</span>, <span class="ident">make_heatmap</span>, <span class="ident">HeatmapOptions</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">BuildingID</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -175,10 +176,7 @@
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">make_heatmap</span>, <span class="ident">HeatmapOptions</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">game</span>::<span class="ident">Transition</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">helpers</span>::{<span class="ident">amenity_type</span>, <span class="ident">ID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PopularDestinations</span> {
     <span class="ident">per_bldg</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,

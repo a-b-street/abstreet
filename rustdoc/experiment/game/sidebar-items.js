@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Game",""],["InstantController",""],["RotateController",""]],"trait":[["Controller",""]]});

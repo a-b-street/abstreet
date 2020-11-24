@@ -248,6 +248,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">make_heatmap</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">PersonState</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>,
@@ -255,7 +256,6 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">make_heatmap</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::{<span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>};
 
 <span class="comment">// TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to</span>

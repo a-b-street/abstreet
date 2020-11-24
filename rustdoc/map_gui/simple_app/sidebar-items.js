@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["SimpleApp","Simple app state that just renders a static map, without any dynamic agents on the map."],["SimpleWarper",""]]});

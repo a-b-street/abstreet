@@ -570,7 +570,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">drawing</span>::<span class="ident">Uniforms</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenRectangle</span>};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow_native</span>::<span class="ident">setup</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>)]</span>
@@ -753,7 +753,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>)]</span>
 <span class="kw">type</span> <span class="ident">WindowAdapter</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">backend_glow_wasm</span>::<span class="ident">WindowAdapter</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>)]</span>
 <span class="kw">type</span> <span class="ident">WindowAdapter</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">backend_glow_native</span>::<span class="ident">WindowAdapter</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrerenderInnards</span> {

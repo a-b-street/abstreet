@@ -164,95 +164,29 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">SimFlags</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">State</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Flags</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">TitleScreen</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
 
 <span class="kw">mod</span> <span class="ident">app</span>;
 <span class="kw">mod</span> <span class="ident">challenges</span>;
-<span class="kw">mod</span> <span class="ident">colors</span>;
 <span class="kw">mod</span> <span class="ident">common</span>;
 <span class="kw">mod</span> <span class="ident">cutscene</span>;
 <span class="kw">mod</span> <span class="ident">debug</span>;
 <span class="kw">mod</span> <span class="ident">devtools</span>;
 <span class="kw">mod</span> <span class="ident">edit</span>;
-<span class="kw">mod</span> <span class="ident">game</span>;
-<span class="kw">mod</span> <span class="ident">helpers</span>;
 <span class="kw">mod</span> <span class="ident">info</span>;
 <span class="kw">mod</span> <span class="ident">layer</span>;
-<span class="kw">mod</span> <span class="ident">load</span>;
-<span class="kw">mod</span> <span class="ident">options</span>;
 <span class="kw">mod</span> <span class="ident">pregame</span>;
-<span class="kw">mod</span> <span class="ident">render</span>;
 <span class="kw">mod</span> <span class="ident">sandbox</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>(<span class="kw-2">mut</span> <span class="ident">args</span>: <span class="ident">CmdArgs</span>) {
@@ -264,34 +198,11 @@
         <span class="ident">sim_flags</span>: <span class="ident">SimFlags</span>::<span class="ident">from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>),
         <span class="ident">live_map_edits</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--live_map_edits&quot;</span>),
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">options</span>::<span class="ident">Options</span>::<span class="ident">default</span>();
-    <span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--dev&quot;</span>);
-    <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--lowzoom&quot;</span>) {
-        <span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">1.0</span>;
-    }
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">Options</span>::<span class="ident">default</span>();
+    <span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
     <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--day_night&quot;</span>) {
         <span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>;
-    }
-
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--color_scheme&quot;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">choices</span>() {
-            <span class="ident">options</span>.<span class="ident">push</span>(<span class="ident">c</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
-            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">label</span> <span class="op">=</span><span class="op">=</span> <span class="ident">x</span> {
-                <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">data</span>;
-                <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="kw">break</span>;
-            }
-        }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ok</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(
-                <span class="string">&quot;Invalid --color_scheme={}. Choices: {}&quot;</span>,
-                <span class="ident">x</span>,
-                <span class="ident">options</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
-            );
-        }
+        <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>;
     }
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;A/B Street&quot;</span>);
     <span class="ident">settings</span>.<span class="ident">window_icon</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>));
@@ -301,7 +212,7 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_parse</span>(<span class="string">&quot;--scale_factor&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()) {
         <span class="ident">settings</span>.<span class="ident">scale_factor</span>(<span class="ident">s</span>);
     }
-    <span class="ident">settings</span>.<span class="ident">loading_tips</span>(<span class="ident">helpers</span>::<span class="ident">loading_tips</span>());
+    <span class="ident">settings</span>.<span class="ident">loading_tips</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">loading_tips</span>());
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--challenge&quot;</span>) {
@@ -339,23 +250,11 @@
         ));
     }
     <span class="kw">let</span> <span class="ident">start_with_edits</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--edits&quot;</span>);
-    <span class="kw">let</span> <span class="ident">osm_viewer</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--osm&quot;</span>);
-    <span class="kw">let</span> <span class="ident">fifteen_min</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--15min&quot;</span>);
-    <span class="kw">let</span> <span class="ident">experiment</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--experiment&quot;</span>);
 
     <span class="ident">args</span>.<span class="ident">done</span>();
 
     <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="ident">setup_app</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">flags</span>,
-            <span class="ident">opts</span>,
-            <span class="ident">start_with_edits</span>,
-            <span class="ident">mode</span>,
-            <span class="ident">osm_viewer</span>,
-            <span class="ident">fifteen_min</span>,
-            <span class="ident">experiment</span>,
-        )
+        <span class="ident">setup_app</span>(<span class="ident">ctx</span>, <span class="ident">flags</span>, <span class="ident">opts</span>, <span class="ident">start_with_edits</span>, <span class="ident">mode</span>)
     });
 }
 
@@ -365,16 +264,10 @@
     <span class="ident">opts</span>: <span class="ident">Options</span>,
     <span class="ident">start_with_edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">maybe_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span>,
-    <span class="ident">osm_viewer</span>: <span class="ident">bool</span>,
-    <span class="ident">fifteen_min</span>: <span class="ident">bool</span>,
-    <span class="ident">experiment</span>: <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">App</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">dev</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;player/save&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>)
-        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">osm_viewer</span>
-        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">fifteen_min</span>
-        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">experiment</span>
         <span class="op">&amp;&amp;</span> <span class="ident">maybe_mode</span>.<span class="ident">is_none</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span>::<span class="ident">new</span>(<span class="ident">flags</span>, <span class="ident">opts</span>, <span class="ident">ctx</span>, <span class="ident">title</span>);
 
@@ -412,14 +305,6 @@
 
     <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">title</span> {
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>))]
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">osm_viewer</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">osm_viewer</span>::<span class="ident">Viewer</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>)]
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">fifteen_min</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">fifteen_min</span>::<span class="ident">Viewer</span>::<span class="ident">random_start</span>(
-            <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>,
-        )]
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">experiment</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">controls</span>::<span class="ident">Experiment</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)]
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">maybe_mode</span>
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>()));
@@ -441,12 +326,7 @@
 <span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">start</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>() {
     <span class="ident">console_log</span>::<span class="ident">init_with_level</span>(<span class="ident">log</span>::<span class="ident">Level</span>::<span class="ident">Debug</span>).<span class="ident">unwrap</span>();
-
-    <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;osm_viewer&quot;</span>) {
-        <span class="ident">main</span>(<span class="ident">CmdArgs</span>::<span class="ident">from_args</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;--osm&quot;</span>.<span class="ident">to_string</span>()]))
-    } <span class="kw">else</span> {
-        <span class="ident">main</span>(<span class="ident">CmdArgs</span>::<span class="ident">new</span>());
-    }
+    <span class="ident">main</span>(<span class="ident">CmdArgs</span>::<span class="ident">new</span>());
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "game";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

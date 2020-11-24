@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CameraAngle",""],["TrafficSignalStyle","Different ways of drawing traffic signals. The names of these aren't super meaningful..."]],"struct":[["Options","Options controlling the UI. Some of the options are common to all map-based apps, and some are specific to A/B Street."],["OptionsPanel",""]]});

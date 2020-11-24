@@ -236,9 +236,9 @@
 
 <span class="kw">mod</span> <span class="ident">app_state</span>;
 <span class="kw">mod</span> <span class="ident">assets</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">backend_glow</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">backend_glow_native</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">backend_glow_wasm</span>;
@@ -258,7 +258,7 @@
 <span class="kw">mod</span> <span class="ident">widgets</span>;
 
 <span class="kw">mod</span> <span class="ident">backend</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glow-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow</span>::<span class="kw-2">*</span>;
 }
 
