@@ -121,6 +121,9 @@ impl State<SimpleApp> for Viewer {
                 self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
                 self.highlight_start = draw_star(ctx, start.polygon.center());
                 self.panel = build_panel(ctx, app, start, &self.isochrone);
+                // Any previous hover is from the perspective of the old `highlight_start`.
+                // Remove it so we don't have a dotted line to the previous isochrone's origin
+                self.hovering_on_bldg = None;
             }
         }
 
