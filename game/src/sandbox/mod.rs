@@ -270,7 +270,6 @@ pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
                 return Transition::Pop;
             }
 
-            ctx.canvas.save_camera_state(app.primary.map.get_name());
             if app.primary.map.unsaved_edits() {
                 return Transition::Multi(vec![
                     Transition::Push(Box::new(BackToMainMenu)),

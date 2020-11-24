@@ -2,7 +2,7 @@ use abstutil::{CmdArgs, Timer};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map};
 use sim::Sim;
-use widgetry::{EventCtx, GfxCtx, SharedAppState, State, Transition, Warper};
+use widgetry::{Canvas, EventCtx, GfxCtx, SharedAppState, State, Transition, Warper};
 
 use crate::colors::ColorScheme;
 use crate::options::Options;
@@ -32,7 +32,7 @@ impl SimpleApp {
             let cs = ColorScheme::new(ctx, opts.color_scheme);
             let map = Map::new(map_path, &mut timer);
             let draw_map = DrawMap::new(ctx, &map, &opts, &cs, timer);
-            // TODO Should we refactor the whole camera state / initial focusing thing?
+            ctx.canvas.load_camera_state(map.get_name());
             SimpleApp {
                 map,
                 draw_map,
@@ -221,6 +221,7 @@ impl AppLike for SimpleApp {
         ctx.canvas.save_camera_state(self.map().get_name());
         self.map = map;
         self.draw_map = DrawMap::new(ctx, &self.map, &self.opts, &self.cs, timer);
+        ctx.canvas.load_camera_state(self.map.get_name());
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {
@@ -260,6 +261,14 @@ impl AppLike for SimpleApp {
 impl SharedAppState for SimpleApp {
     fn draw_default(&self, g: &mut GfxCtx) {
         self.draw_with_opts(g, DrawOptions::new());
+    }
+
+    fn dump_before_abort(&self, canvas: &Canvas) {
+        canvas.save_camera_state(&self.map.get_name());
+    }
+
+    fn before_quit(&self, canvas: &Canvas) {
+        canvas.save_camera_state(&self.map.get_name());
     }
 }
 
