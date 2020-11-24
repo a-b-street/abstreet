@@ -11,9 +11,15 @@
 <span id="8"> 8</span>
 <span id="9"> 9</span>
 <span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">isochrone</span>;
 <span class="kw">mod</span> <span class="ident">viewer</span>;
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;15-minute neighborhoods&quot;</span>), <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
