@@ -4,9 +4,8 @@ use sim::{CarID, DrawCarInput};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender};
 
 use crate::colors::ColorScheme;
-use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 pub struct DrawBike {
     pub id: CarID,

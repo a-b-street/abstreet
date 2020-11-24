@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::Polygon;
-pub use map_gui::common::{ColorDiscrete, ColorLegend, ColorNetwork, DivergingScale};
+pub use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork, DivergingScale};
 use widgetry::{
     lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
     ScreenDims, ScreenPt, ScreenRectangle, Text, VerticalAlignment, Widget,

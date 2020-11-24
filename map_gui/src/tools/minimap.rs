@@ -5,7 +5,7 @@ use widgetry::{
     ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
 };
 
-use crate::common::Navigator;
+use crate::tools::Navigator;
 use crate::SimpleApp;
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
@@ -86,7 +86,8 @@ impl SimpleMinimap {
                 Widget::custom_col(col).padding(10).bg(app.cs.inner_panel),
                 Widget::col(vec![
                     Line("Z-order:").small().draw(ctx),
-                    Spinner::new(ctx, app.draw_map.zorder_range, app.show_zorder).named("zorder"),
+                    Spinner::new(ctx, app.draw_map.zorder_range, app.draw_map.show_zorder)
+                        .named("zorder"),
                 ])
                 .margin_above(10),
             ])
@@ -258,7 +259,7 @@ impl SimpleMinimap {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                app.show_zorder = self.panel.spinner("zorder");
+                app.draw_map.show_zorder = self.panel.spinner("zorder");
                 self.recreate_panel(ctx, app);
             }
             _ => {}

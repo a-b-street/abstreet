@@ -8,7 +8,6 @@ use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, Park
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 use crate::colors::ColorScheme;
-use crate::helpers::ID;
 use crate::options::Options;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
@@ -17,7 +16,7 @@ use crate::render::lane::DrawLane;
 use crate::render::parking_lot::DrawParkingLot;
 use crate::render::road::DrawRoad;
 use crate::render::{AgentCache, DrawArea, Renderable};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,
@@ -37,6 +36,7 @@ pub struct DrawMap {
     pub draw_all_areas: Drawable,
 
     pub zorder_range: (isize, isize),
+    pub show_zorder: isize,
 
     quadtree: QuadTree<ID>,
 }
@@ -189,6 +189,7 @@ impl DrawMap {
             quadtree,
 
             zorder_range: (low_z, high_z),
+            show_zorder: high_z,
         }
     }
 
@@ -326,12 +327,7 @@ impl DrawMap {
     }
 
     /// A simple variation of the one in game that shows all layers, ignores dynamic agents.
-    pub fn get_renderables_back_to_front(
-        &self,
-        bounds: Bounds,
-        show_zorder: isize,
-        map: &Map,
-    ) -> Vec<&dyn Renderable> {
+    pub fn get_renderables_back_to_front(&self, bounds: Bounds, map: &Map) -> Vec<&dyn Renderable> {
         let mut areas: Vec<&dyn Renderable> = Vec::new();
         let mut parking_lots: Vec<&dyn Renderable> = Vec::new();
         let mut lanes: Vec<&dyn Renderable> = Vec::new();
@@ -376,7 +372,7 @@ impl DrawMap {
         borrows.extend(buildings);
         borrows.extend(bus_stops);
 
-        borrows.retain(|x| x.get_zorder() <= show_zorder);
+        borrows.retain(|x| x.get_zorder() <= self.show_zorder);
 
         // This is a stable sort.
         borrows.sort_by_key(|x| x.get_zorder());

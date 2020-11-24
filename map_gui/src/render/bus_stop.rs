@@ -3,9 +3,8 @@ use map_model::{BusStop, BusStopID, Map};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
 use crate::colors::ColorScheme;
-use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 const RADIUS: Distance = Distance::const_meters(1.0);
 

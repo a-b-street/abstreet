@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
-use map_gui::common::{make_heatmap, HeatmapOptions};
+use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,

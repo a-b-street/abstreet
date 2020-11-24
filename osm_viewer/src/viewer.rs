@@ -2,13 +2,12 @@ use std::collections::BTreeSet;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
-use map_gui::common::{CityPicker, Navigator, SimpleMinimap};
-use map_gui::game::PopupMsg;
-use map_gui::helpers::{nice_map_name, open_browser, ID};
-use map_gui::misc_tools::TurnExplorer;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use map_gui::SimpleApp;
+use map_gui::tools::{
+    nice_map_name, open_browser, CityPicker, Navigator, PopupMsg, SimpleMinimap, TurnExplorer,
+};
+use map_gui::{SimpleApp, ID};
 use map_model::osm;
 use widgetry::{
     lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,

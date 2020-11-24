@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use maplit::btreeset;
 
-use map_gui::common::CityPicker;
+use map_gui::tools::CityPicker;
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,

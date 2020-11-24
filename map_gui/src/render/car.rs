@@ -4,9 +4,8 @@ use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
 use crate::colors::ColorScheme;
-use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 const CAR_WIDTH: Distance = Distance::const_meters(1.75);
 

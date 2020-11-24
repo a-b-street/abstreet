@@ -8,11 +8,10 @@ use map_model::{
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, RewriteColor};
 
 use crate::colors::ColorScheme;
-use crate::helpers::ID;
 use crate::render::{
     traffic_signal, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
-use crate::AppLike;
+use crate::{AppLike, ID};
 
 pub struct DrawIntersection {
     pub id: IntersectionID,

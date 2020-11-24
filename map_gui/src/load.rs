@@ -6,7 +6,7 @@ use serde::de::DeserializeOwned;
 use abstutil::{MapName, Timer};
 use widgetry::{Color, EventCtx, GfxCtx, State, Transition};
 
-use crate::game::PopupMsg;
+use crate::tools::PopupMsg;
 use crate::AppLike;
 
 #[cfg(not(target_arch = "wasm32"))]

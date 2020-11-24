@@ -401,7 +401,7 @@ impl App {
             }
         }
 
-        borrows.retain(|x| x.get_zorder() <= self.primary.show_zorder);
+        borrows.retain(|x| x.get_zorder() <= self.primary.draw_map.show_zorder);
 
         // This is a stable sort.
         borrows.sort_by_key(|x| x.get_zorder());
@@ -561,7 +561,6 @@ pub struct PerMap {
     pub current_flags: Flags,
     pub last_warped_from: Option<(Pt2D, f64)>,
     pub sim_cb: Option<Box<dyn SimCallback>>,
-    pub show_zorder: isize,
     /// If we ever left edit mode and resumed without restarting from midnight, this is true.
     pub dirty_from_edits: bool,
     /// Any ScenarioModifiers in effect?
@@ -602,7 +601,6 @@ impl PerMap {
 
         let per_map = PerMap {
             map,
-            show_zorder: draw_map.zorder_range.1,
             draw_map,
             sim,
             agents: RefCell::new(AgentCache::new(cs)),

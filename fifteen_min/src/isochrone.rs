@@ -2,8 +2,7 @@ use std::collections::HashMap;
 
 use abstutil::MultiMap;
 use geom::{Duration, Polygon};
-use map_gui::common::Grid;
-use map_gui::helpers::amenity_type;
+use map_gui::tools::{amenity_type, Grid};
 use map_gui::SimpleApp;
 use map_model::{connectivity, BuildingID, PathConstraints};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};

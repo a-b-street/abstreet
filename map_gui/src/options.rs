@@ -6,11 +6,12 @@ use widgetry::{
 };
 
 use crate::colors::ColorSchemeChoice;
-use crate::helpers::grey_out_map;
 use crate::render::DrawBuilding;
+use crate::tools::grey_out_map;
 use crate::AppLike;
 
-/// Options controlling the UI.
+/// Options controlling the UI. Some of the options are common to all map-based apps, and some are
+/// specific to A/B Street.
 // TODO SimOptions stuff too
 #[derive(Clone)]
 pub struct Options {

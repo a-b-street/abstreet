@@ -1,7 +1,8 @@
 use std::collections::BTreeSet;
 
 use geom::Duration;
-pub use map_gui::helpers::{amenity_type, grey_out_map, nice_map_name, open_browser, ID};
+pub use map_gui::tools::{amenity_type, grey_out_map, nice_map_name, open_browser};
+pub use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{Btn, Checkbox, Color, EventCtx, Key, Line, Text, TextSpan, Widget};
