@@ -8,8 +8,8 @@ use widgetry::{
     State, VerticalAlignment, Widget,
 };
 
+use crate::app::Transition;
 use crate::app::{App, ShowEverything};
-use crate::game::Transition;
 
 pub struct ClusterTrafficSignalEditor {
     panel: Panel,

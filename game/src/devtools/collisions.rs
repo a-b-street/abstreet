@@ -7,8 +7,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::ColorNetwork;
-use crate::game::Transition;
 use crate::helpers::ID;
 
 pub struct CollisionsViewer {

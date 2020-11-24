@@ -2,16 +2,15 @@ use std::collections::BTreeSet;
 
 use maplit::btreeset;
 
-use map_gui::tools::CityPicker;
+use map_gui::tools::{ChooseSomething, CityPicker, PopupMsg};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     Slider, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::edit::EditMode;
-use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::{checkbox_per_mode, grey_out_map, nice_map_name};
 use crate::sandbox::gameplay::freeform::make_change_traffic;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};

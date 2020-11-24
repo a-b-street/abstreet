@@ -7,8 +7,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::ColorDiscrete;
-use crate::game::Transition;
 
 pub struct Floodfiller {
     panel: Panel,

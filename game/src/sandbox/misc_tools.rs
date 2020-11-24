@@ -9,8 +9,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::CommonState;
-use crate::game::Transition;
 use crate::helpers::ID;
 
 /// Draws a preview of the path for the agent under the mouse cursor.

@@ -10,9 +10,9 @@ use widgetry::{
     Line, Outcome, Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
+use crate::app::Transition;
 use crate::app::{App, ShowEverything};
 use crate::common::CommonState;
-use crate::game::Transition;
 use crate::helpers::ID;
 
 pub struct TrafficSignalDemand {

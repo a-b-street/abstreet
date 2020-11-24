@@ -5,8 +5,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::CommonState;
-use crate::game::Transition;
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 // Localized and internal, so don't put in ColorScheme.

@@ -14,10 +14,10 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::Warping;
 use crate::debug::path_counter::PathCounter;
 use crate::edit::{EditMode, RouteEditor};
-use crate::game::Transition;
 use crate::helpers::{color_for_agent_type, hotkey_btn, open_browser, ID};
 use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
 

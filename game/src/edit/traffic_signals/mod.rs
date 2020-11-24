@@ -4,6 +4,7 @@ use abstutil::Timer;
 use geom::{Distance, Duration, Line, Polygon, Pt2D};
 use map_gui::options::TrafficSignalStyle;
 use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
+use map_gui::tools::PopupMsg;
 use map_model::{
     ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
     TurnPriority,
@@ -14,10 +15,9 @@ use widgetry::{
     Widget,
 };
 
-use crate::app::{App, ShowEverything};
+use crate::app::{App, ShowEverything, Transition};
 use crate::common::{CommonState, Warping};
 use crate::edit::{apply_map_edits, ConfirmDiscard};
-use crate::game::{PopupMsg, Transition};
 use crate::sandbox::GameplayMode;
 
 mod edits;

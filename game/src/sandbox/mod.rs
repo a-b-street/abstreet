@@ -6,7 +6,7 @@ pub use time_warp::TimeWarpScreen;
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::load::{FileLoader, MapLoader};
-use map_gui::tools::TurnExplorer;
+use map_gui::tools::{ChooseSomething, PopupMsg, TurnExplorer};
 use map_gui::AppLike;
 use sim::{Analytics, Scenario};
 use widgetry::{
@@ -15,13 +15,12 @@ use widgetry::{
 };
 
 use self::misc_tools::{RoutePreview, TrafficRecorder};
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState, ContextualActions, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
 };
-use crate::game::{ChooseSomething, PopupMsg, Transition};
 use crate::helpers::ID;
 use crate::layer::PickLayer;
 use crate::pregame::MainMenu;

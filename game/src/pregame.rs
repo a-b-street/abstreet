@@ -7,6 +7,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::{Duration, Line, Percent, Pt2D, Speed};
 use map_gui::load::MapLoader;
+use map_gui::tools::PopupMsg;
 use map_model::PermanentMapEdits;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
@@ -14,11 +15,10 @@ use widgetry::{
     State, Text, UpdateType, Widget,
 };
 
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::challenges::ChallengesPicker;
 use crate::devtools::DevToolsMode;
 use crate::edit::apply_map_edits;
-use crate::game::{PopupMsg, Transition};
 use crate::helpers::open_browser;
 use crate::sandbox::gameplay::Tutorial;
 use crate::sandbox::{GameplayMode, SandboxMode};

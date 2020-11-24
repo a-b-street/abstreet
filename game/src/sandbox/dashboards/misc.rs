@@ -7,8 +7,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::Tab;
-use crate::game::Transition;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 

@@ -20,6 +20,9 @@ use crate::helpers::ID;
 use crate::layer::Layer;
 use crate::sandbox::{GameplayMode, TutorialState};
 
+// Convenient typedef
+pub type Transition = widgetry::Transition<App>;
+
 /// The top-level data that lasts through the entire game, no matter what state the game is in.
 pub struct App {
     // Naming is from older days when there was an A/B test, "side-by-side" mode. Keeping this

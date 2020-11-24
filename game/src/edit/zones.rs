@@ -11,11 +11,11 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::ColorDiscrete;
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::edit::select::RoadSelector;
-use crate::game::Transition;
 use crate::helpers::{checkbox_per_mode, intersections_from_roads};
 
 pub struct ZoneEditor {

@@ -5,6 +5,7 @@ use geom::{Distance, Pt2D};
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawOptions};
+use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
 use sim::{AgentID, Sim};
 use widgetry::{
@@ -13,9 +14,8 @@ use widgetry::{
     Widget,
 };
 
-use crate::app::{App, ShowLayers, ShowObject};
+use crate::app::{App, ShowLayers, ShowObject, Transition};
 use crate::common::{tool_panel, CommonState, ContextualActions};
-use crate::game::{ChooseSomething, PopupMsg, PromptInput, Transition};
 use crate::helpers::ID;
 use crate::sandbox::GameplayMode;
 

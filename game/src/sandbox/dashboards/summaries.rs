@@ -4,14 +4,14 @@ use std::io::Write;
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
+use map_gui::tools::PopupMsg;
 use sim::TripMode;
 use widgetry::{
     Btn, Checkbox, Choice, Color, CompareTimes, DrawBaselayer, DrawWithTooltips, EventCtx,
     GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
 
-use crate::app::App;
-use crate::game::{PopupMsg, Transition};
+use crate::app::{App, Transition};
 use crate::helpers::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
 

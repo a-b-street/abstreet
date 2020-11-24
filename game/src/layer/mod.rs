@@ -4,7 +4,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::game::Transition;
+use crate::app::Transition;
 use crate::helpers::{grey_out_map, hotkey_btn};
 use crate::sandbox::dashboards;
 

@@ -8,8 +8,8 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::common::CommonState;
-use crate::game::Transition;
 
 /// Visualize the graph of what agents are blocked by others.
 pub struct Viewer {

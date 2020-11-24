@@ -1,15 +1,15 @@
 use std::collections::BTreeMap;
 
 use geom::Pt2D;
+use map_gui::tools::PopupMsg;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, ParkingLotID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use widgetry::{
     Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Warper, Widget,
 };
 
-use crate::app::{App, PerMap};
+use crate::app::{App, PerMap, Transition};
 use crate::common::Tab;
-use crate::game::{PopupMsg, Transition};
 use crate::helpers::{grey_out_map, ID};
 use crate::info::OpenTrip;
 use crate::sandbox::SandboxMode;

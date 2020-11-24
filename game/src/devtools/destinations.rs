@@ -8,7 +8,7 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::game::Transition;
+use crate::app::Transition;
 use crate::helpers::{amenity_type, ID};
 
 pub struct PopularDestinations {

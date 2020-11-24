@@ -8,11 +8,11 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::app::Transition;
 use crate::challenges::{Challenge, HighScore};
 use crate::common::Tab;
 use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
-use crate::game::Transition;
 use crate::helpers::cmp_duration_shorter;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls};

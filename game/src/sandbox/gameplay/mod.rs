@@ -12,9 +12,9 @@ use widgetry::{
 pub use self::freeform::spawn_agents_around;
 pub use self::tutorial::{Tutorial, TutorialPointer, TutorialState};
 use crate::app::App;
+use crate::app::Transition;
 use crate::challenges::{Challenge, ChallengesPicker};
 use crate::edit::SaveEdits;
-use crate::game::Transition;
 use crate::pregame::MainMenu;
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
