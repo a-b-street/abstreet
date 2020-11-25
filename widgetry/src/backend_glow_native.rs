@@ -14,11 +14,12 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
     let context = glutin::ContextBuilder::new()
         .with_multisampling(4)
         .with_depth_buffer(2)
-        .build_windowed(window.clone(), &event_loop).map_err(|err| {
+        .build_windowed(window.clone(), &event_loop)
+        .or_else(|err| {
             warn!("Trying default graphics context after standard graphics context failed with error: {:?}",  err);
             glutin::ContextBuilder::new().build_windowed(window.clone(), &event_loop)
-    })
-        .map_err(|err| {
+        })
+        .or_else(|err| {
             warn!("Trying graphics context with vsync after default graphics context failed with error: {:?}", err);
             glutin::ContextBuilder::new()
                 .with_vsync(true)
@@ -39,7 +40,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
             include_str!("shaders/vertex_140.glsl"),
             include_str!("shaders/fragment_140.glsl"),
         )
-        .map_err(|err| {
+        .or_else(|err| {
             warn!(
                 "unable to compile default shaderrs, falling back to v300. error: {:?}",
                 err
