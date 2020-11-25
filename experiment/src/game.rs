@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use geom::{Circle, Distance, Pt2D, Speed};
 use map_gui::tools::{nice_map_name, CityPicker};
-use map_gui::{SimpleApp, ID};
+use map_gui::{Cached, SimpleApp, ID};
 use map_model::{BuildingID, BuildingType};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -17,8 +17,7 @@ pub struct Game {
 
     sleigh: Pt2D,
     score: Score,
-    // TODO That Cached thing would be nice here
-    over_bldg: Option<(BuildingID, Drawable)>,
+    over_bldg: Cached<BuildingID, OverBldg>,
 }
 
 impl Game {
@@ -56,24 +55,8 @@ impl Game {
 
             sleigh,
             score: Score::new(ctx, app),
-            over_bldg: None,
+            over_bldg: Cached::new(),
         })
-    }
-
-    fn over_bldg(&self, app: &SimpleApp) -> Option<BuildingID> {
-        for id in app
-            .draw_map
-            .get_matching_objects(Circle::new(self.sleigh, Distance::meters(3.0)).get_bounds())
-        {
-            if let ID::Building(b) = id {
-                if app.map.get_b(b).polygon.contains_pt(self.sleigh) {
-                    if let Some(BldgState::Undelivered(_)) = self.score.houses.get(&b) {
-                        return Some(b);
-                    }
-                }
-            }
-        }
-        None
     }
 
     fn update_panel(&mut self, ctx: &mut EventCtx) {
@@ -92,30 +75,16 @@ impl State<SimpleApp> for Game {
             self.sleigh = self.sleigh.offset(dx, dy);
             ctx.canvas.center_on_map_pt(self.sleigh);
 
-            if let Some(b) = self.over_bldg(app) {
-                if self
-                    .over_bldg
-                    .as_ref()
-                    .map(|(id, _)| *id != b)
-                    .unwrap_or(true)
-                {
-                    self.over_bldg = Some((
-                        b,
-                        ctx.upload(GeomBatch::from(vec![(
-                            Color::YELLOW,
-                            app.map.get_b(b).polygon.clone(),
-                        )])),
-                    ));
-                }
-            } else {
-                self.over_bldg = None;
-            }
+            self.over_bldg
+                .update(OverBldg::key(app, self.sleigh, &self.score), |key| {
+                    OverBldg::value(ctx, app, key)
+                });
         }
 
-        if let Some((b, _)) = &self.over_bldg {
+        if let Some(b) = self.over_bldg.key() {
             if ctx.input.pressed(Key::Space) {
-                if self.score.present_dropped(ctx, app, *b) {
-                    self.over_bldg = None;
+                if self.score.present_dropped(ctx, app, b) {
+                    self.over_bldg.clear();
                     self.update_panel(ctx);
                 }
             }
@@ -159,8 +128,8 @@ impl State<SimpleApp> for Game {
 
         g.redraw(&self.score.draw_scores);
         g.redraw(&self.score.draw_done);
-        if let Some((_, ref draw)) = self.over_bldg {
-            g.redraw(draw);
+        if let Some(draw) = self.over_bldg.value() {
+            g.redraw(&draw.0);
         }
         g.draw_polygon(
             Color::RED,
@@ -227,4 +196,31 @@ enum BldgState {
     // The score ready to claim
     Undelivered(usize),
     Done,
+}
+
+struct OverBldg(Drawable);
+
+impl OverBldg {
+    fn key(app: &SimpleApp, sleigh: Pt2D, score: &Score) -> Option<BuildingID> {
+        for id in app
+            .draw_map
+            .get_matching_objects(Circle::new(sleigh, Distance::meters(3.0)).get_bounds())
+        {
+            if let ID::Building(b) = id {
+                if app.map.get_b(b).polygon.contains_pt(sleigh) {
+                    if let Some(BldgState::Undelivered(_)) = score.houses.get(&b) {
+                        return Some(b);
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    fn value(ctx: &mut EventCtx, app: &SimpleApp, key: BuildingID) -> OverBldg {
+        OverBldg(ctx.upload(GeomBatch::from(vec![(
+            Color::YELLOW,
+            app.map.get_b(key).polygon.clone(),
+        )])))
+    }
 }
