@@ -1594,42 +1594,6 @@
 <span id="1591">1591</span>
 <span id="1592">1592</span>
 <span id="1593">1593</span>
-<span id="1594">1594</span>
-<span id="1595">1595</span>
-<span id="1596">1596</span>
-<span id="1597">1597</span>
-<span id="1598">1598</span>
-<span id="1599">1599</span>
-<span id="1600">1600</span>
-<span id="1601">1601</span>
-<span id="1602">1602</span>
-<span id="1603">1603</span>
-<span id="1604">1604</span>
-<span id="1605">1605</span>
-<span id="1606">1606</span>
-<span id="1607">1607</span>
-<span id="1608">1608</span>
-<span id="1609">1609</span>
-<span id="1610">1610</span>
-<span id="1611">1611</span>
-<span id="1612">1612</span>
-<span id="1613">1613</span>
-<span id="1614">1614</span>
-<span id="1615">1615</span>
-<span id="1616">1616</span>
-<span id="1617">1617</span>
-<span id="1618">1618</span>
-<span id="1619">1619</span>
-<span id="1620">1620</span>
-<span id="1621">1621</span>
-<span id="1622">1622</span>
-<span id="1623">1623</span>
-<span id="1624">1624</span>
-<span id="1625">1625</span>
-<span id="1626">1626</span>
-<span id="1627">1627</span>
-<span id="1628">1628</span>
-<span id="1629">1629</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -1645,8 +1609,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">DrivingGoal</span>,
     <span class="ident">Event</span>, <span class="ident">IndividTrip</span>, <span class="ident">OrigPersonID</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>,
-    <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>,
-    <span class="ident">TripPhaseType</span>, <span class="ident">TripPurpose</span>, <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>,
+    <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>,
+    <span class="ident">TripPurpose</span>, <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>,
 };
 
 <span class="doccomment">/// Manages people, each of which executes some trips through the day. Each trip is further broken</span>
@@ -2119,16 +2083,13 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         };
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">trip</span>.<span class="ident">spawn_ped</span>(
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">id</span>;
+        <span class="self">self</span>.<span class="ident">spawn_ped</span>(
             <span class="ident">now</span>,
+            <span class="ident">id</span>,
             <span class="ident">SidewalkSpot</span>::<span class="ident">parking_spot</span>(<span class="ident">spot</span>, <span class="ident">ctx</span>.<span class="ident">map</span>, <span class="ident">ctx</span>.<span class="ident">parking</span>),
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">people</span>[<span class="ident">trip</span>.<span class="ident">person</span>.<span class="number">0</span>],
-            <span class="ident">ctx</span>.<span class="ident">map</span>,
-            <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>,
-        ) {
-            <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        }
+            <span class="ident">ctx</span>,
+        );
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ped_reached_parking_spot</span>(
@@ -2313,8 +2274,7 @@
         <span class="ident">bike_rack</span>: <span class="ident">SidewalkSpot</span>,
         <span class="ident">blocked_time</span>: <span class="ident">Duration</span>,
         <span class="ident">distance_crossed</span>: <span class="ident">Distance</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>,
     ) {
         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">BikeStoppedAtSidewalk</span>(
             <span class="ident">bike</span>,
@@ -2331,16 +2291,8 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         };
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">trip</span>.<span class="ident">spawn_ped</span>(
-            <span class="ident">now</span>,
-            <span class="ident">bike_rack</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">people</span>[<span class="ident">trip</span>.<span class="ident">person</span>.<span class="number">0</span>],
-            <span class="ident">map</span>,
-            <span class="ident">scheduler</span>,
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>,
-        ) {
-            <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        }
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">id</span>;
+        <span class="self">self</span>.<span class="ident">spawn_ped</span>(<span class="ident">now</span>, <span class="ident">id</span>, <span class="ident">bike_rack</span>, <span class="ident">ctx</span>);
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ped_reached_building</span>(
@@ -2465,16 +2417,8 @@
         };
         <span class="self">self</span>.<span class="ident">people</span>[<span class="ident">person</span>.<span class="number">0</span>].<span class="ident">on_bus</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">trip</span>.<span class="ident">spawn_ped</span>(
-            <span class="ident">now</span>,
-            <span class="ident">start</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">people</span>[<span class="ident">trip</span>.<span class="ident">person</span>.<span class="number">0</span>],
-            <span class="ident">ctx</span>.<span class="ident">map</span>,
-            <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>,
-        ) {
-            <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        }
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">id</span>;
+        <span class="self">self</span>.<span class="ident">spawn_ped</span>(<span class="ident">now</span>, <span class="ident">id</span>, <span class="ident">start</span>, <span class="ident">ctx</span>);
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ped_reached_border</span>(
@@ -2609,6 +2553,39 @@
             ));
         }
         <span class="self">self</span>.<span class="ident">start_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">spec</span>, <span class="ident">ctx</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">spawn_ped</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">id</span>: <span class="ident">TripID</span>, <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>) {
+        <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>];
+        <span class="kw">let</span> <span class="ident">walk_to</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">legs</span>[<span class="number">0</span>] {
+            <span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="kw-2">ref</span> <span class="ident">to</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to</span>.<span class="ident">clone</span>(),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        };
+
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
+            <span class="ident">start</span>: <span class="ident">start</span>.<span class="ident">sidewalk_pos</span>,
+            <span class="ident">end</span>: <span class="ident">walk_to</span>.<span class="ident">sidewalk_pos</span>,
+            <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+        };
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>()) {
+            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">people</span>[<span class="ident">trip</span>.<span class="ident">person</span>.<span class="number">0</span>];
+            <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
+                <span class="ident">now</span>,
+                <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="ident">CreatePedestrian</span> {
+                    <span class="ident">id</span>: <span class="ident">person</span>.<span class="ident">ped</span>,
+                    <span class="ident">speed</span>: <span class="ident">person</span>.<span class="ident">ped_speed</span>,
+                    <span class="ident">start</span>,
+                    <span class="ident">goal</span>: <span class="ident">walk_to</span>,
+                    <span class="ident">path</span>,
+                    <span class="ident">req</span>,
+                    <span class="ident">trip</span>: <span class="ident">id</span>,
+                    <span class="ident">person</span>: <span class="ident">person</span>.<span class="ident">id</span>,
+                }),
+            );
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">id</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no path for {}&quot;</span>, <span class="ident">req</span>), <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
+            <span class="kw">return</span>;
+        }
     }
 }
 
@@ -2980,55 +2957,6 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Trip</span> {
-    <span class="comment">// Returns true if this succeeds. If not, trip cancelled.</span>
-    <span class="kw">fn</span> <span class="ident">spawn_ped</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>,
-        <span class="ident">person</span>: <span class="kw-2">&amp;</span><span class="ident">Person</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
-        <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">walk_to</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">legs</span>[<span class="number">0</span>] {
-            <span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="kw-2">ref</span> <span class="ident">to</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to</span>.<span class="ident">clone</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-        };
-
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
-            <span class="ident">start</span>: <span class="ident">start</span>.<span class="ident">sidewalk_pos</span>,
-            <span class="ident">end</span>: <span class="ident">walk_to</span>.<span class="ident">sidewalk_pos</span>,
-            <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-        };
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>()) {
-            <span class="ident">p</span>
-        } <span class="kw">else</span> {
-            <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
-                <span class="ident">AlertLocation</span>::<span class="ident">Person</span>(<span class="self">self</span>.<span class="ident">person</span>),
-                <span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;Cancelling {} because no path for the walking portion! {:?} to {:?}&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">start</span>, <span class="ident">walk_to</span>
-                ),
-            ));
-            <span class="kw">return</span> <span class="bool-val">false</span>;
-        };
-
-        <span class="ident">scheduler</span>.<span class="ident">push</span>(
-            <span class="ident">now</span>,
-            <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="ident">CreatePedestrian</span> {
-                <span class="ident">id</span>: <span class="ident">person</span>.<span class="ident">ped</span>,
-                <span class="ident">speed</span>: <span class="ident">person</span>.<span class="ident">ped_speed</span>,
-                <span class="ident">start</span>,
-                <span class="ident">goal</span>: <span class="ident">walk_to</span>,
-                <span class="ident">path</span>,
-                <span class="ident">req</span>,
-                <span class="ident">trip</span>: <span class="self">self</span>.<span class="ident">id</span>,
-                <span class="ident">person</span>: <span class="self">self</span>.<span class="ident">person</span>,
-            }),
-        );
-        <span class="bool-val">true</span>
-    }
-
     <span class="kw">fn</span> <span class="ident">assert_walking_leg</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>) {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">legs</span>.<span class="ident">pop_front</span>() {
             <span class="prelude-val">Some</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">spot</span>)) <span class="op">=</span><span class="op">&gt;</span> {
