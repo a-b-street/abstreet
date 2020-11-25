@@ -704,9 +704,6 @@
 <span id="701">701</span>
 <span id="702">702</span>
 <span id="703">703</span>
-<span id="704">704</span>
-<span id="705">705</span>
-<span id="706">706</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -817,10 +814,7 @@
             <span class="ident">bldg_to_block</span>,
             <span class="ident">border_to_block</span>,
             <span class="ident">blocks</span>,
-            <span class="ident">current_block</span>: (
-                <span class="ident">BlockSelection</span>::<span class="ident">NothingSelected</span>,
-                <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">new</span>()),
-            ),
+            <span class="ident">current_block</span>: (<span class="ident">BlockSelection</span>::<span class="ident">NothingSelected</span>, <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>)),
             <span class="ident">trips_from_block</span>,
             <span class="ident">trips_to_block</span>,
             <span class="ident">filter</span>: <span class="ident">Filter</span> {

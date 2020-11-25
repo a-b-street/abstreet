@@ -561,6 +561,14 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
@@ -568,7 +576,7 @@
 <span class="kw">use</span> <span class="ident">glow</span>::<span class="ident">HasContext</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">drawing</span>::<span class="ident">Uniforms</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenRectangle</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenRectangle</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow_native</span>::<span class="ident">setup</span>;
@@ -670,7 +678,8 @@
     }
 }
 
-<span class="comment">// Something that&#39;s been sent to the GPU already.</span>
+<span class="doccomment">/// Geometry that&#39;s been uploaded to the GPU once and can be quickly redrawn many times. Create by</span>
+<span class="doccomment">/// creating a `GeomBatch` and calling `ctx.upload(batch)`.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Drawable</span> {
     <span class="ident">vert_array</span>: <span class="ident">VertexArray</span>,
     <span class="ident">vert_buffer</span>: <span class="ident">Buffer</span>,
@@ -685,6 +694,13 @@
         <span class="self">self</span>.<span class="ident">elem_buffer</span>.<span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
         <span class="self">self</span>.<span class="ident">vert_buffer</span>.<span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
         <span class="self">self</span>.<span class="ident">vert_array</span>.<span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Drawable</span> {
+    <span class="doccomment">/// This has no effect when drawn.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+        <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">new</span>())
     }
 }
 
