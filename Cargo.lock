@@ -712,6 +712,7 @@ dependencies = [
  "abstutil",
  "geom",
  "map_gui",
+ "map_model",
  "widgetry",
 ]
 

@@ -11,4 +11,5 @@ default = ["map_gui/native", "widgetry/native-backend"]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 map_gui = { path = "../map_gui" }
+map_model = { path = "../map_model" }
 widgetry = { path = "../widgetry" }

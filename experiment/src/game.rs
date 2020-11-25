@@ -1,19 +1,41 @@
-use geom::{Angle, Circle, Distance, Pt2D, Speed};
+use std::collections::HashMap;
+
+use geom::{Circle, Distance, Pt2D, Speed};
 use map_gui::tools::{nice_map_name, CityPicker};
-use map_gui::SimpleApp;
+use map_gui::{SimpleApp, ID};
+use map_model::{BuildingID, BuildingType};
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, Transition, UpdateType, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
 };
+
+use crate::controls::{Controller, InstantController, RotateController};
 
 pub struct Game {
     panel: Panel,
     controls: Box<dyn Controller>,
+
     sleigh: Pt2D,
+    score: Score,
+    // TODO That Cached thing would be nice here
+    over_bldg: Option<(BuildingID, Drawable)>,
 }
 
 impl Game {
     pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
+        // Start on a commerical building
+        let sleigh = app
+            .map
+            .all_buildings()
+            .into_iter()
+            .find(|b| match b.bldg_type {
+                BuildingType::Commercial(_) => true,
+                _ => false,
+            })
+            .map(|b| b.label_center)
+            .unwrap();
+        ctx.canvas.center_on_map_pt(sleigh);
+
         Box::new(Game {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -26,20 +48,78 @@ impl Game {
                     Some(nice_map_name(app.map.get_name())),
                 )
                 .build(ctx, "change map", lctrl(Key::L))]),
+                format!("Score: 0").draw_text(ctx).named("score"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             controls: Box::new(InstantController::new(Speed::miles_per_hour(30.0))),
-            sleigh: Pt2D::new(0.0, 0.0),
+
+            sleigh,
+            score: Score::new(ctx, app),
+            over_bldg: None,
         })
+    }
+
+    fn over_bldg(&self, app: &SimpleApp) -> Option<BuildingID> {
+        for id in app
+            .draw_map
+            .get_matching_objects(Circle::new(self.sleigh, Distance::meters(3.0)).get_bounds())
+        {
+            if let ID::Building(b) = id {
+                if app.map.get_b(b).polygon.contains_pt(self.sleigh) {
+                    if let Some(BldgState::Undelivered(_)) = self.score.houses.get(&b) {
+                        return Some(b);
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    fn update_panel(&mut self, ctx: &mut EventCtx) {
+        self.panel.replace(
+            ctx,
+            "score",
+            format!("Score: {}", abstutil::prettyprint_usize(self.score.score)).draw_text(ctx),
+        );
     }
 }
 
 impl State<SimpleApp> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
         let (dx, dy) = self.controls.displacement(ctx);
-        self.sleigh = self.sleigh.offset(dx, dy);
-        ctx.canvas.center_on_map_pt(self.sleigh);
+        if dx != 0.0 || dy != 0.0 {
+            self.sleigh = self.sleigh.offset(dx, dy);
+            ctx.canvas.center_on_map_pt(self.sleigh);
+
+            if let Some(b) = self.over_bldg(app) {
+                if self
+                    .over_bldg
+                    .as_ref()
+                    .map(|(id, _)| *id != b)
+                    .unwrap_or(true)
+                {
+                    self.over_bldg = Some((
+                        b,
+                        ctx.upload(GeomBatch::from(vec![(
+                            Color::YELLOW,
+                            app.map.get_b(b).polygon.clone(),
+                        )])),
+                    ));
+                }
+            } else {
+                self.over_bldg = None;
+            }
+        }
+
+        if let Some((b, _)) = &self.over_bldg {
+            if ctx.input.pressed(Key::Space) {
+                if self.score.present_dropped(ctx, app, *b) {
+                    self.over_bldg = None;
+                    self.update_panel(ctx);
+                }
+            }
+        }
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -77,6 +157,11 @@ impl State<SimpleApp> for Game {
     fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
         self.panel.draw(g);
 
+        g.redraw(&self.score.draw_scores);
+        g.redraw(&self.score.draw_done);
+        if let Some((_, ref draw)) = self.over_bldg {
+            g.redraw(draw);
+        }
         g.draw_polygon(
             Color::RED,
             Circle::new(self.sleigh, Distance::meters(5.0)).to_polygon(),
@@ -84,94 +169,62 @@ impl State<SimpleApp> for Game {
     }
 }
 
-trait Controller {
-    fn displacement(&mut self, ctx: &mut EventCtx) -> (f64, f64);
+struct Score {
+    score: usize,
+    houses: HashMap<BuildingID, BldgState>,
+    draw_scores: Drawable,
+    draw_done: Drawable,
 }
 
-struct InstantController {
-    speed: Speed,
-}
-
-impl InstantController {
-    fn new(speed: Speed) -> InstantController {
-        InstantController {
-            // TODO Hack
-            speed: 5.0 * speed,
-        }
-    }
-}
-
-impl Controller for InstantController {
-    fn displacement(&mut self, ctx: &mut EventCtx) -> (f64, f64) {
-        let mut dx = 0.0;
-        let mut dy = 0.0;
-
-        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            ctx.input.use_update_event();
-
-            let dist = (dt * self.speed).inner_meters();
-            if ctx.is_key_down(Key::LeftArrow) {
-                dx -= dist;
-            }
-            if ctx.is_key_down(Key::RightArrow) {
-                dx += dist;
-            }
-            if ctx.is_key_down(Key::UpArrow) {
-                dy -= dist;
-            }
-            if ctx.is_key_down(Key::DownArrow) {
-                dy += dist;
+impl Score {
+    fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Score {
+        let mut houses = HashMap::new();
+        let mut batch = GeomBatch::new();
+        for b in app.map.all_buildings() {
+            if let BuildingType::Residential(_) = b.bldg_type {
+                let score = b.id.0;
+                houses.insert(b.id, BldgState::Undelivered(score));
+                batch.append(
+                    Text::from(Line(format!("{}", score)))
+                        .render_to_batch(ctx.prerender)
+                        .scale(0.1)
+                        .centered_on(b.label_center),
+                );
             }
         }
 
-        (dx, dy)
-    }
-}
-
-struct RotateController {
-    angle: Angle,
-    rot_speed_degrees: f64,
-    fwd_speed: Speed,
-}
-
-impl RotateController {
-    fn new(fwd_speed: Speed) -> RotateController {
-        RotateController {
-            angle: Angle::ZERO,
-            rot_speed_degrees: 100.0,
-            // TODO Hack
-            fwd_speed: 5.0 * fwd_speed,
+        Score {
+            score: 0,
+            houses,
+            draw_scores: ctx.upload(batch),
+            draw_done: ctx.upload(GeomBatch::new()),
         }
     }
-}
 
-impl Controller for RotateController {
-    fn displacement(&mut self, ctx: &mut EventCtx) -> (f64, f64) {
-        let mut dx = 0.0;
-        let mut dy = 0.0;
-
-        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            ctx.input.use_update_event();
-
-            if ctx.is_key_down(Key::LeftArrow) {
-                self.angle = self
-                    .angle
-                    .rotate_degs(-self.rot_speed_degrees * dt.inner_seconds());
-            }
-            if ctx.is_key_down(Key::RightArrow) {
-                self.angle = self
-                    .angle
-                    .rotate_degs(self.rot_speed_degrees * dt.inner_seconds());
-            }
-
-            if ctx.is_key_down(Key::UpArrow) {
-                let dist = dt * self.fwd_speed;
-                let pt = Pt2D::new(0.0, 0.0).project_away(dist, self.angle);
-                dx = pt.x();
-                dy = pt.y();
+    fn redraw(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
+        let mut batch = GeomBatch::new();
+        for (b, state) in &self.houses {
+            if let BldgState::Done = state {
+                batch.push(Color::BLACK, app.map.get_b(*b).polygon.clone());
             }
         }
-
-        (dx, dy)
+        self.draw_done = ctx.upload(batch);
     }
+
+    // True if state change
+    fn present_dropped(&mut self, ctx: &mut EventCtx, app: &SimpleApp, id: BuildingID) -> bool {
+        if let Some(BldgState::Undelivered(score)) = self.houses.get(&id) {
+            self.score += score;
+            self.houses.insert(id, BldgState::Done);
+            self.redraw(ctx, app);
+            return true;
+        }
+        false
+    }
+}
+
+enum BldgState {
+    // The score ready to claim
+    Undelivered(usize),
+    Done,
 }

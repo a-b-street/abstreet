@@ -1,3 +1,4 @@
+mod controls;
 mod game;
 
 fn main() {
