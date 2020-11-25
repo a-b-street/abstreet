@@ -58,6 +58,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("seattle", "huge_seattle") => "Seattle (entire area)",
         ("seattle", "lakeslice") => "Lake Washington corridor",
         ("seattle", "montlake") => "Montlake and Eastlake",
+        ("seattle", "north_seattle") => "North Seattle",
         ("seattle", "south_seattle") => "South Seattle",
         ("seattle", "udistrict") => "University District",
         ("seattle", "west_seattle") => "West Seattle",
