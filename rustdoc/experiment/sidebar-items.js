@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""]],"mod":[["game",""]]});
+initSidebarItems({"fn":[["main",""]],"mod":[["controls",""],["game",""]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Game",""],["InstantController",""],["RotateController",""]],"trait":[["Controller",""]]});
+initSidebarItems({"enum":[["BldgState",""]],"struct":[["Game",""],["Score",""]]});
