@@ -550,8 +550,7 @@ impl DrivingSimState {
                             bike_rack,
                             car.total_blocked_time,
                             car.router.get_path().total_length(),
-                            ctx.map,
-                            ctx.scheduler,
+                            ctx,
                         );
                         false
                     }

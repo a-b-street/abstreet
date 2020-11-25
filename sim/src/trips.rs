@@ -12,8 +12,8 @@ use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
     Event, IndividTrip, OrigPersonID, ParkedCar, ParkingSim, ParkingSpot, PedestrianID, PersonID,
-    PersonSpec, Scenario, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID,
-    TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
+    PersonSpec, Scenario, SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripPhaseType,
+    TripPurpose, TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
 };
 
 /// Manages people, each of which executes some trips through the day. Each trip is further broken
@@ -486,16 +486,13 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        if !trip.spawn_ped(
+        let id = trip.id;
+        self.spawn_ped(
             now,
+            id,
             SidewalkSpot::parking_spot(spot, ctx.map, ctx.parking),
-            &self.people[trip.person.0],
-            ctx.map,
-            ctx.scheduler,
-            &mut self.events,
-        ) {
-            self.unfinished_trips -= 1;
-        }
+            ctx,
+        );
     }
 
     pub fn ped_reached_parking_spot(
@@ -680,8 +677,7 @@ impl TripManager {
         bike_rack: SidewalkSpot,
         blocked_time: Duration,
         distance_crossed: Distance,
-        map: &Map,
-        scheduler: &mut Scheduler,
+        ctx: &mut Ctx,
     ) {
         self.events.push(Event::BikeStoppedAtSidewalk(
             bike,
@@ -698,16 +694,8 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        if !trip.spawn_ped(
-            now,
-            bike_rack,
-            &self.people[trip.person.0],
-            map,
-            scheduler,
-            &mut self.events,
-        ) {
-            self.unfinished_trips -= 1;
-        }
+        let id = trip.id;
+        self.spawn_ped(now, id, bike_rack, ctx);
     }
 
     pub fn ped_reached_building(
@@ -832,16 +820,8 @@ impl TripManager {
         };
         self.people[person.0].on_bus.take().unwrap();
 
-        if !trip.spawn_ped(
-            now,
-            start,
-            &self.people[trip.person.0],
-            ctx.map,
-            ctx.scheduler,
-            &mut self.events,
-        ) {
-            self.unfinished_trips -= 1;
-        }
+        let id = trip.id;
+        self.spawn_ped(now, id, start, ctx);
     }
 
     pub fn ped_reached_border(
@@ -976,6 +956,39 @@ impl TripManager {
             ));
         }
         self.start_trip(now, trip, spec, ctx);
+    }
+
+    fn spawn_ped(&mut self, now: Time, id: TripID, start: SidewalkSpot, ctx: &mut Ctx) {
+        let trip = &self.trips[id.0];
+        let walk_to = match trip.legs[0] {
+            TripLeg::Walk(ref to) => to.clone(),
+            _ => unreachable!(),
+        };
+
+        let req = PathRequest {
+            start: start.sidewalk_pos,
+            end: walk_to.sidewalk_pos,
+            constraints: PathConstraints::Pedestrian,
+        };
+        if let Some(path) = ctx.map.pathfind(req.clone()) {
+            let person = &self.people[trip.person.0];
+            ctx.scheduler.push(
+                now,
+                Command::SpawnPed(CreatePedestrian {
+                    id: person.ped,
+                    speed: person.ped_speed,
+                    start,
+                    goal: walk_to,
+                    path,
+                    req,
+                    trip: id,
+                    person: person.id,
+                }),
+            );
+        } else {
+            self.cancel_trip(now, id, format!("no path for {}", req), None, ctx);
+            return;
+        }
     }
 }
 
@@ -1347,55 +1360,6 @@ pub struct TripInfo {
 }
 
 impl Trip {
-    // Returns true if this succeeds. If not, trip cancelled.
-    fn spawn_ped(
-        &self,
-        now: Time,
-        start: SidewalkSpot,
-        person: &Person,
-        map: &Map,
-        scheduler: &mut Scheduler,
-        events: &mut Vec<Event>,
-    ) -> bool {
-        let walk_to = match self.legs[0] {
-            TripLeg::Walk(ref to) => to.clone(),
-            _ => unreachable!(),
-        };
-
-        let req = PathRequest {
-            start: start.sidewalk_pos,
-            end: walk_to.sidewalk_pos,
-            constraints: PathConstraints::Pedestrian,
-        };
-        let path = if let Some(p) = map.pathfind(req.clone()) {
-            p
-        } else {
-            events.push(Event::Alert(
-                AlertLocation::Person(self.person),
-                format!(
-                    "Cancelling {} because no path for the walking portion! {:?} to {:?}",
-                    self.id, start, walk_to
-                ),
-            ));
-            return false;
-        };
-
-        scheduler.push(
-            now,
-            Command::SpawnPed(CreatePedestrian {
-                id: person.ped,
-                speed: person.ped_speed,
-                start,
-                goal: walk_to,
-                path,
-                req,
-                trip: self.id,
-                person: self.person,
-            }),
-        );
-        true
-    }
-
     fn assert_walking_leg(&mut self, goal: SidewalkSpot) {
         match self.legs.pop_front() {
             Some(TripLeg::Walk(spot)) => {
