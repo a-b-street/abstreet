@@ -9,9 +9,9 @@ use widgetry::{
 
 use crate::app::App;
 use crate::app::Transition;
+use crate::challenges::cutscene::{CutsceneBuilder, FYI};
 use crate::challenges::{Challenge, HighScore};
 use crate::common::cmp_duration_shorter;
-use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
 use crate::info::Tab;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};

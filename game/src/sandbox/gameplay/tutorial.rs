@@ -16,8 +16,8 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
+use crate::challenges::cutscene::CutsceneBuilder;
 use crate::common::{tool_panel, Minimap, Warping};
-use crate::cutscene::CutsceneBuilder;
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{

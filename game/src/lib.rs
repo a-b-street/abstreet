@@ -13,7 +13,6 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 mod app;
 mod challenges;
 mod common;
-mod cutscene;
 mod debug;
 mod devtools;
 mod edit;
@@ -24,7 +23,7 @@ mod sandbox;
 
 pub fn main(mut args: CmdArgs) {
     if args.enabled("--prebake") {
-        challenges::prebake_all();
+        challenges::prebake::prebake_all();
         return;
     }
     let mut flags = Flags {

@@ -8,9 +8,9 @@ use widgetry::{
 
 use crate::app::Transition;
 use crate::app::{App, FindDelayedIntersections};
+use crate::challenges::cutscene::{CutsceneBuilder, FYI};
 use crate::challenges::HighScore;
 use crate::common::Warping;
-use crate::cutscene::{CutsceneBuilder, FYI};
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};

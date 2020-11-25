@@ -1,9 +1,7 @@
 use std::collections::BTreeMap;
 
-use abstutil::{prettyprint_usize, MapName, Timer};
-use geom::{Duration, Percent, Time};
-use map_model::Map;
-use sim::{AlertHandler, OrigPersonID, Scenario, Sim, SimFlags, SimOptions};
+use geom::{Duration, Percent};
+use sim::OrigPersonID;
 use widgetry::{
     Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
     Widget,
@@ -12,7 +10,10 @@ use widgetry::{
 use crate::app::App;
 use crate::app::Transition;
 use crate::sandbox::gameplay::Tutorial;
-use crate::sandbox::{GameplayMode, SandboxMode, TutorialState};
+use crate::sandbox::{GameplayMode, SandboxMode};
+
+pub mod cutscene;
+pub mod prebake;
 
 // TODO Also have some kind of screenshot to display for each challenge
 pub struct Challenge {
@@ -290,82 +291,5 @@ impl State<App> for ChallengesPicker {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
-    }
-}
-
-pub fn prebake_all() {
-    let mut timer = Timer::new("prebake all challenge results");
-
-    {
-        let map = map_model::Map::new(MapName::seattle("montlake").path(), &mut timer);
-        let scenario: Scenario = abstutil::read_binary(
-            abstutil::path_scenario(map.get_name(), "weekday"),
-            &mut timer,
-        );
-        prebake(&map, scenario, None, &mut timer);
-
-        for generator in TutorialState::scenarios_to_prebake(&map) {
-            let scenario = generator.generate(
-                &map,
-                &mut SimFlags::for_test("prebaked").make_rng(),
-                &mut timer,
-            );
-            prebake(&map, scenario, None, &mut timer);
-        }
-    }
-
-    for name in vec![MapName::seattle("lakeslice")] {
-        let map = map_model::Map::new(name.path(), &mut timer);
-        let scenario: Scenario = abstutil::read_binary(
-            abstutil::path_scenario(map.get_name(), "weekday"),
-            &mut timer,
-        );
-        prebake(&map, scenario, None, &mut timer);
-    }
-}
-
-fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &mut Timer) {
-    timer.start(format!(
-        "prebake for {} / {}",
-        scenario.map_name.describe(),
-        scenario.scenario_name
-    ));
-
-    let mut opts = SimOptions::new("prebaked");
-    opts.alerts = AlertHandler::Silence;
-    let mut sim = Sim::new(&map, opts, timer);
-    // Bit of an abuse of this, but just need to fix the rng seed.
-    let mut rng = SimFlags::for_test("prebaked").make_rng();
-    scenario.instantiate(&mut sim, &map, &mut rng, timer);
-    if let Some(dt) = time_limit {
-        sim.timed_step(&map, dt, &mut None, timer);
-    } else {
-        sim.timed_step(
-            &map,
-            sim.get_end_of_day() - Time::START_OF_DAY,
-            &mut None,
-            timer,
-        );
-    }
-
-    abstutil::write_binary(
-        abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
-        sim.get_analytics(),
-    );
-    let agents_left = sim.num_agents().sum();
-    timer.note(format!("{} agents left by end of day", agents_left));
-    timer.stop(format!(
-        "prebake for {} / {}",
-        scenario.map_name.describe(),
-        scenario.scenario_name
-    ));
-
-    // TODO Ah, it's people waiting on a bus that never spawned. Woops.
-    if agents_left > 500 && false {
-        panic!(
-            "{} agents left by end of day on {}; seems bad",
-            prettyprint_usize(agents_left),
-            scenario.map_name.describe()
-        );
     }
 }
