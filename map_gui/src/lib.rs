@@ -6,7 +6,7 @@ use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, Park
 use sim::{AgentID, CarID, PedestrianID, Sim};
 use widgetry::{EventCtx, GfxCtx, State};
 
-pub use self::simple_app::SimpleApp;
+pub use self::simple_app::{Cacheable, Cached, SimpleApp};
 use crate::render::DrawOptions;
 use colors::{ColorScheme, ColorSchemeChoice};
 use options::Options;

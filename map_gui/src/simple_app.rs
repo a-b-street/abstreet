@@ -287,3 +287,60 @@ impl State<SimpleApp> for SimpleWarper {
 
     fn draw(&self, _: &mut GfxCtx, _: &SimpleApp) {}
 }
+
+/// Use to recalculate some Value only when the Key changes.
+pub trait Cacheable {
+    type Key: PartialEq + Clone;
+    type Value;
+    type Extra;
+
+    /// Compute the value for a given key. Also can plumb in some extra data if needed.
+    fn value(
+        ctx: &mut EventCtx,
+        app: &mut SimpleApp,
+        key: Self::Key,
+        extra: &Self::Extra,
+    ) -> Self::Value;
+}
+
+/// Store a cached key/value pair, only recalculating when the key changes.
+pub struct Cached<T: Cacheable> {
+    contents: Option<(T::Key, T::Value)>,
+}
+
+impl<T: Cacheable> Cached<T> {
+    pub fn new() -> Cached<T> {
+        Cached { contents: None }
+    }
+
+    /// Get the current key.
+    pub fn key(&self) -> Option<T::Key> {
+        self.contents.as_ref().map(|(k, _)| k.clone())
+    }
+
+    /// Get the current value.
+    pub fn value(&self) -> Option<&T::Value> {
+        self.contents.as_ref().map(|(_, v)| v)
+    }
+
+    /// Update the value if the key has changed.
+    pub fn update(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut SimpleApp,
+        key: Option<T::Key>,
+        extra: &T::Extra,
+    ) {
+        if let Some(new_key) = key {
+            if self.key() != Some(new_key.clone()) {
+                self.contents = Some((new_key.clone(), T::value(ctx, app, new_key, extra)));
+            }
+        } else {
+            self.contents = None;
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.contents = None;
+    }
+}

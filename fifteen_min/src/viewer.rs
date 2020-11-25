@@ -6,7 +6,7 @@
 
 use geom::{Distance, Pt2D};
 use map_gui::tools::{amenity_type, nice_map_name, CityPicker, PopupMsg};
-use map_gui::{SimpleApp, ID};
+use map_gui::{Cacheable, Cached, SimpleApp, ID};
 use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -21,14 +21,7 @@ pub struct Viewer {
     highlight_start: Drawable,
     isochrone: Isochrone,
 
-    hovering_on_bldg: Option<HoverOnBuilding>,
-}
-
-struct HoverOnBuilding {
-    id: BuildingID,
-    tooltip: Text,
-    drawn_route: Option<Drawable>,
-    scale_factor: f64,
+    hovering_on_bldg: Cached<HoverOnBuilding>,
 }
 
 impl Viewer {
@@ -54,7 +47,7 @@ impl Viewer {
             panel,
             highlight_start: highlight_start,
             isochrone,
-            hovering_on_bldg: None,
+            hovering_on_bldg: Cached::new(),
         })
     }
 }
@@ -65,68 +58,21 @@ impl State<SimpleApp> for Viewer {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
-            let scale_factor = if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
-                1.0
-            } else {
-                10.0
-            };
-            self.hovering_on_bldg = match app.mouseover_unzoomed_buildings(ctx) {
-                Some(ID::Building(hover_id)) => match self.hovering_on_bldg.take() {
-                    Some(previous_hover)
-                        if (previous_hover.id, previous_hover.scale_factor)
-                            == (hover_id, scale_factor) =>
-                    {
-                        Some(previous_hover)
-                    }
-                    _ => {
-                        debug!("drawing new hover");
-                        let drawn_route = self
-                            .isochrone
-                            .path_to(&app.map, hover_id)
-                            .and_then(|path| path.trace(&app.map, Distance::ZERO, None))
-                            .map(|polyline| {
-                                let dashed_lines = polyline.dashed_lines(
-                                    Distance::meters(0.75 * scale_factor),
-                                    Distance::meters(1.0 * scale_factor),
-                                    Distance::meters(0.4 * scale_factor),
-                                );
-                                let mut batch = GeomBatch::new();
-                                batch.extend(Color::BLACK, dashed_lines);
-                                ctx.prerender.upload(batch)
-                            });
-                        Some(HoverOnBuilding {
-                            id: hover_id,
-                            tooltip: if let Some(time) =
-                                self.isochrone.time_to_reach_building.get(&hover_id)
-                            {
-                                Text::from(Line(format!("{} away", time)))
-                            } else {
-                                Text::from(Line("This is more than 15 minutes away"))
-                            },
-                            scale_factor,
-                            drawn_route,
-                        })
-                    }
-                },
-                _ => None,
-            };
-
-            // Also update this to conveniently get an outline drawn
-            app.current_selection = self.hovering_on_bldg.as_ref().map(|h| ID::Building(h.id));
+            self.hovering_on_bldg
+                .update(ctx, app, HoverOnBuilding::key(ctx, app), &self.isochrone);
         }
 
         // Don't call normal_left_click unless we're hovering on something in map-space; otherwise
         // panel.event never sees clicks.
-        if let Some(ref hover) = self.hovering_on_bldg {
+        if let Some((hover_id, _)) = self.hovering_on_bldg.key() {
             if ctx.normal_left_click() {
-                debug!("selected new");
-                let start = app.map.get_b(hover.id);
+                let start = app.map.get_b(hover_id);
                 self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
                 self.highlight_start = draw_star(ctx, start.polygon.center());
                 self.panel = build_panel(ctx, app, start, &self.isochrone);
                 // Any previous hover is from the perspective of the old `highlight_start`.
                 // Remove it so we don't have a dotted line to the previous isochrone's origin
-                self.hovering_on_bldg = None;
+                self.hovering_on_bldg.clear();
             }
         }
 
@@ -207,11 +153,9 @@ impl State<SimpleApp> for Viewer {
         g.redraw(&self.isochrone.draw);
         g.redraw(&self.highlight_start);
         self.panel.draw(g);
-        if let Some(ref hover) = self.hovering_on_bldg {
+        if let Some(ref hover) = self.hovering_on_bldg.value() {
             g.draw_mouse_tooltip(hover.tooltip.clone());
-            if let Some(ref drawn_route) = hover.drawn_route {
-                g.redraw(drawn_route);
-            }
+            g.redraw(&hover.drawn_route);
         }
     }
 }
@@ -276,4 +220,67 @@ fn build_panel(
     Panel::new(Widget::col(rows))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx)
+}
+
+struct HoverOnBuilding {
+    tooltip: Text,
+    drawn_route: Drawable,
+}
+
+impl HoverOnBuilding {
+    fn key(ctx: &EventCtx, app: &SimpleApp) -> Option<(BuildingID, f64)> {
+        match app.mouseover_unzoomed_buildings(ctx) {
+            Some(ID::Building(b)) => {
+                let scale_factor = if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+                    1.0
+                } else {
+                    10.0
+                };
+                Some((b, scale_factor))
+            }
+            _ => None,
+        }
+    }
+}
+
+impl Cacheable for HoverOnBuilding {
+    /// (building, scale factor)
+    type Key = (BuildingID, f64);
+    type Value = HoverOnBuilding;
+    type Extra = Isochrone;
+
+    fn value(
+        ctx: &mut EventCtx,
+        app: &mut SimpleApp,
+        key: Self::Key,
+        isochrone: &Isochrone,
+    ) -> Self::Value {
+        debug!("Calculating route for {:?}", key);
+
+        let (hover_id, scale_factor) = key;
+        let mut batch = GeomBatch::new();
+        if let Some(polyline) = isochrone
+            .path_to(&app.map, hover_id)
+            .and_then(|path| path.trace(&app.map, Distance::ZERO, None))
+        {
+            let dashed_lines = polyline.dashed_lines(
+                Distance::meters(0.75 * scale_factor),
+                Distance::meters(1.0 * scale_factor),
+                Distance::meters(0.4 * scale_factor),
+            );
+            batch.extend(Color::BLACK, dashed_lines);
+        }
+
+        // Also update this to conveniently get an outline drawn
+        app.current_selection = Some(ID::Building(hover_id));
+
+        HoverOnBuilding {
+            tooltip: if let Some(time) = isochrone.time_to_reach_building.get(&hover_id) {
+                Text::from(Line(format!("{} away", time)))
+            } else {
+                Text::from(Line("This is more than 15 minutes away"))
+            },
+            drawn_route: ctx.upload(batch),
+        }
+    }
 }
