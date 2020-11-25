@@ -107,10 +107,7 @@ impl CommuterPatterns {
             bldg_to_block,
             border_to_block,
             blocks,
-            current_block: (
-                BlockSelection::NothingSelected,
-                ctx.upload(GeomBatch::new()),
-            ),
+            current_block: (BlockSelection::NothingSelected, Drawable::empty(ctx)),
             trips_from_block,
             trips_to_block,
             filter: Filter {

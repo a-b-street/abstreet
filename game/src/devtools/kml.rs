@@ -94,7 +94,7 @@ impl ViewKML {
                 objects,
                 quadtree,
                 selected: None,
-                draw_query: ctx.upload(GeomBatch::new()),
+                draw_query: Drawable::empty(ctx),
             })
         })
     }

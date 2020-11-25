@@ -1,6 +1,5 @@
 use glow::HasContext;
 
-pub use crate::backend_glow::Drawable;
 use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
 use crate::ScreenDims;
 

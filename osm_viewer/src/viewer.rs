@@ -388,7 +388,7 @@ impl BusinessSearch {
         let mut s = BusinessSearch {
             counts,
             show,
-            highlight: ctx.upload(GeomBatch::new()),
+            highlight: Drawable::empty(ctx),
             hovering_on_amenity: None,
         };
 

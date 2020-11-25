@@ -76,7 +76,7 @@ impl TrafficSignalEditor {
             current_stage: 0,
             movements: Vec::new(),
             movement_selected: None,
-            draw_current: ctx.upload(GeomBatch::new()),
+            draw_current: Drawable::empty(ctx),
             command_stack: Vec::new(),
             redo_stack: Vec::new(),
             warn_changed,

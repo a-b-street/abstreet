@@ -140,8 +140,8 @@ impl Occupancy {
                 lots: false,
                 private_bldgs: false,
                 looking_for_parking: false,
-                unzoomed: ctx.upload(GeomBatch::new()),
-                zoomed: ctx.upload(GeomBatch::new()),
+                unzoomed: Drawable::empty(ctx),
+                zoomed: Drawable::empty(ctx),
                 panel,
             };
         }

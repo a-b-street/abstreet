@@ -4,7 +4,7 @@ use std::rc::Rc;
 use glow::HasContext;
 
 use crate::drawing::Uniforms;
-use crate::{Canvas, Color, GeomBatch, ScreenDims, ScreenRectangle};
+use crate::{Canvas, Color, EventCtx, GeomBatch, ScreenDims, ScreenRectangle};
 
 #[cfg(feature = "native-backend")]
 pub use crate::backend_glow_native::setup;
@@ -106,7 +106,8 @@ impl<'a> GfxCtxInnards<'a> {
     }
 }
 
-// Something that's been sent to the GPU already.
+/// Geometry that's been uploaded to the GPU once and can be quickly redrawn many times. Create by
+/// creating a `GeomBatch` and calling `ctx.upload(batch)`.
 pub struct Drawable {
     vert_array: VertexArray,
     vert_buffer: Buffer,
@@ -121,6 +122,13 @@ impl Drop for Drawable {
         self.elem_buffer.destroy(&self.gl);
         self.vert_buffer.destroy(&self.gl);
         self.vert_array.destroy(&self.gl);
+    }
+}
+
+impl Drawable {
+    /// This has no effect when drawn.
+    pub fn empty(ctx: &EventCtx) -> Drawable {
+        ctx.upload(GeomBatch::new())
     }
 }
 

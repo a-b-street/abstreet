@@ -66,7 +66,7 @@ impl Slider {
 
             style,
 
-            draw: ctx.upload(GeomBatch::new()),
+            draw: Drawable::empty(ctx),
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),

@@ -1,9 +1,9 @@
 //! Generic UI tools. Some of this should perhaps be lifted to widgetry.
 
 use widgetry::{
-    hotkeys, Btn, Choice, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Menu, Outcome, Panel, ScreenRectangle, State, Text, Transition,
-    VerticalAlignment, Widget,
+    hotkeys, Btn, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key,
+    Line, Menu, Outcome, Panel, ScreenRectangle, State, Text, Transition, VerticalAlignment,
+    Widget,
 };
 
 use crate::tools::grey_out_map;
@@ -154,8 +154,8 @@ impl PopupMsg {
             ctx,
             title,
             lines,
-            ctx.upload(GeomBatch::new()),
-            ctx.upload(GeomBatch::new()),
+            Drawable::empty(ctx),
+            Drawable::empty(ctx),
         )
     }
 

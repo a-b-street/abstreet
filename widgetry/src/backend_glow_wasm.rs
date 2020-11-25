@@ -3,7 +3,6 @@ use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use winit::platform::web::WindowExtWebSys;
 
-pub use crate::backend_glow::Drawable;
 use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
 use crate::ScreenDims;
 

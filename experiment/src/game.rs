@@ -197,7 +197,7 @@ impl Score {
             score: 0,
             houses,
             draw_scores: ctx.upload(batch),
-            draw_done: ctx.upload(GeomBatch::new()),
+            draw_done: Drawable::empty(ctx),
         }
     }
 
