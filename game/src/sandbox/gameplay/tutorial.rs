@@ -7,8 +7,8 @@ use map_gui::ID;
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
 use sim::{
-    AgentID, Analytics, BorderSpawnOverTime, CarID, IndividTrip, PersonSpec, Scenario,
-    ScenarioGenerator, SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
+    AgentID, BorderSpawnOverTime, CarID, IndividTrip, PersonSpec, Scenario, ScenarioGenerator,
+    SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
 };
 use widgetry::{
     hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -50,7 +50,10 @@ impl TutorialPointer {
 }
 
 impl Tutorial {
+    /// Launches the tutorial gameplay along with its cutscene
     pub fn start(ctx: &mut EventCtx, app: &mut App) -> Transition {
+        Tutorial::initialize(ctx, app);
+
         Transition::Multi(vec![
             // Constructing the intro_story cutscene doesn't require the map/scenario to be loaded.
             Transition::Push(SandboxMode::simple_new(
@@ -68,19 +71,29 @@ impl Tutorial {
         ])
     }
 
-    pub fn new(
+    /// Idempotent. This must be called before `make_gameplay` or `scenario`.
+    pub fn initialize(ctx: &mut EventCtx, app: &mut App) {
+        if app.session.tutorial.is_none() {
+            app.session.tutorial = Some(TutorialState::new(ctx, app));
+        }
+    }
+
+    pub fn make_gameplay(
         ctx: &mut EventCtx,
         app: &mut App,
         current: TutorialPointer,
     ) -> Box<dyn GameplayState> {
-        if app.session.tutorial.is_none() {
-            app.session.tutorial = Some(TutorialState::new(ctx, app));
-        }
         let mut tut = app.session.tutorial.take().unwrap();
         tut.current = current;
         let state = tut.make_state(ctx, app);
         app.session.tutorial = Some(tut);
         state
+    }
+
+    pub fn scenario(app: &App, current: TutorialPointer) -> Option<ScenarioGenerator> {
+        app.session.tutorial.as_ref().unwrap().stages[current.stage]
+            .make_scenario
+            .clone()
     }
 
     fn inner_event(
@@ -538,7 +551,8 @@ struct Stage {
     )>,
     task: Task,
     warp_to: Option<(ID, f64)>,
-    spawn: Option<Box<dyn Fn(&mut App)>>,
+    custom_spawn: Option<Box<dyn Fn(&mut App)>>,
+    make_scenario: Option<ScenarioGenerator>,
 }
 
 fn arrow(pt: ScreenPt) -> Option<Box<dyn Fn(&GfxCtx, &App) -> Pt2D>> {
@@ -551,7 +565,8 @@ impl Stage {
             messages: Vec::new(),
             task,
             warp_to: None,
-            spawn: None,
+            custom_spawn: None,
+            make_scenario: None,
         }
     }
 
@@ -586,37 +601,16 @@ impl Stage {
         self
     }
 
-    fn spawn(mut self, cb: Box<dyn Fn(&mut App)>) -> Stage {
-        assert!(self.spawn.is_none());
-        self.spawn = Some(cb);
+    fn custom_spawn(mut self, cb: Box<dyn Fn(&mut App)>) -> Stage {
+        assert!(self.custom_spawn.is_none());
+        self.custom_spawn = Some(cb);
         self
     }
 
-    fn spawn_scenario(self, generator: ScenarioGenerator) -> Stage {
-        self.spawn(Box::new(move |app| {
-            let mut timer = Timer::new("spawn scenario with prebaked results");
-            let scenario = generator.generate(
-                &app.primary.map,
-                &mut app.primary.current_flags.sim_flags.make_rng(),
-                &mut timer,
-            );
-            scenario.instantiate(
-                &mut app.primary.sim,
-                &app.primary.map,
-                &mut app.primary.current_flags.sim_flags.make_rng(),
-                &mut timer,
-            );
-
-            let prebaked: Analytics = abstutil::read_binary(
-                abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
-                &mut timer,
-            );
-            app.set_prebaked(Some((
-                scenario.map_name.clone(),
-                scenario.scenario_name.clone(),
-                prebaked,
-            )));
-        }))
+    fn scenario(mut self, generator: ScenarioGenerator) -> Stage {
+        assert!(self.make_scenario.is_none());
+        self.make_scenario = Some(generator);
+        self
     }
 }
 
@@ -794,12 +788,13 @@ impl TutorialState {
             app.primary.current_selection = None;
         }
 
-        if let Some(ref cb) = self.stage().spawn {
+        if let Some(ref cb) = self.stage().custom_spawn {
             (cb)(app);
             app.primary
                 .sim
                 .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
         }
+        // If this stage has a scenario, it's instantiated when SandboxMode gets created.
 
         let last_finished_task = if self.current.stage == 0 {
             Task::Nil
@@ -1036,7 +1031,7 @@ impl TutorialState {
                     ID::Building(map.find_b_by_osm_id(bldg(217699780)).unwrap()),
                     Some(10.0),
                 )
-                .spawn(Box::new(move |app| {
+                .custom_spawn(Box::new(move |app| {
                     // Seed a specific target car, and fill up the target building's private
                     // parking to force the target to park on-street.
                     let map = &app.primary.map;
@@ -1153,33 +1148,20 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::LowParking)
                 // TODO Actually, we ideally just want a bunch of parked cars, not all these trips
-                .spawn(Box::new(|app| {
-                    ScenarioGenerator {
-                        scenario_name: "low parking".to_string(),
-                        only_seed_buses: Some(BTreeSet::new()),
-                        spawn_over_time: vec![SpawnOverTime {
-                            num_agents: 1000,
-                            start_time: Time::START_OF_DAY,
-                            stop_time: Time::START_OF_DAY + Duration::hours(3),
-                            goal: None,
-                            percent_driving: 1.0,
-                            percent_biking: 0.0,
-                            percent_use_transit: 0.0,
-                        }],
-                        border_spawn_over_time: Vec::new(),
-                    }
-                    .generate(
-                        &app.primary.map,
-                        &mut app.primary.current_flags.sim_flags.make_rng(),
-                        &mut Timer::throwaway(),
-                    )
-                    .instantiate(
-                        &mut app.primary.sim,
-                        &app.primary.map,
-                        &mut app.primary.current_flags.sim_flags.make_rng(),
-                        &mut Timer::throwaway(),
-                    )
-                }))
+                .scenario(ScenarioGenerator {
+                    scenario_name: "low parking".to_string(),
+                    only_seed_buses: Some(BTreeSet::new()),
+                    spawn_over_time: vec![SpawnOverTime {
+                        num_agents: 1000,
+                        start_time: Time::START_OF_DAY,
+                        stop_time: Time::START_OF_DAY + Duration::hours(3),
+                        goal: None,
+                        percent_driving: 1.0,
+                        percent_biking: 0.0,
+                        percent_use_transit: 0.0,
+                    }],
+                    border_spawn_over_time: Vec::new(),
+                })
                 .msg(
                     vec![
                         "What an immature prank. You should re-evaluate your life decisions.",
@@ -1216,7 +1198,7 @@ impl TutorialState {
         state.stages.push(
             Stage::new(Task::WatchBikes)
                 .warp_to(ID::Building(bike_lane_focus_pt), None)
-                .spawn_scenario(bike_lane_scenario.clone())
+                .scenario(bike_lane_scenario.clone())
                 .msg(
                     vec![
                         "Well done!",
@@ -1231,7 +1213,7 @@ impl TutorialState {
         let top_center = state.make_top_center(ctx, true);
         state.stages.push(
             Stage::new(Task::FixBikes)
-                .spawn_scenario(bike_lane_scenario)
+                .scenario(bike_lane_scenario)
                 .warp_to(ID::Building(bike_lane_focus_pt), None)
                 .msg(
                     vec![

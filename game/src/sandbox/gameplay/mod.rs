@@ -2,7 +2,7 @@ use rand_xorshift::XorShiftRng;
 
 use abstutil::{MapName, Timer};
 use geom::Duration;
-use map_model::{EditCmd, EditIntersection, Map, MapEdits};
+use map_model::{EditCmd, EditIntersection, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
     lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt,
@@ -94,7 +94,8 @@ impl GameplayMode {
         }
     }
 
-    pub fn scenario(&self, map: &Map, mut rng: XorShiftRng, timer: &mut Timer) -> LoadScenario {
+    pub fn scenario(&self, app: &App, mut rng: XorShiftRng, timer: &mut Timer) -> LoadScenario {
+        let map = &app.primary.map;
         let name = match self {
             GameplayMode::Freeform(_) => {
                 let mut s = Scenario::empty(map, "empty");
@@ -102,9 +103,13 @@ impl GameplayMode {
                 return LoadScenario::Scenario(s);
             }
             GameplayMode::PlayScenario(_, ref scenario, _) => scenario.to_string(),
-            // TODO Some of these WILL have scenarios!
-            GameplayMode::Tutorial(_) => {
-                return LoadScenario::Nothing;
+            GameplayMode::Tutorial(current) => {
+                return match Tutorial::scenario(app, *current) {
+                    Some(generator) => {
+                        LoadScenario::Scenario(generator.generate(map, &mut rng, timer))
+                    }
+                    None => LoadScenario::Nothing,
+                };
             }
             _ => "weekday".to_string(),
         };
@@ -175,7 +180,7 @@ impl GameplayMode {
             GameplayMode::OptimizeCommute(p, goal) => {
                 commute::OptimizeCommute::new(ctx, app, *p, *goal)
             }
-            GameplayMode::Tutorial(current) => Tutorial::new(ctx, app, *current),
+            GameplayMode::Tutorial(current) => Tutorial::make_gameplay(ctx, app, *current),
         }
     }
 }

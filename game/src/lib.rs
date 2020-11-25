@@ -47,6 +47,7 @@ pub fn main(mut args: CmdArgs) {
     settings.loading_tips(map_gui::tools::loading_tips());
 
     let mut mode = None;
+    let mut initialize_tutorial = false;
     if let Some(x) = args.optional("--challenge") {
         let mut aliases = Vec::new();
         'OUTER: for (_, stages) in challenges::Challenge::all() {
@@ -65,6 +66,7 @@ pub fn main(mut args: CmdArgs) {
         }
     }
     if let Some(n) = args.optional_parse("--tutorial", |s| s.parse::<usize>()) {
+        initialize_tutorial = true;
         mode = Some(sandbox::GameplayMode::Tutorial(
             sandbox::TutorialPointer::new(n - 1, 0),
         ));
@@ -86,7 +88,14 @@ pub fn main(mut args: CmdArgs) {
     args.done();
 
     widgetry::run(settings, |ctx| {
-        setup_app(ctx, flags, opts, start_with_edits, mode)
+        setup_app(
+            ctx,
+            flags,
+            opts,
+            start_with_edits,
+            mode,
+            initialize_tutorial,
+        )
     });
 }
 
@@ -96,6 +105,7 @@ fn setup_app(
     opts: Options,
     start_with_edits: Option<String>,
     maybe_mode: Option<GameplayMode>,
+    initialize_tutorial: bool,
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
@@ -133,6 +143,10 @@ fn setup_app(
             .map
             .recalculate_pathfinding_after_edits(&mut timer);
         app.primary.clear_sim();
+    }
+
+    if initialize_tutorial {
+        crate::sandbox::gameplay::Tutorial::initialize(ctx, &mut app);
     }
 
     let states: Vec<Box<dyn State<App>>> = if title {
