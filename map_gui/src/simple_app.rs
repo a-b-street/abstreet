@@ -289,7 +289,7 @@ impl State<SimpleApp> for SimpleWarper {
 }
 
 /// Store a cached key/value pair, only recalculating when the key changes.
-pub struct Cached<K, V> {
+pub struct Cached<K: PartialEq + Clone, V> {
     contents: Option<(K, V)>,
 }
 

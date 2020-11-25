@@ -63,6 +63,9 @@ impl State<SimpleApp> for Viewer {
                 .update(HoverOnBuilding::key(ctx, app), |key| {
                     HoverOnBuilding::value(ctx, app, key, isochrone)
                 });
+            // Also update this to conveniently get an outline drawn. Note we don't want to do this
+            // inside the callback above, because it doesn't run when the key becomes None.
+            app.current_selection = self.hovering_on_bldg.key().map(|(b, _)| ID::Building(b));
         }
 
         // Don't call normal_left_click unless we're hovering on something in map-space; otherwise
@@ -249,7 +252,7 @@ impl HoverOnBuilding {
 
     fn value(
         ctx: &mut EventCtx,
-        app: &mut SimpleApp,
+        app: &SimpleApp,
         key: HoverKey,
         isochrone: &Isochrone,
     ) -> HoverOnBuilding {
@@ -268,9 +271,6 @@ impl HoverOnBuilding {
             );
             batch.extend(Color::BLACK, dashed_lines);
         }
-
-        // Also update this to conveniently get an outline drawn
-        app.current_selection = Some(ID::Building(hover_id));
 
         HoverOnBuilding {
             tooltip: if let Some(time) = isochrone.time_to_reach_building.get(&hover_id) {

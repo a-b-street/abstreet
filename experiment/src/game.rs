@@ -217,7 +217,7 @@ impl OverBldg {
         None
     }
 
-    fn value(ctx: &mut EventCtx, app: &mut SimpleApp, key: BuildingID) -> OverBldg {
+    fn value(ctx: &mut EventCtx, app: &SimpleApp, key: BuildingID) -> OverBldg {
         OverBldg(ctx.upload(GeomBatch::from(vec![(
             Color::YELLOW,
             app.map.get_b(key).polygon.clone(),
