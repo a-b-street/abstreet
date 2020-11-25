@@ -108,8 +108,6 @@ pub struct Path {
     total_length: Distance,
     crossed_so_far: Distance,
 
-    total_lanes: usize,
-
     // A list of uber-turns encountered by this path, in order. The steps are flattened into the
     // sequence of turn->lane->...->turn.
     uber_turns: VecDeque<UberTurn>,
@@ -133,20 +131,14 @@ impl Path {
         }
         // Slightly expensive, but the contraction hierarchy weights aren't distances.
         let mut total_length = Distance::ZERO;
-        let mut total_lanes = 0;
         for s in &steps {
             total_length += s.as_traversable().length(map);
-            match s {
-                PathStep::Lane(_) | PathStep::ContraflowLane(_) => total_lanes += 1,
-                _ => {}
-            }
         }
         Path {
             steps: VecDeque::from(steps),
             end_dist,
             total_length,
             crossed_so_far: Distance::ZERO,
-            total_lanes,
             uber_turns: uber_turns.into_iter().collect(),
             currently_inside_ut: None,
         }
@@ -168,14 +160,9 @@ impl Path {
             end_dist: Distance::ZERO,
             total_length: Distance::ZERO,
             crossed_so_far: Distance::ZERO,
-            total_lanes: 0,
             uber_turns: VecDeque::new(),
             currently_inside_ut: None,
         }
-    }
-
-    pub fn total_lanes(&self) -> usize {
-        self.total_lanes
     }
 
     pub fn crossed_so_far(&self) -> Distance {
@@ -247,10 +234,6 @@ impl Path {
     // TODO Maybe need to amend uber_turns?
     pub fn add(&mut self, step: PathStep, map: &Map) {
         self.total_length += step.as_traversable().length(map);
-        match step {
-            PathStep::Lane(_) | PathStep::ContraflowLane(_) => self.total_lanes += 1,
-            _ => {}
-        };
         self.steps.push_back(step);
     }
 
@@ -424,7 +407,6 @@ impl Path {
         self.total_length += map.get_t(turn).geom.length();
         self.steps.extend(other.steps);
         self.total_length += other.total_length;
-        self.total_lanes += other.total_lanes;
         self.uber_turns.extend(other.uber_turns);
     }
 }
