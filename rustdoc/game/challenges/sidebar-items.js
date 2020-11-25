@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["prebake",""],["prebake_all",""]],"struct":[["Challenge",""],["ChallengesPicker",""],["HighScore",""]]});
+initSidebarItems({"mod":[["cutscene",""],["prebake",""]],"struct":[["Challenge",""],["ChallengesPicker",""],["HighScore",""]]});
