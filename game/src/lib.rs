@@ -21,7 +21,8 @@ mod layer;
 mod pregame;
 mod sandbox;
 
-pub fn main(mut args: CmdArgs) {
+pub fn main() {
+    let mut args = CmdArgs::new();
     if args.enabled("--prebake") {
         challenges::prebake::prebake_all();
         return;
@@ -171,6 +172,5 @@ use wasm_bindgen::prelude::*;
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub fn run() {
-    console_log::init_with_level(log::Level::Debug).unwrap();
-    main(CmdArgs::new());
+    main();
 }

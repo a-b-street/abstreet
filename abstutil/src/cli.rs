@@ -1,10 +1,6 @@
 use std::collections::{HashMap, HashSet};
-use std::sync::RwLock;
 
-use instant::Instant;
-
-use crate::elapsed_seconds;
-
+/// Yet another barebones command-line flag parsing library.
 pub struct CmdArgs {
     kv: HashMap<String, String>,
     bits: HashSet<String>,
@@ -14,40 +10,27 @@ pub struct CmdArgs {
 }
 
 impl CmdArgs {
+    /// On native, initialize with real flags. On web, always empty.
+    ///
+    /// Calling this has the side-effect of initializing logging on both native and web. This
+    /// should probably be done independently, but for the moment, every app wants both.
     pub fn new() -> CmdArgs {
-        let mut args = Vec::new();
+        crate::Logger::setup();
 
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            args.extend(std::env::args().skip(1));
+        if cfg!(target_arch = "wasm32") {
+            CmdArgs::from_args(Vec::new())
+        } else {
+            CmdArgs::from_args(std::env::args().skip(1).collect())
         }
-        #[cfg(target_arch = "wasm32")]
-        {
-            // Suppress compiler warnings
-            args.push(String::new());
-            args.pop();
-        }
-
-        CmdArgs::from_args(args)
     }
 
-    pub fn from_args(raw: Vec<String>) -> CmdArgs {
+    fn from_args(raw: Vec<String>) -> CmdArgs {
         let mut args = CmdArgs {
             kv: HashMap::new(),
             bits: HashSet::new(),
             free: Vec::new(),
             used: HashSet::new(),
         };
-
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            // TODO Hijacking this to also initialize logging!
-            log::set_boxed_logger(Box::new(Logger {
-                last_fp_note: RwLock::new(None),
-            }))
-            .unwrap();
-            log::set_max_level(log::LevelFilter::Debug);
-        }
 
         for arg in raw {
             let parts: Vec<&str> = arg.split('=').collect();
@@ -144,43 +127,4 @@ impl CmdArgs {
             panic!("Unused free arguments: {:?}", self.free);
         }
     }
-}
-
-// TODO Tie this to a Timer
-struct Logger {
-    last_fp_note: RwLock<Option<Instant>>,
-}
-
-impl log::Log for Logger {
-    fn enabled(&self, _: &log::Metadata) -> bool {
-        true
-    }
-    fn log(&self, record: &log::Record) {
-        let target = if record.target().len() > 0 {
-            record.target()
-        } else {
-            record.module_path().unwrap_or_default()
-        };
-
-        if target == "fast_paths::fast_graph_builder" {
-            // Throttle these
-            let mut last = self.last_fp_note.write().unwrap();
-            if last
-                .map(|start| elapsed_seconds(start) < 1.0)
-                .unwrap_or(false)
-            {
-                return;
-            }
-            *last = Some(Instant::now());
-        }
-        // Silence these; they're expected on any map using simplified Chinese or kanji.
-        let contents = format!("{}", record.args());
-        if target == "usvg::convert::text::shaper" {
-            if contents.contains("Fallback") {
-                return;
-            }
-        }
-        println!("[{}] {}: {}", record.level(), target, contents);
-    }
-    fn flush(&self) {}
 }

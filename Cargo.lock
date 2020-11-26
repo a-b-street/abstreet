@@ -20,6 +20,7 @@ name = "abstutil"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "console_log",
  "include_dir 0.6.1-alpha.0",
  "instant",
  "itertools",
@@ -958,7 +959,6 @@ dependencies = [
  "chrono",
  "collisions",
  "colorous",
- "console_log",
  "contour",
  "downcast-rs",
  "enumset",
@@ -3586,7 +3586,7 @@ dependencies = [
 name = "widgetry_demo"
 version = "0.1.0"
 dependencies = [
- "console_log",
+ "abstutil",
  "geom",
  "log",
  "rand",

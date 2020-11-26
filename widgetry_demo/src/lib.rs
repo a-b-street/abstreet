@@ -12,6 +12,9 @@ use widgetry::{
 };
 
 pub fn main() {
+    // Use this to initialize logging.
+    abstutil::CmdArgs::new().done();
+
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
     widgetry::run(widgetry::Settings::new("widgetry demo"), |ctx| {
@@ -377,7 +380,5 @@ use wasm_bindgen::prelude::*;
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub fn run() {
-    console_log::init_with_level(log::Level::Debug).unwrap();
-
     main();
 }

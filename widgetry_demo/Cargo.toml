@@ -9,10 +9,10 @@ crate-type = ["cdylib", "lib"]
 
 [features]
 default = ["widgetry/native-backend"]
-wasm = ["console_log", "wasm-bindgen", "widgetry/wasm-backend"]
+wasm = ["wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
-console_log = { version = "0.2.0", optional = true }
+abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 log = "0.4.11"
 rand = "0.7.0"
