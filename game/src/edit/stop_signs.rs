@@ -9,20 +9,19 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
 use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, State, Text,
     VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::common::CommonState;
+use crate::common::{CommonState, SimpleState};
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, TrafficSignalEditor};
 use crate::sandbox::GameplayMode;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
 // sure what to do about the player orphaning a section of the map.
 pub struct StopSignEditor {
-    panel: Panel,
     id: IntersectionID,
     mode: GameplayMode,
     // (octagon, pole)
@@ -67,31 +66,94 @@ impl StopSignEditor {
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
 
-        Box::new(StopSignEditor {
+        SimpleState::new(
             panel,
-            id,
-            mode,
-            geom,
-            selected_sign: None,
-        })
+            Box::new(StopSignEditor {
+                id,
+                mode,
+                geom,
+                selected_sign: None,
+            }),
+        )
     }
 }
 
-impl State<App> for StopSignEditor {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
+impl SimpleState for StopSignEditor {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "Finish" => Transition::Pop,
+            "reset to default" => {
+                let mut edits = app.primary.map.get_edits().clone();
+                edits.commands.push(EditCmd::ChangeIntersection {
+                    i: self.id,
+                    old: app.primary.map.get_i_edit(self.id),
+                    new: EditIntersection::StopSign(ControlStopSign::new(
+                        &app.primary.map,
+                        self.id,
+                    )),
+                });
+                apply_map_edits(ctx, app, edits);
+                Transition::Replace(StopSignEditor::new(ctx, app, self.id, self.mode.clone()))
+            }
+            "close intersection for construction" => {
+                let cmd = EditCmd::ChangeIntersection {
+                    i: self.id,
+                    old: app.primary.map.get_i_edit(self.id),
+                    new: EditIntersection::Closed,
+                };
+                if let Some(err) = check_sidewalk_connectivity(ctx, app, cmd.clone()) {
+                    Transition::Push(err)
+                } else {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    edits.commands.push(cmd);
+                    apply_map_edits(ctx, app, edits);
 
-        if ctx.redo_mouseover() {
-            self.selected_sign = None;
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                for (r, (octagon, _)) in &self.geom {
-                    if octagon.contains_pt(pt) {
-                        self.selected_sign = Some(*r);
-                        break;
-                    }
+                    Transition::Pop
+                }
+            }
+            "convert to traffic signal" => {
+                let mut edits = app.primary.map.get_edits().clone();
+                edits.commands.push(EditCmd::ChangeIntersection {
+                    i: self.id,
+                    old: app.primary.map.get_i_edit(self.id),
+                    new: EditIntersection::TrafficSignal(
+                        ControlTrafficSignal::new(
+                            &app.primary.map,
+                            self.id,
+                            &mut Timer::throwaway(),
+                        )
+                        .export(&app.primary.map),
+                    ),
+                });
+                apply_map_edits(ctx, app, edits);
+                app.primary
+                    .sim
+                    .handle_live_edited_traffic_signals(&app.primary.map);
+                Transition::Replace(TrafficSignalEditor::new(
+                    ctx,
+                    app,
+                    btreeset! {self.id},
+                    self.mode.clone(),
+                ))
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    fn on_mouseover(&mut self, ctx: &mut EventCtx, _: &mut App) {
+        self.selected_sign = None;
+        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+            for (r, (octagon, _)) in &self.geom {
+                if octagon.contains_pt(pt) {
+                    self.selected_sign = Some(*r);
+                    break;
                 }
             }
         }
+    }
+
+    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
 
         if let Some(r) = self.selected_sign {
             let mut sign = app.primary.map.get_stop_sign(self.id).clone();
@@ -119,74 +181,6 @@ impl State<App> for StopSignEditor {
             }
         }
 
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "Finish" => {
-                    return Transition::Pop;
-                }
-                "reset to default" => {
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits.commands.push(EditCmd::ChangeIntersection {
-                        i: self.id,
-                        old: app.primary.map.get_i_edit(self.id),
-                        new: EditIntersection::StopSign(ControlStopSign::new(
-                            &app.primary.map,
-                            self.id,
-                        )),
-                    });
-                    apply_map_edits(ctx, app, edits);
-                    return Transition::Replace(StopSignEditor::new(
-                        ctx,
-                        app,
-                        self.id,
-                        self.mode.clone(),
-                    ));
-                }
-                "close intersection for construction" => {
-                    let cmd = EditCmd::ChangeIntersection {
-                        i: self.id,
-                        old: app.primary.map.get_i_edit(self.id),
-                        new: EditIntersection::Closed,
-                    };
-                    if let Some(err) = check_sidewalk_connectivity(ctx, app, cmd.clone()) {
-                        return Transition::Push(err);
-                    } else {
-                        let mut edits = app.primary.map.get_edits().clone();
-                        edits.commands.push(cmd);
-                        apply_map_edits(ctx, app, edits);
-
-                        return Transition::Pop;
-                    }
-                }
-                "convert to traffic signal" => {
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits.commands.push(EditCmd::ChangeIntersection {
-                        i: self.id,
-                        old: app.primary.map.get_i_edit(self.id),
-                        new: EditIntersection::TrafficSignal(
-                            ControlTrafficSignal::new(
-                                &app.primary.map,
-                                self.id,
-                                &mut Timer::throwaway(),
-                            )
-                            .export(&app.primary.map),
-                        ),
-                    });
-                    apply_map_edits(ctx, app, edits);
-                    app.primary
-                        .sim
-                        .handle_live_edited_traffic_signals(&app.primary.map);
-                    return Transition::Replace(TrafficSignalEditor::new(
-                        ctx,
-                        app,
-                        btreeset! {self.id},
-                        self.mode.clone(),
-                    ));
-                }
-                _ => unreachable!(),
-            },
-            _ => {}
-        }
         Transition::Keep
     }
 
@@ -211,7 +205,6 @@ impl State<App> for StopSignEditor {
 
         batch.draw(g);
 
-        self.panel.draw(g);
         if let Some(r) = self.selected_sign {
             let mut osd = Text::new();
             osd.add_appended(vec![
