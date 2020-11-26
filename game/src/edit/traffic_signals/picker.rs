@@ -47,28 +47,26 @@ impl State<App> for SignalPicker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
+            app.primary.current_selection =
+                app.mouseover_unzoomed_intersections(ctx).filter(|id| {
+                    app.primary
+                        .map
+                        .maybe_get_traffic_signal(id.as_intersection())
+                        .is_some()
+                });
         }
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
-            if app.primary.map.maybe_get_traffic_signal(i).is_some() {
-                if !self.members.contains(&i)
-                    && app.per_obj.left_click(ctx, "add this intersection")
-                {
-                    self.members.insert(i);
-                    let btn = make_btn(ctx, self.members.len());
-                    self.panel.replace(ctx, "edit", btn);
-                } else if self.members.contains(&i)
-                    && app.per_obj.left_click(ctx, "remove this intersection")
-                {
-                    self.members.remove(&i);
-                    let btn = make_btn(ctx, self.members.len());
-                    self.panel.replace(ctx, "edit", btn);
-                }
-            } else {
-                app.primary.current_selection = None;
+            if !self.members.contains(&i) && app.per_obj.left_click(ctx, "add this intersection") {
+                self.members.insert(i);
+                let btn = make_btn(ctx, self.members.len());
+                self.panel.replace(ctx, "edit", btn);
+            } else if self.members.contains(&i)
+                && app.per_obj.left_click(ctx, "remove this intersection")
+            {
+                self.members.remove(&i);
+                let btn = make_btn(ctx, self.members.len());
+                self.panel.replace(ctx, "edit", btn);
             }
-        } else {
-            app.primary.current_selection = None;
         }
 
         match self.panel.event(ctx) {

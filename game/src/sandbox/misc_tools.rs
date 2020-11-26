@@ -101,7 +101,7 @@ impl State<App> for TrafficRecorder {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
+            app.primary.current_selection = app.mouseover_unzoomed_intersections(ctx);
         }
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if !self.members.contains(&i) && app.per_obj.left_click(ctx, "add this intersection") {
@@ -115,8 +115,6 @@ impl State<App> for TrafficRecorder {
                 let btn = make_btn(ctx, self.members.len());
                 self.panel.replace(ctx, "record", btn);
             }
-        } else {
-            app.primary.current_selection = None;
         }
 
         match self.panel.event(ctx) {

@@ -68,7 +68,7 @@ impl TrafficSignalDemand {
 impl State<App> for TrafficSignalDemand {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
-        // TODO DrawWithTooltips works great in screenspace; make a similar tool for mapspace?
+        // TODO Use MapspaceTooltips here?
         if ctx.redo_mouseover() {
             self.selected = None;
             app.recalculate_current_selection(ctx);

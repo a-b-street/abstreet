@@ -100,4 +100,11 @@ impl ID {
             _ => None,
         }
     }
+
+    pub fn as_intersection(&self) -> IntersectionID {
+        match *self {
+            ID::Intersection(i) => i,
+            _ => panic!("Can't call as_intersection on {:?}", self),
+        }
+    }
 }

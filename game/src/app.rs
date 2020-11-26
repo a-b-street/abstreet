@@ -10,7 +10,7 @@ use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
 use map_gui::ID;
-use map_model::{IntersectionID, Map, Traversable};
+use map_model::{IntersectionID, LaneID, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
@@ -248,6 +248,13 @@ impl App {
     pub fn mouseover_unzoomed_roads_and_intersections(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, &ShowEverything::new(), false, true, false)
     }
+    pub fn mouseover_unzoomed_intersections(&self, ctx: &EventCtx) -> Option<ID> {
+        self.calculate_current_selection(ctx, &ShowEverything::new(), false, true, false)
+            .filter(|id| match id {
+                ID::Intersection(_) => true,
+                _ => false,
+            })
+    }
     pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, &ShowEverything::new(), false, false, true)
     }
@@ -423,6 +430,36 @@ impl App {
             self.primary.clear_sim();
             self.set_prebaked(None);
         });
+    }
+}
+
+impl App {
+    /// If an intersection was clicked, return its ID.
+    pub fn click_on_intersection<S: Into<String>>(
+        &mut self,
+        ctx: &mut EventCtx,
+        label: S,
+    ) -> Option<IntersectionID> {
+        if let Some(ID::Intersection(i)) = self.primary.current_selection {
+            if self.per_obj.left_click(ctx, label) {
+                return Some(i);
+            }
+        }
+        None
+    }
+
+    /// If a lane was clicked, return its ID.
+    pub fn click_on_lane<S: Into<String>>(
+        &mut self,
+        ctx: &mut EventCtx,
+        label: S,
+    ) -> Option<LaneID> {
+        if let Some(ID::Lane(l)) = self.primary.current_selection {
+            if self.per_obj.left_click(ctx, label) {
+                return Some(l);
+            }
+        }
+        None
     }
 }
 
