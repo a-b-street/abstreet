@@ -58,10 +58,13 @@ impl log::Log for Logger {
 
         // Silence these; they're expected on any map using simplified Chinese or kanji. Triggered
         // by anything using widgetry.
-        if target == "usvg::convert::text::shaper" {
-            if contents.contains("Fallback") {
-                return;
-            }
+        if target == "usvg::convert::text::shaper" && contents.contains("Fallback") {
+            return;
+        }
+
+        // Silence byte counts from hyper.
+        if target == "hyper::proto::h1::io" {
+            return;
         }
 
         println!("[{}] {}: {}", record.level(), target, contents);
