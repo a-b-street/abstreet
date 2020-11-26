@@ -858,9 +858,6 @@
 <span id="855">855</span>
 <span id="856">856</span>
 <span id="857">857</span>
-<span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1021,18 +1018,15 @@
         <span class="comment">// Restrict what can be selected.</span>
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">can_edit_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">l</span>, <span class="ident">app</span>) {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">if</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">can_edit_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">l</span>, <span class="ident">app</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="op">!</span><span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">can_edit_stop_signs</span>()
+                        <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">is_some</span>()
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">is_some</span>()
-                    <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">can_edit_stop_signs</span>()
-                {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-            } <span class="kw">else</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            } {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             }
         }
