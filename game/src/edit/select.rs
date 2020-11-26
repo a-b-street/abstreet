@@ -106,30 +106,27 @@ impl RoadSelector {
     // Pass None. Returns true if anything changed.
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App, clicked: Option<&str>) -> bool {
         if ctx.redo_mouseover() {
-            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
             match self.mode {
                 Mode::Pan => {
                     app.primary.current_selection = None;
                 }
                 Mode::Route { .. } => {
-                    if let Some(ID::Intersection(_)) = app.primary.current_selection {
-                    } else {
-                        app.primary.current_selection = None;
-                    }
+                    app.primary.current_selection = app.mouseover_unzoomed_intersections(ctx);
                 }
                 Mode::Paint | Mode::Erase => {
-                    if let Some(ID::Road(_)) = app.primary.current_selection {
-                    } else if let Some(ID::Lane(l)) = app.primary.current_selection {
-                        app.primary.current_selection =
-                            Some(ID::Road(app.primary.map.get_l(l).parent));
-                    } else {
-                        app.primary.current_selection = None;
-                    }
-                    if let Some(ID::Road(r)) = app.primary.current_selection {
-                        if app.primary.map.get_r(r).is_light_rail() {
-                            app.primary.current_selection = None;
+                    app.primary.current_selection =
+                        match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                            Some(ID::Road(r)) => Some(r),
+                            Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                            _ => None,
                         }
-                    }
+                        .and_then(|r| {
+                            if app.primary.map.get_r(r).is_light_rail() {
+                                None
+                            } else {
+                                Some(ID::Road(r))
+                            }
+                        });
                 }
             }
         }

@@ -84,7 +84,7 @@ impl SimpleState for UberTurnPicker {
     }
 
     fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        app.recalculate_current_selection(ctx);
+        app.primary.current_selection = app.mouseover_unzoomed_intersections(ctx);
     }
     fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();

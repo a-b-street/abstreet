@@ -157,18 +157,15 @@ impl State<App> for EditMode {
         // Restrict what can be selected.
         if ctx.redo_mouseover() {
             app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
-            if let Some(ID::Lane(l)) = app.primary.current_selection {
-                if !can_edit_lane(&self.mode, l, app) {
-                    app.primary.current_selection = None;
+            if match app.primary.current_selection {
+                Some(ID::Lane(l)) => !can_edit_lane(&self.mode, l, app),
+                Some(ID::Intersection(i)) => {
+                    !self.mode.can_edit_stop_signs()
+                        && app.primary.map.maybe_get_stop_sign(i).is_some()
                 }
-            } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
-                if app.primary.map.maybe_get_stop_sign(i).is_some()
-                    && !self.mode.can_edit_stop_signs()
-                {
-                    app.primary.current_selection = None;
-                }
-            } else if let Some(ID::Road(_)) = app.primary.current_selection {
-            } else {
+                Some(ID::Road(_)) => false,
+                _ => true,
+            } {
                 app.primary.current_selection = None;
             }
         }

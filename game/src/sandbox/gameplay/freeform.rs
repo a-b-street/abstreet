@@ -345,12 +345,11 @@ impl State<App> for AgentSpawner {
 
         if ctx.redo_mouseover() {
             app.primary.current_selection = app.mouseover_unzoomed_everything(ctx);
-            if let Some(ID::Intersection(i)) = app.primary.current_selection {
-                if !app.primary.map.get_i(i).is_border() {
-                    app.primary.current_selection = None;
-                }
-            } else if let Some(ID::Building(_)) = app.primary.current_selection {
-            } else {
+            if match app.primary.current_selection {
+                Some(ID::Intersection(i)) => !app.primary.map.get_i(i).is_border(),
+                Some(ID::Building(_)) => false,
+                _ => true,
+            } {
                 app.primary.current_selection = None;
             }
         }

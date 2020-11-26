@@ -179,26 +179,22 @@ impl SimpleState for LaneEditor {
 
     fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
         app.recalculate_current_selection(ctx);
-        if let Some(ID::Lane(l)) = app.primary.current_selection {
-            if !can_edit_lane(&self.mode, l, app) {
-                app.primary.current_selection = None;
+        app.recalculate_current_selection(ctx);
+        if match app.primary.current_selection {
+            Some(ID::Lane(l)) => !can_edit_lane(&self.mode, l, app),
+            Some(ID::Intersection(i)) => {
+                !self.mode.can_edit_stop_signs() && app.primary.map.maybe_get_stop_sign(i).is_some()
             }
-        } else if let Some(ID::Intersection(i)) = app.primary.current_selection {
-            if app.primary.map.maybe_get_stop_sign(i).is_some() && !self.mode.can_edit_stop_signs()
-            {
-                app.primary.current_selection = None;
-            }
-        } else {
+            _ => true,
+        } {
             app.primary.current_selection = None;
         }
     }
 
     fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
-        if let Some(ID::Lane(l)) = app.primary.current_selection {
-            if app.per_obj.left_click(ctx, "edit this lane") {
-                return Transition::Replace(LaneEditor::new(ctx, app, l, self.mode.clone()));
-            }
+        if let Some(l) = app.click_on_lane(ctx, "edit this lane") {
+            return Transition::Replace(LaneEditor::new(ctx, app, l, self.mode.clone()));
         }
         if let Some(ID::Intersection(id)) = app.primary.current_selection {
             if let Some(state) = maybe_edit_intersection(ctx, app, id, &self.mode) {
