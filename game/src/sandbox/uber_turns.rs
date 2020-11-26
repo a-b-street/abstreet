@@ -7,17 +7,15 @@ use map_gui::ID;
 use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
 use widgetry::{
     Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment,
-    Widget,
+    HorizontalAlignment, Key, Line, Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
-use crate::common::CommonState;
+use crate::common::{CommonState, SimpleState};
 use crate::edit::ClusterTrafficSignalEditor;
 
 pub struct UberTurnPicker {
     members: BTreeSet<IntersectionID>,
-    panel: Panel,
 }
 
 impl UberTurnPicker {
@@ -29,31 +27,67 @@ impl UberTurnPicker {
             members.insert(i);
         }
 
-        Box::new(UberTurnPicker {
-            members,
-            panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Select multiple intersections")
-                        .small_heading()
-                        .draw(ctx),
-                    Btn::close(ctx),
-                ]),
-                Btn::text_fg("View uber-turns").build_def(ctx, Key::Enter),
-                Btn::text_fg("Edit").build_def(ctx, Key::E),
-                Btn::text_fg("Detect all clusters").build_def(ctx, Key::D),
-            ]))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .build(ctx),
-        })
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Line("Select multiple intersections")
+                    .small_heading()
+                    .draw(ctx),
+                Btn::close(ctx),
+            ]),
+            Btn::text_fg("View uber-turns").build_def(ctx, Key::Enter),
+            Btn::text_fg("Edit").build_def(ctx, Key::E),
+            Btn::text_fg("Detect all clusters").build_def(ctx, Key::D),
+        ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+        SimpleState::new(panel, Box::new(UberTurnPicker { members }))
     }
 }
 
-impl State<App> for UberTurnPicker {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-        if ctx.redo_mouseover() {
-            app.recalculate_current_selection(ctx);
+impl SimpleState for UberTurnPicker {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "close" => Transition::Pop,
+            "View uber-turns" => {
+                if self.members.len() < 2 {
+                    return Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Error",
+                        vec!["Select at least two intersections"],
+                    ));
+                }
+                Transition::Replace(UberTurnViewer::new(ctx, app, self.members.clone(), 0, true))
+            }
+            "Edit" => {
+                if self.members.len() < 2 {
+                    return Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Error",
+                        vec!["Select at least two intersections"],
+                    ));
+                }
+                Transition::Replace(ClusterTrafficSignalEditor::new(
+                    ctx,
+                    app,
+                    &IntersectionCluster::new(self.members.clone(), &app.primary.map).0,
+                ))
+            }
+            "Detect all clusters" => {
+                self.members.clear();
+                for ic in IntersectionCluster::find_all(&app.primary.map) {
+                    self.members.extend(ic.members);
+                }
+                Transition::Keep
+            }
+            _ => unreachable!(),
         }
+    }
+
+    fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
+        app.recalculate_current_selection(ctx);
+    }
+    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
         if let Some(ID::Intersection(i)) = app.primary.current_selection {
             if !self.members.contains(&i) && app.per_obj.left_click(ctx, "add this intersection") {
                 self.members.insert(i);
@@ -63,58 +97,10 @@ impl State<App> for UberTurnPicker {
                 self.members.remove(&i);
             }
         }
-
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
-                "View uber-turns" => {
-                    if self.members.len() < 2 {
-                        return Transition::Push(PopupMsg::new(
-                            ctx,
-                            "Error",
-                            vec!["Select at least two intersections"],
-                        ));
-                    }
-                    return Transition::Replace(UberTurnViewer::new(
-                        ctx,
-                        app,
-                        self.members.clone(),
-                        0,
-                        true,
-                    ));
-                }
-                "Edit" => {
-                    if self.members.len() < 2 {
-                        return Transition::Push(PopupMsg::new(
-                            ctx,
-                            "Error",
-                            vec!["Select at least two intersections"],
-                        ));
-                    }
-                    return Transition::Replace(ClusterTrafficSignalEditor::new(
-                        ctx,
-                        app,
-                        &IntersectionCluster::new(self.members.clone(), &app.primary.map).0,
-                    ));
-                }
-                "Detect all clusters" => {
-                    self.members.clear();
-                    for ic in IntersectionCluster::find_all(&app.primary.map) {
-                        self.members.extend(ic.members);
-                    }
-                }
-                _ => unreachable!(),
-            },
-            _ => {}
-        }
-
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
         CommonState::draw_osd(g, app);
 
         let mut batch = GeomBatch::new();
@@ -130,7 +116,6 @@ impl State<App> for UberTurnPicker {
 }
 
 struct UberTurnViewer {
-    panel: Panel,
     draw: Drawable,
     ic: IntersectionCluster,
     idx: usize,
@@ -174,90 +159,90 @@ impl UberTurnViewer {
             }
         }
 
-        Box::new(UberTurnViewer {
-            draw: ctx.upload(batch),
-            panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Uber-turn viewer").small_heading().draw(ctx),
-                    Widget::vert_separator(ctx, 50.0),
-                    if idx == 0 {
-                        Btn::text_fg("<").inactive(ctx)
-                    } else {
-                        Btn::text_fg("<").build(ctx, "previous uber-turn", Key::LeftArrow)
-                    },
-                    Text::from(Line(format!("{}/{}", idx + 1, ic.uber_turns.len())).secondary())
-                        .draw(ctx)
-                        .centered_vert(),
-                    if ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1 {
-                        Btn::text_fg(">").inactive(ctx)
-                    } else {
-                        Btn::text_fg(">").build(ctx, "next uber-turn", Key::RightArrow)
-                    },
-                    Btn::close(ctx),
-                ]),
-                format!("driving_cost for a Car: {}", sum_cost).draw_text(ctx),
-                Widget::row(vec![
-                    Checkbox::toggle(
-                        ctx,
-                        "legal / illegal movements",
-                        "legal",
-                        "illegal",
-                        None,
-                        legal_turns,
-                    ),
-                    "movements".draw_text(ctx),
-                ]),
-            ]))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-            .build(ctx),
-            ic,
-            idx,
-            legal_turns,
-        })
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Line("Uber-turn viewer").small_heading().draw(ctx),
+                Widget::vert_separator(ctx, 50.0),
+                if idx == 0 {
+                    Btn::text_fg("<").inactive(ctx)
+                } else {
+                    Btn::text_fg("<").build(ctx, "previous uber-turn", Key::LeftArrow)
+                },
+                Text::from(Line(format!("{}/{}", idx + 1, ic.uber_turns.len())).secondary())
+                    .draw(ctx)
+                    .centered_vert(),
+                if ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - 1 {
+                    Btn::text_fg(">").inactive(ctx)
+                } else {
+                    Btn::text_fg(">").build(ctx, "next uber-turn", Key::RightArrow)
+                },
+                Btn::close(ctx),
+            ]),
+            format!("driving_cost for a Car: {}", sum_cost).draw_text(ctx),
+            Widget::row(vec![
+                Checkbox::toggle(
+                    ctx,
+                    "legal / illegal movements",
+                    "legal",
+                    "illegal",
+                    None,
+                    legal_turns,
+                ),
+                "movements".draw_text(ctx),
+            ]),
+        ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+        SimpleState::new(
+            panel,
+            Box::new(UberTurnViewer {
+                draw: ctx.upload(batch),
+                ic,
+                idx,
+                legal_turns,
+            }),
+        )
     }
 }
 
-impl State<App> for UberTurnViewer {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
-                "previous uber-turn" => {
-                    return Transition::Replace(UberTurnViewer::new(
-                        ctx,
-                        app,
-                        self.ic.members.clone(),
-                        self.idx - 1,
-                        self.legal_turns,
-                    ));
-                }
-                "next uber-turn" => {
-                    return Transition::Replace(UberTurnViewer::new(
-                        ctx,
-                        app,
-                        self.ic.members.clone(),
-                        self.idx + 1,
-                        self.legal_turns,
-                    ));
-                }
-                _ => unreachable!(),
-            },
-            Outcome::Changed => {
-                return Transition::Replace(UberTurnViewer::new(
-                    ctx,
-                    app,
-                    self.ic.members.clone(),
-                    0,
-                    self.panel.is_checked("legal / illegal movements"),
-                ));
-            }
-            _ => {}
+impl SimpleState for UberTurnViewer {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "close" => Transition::Pop,
+            "previous uber-turn" => Transition::Replace(UberTurnViewer::new(
+                ctx,
+                app,
+                self.ic.members.clone(),
+                self.idx - 1,
+                self.legal_turns,
+            )),
+            "next uber-turn" => Transition::Replace(UberTurnViewer::new(
+                ctx,
+                app,
+                self.ic.members.clone(),
+                self.idx + 1,
+                self.legal_turns,
+            )),
+            _ => unreachable!(),
         }
+    }
+    fn panel_changed(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        panel: &Panel,
+    ) -> Option<Transition> {
+        Some(Transition::Replace(UberTurnViewer::new(
+            ctx,
+            app,
+            self.ic.members.clone(),
+            0,
+            panel.is_checked("legal / illegal movements"),
+        )))
+    }
 
+    fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+        ctx.canvas_movement();
         Transition::Keep
     }
 
@@ -271,7 +256,6 @@ impl State<App> for UberTurnViewer {
             .extend(self.ic.members.clone());
         app.draw(g, opts, &ShowEverything::new());
 
-        self.panel.draw(g);
         g.redraw(&self.draw);
     }
 }

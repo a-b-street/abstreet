@@ -5,17 +5,17 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
 };
 use widgetry::{
-    Btn, Checkbox, Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, Spinner,
-    State, TextExt, Widget,
+    Btn, Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, Spinner, State, TextExt,
+    Widget,
 };
 
 use crate::app::{App, Transition};
+use crate::common::SimpleState;
 use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
 use crate::sandbox::GameplayMode;
 
 pub struct ChangeDuration {
-    panel: Panel,
     idx: usize,
 }
 
@@ -25,90 +25,83 @@ impl ChangeDuration {
         signal: &ControlTrafficSignal,
         idx: usize,
     ) -> Box<dyn State<App>> {
-        Box::new(ChangeDuration {
-            panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("How long should this stage last?")
-                        .small_heading()
-                        .draw(ctx),
-                    Btn::close(ctx),
-                ]),
-                Widget::row(vec![
-                    "Seconds:".draw_text(ctx),
-                    Spinner::new(
-                        ctx,
-                        (
-                            signal.get_min_crossing_time(idx).inner_seconds() as isize,
-                            300,
-                        ),
-                        signal.stages[idx]
-                            .phase_type
-                            .simple_duration()
-                            .inner_seconds() as isize,
-                    )
-                    .named("duration"),
-                ]),
-                Widget::row(vec![
-                    "Type:".draw_text(ctx),
-                    Checkbox::toggle(
-                        ctx,
-                        "phase type",
-                        "fixed",
-                        "adaptive",
-                        None,
-                        match signal.stages[idx].phase_type {
-                            PhaseType::Fixed(_) => true,
-                            PhaseType::Adaptive(_) => false,
-                        },
-                    ),
-                ]),
-                Line("Minimum time is set by the time required for crosswalk")
-                    .secondary()
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Line("How long should this stage last?")
+                    .small_heading()
                     .draw(ctx),
-                Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
-            ]))
-            .build(ctx),
-            idx,
-        })
+                Btn::close(ctx),
+            ]),
+            Widget::row(vec![
+                "Seconds:".draw_text(ctx),
+                Spinner::new(
+                    ctx,
+                    (
+                        signal.get_min_crossing_time(idx).inner_seconds() as isize,
+                        300,
+                    ),
+                    signal.stages[idx]
+                        .phase_type
+                        .simple_duration()
+                        .inner_seconds() as isize,
+                )
+                .named("duration"),
+            ]),
+            Widget::row(vec![
+                "Type:".draw_text(ctx),
+                Checkbox::toggle(
+                    ctx,
+                    "phase type",
+                    "fixed",
+                    "adaptive",
+                    None,
+                    match signal.stages[idx].phase_type {
+                        PhaseType::Fixed(_) => true,
+                        PhaseType::Adaptive(_) => false,
+                    },
+                ),
+            ]),
+            Line("Minimum time is set by the time required for crosswalk")
+                .secondary()
+                .draw(ctx),
+            Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
+        ]))
+        .build(ctx);
+        SimpleState::new(panel, Box::new(ChangeDuration { idx }))
     }
 }
 
-impl State<App> for ChangeDuration {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => Transition::Pop,
-                "Apply" => {
-                    let dt = Duration::seconds(self.panel.spinner("duration") as f64);
-                    let new_type = if self.panel.is_checked("phase type") {
-                        PhaseType::Fixed(dt)
-                    } else {
-                        PhaseType::Adaptive(dt)
-                    };
-                    let idx = self.idx;
-                    return Transition::Multi(vec![
-                        Transition::Pop,
-                        Transition::ModifyState(Box::new(move |state, ctx, app| {
-                            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                            editor.add_new_edit(ctx, app, idx, |ts| {
-                                ts.stages[idx].phase_type = new_type.clone();
-                            });
-                        })),
-                    ]);
-                }
-                _ => unreachable!(),
-            },
-            _ => {
-                if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
-                    return Transition::Pop;
-                }
-                Transition::Keep
+impl SimpleState for ChangeDuration {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, panel: &Panel) -> Transition {
+        match x {
+            "close" => Transition::Pop,
+            "Apply" => {
+                let dt = Duration::seconds(panel.spinner("duration") as f64);
+                let new_type = if panel.is_checked("phase type") {
+                    PhaseType::Fixed(dt)
+                } else {
+                    PhaseType::Adaptive(dt)
+                };
+                let idx = self.idx;
+                Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                        editor.add_new_edit(ctx, app, idx, |ts| {
+                            ts.stages[idx].phase_type = new_type.clone();
+                        });
+                    })),
+                ])
             }
+            _ => unreachable!(),
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.panel.draw(g);
+    fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+        if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
+            return Transition::Pop;
+        }
+        Transition::Keep
     }
 
     fn draw_baselayer(&self) -> DrawBaselayer {

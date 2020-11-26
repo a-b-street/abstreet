@@ -5,8 +5,9 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Panel, ScreenDims, ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Outcome, Panel, ScreenDims, ScreenPt, ScreenRectangle, State, Text, TextSpan,
+    VerticalAlignment, Widget,
 };
 
 pub use self::minimap::Minimap;
@@ -409,4 +410,69 @@ pub fn checkbox_per_mode(
         );
     }
     Widget::custom_row(filters)
+}
+
+/// Many game states fit a pattern of managing a single panel, handling mouseover events, and other
+/// interactions on the map. Implementing this instead of `State` reduces some boilerplate.
+pub trait SimpleState {
+    /// Called when something on the panel has been clicked. Since the action is just a string,
+    /// the fallback case can just use `unreachable!()`.
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        action: &str,
+        panel: &Panel,
+    ) -> Transition;
+    /// Called when something on the panel has changed. If a transition is returned, stop handling
+    /// the event and immediately apply the transition.
+    fn panel_changed(&mut self, _: &mut EventCtx, _: &mut App, _: &Panel) -> Option<Transition> {
+        None
+    }
+    /// Called when the mouse has moved.
+    fn on_mouseover(&mut self, _: &mut EventCtx, _: &mut App) {}
+    /// If a panel `on_click` event didn't occur and `panel_changed` didn't return  transition, then
+    /// call this to handle all other events.
+    fn other_event(&mut self, _: &mut EventCtx, _: &mut App) -> Transition {
+        Transition::Keep
+    }
+    fn draw(&self, _: &mut GfxCtx, _: &App) {}
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::DefaultDraw
+    }
+}
+
+impl dyn SimpleState {
+    pub fn new(panel: Panel, inner: Box<dyn SimpleState>) -> Box<dyn State<App>> {
+        Box::new(SimpleStateWrapper { panel, inner })
+    }
+}
+
+pub struct SimpleStateWrapper {
+    panel: Panel,
+    inner: Box<dyn SimpleState>,
+}
+
+impl State<App> for SimpleStateWrapper {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if ctx.redo_mouseover() {
+            self.inner.on_mouseover(ctx, app);
+        }
+        match self.panel.event(ctx) {
+            Outcome::Clicked(action) => self.inner.on_click(ctx, app, &action, &self.panel),
+            Outcome::Changed => self
+                .inner
+                .panel_changed(ctx, app, &self.panel)
+                .unwrap_or_else(|| self.inner.other_event(ctx, app)),
+            Outcome::Nothing => self.inner.other_event(ctx, app),
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        self.inner.draw(g, app);
+    }
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        self.inner.draw_baselayer()
+    }
 }
