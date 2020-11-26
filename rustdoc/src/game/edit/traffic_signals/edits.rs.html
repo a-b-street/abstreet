@@ -233,13 +233,6 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
@@ -248,17 +241,17 @@
     <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">PhaseType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>,
-    <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">SimpleState</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">traffic_signals</span>::{<span class="ident">BundleEdits</span>, <span class="ident">TrafficSignalEditor</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">check_sidewalk_connectivity</span>, <span class="ident">StopSignEditor</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChangeDuration</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">idx</span>: <span class="ident">usize</span>,
 }
 
@@ -268,90 +261,83 @@
         <span class="ident">signal</span>: <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span>,
         <span class="ident">idx</span>: <span class="ident">usize</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChangeDuration</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;How long should this stage last?&quot;</span>)
-                        .<span class="ident">small_heading</span>()
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Spinner</span>::<span class="ident">new</span>(
-                        <span class="ident">ctx</span>,
-                        (
-                            <span class="ident">signal</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">idx</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
-                            <span class="number">300</span>,
-                        ),
-                        <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>]
-                            .<span class="ident">phase_type</span>
-                            .<span class="ident">simple_duration</span>()
-                            .<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
-                    )
-                    .<span class="ident">named</span>(<span class="string">&quot;duration&quot;</span>),
-                ]),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="string">&quot;Type:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;phase type&quot;</span>,
-                        <span class="string">&quot;fixed&quot;</span>,
-                        <span class="string">&quot;adaptive&quot;</span>,
-                        <span class="prelude-val">None</span>,
-                        <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span> {
-                            <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                            <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-                        },
-                    ),
-                ]),
-                <span class="ident">Line</span>(<span class="string">&quot;Minimum time is set by the time required for crosswalk&quot;</span>)
-                    .<span class="ident">secondary</span>()
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;How long should this stage last?&quot;</span>)
+                    .<span class="ident">small_heading</span>()
                     .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
-            ]))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">idx</span>,
-        })
+                <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="string">&quot;Seconds:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="ident">Spinner</span>::<span class="ident">new</span>(
+                    <span class="ident">ctx</span>,
+                    (
+                        <span class="ident">signal</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">idx</span>).<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
+                        <span class="number">300</span>,
+                    ),
+                    <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>]
+                        .<span class="ident">phase_type</span>
+                        .<span class="ident">simple_duration</span>()
+                        .<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
+                )
+                .<span class="ident">named</span>(<span class="string">&quot;duration&quot;</span>),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="string">&quot;Type:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                <span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;phase type&quot;</span>,
+                    <span class="string">&quot;fixed&quot;</span>,
+                    <span class="string">&quot;adaptive&quot;</span>,
+                    <span class="prelude-val">None</span>,
+                    <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span> {
+                        <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                        <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                    },
+                ),
+            ]),
+            <span class="ident">Line</span>(<span class="string">&quot;Minimum time is set by the time required for crosswalk&quot;</span>)
+                .<span class="ident">secondary</span>()
+                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Apply&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
+        ]))
+        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="ident">SimpleState</span>::<span class="ident">new</span>(<span class="ident">panel</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChangeDuration</span> { <span class="ident">idx</span> }))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChangeDuration</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;duration&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-                    <span class="kw">let</span> <span class="ident">new_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;phase type&quot;</span>) {
-                        <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">dt</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">dt</span>)
-                    };
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span>;
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                        <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                            <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                                <span class="ident">ts</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span> <span class="op">=</span> <span class="ident">new_type</span>.<span class="ident">clone</span>();
-                            });
-                        })),
-                    ]);
-                }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>().<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
-                }
-                <span class="ident">Transition</span>::<span class="ident">Keep</span>
+<span class="kw">impl</span> <span class="ident">SimpleState</span> <span class="kw">for</span> <span class="ident">ChangeDuration</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">match</span> <span class="ident">x</span> {
+            <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+            <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;duration&quot;</span>) <span class="kw">as</span> <span class="ident">f64</span>);
+                <span class="kw">let</span> <span class="ident">new_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;phase type&quot;</span>) {
+                    <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">dt</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">dt</span>)
+                };
+                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span>;
+                <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                    <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                        <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
+                            <span class="ident">ts</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span> <span class="op">=</span> <span class="ident">new_type</span>.<span class="ident">clone</span>();
+                        });
+                    })),
+                ])
             }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>().<span class="ident">is_none</span>() {
+            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+        }
+        <span class="ident">Transition</span>::<span class="ident">Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {

@@ -233,27 +233,18 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">Renderable</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Transition</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">CommonState</span>, <span class="ident">SimpleState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">zones</span>::<span class="ident">ZoneEditor</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{
     <span class="ident">apply_map_edits</span>, <span class="ident">can_edit_lane</span>, <span class="ident">maybe_edit_intersection</span>, <span class="ident">speed_limit_choices</span>, <span class="ident">try_change_lt</span>,
@@ -263,7 +254,6 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LaneEditor</span> {
     <span class="ident">l</span>: <span class="ident">LaneID</span>,
     <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">LaneEditor</span> {
@@ -346,35 +336,101 @@
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Change access restrictions&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">A</span>),
             <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Finish&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
         ];
-
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">LaneEditor</span> { <span class="ident">l</span>, <span class="ident">mode</span>, <span class="ident">panel</span> })
+        <span class="ident">SimpleState</span>::<span class="ident">new</span>(<span class="ident">panel</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">LaneEditor</span> { <span class="ident">l</span>, <span class="ident">mode</span> }))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LaneEditor</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="comment">// Restrict what can be selected.</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">can_edit_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">l</span>, <span class="ident">app</span>) {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+<span class="kw">impl</span> <span class="ident">SimpleState</span> <span class="kw">for</span> <span class="ident">LaneEditor</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">match</span> <span class="ident">x</span> {
+            <span class="string">&quot;Edit multiple lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">bulk</span>::<span class="ident">BulkSelect</span>::<span class="ident">new</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>,
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
+            )),
+            <span class="string">&quot;Change access restrictions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ZoneEditor</span>::<span class="ident">new</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>,
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
+            )),
+            <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
+                    <span class="string">&quot;reverse direction&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">reverse_lane</span>(<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>)),
+                    <span class="string">&quot;convert to a driving lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Driving</span>)
+                    }
+                    <span class="string">&quot;convert to a protected bike lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Biking</span>)
+                    }
+                    <span class="string">&quot;convert to a bus-only lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Bus</span>),
+                    <span class="string">&quot;convert to an on-street parking lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Parking</span>)
+                    }
+                    <span class="string">&quot;close for construction&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Construction</span>)
+                    }
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                };
+                <span class="kw">match</span> <span class="ident">result</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+                        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">cmd</span>);
+                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+
+                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()))
+                    }
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">err</span>),
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">is_some</span>()
-                    <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">can_edit_stop_signs</span>()
-                {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                }
-            } <span class="kw">else</span> {
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             }
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">panel_changed</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
+        <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
+            <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+                <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>);
+            },
+        ));
+        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+        <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="self">self</span>.<span class="ident">l</span>,
+            <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+        )))
+    }
+
+    <span class="kw">fn</span> <span class="ident">on_mouseover</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
+        <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">can_edit_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">l</span>, <span class="ident">app</span>) {
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">can_edit_stop_signs</span>()
+            {
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            }
+        } <span class="kw">else</span> {
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit this lane&quot;</span>) {
                 <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()));
@@ -384,79 +440,6 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">maybe_edit_intersection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>) {
                 <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">state</span>);
             }
-        }
-
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Edit multiple lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">bulk</span>::<span class="ident">BulkSelect</span>::<span class="ident">new</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
-                    ));
-                }
-                <span class="string">&quot;Change access restrictions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ZoneEditor</span>::<span class="ident">new</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
-                    ));
-                }
-                <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
-                }
-                <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-                    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
-                        <span class="string">&quot;reverse direction&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">reverse_lane</span>(<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>)),
-                        <span class="string">&quot;convert to a driving lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Driving</span>)
-                        }
-                        <span class="string">&quot;convert to a protected bike lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Biking</span>)
-                        }
-                        <span class="string">&quot;convert to a bus-only lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Bus</span>)
-                        }
-                        <span class="string">&quot;convert to an on-street parking lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Parking</span>)
-                        }
-                        <span class="string">&quot;close for construction&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">try_change_lt</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="ident">LaneType</span>::<span class="ident">Construction</span>)
-                        }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-                    };
-                    <span class="kw">match</span> <span class="ident">result</span> {
-                        <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                            <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">cmd</span>);
-                            <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-
-                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">app</span>,
-                                <span class="self">self</span>.<span class="ident">l</span>,
-                                <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
-                            ));
-                        }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">err</span>);
-                        }
-                    }
-                }
-            },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
-                    <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                        <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>);
-                    },
-                ));
-                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()));
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
@@ -470,7 +453,6 @@
                 .<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>)
                 .<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
         );
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">CommonState</span>::<span class="ident">draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
 }
