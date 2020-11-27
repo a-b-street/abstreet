@@ -25,6 +25,10 @@
 <span id="22">22</span>
 <span id="23">23</span>
 <span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -43,11 +47,15 @@
         }
         <span class="ident">Percent</span>((<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>)
     }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">of</span>(<span class="ident">x</span>: <span class="ident">usize</span>, <span class="ident">total</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Percent</span> {
+        <span class="ident">Percent</span>((<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">total</span> <span class="kw">as</span> <span class="ident">f64</span>))
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Percent</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.2}%&quot;</span>, <span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="number">100.0</span>)
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.2}%&quot;</span>, <span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="number">100.0</span>)
     }
 }
 </pre></div>
