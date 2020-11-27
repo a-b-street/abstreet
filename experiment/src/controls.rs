@@ -1,30 +1,28 @@
 use geom::{Angle, Pt2D, Speed};
 use widgetry::{EventCtx, Key};
 
+// TODO The timestep accumulation seems fine. What's wrong? Clamping errors repeated?
+const HACK: f64 = 5.0;
+
 pub trait Controller {
-    fn displacement(&mut self, ctx: &mut EventCtx) -> (f64, f64);
+    fn displacement(&mut self, ctx: &mut EventCtx, speed: Speed) -> (f64, f64);
 }
 
-pub struct InstantController {
-    speed: Speed,
-}
+pub struct InstantController;
 
 impl InstantController {
-    pub fn new(speed: Speed) -> InstantController {
-        InstantController {
-            // TODO Hack
-            speed: 5.0 * speed,
-        }
+    pub fn new() -> InstantController {
+        InstantController
     }
 }
 
 impl Controller for InstantController {
-    fn displacement(&mut self, ctx: &mut EventCtx) -> (f64, f64) {
+    fn displacement(&mut self, ctx: &mut EventCtx, speed: Speed) -> (f64, f64) {
         let mut dx = 0.0;
         let mut dy = 0.0;
 
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            let dist = (dt * self.speed).inner_meters();
+            let dist = (dt * HACK * speed).inner_meters();
             if ctx.is_key_down(Key::LeftArrow) {
                 dx -= dist;
             }
@@ -45,23 +43,18 @@ impl Controller for InstantController {
 
 pub struct RotateController {
     angle: Angle,
-    rot_speed_degrees: f64,
-    fwd_speed: Speed,
 }
 
 impl RotateController {
-    pub fn new(fwd_speed: Speed) -> RotateController {
-        RotateController {
-            angle: Angle::ZERO,
-            rot_speed_degrees: 100.0,
-            // TODO Hack
-            fwd_speed: 5.0 * fwd_speed,
-        }
+    pub fn new() -> RotateController {
+        RotateController { angle: Angle::ZERO }
     }
 }
 
 impl Controller for RotateController {
-    fn displacement(&mut self, ctx: &mut EventCtx) -> (f64, f64) {
+    fn displacement(&mut self, ctx: &mut EventCtx, fwd_speed: Speed) -> (f64, f64) {
+        let rot_speed_degrees = 100.0;
+
         let mut dx = 0.0;
         let mut dy = 0.0;
 
@@ -69,16 +62,16 @@ impl Controller for RotateController {
             if ctx.is_key_down(Key::LeftArrow) {
                 self.angle = self
                     .angle
-                    .rotate_degs(-self.rot_speed_degrees * dt.inner_seconds());
+                    .rotate_degs(-rot_speed_degrees * dt.inner_seconds());
             }
             if ctx.is_key_down(Key::RightArrow) {
                 self.angle = self
                     .angle
-                    .rotate_degs(self.rot_speed_degrees * dt.inner_seconds());
+                    .rotate_degs(rot_speed_degrees * dt.inner_seconds());
             }
 
             if ctx.is_key_down(Key::UpArrow) {
-                let dist = dt * self.fwd_speed;
+                let dist = dt * HACK * fwd_speed;
                 let pt = Pt2D::new(0.0, 0.0).project_away(dist, self.angle);
                 dx = pt.x();
                 dy = pt.y();

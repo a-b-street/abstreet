@@ -62,7 +62,7 @@ impl Game {
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
-            controls: Box::new(InstantController::new(Speed::miles_per_hour(30.0))),
+            controls: Box::new(InstantController::new()),
 
             sleigh,
             state,
@@ -90,26 +90,8 @@ impl Game {
 
 impl State<SimpleApp> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
-        let (dx, dy) = self.controls.displacement(ctx);
-        if dx != 0.0 || dy != 0.0 {
-            self.sleigh = self.sleigh.offset(dx, dy);
-            ctx.canvas.center_on_map_pt(self.sleigh);
-
-            self.over_bldg
-                .update(OverBldg::key(app, self.sleigh, &self.state), |key| {
-                    OverBldg::value(ctx, app, key)
-                });
-        }
-
-        if let Some(b) = self.over_bldg.key() {
-            if self.state.has_energy() && self.state.present_dropped(ctx, app, b) {
-                self.over_bldg.clear();
-                self.update_panel(ctx);
-            }
-        }
-
+        let mut recharging = false;
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            let mut recharging = false;
             if let Some(b) = self.over_bldg.key() {
                 if ctx.is_key_down(Key::Space) && self.state.recharge(ctx, app, b, dt) {
                     self.update_panel(ctx);
@@ -119,6 +101,31 @@ impl State<SimpleApp> for Game {
 
             if !recharging && self.state.has_energy() {
                 self.state.energy -= dt;
+                self.update_panel(ctx);
+            }
+        }
+
+        if !recharging {
+            let speed = if self.state.has_energy() {
+                self.state.config.normal_speed
+            } else {
+                self.state.config.tired_speed
+            };
+            let (dx, dy) = self.controls.displacement(ctx, speed);
+            if dx != 0.0 || dy != 0.0 {
+                self.sleigh = self.sleigh.offset(dx, dy);
+                ctx.canvas.center_on_map_pt(self.sleigh);
+
+                self.over_bldg
+                    .update(OverBldg::key(app, self.sleigh, &self.state), |key| {
+                        OverBldg::value(ctx, app, key)
+                    });
+            }
+        }
+
+        if let Some(b) = self.over_bldg.key() {
+            if self.state.has_energy() && self.state.present_dropped(ctx, app, b) {
+                self.over_bldg.clear();
                 self.update_panel(ctx);
             }
         }
@@ -146,9 +153,9 @@ impl State<SimpleApp> for Game {
             },
             Outcome::Changed => {
                 self.controls = if self.panel.is_checked("control type") {
-                    Box::new(RotateController::new(Speed::miles_per_hour(30.0)))
+                    Box::new(RotateController::new())
                 } else {
-                    Box::new(InstantController::new(Speed::miles_per_hour(30.0)))
+                    Box::new(InstantController::new())
                 };
             }
             _ => {}
@@ -174,6 +181,8 @@ impl State<SimpleApp> for Game {
 }
 
 struct Config {
+    normal_speed: Speed,
+    tired_speed: Speed,
     recharge_rate: f64,
     max_energy: Duration,
 }
@@ -238,6 +247,8 @@ impl SleighState {
         }
 
         let config = Config {
+            normal_speed: Speed::miles_per_hour(30.0),
+            tired_speed: Speed::miles_per_hour(10.0),
             recharge_rate: 1000.0,
             max_energy: Duration::minutes(90),
         };
