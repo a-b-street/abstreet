@@ -91,10 +91,6 @@
 <span id="88">88</span>
 <span id="89">89</span>
 <span id="90">90</span>
-<span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>};
@@ -122,8 +118,6 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dy</span> <span class="op">=</span> <span class="number">0.0</span>;
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
-            <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">use_update_event</span>();
-
             <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> (<span class="ident">dt</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">speed</span>).<span class="ident">inner_meters</span>();
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
                 <span class="ident">dx</span> <span class="op">-</span><span class="op">=</span> <span class="ident">dist</span>;
@@ -166,8 +160,6 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dy</span> <span class="op">=</span> <span class="number">0.0</span>;
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
-            <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">use_update_event</span>();
-
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
                 <span class="self">self</span>.<span class="ident">angle</span> <span class="op">=</span> <span class="self">self</span>
                     .<span class="ident">angle</span>
