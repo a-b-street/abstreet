@@ -337,6 +337,17 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -402,7 +413,7 @@
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">controls</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">InstantController</span>::<span class="ident">new</span>(<span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>))),
+            <span class="ident">controls</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">InstantController</span>::<span class="ident">new</span>()),
 
             <span class="ident">sleigh</span>,
             <span class="ident">state</span>,
@@ -430,26 +441,8 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Game</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SimpleApp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">dx</span>, <span class="ident">dy</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">displacement</span>(<span class="ident">ctx</span>);
-        <span class="kw">if</span> <span class="ident">dx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">dy</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> {
-            <span class="self">self</span>.<span class="ident">sleigh</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sleigh</span>.<span class="ident">offset</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="self">self</span>.<span class="ident">sleigh</span>);
-
-            <span class="self">self</span>.<span class="ident">over_bldg</span>
-                .<span class="ident">update</span>(<span class="ident">OverBldg</span>::<span class="ident">key</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">sleigh</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>), <span class="op">|</span><span class="ident">key</span><span class="op">|</span> {
-                    <span class="ident">OverBldg</span>::<span class="ident">value</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">key</span>)
-                });
-        }
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">over_bldg</span>.<span class="ident">key</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">present_dropped</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">b</span>) {
-                <span class="self">self</span>.<span class="ident">over_bldg</span>.<span class="ident">clear</span>();
-                <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>);
-            }
-        }
-
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recharging</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recharging</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">over_bldg</span>.<span class="ident">key</span>() {
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">Space</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">recharge</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">b</span>, <span class="ident">dt</span>) {
                     <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>);
@@ -459,6 +452,31 @@
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">recharging</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span> <span class="op">-</span><span class="op">=</span> <span class="ident">dt</span>;
+                <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>);
+            }
+        }
+
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">recharging</span> {
+            <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
+                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">config</span>.<span class="ident">normal_speed</span>
+            } <span class="kw">else</span> {
+                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">config</span>.<span class="ident">tired_speed</span>
+            };
+            <span class="kw">let</span> (<span class="ident">dx</span>, <span class="ident">dy</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">displacement</span>(<span class="ident">ctx</span>, <span class="ident">speed</span>);
+            <span class="kw">if</span> <span class="ident">dx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">dy</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> {
+                <span class="self">self</span>.<span class="ident">sleigh</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sleigh</span>.<span class="ident">offset</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
+                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="self">self</span>.<span class="ident">sleigh</span>);
+
+                <span class="self">self</span>.<span class="ident">over_bldg</span>
+                    .<span class="ident">update</span>(<span class="ident">OverBldg</span>::<span class="ident">key</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">sleigh</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>), <span class="op">|</span><span class="ident">key</span><span class="op">|</span> {
+                        <span class="ident">OverBldg</span>::<span class="ident">value</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">key</span>)
+                    });
+            }
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">over_bldg</span>.<span class="ident">key</span>() {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">present_dropped</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">b</span>) {
+                <span class="self">self</span>.<span class="ident">over_bldg</span>.<span class="ident">clear</span>();
                 <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>);
             }
         }
@@ -486,9 +504,9 @@
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">controls</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;control type&quot;</span>) {
-                    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">RotateController</span>::<span class="ident">new</span>(<span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>)))
+                    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">RotateController</span>::<span class="ident">new</span>())
                 } <span class="kw">else</span> {
-                    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">InstantController</span>::<span class="ident">new</span>(<span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>)))
+                    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">InstantController</span>::<span class="ident">new</span>())
                 };
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -514,6 +532,8 @@
 }
 
 <span class="kw">struct</span> <span class="ident">Config</span> {
+    <span class="ident">normal_speed</span>: <span class="ident">Speed</span>,
+    <span class="ident">tired_speed</span>: <span class="ident">Speed</span>,
     <span class="ident">recharge_rate</span>: <span class="ident">f64</span>,
     <span class="ident">max_energy</span>: <span class="ident">Duration</span>,
 }
@@ -578,6 +598,8 @@
         }
 
         <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Config</span> {
+            <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>),
+            <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>),
             <span class="ident">recharge_rate</span>: <span class="number">1000.0</span>,
             <span class="ident">max_energy</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">90</span>),
         };
