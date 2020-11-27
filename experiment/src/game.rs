@@ -79,7 +79,11 @@ impl Game {
         self.panel.replace(
             ctx,
             "energy",
-            format!("Energy: {}", self.state.energy).draw_text(ctx),
+            if self.state.has_energy() {
+                format!("Energy: {}", self.state.energy).draw_text(ctx)
+            } else {
+                Line("Energy: you need to refuel!").fg(Color::RED).draw(ctx)
+            },
         );
     }
 }
@@ -98,17 +102,25 @@ impl State<SimpleApp> for Game {
         }
 
         if let Some(b) = self.over_bldg.key() {
-            if ctx.input.pressed(Key::Space) {
-                if self.state.present_dropped(ctx, app, b) {
-                    self.over_bldg.clear();
-                    self.update_panel(ctx);
-                }
+            if self.state.has_energy() && self.state.present_dropped(ctx, app, b) {
+                self.over_bldg.clear();
+                self.update_panel(ctx);
             }
         }
 
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            self.state.energy -= dt;
-            self.update_panel(ctx);
+            let mut recharging = false;
+            if let Some(b) = self.over_bldg.key() {
+                if ctx.is_key_down(Key::Space) && self.state.recharge(ctx, app, b, dt) {
+                    self.update_panel(ctx);
+                    recharging = true;
+                }
+            }
+
+            if !recharging && self.state.has_energy() {
+                self.state.energy -= dt;
+                self.update_panel(ctx);
+            }
         }
 
         match self.panel.event(ctx) {
@@ -161,14 +173,19 @@ impl State<SimpleApp> for Game {
     }
 }
 
+struct Config {
+    recharge_rate: f64,
+    max_energy: Duration,
+}
+
 struct SleighState {
     depot: BuildingID,
     score: usize,
     energy: Duration,
     houses: HashMap<BuildingID, BldgState>,
-    house_costs: HashMap<BuildingID, Duration>,
     draw_scores: Drawable,
     draw_done: Drawable,
+    config: Config,
 }
 
 impl SleighState {
@@ -203,7 +220,8 @@ impl SleighState {
                     Color::RED
                 };
 
-                houses.insert(b.id, BldgState::Undelivered(score));
+                houses.insert(b.id, BldgState::Undelivered { score, cost });
+                // TODO Very expensive
                 batch.append(
                     Text::from_multiline(vec![
                         Line(format!("{}", score)),
@@ -213,18 +231,27 @@ impl SleighState {
                     .scale(0.1)
                     .centered_on(b.label_center),
                 );
+            } else if !b.amenities.is_empty() {
+                // TODO Maybe just food?
+                houses.insert(b.id, BldgState::Depot);
             }
         }
 
-        SleighState {
+        let config = Config {
+            recharge_rate: 1000.0,
+            max_energy: Duration::minutes(90),
+        };
+        let mut s = SleighState {
             depot,
             score: 0,
-            energy: Duration::minutes(90),
+            energy: config.max_energy,
             houses,
-            house_costs,
             draw_scores: ctx.upload(batch),
             draw_done: Drawable::empty(ctx),
-        }
+            config,
+        };
+        s.redraw(ctx, app);
+        s
     }
 
     fn redraw(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
@@ -240,20 +267,42 @@ impl SleighState {
 
     // True if state change
     fn present_dropped(&mut self, ctx: &mut EventCtx, app: &SimpleApp, id: BuildingID) -> bool {
-        if let Some(BldgState::Undelivered(score)) = self.houses.get(&id) {
+        if let Some(BldgState::Undelivered { score, cost }) = self.houses.get(&id).cloned() {
             self.score += score;
             self.houses.insert(id, BldgState::Done);
-            self.energy -= self.house_costs.get(&id).cloned().unwrap_or(Duration::ZERO);
+            self.energy -= cost;
             self.redraw(ctx, app);
             return true;
         }
         false
     }
+
+    // True if state change
+    fn recharge(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        id: BuildingID,
+        dt: Duration,
+    ) -> bool {
+        if let Some(BldgState::Depot) = self.houses.get(&id) {
+            self.energy += self.config.recharge_rate * dt;
+            self.energy = self.energy.min(self.config.max_energy);
+            self.redraw(ctx, app);
+            return true;
+        }
+        false
+    }
+
+    fn has_energy(&self) -> bool {
+        self.energy > Duration::ZERO
+    }
 }
 
+#[derive(Clone)]
 enum BldgState {
-    // The score ready to claim
-    Undelivered(usize),
+    Undelivered { score: usize, cost: Duration },
+    Depot,
     Done,
 }
 
@@ -267,7 +316,9 @@ impl OverBldg {
         {
             if let ID::Building(b) = id {
                 if app.map.get_b(b).polygon.contains_pt(sleigh) {
-                    if let Some(BldgState::Undelivered(_)) = state.houses.get(&b) {
+                    if let Some(BldgState::Undelivered { .. }) | Some(BldgState::Depot) =
+                        state.houses.get(&b)
+                    {
                         return Some(b);
                     }
                 }
