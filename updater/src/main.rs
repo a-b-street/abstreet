@@ -6,7 +6,8 @@ use std::process::Command;
 
 use walkdir::WalkDir;
 
-use abstutil::{CmdArgs, DataPacks, Entry, Manifest, Timer};
+use abstutil::{prettyprint_usize, CmdArgs, DataPacks, Entry, Manifest, Timer};
+use geom::Percent;
 
 const MD5_BUF_READ_SIZE: usize = 4096;
 
@@ -168,7 +169,9 @@ fn generate_manifest() -> Manifest {
             continue;
         }
 
-        println!("> compute md5sum of {}", path);
+        abstutil::clear_current_line();
+        print!("> compute md5sum of {}", path);
+        std::io::stdout().flush().unwrap();
 
         // since these files can be very large, computes the md5 hash in chunks
         let mut file = File::open(&orig_path).unwrap();
@@ -191,6 +194,7 @@ fn generate_manifest() -> Manifest {
             },
         );
     }
+    println!();
     Manifest { entries: kv }
 }
 
@@ -228,23 +232,32 @@ async fn curl(version: &str, path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
         "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
         version, path
     );
-
-    let mut bytes = Vec::new();
-
     println!("> download {}", src);
 
     let mut resp = reqwest::get(&src).await.unwrap();
-
     match resp.error_for_status_ref() {
         Ok(_) => {}
         Err(err) => {
             let err = format!("error getting {}: {}", src, err);
             return Err(err.into());
         }
-    };
-    while let Some(chunk) = resp.chunk().await.unwrap() {
-        bytes.write_all(&chunk).unwrap();
     }
 
+    let total_size = resp.content_length().map(|x| x as usize);
+    let mut bytes = Vec::new();
+    while let Some(chunk) = resp.chunk().await.unwrap() {
+        if let Some(n) = total_size {
+            abstutil::clear_current_line();
+            print!(
+                "{} ({} / {} bytes)",
+                Percent::of(bytes.len(), n),
+                prettyprint_usize(bytes.len()),
+                prettyprint_usize(n)
+            );
+        }
+
+        bytes.write_all(&chunk).unwrap();
+    }
+    println!();
     Ok(bytes)
 }

@@ -3263,6 +3263,7 @@ version = "0.1.0"
 dependencies = [
  "abstutil",
  "flate2",
+ "geom",
  "md5",
  "reqwest",
  "tokio",

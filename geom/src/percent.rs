@@ -15,10 +15,14 @@ impl Percent {
         }
         Percent((x as f64) / 100.0)
     }
+
+    pub fn of(x: usize, total: usize) -> Percent {
+        Percent((x as f64) / (total as f64))
+    }
 }
 
 impl fmt::Display for Percent {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "{:.2}%", self.0 * 100.0)
+        write!(f, "{:.2}%", self.0 * 100.0)
     }
 }

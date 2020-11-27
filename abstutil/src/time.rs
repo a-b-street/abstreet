@@ -489,7 +489,7 @@ pub fn prettyprint_time(seconds: f64) -> String {
 }
 
 #[cfg(unix)]
-pub(crate) fn clear_current_line() {
+pub fn clear_current_line() {
     // Fails in the test runner.
     if let Ok((terminal_width, _)) = termion::terminal_size() {
         print!(
@@ -503,7 +503,7 @@ pub(crate) fn clear_current_line() {
 }
 
 #[cfg(not(unix))]
-pub(crate) fn clear_current_line() {
+pub fn clear_current_line() {
     print!("\r");
 }
 
