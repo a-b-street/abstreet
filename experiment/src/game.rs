@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use geom::{Circle, Distance, Pt2D, Speed};
+use abstutil::Timer;
+use geom::{Circle, Distance, Duration, Pt2D, Speed};
 use map_gui::tools::{nice_map_name, CityPicker};
 use map_gui::{Cached, SimpleApp, ID};
-use map_model::{BuildingID, BuildingType};
+use map_model::{BuildingID, BuildingType, PathConstraints};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
@@ -16,14 +17,18 @@ pub struct Game {
     controls: Box<dyn Controller>,
 
     sleigh: Pt2D,
-    score: Score,
+    state: SleighState,
     over_bldg: Cached<BuildingID, OverBldg>,
 }
 
 impl Game {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        timer: &mut Timer,
+    ) -> Box<dyn State<SimpleApp>> {
         // Start on a commerical building
-        let sleigh = app
+        let depot = app
             .map
             .all_buildings()
             .into_iter()
@@ -31,9 +36,10 @@ impl Game {
                 BuildingType::Commercial(_) => true,
                 _ => false,
             })
-            .map(|b| b.label_center)
             .unwrap();
+        let sleigh = depot.label_center;
         ctx.canvas.center_on_map_pt(sleigh);
+        let state = SleighState::new(ctx, app, depot.id, timer);
 
         Box::new(Game {
             panel: Panel::new(Widget::col(vec![
@@ -47,14 +53,19 @@ impl Game {
                     Some(nice_map_name(app.map.get_name())),
                 )
                 .build(ctx, "change map", lctrl(Key::L))]),
-                format!("Score: 0").draw_text(ctx).named("score"),
+                format!("Score: {}", state.score)
+                    .draw_text(ctx)
+                    .named("score"),
+                format!("Energy: {}", state.energy)
+                    .draw_text(ctx)
+                    .named("energy"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             controls: Box::new(InstantController::new(Speed::miles_per_hour(30.0))),
 
             sleigh,
-            score: Score::new(ctx, app),
+            state,
             over_bldg: Cached::new(),
         })
     }
@@ -63,7 +74,12 @@ impl Game {
         self.panel.replace(
             ctx,
             "score",
-            format!("Score: {}", abstutil::prettyprint_usize(self.score.score)).draw_text(ctx),
+            format!("Score: {}", abstutil::prettyprint_usize(self.state.score)).draw_text(ctx),
+        );
+        self.panel.replace(
+            ctx,
+            "energy",
+            format!("Energy: {}", self.state.energy).draw_text(ctx),
         );
     }
 }
@@ -76,18 +92,23 @@ impl State<SimpleApp> for Game {
             ctx.canvas.center_on_map_pt(self.sleigh);
 
             self.over_bldg
-                .update(OverBldg::key(app, self.sleigh, &self.score), |key| {
+                .update(OverBldg::key(app, self.sleigh, &self.state), |key| {
                     OverBldg::value(ctx, app, key)
                 });
         }
 
         if let Some(b) = self.over_bldg.key() {
             if ctx.input.pressed(Key::Space) {
-                if self.score.present_dropped(ctx, app, b) {
+                if self.state.present_dropped(ctx, app, b) {
                     self.over_bldg.clear();
                     self.update_panel(ctx);
                 }
             }
+        }
+
+        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+            self.state.energy -= dt;
+            self.update_panel(ctx);
         }
 
         match self.panel.event(ctx) {
@@ -100,10 +121,12 @@ impl State<SimpleApp> for Game {
                         ctx,
                         app,
                         Box::new(|ctx, app| {
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                Transition::Replace(Game::new(ctx, app)),
-                            ])
+                            ctx.loading_screen("setup again", |ctx, mut timer| {
+                                Transition::Multi(vec![
+                                    Transition::Pop,
+                                    Transition::Replace(Game::new(ctx, app, &mut timer)),
+                                ])
+                            })
                         }),
                     ));
                 }
@@ -126,8 +149,8 @@ impl State<SimpleApp> for Game {
     fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
         self.panel.draw(g);
 
-        g.redraw(&self.score.draw_scores);
-        g.redraw(&self.score.draw_done);
+        g.redraw(&self.state.draw_scores);
+        g.redraw(&self.state.draw_done);
         if let Some(draw) = self.over_bldg.value() {
             g.redraw(&draw.0);
         }
@@ -138,33 +161,67 @@ impl State<SimpleApp> for Game {
     }
 }
 
-struct Score {
+struct SleighState {
+    depot: BuildingID,
     score: usize,
+    energy: Duration,
     houses: HashMap<BuildingID, BldgState>,
+    house_costs: HashMap<BuildingID, Duration>,
     draw_scores: Drawable,
     draw_done: Drawable,
 }
 
-impl Score {
-    fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Score {
+impl SleighState {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        depot: BuildingID,
+        timer: &mut Timer,
+    ) -> SleighState {
+        timer.start("calculate costs from depot");
+        let house_costs = map_model::connectivity::all_costs_from(
+            &app.map,
+            depot,
+            Duration::hours(3),
+            PathConstraints::Pedestrian,
+        );
+        timer.stop("calculate costs from depot");
+
         let mut houses = HashMap::new();
         let mut batch = GeomBatch::new();
+        timer.start_iter("assign score to houses", app.map.all_buildings().len());
         for b in app.map.all_buildings() {
+            timer.next();
             if let BuildingType::Residential(_) = b.bldg_type {
                 let score = b.id.0;
+                let cost = house_costs.get(&b.id).cloned().unwrap_or(Duration::ZERO);
+                let color = if cost < Duration::minutes(5) {
+                    Color::GREEN
+                } else if cost < Duration::minutes(15) {
+                    Color::YELLOW
+                } else {
+                    Color::RED
+                };
+
                 houses.insert(b.id, BldgState::Undelivered(score));
                 batch.append(
-                    Text::from(Line(format!("{}", score)))
-                        .render_to_batch(ctx.prerender)
-                        .scale(0.1)
-                        .centered_on(b.label_center),
+                    Text::from_multiline(vec![
+                        Line(format!("{}", score)),
+                        Line(format!("{}", cost)).fg(color),
+                    ])
+                    .render_to_batch(ctx.prerender)
+                    .scale(0.1)
+                    .centered_on(b.label_center),
                 );
             }
         }
 
-        Score {
+        SleighState {
+            depot,
             score: 0,
+            energy: Duration::minutes(90),
             houses,
+            house_costs,
             draw_scores: ctx.upload(batch),
             draw_done: Drawable::empty(ctx),
         }
@@ -177,6 +234,7 @@ impl Score {
                 batch.push(Color::BLACK, app.map.get_b(*b).polygon.clone());
             }
         }
+        batch.push(Color::GREEN, app.map.get_b(self.depot).polygon.clone());
         self.draw_done = ctx.upload(batch);
     }
 
@@ -185,6 +243,7 @@ impl Score {
         if let Some(BldgState::Undelivered(score)) = self.houses.get(&id) {
             self.score += score;
             self.houses.insert(id, BldgState::Done);
+            self.energy -= self.house_costs.get(&id).cloned().unwrap_or(Duration::ZERO);
             self.redraw(ctx, app);
             return true;
         }
@@ -201,14 +260,14 @@ enum BldgState {
 struct OverBldg(Drawable);
 
 impl OverBldg {
-    fn key(app: &SimpleApp, sleigh: Pt2D, score: &Score) -> Option<BuildingID> {
+    fn key(app: &SimpleApp, sleigh: Pt2D, state: &SleighState) -> Option<BuildingID> {
         for id in app
             .draw_map
             .get_matching_objects(Circle::new(sleigh, Distance::meters(3.0)).get_bounds())
         {
             if let ID::Building(b) = id {
                 if app.map.get_b(b).polygon.contains_pt(sleigh) {
-                    if let Some(BldgState::Undelivered(_)) = score.houses.get(&b) {
+                    if let Some(BldgState::Undelivered(_)) = state.houses.get(&b) {
                         return Some(b);
                     }
                 }

@@ -24,8 +24,6 @@ impl Controller for InstantController {
         let mut dy = 0.0;
 
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            ctx.input.use_update_event();
-
             let dist = (dt * self.speed).inner_meters();
             if ctx.is_key_down(Key::LeftArrow) {
                 dx -= dist;
@@ -68,8 +66,6 @@ impl Controller for RotateController {
         let mut dy = 0.0;
 
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            ctx.input.use_update_event();
-
             if ctx.is_key_down(Key::LeftArrow) {
                 self.angle = self
                     .angle
