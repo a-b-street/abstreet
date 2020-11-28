@@ -1,3 +1,4 @@
+mod animation;
 mod controls;
 mod game;
 mod upzone;

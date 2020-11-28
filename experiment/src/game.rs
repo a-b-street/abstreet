@@ -10,6 +10,7 @@ use widgetry::{
     Line, Outcome, Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
+use crate::animation::Animator;
 use crate::controls::{Controller, InstantController, RotateController};
 
 const ZOOM: f64 = 10.0;
@@ -18,6 +19,7 @@ pub struct Game {
     panel: Panel,
     controls: Box<dyn Controller>,
     minimap: SimpleMinimap,
+    animator: Animator,
 
     sleigh: Pt2D,
     state: SleighState,
@@ -71,6 +73,7 @@ impl Game {
             panel,
             controls: Box::new(InstantController::new()),
             minimap: SimpleMinimap::new(ctx, app, with_zorder),
+            animator: Animator::new(ctx),
 
             sleigh,
             state,
@@ -166,15 +169,27 @@ impl State<SimpleApp> for Game {
         }
 
         if let Some(b) = self.over_bldg.key() {
-            if self.state.has_energy() && self.state.present_dropped(ctx, app, b) {
-                self.over_bldg.clear();
-                self.update_panel(ctx);
+            if self.state.has_energy() {
+                if let Some(increase) = self.state.present_dropped(ctx, app, b) {
+                    self.over_bldg.clear();
+                    self.update_panel(ctx);
+                    self.animator.add(
+                        Duration::seconds(0.5),
+                        (1.0, 4.0),
+                        app.map.get_b(b).label_center,
+                        Text::from(Line(format!("+{}", prettyprint_usize(increase))))
+                            .bg(Color::RED)
+                            .render_to_batch(ctx.prerender)
+                            .scale(0.1),
+                    );
+                }
             }
         }
 
         if let Some(t) = self.minimap.event(ctx, app) {
             return t;
         }
+        self.animator.event(ctx);
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -242,6 +257,7 @@ impl State<SimpleApp> for Game {
             Color::RED,
             Circle::new(self.sleigh, Distance::meters(5.0)).to_polygon(),
         );
+        self.animator.draw(g);
     }
 }
 
@@ -367,16 +383,21 @@ impl SleighState {
         self.draw_all_depots = ctx.upload(batch);
     }
 
-    // True if state change
-    fn present_dropped(&mut self, ctx: &mut EventCtx, app: &SimpleApp, id: BuildingID) -> bool {
+    // If something changed, return the update to the score
+    fn present_dropped(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        id: BuildingID,
+    ) -> Option<usize> {
         if let Some(BldgState::Undelivered { score, cost }) = self.houses.get(&id).cloned() {
             self.score += score;
             self.houses.insert(id, BldgState::Done);
             self.energy -= cost;
             self.redraw(ctx, app);
-            return true;
+            return Some(score);
         }
-        false
+        None
     }
 
     // True if state change
