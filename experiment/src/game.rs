@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Circle, Distance, Duration, Pt2D, Speed};
 use map_gui::tools::{nice_map_name, CityPicker};
 use map_gui::{Cached, SimpleApp, ID};
@@ -11,6 +11,8 @@ use widgetry::{
 };
 
 use crate::controls::{Controller, InstantController, RotateController};
+
+const ZOOM: f64 = 10.0;
 
 pub struct Game {
     panel: Panel,
@@ -27,6 +29,8 @@ impl Game {
         app: &SimpleApp,
         timer: &mut Timer,
     ) -> Box<dyn State<SimpleApp>> {
+        ctx.canvas.cam_zoom = ZOOM;
+
         // Start on a commerical building
         let depot = app
             .map
@@ -41,40 +45,43 @@ impl Game {
         ctx.canvas.center_on_map_pt(sleigh);
         let state = SleighState::new(ctx, app, depot.id, timer);
 
-        Box::new(Game {
-            panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Experiment").small_heading().draw(ctx),
-                    Btn::close(ctx),
-                ]),
-                Checkbox::toggle(ctx, "control type", "rotate", "instant", Key::Tab, false),
-                Widget::row(vec![Btn::pop_up(
-                    ctx,
-                    Some(nice_map_name(app.map.get_name())),
-                )
-                .build(ctx, "change map", lctrl(Key::L))]),
-                format!("Score: {}", state.score)
-                    .draw_text(ctx)
-                    .named("score"),
-                format!("Energy: {}", state.energy)
-                    .draw_text(ctx)
-                    .named("energy"),
-            ]))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-            .build(ctx),
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Line("Experiment").small_heading().draw(ctx),
+                Btn::close(ctx),
+            ]),
+            Checkbox::toggle(ctx, "control type", "rotate", "instant", Key::Tab, false),
+            Widget::row(vec![Btn::pop_up(
+                ctx,
+                Some(nice_map_name(app.map.get_name())),
+            )
+            .build(ctx, "change map", lctrl(Key::L))]),
+            "Score".draw_text(ctx).named("score"),
+            "Energy".draw_text(ctx).named("energy"),
+            Widget::row(vec![
+                "use upzone".draw_text(ctx).named("use upzone"),
+                "Next upzone".draw_text(ctx).named("next upzone"),
+            ]),
+        ]))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+        .build(ctx);
+        let mut game = Game {
+            panel,
             controls: Box::new(InstantController::new()),
 
             sleigh,
             state,
             over_bldg: Cached::new(),
-        })
+        };
+        game.update_panel(ctx);
+        Box::new(game)
     }
 
     fn update_panel(&mut self, ctx: &mut EventCtx) {
         self.panel.replace(
             ctx,
             "score",
-            format!("Score: {}", abstutil::prettyprint_usize(self.state.score)).draw_text(ctx),
+            format!("Score: {}", prettyprint_usize(self.state.score)).draw_text(ctx),
         );
         self.panel.replace(
             ctx,
@@ -85,6 +92,35 @@ impl Game {
                 Line("Energy: you need to refuel!").fg(Color::RED).draw(ctx)
             },
         );
+        let (upzones_free, next_upzone) = self.state.get_upzones();
+        self.panel.replace(
+            ctx,
+            "use upzone",
+            if upzones_free == 0 {
+                Btn::text_bg2("0 upzones").inactive(ctx).named("use upzone")
+            } else {
+                // TODO Since we constantly recreate this, the button isn't clickable
+                Btn::text_bg2(format!("Apply upzone ({} available)", upzones_free)).build(
+                    ctx,
+                    "use upzone",
+                    Key::U,
+                )
+            },
+        );
+        self.panel.replace(
+            ctx,
+            "next upzone",
+            format!("Next upzone: {}", prettyprint_usize(next_upzone)).draw_text(ctx),
+        );
+    }
+
+    pub fn upzone(&mut self, ctx: &mut EventCtx, app: &SimpleApp, b: BuildingID) {
+        self.state.upzones_used += 1;
+        self.state.houses.insert(b, BldgState::Depot);
+        self.state.depot = b;
+        self.state.redraw(ctx, app);
+        ctx.canvas.cam_zoom = ZOOM;
+        ctx.canvas.center_on_map_pt(self.sleigh);
     }
 }
 
@@ -94,6 +130,8 @@ impl State<SimpleApp> for Game {
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             if let Some(b) = self.over_bldg.key() {
                 if ctx.is_key_down(Key::Space) && self.state.recharge(ctx, app, b, dt) {
+                    self.state.depot = b;
+                    self.state.redraw(ctx, app);
                     self.update_panel(ctx);
                     recharging = true;
                 }
@@ -149,6 +187,18 @@ impl State<SimpleApp> for Game {
                         }),
                     ));
                 }
+                "use upzone" => {
+                    let choices = self
+                        .state
+                        .houses
+                        .iter()
+                        .filter_map(|(id, state)| match state {
+                            BldgState::Undelivered { .. } => Some(*id),
+                            _ => None,
+                        })
+                        .collect();
+                    return Transition::Push(crate::upzone::Picker::new(ctx, app, choices));
+                }
                 _ => unreachable!(),
             },
             Outcome::Changed => {
@@ -185,16 +235,19 @@ struct Config {
     tired_speed: Speed,
     recharge_rate: f64,
     max_energy: Duration,
+    upzone_rate: usize,
 }
 
 struct SleighState {
     depot: BuildingID,
     score: usize,
+    upzones_used: usize,
     energy: Duration,
     houses: HashMap<BuildingID, BldgState>,
     draw_scores: Drawable,
     draw_done: Drawable,
     config: Config,
+    upzoned_depots: Vec<BuildingID>,
 }
 
 impl SleighState {
@@ -251,15 +304,18 @@ impl SleighState {
             tired_speed: Speed::miles_per_hour(10.0),
             recharge_rate: 1000.0,
             max_energy: Duration::minutes(90),
+            upzone_rate: 30_000,
         };
         let mut s = SleighState {
             depot,
             score: 0,
+            upzones_used: 0,
             energy: config.max_energy,
             houses,
             draw_scores: ctx.upload(batch),
             draw_done: Drawable::empty(ctx),
             config,
+            upzoned_depots: Vec::new(),
         };
         s.redraw(ctx, app);
         s
@@ -271,6 +327,13 @@ impl SleighState {
             if let BldgState::Done = state {
                 batch.push(Color::BLACK, app.map.get_b(*b).polygon.clone());
             }
+        }
+        // TODO This doesnt seem to be working
+        for b in &self.upzoned_depots {
+            batch.push(
+                app.cs.commerical_building,
+                app.map.get_b(*b).polygon.clone(),
+            );
         }
         batch.push(Color::GREEN, app.map.get_b(self.depot).polygon.clone());
         self.draw_done = ctx.upload(batch);
@@ -307,6 +370,15 @@ impl SleighState {
 
     fn has_energy(&self) -> bool {
         self.energy > Duration::ZERO
+    }
+
+    /// (upzones_free, next_upzone)
+    fn get_upzones(&self) -> (usize, usize) {
+        // Start with a freebie
+        let total = 1 + self.score / self.config.upzone_rate;
+        let upzones_free = total - self.upzones_used;
+        let next_upzone = (total + 1) * self.config.upzone_rate;
+        (upzones_free, next_upzone - self.score)
     }
 }
 

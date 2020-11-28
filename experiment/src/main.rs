@@ -1,5 +1,6 @@
 mod controls;
 mod game;
+mod upzone;
 
 fn main() {
     widgetry::run(widgetry::Settings::new("experiment"), |ctx| {

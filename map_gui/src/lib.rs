@@ -107,4 +107,11 @@ impl ID {
             _ => panic!("Can't call as_intersection on {:?}", self),
         }
     }
+
+    pub fn as_building(&self) -> BuildingID {
+        match *self {
+            ID::Building(b) => b,
+            _ => panic!("Can't call as_building on {:?}", self),
+        }
+    }
 }

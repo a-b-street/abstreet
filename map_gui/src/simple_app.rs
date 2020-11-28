@@ -117,14 +117,17 @@ impl SimpleApp {
         self.current_selection = self.calculate_current_selection(ctx, false, false);
     }
 
+    // TODO Returns anything; I think it should just return roads
     pub fn mouseover_unzoomed_roads_and_intersections(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, true, false)
     }
+    /// Only select buildings, and work whether zoomed in or not.
     pub fn mouseover_unzoomed_buildings(&self, ctx: &EventCtx) -> Option<ID> {
         self.calculate_current_selection(ctx, false, true)
-    }
-    pub fn mouseover_unzoomed_everything(&self, ctx: &EventCtx) -> Option<ID> {
-        self.calculate_current_selection(ctx, true, true)
+            .filter(|id| match id {
+                ID::Building(_) => true,
+                _ => false,
+            })
     }
 
     fn calculate_current_selection(
