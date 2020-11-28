@@ -329,6 +329,9 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -352,9 +355,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimpleApp</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">mut</span> <span class="ident">args</span>: <span class="ident">CmdArgs</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimpleApp</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">args</span>: <span class="ident">CmdArgs</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimpleApp</span> {
+        <span class="ident">SimpleApp</span>::<span class="ident">new_with_opts</span>(<span class="ident">ctx</span>, <span class="ident">args</span>, <span class="ident">Options</span>::<span class="ident">default</span>())
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_opts</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">mut</span> <span class="ident">args</span>: <span class="ident">CmdArgs</span>, <span class="kw-2">mut</span> <span class="ident">opts</span>: <span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimpleApp</span> {
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">Options</span>::<span class="ident">default</span>();
             <span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
             <span class="kw">let</span> <span class="ident">map_path</span> <span class="op">=</span> <span class="ident">args</span>
                 .<span class="ident">optional_free</span>()
