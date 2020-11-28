@@ -71,6 +71,7 @@ pub struct ColorScheme {
     pub fade_map_dark: Color,
     pub gui_style: Style,
     pub dialog_bg: Color,
+    pub minimap_cursor: Color,
 
     // Roads
     driving_lane: Color,
@@ -191,6 +192,7 @@ impl ColorScheme {
             bottom_bar_name: Color::CYAN,
             fade_map_dark: Color::BLACK.alpha(0.6),
             dialog_bg: hex("#94C84A"),
+            minimap_cursor: Color::BLACK,
             gui_style,
 
             // Roads
@@ -402,6 +404,7 @@ impl ColorScheme {
         cs.panel_bg = Color::rgba(0, 48, 70, 0.6);
         cs.gui_style.panel_bg = cs.panel_bg;
         cs.inner_panel = cs.panel_bg;
+        cs.minimap_cursor = Color::WHITE;
 
         cs
     }

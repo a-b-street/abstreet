@@ -20,9 +20,12 @@ pub struct SimpleApp {
 }
 
 impl SimpleApp {
-    pub fn new(ctx: &mut EventCtx, mut args: CmdArgs) -> SimpleApp {
+    pub fn new(ctx: &mut EventCtx, args: CmdArgs) -> SimpleApp {
+        SimpleApp::new_with_opts(ctx, args, Options::default())
+    }
+
+    pub fn new_with_opts(ctx: &mut EventCtx, mut args: CmdArgs, mut opts: Options) -> SimpleApp {
         ctx.loading_screen("load map", |ctx, mut timer| {
-            let mut opts = Options::default();
             opts.update_from_args(&mut args);
             let map_path = args
                 .optional_free()

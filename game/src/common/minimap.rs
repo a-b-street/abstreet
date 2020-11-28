@@ -410,7 +410,7 @@ impl Minimap {
             (pt.x(), pt.y())
         };
         g.draw_polygon(
-            Color::BLACK,
+            app.cs.minimap_cursor,
             Ring::must_new(vec![
                 Pt2D::new(x1, y1),
                 Pt2D::new(x2, y1),
