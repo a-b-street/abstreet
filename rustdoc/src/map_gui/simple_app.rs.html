@@ -326,6 +326,9 @@
 <span id="323">323</span>
 <span id="324">324</span>
 <span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -446,14 +449,17 @@
         <span class="self">self</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
     }
 
+    <span class="comment">// TODO Returns anything; I think it should just return roads</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
     }
+    <span class="doccomment">/// Only select buildings, and work whether zoomed in or not.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mouseover_unzoomed_buildings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>)
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mouseover_unzoomed_everything</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>)
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
+                <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            })
     }
 
     <span class="kw">fn</span> <span class="ident">calculate_current_selection</span>(
