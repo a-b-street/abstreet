@@ -1,8 +1,8 @@
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
-    Btn, Color, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
 };
 
 use crate::tools::Navigator;
@@ -14,6 +14,7 @@ pub struct SimpleMinimap {
     pub(crate) panel: Panel,
     // Update panel when other things change
     zoomed: bool,
+    with_zorder: bool,
 
     // [0, 3], with 0 meaning the most unzoomed
     zoom_lvl: usize,
@@ -24,7 +25,7 @@ pub struct SimpleMinimap {
 }
 
 impl SimpleMinimap {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> SimpleMinimap {
+    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, with_zorder: bool) -> SimpleMinimap {
         // Initially pick a zoom to fit the smaller of the entire map's width or height in the
         // minimap. Arbitrary and probably pretty weird.
         let bounds = app.map.get_bounds();
@@ -33,6 +34,7 @@ impl SimpleMinimap {
             dragging: false,
             panel: Panel::empty(ctx),
             zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
+            with_zorder,
 
             zoom_lvl: 0,
             base_zoom,
@@ -84,12 +86,16 @@ impl SimpleMinimap {
             // stretching to the bottom of the row.
             Widget::custom_col(vec![
                 Widget::custom_col(col).padding(10).bg(app.cs.inner_panel),
-                Widget::col(vec![
-                    Line("Z-order:").small().draw(ctx),
-                    Spinner::new(ctx, app.draw_map.zorder_range, app.draw_map.show_zorder)
-                        .named("zorder"),
-                ])
-                .margin_above(10),
+                if self.with_zorder {
+                    Widget::col(vec![
+                        Line("Z-order:").small().draw(ctx),
+                        Spinner::new(ctx, app.draw_map.zorder_range, app.draw_map.show_zorder)
+                            .named("zorder"),
+                    ])
+                    .margin_above(10)
+                } else {
+                    Widget::nothing()
+                },
             ])
             .margin_above(26)
         };
@@ -298,6 +304,10 @@ impl SimpleMinimap {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
+        self.draw_with_extra_layer(g, app, None);
+    }
+
+    pub fn draw_with_extra_layer(&self, g: &mut GfxCtx, app: &SimpleApp, extra: Option<&Drawable>) {
         self.panel.draw(g);
         if !self.zoomed {
             return;
@@ -324,6 +334,9 @@ impl SimpleMinimap {
         g.redraw(&app.draw_map.draw_all_unzoomed_parking_lots);
         g.redraw(&app.draw_map.draw_all_unzoomed_roads_and_intersections);
         g.redraw(&app.draw_map.draw_all_buildings);
+        if let Some(draw) = extra {
+            g.redraw(draw);
+        }
         // Not the building or parking lot paths
 
         // The cursor

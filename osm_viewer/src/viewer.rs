@@ -24,9 +24,10 @@ pub struct Viewer {
 
 impl Viewer {
     pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
+        let with_zorder = true;
         let mut viewer = Viewer {
             fixed_object_outline: None,
-            minimap: SimpleMinimap::new(ctx, app),
+            minimap: SimpleMinimap::new(ctx, app, with_zorder),
             businesses: None,
             top_panel: Panel::empty(ctx),
         };

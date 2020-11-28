@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Circle, Distance, Duration, Pt2D, Speed};
-use map_gui::tools::{nice_map_name, CityPicker};
+use map_gui::tools::{nice_map_name, CityPicker, SimpleMinimap};
 use map_gui::{Cached, SimpleApp, ID};
 use map_model::{BuildingID, BuildingType, PathConstraints};
 use widgetry::{
@@ -17,6 +17,7 @@ const ZOOM: f64 = 10.0;
 pub struct Game {
     panel: Panel,
     controls: Box<dyn Controller>,
+    minimap: SimpleMinimap,
 
     sleigh: Pt2D,
     state: SleighState,
@@ -65,9 +66,11 @@ impl Game {
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
+        let with_zorder = false;
         let mut game = Game {
             panel,
             controls: Box::new(InstantController::new()),
+            minimap: SimpleMinimap::new(ctx, app, with_zorder),
 
             sleigh,
             state,
@@ -119,6 +122,7 @@ impl Game {
         self.state.houses.insert(b, BldgState::Depot);
         self.state.depot = b;
         self.state.redraw(ctx, app);
+        self.state.redraw_depots(ctx, app);
         ctx.canvas.cam_zoom = ZOOM;
         ctx.canvas.center_on_map_pt(self.sleigh);
     }
@@ -168,6 +172,10 @@ impl State<SimpleApp> for Game {
             }
         }
 
+        if let Some(t) = self.minimap.event(ctx, app) {
+            return t;
+        }
+
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -215,8 +223,15 @@ impl State<SimpleApp> for Game {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
+    fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
         self.panel.draw(g);
+        if self.state.has_energy() {
+            self.minimap
+                .draw_with_extra_layer(g, app, Some(&self.state.draw_done));
+        } else {
+            self.minimap
+                .draw_with_extra_layer(g, app, Some(&self.state.draw_all_depots));
+        }
 
         g.redraw(&self.state.draw_scores);
         g.redraw(&self.state.draw_done);
@@ -248,6 +263,7 @@ struct SleighState {
     draw_done: Drawable,
     config: Config,
     upzoned_depots: Vec<BuildingID>,
+    draw_all_depots: Drawable,
 }
 
 impl SleighState {
@@ -316,8 +332,10 @@ impl SleighState {
             draw_done: Drawable::empty(ctx),
             config,
             upzoned_depots: Vec::new(),
+            draw_all_depots: Drawable::empty(ctx),
         };
         s.redraw(ctx, app);
+        s.redraw_depots(ctx, app);
         s
     }
 
@@ -337,6 +355,16 @@ impl SleighState {
         }
         batch.push(Color::GREEN, app.map.get_b(self.depot).polygon.clone());
         self.draw_done = ctx.upload(batch);
+    }
+
+    fn redraw_depots(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
+        let mut batch = GeomBatch::new();
+        for (b, state) in &self.houses {
+            if let BldgState::Depot = state {
+                batch.push(Color::RED, app.map.get_b(*b).polygon.clone());
+            }
+        }
+        self.draw_all_depots = ctx.upload(batch);
     }
 
     // True if state change
