@@ -554,6 +554,10 @@
 <span id="551">551</span>
 <span id="552">552</span>
 <span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -568,7 +572,7 @@
     <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::<span class="ident">Animator</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">SnowEffect</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">controls</span>::{<span class="ident">Controller</span>, <span class="ident">InstantController</span>, <span class="ident">RotateController</span>};
 
 <span class="kw">const</span> <span class="ident">ZOOM</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
@@ -578,6 +582,7 @@
     <span class="ident">controls</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Controller</span><span class="op">&gt;</span>,
     <span class="ident">minimap</span>: <span class="ident">SimpleMinimap</span>,
     <span class="ident">animator</span>: <span class="ident">Animator</span>,
+    <span class="ident">snow</span>: <span class="ident">SnowEffect</span>,
 
     <span class="ident">sleigh</span>: <span class="ident">Pt2D</span>,
     <span class="ident">state</span>: <span class="ident">SleighState</span>,
@@ -636,6 +641,7 @@
             <span class="ident">controls</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">InstantController</span>::<span class="ident">new</span>()),
             <span class="ident">minimap</span>: <span class="ident">SimpleMinimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">with_zorder</span>),
             <span class="ident">animator</span>: <span class="ident">Animator</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
+            <span class="ident">snow</span>: <span class="ident">SnowEffect</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
 
             <span class="ident">sleigh</span>,
             <span class="ident">state</span>,
@@ -761,6 +767,7 @@
             <span class="kw">return</span> <span class="ident">t</span>;
         }
         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.<span class="ident">snow</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
@@ -832,6 +839,7 @@
             <span class="ident">Color</span>::<span class="ident">RED</span>,
             <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">sleigh</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>)).<span class="ident">to_polygon</span>(),
         );
+        <span class="self">self</span>.<span class="ident">snow</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }

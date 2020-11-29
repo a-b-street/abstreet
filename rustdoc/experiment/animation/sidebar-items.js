@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Animator",""],["Effect",""]]});
+initSidebarItems({"struct":[["Animator",""],["Effect",""],["SnowEffect",""],["Snowflake",""]]});
