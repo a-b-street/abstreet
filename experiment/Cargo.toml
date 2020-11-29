@@ -12,4 +12,6 @@ abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
+rand = "0.7.0"
+rand_xorshift = "0.2.0"
 widgetry = { path = "../widgetry" }

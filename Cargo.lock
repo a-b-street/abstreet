@@ -714,6 +714,8 @@ dependencies = [
  "geom",
  "map_gui",
  "map_model",
+ "rand",
+ "rand_xorshift",
  "widgetry",
 ]
 

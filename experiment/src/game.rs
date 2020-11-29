@@ -11,7 +11,7 @@ use widgetry::{
     UpdateType, VerticalAlignment, Widget,
 };
 
-use crate::animation::Animator;
+use crate::animation::{Animator, SnowEffect};
 use crate::controls::{Controller, InstantController, RotateController};
 
 const ZOOM: f64 = 10.0;
@@ -21,6 +21,7 @@ pub struct Game {
     controls: Box<dyn Controller>,
     minimap: SimpleMinimap,
     animator: Animator,
+    snow: SnowEffect,
 
     sleigh: Pt2D,
     state: SleighState,
@@ -79,6 +80,7 @@ impl Game {
             controls: Box::new(InstantController::new()),
             minimap: SimpleMinimap::new(ctx, app, with_zorder),
             animator: Animator::new(ctx),
+            snow: SnowEffect::new(ctx),
 
             sleigh,
             state,
@@ -204,6 +206,7 @@ impl State<SimpleApp> for Game {
             return t;
         }
         self.animator.event(ctx);
+        self.snow.event(ctx);
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -275,6 +278,7 @@ impl State<SimpleApp> for Game {
             Color::RED,
             Circle::new(self.sleigh, Distance::meters(5.0)).to_polygon(),
         );
+        self.snow.draw(g);
         self.animator.draw(g);
     }
 }
