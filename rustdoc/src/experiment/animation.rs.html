@@ -157,6 +157,7 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
+<span id="157">157</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -165,7 +166,8 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Animator</span> {
-    <span class="ident">time</span>: <span class="ident">Time</span>,
+    <span class="comment">// TODO Maintain centrally and pass in?</span>
+    <span class="kw">pub</span> <span class="ident">time</span>: <span class="ident">Time</span>,
     <span class="ident">active</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Effect</span><span class="op">&gt;</span>,
     <span class="ident">draw_current</span>: <span class="ident">Drawable</span>,
 }

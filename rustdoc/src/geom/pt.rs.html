@@ -180,6 +180,11 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -259,6 +264,11 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_to</span>(<span class="self">self</span>, <span class="ident">to</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="self">self</span>.<span class="ident">raw_dist_to</span>(<span class="ident">to</span>))
+    }
+
+    <span class="doccomment">/// Pretty meaningless units, for comparing distances very roughly</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fast_dist</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NotNan</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+        <span class="ident">NotNan</span>::<span class="ident">new</span>((<span class="self">self</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">x</span>()).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="self">self</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">y</span>()).<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">unwrap</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">angle_to</span>(<span class="self">self</span>, <span class="ident">to</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
