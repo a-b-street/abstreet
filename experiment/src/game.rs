@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
 use abstutil::{prettyprint_usize, Timer};
-use geom::{Circle, Distance, Duration, Pt2D, Speed};
-use map_gui::tools::{nice_map_name, CityPicker, SimpleMinimap};
+use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D, Speed};
+use map_gui::tools::{nice_map_name, CityPicker, ColorScale, SimpleMinimap};
 use map_gui::{Cached, SimpleApp, ID};
 use map_model::{BuildingID, BuildingType, PathConstraints};
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, LinearGradient, Outcome, Panel, State, Text, TextExt, Transition, UpdateType,
+    VerticalAlignment, Widget,
 };
 
 use crate::animation::Animator;
@@ -60,11 +61,19 @@ impl Game {
             )
             .build(ctx, "change map", lctrl(Key::L))]),
             "Score".draw_text(ctx).named("score"),
-            "Energy".draw_text(ctx).named("energy"),
             Widget::row(vec![
-                "use upzone".draw_text(ctx).named("use upzone"),
-                "Next upzone".draw_text(ctx).named("next upzone"),
+                "Energy:".draw_text(ctx),
+                Widget::draw_batch(ctx, GeomBatch::new())
+                    .named("energy")
+                    .align_right(),
             ]),
+            Widget::row(vec![
+                "Next upzone:".draw_text(ctx),
+                Widget::draw_batch(ctx, GeomBatch::new())
+                    .named("next upzone")
+                    .align_right(),
+            ]),
+            "use upzone".draw_text(ctx).named("use upzone"),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
@@ -89,16 +98,15 @@ impl Game {
             "score",
             format!("Score: {}", prettyprint_usize(self.state.score)).draw_text(ctx),
         );
-        self.panel.replace(
+
+        let energy_bar = make_bar(
             ctx,
-            "energy",
-            if self.state.has_energy() {
-                format!("Energy: {}", self.state.energy).draw_text(ctx)
-            } else {
-                Line("Energy: you need to refuel!").fg(Color::RED).draw(ctx)
-            },
+            self.state.energy.max(Duration::ZERO) / self.state.config.max_energy,
+            ColorScale(vec![Color::RED, Color::YELLOW, Color::GREEN]),
         );
-        let (upzones_free, next_upzone) = self.state.get_upzones();
+        self.panel.replace(ctx, "energy", energy_bar);
+
+        let (upzones_free, next_upzone_pct) = self.state.get_upzones();
         self.panel.replace(
             ctx,
             "use upzone",
@@ -113,19 +121,23 @@ impl Game {
                 )
             },
         );
-        self.panel.replace(
+        let upzone_bar = make_bar(
             ctx,
-            "next upzone",
-            format!("Next upzone: {}", prettyprint_usize(next_upzone)).draw_text(ctx),
+            next_upzone_pct,
+            // TODO Probably similar color for showing depots
+            ColorScale(vec![Color::hex("#EFEDF5"), Color::hex("#756BB1")]),
         );
+        self.panel.replace(ctx, "next upzone", upzone_bar);
     }
 
     pub fn upzone(&mut self, ctx: &mut EventCtx, app: &SimpleApp, b: BuildingID) {
+        self.state.energy = self.state.config.max_energy;
         self.state.upzones_used += 1;
         self.state.houses.insert(b, BldgState::Depot);
         self.state.depot = b;
         self.state.redraw(ctx, app);
         self.state.redraw_depots(ctx, app);
+        self.sleigh = app.map.get_b(b).label_center;
         ctx.canvas.cam_zoom = ZOOM;
         ctx.canvas.center_on_map_pt(self.sleigh);
     }
@@ -421,13 +433,16 @@ impl SleighState {
         self.energy > Duration::ZERO
     }
 
-    /// (upzones_free, next_upzone)
-    fn get_upzones(&self) -> (usize, usize) {
+    /// (upzones_free, next_upzone_pct)
+    fn get_upzones(&self) -> (usize, f64) {
         // Start with a freebie
-        let total = 1 + self.score / self.config.upzone_rate;
+        let total = 1 + (self.score / self.config.upzone_rate);
         let upzones_free = total - self.upzones_used;
-        let next_upzone = (total + 1) * self.config.upzone_rate;
-        (upzones_free, next_upzone - self.score)
+        let next_upzone = total * self.config.upzone_rate;
+        (
+            upzones_free,
+            1.0 - ((next_upzone - self.score) as f64) / (self.config.upzone_rate as f64),
+        )
     }
 }
 
@@ -465,4 +480,44 @@ impl OverBldg {
             app.map.get_b(key).polygon.clone(),
         )])))
     }
+}
+
+fn make_bar(ctx: &mut EventCtx, pct_full: f64, scale: ColorScale) -> Widget {
+    let total_width = 300.0;
+    let height = 32.0;
+    let n = scale.0.len();
+    let width_each = total_width / ((n - 1) as f64);
+
+    let mut pieces = Vec::new();
+    let mut width_remaining = pct_full * total_width;
+    for i in 0..n - 1 {
+        let width = width_each.min(width_remaining);
+        pieces.push(Polygon::rectangle(width, height).translate((i as f64) * width_each, 0.0));
+        if width < width_each {
+            break;
+        }
+        width_remaining -= width;
+    }
+
+    let mut batch = GeomBatch::new();
+    batch.push(
+        Fill::LinearGradient(LinearGradient {
+            line: Line::must_new(Pt2D::new(0.0, 0.0), Pt2D::new(total_width, 0.0)),
+            stops: scale
+                .0
+                .iter()
+                .enumerate()
+                .map(|(idx, color)| ((idx as f64) / ((n - 1) as f64), *color))
+                .collect(),
+        }),
+        Polygon::union_all(pieces),
+    );
+    batch.push(
+        Color::BLACK,
+        Polygon::rectangle((1.0 - pct_full) * total_width, height)
+            .translate(pct_full * total_width, 0.0),
+    );
+    Widget::draw_batch(ctx, batch)
+        .padding(2)
+        .outline(2.0, Color::WHITE)
 }
