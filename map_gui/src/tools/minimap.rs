@@ -138,7 +138,7 @@ impl SimpleMinimap {
         (pct_x, pct_y)
     }
 
-    fn set_zoom(&mut self, ctx: &mut EventCtx, app: &SimpleApp, zoom_lvl: usize) {
+    pub fn set_zoom(&mut self, ctx: &mut EventCtx, app: &SimpleApp, zoom_lvl: usize) {
         // Make the frame wind up in the same relative position on the minimap
         let (pct_x, pct_y) = self.map_to_minimap_pct(ctx.canvas.center_to_map_pt());
 

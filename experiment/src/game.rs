@@ -1,18 +1,20 @@
 use std::collections::HashMap;
 
 use abstutil::prettyprint_usize;
-use geom::{ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, Speed, Time};
-use map_gui::tools::{nice_map_name, CityPicker, ColorScale, DivergingScale, SimpleMinimap};
+use geom::{ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, Time};
+use map_gui::load::MapLoader;
+use map_gui::tools::{ColorScale, DivergingScale, SimpleMinimap};
 use map_gui::{Cached, SimpleApp, ID};
 use map_model::{BuildingID, BuildingType, PathConstraints};
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, LinearGradient, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
+    Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, LinearGradient, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
     UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::animation::{Animator, SnowEffect};
 use crate::controls::{Controller, InstantController, RotateController};
+use crate::levels::Config;
 
 const ZOOM: f64 = 10.0;
 
@@ -29,65 +31,59 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
-        ctx.canvas.cam_zoom = ZOOM;
+    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> Box<dyn State<SimpleApp>> {
+        MapLoader::new(
+            ctx,
+            app,
+            config.map.clone(),
+            Box::new(move |ctx, app| {
+                ctx.canvas.cam_zoom = ZOOM;
 
-        // Start on a commerical building
-        let depot = app
-            .map
-            .all_buildings()
-            .into_iter()
-            .find(|b| match b.bldg_type {
-                BuildingType::Commercial(_) => true,
-                _ => false,
-            })
-            .unwrap();
-        let sleigh = depot.label_center;
-        ctx.canvas.center_on_map_pt(sleigh);
-        let state = SleighState::new(ctx, app, depot.id);
+                let state = SleighState::new(ctx, app, config);
+                let sleigh = app.map.get_b(state.depot).label_center;
+                ctx.canvas.center_on_map_pt(sleigh);
 
-        let panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                Line("Experiment").small_heading().draw(ctx),
-                Btn::close(ctx),
-            ]),
-            Checkbox::toggle(ctx, "control type", "rotate", "instant", Key::Tab, false),
-            Widget::row(vec![Btn::pop_up(
-                ctx,
-                Some(nice_map_name(app.map.get_name())),
-            )
-            .build(ctx, "change map", lctrl(Key::L))]),
-            "Score".draw_text(ctx).named("score"),
-            Widget::row(vec![
-                "Energy:".draw_text(ctx),
-                Widget::draw_batch(ctx, GeomBatch::new())
-                    .named("energy")
-                    .align_right(),
-            ]),
-            Widget::row(vec![
-                "Next upzone:".draw_text(ctx),
-                Widget::draw_batch(ctx, GeomBatch::new())
-                    .named("next upzone")
-                    .align_right(),
-            ]),
-            "use upzone".draw_text(ctx).named("use upzone"),
-        ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-        .build(ctx);
-        let with_zorder = false;
-        let mut game = Game {
-            panel,
-            controls: Box::new(InstantController::new()),
-            minimap: SimpleMinimap::new(ctx, app, with_zorder),
-            animator: Animator::new(ctx),
-            snow: SnowEffect::new(ctx),
+                let panel = Panel::new(Widget::col(vec![
+                    Widget::row(vec![
+                        Line("Experiment").small_heading().draw(ctx),
+                        Btn::close(ctx),
+                    ]),
+                    Checkbox::toggle(ctx, "control type", "rotate", "instant", Key::Tab, false),
+                    "Score".draw_text(ctx).named("score"),
+                    Widget::row(vec![
+                        "Energy:".draw_text(ctx),
+                        Widget::draw_batch(ctx, GeomBatch::new())
+                            .named("energy")
+                            .align_right(),
+                    ]),
+                    Widget::row(vec![
+                        "Next upzone:".draw_text(ctx),
+                        Widget::draw_batch(ctx, GeomBatch::new())
+                            .named("next upzone")
+                            .align_right(),
+                    ]),
+                    "use upzone".draw_text(ctx).named("use upzone"),
+                ]))
+                .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+                .build(ctx);
+                let with_zorder = false;
+                let mut game = Game {
+                    panel,
+                    controls: Box::new(InstantController::new()),
+                    minimap: SimpleMinimap::new(ctx, app, with_zorder),
+                    animator: Animator::new(ctx),
+                    snow: SnowEffect::new(ctx),
 
-            sleigh,
-            state,
-            over_bldg: Cached::new(),
-        };
-        game.update_panel(ctx);
-        Box::new(game)
+                    sleigh,
+                    state,
+                    over_bldg: Cached::new(),
+                };
+                game.update_panel(ctx);
+                game.minimap
+                    .set_zoom(ctx, app, game.state.config.minimap_zoom);
+                Transition::Replace(Box::new(game))
+            }),
+        )
     }
 
     fn update_panel(&mut self, ctx: &mut EventCtx) {
@@ -228,18 +224,6 @@ impl State<SimpleApp> for Game {
                 "close" => {
                     return Transition::Pop;
                 }
-                "change map" => {
-                    return Transition::Push(CityPicker::new(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                Transition::Replace(Game::new(ctx, app)),
-                            ])
-                        }),
-                    ));
-                }
                 "use upzone" => {
                     let choices = self
                         .state
@@ -301,14 +285,6 @@ impl State<SimpleApp> for Game {
     }
 }
 
-struct Config {
-    normal_speed: Speed,
-    tired_speed: Speed,
-    recharge_rate: f64,
-    max_energy: Duration,
-    upzone_rate: usize,
-}
-
 struct SleighState {
     config: Config,
 
@@ -330,8 +306,9 @@ struct SleighState {
 }
 
 impl SleighState {
-    fn new(ctx: &mut EventCtx, app: &SimpleApp, depot: BuildingID) -> SleighState {
+    fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> SleighState {
         let mut houses = HashMap::new();
+        let mut depot = None;
         for b in app.map.all_buildings() {
             if let BuildingType::Residential(_) = b.bldg_type {
                 let score = b.id.0;
@@ -339,17 +316,13 @@ impl SleighState {
             } else if !b.amenities.is_empty() {
                 // TODO Maybe just food?
                 houses.insert(b.id, BldgState::Depot);
+                if b.orig_id == config.start_depot {
+                    depot = Some(b.id);
+                }
             }
         }
 
-        let config = Config {
-            normal_speed: Speed::miles_per_hour(30.0),
-            tired_speed: Speed::miles_per_hour(10.0),
-            recharge_rate: 1000.0,
-            max_energy: Duration::minutes(90),
-            upzone_rate: 30_000,
-        };
-
+        let depot = depot.expect(&format!("can't find {}", config.start_depot));
         let energy = config.max_energy;
         let mut s = SleighState {
             config,
