@@ -78,6 +78,11 @@ impl Pt2D {
         Distance::meters(self.raw_dist_to(to))
     }
 
+    /// Pretty meaningless units, for comparing distances very roughly
+    pub fn fast_dist(self, other: Pt2D) -> NotNan<f64> {
+        NotNan::new((self.x() - other.x()).powi(2) + (self.y() - other.y()).powi(2)).unwrap()
+    }
+
     pub fn angle_to(self, to: Pt2D) -> Angle {
         // DON'T invert y here
         Angle::new_rads((to.y() - self.y()).atan2(to.x() - self.x()))

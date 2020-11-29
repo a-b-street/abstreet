@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use abstutil::prettyprint_usize;
-use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D, Speed};
+use geom::{ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, Speed, Time};
 use map_gui::tools::{nice_map_name, CityPicker, ColorScale, DivergingScale, SimpleMinimap};
 use map_gui::{Cached, SimpleApp, ID};
 use map_model::{BuildingID, BuildingType, PathConstraints};
@@ -207,6 +207,21 @@ impl State<SimpleApp> for Game {
         }
         self.animator.event(ctx);
         self.snow.event(ctx);
+        if self.state.has_energy() {
+            self.state.energyless_arrow = None;
+        } else {
+            if self.state.energyless_arrow.is_none() {
+                self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, self.animator.time));
+            }
+            let depots = self.state.all_depots();
+            self.state.energyless_arrow.as_mut().unwrap().update(
+                ctx,
+                app,
+                self.animator.time,
+                self.sleigh,
+                depots,
+            );
+        }
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -280,6 +295,9 @@ impl State<SimpleApp> for Game {
         );
         self.snow.draw(g);
         self.animator.draw(g);
+        if let Some(ref arrow) = self.state.energyless_arrow {
+            g.redraw(&arrow.draw);
+        }
     }
 }
 
@@ -308,6 +326,7 @@ struct SleighState {
     // This gets covered up by draw_done_houses, instead of an expensive update
     draw_todo_houses: Drawable,
     draw_done_houses: Drawable,
+    energyless_arrow: Option<EnergylessArrow>,
 }
 
 impl SleighState {
@@ -348,6 +367,7 @@ impl SleighState {
             draw_all_depots: Drawable::empty(ctx),
             draw_todo_houses: Drawable::empty(ctx),
             draw_done_houses: Drawable::empty(ctx),
+            energyless_arrow: None,
         };
 
         s.recalc_depots(ctx, app);
@@ -403,13 +423,8 @@ impl SleighState {
 
         // Now highlight all depots for when we run out
         let mut batch = GeomBatch::new();
-        for b in &self.upzoned_depots {
-            batch.push(Color::YELLOW, app.map.get_b(*b).polygon.clone());
-        }
-        for (b, state) in &self.houses {
-            if let BldgState::Depot = state {
-                batch.push(Color::YELLOW, app.map.get_b(*b).polygon.clone());
-            }
+        for b in self.all_depots() {
+            batch.push(Color::YELLOW, app.map.get_b(b).polygon.clone());
         }
         self.draw_all_depots = ctx.upload(batch);
     }
@@ -468,6 +483,16 @@ impl SleighState {
             1.0 - ((next_upzone - self.score) as f64) / (self.config.upzone_rate as f64),
         )
     }
+
+    fn all_depots(&self) -> Vec<BuildingID> {
+        let mut depots = self.upzoned_depots.clone();
+        for (b, state) in &self.houses {
+            if let BldgState::Depot = state {
+                depots.push(*b);
+            }
+        }
+        depots
+    }
 }
 
 #[derive(Clone)]
@@ -513,6 +538,58 @@ impl OverBldg {
         }
 
         OverBldg(ctx.upload(batch))
+    }
+}
+
+struct EnergylessArrow {
+    draw: Drawable,
+    started: Time,
+    last_update: Time,
+}
+
+impl EnergylessArrow {
+    fn new(ctx: &EventCtx, started: Time) -> EnergylessArrow {
+        EnergylessArrow {
+            draw: Drawable::empty(ctx),
+            started,
+            last_update: Time::START_OF_DAY,
+        }
+    }
+
+    fn update(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        time: Time,
+        sleigh: Pt2D,
+        all_depots: Vec<BuildingID>,
+    ) {
+        if self.last_update == time {
+            return;
+        }
+        self.last_update = time;
+        // Find the closest depot as the crow -- or Santa -- flies
+        let depot = app.map.get_b(
+            all_depots
+                .into_iter()
+                .min_by_key(|b| app.map.get_b(*b).label_center.fast_dist(sleigh))
+                .unwrap(),
+        );
+
+        // Vibrate in size slightly
+        let period = Duration::seconds(0.5);
+        let pct = ((time - self.started) % period) / period;
+        // -1 to 1
+        let shift = (pct * std::f64::consts::PI).sin();
+        let thickness = Distance::meters(5.0 + shift);
+
+        let angle = sleigh.angle_to(depot.label_center);
+        let arrow = PolyLine::must_new(vec![
+            sleigh.project_away(Distance::meters(20.0), angle),
+            sleigh.project_away(Distance::meters(40.0), angle),
+        ])
+        .make_arrow(thickness, ArrowCap::Triangle);
+        self.draw = ctx.upload(GeomBatch::from(vec![(Color::RED.alpha(0.8), arrow)]));
     }
 }
 

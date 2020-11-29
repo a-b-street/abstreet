@@ -5,7 +5,8 @@ use geom::{Circle, Distance, Duration, Pt2D, Time};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 
 pub struct Animator {
-    time: Time,
+    // TODO Maintain centrally and pass in?
+    pub time: Time,
     active: Vec<Effect>,
     draw_current: Drawable,
 }
