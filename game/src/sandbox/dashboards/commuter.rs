@@ -70,9 +70,6 @@ type BlockID = usize;
 
 impl CommuterPatterns {
     pub fn new(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        assert!(app.primary.suspended_sim.is_none());
-        app.primary.suspended_sim = Some(app.primary.clear_sim());
-
         let (bldg_to_block, border_to_block, blocks) =
             ctx.loading_screen("group buildings into blocks", |_, _| group_bldgs(app));
 
@@ -103,6 +100,11 @@ impl CommuterPatterns {
             all_blocks.push(Color::YELLOW.alpha(0.5), block.shape.clone());
         }
 
+        let depart_until = app.primary.sim.get_end_of_day();
+
+        assert!(app.primary.suspended_sim.is_none());
+        app.primary.suspended_sim = Some(app.primary.clear_sim());
+
         Box::new(CommuterPatterns {
             bldg_to_block,
             border_to_block,
@@ -114,7 +116,7 @@ impl CommuterPatterns {
                 from_block: true,
                 include_borders: true,
                 depart_from: Time::START_OF_DAY,
-                depart_until: app.primary.sim.get_end_of_day(),
+                depart_until,
                 modes: TripMode::all().into_iter().collect(),
             },
 
