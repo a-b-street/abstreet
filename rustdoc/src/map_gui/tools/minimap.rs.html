@@ -675,10 +675,10 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleApp</span>) {
-        <span class="self">self</span>.<span class="ident">draw_with_extra_layer</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.<span class="ident">draw_with_extra_layers</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">Vec</span>::<span class="ident">new</span>());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_with_extra_layer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleApp</span>, <span class="ident">extra</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Drawable</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_with_extra_layers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleApp</span>, <span class="ident">extra</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Drawable</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">zoomed</span> {
             <span class="kw">return</span>;
@@ -705,7 +705,7 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_parking_lots</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_roads_and_intersections</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">draw</span>) <span class="op">=</span> <span class="ident">extra</span> {
+        <span class="kw">for</span> <span class="ident">draw</span> <span class="kw">in</span> <span class="ident">extra</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
         }
         <span class="comment">// Not the building or parking lot paths</span>
