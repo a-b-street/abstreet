@@ -528,12 +528,20 @@ impl OverBldg {
         let mut batch = GeomBatch::new();
         // We only want to highlight when we're hovering over a depot and could recharge
         if is_depot {
-            let polygon = &app.map.get_b(key).polygon;
+            let b = app.map.get_b(key);
             batch.push(
                 Color::YELLOW,
-                polygon
+                b.polygon
                     .to_outline(Distance::meters(0.5))
-                    .unwrap_or_else(|_| polygon.clone()),
+                    .unwrap_or_else(|_| b.polygon.clone()),
+            );
+
+            batch.append(
+                Text::from(Line("Hold down SPACEBAR to recharge"))
+                    .bg(Color::RED)
+                    .render_to_batch(ctx.prerender)
+                    .scale(0.2)
+                    .centered_on(b.label_center.offset(0.0, -30.0)),
             );
         }
 
