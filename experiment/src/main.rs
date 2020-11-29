@@ -8,9 +8,7 @@ fn main() {
         let mut opts = map_gui::options::Options::default();
         opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
         let app = map_gui::SimpleApp::new_with_opts(ctx, abstutil::CmdArgs::new(), opts);
-        let states = ctx.loading_screen("setup", |ctx, mut timer| {
-            vec![game::Game::new(ctx, &app, &mut timer)]
-        });
+        let states = vec![game::Game::new(ctx, &app)];
         (app, states)
     });
 }

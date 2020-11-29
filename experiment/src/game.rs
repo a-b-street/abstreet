@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D, Speed};
-use map_gui::tools::{nice_map_name, CityPicker, ColorScale, SimpleMinimap};
+use map_gui::tools::{nice_map_name, CityPicker, ColorScale, DivergingScale, SimpleMinimap};
 use map_gui::{Cached, SimpleApp, ID};
 use map_model::{BuildingID, BuildingType, PathConstraints};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, LinearGradient, Outcome, Panel, State, Text, TextExt, Transition, UpdateType,
-    VerticalAlignment, Widget,
+    Key, Line, LinearGradient, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
+    UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::animation::Animator;
@@ -28,11 +28,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &SimpleApp,
-        timer: &mut Timer,
-    ) -> Box<dyn State<SimpleApp>> {
+    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
         ctx.canvas.cam_zoom = ZOOM;
 
         // Start on a commerical building
@@ -47,7 +43,7 @@ impl Game {
             .unwrap();
         let sleigh = depot.label_center;
         ctx.canvas.center_on_map_pt(sleigh);
-        let state = SleighState::new(ctx, app, depot.id, timer);
+        let state = SleighState::new(ctx, app, depot.id);
 
         let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
@@ -135,8 +131,7 @@ impl Game {
         self.state.upzones_used += 1;
         self.state.houses.insert(b, BldgState::Depot);
         self.state.depot = b;
-        self.state.redraw(ctx, app);
-        self.state.redraw_depots(ctx, app);
+        self.state.recalc_depots(ctx, app);
         self.sleigh = app.map.get_b(b).label_center;
         ctx.canvas.cam_zoom = ZOOM;
         ctx.canvas.center_on_map_pt(self.sleigh);
@@ -148,11 +143,13 @@ impl State<SimpleApp> for Game {
         let mut recharging = false;
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             if let Some(b) = self.over_bldg.key() {
-                if ctx.is_key_down(Key::Space) && self.state.recharge(ctx, app, b, dt) {
-                    self.state.depot = b;
-                    self.state.redraw(ctx, app);
+                if ctx.is_key_down(Key::Space) && self.state.recharge(b, dt) {
                     self.update_panel(ctx);
                     recharging = true;
+                    if self.state.depot != b {
+                        self.state.depot = b;
+                        self.state.recalc_depots(ctx, app);
+                    }
                 }
             }
 
@@ -173,10 +170,15 @@ impl State<SimpleApp> for Game {
                 self.sleigh = self.sleigh.offset(dx, dy);
                 ctx.canvas.center_on_map_pt(self.sleigh);
 
+                let key = OverBldg::key(app, self.sleigh, &self.state);
+                let is_depot = key
+                    .map(|b| match self.state.houses.get(&b) {
+                        Some(BldgState::Depot) => true,
+                        _ => false,
+                    })
+                    .unwrap_or(false);
                 self.over_bldg
-                    .update(OverBldg::key(app, self.sleigh, &self.state), |key| {
-                        OverBldg::value(ctx, app, key)
-                    });
+                    .update(key, |key| OverBldg::value(ctx, app, key, is_depot));
             }
         }
 
@@ -213,12 +215,10 @@ impl State<SimpleApp> for Game {
                         ctx,
                         app,
                         Box::new(|ctx, app| {
-                            ctx.loading_screen("setup again", |ctx, mut timer| {
-                                Transition::Multi(vec![
-                                    Transition::Pop,
-                                    Transition::Replace(Game::new(ctx, app, &mut timer)),
-                                ])
-                            })
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(Game::new(ctx, app)),
+                            ])
                         }),
                     ));
                 }
@@ -228,7 +228,7 @@ impl State<SimpleApp> for Game {
                         .houses
                         .iter()
                         .filter_map(|(id, state)| match state {
-                            BldgState::Undelivered { .. } => Some(*id),
+                            BldgState::Undelivered(_) => Some(*id),
                             _ => None,
                         })
                         .collect();
@@ -253,17 +253,23 @@ impl State<SimpleApp> for Game {
     fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
         self.panel.draw(g);
         if self.state.has_energy() {
-            self.minimap
-                .draw_with_extra_layer(g, app, Some(&self.state.draw_done));
+            self.minimap.draw_with_extra_layers(
+                g,
+                app,
+                vec![&self.state.draw_todo_houses, &self.state.draw_done_houses],
+            );
         } else {
             self.minimap
-                .draw_with_extra_layer(g, app, Some(&self.state.draw_all_depots));
+                .draw_with_extra_layers(g, app, vec![&self.state.draw_all_depots]);
         }
 
-        g.redraw(&self.state.draw_scores);
-        g.redraw(&self.state.draw_done);
+        g.redraw(&self.state.draw_todo_houses);
+        g.redraw(&self.state.draw_done_houses);
         if let Some(draw) = self.over_bldg.value() {
             g.redraw(&draw.0);
+        }
+        if !self.state.has_energy() {
+            g.redraw(&self.state.draw_all_depots);
         }
         g.draw_polygon(
             Color::RED,
@@ -282,61 +288,31 @@ struct Config {
 }
 
 struct SleighState {
-    depot: BuildingID,
+    config: Config,
+
     score: usize,
-    upzones_used: usize,
     energy: Duration,
     houses: HashMap<BuildingID, BldgState>,
-    draw_scores: Drawable,
-    draw_done: Drawable,
-    config: Config,
+
+    depot: BuildingID,
+    cost_to_house: HashMap<BuildingID, Duration>,
+
+    upzones_used: usize,
     upzoned_depots: Vec<BuildingID>,
+
     draw_all_depots: Drawable,
+    // This gets covered up by draw_done_houses, instead of an expensive update
+    draw_todo_houses: Drawable,
+    draw_done_houses: Drawable,
 }
 
 impl SleighState {
-    fn new(
-        ctx: &mut EventCtx,
-        app: &SimpleApp,
-        depot: BuildingID,
-        timer: &mut Timer,
-    ) -> SleighState {
-        timer.start("calculate costs from depot");
-        let house_costs = map_model::connectivity::all_costs_from(
-            &app.map,
-            depot,
-            Duration::hours(3),
-            PathConstraints::Pedestrian,
-        );
-        timer.stop("calculate costs from depot");
-
+    fn new(ctx: &mut EventCtx, app: &SimpleApp, depot: BuildingID) -> SleighState {
         let mut houses = HashMap::new();
-        let mut batch = GeomBatch::new();
-        timer.start_iter("assign score to houses", app.map.all_buildings().len());
         for b in app.map.all_buildings() {
-            timer.next();
             if let BuildingType::Residential(_) = b.bldg_type {
                 let score = b.id.0;
-                let cost = house_costs.get(&b.id).cloned().unwrap_or(Duration::ZERO);
-                let color = if cost < Duration::minutes(5) {
-                    Color::GREEN
-                } else if cost < Duration::minutes(15) {
-                    Color::YELLOW
-                } else {
-                    Color::RED
-                };
-
-                houses.insert(b.id, BldgState::Undelivered { score, cost });
-                // TODO Very expensive
-                batch.append(
-                    Text::from_multiline(vec![
-                        Line(format!("{}", score)),
-                        Line(format!("{}", cost)).fg(color),
-                    ])
-                    .render_to_batch(ctx.prerender)
-                    .scale(0.1)
-                    .centered_on(b.label_center),
-                );
+                houses.insert(b.id, BldgState::Undelivered(score));
             } else if !b.amenities.is_empty() {
                 // TODO Maybe just food?
                 houses.insert(b.id, BldgState::Depot);
@@ -350,49 +326,98 @@ impl SleighState {
             max_energy: Duration::minutes(90),
             upzone_rate: 30_000,
         };
+
+        let energy = config.max_energy;
         let mut s = SleighState {
-            depot,
-            score: 0,
-            upzones_used: 0,
-            energy: config.max_energy,
-            houses,
-            draw_scores: ctx.upload(batch),
-            draw_done: Drawable::empty(ctx),
             config,
+
+            score: 0,
+            energy,
+            houses,
+
+            depot,
+            cost_to_house: HashMap::new(),
+
+            upzones_used: 0,
             upzoned_depots: Vec::new(),
+
             draw_all_depots: Drawable::empty(ctx),
+            draw_todo_houses: Drawable::empty(ctx),
+            draw_done_houses: Drawable::empty(ctx),
         };
-        s.redraw(ctx, app);
-        s.redraw_depots(ctx, app);
+
+        s.recalc_depots(ctx, app);
+        s.recalc_deliveries(ctx, app);
+
         s
     }
 
-    fn redraw(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
+    fn recalc_depots(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
         let mut batch = GeomBatch::new();
-        for (b, state) in &self.houses {
-            if let BldgState::Done = state {
-                batch.push(Color::BLACK, app.map.get_b(*b).polygon.clone());
-            }
-        }
-        // TODO This doesnt seem to be working
         for b in &self.upzoned_depots {
             batch.push(
                 app.cs.commerical_building,
                 app.map.get_b(*b).polygon.clone(),
             );
         }
-        batch.push(Color::GREEN, app.map.get_b(self.depot).polygon.clone());
-        self.draw_done = ctx.upload(batch);
-    }
+        batch.append(
+            GeomBatch::load_svg(ctx.prerender, "system/assets/tools/star.svg")
+                .centered_on(app.map.get_b(self.depot).label_center)
+                .color(RewriteColor::ChangeAll(Color::YELLOW)),
+        );
 
-    fn redraw_depots(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
+        self.cost_to_house = map_model::connectivity::all_costs_from(
+            &app.map,
+            self.depot,
+            Duration::hours(3),
+            PathConstraints::Pedestrian,
+        );
+
+        let worst_duration = Duration::minutes(15);
+        let cost_scale =
+            DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
+                .range(0.0, worst_duration.inner_seconds());
+
+        for b in app.map.all_buildings() {
+            match self.houses.get(&b.id) {
+                Some(BldgState::Undelivered(_)) => {
+                    if let Some(cost) = self.cost_to_house.get(&b.id) {
+                        let color = cost_scale.eval(cost.inner_seconds()).unwrap();
+                        batch.push(color, b.polygon.clone());
+                        continue;
+                    }
+                }
+                Some(BldgState::Depot) => continue,
+                _ => {}
+            }
+            // If the house isn't reachable at all or it's not a depot or residence, just blank it
+            // out
+            batch.push(Color::BLACK, b.polygon.clone());
+        }
+
+        self.draw_todo_houses = ctx.upload(batch);
+
+        // Now highlight all depots for when we run out
         let mut batch = GeomBatch::new();
+        for b in &self.upzoned_depots {
+            batch.push(Color::YELLOW, app.map.get_b(*b).polygon.clone());
+        }
         for (b, state) in &self.houses {
             if let BldgState::Depot = state {
-                batch.push(Color::RED, app.map.get_b(*b).polygon.clone());
+                batch.push(Color::YELLOW, app.map.get_b(*b).polygon.clone());
             }
         }
         self.draw_all_depots = ctx.upload(batch);
+    }
+
+    fn recalc_deliveries(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
+        let mut batch = GeomBatch::new();
+        for (b, state) in &self.houses {
+            if let BldgState::Done = state {
+                batch.push(Color::BLACK, app.map.get_b(*b).polygon.clone());
+            }
+        }
+        self.draw_done_houses = ctx.upload(batch);
     }
 
     // If something changed, return the update to the score
@@ -402,28 +427,23 @@ impl SleighState {
         app: &SimpleApp,
         id: BuildingID,
     ) -> Option<usize> {
-        if let Some(BldgState::Undelivered { score, cost }) = self.houses.get(&id).cloned() {
-            self.score += score;
-            self.houses.insert(id, BldgState::Done);
-            self.energy -= cost;
-            self.redraw(ctx, app);
-            return Some(score);
+        if let Some(BldgState::Undelivered(score)) = self.houses.get(&id).cloned() {
+            if let Some(cost) = self.cost_to_house.get(&id) {
+                self.score += score;
+                self.houses.insert(id, BldgState::Done);
+                self.energy -= *cost;
+                self.recalc_deliveries(ctx, app);
+                return Some(score);
+            }
         }
         None
     }
 
     // True if state change
-    fn recharge(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &SimpleApp,
-        id: BuildingID,
-        dt: Duration,
-    ) -> bool {
+    fn recharge(&mut self, id: BuildingID, dt: Duration) -> bool {
         if let Some(BldgState::Depot) = self.houses.get(&id) {
             self.energy += self.config.recharge_rate * dt;
             self.energy = self.energy.min(self.config.max_energy);
-            self.redraw(ctx, app);
             return true;
         }
         false
@@ -448,7 +468,8 @@ impl SleighState {
 
 #[derive(Clone)]
 enum BldgState {
-    Undelivered { score: usize, cost: Duration },
+    // Score
+    Undelivered(usize),
     Depot,
     Done,
 }
@@ -474,11 +495,20 @@ impl OverBldg {
         None
     }
 
-    fn value(ctx: &mut EventCtx, app: &SimpleApp, key: BuildingID) -> OverBldg {
-        OverBldg(ctx.upload(GeomBatch::from(vec![(
-            Color::YELLOW,
-            app.map.get_b(key).polygon.clone(),
-        )])))
+    fn value(ctx: &mut EventCtx, app: &SimpleApp, key: BuildingID, is_depot: bool) -> OverBldg {
+        let mut batch = GeomBatch::new();
+        // We only want to highlight when we're hovering over a depot and could recharge
+        if is_depot {
+            let polygon = &app.map.get_b(key).polygon;
+            batch.push(
+                Color::YELLOW,
+                polygon
+                    .to_outline(Distance::meters(0.5))
+                    .unwrap_or_else(|_| polygon.clone()),
+            );
+        }
+
+        OverBldg(ctx.upload(batch))
     }
 }
 

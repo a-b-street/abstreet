@@ -304,10 +304,10 @@ impl SimpleMinimap {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
-        self.draw_with_extra_layer(g, app, None);
+        self.draw_with_extra_layers(g, app, Vec::new());
     }
 
-    pub fn draw_with_extra_layer(&self, g: &mut GfxCtx, app: &SimpleApp, extra: Option<&Drawable>) {
+    pub fn draw_with_extra_layers(&self, g: &mut GfxCtx, app: &SimpleApp, extra: Vec<&Drawable>) {
         self.panel.draw(g);
         if !self.zoomed {
             return;
@@ -334,7 +334,7 @@ impl SimpleMinimap {
         g.redraw(&app.draw_map.draw_all_unzoomed_parking_lots);
         g.redraw(&app.draw_map.draw_all_unzoomed_roads_and_intersections);
         g.redraw(&app.draw_map.draw_all_buildings);
-        if let Some(draw) = extra {
+        for draw in extra {
             g.redraw(draw);
         }
         // Not the building or parking lot paths
