@@ -494,6 +494,7 @@
 <span id="491">491</span>
 <span id="492">492</span>
 <span id="493">493</span>
+<span id="494">494</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -619,13 +620,14 @@
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">trip_blocked_time</span>(<span class="ident">id</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trip_to_person</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PersonID</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trip_to_person</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">trip_to_person</span>(<span class="ident">id</span>)
     }
     <span class="comment">// TODO This returns None for parked cars owned by people! That&#39;s confusing. Dedupe with</span>
     <span class="comment">// get_owner_of_car.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_to_person</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">AgentID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">agent_to_trip</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">trip_to_person</span>(<span class="ident">t</span>))
+        <span class="self">self</span>.<span class="ident">agent_to_trip</span>(<span class="ident">id</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">trip_to_person</span>(<span class="ident">t</span>).<span class="ident">unwrap</span>())
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">person_to_agent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PersonID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">get_person</span>(<span class="ident">id</span>)<span class="question-mark">?</span>.<span class="ident">state</span> {

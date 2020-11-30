@@ -2873,8 +2873,8 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">people</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trip_to_person</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PersonID</span> {
-        <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>].<span class="ident">person</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trip_to_person</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="number">0</span>)<span class="question-mark">?</span>.<span class="ident">person</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_arrivals_at_border</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">AgentType</span>)<span class="op">&gt;</span> {
