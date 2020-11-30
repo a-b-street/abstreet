@@ -246,10 +246,6 @@
 <span id="243">243</span>
 <span id="244">244</span>
 <span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies</span>
 <span class="doccomment">//! on native and web. Both cases are wrapped up as a State that runs a callback when done.</span>
@@ -349,12 +345,8 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;load {}&quot;</span>, <span class="self">self</span>.<span class="ident">path</span>), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin&quot;</span>) {
-                    <span class="ident">abstutil</span>::<span class="ident">maybe_read_binary</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">abstutil</span>::<span class="ident">maybe_read_json</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>)
-                }
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>());
+                <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span>
+                    <span class="ident">abstutil</span>::<span class="ident">read_object</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>());
                 (<span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>, <span class="ident">file</span>)
             })
         }
