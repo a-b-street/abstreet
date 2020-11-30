@@ -96,15 +96,13 @@
 <span id="93">93</span>
 <span id="94">94</span>
 <span id="95">95</span>
-<span id="96">96</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
+<span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
 <span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">QuadTree</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">contains</span>::<span class="ident">Contains</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">prelude</span>::{<span class="ident">ClosestPoint</span>, <span class="ident">EuclideanDistance</span>};
-
-<span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
 
