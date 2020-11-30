@@ -12,11 +12,13 @@ fi
 echo y | unzip abst_linux.zip
 unzip abst_linux.zip
 rm -f abst_linux.zip
+rm -f abst_linux/experiment
 mv abst_linux abstreet_linux_$VERSION
 
 echo y | unzip abst_mac.zip
 unzip abst_mac.zip
 rm -f abst_mac.zip
+rm -f abst_mac/experiment
 mv abst_mac abstreet_mac_$VERSION
 
 mkdir abstreet_windows_$VERSION
@@ -24,6 +26,7 @@ cd abstreet_windows_$VERSION
 unzip ../abst_windows.zip
 cd ..
 rm -f abst_windows.zip
+rm -f abst_windows/experiment
 
 zip -r abstreet_linux_$VERSION abstreet_linux_$VERSION
 zip -r abstreet_mac_$VERSION abstreet_mac_$VERSION

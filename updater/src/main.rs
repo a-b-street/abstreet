@@ -24,11 +24,12 @@ async fn main() {
         just_compare();
         return;
     }
+    let quiet = args.enabled("--quiet");
     args.done();
-    download(version).await;
+    download(version, quiet).await;
 }
 
-async fn download(version: String) {
+async fn download(version: String, quiet: bool) {
     let data_packs = DataPacks::load_or_create();
     let local = generate_manifest();
     let truth = Manifest::load().filter(data_packs);
@@ -45,7 +46,7 @@ async fn download(version: String) {
     for (path, entry) in truth.entries {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
-            match curl(&version, &path).await {
+            match curl(&version, &path, quiet).await {
                 Ok(bytes) => {
                     println!(
                         "> decompress {}, which is {} bytes compressed",
@@ -227,7 +228,7 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(version: &str, path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>, Box<dyn Error>> {
     let src = format!(
         "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
         version, path
@@ -247,13 +248,15 @@ async fn curl(version: &str, path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let mut bytes = Vec::new();
     while let Some(chunk) = resp.chunk().await.unwrap() {
         if let Some(n) = total_size {
-            abstutil::clear_current_line();
-            print!(
-                "{} ({} / {} bytes)",
-                Percent::of(bytes.len(), n),
-                prettyprint_usize(bytes.len()),
-                prettyprint_usize(n)
-            );
+            if !quiet {
+                abstutil::clear_current_line();
+                print!(
+                    "{} ({} / {} bytes)",
+                    Percent::of(bytes.len(), n),
+                    prettyprint_usize(bytes.len()),
+                    prettyprint_usize(n)
+                );
+            }
         }
 
         bytes.write_all(&chunk).unwrap();

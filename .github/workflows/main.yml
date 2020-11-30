@@ -1,132 +1,100 @@
 # TODO
 # https://github.com/Uriopass/Egregoria/blob/master/.github/workflows/release.yml
 # has stuff for automating releases
+
 name: Build
 on: [push]
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  build:
+    name: Build everything for ${{ matrix.os }}
     if: "contains(github.event.head_commit.message, '[rebuild]')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [linux, macos, windows]
+        include:
+          - build: linux
+            os: ubuntu-latest
+          - build: macos
+            os: macos-latest
+          - build: windows
+            os: windows-latest
+
     steps:
       - uses: actions/checkout@master
+
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: 1.47.0
+
       - name: Cache build
         uses: actions/cache@v2
         with:
                 path: target
                 # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
-                key: ${{ runner.os }}-build
-      - name: Build game
-        working-directory: game
+                key: build-${{ matrix.os }}
+
+      - name: Detect release
         shell: bash
-        run: |
-                if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then features="--features=release_s3"; else features=""; fi
-                cargo build --release ${features}
+        run: if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then echo 'features=--features=map_gui/release_s3' >> $GITHUB_ENV; else echo 'features=' >> $GITHUB_ENV; fi
+
+      - name: Build game
+        working-directory: game
+        run: cargo build --release ${features}
+      - name: Build experiment
+        working-directory: experiment
+        run: cargo build --release ${features}
+      - name: Build fifteen_min
+        working-directory: fifteen_min
+        run: cargo build --release ${features}
+      - name: Build osm_viewer
+        working-directory: osm_viewer
+        run: cargo build --release ${features}
+      - name: Build parking_mapper
+        working-directory: parking_mapper
+        run: cargo build --release ${features}
+
       - name: Build importer
         run: cargo build --release --bin importer
       - name: Build headless
         run: cargo build --release --bin headless
+
+      - name: Download system data
+        run: cargo run --release --bin updater -- --quiet
+
       - name: Package release
-        run: ./release/build.sh abst_windows play_abstreet.bat target/release/game.exe target/release/importer.exe target/release/headless.exe
+        run: ./release/build.sh ${{ matrix.os }}
         shell: bash
-      - name: Upload release
-        uses: actions/upload-artifact@v2
-        with:
-          name: abst_windows
-          path: abst_windows
-      - name: Upload just the binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: abst_windows_binary
-          path: target/release/game.exe
-  build-macos:
-    runs-on: macos-latest
-    if: "contains(github.event.head_commit.message, '[rebuild]')"
-    steps:
-      - uses: actions/checkout@master
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: 1.47.0
-      - name: Cache build
-        uses: actions/cache@v2
-        with:
-                path: target
-                # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
-                key: ${{ runner.os }}-build
-      - name: Build game
-        working-directory: game
-        run: |
-                if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then features="--features=release_s3"; else features=""; fi
-                cargo build --release ${features}
-      - name: Build importer
-        run: cargo build --release --bin importer
-      - name: Build headless
-        run: cargo build --release --bin headless
-      - name: Package release
-        run: ./release/build.sh abst_mac play_abstreet.sh target/release/game target/release/importer target/release/headless
-      - name: Upload release
-        uses: actions/upload-artifact@v2
-        with:
-          name: abst_mac
-          path: abst_mac.zip
-      - name: Upload just the binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: abst_mac_binary
-          path: target/release/game
-  build-linux:
-    runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, '[rebuild]')"
-    steps:
-      - uses: actions/checkout@master
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: 1.47.0
-      - name: Update apt
-        run: sudo apt-get update
-      - name: Install dependencies
-        run: sudo apt-get install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev
-      - name: Cache build
-        uses: actions/cache@v2
-        with:
-                path: target
-                # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
-                key: ${{ runner.os }}-build
-      - name: Build game
-        working-directory: game
-        run: |
-                if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then features="--features=release_s3"; else features=""; fi
-                cargo build --release ${features}
-      - name: Build importer
-        run: cargo build --release --bin importer
-      - name: Build headless
-        run: cargo build --release --bin headless
-      - name: Package release
-        run: ./release/build.sh abst_linux play_abstreet.sh target/release/game target/release/importer target/release/headless
-      - name: Upload release
+
+      - name: Upload release for Linux
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v2
         with:
           name: abst_linux
           path: abst_linux.zip
-  build-wasm:
-    runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, '[rebuild]')"
-    steps:
-      - uses: actions/checkout@master
-      - uses: hecrj/setup-rust-action@v1
+      - name: Upload release for Mac
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v2
         with:
-          rust-version: 1.47.0
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-      - name: Cache build
-        uses: actions/cache@v2
+          name: abst_mac
+          path: abst_mac.zip
+      - name: Upload release for Windows
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v2
         with:
-                path: target
-                # The key could include hashFiles('Cargo.lock'), but cargo will figure out what can be reused.
-                key: wasm-build
-      - name: Build game
-        working-directory: game
-        run: wasm-pack build --dev --target web -- --no-default-features --features wasm
-        # TODO For now, just check that the build works. Later, build fully and package.
+          name: abst_windows
+          path: abst_windows
+
+      - name: Upload just the binary for Windows
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: abst_windows_binary
+          path: target/release/game.exe
+
+      - name: Upload just the binary for Mac
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: abst_mac_binary
+          path: target/release/game
