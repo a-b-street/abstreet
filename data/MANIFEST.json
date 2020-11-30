@@ -496,6 +496,10 @@
       "checksum": "19f3525f29c2d6599c52d20453fdfe38",
       "size_bytes": 58789449
     },
+    "data/system/seattle/parcels.bin": {
+      "checksum": "bdb48dd387aff595d57ff1f897e2bf62",
+      "size_bytes": 3121768
+    },
     "data/system/seattle/prebaked_results/lakeslice/weekday.bin": {
       "checksum": "6e1abe594b9b52025adbb2fe76eb5a06",
       "size_bytes": 66523061

@@ -9,6 +9,7 @@ default = []
 scenarios = ["gdal"]
 
 [dependencies]
+aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }

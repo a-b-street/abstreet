@@ -1,10 +1,9 @@
 use std::collections::BTreeMap;
 
+use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use geo::algorithm::contains::Contains;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
-
-use aabb_quadtree::geom::{Point, Rect};
 
 use crate::{Bounds, Distance, Pt2D};
 

@@ -1,17 +1,19 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use std::fs::File;
 
+use aabb_quadtree::QuadTree;
 use serde::Deserialize;
 
-use abstutil::{MapName, MultiMap};
-use geom::{Duration, Time};
+use abstutil::{MapName, MultiMap, Timer};
+use geom::{Duration, Polygon, Ring, Time};
+use kml::{ExtraShapes, Parcel, ParcelMetadata};
 use map_model::{BusRouteID, Map};
 use sim::Scenario;
 
 use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, download_kml, osmconvert};
 
-fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
+fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     download(
         config,
         "input/seattle/N47W122.hgt",
@@ -67,8 +69,8 @@ fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
     if !abstutil::file_exists("data/input/seattle/collisions.bin") {
         let shapes = kml::load("data/input/seattle/collisions.kml", &bounds, true, timer).unwrap();
         let collisions = collisions::import_seattle(
-        shapes,
-        "https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0");
+            shapes,
+            "https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0");
         abstutil::write_binary("data/input/seattle/collisions.bin".to_string(), &collisions);
     }
 
@@ -92,7 +94,7 @@ fn input(config: &ImporterConfiguration, timer: &mut abstutil::Timer) {
     );
 }
 
-pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConfiguration) {
+pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration) {
     input(config, timer);
     osmconvert(
         "input/seattle/osm/washington-latest.osm.pbf",
@@ -138,10 +140,10 @@ pub fn osm_to_raw(name: &str, timer: &mut abstutil::Timer, config: &ImporterConf
     map.save();
 }
 
-// Download and pre-process data needed to generate Seattle scenarios.
+/// Download and pre-process data needed to generate Seattle scenarios.
 #[cfg(feature = "scenarios")]
 pub fn ensure_popdat_exists(
-    timer: &mut abstutil::Timer,
+    timer: &mut Timer,
     config: &ImporterConfiguration,
 ) -> (crate::soundcast::PopDat, map_model::Map) {
     let huge_name = MapName::seattle("huge_seattle");
@@ -173,9 +175,9 @@ pub fn adjust_private_parking(map: &mut Map, scenario: &Scenario) {
     map.save();
 }
 
-// This import from GTFS:
-// - is specific to Seattle, whose files don't seem to match https://developers.google.com/transit/gtfs/reference
-// - is probably wrong
+/// This import from GTFS:
+/// - is specific to Seattle, whose files don't seem to match https://developers.google.com/transit/gtfs/reference
+/// - is probably wrong
 pub fn add_gtfs_schedules(map: &mut Map) {
     // https://www.openstreetmap.org/relation/8616968 as an example, mapping to
     // https://kingcounty.gov/depts/transportation/metro/schedules-maps/route/048.aspx
@@ -247,4 +249,59 @@ struct TripRecord {
 struct StopTimeRecord {
     trip_id: String,
     arrival_time: String,
+}
+
+/// Match OSM buildings to parcels, scraping the number of housing units. Writes an extra system
+/// file for later use during runtime.
+// TODO Maybe we should modify the map and give Building an Option<usize> field directly.
+pub fn match_parcels_to_buildings(map: &Map, timer: &mut Timer) {
+    let shapes: ExtraShapes =
+        abstutil::read_binary("data/input/seattle/zoning_parcels.bin".to_string(), timer);
+    let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();
+    // TODO We should refactor something like FindClosest, but for polygon containment
+    // The quadtree's ID is just an index into parcels_with_housing.
+    let mut quadtree: QuadTree<usize> = QuadTree::default(map.get_bounds().as_bbox());
+    timer.start_iter("index all parcels", shapes.shapes.len());
+    for shape in shapes.shapes {
+        timer.next();
+        if let Some(units) = shape
+            .attributes
+            .get("EXIST_UNITS")
+            .and_then(|x| x.parse::<usize>().ok())
+        {
+            if let Ok(ring) = Ring::new(map.get_gps_bounds().convert(&shape.points)) {
+                let polygon = ring.to_polygon();
+                quadtree
+                    .insert_with_box(parcels_with_housing.len(), polygon.get_bounds().as_bbox());
+                parcels_with_housing.push((polygon, units));
+            }
+        }
+    }
+
+    let mut results = ParcelMetadata {
+        per_bldg: BTreeMap::new(),
+    };
+    let mut used_parcels: HashSet<usize> = HashSet::new();
+    timer.start_iter("match buildings to parcels", map.all_buildings().len());
+    for b in map.all_buildings() {
+        timer.next();
+        // If multiple parcels contain a buildng's center, just pick one arbitrarily
+        for (idx, _, _) in quadtree.query(b.polygon.get_bounds().as_bbox()) {
+            let idx = *idx;
+            if used_parcels.contains(&idx)
+                || !parcels_with_housing[idx].0.contains_pt(b.label_center)
+            {
+                continue;
+            }
+            used_parcels.insert(idx);
+            results.per_bldg.insert(
+                b.orig_id,
+                Parcel {
+                    num_housing_units: parcels_with_housing[idx].1,
+                },
+            );
+        }
+    }
+
+    abstutil::write_binary(abstutil::path("system/seattle/parcels.bin"), &results);
 }

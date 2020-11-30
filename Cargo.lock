@@ -1451,6 +1451,7 @@ dependencies = [
 name = "importer"
 version = "0.1.0"
 dependencies = [
+ "aabb-quadtree",
  "abstutil",
  "collisions",
  "convert_osm",
@@ -1612,6 +1613,7 @@ dependencies = [
  "abstutil",
  "csv",
  "geom",
+ "map_model",
  "roxmltree",
  "serde",
 ]
@@ -1799,7 +1801,6 @@ dependencies = [
 name = "map_model"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstutil",
  "enumset",
  "fast_paths",

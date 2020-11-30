@@ -203,6 +203,10 @@ fn main() {
                 timer.start(format!("adjust parking for {}", name.describe()));
                 seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), &scenario);
                 timer.stop(format!("adjust parking for {}", name.describe()));
+            } else if name.map == "huge_seattle" {
+                timer.start("match parcels to buildings");
+                seattle::match_parcels_to_buildings(maybe_map.as_ref().unwrap(), &mut timer);
+                timer.stop("match parcels to buildings");
             }
         }
     }

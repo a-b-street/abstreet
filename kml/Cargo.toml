@@ -8,5 +8,6 @@ edition = "2018"
 abstutil = { path = "../abstutil" }
 csv = "1.1.4"
 geom = { path = "../geom" }
+map_model = { path = "../map_model" }
 roxmltree = "0.13.0"
 serde = "1.0.116"
