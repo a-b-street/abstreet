@@ -46,6 +46,7 @@ pub struct RotateController {
 }
 
 impl RotateController {
+    #[allow(unused)]
     pub fn new() -> RotateController {
         RotateController { angle: Angle::ZERO }
     }

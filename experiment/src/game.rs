@@ -8,13 +8,13 @@ use map_gui::tools::{ColorScale, DivergingScale, SimpleMinimap};
 use map_gui::{Cached, SimpleApp, ID};
 use map_model::{BuildingID, BuildingType, PathConstraints};
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, LinearGradient, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
-    UpdateType, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    LinearGradient, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition, UpdateType,
+    VerticalAlignment, Widget,
 };
 
 use crate::animation::{Animator, SnowEffect};
-use crate::controls::{Controller, InstantController, RotateController};
+use crate::controls::{Controller, InstantController};
 use crate::levels::Config;
 
 const ZOOM: f64 = 10.0;
@@ -54,10 +54,9 @@ impl Game {
 
                 let panel = Panel::new(Widget::col(vec![
                     Widget::row(vec![
-                        Line("Experiment").small_heading().draw(ctx),
+                        Line("15-minute Santa").small_heading().draw(ctx),
                         Btn::close(ctx),
                     ]),
-                    Checkbox::toggle(ctx, "control type", "rotate", "instant", Key::Tab, false),
                     // TODO "Families with presents" or "Deliveries"?
                     "Score".draw_text(ctx).named("score"),
                     Widget::row(vec![
@@ -118,11 +117,11 @@ impl Game {
                 Btn::text_bg2("0 upzones").inactive(ctx).named("use upzone")
             } else {
                 // TODO Since we constantly recreate this, the button isn't clickable
-                Btn::text_bg2(format!("Apply upzone ({} available)", upzones_free)).build(
-                    ctx,
-                    "use upzone",
-                    Key::U,
-                )
+                Btn::text_bg2(format!(
+                    "Apply upzone ({} available) -- press the U key",
+                    upzones_free
+                ))
+                .build(ctx, "use upzone", Key::U)
             },
         );
         let upzone_bar = make_bar(
@@ -248,13 +247,6 @@ impl State<SimpleApp> for Game {
                 }
                 _ => unreachable!(),
             },
-            Outcome::Changed => {
-                self.controls = if self.panel.is_checked("control type") {
-                    Box::new(RotateController::new())
-                } else {
-                    Box::new(InstantController::new())
-                };
-            }
             _ => {}
         }
 
