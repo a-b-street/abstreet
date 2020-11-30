@@ -1,6 +1,6 @@
 //! All sorts of read-only queries about a simulation
 
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
@@ -263,9 +263,6 @@ impl Sim {
     pub fn get_waiting_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID, Time)> {
         self.intersections.get_waiting_agents(id)
     }
-    pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
-        self.intersections.get_blocked_by(a)
-    }
 
     /// For every agent that's currently not moving, figure out how long they've been waiting and
     /// why they're blocked.
@@ -295,11 +292,6 @@ impl Sim {
 
     pub fn get_analytics(&self) -> &Analytics {
         &self.analytics
-    }
-
-    pub fn find_blockage_front(&self, car: CarID, map: &Map) -> String {
-        self.driving
-            .find_blockage_front(car, map, &self.intersections)
     }
 
     /// For intersections with an agent waiting beyond some threshold, return when they started

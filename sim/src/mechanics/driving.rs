@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_hashmap, serialize_hashmap, FixedMap, IndexableKey};
 use geom::{Distance, Duration, PolyLine, Speed, Time};
-use map_model::{IntersectionID, LaneID, Map, Path, PathStep, Traversable};
+use map_model::{IntersectionID, LaneID, Map, Path, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
@@ -1042,68 +1042,6 @@ impl DrivingSimState {
     pub fn get_owner_of_car(&self, id: CarID) -> Option<PersonID> {
         let car = self.cars.get(&id)?;
         car.vehicle.owner
-    }
-
-    // TODO Clean this up
-    pub fn find_blockage_front(
-        &self,
-        start: CarID,
-        map: &Map,
-        intersections: &IntersectionSimState,
-    ) -> String {
-        let mut seen_intersections = HashSet::new();
-
-        let mut current_head = start;
-        let mut current_lane = match self.cars[&start].router.head() {
-            Traversable::Lane(l) => l,
-            Traversable::Turn(_) => {
-                return "TODO Doesn't support starting from a turn yet".to_string();
-            }
-        };
-        loop {
-            current_head =
-                if let Some(c) = self.queues[&Traversable::Lane(current_lane)].cars.get(0) {
-                    *c
-                } else {
-                    return format!("no gridlock, {}", current_head);
-                };
-
-            let i = map.get_l(current_lane).dst_i;
-            if seen_intersections.contains(&i) {
-                return format!("Gridlock near {}! {:?}", i, seen_intersections);
-            }
-            seen_intersections.insert(i);
-
-            // Why isn't current_head proceeding? Pedestrians can never get stuck in an
-            // intersection.
-            if intersections
-                .get_accepted_agents(i)
-                .iter()
-                .any(|(a, _)| matches!(a, AgentID::Car(_)))
-            {
-                return format!("someone's turning in {} still", i);
-            }
-
-            current_lane = if let Some(PathStep::Lane(l)) = self.cars[&current_head]
-                .router
-                .get_path()
-                .get_steps()
-                .get(2)
-            {
-                *l
-            } else {
-                return format!(
-                    "{} is near end of path, probably tmp blockage",
-                    current_head
-                );
-            };
-
-            // Lack of capacity?
-            if self.queues[&Traversable::Lane(current_lane)].room_for_car(&self.cars[&current_head])
-            {
-                return format!("{} is about to proceed, tmp blockage", current_head);
-            }
-        }
     }
 
     pub fn target_lane_penalty(&self, l: LaneID) -> (usize, usize) {

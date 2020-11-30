@@ -573,19 +573,7 @@ impl IntersectionSimState {
             .collect()
     }
 
-    pub fn get_blocked_by(&self, a: AgentID) -> HashSet<AgentID> {
-        let mut blocked_by = HashSet::new();
-        if let AgentID::Car(c) = a {
-            for (c1, c2) in &self.blocked_by {
-                if *c1 == c {
-                    blocked_by.insert(AgentID::Car(*c2));
-                }
-            }
-        }
-        blocked_by
-    }
-
-    /// returns intersections with travelers waiting for at least `threshold` since `now`, ordered
+    /// Returns intersections with travelers waiting for at least `threshold` since `now`, ordered
     /// so the longest delayed intersection is first.
     pub fn delayed_intersections(
         &self,

@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D};
+use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D};
 use sim::{AgentID, DelayCause};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
@@ -15,43 +15,22 @@ use crate::common::CommonState;
 pub struct Viewer {
     panel: Panel,
     graph: BTreeMap<AgentID, (Duration, DelayCause)>,
+    agent_positions: BTreeMap<AgentID, Pt2D>,
     arrows: Drawable,
 }
 
 impl Viewer {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        let graph = app.primary.sim.get_blocked_by_graph(&app.primary.map);
-        let agent_positions: BTreeMap<AgentID, Pt2D> = app
-            .primary
-            .sim
-            .get_unzoomed_agents(&app.primary.map)
-            .into_iter()
-            .map(|a| (a.id, a.pos))
-            .collect();
-
-        let mut arrows = GeomBatch::new();
-        for (id, (_, cause)) in &graph {
-            let (to, color) = match cause {
-                DelayCause::Agent(a) => {
-                    if let Some(pos) = agent_positions.get(a) {
-                        (*pos, Color::RED)
-                    } else {
-                        warn!("{} blocked by {}, but they're gone?", id, a);
-                        continue;
-                    }
-                }
-                DelayCause::Intersection(i) => {
-                    (app.primary.map.get_i(*i).polygon.center(), Color::BLUE)
-                }
-            };
-            let arrow = PolyLine::must_new(vec![agent_positions[id], to])
-                .make_arrow(Distance::meters(0.5), ArrowCap::Triangle);
-            arrows.push(color.alpha(0.5), arrow);
-        }
-
-        Box::new(Viewer {
-            graph,
-            arrows: ctx.upload(arrows),
+        let mut viewer = Viewer {
+            graph: app.primary.sim.get_blocked_by_graph(&app.primary.map),
+            agent_positions: app
+                .primary
+                .sim
+                .get_unzoomed_agents(&app.primary.map)
+                .into_iter()
+                .map(|a| (a.id, a.pos))
+                .collect(),
+            arrows: Drawable::empty(ctx),
             panel: Panel::new(
                 Widget::row(vec![
                     Line("What agents are blocked by others?")
@@ -63,7 +42,36 @@ impl Viewer {
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-        })
+        };
+
+        let mut arrows = GeomBatch::new();
+        for id in viewer.agent_positions.keys() {
+            if let Some((arrow, color)) = viewer.arrow_for(app, *id) {
+                arrows.push(color.alpha(0.5), arrow);
+            }
+        }
+        viewer.arrows = ctx.upload(arrows);
+        Box::new(viewer)
+    }
+
+    fn arrow_for(&self, app: &App, id: AgentID) -> Option<(Polygon, Color)> {
+        let (_, cause) = self.graph.get(&id)?;
+        let (to, color) = match cause {
+            DelayCause::Agent(a) => {
+                if let Some(pos) = self.agent_positions.get(a) {
+                    (*pos, Color::RED)
+                } else {
+                    warn!("{} blocked by {}, but they're gone?", id, a);
+                    return None;
+                }
+            }
+            DelayCause::Intersection(i) => {
+                (app.primary.map.get_i(*i).polygon.center(), Color::BLUE)
+            }
+        };
+        let arrow = PolyLine::must_new(vec![self.agent_positions[&id], to])
+            .make_arrow(Distance::meters(0.5), ArrowCap::Triangle);
+        Some((arrow, color))
     }
 }
 
@@ -100,6 +108,9 @@ impl State<App> for Viewer {
         {
             if let Some((delay, _)) = self.graph.get(&id) {
                 g.draw_mouse_tooltip(Text::from(Line(format!("Waiting {}", delay))));
+            }
+            if let Some((arrow, _)) = self.arrow_for(app, id) {
+                g.draw_polygon(Color::CYAN, arrow);
             }
         }
     }

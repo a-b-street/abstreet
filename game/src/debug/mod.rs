@@ -6,9 +6,9 @@ use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
-use map_gui::ID;
-use map_model::{osm, ControlTrafficSignal, NORMAL_LANE_THICKNESS};
-use sim::{AgentID, Sim};
+use map_gui::{Cached, ID};
+use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
+use sim::Sim;
 use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, UpdateType, VerticalAlignment,
@@ -38,7 +38,7 @@ pub struct DebugMode {
     search_results: Option<SearchResults>,
     all_routes: Option<(usize, Drawable)>,
 
-    highlighted_agents: Option<(ID, Drawable)>,
+    highlighted_agents: Cached<IntersectionID, Drawable>,
 }
 
 impl DebugMode {
@@ -88,7 +88,7 @@ impl DebugMode {
             layers: ShowLayers::new(),
             search_results: None,
             all_routes: None,
-            highlighted_agents: None,
+            highlighted_agents: Cached::new(),
         })
     }
 
@@ -281,53 +281,31 @@ impl State<App> for DebugMode {
             _ => {}
         }
 
-        match app.primary.current_selection {
-            Some(ID::Intersection(_)) | Some(ID::Car(_)) => {
-                let id = app.primary.current_selection.clone().unwrap();
-                if self
-                    .highlighted_agents
-                    .as_ref()
-                    .map(|(x, _)| *x != id)
-                    .unwrap_or(true)
-                {
-                    let mut batch = GeomBatch::new();
-                    let agents = match id {
-                        ID::Intersection(i) => app
-                            .primary
-                            .sim
-                            .get_accepted_agents(i)
-                            .into_iter()
-                            .map(|(a, _)| a)
-                            .collect(),
-                        ID::Car(c) => app.primary.sim.get_blocked_by(AgentID::Car(c)),
-                        _ => unreachable!(),
-                    };
-                    for a in agents {
-                        if let Some(obj) = app.primary.draw_map.get_obj(
-                            ctx,
-                            ID::from_agent(a),
-                            app,
-                            &mut app.primary.agents.borrow_mut(),
-                        ) {
-                            batch.push(Color::PURPLE, obj.get_outline(&app.primary.map));
-                        } else {
-                            return Transition::Push(PopupMsg::new(
-                                ctx,
-                                "Wat",
-                                vec![format!(
-                                    "{} is accepted at or blocked by by {:?}, but no longer exists",
-                                    a, id
-                                )],
-                            ));
-                        }
+        self.highlighted_agents.update(
+            match app.primary.current_selection {
+                Some(ID::Intersection(i)) => Some(i),
+                _ => None,
+            },
+            |key| {
+                let mut batch = GeomBatch::new();
+                for (a, _) in app.primary.sim.get_accepted_agents(key) {
+                    if let Some(obj) = app.primary.draw_map.get_obj(
+                        ctx,
+                        ID::from_agent(a),
+                        app,
+                        &mut app.primary.agents.borrow_mut(),
+                    ) {
+                        batch.push(Color::PURPLE, obj.get_outline(&app.primary.map));
+                    } else {
+                        warn!(
+                            "{} is accepted at or blocked by by {:?}, but no longer exists",
+                            a, key
+                        );
                     }
-                    self.highlighted_agents = Some((id, ctx.upload(batch)));
                 }
-            }
-            _ => {
-                self.highlighted_agents = None;
-            }
-        }
+                ctx.upload(batch)
+            },
+        );
 
         if let Some(t) = self.common.event(ctx, app, &mut Actions {}) {
             return t;
@@ -354,7 +332,7 @@ impl State<App> for DebugMode {
         if let Some(ref results) = self.search_results {
             g.redraw(&results.draw);
         }
-        if let Some((_, ref draw)) = self.highlighted_agents {
+        if let Some(draw) = self.highlighted_agents.value() {
             g.redraw(draw);
         }
 
@@ -492,7 +470,6 @@ impl ContextualActions for Actions {
             }
             ID::Car(_) => {
                 actions.push((Key::Backspace, "forcibly delete this car".to_string()));
-                actions.push((Key::G, "find front of blockage".to_string()));
             }
             ID::Area(_) => {
                 actions.push((Key::X, "debug area geometry".to_string()));
@@ -538,15 +515,6 @@ impl ContextualActions for Actions {
                 app.primary.current_selection = None;
                 Transition::Keep
             }
-            (ID::Car(c), "find front of blockage") => Transition::Push(PopupMsg::new(
-                ctx,
-                "Blockage results",
-                vec![format!(
-                    "{} is ultimately blocked by {}",
-                    c,
-                    app.primary.sim.find_blockage_front(c, &app.primary.map)
-                )],
-            )),
             (ID::Lane(l), "floodfill from this lane") => {
                 Transition::Push(floodfill::Floodfiller::floodfill(ctx, app, l))
             }
