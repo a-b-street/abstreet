@@ -660,3 +660,10 @@ changes here.
 - prototyped a new 15-minute neighborhood tool
 - overhaul internal simulation input code -- better performance, way simpler
 - debug tool to record traffic around a few intersections and replay later
+
+0.2.21
+
+- split separate tools into their own executables
+- misc bug fixes and other refactoring, focused on GUI code mostly
+- most of a prototype done for an experiment
+- map added for north seattle
