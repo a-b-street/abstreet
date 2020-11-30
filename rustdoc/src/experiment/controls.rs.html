@@ -84,6 +84,7 @@
 <span id="81">81</span>
 <span id="82">82</span>
 <span id="83">83</span>
+<span id="84">84</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>};
@@ -133,6 +134,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RotateController</span> {
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RotateController</span> {
         <span class="ident">RotateController</span> { <span class="ident">angle</span>: <span class="ident">Angle</span>::<span class="ident">ZERO</span> }
     }

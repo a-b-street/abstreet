@@ -118,9 +118,45 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -190,6 +226,7 @@
                         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;An experiment&quot;</span>));
                         <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>()
                     },
+                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Instructions&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(
                         <span class="ident">levels</span>
                             .<span class="ident">into_iter</span>()
@@ -211,6 +248,39 @@
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;quit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">exit</span>(<span class="number">0</span>);
+                }
+                <span class="string">&quot;Instructions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// TODO As I&#39;m writing the range argument, I don&#39;t buy the hybrid motor.</span>
+                    <span class="comment">// Wireless Tesla energy instead?</span>
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;Instructions&quot;</span>,
+                        <span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="string">&quot;It&#39;s Christmas Eve, so it&#39;s time for Santa to deliver presents in \
+                             Seattle. 2020 has thoroughly squashed any remaining magic out of the \
+                             world, and so your reindeer can&#39;t fly.&quot;</span>,
+                            <span class="string">&quot;Luckily, Amazon sells a hybrid diesel/electric sleigh. It runs out \
+                             of energy the farther away from your charging station you get.&quot;</span>,
+                            <span class="string">&quot;You can only recharge on commercial buildings, where you won&#39;t wake \
+                             up any sleeping children.&quot;</span>,
+                            <span class="string">&quot;&quot;</span>,
+                            <span class="string">&quot;Use the arrow keys to move around.&quot;</span>,
+                            <span class="string">&quot;Pass over colored houses to make deliveries. Houses close to your \
+                             charging station are colored green, and they become white, then red \
+                             as they get farther away.&quot;</span>,
+                            <span class="string">&quot;You get more points for delivering to buildings with multiple \
+                             families inside.&quot;</span>,
+                            <span class="string">&quot;&quot;</span>,
+                            <span class="string">&quot;To recharge, stop on a commercial building and hold down the \
+                             spacebar key. This resets your charging station.&quot;</span>,
+                            <span class="string">&quot;&quot;</span>,
+                            <span class="string">&quot;When you deliver enough presents, a little bit of magic is restored, \
+                             and you can upzone buildings to make your job easier.&quot;</span>,
+                            <span class="string">&quot;If you&#39;re having trouble delivering to houses far away from \
+                             businesses, why not build a new grocery store where it might be \
+                             needed?&quot;</span>,
+                        ],
+                    ));
                 }
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">for</span> <span class="ident">lvl</span> <span class="kw">in</span> <span class="ident">all_levels</span>() {

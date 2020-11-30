@@ -637,14 +637,6 @@
 <span id="634">634</span>
 <span id="635">635</span>
 <span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
-<span id="641">641</span>
-<span id="642">642</span>
-<span id="643">643</span>
-<span id="644">644</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -656,13 +648,13 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">Cached</span>, <span class="ident">SimpleApp</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">PathConstraints</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">LinearGradient</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>,
-    <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">LinearGradient</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">SnowEffect</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">controls</span>::{<span class="ident">Controller</span>, <span class="ident">InstantController</span>, <span class="ident">RotateController</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">controls</span>::{<span class="ident">Controller</span>, <span class="ident">InstantController</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Config</span>;
 
 <span class="kw">const</span> <span class="ident">ZOOM</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
@@ -702,10 +694,9 @@
 
                 <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Experiment&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Line</span>(<span class="string">&quot;15-minute Santa&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                         <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                     ]),
-                    <span class="ident">Checkbox</span>::<span class="ident">toggle</span>(<span class="ident">ctx</span>, <span class="string">&quot;control type&quot;</span>, <span class="string">&quot;rotate&quot;</span>, <span class="string">&quot;instant&quot;</span>, <span class="ident">Key</span>::<span class="ident">Tab</span>, <span class="bool-val">false</span>),
                     <span class="comment">// TODO &quot;Families with presents&quot; or &quot;Deliveries&quot;?</span>
                     <span class="string">&quot;Score&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -766,11 +757,11 @@
                 <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;0 upzones&quot;</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;use upzone&quot;</span>)
             } <span class="kw">else</span> {
                 <span class="comment">// TODO Since we constantly recreate this, the button isn&#39;t clickable</span>
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Apply upzone ({} available)&quot;</span>, <span class="ident">upzones_free</span>)).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;use upzone&quot;</span>,
-                    <span class="ident">Key</span>::<span class="ident">U</span>,
-                )
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;Apply upzone ({} available) -- press the U key&quot;</span>,
+                    <span class="ident">upzones_free</span>
+                ))
+                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;use upzone&quot;</span>, <span class="ident">Key</span>::<span class="ident">U</span>)
             },
         );
         <span class="kw">let</span> <span class="ident">upzone_bar</span> <span class="op">=</span> <span class="ident">make_bar</span>(
@@ -896,13 +887,6 @@
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">controls</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;control type&quot;</span>) {
-                    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">RotateController</span>::<span class="ident">new</span>())
-                } <span class="kw">else</span> {
-                    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">InstantController</span>::<span class="ident">new</span>())
-                };
-            }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
