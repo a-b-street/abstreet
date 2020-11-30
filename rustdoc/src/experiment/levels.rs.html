@@ -145,16 +145,16 @@
 <span class="kw">fn</span> <span class="ident">all_levels</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Config</span><span class="op">&gt;</span> {
     <span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Config</span> {
-            <span class="ident">title</span>: <span class="string">&quot;Level 1&quot;</span>,
+            <span class="ident">title</span>: <span class="string">&quot;Level 1 - a small neighborhood&quot;</span>,
             <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
             <span class="ident">start_depot</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">osm</span>::<span class="ident">WayID</span>(<span class="number">217700589</span>)),
             <span class="ident">minimap_zoom</span>: <span class="number">0</span>,
 
             <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>),
             <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>),
-            <span class="ident">recharge_rate</span>: <span class="number">1000.0</span>,
-            <span class="ident">max_energy</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">90</span>),
-            <span class="ident">upzone_rate</span>: <span class="number">30_000</span>,
+            <span class="ident">recharge_rate</span>: <span class="number">2000.0</span>,
+            <span class="ident">max_energy</span>: <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">3</span>),
+            <span class="ident">upzone_rate</span>: <span class="number">100</span>,
         },
         <span class="ident">Config</span> {
             <span class="ident">title</span>: <span class="string">&quot;Level 2 - Magnolia&quot;</span>,
@@ -164,9 +164,9 @@
 
             <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>),
             <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">15.0</span>),
-            <span class="ident">recharge_rate</span>: <span class="number">2000.0</span>,
-            <span class="ident">max_energy</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">120</span>),
-            <span class="ident">upzone_rate</span>: <span class="number">30_000</span>,
+            <span class="ident">recharge_rate</span>: <span class="number">3000.0</span>,
+            <span class="ident">max_energy</span>: <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">3</span>),
+            <span class="ident">upzone_rate</span>: <span class="number">150</span>,
         },
     ]
 }
