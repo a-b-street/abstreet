@@ -24,16 +24,16 @@ pub struct Config {
 fn all_levels() -> Vec<Config> {
     vec![
         Config {
-            title: "Level 1",
+            title: "Level 1 - a small neighborhood",
             map: MapName::seattle("montlake"),
             start_depot: osm::OsmID::Way(osm::WayID(217700589)),
             minimap_zoom: 0,
 
             normal_speed: Speed::miles_per_hour(30.0),
             tired_speed: Speed::miles_per_hour(10.0),
-            recharge_rate: 1000.0,
-            max_energy: Duration::minutes(90),
-            upzone_rate: 30_000,
+            recharge_rate: 2000.0,
+            max_energy: Duration::hours(3),
+            upzone_rate: 100,
         },
         Config {
             title: "Level 2 - Magnolia",
@@ -43,9 +43,9 @@ fn all_levels() -> Vec<Config> {
 
             normal_speed: Speed::miles_per_hour(40.0),
             tired_speed: Speed::miles_per_hour(15.0),
-            recharge_rate: 2000.0,
-            max_energy: Duration::minutes(120),
-            upzone_rate: 30_000,
+            recharge_rate: 3000.0,
+            max_energy: Duration::hours(3),
+            upzone_rate: 150,
         },
     ]
 }

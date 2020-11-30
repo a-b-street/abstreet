@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, Time};
+use kml::ParcelMetadata;
 use map_gui::load::MapLoader;
 use map_gui::tools::{ColorScale, DivergingScale, SimpleMinimap};
 use map_gui::{Cached, SimpleApp, ID};
@@ -39,7 +40,15 @@ impl Game {
             Box::new(move |ctx, app| {
                 ctx.canvas.cam_zoom = ZOOM;
 
-                let state = SleighState::new(ctx, app, config);
+                // TODO We need to use FileLoader for this to work on web. Another good argument
+                // for just adding a field to Map and not storing separately.
+                // TODO This is also hardcoded to Seattle now, ew!
+                let parcels: ParcelMetadata = abstutil::read_binary(
+                    abstutil::path("system/seattle/parcels.bin"),
+                    &mut abstutil::Timer::throwaway(),
+                );
+
+                let state = SleighState::new(ctx, app, config, parcels);
                 let sleigh = app.map.get_b(state.depot).label_center;
                 ctx.canvas.center_on_map_pt(sleigh);
 
@@ -49,6 +58,7 @@ impl Game {
                         Btn::close(ctx),
                     ]),
                     Checkbox::toggle(ctx, "control type", "rotate", "instant", Key::Tab, false),
+                    // TODO "Families with presents" or "Deliveries"?
                     "Score".draw_text(ctx).named("score"),
                     Widget::row(vec![
                         "Energy:".draw_text(ctx),
@@ -306,13 +316,22 @@ struct SleighState {
 }
 
 impl SleighState {
-    fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> SleighState {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        config: Config,
+        parcels: ParcelMetadata,
+    ) -> SleighState {
         let mut houses = HashMap::new();
         let mut depot = None;
         for b in app.map.all_buildings() {
             if let BuildingType::Residential(_) = b.bldg_type {
-                let score = b.id.0;
-                houses.insert(b.id, BldgState::Undelivered(score));
+                if let Some(parcel) = parcels.per_bldg.get(&b.orig_id) {
+                    // There are some unused commercial buildings around!
+                    if parcel.num_housing_units > 0 {
+                        houses.insert(b.id, BldgState::Undelivered(parcel.num_housing_units));
+                    }
+                }
             } else if !b.amenities.is_empty() {
                 // TODO Maybe just food?
                 houses.insert(b.id, BldgState::Depot);
@@ -377,10 +396,20 @@ impl SleighState {
 
         for b in app.map.all_buildings() {
             match self.houses.get(&b.id) {
-                Some(BldgState::Undelivered(_)) => {
+                Some(BldgState::Undelivered(housing_units)) => {
                     if let Some(cost) = self.cost_to_house.get(&b.id) {
                         let color = cost_scale.eval(cost.inner_seconds()).unwrap();
                         batch.push(color, b.polygon.clone());
+                        // Call out non-single family homes
+                        if *housing_units > 1 {
+                            // TODO Text can be slow to render, and this should be louder anyway
+                            batch.append(
+                                Text::from(Line(housing_units.to_string()).fg(Color::RED))
+                                    .render_to_batch(ctx.prerender)
+                                    .scale(0.2)
+                                    .centered_on(b.label_center),
+                            );
+                        }
                         continue;
                     }
                 }

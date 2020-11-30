@@ -712,6 +712,7 @@ version = "0.1.0"
 dependencies = [
  "abstutil",
  "geom",
+ "kml",
  "map_gui",
  "map_model",
  "rand",

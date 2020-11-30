@@ -10,6 +10,7 @@ default = ["map_gui/native", "widgetry/native-backend"]
 [dependencies]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
+kml = { path = "../kml" }
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
 rand = "0.7.0"
