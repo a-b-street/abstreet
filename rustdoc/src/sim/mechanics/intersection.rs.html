@@ -935,18 +935,6 @@
 <span id="932">932</span>
 <span id="933">933</span>
 <span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
-<span id="946">946</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1523,19 +1511,7 @@
             .<span class="ident">collect</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">a</span>: <span class="ident">AgentID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocked_by</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">a</span> {
-            <span class="kw">for</span> (<span class="ident">c1</span>, <span class="ident">c2</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocked_by</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">c1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
-                    <span class="ident">blocked_by</span>.<span class="ident">insert</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">c2</span>));
-                }
-            }
-        }
-        <span class="ident">blocked_by</span>
-    }
-
-    <span class="doccomment">/// returns intersections with travelers waiting for at least `threshold` since `now`, ordered</span>
+    <span class="doccomment">/// Returns intersections with travelers waiting for at least `threshold` since `now`, ordered</span>
     <span class="doccomment">/// so the longest delayed intersection is first.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delayed_intersections</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,

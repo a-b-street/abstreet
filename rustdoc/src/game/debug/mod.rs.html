@@ -788,38 +788,6 @@
 <span id="785">785</span>
 <span id="786">786</span>
 <span id="787">787</span>
-<span id="788">788</span>
-<span id="789">789</span>
-<span id="790">790</span>
-<span id="791">791</span>
-<span id="792">792</span>
-<span id="793">793</span>
-<span id="794">794</span>
-<span id="795">795</span>
-<span id="796">796</span>
-<span id="797">797</span>
-<span id="798">798</span>
-<span id="799">799</span>
-<span id="800">800</span>
-<span id="801">801</span>
-<span id="802">802</span>
-<span id="803">803</span>
-<span id="804">804</span>
-<span id="805">805</span>
-<span id="806">806</span>
-<span id="807">807</span>
-<span id="808">808</span>
-<span id="809">809</span>
-<span id="810">810</span>
-<span id="811">811</span>
-<span id="812">812</span>
-<span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -829,9 +797,9 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">OptionsPanel</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">calculate_corners</span>, <span class="ident">DrawOptions</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Sim</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">Cached</span>, <span class="ident">ID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">Sim</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>,
@@ -861,7 +829,7 @@
     <span class="ident">search_results</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SearchResults</span><span class="op">&gt;</span>,
     <span class="ident">all_routes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
 
-    <span class="ident">highlighted_agents</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">ID</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
+    <span class="ident">highlighted_agents</span>: <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">Drawable</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DebugMode</span> {
@@ -911,7 +879,7 @@
             <span class="ident">layers</span>: <span class="ident">ShowLayers</span>::<span class="ident">new</span>(),
             <span class="ident">search_results</span>: <span class="prelude-val">None</span>,
             <span class="ident">all_routes</span>: <span class="prelude-val">None</span>,
-            <span class="ident">highlighted_agents</span>: <span class="prelude-val">None</span>,
+            <span class="ident">highlighted_agents</span>: <span class="ident">Cached</span>::<span class="ident">new</span>(),
         })
     }
 
@@ -1104,53 +1072,31 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
-        <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Car</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="self">self</span>
-                    .<span class="ident">highlighted_agents</span>
-                    .<span class="ident">as_ref</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span>)
-                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
-                {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-                    <span class="kw">let</span> <span class="ident">agents</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
-                        <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>
-                            .<span class="ident">primary</span>
-                            .<span class="ident">sim</span>
-                            .<span class="ident">get_accepted_agents</span>(<span class="ident">i</span>)
-                            .<span class="ident">into_iter</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">a</span>)
-                            .<span class="ident">collect</span>(),
-                        <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_blocked_by</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">c</span>)),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-                    };
-                    <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">agents</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">get_obj</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">ID</span>::<span class="ident">from_agent</span>(<span class="ident">a</span>),
-                            <span class="ident">app</span>,
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>(),
-                        ) {
-                            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>, <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
-                        } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="string">&quot;Wat&quot;</span>,
-                                <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
-                                    <span class="string">&quot;{} is accepted at or blocked by by {:?}, but no longer exists&quot;</span>,
-                                    <span class="ident">a</span>, <span class="ident">id</span>
-                                )],
-                            ));
-                        }
+        <span class="self">self</span>.<span class="ident">highlighted_agents</span>.<span class="ident">update</span>(
+            <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            },
+            <span class="op">|</span><span class="ident">key</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                <span class="kw">for</span> (<span class="ident">a</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_accepted_agents</span>(<span class="ident">key</span>) {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">get_obj</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">ID</span>::<span class="ident">from_agent</span>(<span class="ident">a</span>),
+                        <span class="ident">app</span>,
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>(),
+                    ) {
+                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>, <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
+                    } <span class="kw">else</span> {
+                        <span class="macro">warn</span><span class="macro">!</span>(
+                            <span class="string">&quot;{} is accepted at or blocked by by {:?}, but no longer exists&quot;</span>,
+                            <span class="ident">a</span>, <span class="ident">key</span>
+                        );
                     }
-                    <span class="self">self</span>.<span class="ident">highlighted_agents</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
                 }
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">highlighted_agents</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            }
-        }
+                <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
+            },
+        );
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">common</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Actions</span> {}) {
             <span class="kw">return</span> <span class="ident">t</span>;
@@ -1177,7 +1123,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">results</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">search_results</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">results</span>.<span class="ident">draw</span>);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">draw</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">highlighted_agents</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">draw</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">highlighted_agents</span>.<span class="ident">value</span>() {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
         }
 
@@ -1315,7 +1261,6 @@
             }
             <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">Backspace</span>, <span class="string">&quot;forcibly delete this car&quot;</span>.<span class="ident">to_string</span>()));
-                <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">G</span>, <span class="string">&quot;find front of blockage&quot;</span>.<span class="ident">to_string</span>()));
             }
             <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">X</span>, <span class="string">&quot;debug area geometry&quot;</span>.<span class="ident">to_string</span>()));
@@ -1361,15 +1306,6 @@
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="ident">Transition</span>::<span class="ident">Keep</span>
             }
-            (<span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">c</span>), <span class="string">&quot;find front of blockage&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;Blockage results&quot;</span>,
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} is ultimately blocked by {}&quot;</span>,
-                    <span class="ident">c</span>,
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">find_blockage_front</span>(<span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
-                )],
-            )),
             (<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>), <span class="string">&quot;floodfill from this lane&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">floodfill</span>::<span class="ident">Floodfiller</span>::<span class="ident">floodfill</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>))
             }

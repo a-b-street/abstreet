@@ -487,18 +487,10 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -761,9 +753,6 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_waiting_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TurnID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">get_waiting_agents</span>(<span class="ident">id</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">a</span>: <span class="ident">AgentID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">get_blocked_by</span>(<span class="ident">a</span>)
-    }
 
     <span class="doccomment">/// For every agent that&#39;s currently not moving, figure out how long they&#39;ve been waiting and</span>
     <span class="doccomment">/// why they&#39;re blocked.</span>
@@ -793,11 +782,6 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_analytics</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Analytics</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">analytics</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_blockage_front</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">driving</span>
-            .<span class="ident">find_blockage_front</span>(<span class="ident">car</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>)
     }
 
     <span class="doccomment">/// For intersections with an agent waiting beyond some threshold, return when they started</span>
