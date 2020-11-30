@@ -1276,8 +1276,8 @@ impl TripManager {
         &self.people
     }
 
-    pub fn trip_to_person(&self, id: TripID) -> PersonID {
-        self.trips[id.0].person
+    pub fn trip_to_person(&self, id: TripID) -> Option<PersonID> {
+        Some(self.trips.get(id.0)?.person)
     }
 
     pub fn all_arrivals_at_border(&self, at: IntersectionID) -> Vec<(Time, AgentType)> {

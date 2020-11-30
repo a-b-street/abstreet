@@ -56,7 +56,7 @@ impl<T: 'static, F: 'static, P: 'static + Fn(&mut EventCtx, &App, &Table<T, F>) 
                     self.recalc(ctx, app);
                 } else if let Ok(idx) = x.parse::<usize>() {
                     let trip = TripID(idx);
-                    let person = app.primary.sim.trip_to_person(trip);
+                    let person = app.primary.sim.trip_to_person(trip).unwrap();
                     return Transition::Multi(vec![
                         Transition::Pop,
                         Transition::ModifyState(Box::new(move |state, ctx, app| {

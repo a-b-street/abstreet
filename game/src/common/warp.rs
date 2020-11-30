@@ -230,7 +230,7 @@ fn warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transitio
             }
             't' => {
                 let trip = TripID(idx);
-                let person = app.primary.sim.trip_to_person(trip);
+                let person = app.primary.sim.trip_to_person(trip)?;
                 return Some(Transition::Multi(vec![
                     Transition::Pop,
                     Transition::ModifyState(Box::new(move |state, ctx, app| {

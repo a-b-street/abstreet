@@ -122,13 +122,14 @@ impl Sim {
         self.trips.trip_blocked_time(id)
     }
 
-    pub fn trip_to_person(&self, id: TripID) -> PersonID {
+    pub fn trip_to_person(&self, id: TripID) -> Option<PersonID> {
         self.trips.trip_to_person(id)
     }
     // TODO This returns None for parked cars owned by people! That's confusing. Dedupe with
     // get_owner_of_car.
     pub fn agent_to_person(&self, id: AgentID) -> Option<PersonID> {
-        self.agent_to_trip(id).map(|t| self.trip_to_person(t))
+        self.agent_to_trip(id)
+            .map(|t| self.trip_to_person(t).unwrap())
     }
     pub fn person_to_agent(&self, id: PersonID) -> Option<AgentID> {
         if let PersonState::Trip(t) = self.trips.get_person(id)?.state {

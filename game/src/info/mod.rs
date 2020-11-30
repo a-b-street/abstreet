@@ -521,7 +521,7 @@ impl InfoPanel {
                 } else if let Some((trip, time)) = self.time_warpers.get(&action) {
                     let trip = *trip;
                     let time = *time;
-                    let person = app.primary.sim.trip_to_person(trip);
+                    let person = app.primary.sim.trip_to_person(trip).unwrap();
                     // When executed, this assumes the SandboxMode is the top of the stack. It'll
                     // reopen the info panel, then launch the jump-to-time UI.
                     let jump_to_time =
@@ -585,10 +585,19 @@ impl InfoPanel {
                         ))),
                     )
                 } else {
-                    let mut close_panel = true;
-                    let t =
-                        ctx_actions.execute(ctx, app, maybe_id.unwrap(), action, &mut close_panel);
-                    (close_panel, Some(t))
+                    if let Some(id) = maybe_id {
+                        let mut close_panel = true;
+                        let t = ctx_actions.execute(ctx, app, id, action, &mut close_panel);
+                        (close_panel, Some(t))
+                    } else {
+                        // This happens when clicking the follow/unfollow button on a trip whose
+                        // agent doesn't exist. Do nothing and just don't crash.
+                        error!(
+                            "Can't do {} on this tab, because it doesn't map to an ID",
+                            action
+                        );
+                        (false, None)
+                    }
                 }
             }
             _ => {
