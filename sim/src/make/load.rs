@@ -63,7 +63,7 @@ impl SimFlags {
         if self.load.starts_with(&abstutil::path("player/saves/")) {
             timer.note(format!("Resuming from {}", self.load));
 
-            let sim: Sim = abstutil::read_binary(self.load.clone(), timer);
+            let sim: Sim = abstutil::must_read_object(self.load.clone(), timer);
 
             let mut map = Map::new(sim.map_name.path(), timer);
             match MapEdits::load(
@@ -87,7 +87,7 @@ impl SimFlags {
                 self.load
             ));
 
-            let mut scenario: Scenario = abstutil::read_binary(self.load.clone(), timer);
+            let mut scenario: Scenario = abstutil::must_read_object(self.load.clone(), timer);
 
             let map = Map::new(scenario.map_name.path(), timer);
 

@@ -71,7 +71,7 @@ impl ScenarioModifier {
                 s
             }
             ScenarioModifier::AddExtraTrips(name) => {
-                let other: Scenario = abstutil::read_binary(
+                let other: Scenario = abstutil::must_read_object(
                     abstutil::path_scenario(map.get_name(), name),
                     &mut Timer::throwaway(),
                 );

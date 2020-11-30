@@ -96,12 +96,8 @@ mod native_loader {
     impl<A: AppLike + 'static, T: 'static + DeserializeOwned> State<A> for FileLoader<A, T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
-                let file = if self.path.ends_with(".bin") {
-                    abstutil::maybe_read_binary(self.path.clone(), timer)
-                } else {
-                    abstutil::maybe_read_json(self.path.clone(), timer)
-                }
-                .map_err(|err| err.to_string());
+                let file =
+                    abstutil::read_object(self.path.clone(), timer).map_err(|err| err.to_string());
                 (self.on_load.take().unwrap())(ctx, app, timer, file)
             })
         }

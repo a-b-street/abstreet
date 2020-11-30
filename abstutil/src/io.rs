@@ -35,6 +35,7 @@ pub fn read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
     }
 }
 
+/// May be a JSON or binary file
 pub fn read_object<T: DeserializeOwned>(
     path: String,
     timer: &mut Timer,
@@ -43,6 +44,14 @@ pub fn read_object<T: DeserializeOwned>(
         maybe_read_binary(path, timer)
     } else {
         maybe_read_json(path, timer)
+    }
+}
+
+/// May be a JSON or binary file. Panics on failure.
+pub fn must_read_object<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
+    match read_object(path.clone(), timer) {
+        Ok(obj) => obj,
+        Err(err) => panic!("Couldn't read_object({}): {}", path, err),
     }
 }
 

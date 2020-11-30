@@ -416,7 +416,7 @@ struct LoadSim {
 
 impl LoadSim {
     fn setup(&self, timer: &mut Timer) -> (Map, Sim) {
-        let mut scenario: Scenario = abstutil::read_binary(self.scenario.clone(), timer);
+        let mut scenario: Scenario = abstutil::must_read_object(self.scenario.clone(), timer);
 
         let mut map = Map::new(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {
