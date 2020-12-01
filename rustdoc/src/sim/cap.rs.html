@@ -174,6 +174,33 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -188,13 +215,32 @@
 <span class="comment">// Note this only indexes into the zones we track here, not all of them in the map.</span>
 <span class="kw">type</span> <span class="ident">ZoneIdx</span> <span class="op">=</span> <span class="ident">usize</span>;
 
-<span class="doccomment">/// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per</span>
-<span class="doccomment">/// hour. CapSimState enforces this, just for driving trips.</span>
+<span class="doccomment">/// Dynamically limit driving trips that meet different conditions:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - trips passing through roads with a per-hour cap</span>
+<span class="doccomment">/// - trips passing through roads with agents currently experiencing some delay</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Transform the trips by:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - cancelling them</span>
+<span class="doccomment">/// - delaying them</span>
+<span class="doccomment">/// - rerouting them</span>
+<span class="comment">// TODO I&#39;m not sure a single struct is the right way to manage these combinations.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">CapSimState</span> {
     <span class="ident">lane_to_zone</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">ZoneIdx</span><span class="op">&gt;</span>,
     <span class="ident">zones</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span>,
-    <span class="ident">avoid_congestion</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AvoidCongestion</span><span class="op">&gt;</span>,
+
+    <span class="ident">cancel_drivers_delay_threshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">delay_trips_instead_of_cancelling</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CapResult</span> {
+    <span class="ident">OK</span>(<span class="ident">Path</span>),
+    <span class="ident">Reroute</span>(<span class="ident">Path</span>),
+    <span class="ident">Cancel</span> { <span class="ident">reason</span>: <span class="ident">String</span> },
+    <span class="ident">Delay</span>(<span class="ident">Duration</span>),
+    <span class="comment">// TODO Switch modes</span>
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
@@ -210,9 +256,8 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">CapSimState</span> {
             <span class="ident">lane_to_zone</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             <span class="ident">zones</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">avoid_congestion</span>: <span class="ident">opts</span>
-                .<span class="ident">cancel_drivers_delay_threshold</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">delay_threshold</span><span class="op">|</span> <span class="ident">AvoidCongestion</span> { <span class="ident">delay_threshold</span> }),
+            <span class="ident">cancel_drivers_delay_threshold</span>: <span class="ident">opts</span>.<span class="ident">cancel_drivers_delay_threshold</span>.<span class="ident">clone</span>(),
+            <span class="ident">delay_trips_instead_of_cancelling</span>: <span class="ident">opts</span>.<span class="ident">delay_trips_instead_of_cancelling</span>.<span class="ident">clone</span>(),
         };
         <span class="kw">for</span> <span class="ident">z</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_zones</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cap</span>) <span class="op">=</span> <span class="ident">z</span>.<span class="ident">restrictions</span>.<span class="ident">cap_vehicles_per_hour</span> {
@@ -234,7 +279,69 @@
         <span class="ident">sim</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">allow_trip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">car</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="doccomment">/// Before the driving portion of a trip begins, check that the desired path doesn&#39;t exceed any</span>
+    <span class="doccomment">/// dynamic limits.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_cap_path</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>,
+        <span class="ident">path</span>: <span class="ident">Path</span>,
+        <span class="ident">now</span>: <span class="ident">Time</span>,
+        <span class="ident">car</span>: <span class="ident">CarID</span>,
+        <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="ident">IntersectionSimState</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CapResult</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cancel_drivers_delay_threshold</span>.<span class="ident">is_some</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">turn</span>, <span class="ident">delay</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path_crosses_delay</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">intersections</span>, <span class="ident">map</span>) {
+                <span class="comment">// TODO Reroute around current delays?</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">delay</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">delay_trips_instead_of_cancelling</span> {
+                    <span class="kw">return</span> <span class="ident">CapResult</span>::<span class="ident">Delay</span>(<span class="ident">delay</span>);
+                } <span class="kw">else</span> {
+                    <span class="kw">return</span> <span class="ident">CapResult</span>::<span class="ident">Cancel</span> {
+                        <span class="ident">reason</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;path crosses delay of {} at {}&quot;</span>, <span class="ident">delay</span>, <span class="ident">turn</span>),
+                    };
+                }
+            }
+        }
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trip_under_cap</span>(<span class="ident">now</span>, <span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>) {
+            <span class="kw">return</span> <span class="ident">CapResult</span>::<span class="ident">OK</span>(<span class="ident">path</span>);
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avoid_lanes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">idx</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lane_to_zone</span> {
+            <span class="kw">let</span> <span class="ident">zone</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zones</span>[<span class="kw-2">*</span><span class="ident">idx</span>];
+            <span class="kw">if</span> <span class="ident">zone</span>.<span class="ident">entered_in_last_hour</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">zone</span>.<span class="ident">cap</span>
+                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">zone</span>.<span class="ident">entered_in_last_hour</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>)
+            {
+                <span class="ident">avoid_lanes</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">l</span>);
+            }
+        }
+        <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">pathfind_avoiding_lanes</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">avoid_lanes</span>) {
+            <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CapResult</span>::<span class="ident">Reroute</span>(<span class="ident">path</span>),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">delay</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">delay_trips_instead_of_cancelling</span> {
+                    <span class="ident">CapResult</span>::<span class="ident">Delay</span>(<span class="ident">delay</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">CapResult</span>::<span class="ident">Cancel</span> {
+                        <span class="ident">reason</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no path avoiding caps: {}&quot;</span>, <span class="ident">req</span>),
+                    }
+                }
+            }
+        }
+    }
+}
+
+<span class="comment">// Specific to the cap-per-road mechanism</span>
+<span class="kw">impl</span> <span class="ident">CapSimState</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cap_counter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lane_to_zone</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>) {
+            <span class="self">self</span>.<span class="ident">zones</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">entered_in_last_hour</span>.<span class="ident">len</span>()
+        } <span class="kw">else</span> {
+            <span class="number">0</span>
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">trip_under_cap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">car</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="ident">car</span>.<span class="number">1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Car</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">lane_to_zone</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="bool-val">true</span>;
         }
@@ -259,65 +366,10 @@
         }
         <span class="bool-val">true</span>
     }
-
-    <span class="doccomment">/// Before the driving portion of a trip begins, check that the desired path doesn&#39;t exceed any</span>
-    <span class="doccomment">/// caps. If so, attempt to reroute around.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate_path</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>,
-        <span class="ident">path</span>: <span class="ident">Path</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">car</span>: <span class="ident">CarID</span>,
-        <span class="ident">capped</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
-        <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="ident">IntersectionSimState</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">avoid</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">avoid_congestion</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">turn</span>, <span class="ident">delay</span>)) <span class="op">=</span> <span class="ident">avoid</span>.<span class="ident">path_crosses_delay</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">intersections</span>, <span class="ident">map</span>) {
-                <span class="kw-2">*</span><span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="comment">// TODO More responses</span>
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;path crosses delay of {} at {}&quot;</span>, <span class="ident">delay</span>, <span class="ident">turn</span>));
-            }
-        }
-
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">allow_trip</span>(<span class="ident">now</span>, <span class="ident">car</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">path</span>);
-        }
-        <span class="kw-2">*</span><span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-
-        <span class="comment">// TODO Make the responses configurable: cancel the trip, reroute, delay an hour, switch</span>
-        <span class="comment">// modes. Where should this policy be specified? Is it simulation-wide?</span>
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avoid_lanes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">idx</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lane_to_zone</span> {
-            <span class="kw">let</span> <span class="ident">zone</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zones</span>[<span class="kw-2">*</span><span class="ident">idx</span>];
-            <span class="kw">if</span> <span class="ident">zone</span>.<span class="ident">entered_in_last_hour</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">zone</span>.<span class="ident">cap</span>
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">zone</span>.<span class="ident">entered_in_last_hour</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>)
-            {
-                <span class="ident">avoid_lanes</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">l</span>);
-            }
-        }
-        <span class="ident">map</span>.<span class="ident">pathfind_avoiding_lanes</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">avoid_lanes</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no path avoiding caps: {}&quot;</span>, <span class="ident">req</span>))
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cap_counter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lane_to_zone</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>) {
-            <span class="self">self</span>.<span class="ident">zones</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">entered_in_last_hour</span>.<span class="ident">len</span>()
-        } <span class="kw">else</span> {
-            <span class="number">0</span>
-        }
-    }
 }
 
-<span class="doccomment">/// Before the driving portion of a trip begins, check that the desired path doesn&#39;t pass through</span>
-<span class="doccomment">/// any road with agents currently experiencing some delay.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">AvoidCongestion</span> {
-    <span class="ident">delay_threshold</span>: <span class="ident">Duration</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">AvoidCongestion</span> {
+<span class="comment">// Specific to the don&#39;t-exceed-delay mechanism</span>
+<span class="kw">impl</span> <span class="ident">CapSimState</span> {
     <span class="kw">fn</span> <span class="ident">path_crosses_delay</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
@@ -325,11 +377,13 @@
         <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="ident">IntersectionSimState</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TurnID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">threshold</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cancel_drivers_delay_threshold</span>.<span class="ident">unwrap</span>();
+
         <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span> {
                 <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>);
                 <span class="kw">for</span> (<span class="ident">agent</span>, <span class="ident">turn</span>, <span class="ident">start</span>) <span class="kw">in</span> <span class="ident">intersections</span>.<span class="ident">get_waiting_agents</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>) {
-                    <span class="kw">if</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">start</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">delay_threshold</span> {
+                    <span class="kw">if</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">threshold</span> {
                         <span class="kw">continue</span>;
                     }
                     <span class="kw">if</span> <span class="ident">agent</span>.<span class="ident">to_vehicle_type</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">VehicleType</span>::<span class="ident">Car</span>) {
