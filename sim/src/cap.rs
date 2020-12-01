@@ -11,13 +11,32 @@ use crate::{CarID, SimOptions, VehicleType};
 // Note this only indexes into the zones we track here, not all of them in the map.
 type ZoneIdx = usize;
 
-/// Some roads (grouped into zones) may have a cap on the number of vehicles that can enter per
-/// hour. CapSimState enforces this, just for driving trips.
+/// Dynamically limit driving trips that meet different conditions:
+///
+/// - trips passing through roads with a per-hour cap
+/// - trips passing through roads with agents currently experiencing some delay
+///
+/// Transform the trips by:
+///
+/// - cancelling them
+/// - delaying them
+/// - rerouting them
+// TODO I'm not sure a single struct is the right way to manage these combinations.
 #[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct CapSimState {
     lane_to_zone: BTreeMap<LaneID, ZoneIdx>,
     zones: Vec<Zone>,
-    avoid_congestion: Option<AvoidCongestion>,
+
+    cancel_drivers_delay_threshold: Option<Duration>,
+    delay_trips_instead_of_cancelling: Option<Duration>,
+}
+
+pub enum CapResult {
+    OK(Path),
+    Reroute(Path),
+    Cancel { reason: String },
+    Delay(Duration),
+    // TODO Switch modes
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -33,9 +52,8 @@ impl CapSimState {
         let mut sim = CapSimState {
             lane_to_zone: BTreeMap::new(),
             zones: Vec::new(),
-            avoid_congestion: opts
-                .cancel_drivers_delay_threshold
-                .map(|delay_threshold| AvoidCongestion { delay_threshold }),
+            cancel_drivers_delay_threshold: opts.cancel_drivers_delay_threshold.clone(),
+            delay_trips_instead_of_cancelling: opts.delay_trips_instead_of_cancelling.clone(),
         };
         for z in map.all_zones() {
             if let Some(cap) = z.restrictions.cap_vehicles_per_hour {
@@ -57,7 +75,69 @@ impl CapSimState {
         sim
     }
 
-    fn allow_trip(&mut self, now: Time, car: CarID, path: &Path) -> bool {
+    /// Before the driving portion of a trip begins, check that the desired path doesn't exceed any
+    /// dynamic limits.
+    pub fn maybe_cap_path(
+        &mut self,
+        req: &PathRequest,
+        path: Path,
+        now: Time,
+        car: CarID,
+        intersections: &IntersectionSimState,
+        map: &Map,
+    ) -> CapResult {
+        if self.cancel_drivers_delay_threshold.is_some() {
+            if let Some((turn, delay)) = self.path_crosses_delay(now, &path, intersections, map) {
+                // TODO Reroute around current delays?
+                if let Some(delay) = self.delay_trips_instead_of_cancelling {
+                    return CapResult::Delay(delay);
+                } else {
+                    return CapResult::Cancel {
+                        reason: format!("path crosses delay of {} at {}", delay, turn),
+                    };
+                }
+            }
+        }
+
+        if self.trip_under_cap(now, car, &path) {
+            return CapResult::OK(path);
+        }
+
+        let mut avoid_lanes: BTreeSet<LaneID> = BTreeSet::new();
+        for (l, idx) in &self.lane_to_zone {
+            let zone = &self.zones[*idx];
+            if zone.entered_in_last_hour.len() >= zone.cap
+                && !zone.entered_in_last_hour.contains(&car)
+            {
+                avoid_lanes.insert(*l);
+            }
+        }
+        match map.pathfind_avoiding_lanes(req.clone(), avoid_lanes) {
+            Some(path) => CapResult::Reroute(path),
+            None => {
+                if let Some(delay) = self.delay_trips_instead_of_cancelling {
+                    CapResult::Delay(delay)
+                } else {
+                    CapResult::Cancel {
+                        reason: format!("no path avoiding caps: {}", req),
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Specific to the cap-per-road mechanism
+impl CapSimState {
+    pub fn get_cap_counter(&self, l: LaneID) -> usize {
+        if let Some(idx) = self.lane_to_zone.get(&l) {
+            self.zones[*idx].entered_in_last_hour.len()
+        } else {
+            0
+        }
+    }
+
+    fn trip_under_cap(&mut self, now: Time, car: CarID, path: &Path) -> bool {
         if car.1 != VehicleType::Car || self.lane_to_zone.is_empty() {
             return true;
         }
@@ -82,65 +162,10 @@ impl CapSimState {
         }
         true
     }
-
-    /// Before the driving portion of a trip begins, check that the desired path doesn't exceed any
-    /// caps. If so, attempt to reroute around.
-    pub fn validate_path(
-        &mut self,
-        req: &PathRequest,
-        path: Path,
-        now: Time,
-        car: CarID,
-        capped: &mut bool,
-        intersections: &IntersectionSimState,
-        map: &Map,
-    ) -> Result<Path, String> {
-        if let Some(ref avoid) = self.avoid_congestion {
-            if let Some((turn, delay)) = avoid.path_crosses_delay(now, &path, intersections, map) {
-                *capped = true;
-                // TODO More responses
-                return Err(format!("path crosses delay of {} at {}", delay, turn));
-            }
-        }
-
-        if self.allow_trip(now, car, &path) {
-            return Ok(path);
-        }
-        *capped = true;
-
-        // TODO Make the responses configurable: cancel the trip, reroute, delay an hour, switch
-        // modes. Where should this policy be specified? Is it simulation-wide?
-
-        let mut avoid_lanes: BTreeSet<LaneID> = BTreeSet::new();
-        for (l, idx) in &self.lane_to_zone {
-            let zone = &self.zones[*idx];
-            if zone.entered_in_last_hour.len() >= zone.cap
-                && !zone.entered_in_last_hour.contains(&car)
-            {
-                avoid_lanes.insert(*l);
-            }
-        }
-        map.pathfind_avoiding_lanes(req.clone(), avoid_lanes)
-            .ok_or_else(|| format!("no path avoiding caps: {}", req))
-    }
-
-    pub fn get_cap_counter(&self, l: LaneID) -> usize {
-        if let Some(idx) = self.lane_to_zone.get(&l) {
-            self.zones[*idx].entered_in_last_hour.len()
-        } else {
-            0
-        }
-    }
 }
 
-/// Before the driving portion of a trip begins, check that the desired path doesn't pass through
-/// any road with agents currently experiencing some delay.
-#[derive(Serialize, Deserialize, Clone)]
-struct AvoidCongestion {
-    delay_threshold: Duration,
-}
-
-impl AvoidCongestion {
+// Specific to the don't-exceed-delay mechanism
+impl CapSimState {
     fn path_crosses_delay(
         &self,
         now: Time,
@@ -148,11 +173,13 @@ impl AvoidCongestion {
         intersections: &IntersectionSimState,
         map: &Map,
     ) -> Option<(TurnID, Duration)> {
+        let threshold = self.cancel_drivers_delay_threshold.unwrap();
+
         for step in path.get_steps() {
             if let PathStep::Lane(l) = step {
                 let lane = map.get_l(*l);
                 for (agent, turn, start) in intersections.get_waiting_agents(lane.dst_i) {
-                    if now - start < self.delay_threshold {
+                    if now - start < threshold {
                         continue;
                     }
                     if agent.to_vehicle_type() != Some(VehicleType::Car) {

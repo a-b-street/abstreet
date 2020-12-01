@@ -108,6 +108,10 @@ pub struct SimOptions {
     /// If present, cancel any driving trips who will pass through a road currently experiencing
     /// delays beyond this threshold.
     pub cancel_drivers_delay_threshold: Option<Duration>,
+    /// Instead of cancelling trips due to `cancel_drivers_delay_threshold` or congestion capping,
+    /// delay the start of the trip by this amount, and try again. If conditions are still
+    /// problematic, repeat a fixed 3 times before cancelling.
+    pub delay_trips_instead_of_cancelling: Option<Duration>,
     /// Don't collect any analytics. Only useful for benchmarking and debugging gridlock more
     /// quickly.
     pub skip_analytics: bool,
@@ -148,6 +152,8 @@ impl SimOptions {
             disable_turn_conflicts: args.enabled("--disable_turn_conflicts"),
             cancel_drivers_delay_threshold: args
                 .optional_parse("--cancel_drivers_delay_threshold", Duration::parse),
+            delay_trips_instead_of_cancelling: args
+                .optional_parse("--delay_trips_instead_of_cancelling", Duration::parse),
             skip_analytics: args.enabled("--skip_analytics"),
         }
     }
@@ -183,6 +189,7 @@ impl SimOptions {
             infinite_parking: false,
             disable_turn_conflicts: false,
             cancel_drivers_delay_threshold: None,
+            delay_trips_instead_of_cancelling: None,
             skip_analytics: false,
         }
     }

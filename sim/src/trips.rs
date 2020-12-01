@@ -8,6 +8,7 @@ use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
 
+use crate::cap::CapResult;
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
@@ -186,15 +187,25 @@ impl TripManager {
                         )
                     })
                     .and_then(|path| {
-                        ctx.cap.validate_path(
+                        match ctx.cap.maybe_cap_path(
                             &req,
                             path,
                             now,
                             vehicle.id,
-                            &mut self.trips[trip.0].info.capped,
                             ctx.intersections,
                             ctx.map,
-                        )
+                        ) {
+                            CapResult::OK(path) => Ok(path),
+                            CapResult::Reroute(path) => {
+                                self.trips[trip.0].info.capped = true;
+                                Ok(path)
+                            }
+                            CapResult::Cancel { reason } => {
+                                self.trips[trip.0].info.capped = true;
+                                Err(reason)
+                            }
+                            CapResult::Delay(_) => todo!(),
+                        }
                     }) {
                     Ok(path) => {
                         let router = goal.make_router(vehicle.id, path, ctx.map);
@@ -550,15 +561,25 @@ impl TripManager {
             .pathfind(req.clone())
             .ok_or_else(|| format!("no path to drive from {} to {}", start, end))
             .and_then(|path| {
-                ctx.cap.validate_path(
+                match ctx.cap.maybe_cap_path(
                     &req,
                     path,
                     now,
                     parked_car.vehicle.id,
-                    &mut trip.info.capped,
                     ctx.intersections,
                     ctx.map,
-                )
+                ) {
+                    CapResult::OK(path) => Ok(path),
+                    CapResult::Reroute(path) => {
+                        trip.info.capped = true;
+                        Ok(path)
+                    }
+                    CapResult::Cancel { reason } => {
+                        trip.info.capped = true;
+                        Err(reason)
+                    }
+                    CapResult::Delay(_) => todo!(),
+                }
             }) {
             Ok(path) => {
                 let router = drive_to.make_router(parked_car.vehicle.id, path, ctx.map);
