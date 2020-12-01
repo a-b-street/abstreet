@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
+    Position,
 };
 
 use crate::cap::CapResult;
@@ -179,34 +180,8 @@ impl TripManager {
                 assert!(ctx.parking.lookup_parked_car(vehicle.id).is_none());
                 let req = maybe_req.unwrap();
                 let person = person.id;
-                match maybe_path
-                    .ok_or_else(|| {
-                        format!(
-                            "VehicleAppearing trip couldn't find the first path: {}",
-                            req
-                        )
-                    })
-                    .and_then(|path| {
-                        match ctx.cap.maybe_cap_path(
-                            &req,
-                            path,
-                            now,
-                            vehicle.id,
-                            ctx.intersections,
-                            ctx.map,
-                        ) {
-                            CapResult::OK(path) => Ok(path),
-                            CapResult::Reroute(path) => {
-                                self.trips[trip.0].info.capped = true;
-                                Ok(path)
-                            }
-                            CapResult::Cancel { reason } => {
-                                self.trips[trip.0].info.capped = true;
-                                Err(reason)
-                            }
-                            CapResult::Delay(_) => todo!(),
-                        }
-                    }) {
+
+                match self.maybe_spawn_car(ctx, now, trip, req.clone(), vehicle.id) {
                     Ok(path) => {
                         let router = goal.make_router(vehicle.id, path, ctx.map);
                         ctx.scheduler.push(
@@ -556,31 +531,9 @@ impl TripManager {
             constraints: PathConstraints::Car,
         };
 
-        match ctx
-            .map
-            .pathfind(req.clone())
-            .ok_or_else(|| format!("no path to drive from {} to {}", start, end))
-            .and_then(|path| {
-                match ctx.cap.maybe_cap_path(
-                    &req,
-                    path,
-                    now,
-                    parked_car.vehicle.id,
-                    ctx.intersections,
-                    ctx.map,
-                ) {
-                    CapResult::OK(path) => Ok(path),
-                    CapResult::Reroute(path) => {
-                        trip.info.capped = true;
-                        Ok(path)
-                    }
-                    CapResult::Cancel { reason } => {
-                        trip.info.capped = true;
-                        Err(reason)
-                    }
-                    CapResult::Delay(_) => todo!(),
-                }
-            }) {
+        let person = trip.person;
+        let trip = trip.id;
+        match self.maybe_spawn_car(ctx, now, trip, req.clone(), parked_car.vehicle.id) {
             Ok(path) => {
                 let router = drive_to.make_router(parked_car.vehicle.id, path, ctx.map);
                 ctx.scheduler.push(
@@ -591,8 +544,8 @@ impl TripManager {
                             router,
                             req,
                             start.dist_along(),
-                            trip.id,
-                            trip.person,
+                            trip,
+                            person,
                         ),
                         true,
                     ),
@@ -601,7 +554,6 @@ impl TripManager {
             Err(err) => {
                 // Move the car to the destination...
                 ctx.parking.remove_parked_car(parked_car.clone());
-                let trip = trip.id;
                 self.cancel_trip(now, trip, err, Some(parked_car.vehicle), ctx);
             }
         }
@@ -1009,6 +961,37 @@ impl TripManager {
         } else {
             self.cancel_trip(now, id, format!("no path for {}", req), None, ctx);
             return;
+        }
+    }
+
+    /// Returns the path to use if successful. Caller is responsible for handling both the success
+    /// and failure case.
+    fn maybe_spawn_car(
+        &mut self,
+        ctx: &mut Ctx,
+        now: Time,
+        trip: TripID,
+        req: PathRequest,
+        car: CarID,
+    ) -> Result<Path, String> {
+        let path = ctx
+            .map
+            .pathfind(req.clone())
+            .ok_or_else(|| format!("no path for {}", req))?;
+        match ctx
+            .cap
+            .maybe_cap_path(&req, path, now, car, ctx.intersections, ctx.map)
+        {
+            CapResult::OK(path) => Ok(path),
+            CapResult::Reroute(path) => {
+                self.trips[trip.0].info.capped = true;
+                Ok(path)
+            }
+            CapResult::Cancel { reason } => {
+                self.trips[trip.0].info.capped = true;
+                Err(reason)
+            }
+            CapResult::Delay(_) => todo!(),
         }
     }
 }
