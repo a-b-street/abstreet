@@ -1,6 +1,6 @@
 use abstutil::MapName;
 use geom::{Duration, Speed};
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{open_browser, PopupMsg};
 use map_gui::SimpleApp;
 use map_model::osm;
 use widgetry::{
@@ -70,6 +70,11 @@ impl TitleScreen {
                         txt.add(Line("An experiment"));
                         txt.draw(ctx).centered_horiz()
                     },
+                    Btn::text_fg("Santa character created by @parallaxcreativedesign").build(
+                        ctx,
+                        "open https://www.instagram.com/parallaxcreativedesign/",
+                        None,
+                    ),
                     Btn::text_bg2("Instructions").build_def(ctx, None),
                     Widget::row(
                         levels
@@ -127,6 +132,11 @@ impl State<SimpleApp> for TitleScreen {
                     ));
                 }
                 x => {
+                    if let Some(url) = x.strip_prefix("open ") {
+                        open_browser(url.to_string());
+                        return Transition::Keep;
+                    }
+
                     for lvl in all_levels() {
                         if x == lvl.title {
                             return Transition::Push(crate::game::Game::new(ctx, app, lvl));

@@ -13,14 +13,14 @@ use widgetry::{
 };
 
 use crate::animation::{Animator, SnowEffect};
-use crate::controls::{Controller, InstantController};
+use crate::controls::InstantController;
 use crate::levels::Config;
 
 const ZOOM: f64 = 10.0;
 
 pub struct Game {
     panel: Panel,
-    controls: Box<dyn Controller>,
+    controls: InstantController,
     minimap: SimpleMinimap,
     animator: Animator,
     snow: SnowEffect,
@@ -69,7 +69,7 @@ impl Game {
                 let with_zorder = false;
                 let mut game = Game {
                     panel,
-                    controls: Box::new(InstantController::new()),
+                    controls: InstantController::new(),
                     minimap: SimpleMinimap::new(ctx, app, with_zorder),
                     animator: Animator::new(ctx),
                     snow: SnowEffect::new(ctx),
@@ -266,10 +266,12 @@ impl State<SimpleApp> for Game {
         if !self.state.has_energy() {
             g.redraw(&self.state.draw_all_depots);
         }
-        g.draw_polygon(
-            Color::RED,
-            Circle::new(self.sleigh, Distance::meters(5.0)).to_polygon(),
-        );
+
+        GeomBatch::load_svg(g.prerender, "system/assets/characters/santa.svg")
+            .scale(0.1)
+            .centered_on(self.sleigh)
+            .rotate_around_batch_center(self.controls.facing)
+            .draw(g);
         self.snow.draw(g);
         self.animator.draw(g);
         if let Some(ref arrow) = self.state.energyless_arrow {
