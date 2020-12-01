@@ -71,10 +71,10 @@ example:
   "people": [
     {
       "origin": {
-	"Position": {
+        "Position": {
           "longitude": -122.303723,
           "latitude": 47.6372834
-	}
+        }
       },
       "trips": [
         {

@@ -97,7 +97,7 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
         self.map.get(&val).cloned().unwrap_or(0)
     }
 
-    // Values with the same count are grouped together
+    /// Values with the same count are grouped together
     pub fn sorted_asc(&self) -> Vec<Vec<T>> {
         let mut list = self.map.iter().collect::<Vec<_>>();
         list.sort_by_key(|(_, cnt)| *cnt);
@@ -106,6 +106,18 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
             .into_iter()
             .map(|(_, group)| group.into_iter().map(|(val, _)| val.clone()).collect())
             .collect()
+    }
+
+    pub fn highest_n(&self, n: usize) -> Vec<(T, usize)> {
+        let mut list: Vec<(T, usize)> = self
+            .map
+            .iter()
+            .map(|(key, cnt)| (key.clone(), *cnt))
+            .collect();
+        list.sort_by_key(|(_, cnt)| *cnt);
+        list.reverse();
+        list.truncate(n);
+        list
     }
 
     pub fn max(&self) -> usize {

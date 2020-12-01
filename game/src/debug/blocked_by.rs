@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashSet};
 
-use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D};
+use abstutil::Counter;
+use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
 use map_gui::Cached;
 use sim::{AgentID, DelayCause};
 use widgetry::{
@@ -34,15 +35,17 @@ impl Viewer {
                 .map(|a| (a.id, a.pos))
                 .collect(),
             arrows: Drawable::empty(ctx),
-            panel: Panel::new(
+            panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("What agents are blocked by others?")
                         .small_heading()
                         .draw(ctx),
                     Btn::close(ctx),
                 ]),
-                // TODO info about cycles
-            )
+                Text::from(Line("Root causes"))
+                    .draw(ctx)
+                    .named("root causes"),
+            ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
 
@@ -55,6 +58,10 @@ impl Viewer {
                 arrows.push(color.alpha(0.5), arrow);
             }
         }
+        let (batch, txt) = viewer.find_worst_problems(app);
+        arrows.append(batch);
+        viewer.panel.replace(ctx, "root causes", txt.draw(ctx));
+
         viewer.arrows = ctx.upload(arrows);
         Box::new(viewer)
     }
@@ -111,6 +118,62 @@ impl Viewer {
             }
         }
         (batch, reason)
+    }
+
+    /// Trace the root cause for everyone, find the most common sources, highlight them, and
+    /// describe them.
+    fn find_worst_problems(&self, app: &App) -> (GeomBatch, Text) {
+        let mut problems: Counter<DelayCause> = Counter::new();
+        for start in self.graph.keys() {
+            problems.inc(self.simple_root_cause(*start));
+        }
+
+        let mut batch = GeomBatch::new();
+        let mut txt = Text::from(Line("Root causes"));
+        for (cause, cnt) in problems.highest_n(3) {
+            txt.add(Line(format!("{:?} is blocking {} agents", cause, cnt)));
+            let pt = match cause {
+                DelayCause::Agent(a) => {
+                    if let Some(pt) = self.agent_positions.get(&a) {
+                        *pt
+                    } else {
+                        continue;
+                    }
+                }
+                DelayCause::Intersection(i) => app.primary.map.get_i(i).polygon.center(),
+            };
+            batch.push(
+                Color::YELLOW,
+                Circle::new(pt, Distance::meters(5.0))
+                    .to_outline(Distance::meters(1.0))
+                    .unwrap(),
+            );
+        }
+
+        (batch, txt)
+    }
+
+    fn simple_root_cause(&self, start: AgentID) -> DelayCause {
+        let mut seen: HashSet<AgentID> = HashSet::new();
+
+        let mut current = start;
+        loop {
+            if seen.contains(&current) {
+                return DelayCause::Agent(current);
+            }
+            seen.insert(current);
+            match self.graph.get(&current) {
+                Some((_, DelayCause::Agent(a))) => {
+                    current = *a;
+                }
+                Some((_, DelayCause::Intersection(i))) => {
+                    return DelayCause::Intersection(*i);
+                }
+                None => {
+                    return DelayCause::Agent(current);
+                }
+            }
+        }
     }
 }
 

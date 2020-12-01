@@ -478,7 +478,7 @@ pub struct AgentProperties {
 
 /// Why is an agent delayed? If there are multiple reasons, arbitrarily pick one -- ie, somebody
 /// could be blocked by two conflicting turns.
-#[derive(Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Serialize)]
 pub enum DelayCause {
     /// Queued behind someone, or someone's doing a conflicting turn, or someone's eating up space
     /// in a target queue
