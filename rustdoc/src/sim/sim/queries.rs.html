@@ -487,9 +487,12 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
+<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
@@ -967,6 +970,7 @@
 
 <span class="doccomment">/// Why is an agent delayed? If there are multiple reasons, arbitrarily pick one -- ie, somebody</span>
 <span class="doccomment">/// could be blocked by two conflicting turns.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DelayCause</span> {
     <span class="doccomment">/// Queued behind someone, or someone&#39;s doing a conflicting turn, or someone&#39;s eating up space</span>
     <span class="doccomment">/// in a target queue</span>

@@ -1130,6 +1130,8 @@ mode, duration of trip in seconds). The mode is a string like &quot;Walk&quot; o
 Vehicle type (or pedestrian), person ID, and position is included.</li>
 <li><strong>GET /data/get-road-thruput</strong>: Returns a JSON list of (road, agent type,
 hour since midnight, throughput for that one hour period).</li>
+<li><strong>GET /data/get-blocked-by-graph</strong>: Returns a mapping from agent IDs to how
+long they've been waiting and why they're blocked.</li>
 </ul>
 </li>
 <li><strong>/map</strong>
