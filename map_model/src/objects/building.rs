@@ -69,10 +69,12 @@ pub enum OffstreetParking {
     Private(usize, bool),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum BuildingType {
-    /// An estimated number of residents
-    Residential(usize),
+    Residential {
+        num_residents: usize,
+        num_housing_units: usize,
+    },
     /// An estimated number of residents, workers
     ResidentialCommercial(usize, usize),
     /// An estimated number of workers
@@ -83,7 +85,7 @@ pub enum BuildingType {
 impl BuildingType {
     pub fn has_residents(&self) -> bool {
         match self {
-            BuildingType::Residential(_) | BuildingType::ResidentialCommercial(_, _) => true,
+            BuildingType::Residential { .. } | BuildingType::ResidentialCommercial(_, _) => true,
             BuildingType::Commercial(_) | BuildingType::Empty => false,
         }
     }

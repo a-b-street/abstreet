@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, Time};
-use kml::ParcelMetadata;
 use map_gui::load::MapLoader;
 use map_gui::tools::{ColorScale, DivergingScale, SimpleMinimap};
 use map_gui::{Cached, SimpleApp, ID};
@@ -40,15 +39,7 @@ impl Game {
             Box::new(move |ctx, app| {
                 ctx.canvas.cam_zoom = ZOOM;
 
-                // TODO We need to use FileLoader for this to work on web. Another good argument
-                // for just adding a field to Map and not storing separately.
-                // TODO This is also hardcoded to Seattle now, ew!
-                let parcels: ParcelMetadata = abstutil::read_binary(
-                    abstutil::path("system/seattle/parcels.bin"),
-                    &mut abstutil::Timer::throwaway(),
-                );
-
-                let state = SleighState::new(ctx, app, config, parcels);
+                let state = SleighState::new(ctx, app, config);
                 let sleigh = app.map.get_b(state.depot).label_center;
                 ctx.canvas.center_on_map_pt(sleigh);
 
@@ -308,21 +299,17 @@ struct SleighState {
 }
 
 impl SleighState {
-    fn new(
-        ctx: &mut EventCtx,
-        app: &SimpleApp,
-        config: Config,
-        parcels: ParcelMetadata,
-    ) -> SleighState {
+    fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> SleighState {
         let mut houses = HashMap::new();
         let mut depot = None;
         for b in app.map.all_buildings() {
-            if let BuildingType::Residential(_) = b.bldg_type {
-                if let Some(parcel) = parcels.per_bldg.get(&b.orig_id) {
-                    // There are some unused commercial buildings around!
-                    if parcel.num_housing_units > 0 {
-                        houses.insert(b.id, BldgState::Undelivered(parcel.num_housing_units));
-                    }
+            if let BuildingType::Residential {
+                num_housing_units, ..
+            } = b.bldg_type
+            {
+                // There are some unused commercial buildings around!
+                if num_housing_units > 0 {
+                    houses.insert(b.id, BldgState::Undelivered(num_housing_units));
                 }
             } else if !b.amenities.is_empty() {
                 // TODO Maybe just food?

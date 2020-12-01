@@ -27,8 +27,8 @@ impl ScenarioGenerator {
         let mut num_bldg_mixed_residential_commercial = 0;
         for b in map.all_buildings() {
             match b.bldg_type {
-                BuildingType::Residential(resident_cap) => {
-                    for _ in 0..resident_cap {
+                BuildingType::Residential { num_residents, .. } => {
+                    for _ in 0..num_residents {
                         residents.push(b.id);
                     }
                     num_bldg_residential += 1;

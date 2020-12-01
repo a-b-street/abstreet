@@ -247,5 +247,8 @@ fn classify_bldg(
         }
         return BuildingType::Commercial(workers);
     }
-    return BuildingType::Residential(residents);
+    return BuildingType::Residential {
+        num_residents: residents,
+        num_housing_units: 1,
+    };
 }

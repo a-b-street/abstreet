@@ -6,8 +6,8 @@ use serde::Deserialize;
 
 use abstutil::{MapName, MultiMap, Timer};
 use geom::{Duration, Polygon, Ring, Time};
-use kml::{ExtraShapes, Parcel, ParcelMetadata};
-use map_model::{BusRouteID, Map};
+use kml::ExtraShapes;
+use map_model::{BuildingID, BuildingType, BusRouteID, Map};
 use sim::Scenario;
 
 use crate::configuration::ImporterConfiguration;
@@ -251,10 +251,9 @@ struct StopTimeRecord {
     arrival_time: String,
 }
 
-/// Match OSM buildings to parcels, scraping the number of housing units. Writes an extra system
-/// file for later use during runtime.
-// TODO Maybe we should modify the map and give Building an Option<usize> field directly.
-pub fn match_parcels_to_buildings(map: &Map, timer: &mut Timer) {
+/// Match OSM buildings to parcels, scraping the number of housing units.
+// TODO It's expensive to load the huge zoning_parcels.bin file for every map.
+pub fn match_parcels_to_buildings(map: &mut Map, timer: &mut Timer) {
     let shapes: ExtraShapes =
         abstutil::read_binary("data/input/seattle/zoning_parcels.bin".to_string(), timer);
     let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();
@@ -269,7 +268,11 @@ pub fn match_parcels_to_buildings(map: &Map, timer: &mut Timer) {
             .get("EXIST_UNITS")
             .and_then(|x| x.parse::<usize>().ok())
         {
-            if let Ok(ring) = Ring::new(map.get_gps_bounds().convert(&shape.points)) {
+            if let Some(ring) = map
+                .get_gps_bounds()
+                .try_convert(&shape.points)
+                .and_then(|pts| Ring::new(pts).ok())
+            {
                 let polygon = ring.to_polygon();
                 quadtree
                     .insert_with_box(parcels_with_housing.len(), polygon.get_bounds().as_bbox());
@@ -278,14 +281,12 @@ pub fn match_parcels_to_buildings(map: &Map, timer: &mut Timer) {
         }
     }
 
-    let mut results = ParcelMetadata {
-        per_bldg: BTreeMap::new(),
-    };
     let mut used_parcels: HashSet<usize> = HashSet::new();
+    let mut units_per_bldg: Vec<(BuildingID, usize)> = Vec::new();
     timer.start_iter("match buildings to parcels", map.all_buildings().len());
     for b in map.all_buildings() {
         timer.next();
-        // If multiple parcels contain a buildng's center, just pick one arbitrarily
+        // If multiple parcels contain a building's center, just pick one arbitrarily
         for (idx, _, _) in quadtree.query(b.polygon.get_bounds().as_bbox()) {
             let idx = *idx;
             if used_parcels.contains(&idx)
@@ -294,14 +295,20 @@ pub fn match_parcels_to_buildings(map: &Map, timer: &mut Timer) {
                 continue;
             }
             used_parcels.insert(idx);
-            results.per_bldg.insert(
-                b.orig_id,
-                Parcel {
-                    num_housing_units: parcels_with_housing[idx].1,
-                },
-            );
+            units_per_bldg.push((b.id, parcels_with_housing[idx].1));
         }
     }
 
-    abstutil::write_binary(abstutil::path("system/seattle/parcels.bin"), &results);
+    for (b, num_housing_units) in units_per_bldg {
+        let bldg_type = match map.get_b(b).bldg_type.clone() {
+            BuildingType::Residential { num_residents, .. } => BuildingType::Residential {
+                num_housing_units,
+                num_residents,
+            },
+            x => x,
+        };
+        map.hack_override_bldg_type(b, bldg_type);
+    }
+
+    map.save();
 }

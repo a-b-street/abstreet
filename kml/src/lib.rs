@@ -172,20 +172,3 @@ impl ExtraShapes {
         Ok(ExtraShapes { shapes })
     }
 }
-
-// TODO This should live in another crate.
-
-/// Extra information about the parcels of land that buildings exist on.
-#[derive(Serialize, Deserialize)]
-pub struct ParcelMetadata {
-    /// If multiple buildings lie within one parcel, only one of them gets an entry here,
-    /// arbitrarily chosen.
-    pub per_bldg: BTreeMap<map_model::osm::OsmID, Parcel>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Parcel {
-    /// How many units of housing are here. Apartments, single-family homes, etc aren't
-    /// distinguished.
-    pub num_housing_units: usize,
-}

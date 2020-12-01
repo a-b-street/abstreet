@@ -1614,7 +1614,6 @@ dependencies = [
  "abstutil",
  "csv",
  "geom",
- "map_model",
  "roxmltree",
  "serde",
 ]
