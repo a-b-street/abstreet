@@ -175,23 +175,6 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO Time to rename this crate</span>
 
@@ -366,23 +349,6 @@
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
         <span class="prelude-val">Ok</span>(<span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> })
     }
-}
-
-<span class="comment">// TODO This should live in another crate.</span>
-
-<span class="doccomment">/// Extra information about the parcels of land that buildings exist on.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParcelMetadata</span> {
-    <span class="doccomment">/// If multiple buildings lie within one parcel, only one of them gets an entry here,</span>
-    <span class="doccomment">/// arbitrarily chosen.</span>
-    <span class="kw">pub</span> <span class="ident">per_bldg</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">map_model</span>::<span class="ident">osm</span>::<span class="ident">OsmID</span>, <span class="ident">Parcel</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Parcel</span> {
-    <span class="doccomment">/// How many units of housing are here. Apartments, single-family homes, etc aren&#39;t</span>
-    <span class="doccomment">/// distinguished.</span>
-    <span class="kw">pub</span> <span class="ident">num_housing_units</span>: <span class="ident">usize</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "kml";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

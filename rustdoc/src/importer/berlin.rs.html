@@ -179,6 +179,12 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 
@@ -189,6 +195,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MapName</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::<span class="ident">ExtraShapes</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">BuildingType</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>, <span class="ident">osmconvert</span>};
@@ -346,9 +353,14 @@
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">bldgs</span> {
             <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> (<span class="ident">rand_nums</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>() <span class="op">/</span> <span class="ident">sum</span> <span class="op">*</span> (<span class="ident">num_residents</span> <span class="kw">as</span> <span class="ident">f64</span>)) <span class="kw">as</span> <span class="ident">usize</span>;
             <span class="kw">let</span> <span class="ident">bldg_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">bldg_type</span> {
-                <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">n</span>),
-                <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>, <span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">map_model</span>::<span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">n</span>, <span class="ident">worker_cap</span>)
+                <span class="ident">BuildingType</span>::<span class="ident">Residential</span> {
+                    <span class="ident">num_housing_units</span>, ..
+                } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BuildingType</span>::<span class="ident">Residential</span> {
+                    <span class="ident">num_housing_units</span>,
+                    <span class="ident">num_residents</span>: <span class="ident">n</span>,
+                },
+                <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>, <span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">n</span>, <span class="ident">worker_cap</span>)
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             };

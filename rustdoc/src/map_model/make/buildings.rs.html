@@ -252,6 +252,9 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -502,7 +505,10 @@
         }
         <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>(<span class="ident">workers</span>);
     }
-    <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="ident">residents</span>);
+    <span class="kw">return</span> <span class="ident">BuildingType</span>::<span class="ident">Residential</span> {
+        <span class="ident">num_residents</span>: <span class="ident">residents</span>,
+        <span class="ident">num_housing_units</span>: <span class="number">1</span>,
+    };
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "map_model";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

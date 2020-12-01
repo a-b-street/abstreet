@@ -970,7 +970,7 @@
 
 <span class="doccomment">/// Why is an agent delayed? If there are multiple reasons, arbitrarily pick one -- ie, somebody</span>
 <span class="doccomment">/// could be blocked by two conflicting turns.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DelayCause</span> {
     <span class="doccomment">/// Queued behind someone, or someone&#39;s doing a conflicting turn, or someone&#39;s eating up space</span>
     <span class="doccomment">/// in a target queue</span>

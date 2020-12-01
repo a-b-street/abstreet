@@ -213,6 +213,8 @@
 <span id="210">210</span>
 <span id="211">211</span>
 <span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -285,10 +287,12 @@
     <span class="ident">Private</span>(<span class="ident">usize</span>, <span class="ident">bool</span>),
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BuildingType</span> {
-    <span class="doccomment">/// An estimated number of residents</span>
-    <span class="ident">Residential</span>(<span class="ident">usize</span>),
+    <span class="ident">Residential</span> {
+        <span class="ident">num_residents</span>: <span class="ident">usize</span>,
+        <span class="ident">num_housing_units</span>: <span class="ident">usize</span>,
+    },
     <span class="doccomment">/// An estimated number of residents, workers</span>
     <span class="ident">ResidentialCommercial</span>(<span class="ident">usize</span>, <span class="ident">usize</span>),
     <span class="doccomment">/// An estimated number of workers</span>
@@ -299,7 +303,7 @@
 <span class="kw">impl</span> <span class="ident">BuildingType</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_residents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BuildingType</span>::<span class="ident">Residential</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">BuildingType</span>::<span class="ident">Residential</span> { .. } <span class="op">|</span> <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="ident">BuildingType</span>::<span class="ident">Commercial</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">BuildingType</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
