@@ -624,6 +624,8 @@
 <span id="621">621</span>
 <span id="622">622</span>
 <span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -640,14 +642,14 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">SnowEffect</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">controls</span>::{<span class="ident">Controller</span>, <span class="ident">InstantController</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">controls</span>::<span class="ident">InstantController</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Config</span>;
 
 <span class="kw">const</span> <span class="ident">ZOOM</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Game</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">controls</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Controller</span><span class="op">&gt;</span>,
+    <span class="ident">controls</span>: <span class="ident">InstantController</span>,
     <span class="ident">minimap</span>: <span class="ident">SimpleMinimap</span>,
     <span class="ident">animator</span>: <span class="ident">Animator</span>,
     <span class="ident">snow</span>: <span class="ident">SnowEffect</span>,
@@ -696,7 +698,7 @@
                 <span class="kw">let</span> <span class="ident">with_zorder</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">game</span> <span class="op">=</span> <span class="ident">Game</span> {
                     <span class="ident">panel</span>,
-                    <span class="ident">controls</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">InstantController</span>::<span class="ident">new</span>()),
+                    <span class="ident">controls</span>: <span class="ident">InstantController</span>::<span class="ident">new</span>(),
                     <span class="ident">minimap</span>: <span class="ident">SimpleMinimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">with_zorder</span>),
                     <span class="ident">animator</span>: <span class="ident">Animator</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
                     <span class="ident">snow</span>: <span class="ident">SnowEffect</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
@@ -893,10 +895,12 @@
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">draw_all_depots</span>);
         }
-        <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-            <span class="ident">Color</span>::<span class="ident">RED</span>,
-            <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">sleigh</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>)).<span class="ident">to_polygon</span>(),
-        );
+
+        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/characters/santa.svg&quot;</span>)
+            .<span class="ident">scale</span>(<span class="number">0.1</span>)
+            .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">sleigh</span>)
+            .<span class="ident">rotate_around_batch_center</span>(<span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">facing</span>)
+            .<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">snow</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">arrow</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span> {
