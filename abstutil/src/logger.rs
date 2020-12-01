@@ -16,7 +16,7 @@ impl Logger {
     pub fn setup() {
         #[cfg(target_arch = "wasm32")]
         {
-            console_log::init_with_level(log::Level::Debug).unwrap();
+            console_log::init_with_level(log::Level::Info).unwrap();
         }
 
         #[cfg(not(target_arch = "wasm32"))]
@@ -25,7 +25,7 @@ impl Logger {
                 last_fast_paths_note: RwLock::new(None),
             }))
             .unwrap();
-            log::set_max_level(log::LevelFilter::Debug);
+            log::set_max_level(log::LevelFilter::Info);
         }
     }
 }
