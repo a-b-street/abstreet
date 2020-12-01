@@ -1598,23 +1598,6 @@
 <span id="1595">1595</span>
 <span id="1596">1596</span>
 <span id="1597">1597</span>
-<span id="1598">1598</span>
-<span id="1599">1599</span>
-<span id="1600">1600</span>
-<span id="1601">1601</span>
-<span id="1602">1602</span>
-<span id="1603">1603</span>
-<span id="1604">1604</span>
-<span id="1605">1605</span>
-<span id="1606">1606</span>
-<span id="1607">1607</span>
-<span id="1608">1608</span>
-<span id="1609">1609</span>
-<span id="1610">1610</span>
-<span id="1611">1611</span>
-<span id="1612">1612</span>
-<span id="1613">1613</span>
-<span id="1614">1614</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -1623,7 +1606,8 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>,
+    <span class="ident">Position</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">cap</span>::<span class="ident">CapResult</span>;
@@ -1797,34 +1781,8 @@
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>).<span class="ident">is_none</span>());
                 <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">maybe_req</span>.<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">id</span>;
-                <span class="kw">match</span> <span class="ident">maybe_path</span>
-                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                        <span class="macro">format</span><span class="macro">!</span>(
-                            <span class="string">&quot;VehicleAppearing trip couldn&#39;t find the first path: {}&quot;</span>,
-                            <span class="ident">req</span>
-                        )
-                    })
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
-                        <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">cap</span>.<span class="ident">maybe_cap_path</span>(
-                            <span class="kw-2">&amp;</span><span class="ident">req</span>,
-                            <span class="ident">path</span>,
-                            <span class="ident">now</span>,
-                            <span class="ident">vehicle</span>.<span class="ident">id</span>,
-                            <span class="ident">ctx</span>.<span class="ident">intersections</span>,
-                            <span class="ident">ctx</span>.<span class="ident">map</span>,
-                        ) {
-                            <span class="ident">CapResult</span>::<span class="ident">OK</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">path</span>),
-                            <span class="ident">CapResult</span>::<span class="ident">Reroute</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                                <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
-                            }
-                            <span class="ident">CapResult</span>::<span class="ident">Cancel</span> { <span class="ident">reason</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                                <span class="prelude-val">Err</span>(<span class="ident">reason</span>)
-                            }
-                            <span class="ident">CapResult</span>::<span class="ident">Delay</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(),
-                        }
-                    }) {
+
+                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">vehicle</span>.<span class="ident">id</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">router</span> <span class="op">=</span> <span class="ident">goal</span>.<span class="ident">make_router</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
                         <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
@@ -2174,31 +2132,9 @@
             <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Car</span>,
         };
 
-        <span class="kw">match</span> <span class="ident">ctx</span>
-            .<span class="ident">map</span>
-            .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no path to drive from {} to {}&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
-                <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">cap</span>.<span class="ident">maybe_cap_path</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">req</span>,
-                    <span class="ident">path</span>,
-                    <span class="ident">now</span>,
-                    <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
-                    <span class="ident">ctx</span>.<span class="ident">intersections</span>,
-                    <span class="ident">ctx</span>.<span class="ident">map</span>,
-                ) {
-                    <span class="ident">CapResult</span>::<span class="ident">OK</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">path</span>),
-                    <span class="ident">CapResult</span>::<span class="ident">Reroute</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
-                    }
-                    <span class="ident">CapResult</span>::<span class="ident">Cancel</span> { <span class="ident">reason</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="prelude-val">Err</span>(<span class="ident">reason</span>)
-                    }
-                    <span class="ident">CapResult</span>::<span class="ident">Delay</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(),
-                }
-            }) {
+        <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">person</span>;
+        <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">id</span>;
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">router</span> <span class="op">=</span> <span class="ident">drive_to</span>.<span class="ident">make_router</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
                 <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
@@ -2209,8 +2145,8 @@
                             <span class="ident">router</span>,
                             <span class="ident">req</span>,
                             <span class="ident">start</span>.<span class="ident">dist_along</span>(),
-                            <span class="ident">trip</span>.<span class="ident">id</span>,
-                            <span class="ident">trip</span>.<span class="ident">person</span>,
+                            <span class="ident">trip</span>,
+                            <span class="ident">person</span>,
                         ),
                         <span class="bool-val">true</span>,
                     ),
@@ -2219,7 +2155,6 @@
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Move the car to the destination...</span>
                 <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">remove_parked_car</span>(<span class="ident">parked_car</span>.<span class="ident">clone</span>());
-                <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">id</span>;
                 <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>, <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>), <span class="ident">ctx</span>);
             }
         }
@@ -2627,6 +2562,37 @@
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">id</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no path for {}&quot;</span>, <span class="ident">req</span>), <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
             <span class="kw">return</span>;
+        }
+    }
+
+    <span class="doccomment">/// Returns the path to use if successful. Caller is responsible for handling both the success</span>
+    <span class="doccomment">/// and failure case.</span>
+    <span class="kw">fn</span> <span class="ident">maybe_spawn_car</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>,
+        <span class="ident">now</span>: <span class="ident">Time</span>,
+        <span class="ident">trip</span>: <span class="ident">TripID</span>,
+        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
+        <span class="ident">car</span>: <span class="ident">CarID</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">ctx</span>
+            .<span class="ident">map</span>
+            .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no path for {}&quot;</span>, <span class="ident">req</span>))<span class="question-mark">?</span>;
+        <span class="kw">match</span> <span class="ident">ctx</span>
+            .<span class="ident">cap</span>
+            .<span class="ident">maybe_cap_path</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">path</span>, <span class="ident">now</span>, <span class="ident">car</span>, <span class="ident">ctx</span>.<span class="ident">intersections</span>, <span class="ident">ctx</span>.<span class="ident">map</span>)
+        {
+            <span class="ident">CapResult</span>::<span class="ident">OK</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">path</span>),
+            <span class="ident">CapResult</span>::<span class="ident">Reroute</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+            }
+            <span class="ident">CapResult</span>::<span class="ident">Cancel</span> { <span class="ident">reason</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="prelude-val">Err</span>(<span class="ident">reason</span>)
+            }
+            <span class="ident">CapResult</span>::<span class="ident">Delay</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(),
         }
     }
 }
