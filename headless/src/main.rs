@@ -29,8 +29,8 @@ use map_model::{
     MovementID, PermanentMapEdits, RoadID, TurnID,
 };
 use sim::{
-    AgentID, AgentType, ExternalPerson, PersonID, Scenario, ScenarioModifier, Sim, SimFlags,
-    SimOptions, TripID, TripMode, VehicleType,
+    AgentID, AgentType, DelayCause, ExternalPerson, PersonID, Scenario, ScenarioModifier, Sim,
+    SimFlags, SimOptions, TripID, TripMode, VehicleType,
 };
 
 lazy_static::lazy_static! {
@@ -318,6 +318,9 @@ fn handle_command(
                 .map(|((r, a, hr), cnt)| (*r, *a, *hr, *cnt))
                 .collect(),
         })),
+        "/data/get-blocked-by-graph" => Ok(abstutil::to_json(&BlockedByGraph {
+            blocked_by: sim.get_blocked_by_graph(map),
+        })),
         // Controlling the map
         "/map/get-edits" => {
             let mut edits = map.get_edits().clone();
@@ -400,6 +403,14 @@ struct TrafficSignalState {
     accepted: BTreeSet<AgentID>,
     // Some agent has been waiting to start a turn since some time
     waiting: Vec<(AgentID, TurnID, Time)>,
+}
+
+#[derive(Serialize)]
+struct BlockedByGraph {
+    /// Each entry indicates that some agent has been stuck in one place for some amount of time,
+    /// due to being blocked by another agent or because they're waiting at an intersection.
+    #[serde(serialize_with = "serialize_btreemap")]
+    blocked_by: BTreeMap<AgentID, (Duration, DelayCause)>,
 }
 
 #[derive(Deserialize)]

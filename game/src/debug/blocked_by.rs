@@ -1,6 +1,7 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Pt2D};
+use map_gui::Cached;
 use sim::{AgentID, DelayCause};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
@@ -17,6 +18,8 @@ pub struct Viewer {
     graph: BTreeMap<AgentID, (Duration, DelayCause)>,
     agent_positions: BTreeMap<AgentID, Pt2D>,
     arrows: Drawable,
+
+    root_cause: Cached<AgentID, (Drawable, Text)>,
 }
 
 impl Viewer {
@@ -42,6 +45,8 @@ impl Viewer {
             )
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
+
+            root_cause: Cached::new(),
         };
 
         let mut arrows = GeomBatch::new();
@@ -73,6 +78,40 @@ impl Viewer {
             .make_arrow(Distance::meters(0.5), ArrowCap::Triangle);
         Some((arrow, color))
     }
+
+    /// Figure out why some agent is blocked. Draws an arrow for each hop in the dependency chain,
+    /// and gives a description of the root cause.
+    fn trace_root_cause(&self, app: &App, start: AgentID) -> (GeomBatch, String) {
+        let mut batch = GeomBatch::new();
+        let mut seen: HashSet<AgentID> = HashSet::new();
+
+        let mut current = start;
+        let reason;
+        loop {
+            if seen.contains(&current) {
+                reason = format!("cycle involving {}", current);
+                break;
+            }
+            seen.insert(current);
+            if let Some((arrow, _)) = self.arrow_for(app, current) {
+                batch.push(Color::CYAN, arrow);
+            }
+            match self.graph.get(&current) {
+                Some((_, DelayCause::Agent(a))) => {
+                    current = *a;
+                }
+                Some((_, DelayCause::Intersection(i))) => {
+                    reason = i.to_string();
+                    break;
+                }
+                None => {
+                    reason = current.to_string();
+                    break;
+                }
+            }
+        }
+        (batch, reason)
+    }
 }
 
 impl State<App> for Viewer {
@@ -80,6 +119,29 @@ impl State<App> for Viewer {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
             app.recalculate_current_selection(ctx);
+
+            // TODO Awkward dances around the borrow checker. Maybe make a method in Cached if we
+            // need to do this frequently.
+            let mut root_cause = std::mem::replace(&mut self.root_cause, Cached::new());
+            root_cause.update(
+                app.primary
+                    .current_selection
+                    .as_ref()
+                    .and_then(|id| id.agent_id()),
+                |agent| {
+                    if let Some((delay, _)) = self.graph.get(&agent) {
+                        let (batch, problem) = self.trace_root_cause(app, agent);
+                        let txt = Text::from_multiline(vec![
+                            Line(format!("Waiting {}", delay)),
+                            Line(problem),
+                        ]);
+                        (ctx.upload(batch), txt)
+                    } else {
+                        (Drawable::empty(ctx), Text::new())
+                    }
+                },
+            );
+            self.root_cause = root_cause;
         }
 
         match self.panel.event(ctx) {
@@ -100,17 +162,10 @@ impl State<App> for Viewer {
         CommonState::draw_osd(g, app);
         g.redraw(&self.arrows);
 
-        if let Some(id) = app
-            .primary
-            .current_selection
-            .as_ref()
-            .and_then(|id| id.agent_id())
-        {
-            if let Some((delay, _)) = self.graph.get(&id) {
-                g.draw_mouse_tooltip(Text::from(Line(format!("Waiting {}", delay))));
-            }
-            if let Some((arrow, _)) = self.arrow_for(app, id) {
-                g.draw_polygon(Color::CYAN, arrow);
+        if let Some((draw, txt)) = self.root_cause.value() {
+            g.redraw(draw);
+            if !txt.is_empty() {
+                g.draw_mouse_tooltip(txt.clone());
             }
         }
     }

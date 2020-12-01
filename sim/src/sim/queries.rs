@@ -1,5 +1,6 @@
 //! All sorts of read-only queries about a simulation
 
+use serde::Serialize;
 use std::collections::BTreeMap;
 
 use abstutil::Counter;
@@ -477,6 +478,7 @@ pub struct AgentProperties {
 
 /// Why is an agent delayed? If there are multiple reasons, arbitrarily pick one -- ie, somebody
 /// could be blocked by two conflicting turns.
+#[derive(Serialize)]
 pub enum DelayCause {
     /// Queued behind someone, or someone's doing a conflicting turn, or someone's eating up space
     /// in a target queue
