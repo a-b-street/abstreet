@@ -3,12 +3,12 @@ use std::collections::HashMap;
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, Time};
 use map_gui::load::MapLoader;
-use map_gui::tools::{ColorScale, DivergingScale, SimpleMinimap};
-use map_gui::{Cached, SimpleApp, ID};
-use map_model::{BuildingID, BuildingType, PathConstraints};
+use map_gui::tools::{ColorScale, SimpleMinimap};
+use map_gui::{SimpleApp, ID};
+use map_model::{BuildingID, BuildingType};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    LinearGradient, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition, UpdateType,
+    LinearGradient, Outcome, Panel, State, Text, TextExt, Transition, UpdateType,
     VerticalAlignment, Widget,
 };
 
@@ -27,7 +27,7 @@ pub struct Game {
 
     sleigh: Pt2D,
     state: SleighState,
-    over_bldg: Cached<BuildingID, OverBldg>,
+    over_bldg: Option<BuildingID>,
 }
 
 impl Game {
@@ -37,11 +37,15 @@ impl Game {
             app,
             config.map.clone(),
             Box::new(move |ctx, app| {
+                let start = app
+                    .map
+                    .find_b_by_osm_id(config.start_depot)
+                    .expect(&format!("can't find {}", config.start_depot));
+                let sleigh = app.map.get_b(start).label_center;
+                ctx.canvas.center_on_map_pt(sleigh);
                 ctx.canvas.cam_zoom = ZOOM;
 
                 let state = SleighState::new(ctx, app, config);
-                let sleigh = app.map.get_b(state.depot).label_center;
-                ctx.canvas.center_on_map_pt(sleigh);
 
                 let panel = Panel::new(Widget::col(vec![
                     Widget::row(vec![
@@ -76,7 +80,7 @@ impl Game {
 
                     sleigh,
                     state,
-                    over_bldg: Cached::new(),
+                    over_bldg: None,
                 };
                 game.update_panel(ctx);
                 game.minimap
@@ -95,7 +99,7 @@ impl Game {
 
         let energy_bar = make_bar(
             ctx,
-            self.state.energy.max(Duration::ZERO) / self.state.config.max_energy,
+            (self.state.energy as f64) / (self.state.config.max_energy as f64),
             ColorScale(vec![Color::RED, Color::YELLOW, Color::GREEN]),
         );
         self.panel.replace(ctx, "energy", energy_bar);
@@ -128,73 +132,74 @@ impl Game {
         self.state.energy = self.state.config.max_energy;
         self.state.upzones_used += 1;
         self.state.houses.insert(b, BldgState::Depot);
-        self.state.depot = b;
         self.state.recalc_depots(ctx, app);
         self.sleigh = app.map.get_b(b).label_center;
         ctx.canvas.cam_zoom = ZOOM;
         ctx.canvas.center_on_map_pt(self.sleigh);
     }
+
+    fn over_bldg(&self, app: &SimpleApp) -> Option<BuildingID> {
+        for id in app
+            .draw_map
+            .get_matching_objects(Circle::new(self.sleigh, Distance::meters(3.0)).get_bounds())
+        {
+            if let ID::Building(b) = id {
+                if app.map.get_b(b).polygon.contains_pt(self.sleigh) {
+                    return Some(b);
+                }
+            }
+        }
+        None
+    }
 }
 
 impl State<SimpleApp> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
-        let mut recharging = false;
-        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            if let Some(b) = self.over_bldg.key() {
-                if ctx.is_key_down(Key::Space) && self.state.recharge(b, dt) {
-                    self.update_panel(ctx);
-                    recharging = true;
-                    if self.state.depot != b {
-                        self.state.depot = b;
-                        self.state.recalc_depots(ctx, app);
+        let speed = if self.state.has_energy() {
+            self.state.config.normal_speed
+        } else {
+            self.state.config.tired_speed
+        };
+        let (dx, dy) = self.controls.displacement(ctx, speed);
+        if dx != 0.0 || dy != 0.0 {
+            self.sleigh = self.sleigh.offset(dx, dy);
+            ctx.canvas.center_on_map_pt(self.sleigh);
+            self.over_bldg = self.over_bldg(app);
+        }
+
+        if let Some(b) = self.over_bldg {
+            match self.state.houses.get(&b) {
+                Some(BldgState::Undelivered(_)) => {
+                    if let Some(increase) = self.state.present_dropped(ctx, app, b) {
+                        self.update_panel(ctx);
+                        self.animator.add(
+                            Duration::seconds(0.5),
+                            (1.0, 4.0),
+                            app.map.get_b(b).label_center,
+                            Text::from(Line(format!("+{}", prettyprint_usize(increase))))
+                                .bg(Color::RED)
+                                .render_to_batch(ctx.prerender)
+                                .scale(0.1),
+                        );
                     }
                 }
-            }
-
-            if !recharging && self.state.has_energy() {
-                self.state.energy -= dt;
-                self.update_panel(ctx);
-            }
-        }
-
-        if !recharging {
-            let speed = if self.state.has_energy() {
-                self.state.config.normal_speed
-            } else {
-                self.state.config.tired_speed
-            };
-            let (dx, dy) = self.controls.displacement(ctx, speed);
-            if dx != 0.0 || dy != 0.0 {
-                self.sleigh = self.sleigh.offset(dx, dy);
-                ctx.canvas.center_on_map_pt(self.sleigh);
-
-                let key = OverBldg::key(app, self.sleigh, &self.state);
-                let is_depot = key
-                    .map(|b| match self.state.houses.get(&b) {
-                        Some(BldgState::Depot) => true,
-                        _ => false,
-                    })
-                    .unwrap_or(false);
-                self.over_bldg
-                    .update(key, |key| OverBldg::value(ctx, app, key, is_depot));
-            }
-        }
-
-        if let Some(b) = self.over_bldg.key() {
-            if self.state.has_energy() {
-                if let Some(increase) = self.state.present_dropped(ctx, app, b) {
-                    self.over_bldg.clear();
-                    self.update_panel(ctx);
-                    self.animator.add(
-                        Duration::seconds(0.5),
-                        (1.0, 4.0),
-                        app.map.get_b(b).label_center,
-                        Text::from(Line(format!("+{}", prettyprint_usize(increase))))
-                            .bg(Color::RED)
-                            .render_to_batch(ctx.prerender)
-                            .scale(0.1),
-                    );
+                Some(BldgState::Depot) => {
+                    let refill = self.state.config.max_energy - self.state.energy;
+                    if refill > 0 {
+                        self.state.energy += refill;
+                        self.update_panel(ctx);
+                        self.animator.add(
+                            Duration::seconds(0.5),
+                            (1.0, 4.0),
+                            app.map.get_b(b).label_center,
+                            Text::from(Line(format!("Refilled {}", prettyprint_usize(refill))))
+                                .bg(Color::BLUE)
+                                .render_to_batch(ctx.prerender)
+                                .scale(0.1),
+                        );
+                    }
                 }
+                _ => {}
             }
         }
 
@@ -260,9 +265,6 @@ impl State<SimpleApp> for Game {
 
         g.redraw(&self.state.draw_todo_houses);
         g.redraw(&self.state.draw_done_houses);
-        if let Some(draw) = self.over_bldg.value() {
-            g.redraw(&draw.0);
-        }
         if !self.state.has_energy() {
             g.redraw(&self.state.draw_all_depots);
         }
@@ -283,12 +285,11 @@ impl State<SimpleApp> for Game {
 struct SleighState {
     config: Config,
 
+    // Number of deliveries
     score: usize,
-    energy: Duration,
+    // Number of gifts currently being carried
+    energy: usize,
     houses: HashMap<BuildingID, BldgState>,
-
-    depot: BuildingID,
-    cost_to_house: HashMap<BuildingID, Duration>,
 
     upzones_used: usize,
     upzoned_depots: Vec<BuildingID>,
@@ -303,7 +304,6 @@ struct SleighState {
 impl SleighState {
     fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> SleighState {
         let mut houses = HashMap::new();
-        let mut depot = None;
         for b in app.map.all_buildings() {
             if let BuildingType::Residential {
                 num_housing_units, ..
@@ -316,13 +316,9 @@ impl SleighState {
             } else if !b.amenities.is_empty() {
                 // TODO Maybe just food?
                 houses.insert(b.id, BldgState::Depot);
-                if b.orig_id == config.start_depot {
-                    depot = Some(b.id);
-                }
             }
         }
 
-        let depot = depot.expect(&format!("can't find {}", config.start_depot));
         let energy = config.max_energy;
         let mut s = SleighState {
             config,
@@ -330,9 +326,6 @@ impl SleighState {
             score: 0,
             energy,
             houses,
-
-            depot,
-            cost_to_house: HashMap::new(),
 
             upzones_used: 0,
             upzoned_depots: Vec::new(),
@@ -357,42 +350,21 @@ impl SleighState {
                 app.map.get_b(*b).polygon.clone(),
             );
         }
-        batch.append(
-            GeomBatch::load_svg(ctx.prerender, "system/assets/tools/star.svg")
-                .centered_on(app.map.get_b(self.depot).label_center)
-                .color(RewriteColor::ChangeAll(Color::YELLOW)),
-        );
-
-        self.cost_to_house = map_model::connectivity::all_costs_from(
-            &app.map,
-            self.depot,
-            Duration::hours(3),
-            PathConstraints::Pedestrian,
-        );
-
-        let worst_duration = Duration::minutes(15);
-        let cost_scale =
-            DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
-                .range(0.0, worst_duration.inner_seconds());
 
         for b in app.map.all_buildings() {
             match self.houses.get(&b.id) {
                 Some(BldgState::Undelivered(housing_units)) => {
-                    if let Some(cost) = self.cost_to_house.get(&b.id) {
-                        let color = cost_scale.eval(cost.inner_seconds()).unwrap();
-                        batch.push(color, b.polygon.clone());
-                        // Call out non-single family homes
-                        if *housing_units > 1 {
-                            // TODO Text can be slow to render, and this should be louder anyway
-                            batch.append(
-                                Text::from(Line(housing_units.to_string()).fg(Color::RED))
-                                    .render_to_batch(ctx.prerender)
-                                    .scale(0.2)
-                                    .centered_on(b.label_center),
-                            );
-                        }
-                        continue;
+                    // Call out non-single family homes
+                    if *housing_units > 1 {
+                        // TODO Text can be slow to render, and this should be louder anyway
+                        batch.append(
+                            Text::from(Line(housing_units.to_string()).fg(Color::RED))
+                                .render_to_batch(ctx.prerender)
+                                .scale(0.2)
+                                .centered_on(b.label_center),
+                        );
                     }
+                    continue;
                 }
                 Some(BldgState::Depot) => continue,
                 _ => {}
@@ -429,30 +401,23 @@ impl SleighState {
         app: &SimpleApp,
         id: BuildingID,
     ) -> Option<usize> {
-        if let Some(BldgState::Undelivered(score)) = self.houses.get(&id).cloned() {
-            if let Some(cost) = self.cost_to_house.get(&id) {
-                self.score += score;
-                self.houses.insert(id, BldgState::Done);
-                self.energy -= *cost;
-                self.recalc_deliveries(ctx, app);
-                return Some(score);
-            }
+        if !self.has_energy() {
+            return None;
+        }
+        if let Some(BldgState::Undelivered(num_housing_units)) = self.houses.get(&id).cloned() {
+            // TODO No partial deliveries.
+            let deliveries = num_housing_units.min(self.energy);
+            self.score += deliveries;
+            self.houses.insert(id, BldgState::Done);
+            self.energy -= deliveries;
+            self.recalc_deliveries(ctx, app);
+            return Some(deliveries);
         }
         None
     }
 
-    // True if state change
-    fn recharge(&mut self, id: BuildingID, dt: Duration) -> bool {
-        if let Some(BldgState::Depot) = self.houses.get(&id) {
-            self.energy += self.config.recharge_rate * dt;
-            self.energy = self.energy.min(self.config.max_energy);
-            return true;
-        }
-        false
-    }
-
     fn has_energy(&self) -> bool {
-        self.energy > Duration::ZERO
+        self.energy > 0
     }
 
     /// (upzones_free, next_upzone_pct)
@@ -484,52 +449,6 @@ enum BldgState {
     Undelivered(usize),
     Depot,
     Done,
-}
-
-struct OverBldg(Drawable);
-
-impl OverBldg {
-    fn key(app: &SimpleApp, sleigh: Pt2D, state: &SleighState) -> Option<BuildingID> {
-        for id in app
-            .draw_map
-            .get_matching_objects(Circle::new(sleigh, Distance::meters(3.0)).get_bounds())
-        {
-            if let ID::Building(b) = id {
-                if app.map.get_b(b).polygon.contains_pt(sleigh) {
-                    if let Some(BldgState::Undelivered { .. }) | Some(BldgState::Depot) =
-                        state.houses.get(&b)
-                    {
-                        return Some(b);
-                    }
-                }
-            }
-        }
-        None
-    }
-
-    fn value(ctx: &mut EventCtx, app: &SimpleApp, key: BuildingID, is_depot: bool) -> OverBldg {
-        let mut batch = GeomBatch::new();
-        // We only want to highlight when we're hovering over a depot and could recharge
-        if is_depot {
-            let b = app.map.get_b(key);
-            batch.push(
-                Color::YELLOW,
-                b.polygon
-                    .to_outline(Distance::meters(0.5))
-                    .unwrap_or_else(|_| b.polygon.clone()),
-            );
-
-            batch.append(
-                Text::from(Line("Hold down SPACEBAR to recharge"))
-                    .bg(Color::RED)
-                    .render_to_batch(ctx.prerender)
-                    .scale(0.2)
-                    .centered_on(b.label_center.offset(0.0, -30.0)),
-            );
-        }
-
-        OverBldg(ctx.upload(batch))
-    }
 }
 
 struct EnergylessArrow {

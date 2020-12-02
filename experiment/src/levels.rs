@@ -1,5 +1,5 @@
 use abstutil::MapName;
-use geom::{Duration, Speed};
+use geom::Speed;
 use map_gui::tools::{open_browser, PopupMsg};
 use map_gui::SimpleApp;
 use map_model::osm;
@@ -16,8 +16,7 @@ pub struct Config {
 
     pub normal_speed: Speed,
     pub tired_speed: Speed,
-    pub recharge_rate: f64,
-    pub max_energy: Duration,
+    pub max_energy: usize,
     pub upzone_rate: usize,
 }
 
@@ -32,8 +31,7 @@ fn all_levels() -> Vec<Config> {
 
             normal_speed: Speed::miles_per_hour(30.0),
             tired_speed: Speed::miles_per_hour(10.0),
-            recharge_rate: 2000.0,
-            max_energy: Duration::hours(3),
+            max_energy: 1000,
             upzone_rate: 100,
         },
         Config {
@@ -44,8 +42,7 @@ fn all_levels() -> Vec<Config> {
 
             normal_speed: Speed::miles_per_hour(40.0),
             tired_speed: Speed::miles_per_hour(15.0),
-            recharge_rate: 3000.0,
-            max_energy: Duration::hours(3),
+            max_energy: 1000,
             upzone_rate: 150,
         },
     ]
