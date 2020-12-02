@@ -31,7 +31,7 @@ fn all_levels() -> Vec<Config> {
 
             normal_speed: Speed::miles_per_hour(30.0),
             tired_speed: Speed::miles_per_hour(10.0),
-            max_energy: 1000,
+            max_energy: 80,
             upzone_rate: 100,
         },
         Config {
@@ -42,7 +42,7 @@ fn all_levels() -> Vec<Config> {
 
             normal_speed: Speed::miles_per_hour(40.0),
             tired_speed: Speed::miles_per_hour(15.0),
-            max_energy: 1000,
+            max_energy: 100,
             upzone_rate: 150,
         },
     ]

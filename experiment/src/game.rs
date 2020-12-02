@@ -1,20 +1,20 @@
 use std::collections::HashMap;
 
 use abstutil::prettyprint_usize;
-use geom::{ArrowCap, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, Time};
+use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::load::MapLoader;
 use map_gui::tools::{ColorScale, SimpleMinimap};
 use map_gui::{SimpleApp, ID};
 use map_model::{BuildingID, BuildingType};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    LinearGradient, Outcome, Panel, State, Text, TextExt, Transition, UpdateType,
-    VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::animation::{Animator, SnowEffect};
 use crate::controls::InstantController;
 use crate::levels::Config;
+use crate::meters::make_bar;
 
 const ZOOM: f64 = 10.0;
 
@@ -25,6 +25,7 @@ pub struct Game {
     animator: Animator,
     snow: SnowEffect,
 
+    time: Time,
     sleigh: Pt2D,
     state: SleighState,
     over_bldg: Option<BuildingID>,
@@ -52,10 +53,20 @@ impl Game {
                         Line("15-minute Santa").small_heading().draw(ctx),
                         Btn::close(ctx),
                     ]),
-                    // TODO "Families with presents" or "Deliveries"?
-                    "Score".draw_text(ctx).named("score"),
                     Widget::row(vec![
-                        "Energy:".draw_text(ctx),
+                        "Time spent:".draw_text(ctx),
+                        Widget::draw_batch(ctx, GeomBatch::new())
+                            .named("time")
+                            .align_right(),
+                    ]),
+                    Widget::row(vec![
+                        "Deliveries completed:".draw_text(ctx),
+                        Widget::draw_batch(ctx, GeomBatch::new())
+                            .named("score")
+                            .align_right(),
+                    ]),
+                    Widget::row(vec![
+                        "Presents in bag:".draw_text(ctx),
                         Widget::draw_batch(ctx, GeomBatch::new())
                             .named("energy")
                             .align_right(),
@@ -78,6 +89,7 @@ impl Game {
                     animator: Animator::new(ctx),
                     snow: SnowEffect::new(ctx),
 
+                    time: Time::START_OF_DAY,
                     sleigh,
                     state,
                     over_bldg: None,
@@ -91,20 +103,26 @@ impl Game {
     }
 
     fn update_panel(&mut self, ctx: &mut EventCtx) {
-        self.panel.replace(
+        let time = format!("{}", self.time - Time::START_OF_DAY).draw_text(ctx);
+        self.panel.replace(ctx, "time", time);
+
+        let score_bar = make_bar(
             ctx,
-            "score",
-            format!("Score: {}", prettyprint_usize(self.state.score)).draw_text(ctx),
+            ColorScale(vec![Color::WHITE, Color::GREEN]),
+            self.state.score,
+            self.state.total_housing_units,
         );
+        self.panel.replace(ctx, "score", score_bar);
 
         let energy_bar = make_bar(
             ctx,
-            (self.state.energy as f64) / (self.state.config.max_energy as f64),
             ColorScale(vec![Color::RED, Color::YELLOW, Color::GREEN]),
+            self.state.energy,
+            self.state.config.max_energy,
         );
         self.panel.replace(ctx, "energy", energy_bar);
 
-        let (upzones_free, next_upzone_pct) = self.state.get_upzones();
+        let (upzones_free, have_towards_next, needed_total) = self.state.get_upzones();
         self.panel.replace(
             ctx,
             "use upzone",
@@ -121,9 +139,10 @@ impl Game {
         );
         let upzone_bar = make_bar(
             ctx,
-            next_upzone_pct,
             // TODO Probably similar color for showing depots
             ColorScale(vec![Color::hex("#EFEDF5"), Color::hex("#756BB1")]),
+            have_towards_next,
+            needed_total,
         );
         self.panel.replace(ctx, "next upzone", upzone_bar);
     }
@@ -155,6 +174,10 @@ impl Game {
 
 impl State<SimpleApp> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
+        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+            self.time += dt;
+        }
+
         let speed = if self.state.has_energy() {
             self.state.config.normal_speed
         } else {
@@ -171,8 +194,8 @@ impl State<SimpleApp> for Game {
             match self.state.houses.get(&b) {
                 Some(BldgState::Undelivered(_)) => {
                     if let Some(increase) = self.state.present_dropped(ctx, app, b) {
-                        self.update_panel(ctx);
                         self.animator.add(
+                            self.time,
                             Duration::seconds(0.5),
                             (1.0, 4.0),
                             app.map.get_b(b).label_center,
@@ -187,8 +210,8 @@ impl State<SimpleApp> for Game {
                     let refill = self.state.config.max_energy - self.state.energy;
                     if refill > 0 {
                         self.state.energy += refill;
-                        self.update_panel(ctx);
                         self.animator.add(
+                            self.time,
                             Duration::seconds(0.5),
                             (1.0, 4.0),
                             app.map.get_b(b).label_center,
@@ -206,19 +229,19 @@ impl State<SimpleApp> for Game {
         if let Some(t) = self.minimap.event(ctx, app) {
             return t;
         }
-        self.animator.event(ctx);
-        self.snow.event(ctx);
+        self.animator.event(ctx, self.time);
+        self.snow.event(ctx, self.time);
         if self.state.has_energy() {
             self.state.energyless_arrow = None;
         } else {
             if self.state.energyless_arrow.is_none() {
-                self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, self.animator.time));
+                self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, self.time));
             }
             let depots = self.state.all_depots();
             self.state.energyless_arrow.as_mut().unwrap().update(
                 ctx,
                 app,
-                self.animator.time,
+                self.time,
                 self.sleigh,
                 depots,
             );
@@ -246,6 +269,8 @@ impl State<SimpleApp> for Game {
             _ => {}
         }
 
+        // Time is constantly passing
+        self.update_panel(ctx);
         ctx.request_update(UpdateType::Game);
         Transition::Keep
     }
@@ -285,6 +310,8 @@ impl State<SimpleApp> for Game {
 struct SleighState {
     config: Config,
 
+    total_housing_units: usize,
+
     // Number of deliveries
     score: usize,
     // Number of gifts currently being carried
@@ -304,6 +331,7 @@ struct SleighState {
 impl SleighState {
     fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> SleighState {
         let mut houses = HashMap::new();
+        let mut total_housing_units = 0;
         for b in app.map.all_buildings() {
             if let BuildingType::Residential {
                 num_housing_units, ..
@@ -312,6 +340,7 @@ impl SleighState {
                 // There are some unused commercial buildings around!
                 if num_housing_units > 0 {
                     houses.insert(b.id, BldgState::Undelivered(num_housing_units));
+                    total_housing_units += num_housing_units;
                 }
             } else if !b.amenities.is_empty() {
                 // TODO Maybe just food?
@@ -322,6 +351,8 @@ impl SleighState {
         let energy = config.max_energy;
         let mut s = SleighState {
             config,
+
+            total_housing_units,
 
             score: 0,
             energy,
@@ -420,15 +451,16 @@ impl SleighState {
         self.energy > 0
     }
 
-    /// (upzones_free, next_upzone_pct)
-    fn get_upzones(&self) -> (usize, f64) {
+    /// (upzones_free, points towards next upzone, points needed for next upzone)
+    fn get_upzones(&self) -> (usize, usize, usize) {
         // Start with a freebie
         let total = 1 + (self.score / self.config.upzone_rate);
         let upzones_free = total - self.upzones_used;
         let next_upzone = total * self.config.upzone_rate;
         (
             upzones_free,
-            1.0 - ((next_upzone - self.score) as f64) / (self.config.upzone_rate as f64),
+            self.score - (next_upzone - self.config.upzone_rate),
+            self.config.upzone_rate,
         )
     }
 
@@ -501,44 +533,4 @@ impl EnergylessArrow {
         .make_arrow(thickness, ArrowCap::Triangle);
         self.draw = ctx.upload(GeomBatch::from(vec![(Color::RED.alpha(0.8), arrow)]));
     }
-}
-
-fn make_bar(ctx: &mut EventCtx, pct_full: f64, scale: ColorScale) -> Widget {
-    let total_width = 300.0;
-    let height = 32.0;
-    let n = scale.0.len();
-    let width_each = total_width / ((n - 1) as f64);
-
-    let mut pieces = Vec::new();
-    let mut width_remaining = pct_full * total_width;
-    for i in 0..n - 1 {
-        let width = width_each.min(width_remaining);
-        pieces.push(Polygon::rectangle(width, height).translate((i as f64) * width_each, 0.0));
-        if width < width_each {
-            break;
-        }
-        width_remaining -= width;
-    }
-
-    let mut batch = GeomBatch::new();
-    batch.push(
-        Fill::LinearGradient(LinearGradient {
-            line: Line::must_new(Pt2D::new(0.0, 0.0), Pt2D::new(total_width, 0.0)),
-            stops: scale
-                .0
-                .iter()
-                .enumerate()
-                .map(|(idx, color)| ((idx as f64) / ((n - 1) as f64), *color))
-                .collect(),
-        }),
-        Polygon::union_all(pieces),
-    );
-    batch.push(
-        Color::BLACK,
-        Polygon::rectangle((1.0 - pct_full) * total_width, height)
-            .translate(pct_full * total_width, 0.0),
-    );
-    Widget::draw_batch(ctx, batch)
-        .padding(2)
-        .outline(2.0, Color::WHITE)
 }

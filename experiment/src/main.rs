@@ -2,6 +2,7 @@ mod animation;
 mod controls;
 mod game;
 mod levels;
+mod meters;
 mod upzone;
 
 fn main() {
