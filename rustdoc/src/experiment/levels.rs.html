@@ -149,17 +149,6 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Speed</span>;
@@ -190,7 +179,7 @@
             <span class="ident">title</span>: <span class="string">&quot;Level 1 - a small neighborhood&quot;</span>,
             <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
             <span class="ident">start_depot</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">osm</span>::<span class="ident">WayID</span>(<span class="number">217700589</span>)),
-            <span class="ident">minimap_zoom</span>: <span class="number">0</span>,
+            <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
 
             <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>),
             <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>),
@@ -267,21 +256,10 @@
                         <span class="macro">vec</span><span class="macro">!</span>[
                             <span class="string">&quot;It&#39;s Christmas Eve, so it&#39;s time for Santa to deliver presents in \
                              Seattle. 2020 has thoroughly squashed any remaining magic out of the \
-                             world, and so your reindeer can&#39;t fly.&quot;</span>,
-                            <span class="string">&quot;Luckily, Amazon sells a hybrid diesel/electric sleigh. It runs out \
-                             of energy the farther away from your charging station you get.&quot;</span>,
-                            <span class="string">&quot;You can only recharge on commercial buildings, where you won&#39;t wake \
-                             up any sleeping children.&quot;</span>,
-                            <span class="string">&quot;&quot;</span>,
-                            <span class="string">&quot;Use the arrow keys to move around.&quot;</span>,
-                            <span class="string">&quot;Pass over colored houses to make deliveries. Houses close to your \
-                             charging station are colored green, and they become white, then red \
-                             as they get farther away.&quot;</span>,
-                            <span class="string">&quot;You get more points for delivering to buildings with multiple \
-                             families inside.&quot;</span>,
-                            <span class="string">&quot;&quot;</span>,
-                            <span class="string">&quot;To recharge, stop on a commercial building and hold down the \
-                             spacebar key. This resets your charging station.&quot;</span>,
+                             world, so your sleigh can only hold so many presents at a time.&quot;</span>,
+                            <span class="string">&quot;Deliver presents as fast as you can. When you run out, refill from a \
+                             yellow-colored store.&quot;</span>,
+                            <span class="string">&quot;It&#39;s faster to deliver to buildings with multiple families inside.&quot;</span>,
                             <span class="string">&quot;&quot;</span>,
                             <span class="string">&quot;When you deliver enough presents, a little bit of magic is restored, \
                              and you can upzone buildings to make your job easier.&quot;</span>,
