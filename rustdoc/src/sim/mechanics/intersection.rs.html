@@ -935,6 +935,7 @@
 <span id="932">932</span>
 <span id="933">933</span>
 <span id="934">934</span>
+<span id="935">935</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -990,6 +991,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">State</span> {
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
+    <span class="comment">// The in-progress turns which any potential new turns must not conflict with</span>
     <span class="ident">accepted</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
     <span class="comment">// Track when a request is first made.</span>
     <span class="attribute">#[<span class="ident">serde</span>(

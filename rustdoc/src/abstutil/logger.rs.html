@@ -94,7 +94,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
         {
-            <span class="ident">console_log</span>::<span class="ident">init_with_level</span>(<span class="ident">log</span>::<span class="ident">Level</span>::<span class="ident">Debug</span>).<span class="ident">unwrap</span>();
+            <span class="ident">console_log</span>::<span class="ident">init_with_level</span>(<span class="ident">log</span>::<span class="ident">Level</span>::<span class="ident">Info</span>).<span class="ident">unwrap</span>();
         }
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
@@ -103,7 +103,7 @@
                 <span class="ident">last_fast_paths_note</span>: <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
             }))
             .<span class="ident">unwrap</span>();
-            <span class="ident">log</span>::<span class="ident">set_max_level</span>(<span class="ident">log</span>::<span class="ident">LevelFilter</span>::<span class="ident">Debug</span>);
+            <span class="ident">log</span>::<span class="ident">set_max_level</span>(<span class="ident">log</span>::<span class="ident">LevelFilter</span>::<span class="ident">Info</span>);
         }
     }
 }

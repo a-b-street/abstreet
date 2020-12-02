@@ -443,6 +443,41 @@
 <span id="440">440</span>
 <span id="441">441</span>
 <span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
 <span class="doccomment">//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
@@ -454,7 +489,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>,
-    <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+    <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
@@ -780,59 +815,34 @@
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">handle_uber_turns</span>: <span class="ident">bool</span>,
     ) {
-        <span class="kw">if</span> <span class="ident">handle_uber_turns</span>
-            <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">approaching_uber_turn</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">currently_inside_ut</span>().<span class="ident">is_some</span>())
-        {
+        <span class="comment">// if we&#39;re already in the uber-turn, we&#39;re committed, but if we&#39;re about to enter one, lock</span>
+        <span class="comment">// in the best path through it now.</span>
+        <span class="kw">if</span> <span class="ident">handle_uber_turns</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">currently_inside_ut</span>().<span class="ident">is_some</span>() {
             <span class="kw">return</span>;
         }
-        <span class="kw">let</span> (<span class="ident">current_turn</span>, <span class="ident">next_lane</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_steps</span>();
-            <span class="kw">if</span> <span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">5</span> {
-                <span class="kw">return</span>;
-            }
-            <span class="kw">match</span> (<span class="ident">steps</span>[<span class="number">1</span>], <span class="ident">steps</span>[<span class="number">4</span>]) {
-                (<span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">t</span>), <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">t</span>, <span class="ident">l</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">segment</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> (<span class="ident">current_turn</span>, <span class="ident">next_lane</span>) <span class="op">=</span> {
+                <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_steps</span>();
+                <span class="kw">if</span> <span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">5</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span> {
                     <span class="kw">return</span>;
                 }
-            }
-        };
-
-        <span class="kw">let</span> <span class="ident">orig_target_lane</span> <span class="op">=</span> <span class="ident">current_turn</span>.<span class="ident">dst</span>;
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">orig_target_lane</span>);
-        <span class="kw">let</span> <span class="ident">next_parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">next_lane</span>).<span class="ident">src_i</span>;
-
-        <span class="comment">// Look for other candidates, and assign a cost to each.</span>
-        <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="number">1</span>.<span class="ident">to_constraints</span>();
-        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">dir</span>(<span class="ident">orig_target_lane</span>);
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">turn1</span>, <span class="ident">best_lane</span>, <span class="ident">turn2</span>) <span class="op">=</span> <span class="ident">parent</span>
-            .<span class="ident">lanes_ltr</span>()
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">d</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">d</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>))
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">TurnID</span> {
-                    <span class="ident">parent</span>: <span class="ident">current_turn</span>.<span class="ident">parent</span>,
-                    <span class="ident">src</span>: <span class="ident">current_turn</span>.<span class="ident">src</span>,
-                    <span class="ident">dst</span>: <span class="ident">l</span>,
-                };
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">turn1</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">t1</span>) {
-                    <span class="comment">// Make sure we can go from this lane to next_lane.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">turn2</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">TurnID</span> {
-                        <span class="ident">parent</span>: <span class="ident">next_parent</span>,
-                        <span class="ident">src</span>: <span class="ident">l</span>,
-                        <span class="ident">dst</span>: <span class="ident">next_lane</span>,
-                    }) {
-                        <span class="prelude-val">Some</span>((<span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">None</span>
+                <span class="kw">match</span> (<span class="ident">steps</span>[<span class="number">1</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>], <span class="ident">steps</span>[<span class="number">4</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>]) {
+                    (<span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">t</span>), <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">t</span>, <span class="ident">l</span>),
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">return</span>;
                     }
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
                 }
-            })
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)<span class="op">|</span> {
+            };
+
+            <span class="kw">let</span> <span class="ident">orig_target_lane</span> <span class="op">=</span> <span class="ident">current_turn</span>.<span class="ident">dst</span>;
+            <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">orig_target_lane</span>);
+            <span class="kw">let</span> <span class="ident">next_parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">next_lane</span>).<span class="ident">src_i</span>;
+
+            <span class="kw">let</span> <span class="ident">compute_cost</span> <span class="op">=</span> <span class="op">|</span><span class="ident">turn1</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span><span class="op">|</span> {
                 <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="kw-2">mut</span> <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">turn1</span>.<span class="ident">penalty</span>(<span class="ident">map</span>);
-                <span class="kw">let</span> (<span class="ident">vehicles</span>, <span class="kw-2">mut</span> <span class="ident">bike</span>) <span class="op">=</span> <span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)].<span class="ident">target_lane_penalty</span>();
+                <span class="kw">let</span> (<span class="ident">vehicles</span>, <span class="kw-2">mut</span> <span class="ident">bike</span>) <span class="op">=</span> <span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>)].<span class="ident">target_lane_penalty</span>();
 
                 <span class="comment">// The magic happens here. We have different penalties:</span>
                 <span class="comment">//</span>
@@ -845,29 +855,89 @@
                 <span class="comment">// 4) Are there lots of vehicles stacked up in one lane?</span>
                 <span class="comment">// 5) Are we changing lanes?</span>
                 <span class="comment">//</span>
-                <span class="comment">// A linear combination of these penalties is hard to reason about. Instead, we</span>
+                <span class="comment">// A linear combination of these penalties is hard to reason about. We mostly</span>
                 <span class="comment">// make our choice based on each penalty in order, breaking ties by moving onto the</span>
-                <span class="comment">// next thing.</span>
+                <span class="comment">// next thing. With one exception: To produce more realistic behavior, we combine</span>
+                <span class="comment">// `vehicles + lc` as one score to avoid switching lanes just to get around one car.</span>
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
                     <span class="ident">bike</span> <span class="op">=</span> <span class="number">0</span>;
                 } <span class="kw">else</span> {
                     <span class="ident">slow_lane</span> <span class="op">=</span> <span class="number">0</span>;
                 }
-                <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> (<span class="ident">lt</span>, <span class="ident">bike</span>, <span class="ident">slow_lane</span>, <span class="ident">vehicles</span>, <span class="ident">lc</span>);
 
-                (<span class="ident">cost</span>, <span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)
-            })
-            .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="ident">cost</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cost</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="comment">// TODO Only switch if the target queue is some amount better; don&#39;t oscillate</span>
-        <span class="comment">// unnecessarily.</span>
-        <span class="kw">if</span> <span class="ident">best_lane</span> <span class="op">=</span><span class="op">=</span> <span class="ident">orig_target_lane</span> {
-            <span class="kw">return</span>;
+                (<span class="ident">lt</span>, <span class="ident">bike</span>, <span class="ident">slow_lane</span>, <span class="ident">vehicles</span> <span class="op">+</span> <span class="ident">lc</span>)
+            };
+
+            <span class="comment">// Look for other candidates, and assign a cost to each.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">original_cost</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="number">1</span>.<span class="ident">to_constraints</span>();
+            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">dir</span>(<span class="ident">orig_target_lane</span>);
+            <span class="kw">let</span> <span class="ident">best</span> <span class="op">=</span> <span class="ident">parent</span>
+                .<span class="ident">lanes_ltr</span>()
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">d</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">d</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>))
+                .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> {
+                    <span class="comment">// Make sure we can go from this lane to next_lane.</span>
+
+                    <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">TurnID</span> {
+                        <span class="ident">parent</span>: <span class="ident">current_turn</span>.<span class="ident">parent</span>,
+                        <span class="ident">src</span>: <span class="ident">current_turn</span>.<span class="ident">src</span>,
+                        <span class="ident">dst</span>: <span class="ident">l</span>,
+                    };
+                    <span class="kw">let</span> <span class="ident">turn1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">t1</span>)<span class="question-mark">?</span>;
+
+                    <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">TurnID</span> {
+                        <span class="ident">parent</span>: <span class="ident">next_parent</span>,
+                        <span class="ident">src</span>: <span class="ident">l</span>,
+                        <span class="ident">dst</span>: <span class="ident">next_lane</span>,
+                    };
+                    <span class="kw">let</span> <span class="ident">turn2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">t2</span>)<span class="question-mark">?</span>;
+
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>));
+                })
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)<span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">compute_cost</span>(<span class="ident">turn1</span>, <span class="ident">l</span>);
+                    <span class="kw">if</span> <span class="ident">turn1</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">current_turn</span> {
+                        <span class="ident">original_cost</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>);
+                    }
+                    (<span class="ident">cost</span>, <span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)
+                })
+                .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="ident">cost</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cost</span>);
+
+            <span class="kw">if</span> <span class="ident">best</span>.<span class="ident">is_none</span>() {
+                <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;no valid paths found: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">owner</span>);
+                <span class="kw">return</span>;
+            }
+            <span class="kw">let</span> (<span class="ident">best_cost</span>, <span class="ident">turn1</span>, <span class="ident">best_lane</span>, <span class="ident">turn2</span>) <span class="op">=</span> <span class="ident">best</span>.<span class="ident">unwrap</span>();
+
+            <span class="kw">if</span> <span class="ident">original_cost</span>.<span class="ident">is_none</span>() {
+                <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;original_cost was unexpectedly None {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">owner</span>);
+                <span class="kw">return</span>;
+            }
+            <span class="kw">let</span> <span class="ident">original_cost</span> <span class="op">=</span> <span class="ident">original_cost</span>.<span class="ident">unwrap</span>();
+
+            <span class="comment">// Only switch if the target queue is some amount better; don&#39;t oscillate</span>
+            <span class="comment">// unnecessarily.</span>
+            <span class="kw">if</span> <span class="ident">best_cost</span> <span class="op">&lt;</span> <span class="ident">original_cost</span> {
+                <span class="macro">debug</span><span class="macro">!</span>(
+                    <span class="string">&quot;changing lanes {:?} -&gt; {:?}, cost: {:?} -&gt; {:?}&quot;</span>,
+                    <span class="ident">orig_target_lane</span>, <span class="ident">best_lane</span>, <span class="ident">original_cost</span>, <span class="ident">best_cost</span>
+                );
+                <span class="self">self</span>.<span class="ident">path</span>
+                    .<span class="ident">modify_step</span>(<span class="number">1</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>, <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">turn1</span>.<span class="ident">id</span>), <span class="ident">map</span>);
+                <span class="self">self</span>.<span class="ident">path</span>
+                    .<span class="ident">modify_step</span>(<span class="number">2</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>, <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">best_lane</span>), <span class="ident">map</span>);
+                <span class="self">self</span>.<span class="ident">path</span>
+                    .<span class="ident">modify_step</span>(<span class="number">3</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>, <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">turn2</span>.<span class="ident">id</span>), <span class="ident">map</span>);
+            }
+
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">is_upcoming_uber_turn_component</span>(<span class="ident">turn2</span>.<span class="ident">id</span>) {
+                <span class="ident">segment</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            } <span class="kw">else</span> {
+                <span class="comment">// finished</span>
+                <span class="kw">break</span>;
+            }
         }
-
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">1</span>, <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">turn1</span>.<span class="ident">id</span>), <span class="ident">map</span>);
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">2</span>, <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">best_lane</span>), <span class="ident">map</span>);
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">3</span>, <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">turn2</span>.<span class="ident">id</span>), <span class="ident">map</span>);
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
