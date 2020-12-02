@@ -45,4 +45,3 @@ widgetry = { path = "../widgetry" }
 
 [build-dependencies]
 built = "0.4.2"
-walkdir = "2.2.7"

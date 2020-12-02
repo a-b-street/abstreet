@@ -717,6 +717,7 @@ dependencies = [
  "map_model",
  "rand",
  "rand_xorshift",
+ "wasm-bindgen",
  "widgetry",
 ]
 
@@ -981,7 +982,6 @@ dependencies = [
  "serde_json",
  "sim",
  "svg_face",
- "walkdir",
  "wasm-bindgen",
  "widgetry",
 ]
