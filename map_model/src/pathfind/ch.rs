@@ -63,6 +63,63 @@ impl ContractionHierarchyPathfinder {
         }
     }
 
+    // Doesn't handle zones
+    pub fn simple_pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
+        match req.constraints {
+            PathConstraints::Pedestrian => {
+                let steps = walking_path_to_steps(self.walking_graph.pathfind(req, map)?, map);
+                Some(Path::new(map, steps, req.end.dist_along(), Vec::new()))
+            }
+            PathConstraints::Car => self.car_graph.pathfind(req, map).map(|(p, _)| p),
+            PathConstraints::Bike => self.bike_graph.pathfind(req, map).map(|(p, _)| p),
+            PathConstraints::Bus => self.bus_graph.pathfind(req, map).map(|(p, _)| p),
+            PathConstraints::Train => self.train_graph.pathfind(req, map).map(|(p, _)| p),
+        }
+    }
+
+    pub fn simple_walking_path(&self, req: &PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
+        self.walking_graph.pathfind(req, map)
+    }
+
+    pub fn should_use_transit(
+        &self,
+        map: &Map,
+        start: Position,
+        end: Position,
+    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
+        self.walking_with_transit_graph
+            .should_use_transit(map, start, end)
+    }
+
+    pub fn apply_edits(&mut self, map: &Map, timer: &mut Timer) {
+        timer.start("apply edits to car pathfinding");
+        self.car_graph.apply_edits(map);
+        timer.stop("apply edits to car pathfinding");
+
+        timer.start("apply edits to bike pathfinding");
+        self.bike_graph.apply_edits(map);
+        timer.stop("apply edits to bike pathfinding");
+
+        timer.start("apply edits to bus pathfinding");
+        self.bus_graph.apply_edits(map);
+        timer.stop("apply edits to bus pathfinding");
+
+        // Can't edit anything related to trains
+
+        timer.start("apply edits to pedestrian pathfinding");
+        self.walking_graph
+            .apply_edits(map, &self.bus_graph, &self.train_graph);
+        timer.stop("apply edits to pedestrian pathfinding");
+
+        timer.start("apply edits to pedestrian using transit pathfinding");
+        self.walking_with_transit_graph
+            .apply_edits(map, &self.bus_graph, &self.train_graph);
+        timer.stop("apply edits to pedestrian using transit pathfinding");
+    }
+}
+
+// TODO Lift this out of here
+impl ContractionHierarchyPathfinder {
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
         if req.start.lane() == req.end.lane() && req.constraints == PathConstraints::Pedestrian {
             return Some(one_step_walking_path(&req, map));
@@ -135,16 +192,7 @@ impl ContractionHierarchyPathfinder {
             }
             (None, None) => {}
         }
-        match req.constraints {
-            PathConstraints::Pedestrian => {
-                let steps = walking_path_to_steps(self.walking_graph.pathfind(&req, map)?, map);
-                Some(Path::new(map, steps, req.end.dist_along(), Vec::new()))
-            }
-            PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Train => self.train_graph.pathfind(&req, map).map(|(p, _)| p),
-        }
+        self.simple_pathfind(&req, map)
     }
 
     // TODO Alright, reconsider refactoring pieces of this again. :)
@@ -213,7 +261,7 @@ impl ContractionHierarchyPathfinder {
                 one_step.dedup();
                 one_step
             } else {
-                self.walking_graph.pathfind(&req, map)?
+                self.simple_walking_path(&req, map)?
             };
             interior_path.extend(main_path);
             let steps = walking_path_to_steps(interior_path, map);
@@ -221,13 +269,7 @@ impl ContractionHierarchyPathfinder {
         }
 
         let mut interior_path = zone.pathfind(interior_req, map)?;
-        let main_path = match req.constraints {
-            PathConstraints::Pedestrian => unreachable!(),
-            PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Train => self.train_graph.pathfind(&req, map).map(|(p, _)| p),
-        }?;
+        let main_path = self.simple_pathfind(&req, map)?;
         interior_path.append(main_path, map);
         Some(interior_path)
     }
@@ -298,7 +340,7 @@ impl ContractionHierarchyPathfinder {
                 one_step.dedup();
                 one_step
             } else {
-                self.walking_graph.pathfind(&req, map)?
+                self.simple_walking_path(&req, map)?
             };
 
             main_path.extend(interior_path);
@@ -307,51 +349,9 @@ impl ContractionHierarchyPathfinder {
         }
 
         let interior_path = zone.pathfind(interior_req, map)?;
-        let mut main_path = match req.constraints {
-            PathConstraints::Pedestrian => unreachable!(),
-            PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
-            PathConstraints::Train => self.train_graph.pathfind(&req, map).map(|(p, _)| p),
-        }?;
+        let mut main_path = self.simple_pathfind(&req, map)?;
         main_path.append(interior_path, map);
         main_path.end_dist = orig_end_dist;
         Some(main_path)
-    }
-
-    pub fn should_use_transit(
-        &self,
-        map: &Map,
-        start: Position,
-        end: Position,
-    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
-        self.walking_with_transit_graph
-            .should_use_transit(map, start, end)
-    }
-
-    pub fn apply_edits(&mut self, map: &Map, timer: &mut Timer) {
-        timer.start("apply edits to car pathfinding");
-        self.car_graph.apply_edits(map);
-        timer.stop("apply edits to car pathfinding");
-
-        timer.start("apply edits to bike pathfinding");
-        self.bike_graph.apply_edits(map);
-        timer.stop("apply edits to bike pathfinding");
-
-        timer.start("apply edits to bus pathfinding");
-        self.bus_graph.apply_edits(map);
-        timer.stop("apply edits to bus pathfinding");
-
-        // Can't edit anything related to trains
-
-        timer.start("apply edits to pedestrian pathfinding");
-        self.walking_graph
-            .apply_edits(map, &self.bus_graph, &self.train_graph);
-        timer.stop("apply edits to pedestrian pathfinding");
-
-        timer.start("apply edits to pedestrian using transit pathfinding");
-        self.walking_with_transit_graph
-            .apply_edits(map, &self.bus_graph, &self.train_graph);
-        timer.stop("apply edits to pedestrian using transit pathfinding");
     }
 }

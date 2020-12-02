@@ -12,12 +12,13 @@ use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
-pub fn pathfind(req: PathRequest, map: &Map) -> Option<Path> {
+// Doesn't handle zones
+pub fn simple_pathfind(req: &PathRequest, map: &Map) -> Option<Path> {
     if req.constraints == PathConstraints::Pedestrian {
         if req.start.lane() == req.end.lane() {
-            return Some(one_step_walking_path(&req, map));
+            return Some(one_step_walking_path(req, map));
         }
-        let steps = walking_path_to_steps(pathfind_walking(req.clone(), map)?, map);
+        let steps = walking_path_to_steps(simple_walking_path(req, map)?, map);
         return Some(Path::new(map, steps, req.end.dist_along(), Vec::new()));
     }
 
@@ -56,10 +57,10 @@ pub fn pathfind_avoiding_lanes(
         }
     }
 
-    calc_path(graph, req, map)
+    calc_path(graph, &req, map)
 }
 
-fn calc_path(graph: DiGraphMap<LaneID, TurnID>, req: PathRequest, map: &Map) -> Option<Path> {
+fn calc_path(graph: DiGraphMap<LaneID, TurnID>, req: &PathRequest, map: &Map) -> Option<Path> {
     let (_, path) = petgraph::algo::astar(
         &graph,
         req.start.lane(),
@@ -109,7 +110,7 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, usize> 
     graph
 }
 
-fn pathfind_walking(req: PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
+pub fn simple_walking_path(req: &PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
     let graph = build_graph_for_pedestrians(map);
 
     let closest_start = WalkingNode::closest(req.start, map);

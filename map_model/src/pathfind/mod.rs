@@ -1,27 +1,27 @@
 //! Everything related to pathfinding through a map for different types of agents.
 
-use std::collections::{BTreeSet, VecDeque};
+use std::collections::VecDeque;
 use std::fmt;
 
 use enumset::EnumSetType;
 use serde::{Deserialize, Serialize};
 
-use abstutil::Timer;
 use geom::{Distance, PolyLine, EPSILON_DIST};
 
 pub use self::ch::ContractionHierarchyPathfinder;
 pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles};
 pub use self::driving::driving_cost;
+pub use self::pathfinder::Pathfinder;
 pub use self::walking::{walking_cost, WalkingNode};
 use crate::{
-    osm, BuildingID, BusRouteID, BusStopID, Lane, LaneID, LaneType, Map, Position, Traversable,
-    TurnID, UberTurn,
+    osm, BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable, TurnID, UberTurn,
 };
 
 mod ch;
 mod dijkstra;
 mod driving;
 mod node_map;
+mod pathfinder;
 // TODO tmp
 pub mod uber_turns;
 mod walking;
@@ -601,53 +601,6 @@ fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
                     );
                 }
             }
-        }
-    }
-}
-
-/// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can
-/// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra's
-/// maneuever.
-#[derive(Serialize, Deserialize)]
-pub enum Pathfinder {
-    Dijkstra,
-    CH(ContractionHierarchyPathfinder),
-}
-
-impl Pathfinder {
-    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
-        match self {
-            Pathfinder::Dijkstra => dijkstra::pathfind(req, map),
-            Pathfinder::CH(ref p) => p.pathfind(req, map),
-        }
-    }
-    pub fn pathfind_avoiding_lanes(
-        &self,
-        req: PathRequest,
-        avoid: BTreeSet<LaneID>,
-        map: &Map,
-    ) -> Option<Path> {
-        dijkstra::pathfind_avoiding_lanes(req, avoid, map)
-    }
-
-    // TODO Consider returning the walking-only path in the failure case, to avoid wasting work
-    pub fn should_use_transit(
-        &self,
-        map: &Map,
-        start: Position,
-        end: Position,
-    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
-        match self {
-            // TODO Implement this
-            Pathfinder::Dijkstra => None,
-            Pathfinder::CH(ref p) => p.should_use_transit(map, start, end),
-        }
-    }
-
-    pub fn apply_edits(&mut self, map: &Map, timer: &mut Timer) {
-        match self {
-            Pathfinder::Dijkstra => {}
-            Pathfinder::CH(ref mut p) => p.apply_edits(map, timer),
         }
     }
 }
