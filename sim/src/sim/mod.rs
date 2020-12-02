@@ -827,10 +827,7 @@ impl Sim {
         abstutil::find_next_file(self.save_path(base_time))
     }
 
-    pub fn load_savestate(
-        path: String,
-        timer: &mut Timer,
-    ) -> Result<Sim, Box<dyn std::error::Error>> {
+    pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim, String> {
         abstutil::maybe_read_binary(path, timer)
     }
 }

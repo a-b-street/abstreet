@@ -96,8 +96,7 @@ mod native_loader {
     impl<A: AppLike + 'static, T: 'static + DeserializeOwned> State<A> for FileLoader<A, T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
-                let file =
-                    abstutil::read_object(self.path.clone(), timer).map_err(|err| err.to_string());
+                let file = abstutil::read_object(self.path.clone(), timer);
                 (self.on_load.take().unwrap())(ctx, app, timer, file)
             })
         }
@@ -214,9 +213,9 @@ mod wasm_loader {
                             abstutil::from_json_reader(decoder)
                         }
                     } else if self.url.ends_with(".bin") {
-                        abstutil::from_binary(&&resp).map_err(|err| err.to_string())
+                        abstutil::from_binary(&&resp)
                     } else {
-                        abstutil::from_json(&&resp).map_err(|err| err.to_string())
+                        abstutil::from_json(&&resp)
                     }
                 });
                 return (self.on_load.take().unwrap())(ctx, app, &mut timer, result);

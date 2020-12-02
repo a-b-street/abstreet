@@ -2,7 +2,6 @@
 //! the WASM binary using include_dir. For now, no support for saving files.
 
 use std::collections::BTreeSet;
-use std::error::Error;
 
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -65,22 +64,22 @@ pub fn list_dir(dir: String) -> Vec<String> {
     results.into_iter().collect()
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+pub fn slurp_file(path: &str) -> Result<Vec<u8>, String> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())
     } else {
-        Err(format!("Can't slurp_file {}, it doesn't exist", path).into())
+        Err(format!("Can't slurp_file {}, it doesn't exist", path))
     }
 }
 
-pub fn maybe_read_binary<T: DeserializeOwned>(
-    path: String,
-    _timer: &mut Timer,
-) -> Result<T, Box<dyn Error>> {
+pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Result<T, String> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
-        bincode::deserialize(raw.contents()).map_err(|x| x.into())
+        bincode::deserialize(raw.contents()).map_err(|x| x.to_string())
     } else {
-        Err(format!("Can't maybe_read_binary {}, it doesn't exist", path).into())
+        Err(format!(
+            "Can't maybe_read_binary {}, it doesn't exist",
+            path
+        ))
     }
 }
 

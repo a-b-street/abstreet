@@ -98,7 +98,25 @@ impl Map {
                     return map;
                 }
                 Err(err) => {
-                    Map::corrupt_err(path, err);
+                    error!("\nError loading {}: {}\n", path, err);
+                    if err.contains("No such file") {
+                        error!(
+                            "{} is missing. You may need to do: cargo run --bin updater",
+                            path
+                        );
+                    } else {
+                        error!(
+                            "{} is out-of-date. You may need to update your build (git pull) or \
+                             download new data (cargo run --bin updater). If this is a custom \
+                             map, you need to import it again.",
+                            path
+                        );
+                    }
+                    error!(
+                        "Check https://dabreegster.github.io/abstreet/dev/index.html and file an \
+                         issue if you have trouble."
+                    );
+
                     std::process::exit(1);
                 }
             }
@@ -112,27 +130,6 @@ impl Map {
     /// though.
     pub fn map_loaded_directly(&mut self) {
         self.edits = self.new_edits();
-    }
-
-    pub fn corrupt_err(path: String, err: Box<dyn std::error::Error>) {
-        error!("\nError loading {}: {}\n", path, err);
-        if err.to_string().contains("No such file") {
-            error!(
-                "{} is missing. You may need to do: cargo run --bin updater",
-                path
-            );
-        } else {
-            error!(
-                "{} is out-of-date. You may need to update your build (git pull) or download new \
-                 data (cargo run --bin updater). If this is a custom map, you need to import it \
-                 again.",
-                path
-            );
-        }
-        error!(
-            "Check https://dabreegster.github.io/abstreet/dev/index.html and file an issue if you \
-             have trouble."
-        );
     }
 
     /// Just for temporary std::mem::replace tricks.

@@ -33,7 +33,10 @@ pub fn list_dir(path: String) -> Vec<String> {
     files
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+pub fn slurp_file(path: &str) -> Result<Vec<u8>, String> {
+    inner_slurp_file(path).map_err(|err| err.to_string())
+}
+fn inner_slurp_file(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let mut file = File::open(path)?;
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer)?;
@@ -43,13 +46,13 @@ pub fn slurp_file(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
 pub fn maybe_read_binary<T: DeserializeOwned>(
     path: String,
     timer: &mut Timer,
-) -> Result<T, Box<dyn Error>> {
+) -> Result<T, String> {
     if !path.ends_with(".bin") {
         panic!("read_binary needs {} to end with .bin", path);
     }
 
     timer.read_file(&path)?;
-    bincode::deserialize_from(timer).map_err(|x| x.into())
+    bincode::deserialize_from(timer).map_err(|x| x.to_string())
 }
 
 // TODO Idea: Have a wrapper type DotJSON(...) and DotBin(...) to distinguish raw path strings

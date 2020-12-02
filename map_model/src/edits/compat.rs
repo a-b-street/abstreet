@@ -61,7 +61,7 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits, String>
             .insert("version".to_string(), Value::Number(4.into()));
     }
 
-    abstutil::from_json(&value.to_string().into_bytes()).map_err(|x| x.to_string())
+    abstutil::from_json(&value.to_string().into_bytes())
 }
 
 // Recursively walks the entire JSON object. Will call transform on all of the map objects. If the

@@ -309,7 +309,7 @@ impl Canvas {
                 self.cam_zoom = loaded.cam_zoom;
                 true
             }
-            _ => false,
+            Err(_) => false,
         }
     }
 

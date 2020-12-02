@@ -4,7 +4,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cmp::Ord;
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
-use std::error::Error;
 
 /// Stringifies an object to nicely formatted JSON.
 pub fn to_json<T: Serialize>(obj: &T) -> String {
@@ -17,8 +16,8 @@ pub fn to_json_terse<T: Serialize>(obj: &T) -> String {
 }
 
 /// Deserializes an object from a JSON string.
-pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Box<dyn Error>> {
-    serde_json::from_slice(raw).map_err(|x| x.into())
+pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, String> {
+    serde_json::from_slice(raw).map_err(|x| x.to_string())
 }
 
 /// Deserializes an object from JSON, from a reader.
@@ -27,8 +26,8 @@ pub fn from_json_reader<R: std::io::Read, T: DeserializeOwned>(reader: R) -> Res
 }
 
 /// Deserializes an object from the bincode format.
-pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, Box<dyn Error>> {
-    bincode::deserialize(raw).map_err(|x| x.into())
+pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T, String> {
+    bincode::deserialize(raw).map_err(|x| x.to_string())
 }
 
 /// Deserializes an object from the bincode format, from a reader.

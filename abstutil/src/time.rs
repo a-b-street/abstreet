@@ -400,9 +400,10 @@ impl<'a> Timer<'a> {
     }
 
     /// Then the caller passes this in as a reader
-    pub fn read_file(&mut self, path: &str) -> Result<(), Error> {
-        self.stack
-            .push(StackEntry::File(TimedFileReader::new(path)?));
+    pub(crate) fn read_file(&mut self, path: &str) -> Result<(), String> {
+        self.stack.push(StackEntry::File(
+            TimedFileReader::new(path).map_err(|err| err.to_string())?,
+        ));
         Ok(())
     }
 }
