@@ -143,21 +143,6 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -166,8 +151,6 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Animator</span> {
-    <span class="comment">// TODO Maintain centrally and pass in?</span>
-    <span class="kw">pub</span> <span class="ident">time</span>: <span class="ident">Time</span>,
     <span class="ident">active</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Effect</span><span class="op">&gt;</span>,
     <span class="ident">draw_current</span>: <span class="ident">Drawable</span>,
 }
@@ -184,7 +167,6 @@
 <span class="kw">impl</span> <span class="ident">Animator</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Animator</span> {
         <span class="ident">Animator</span> {
-            <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
             <span class="ident">active</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">draw_current</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
         }
@@ -192,31 +174,28 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">now</span>: <span class="ident">Time</span>,
         <span class="ident">duration</span>: <span class="ident">Duration</span>,
         <span class="ident">lerp_scale</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>),
         <span class="ident">center</span>: <span class="ident">Pt2D</span>,
         <span class="ident">orig</span>: <span class="ident">GeomBatch</span>,
     ) {
         <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">push</span>(<span class="ident">Effect</span> {
-            <span class="ident">start</span>: <span class="self">self</span>.<span class="ident">time</span>,
-            <span class="ident">end</span>: <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span> <span class="ident">duration</span>,
+            <span class="ident">start</span>: <span class="ident">now</span>,
+            <span class="ident">end</span>: <span class="ident">now</span> <span class="op">+</span> <span class="ident">duration</span>,
             <span class="ident">orig</span>,
             <span class="ident">lerp_scale</span>,
             <span class="ident">center</span>,
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
-            <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>;
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">return</span>;
-            }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-            <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span>;
-            <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">effect</span><span class="op">|</span> <span class="ident">effect</span>.<span class="ident">update</span>(<span class="ident">time</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>));
-            <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">now</span>: <span class="ident">Time</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span>;
         }
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">effect</span><span class="op">|</span> <span class="ident">effect</span>.<span class="ident">update</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>));
+        <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
@@ -225,8 +204,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Effect</span> {
-    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">time</span>: <span class="ident">Time</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">time</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>);
+    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">now</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>);
         <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
@@ -237,7 +216,6 @@
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SnowEffect</span> {
-    <span class="ident">time</span>: <span class="ident">Time</span>,
     <span class="ident">rng</span>: <span class="ident">XorShiftRng</span>,
     <span class="ident">flakes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Snowflake</span><span class="op">&gt;</span>,
 
@@ -252,41 +230,40 @@
 <span class="kw">impl</span> <span class="ident">SnowEffect</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SnowEffect</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snow</span> <span class="op">=</span> <span class="ident">SnowEffect</span> {
-            <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
             <span class="ident">rng</span>: <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="number">42</span>),
             <span class="ident">flakes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">draw</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
         };
 
+        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>;
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">60</span> {
-            <span class="ident">snow</span>.<span class="ident">spawn_new</span>(<span class="ident">ctx</span>);
+            <span class="ident">snow</span>.<span class="ident">spawn_new</span>(<span class="ident">ctx</span>, <span class="ident">now</span>);
         }
-        <span class="ident">snow</span>.<span class="ident">update</span>(<span class="ident">ctx</span>);
+        <span class="ident">snow</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">now</span>);
 
         <span class="ident">snow</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">spawn_new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
+    <span class="kw">fn</span> <span class="ident">spawn_new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">now</span>: <span class="ident">Time</span>) {
         <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(
             <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>),
             <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
         );
         <span class="self">self</span>.<span class="ident">flakes</span>.<span class="ident">push</span>(<span class="ident">Snowflake</span> {
-            <span class="ident">start</span>: <span class="self">self</span>.<span class="ident">time</span>,
+            <span class="ident">start</span>: <span class="ident">now</span>,
             <span class="ident">top_left</span>,
         });
     }
 
-    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">now</span>: <span class="ident">Time</span>) {
         <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">50.0</span>)).<span class="ident">to_polygon</span>();
 
         <span class="kw">let</span> <span class="ident">lifetime</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">5.0</span>);
         <span class="kw">let</span> <span class="ident">lerp_scale</span> <span class="op">=</span> (<span class="number">1.0</span>, <span class="number">0.1</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span>;
         <span class="self">self</span>.<span class="ident">flakes</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">flake</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">time</span> <span class="op">-</span> <span class="ident">flake</span>.<span class="ident">start</span>) <span class="op">/</span> <span class="ident">lifetime</span>;
+            <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">now</span> <span class="op">-</span> <span class="ident">flake</span>.<span class="ident">start</span>) <span class="op">/</span> <span class="ident">lifetime</span>;
             <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
                 <span class="bool-val">false</span>
             } <span class="kw">else</span> {
@@ -301,13 +278,6 @@
             }
         });
         <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
-            <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>;
-            <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">ctx</span>);
-        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {

@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ZOOM",""]],"enum":[["BldgState",""]],"fn":[["make_bar",""]],"struct":[["EnergylessArrow",""],["Game",""],["SleighState",""]]});
+initSidebarItems({"constant":[["ZOOM",""]],"enum":[["BldgState",""]],"struct":[["EnergylessArrow",""],["Game",""],["SleighState",""]]});

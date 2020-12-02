@@ -537,32 +537,24 @@
 <span id="534">534</span>
 <span id="535">535</span>
 <span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ColorScale</span>, <span class="ident">SimpleMinimap</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">SimpleApp</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">LinearGradient</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">SnowEffect</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">controls</span>::<span class="ident">InstantController</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Config</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">meters</span>::<span class="ident">make_bar</span>;
 
 <span class="kw">const</span> <span class="ident">ZOOM</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
 
@@ -573,6 +565,7 @@
     <span class="ident">animator</span>: <span class="ident">Animator</span>,
     <span class="ident">snow</span>: <span class="ident">SnowEffect</span>,
 
+    <span class="ident">time</span>: <span class="ident">Time</span>,
     <span class="ident">sleigh</span>: <span class="ident">Pt2D</span>,
     <span class="ident">state</span>: <span class="ident">SleighState</span>,
     <span class="ident">over_bldg</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
@@ -600,10 +593,20 @@
                         <span class="ident">Line</span>(<span class="string">&quot;15-minute Santa&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                         <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
                     ]),
-                    <span class="comment">// TODO &quot;Families with presents&quot; or &quot;Deliveries&quot;?</span>
-                    <span class="string">&quot;Score&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="string">&quot;Energy:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="string">&quot;Time spent:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>())
+                            .<span class="ident">named</span>(<span class="string">&quot;time&quot;</span>)
+                            .<span class="ident">align_right</span>(),
+                    ]),
+                    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="string">&quot;Deliveries completed:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>())
+                            .<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>)
+                            .<span class="ident">align_right</span>(),
+                    ]),
+                    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="string">&quot;Presents in bag:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
                         <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>())
                             .<span class="ident">named</span>(<span class="string">&quot;energy&quot;</span>)
                             .<span class="ident">align_right</span>(),
@@ -626,6 +629,7 @@
                     <span class="ident">animator</span>: <span class="ident">Animator</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
                     <span class="ident">snow</span>: <span class="ident">SnowEffect</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
 
+                    <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
                     <span class="ident">sleigh</span>,
                     <span class="ident">state</span>,
                     <span class="ident">over_bldg</span>: <span class="prelude-val">None</span>,
@@ -639,20 +643,26 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
+        <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">time</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;time&quot;</span>, <span class="ident">time</span>);
+
+        <span class="kw">let</span> <span class="ident">score_bar</span> <span class="op">=</span> <span class="ident">make_bar</span>(
             <span class="ident">ctx</span>,
-            <span class="string">&quot;score&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Score: {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="ident">ColorScale</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">GREEN</span>]),
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>,
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">total_housing_units</span>,
         );
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;score&quot;</span>, <span class="ident">score_bar</span>);
 
         <span class="kw">let</span> <span class="ident">energy_bar</span> <span class="op">=</span> <span class="ident">make_bar</span>(
             <span class="ident">ctx</span>,
-            (<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">config</span>.<span class="ident">max_energy</span> <span class="kw">as</span> <span class="ident">f64</span>),
             <span class="ident">ColorScale</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="ident">Color</span>::<span class="ident">YELLOW</span>, <span class="ident">Color</span>::<span class="ident">GREEN</span>]),
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span>,
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">config</span>.<span class="ident">max_energy</span>,
         );
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;energy&quot;</span>, <span class="ident">energy_bar</span>);
 
-        <span class="kw">let</span> (<span class="ident">upzones_free</span>, <span class="ident">next_upzone_pct</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">get_upzones</span>();
+        <span class="kw">let</span> (<span class="ident">upzones_free</span>, <span class="ident">have_towards_next</span>, <span class="ident">needed_total</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">get_upzones</span>();
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;use upzone&quot;</span>,
@@ -669,9 +679,10 @@
         );
         <span class="kw">let</span> <span class="ident">upzone_bar</span> <span class="op">=</span> <span class="ident">make_bar</span>(
             <span class="ident">ctx</span>,
-            <span class="ident">next_upzone_pct</span>,
             <span class="comment">// TODO Probably similar color for showing depots</span>
             <span class="ident">ColorScale</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#EFEDF5&quot;</span>), <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#756BB1&quot;</span>)]),
+            <span class="ident">have_towards_next</span>,
+            <span class="ident">needed_total</span>,
         );
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;next upzone&quot;</span>, <span class="ident">upzone_bar</span>);
     }
@@ -703,6 +714,10 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Game</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SimpleApp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
+            <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>;
+        }
+
         <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
             <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">config</span>.<span class="ident">normal_speed</span>
         } <span class="kw">else</span> {
@@ -719,8 +734,8 @@
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">houses</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">BldgState</span>::<span class="ident">Undelivered</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">increase</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">present_dropped</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">b</span>) {
-                        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
+                            <span class="self">self</span>.<span class="ident">time</span>,
                             <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.5</span>),
                             (<span class="number">1.0</span>, <span class="number">4.0</span>),
                             <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
@@ -735,8 +750,8 @@
                     <span class="kw">let</span> <span class="ident">refill</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">config</span>.<span class="ident">max_energy</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span>;
                     <span class="kw">if</span> <span class="ident">refill</span> <span class="op">&gt;</span> <span class="number">0</span> {
                         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span> <span class="op">+</span><span class="op">=</span> <span class="ident">refill</span>;
-                        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
+                            <span class="self">self</span>.<span class="ident">time</span>,
                             <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.5</span>),
                             (<span class="number">1.0</span>, <span class="number">4.0</span>),
                             <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
@@ -754,19 +769,19 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">minimap</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
-        <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">snow</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">time</span>);
+        <span class="self">self</span>.<span class="ident">snow</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">time</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
             <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         } <span class="kw">else</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span>.<span class="ident">is_none</span>() {
-                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">EnergylessArrow</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">time</span>));
+                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">EnergylessArrow</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">time</span>));
             }
             <span class="kw">let</span> <span class="ident">depots</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">all_depots</span>();
             <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">update</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
-                <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">time</span>,
+                <span class="self">self</span>.<span class="ident">time</span>,
                 <span class="self">self</span>.<span class="ident">sleigh</span>,
                 <span class="ident">depots</span>,
             );
@@ -794,6 +809,8 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
+        <span class="comment">// Time is constantly passing</span>
+        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>);
         <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">Game</span>);
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
     }
@@ -833,6 +850,8 @@
 <span class="kw">struct</span> <span class="ident">SleighState</span> {
     <span class="ident">config</span>: <span class="ident">Config</span>,
 
+    <span class="ident">total_housing_units</span>: <span class="ident">usize</span>,
+
     <span class="comment">// Number of deliveries</span>
     <span class="ident">score</span>: <span class="ident">usize</span>,
     <span class="comment">// Number of gifts currently being carried</span>
@@ -852,6 +871,7 @@
 <span class="kw">impl</span> <span class="ident">SleighState</span> {
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleApp</span>, <span class="ident">config</span>: <span class="ident">Config</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SleighState</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">houses</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_housing_units</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BuildingType</span>::<span class="ident">Residential</span> {
                 <span class="ident">num_housing_units</span>, ..
@@ -860,6 +880,7 @@
                 <span class="comment">// There are some unused commercial buildings around!</span>
                 <span class="kw">if</span> <span class="ident">num_housing_units</span> <span class="op">&gt;</span> <span class="number">0</span> {
                     <span class="ident">houses</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">BldgState</span>::<span class="ident">Undelivered</span>(<span class="ident">num_housing_units</span>));
+                    <span class="ident">total_housing_units</span> <span class="op">+</span><span class="op">=</span> <span class="ident">num_housing_units</span>;
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
                 <span class="comment">// TODO Maybe just food?</span>
@@ -870,6 +891,8 @@
         <span class="kw">let</span> <span class="ident">energy</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">max_energy</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">SleighState</span> {
             <span class="ident">config</span>,
+
+            <span class="ident">total_housing_units</span>,
 
             <span class="ident">score</span>: <span class="number">0</span>,
             <span class="ident">energy</span>,
@@ -968,15 +991,16 @@
         <span class="self">self</span>.<span class="ident">energy</span> <span class="op">&gt;</span> <span class="number">0</span>
     }
 
-    <span class="doccomment">/// (upzones_free, next_upzone_pct)</span>
-    <span class="kw">fn</span> <span class="ident">get_upzones</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">f64</span>) {
+    <span class="doccomment">/// (upzones_free, points towards next upzone, points needed for next upzone)</span>
+    <span class="kw">fn</span> <span class="ident">get_upzones</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="comment">// Start with a freebie</span>
         <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> (<span class="self">self</span>.<span class="ident">score</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">upzone_rate</span>);
         <span class="kw">let</span> <span class="ident">upzones_free</span> <span class="op">=</span> <span class="ident">total</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">upzones_used</span>;
         <span class="kw">let</span> <span class="ident">next_upzone</span> <span class="op">=</span> <span class="ident">total</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">upzone_rate</span>;
         (
             <span class="ident">upzones_free</span>,
-            <span class="number">1.0</span> <span class="op">-</span> ((<span class="ident">next_upzone</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">score</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">config</span>.<span class="ident">upzone_rate</span> <span class="kw">as</span> <span class="ident">f64</span>),
+            <span class="self">self</span>.<span class="ident">score</span> <span class="op">-</span> (<span class="ident">next_upzone</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">upzone_rate</span>),
+            <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">upzone_rate</span>,
         )
     }
 
@@ -1049,46 +1073,6 @@
         .<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>);
         <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">arrow</span>)]));
     }
-}
-
-<span class="kw">fn</span> <span class="ident">make_bar</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">pct_full</span>: <span class="ident">f64</span>, <span class="ident">scale</span>: <span class="ident">ColorScale</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="number">300.0</span>;
-    <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">32.0</span>;
-    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">scale</span>.<span class="number">0</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="ident">width_each</span> <span class="op">=</span> <span class="ident">total_width</span> <span class="op">/</span> ((<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pieces</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width_remaining</span> <span class="op">=</span> <span class="ident">pct_full</span> <span class="op">*</span> <span class="ident">total_width</span>;
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span> {
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">width_each</span>.<span class="ident">min</span>(<span class="ident">width_remaining</span>);
-        <span class="ident">pieces</span>.<span class="ident">push</span>(<span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>).<span class="ident">translate</span>((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">width_each</span>, <span class="number">0.0</span>));
-        <span class="kw">if</span> <span class="ident">width</span> <span class="op">&lt;</span> <span class="ident">width_each</span> {
-            <span class="kw">break</span>;
-        }
-        <span class="ident">width_remaining</span> <span class="op">-</span><span class="op">=</span> <span class="ident">width</span>;
-    }
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-    <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">Fill</span>::<span class="ident">LinearGradient</span>(<span class="ident">LinearGradient</span> {
-            <span class="ident">line</span>: <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">total_width</span>, <span class="number">0.0</span>)),
-            <span class="ident">stops</span>: <span class="ident">scale</span>
-                .<span class="number">0</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">enumerate</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">color</span>)<span class="op">|</span> ((<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>), <span class="kw-2">*</span><span class="ident">color</span>))
-                .<span class="ident">collect</span>(),
-        }),
-        <span class="ident">Polygon</span>::<span class="ident">union_all</span>(<span class="ident">pieces</span>),
-    );
-    <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">Color</span>::<span class="ident">BLACK</span>,
-        <span class="ident">Polygon</span>::<span class="ident">rectangle</span>((<span class="number">1.0</span> <span class="op">-</span> <span class="ident">pct_full</span>) <span class="op">*</span> <span class="ident">total_width</span>, <span class="ident">height</span>)
-            .<span class="ident">translate</span>(<span class="ident">pct_full</span> <span class="op">*</span> <span class="ident">total_width</span>, <span class="number">0.0</span>),
-    );
-    <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>)
-        .<span class="ident">padding</span>(<span class="number">2</span>)
-        .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "experiment";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
