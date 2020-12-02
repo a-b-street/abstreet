@@ -160,12 +160,9 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Speed</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
@@ -182,8 +179,7 @@
 
     <span class="kw">pub</span> <span class="ident">normal_speed</span>: <span class="ident">Speed</span>,
     <span class="kw">pub</span> <span class="ident">tired_speed</span>: <span class="ident">Speed</span>,
-    <span class="kw">pub</span> <span class="ident">recharge_rate</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">max_energy</span>: <span class="ident">Duration</span>,
+    <span class="kw">pub</span> <span class="ident">max_energy</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">upzone_rate</span>: <span class="ident">usize</span>,
 }
 
@@ -198,8 +194,7 @@
 
             <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>),
             <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>),
-            <span class="ident">recharge_rate</span>: <span class="number">2000.0</span>,
-            <span class="ident">max_energy</span>: <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">3</span>),
+            <span class="ident">max_energy</span>: <span class="number">1000</span>,
             <span class="ident">upzone_rate</span>: <span class="number">100</span>,
         },
         <span class="ident">Config</span> {
@@ -210,8 +205,7 @@
 
             <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>),
             <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">15.0</span>),
-            <span class="ident">recharge_rate</span>: <span class="number">3000.0</span>,
-            <span class="ident">max_energy</span>: <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">3</span>),
+            <span class="ident">max_energy</span>: <span class="number">1000</span>,
             <span class="ident">upzone_rate</span>: <span class="number">150</span>,
         },
     ]
