@@ -5,23 +5,12 @@ use std::collections::BTreeSet;
 use petgraph::graphmap::DiGraphMap;
 
 use crate::pathfind::driving::driving_cost;
-use crate::pathfind::walking::{
-    one_step_walking_path, walking_cost, walking_path_to_steps, WalkingNode,
-};
+use crate::pathfind::walking::{walking_cost, WalkingNode};
 use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
-// Doesn't handle zones
 pub fn simple_pathfind(req: &PathRequest, map: &Map) -> Option<Path> {
-    if req.constraints == PathConstraints::Pedestrian {
-        if req.start.lane() == req.end.lane() {
-            return Some(one_step_walking_path(req, map));
-        }
-        let steps = walking_path_to_steps(simple_walking_path(req, map)?, map);
-        return Some(Path::new(map, steps, req.end.dist_along(), Vec::new()));
-    }
-
     let graph = build_graph_for_vehicles(map, req.constraints);
     calc_path(graph, req, map)
 }
@@ -30,7 +19,6 @@ pub fn build_graph_for_vehicles(
     map: &Map,
     constraints: PathConstraints,
 ) -> DiGraphMap<LaneID, TurnID> {
-    // TODO Handle zones.
     let mut graph: DiGraphMap<LaneID, TurnID> = DiGraphMap::new();
     for l in map.all_lanes() {
         if constraints.can_use(l, map) {
