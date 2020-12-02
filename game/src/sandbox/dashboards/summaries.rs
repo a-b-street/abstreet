@@ -390,7 +390,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .draw(ctx),
         Line("number of trips (faster)").secondary().draw(ctx),
         DrawWithTooltips::new(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
-        Line("number of trips (smaller)").secondary().draw(ctx),
+        Line("number of trips (slower)").secondary().draw(ctx),
     ])
     .padding(16)
     .outline(2.0, Color::WHITE)
