@@ -157,10 +157,6 @@ impl TripManager {
         }
         self.trips[trip.0].started = true;
 
-        // Defer calculating the path until now, to handle live map edits.
-        let maybe_req = spec.get_pathfinding_request(ctx.map);
-        let maybe_path = maybe_req.clone().and_then(|req| ctx.map.pathfind(req));
-
         match spec {
             TripSpec::VehicleAppearing {
                 start_pos,
@@ -178,7 +174,16 @@ impl TripManager {
 
                 let vehicle = person.get_vehicle(use_vehicle);
                 assert!(ctx.parking.lookup_parked_car(vehicle.id).is_none());
-                let req = maybe_req.unwrap();
+                let constraints = if use_vehicle.1 == VehicleType::Bike {
+                    PathConstraints::Bike
+                } else {
+                    PathConstraints::Car
+                };
+                let req = PathRequest {
+                    start: start_pos,
+                    end: goal.goal_pos(constraints, ctx.map).unwrap(),
+                    constraints,
+                };
                 let person = person.id;
 
                 match self.maybe_spawn_car(ctx, now, trip, req.clone(), vehicle.id) {
@@ -285,8 +290,12 @@ impl TripManager {
                 );
                 person.state = PersonState::Trip(trip);
 
-                let req = maybe_req.unwrap();
-                if let Some(path) = maybe_path {
+                let req = PathRequest {
+                    start: start.sidewalk_pos,
+                    end: goal.sidewalk_pos,
+                    constraints: PathConstraints::Pedestrian,
+                };
+                if let Some(path) = ctx.map.pathfind(req.clone()) {
                     ctx.scheduler.push(
                         now,
                         Command::SpawnPed(CreatePedestrian {
@@ -315,8 +324,12 @@ impl TripManager {
                 person.state = PersonState::Trip(trip);
 
                 if let Some(walk_to) = SidewalkSpot::bike_rack(start, ctx.map) {
-                    let req = maybe_req.unwrap();
-                    if let Some(path) = maybe_path {
+                    let req = PathRequest {
+                        start: SidewalkSpot::building(start, ctx.map).sidewalk_pos,
+                        end: walk_to.sidewalk_pos,
+                        constraints: PathConstraints::Pedestrian,
+                    };
+                    if let Some(path) = ctx.map.pathfind(req.clone()) {
                         // Where we start biking may have slightly changed due to live map edits!
                         match self.trips[trip.0].legs.front_mut() {
                             Some(TripLeg::Walk(ref mut spot)) => {
@@ -392,8 +405,12 @@ impl TripManager {
                 person.state = PersonState::Trip(trip);
 
                 let walk_to = SidewalkSpot::bus_stop(stop1, ctx.map);
-                let req = maybe_req.unwrap();
-                if let Some(path) = maybe_path {
+                let req = PathRequest {
+                    start: start.sidewalk_pos,
+                    end: walk_to.sidewalk_pos,
+                    constraints: PathConstraints::Pedestrian,
+                };
+                if let Some(path) = ctx.map.pathfind(req.clone()) {
                     ctx.scheduler.push(
                         now,
                         Command::SpawnPed(CreatePedestrian {

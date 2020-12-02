@@ -211,46 +211,6 @@ impl TripSpec {
         (person, info, self, legs)
     }
 
-    pub fn get_pathfinding_request(&self, map: &Map) -> Option<PathRequest> {
-        match self {
-            TripSpec::VehicleAppearing {
-                start_pos,
-                goal,
-                use_vehicle,
-                ..
-            } => {
-                let constraints = if use_vehicle.1 == VehicleType::Bike {
-                    PathConstraints::Bike
-                } else {
-                    PathConstraints::Car
-                };
-                Some(PathRequest {
-                    start: *start_pos,
-                    end: goal.goal_pos(constraints, map).unwrap(),
-                    constraints,
-                })
-            }
-            TripSpec::SpawningFailure { .. } => None,
-            // We don't know where the parked car will be
-            TripSpec::UsingParkedCar { .. } => None,
-            TripSpec::JustWalking { start, goal, .. } => Some(PathRequest {
-                start: start.sidewalk_pos,
-                end: goal.sidewalk_pos,
-                constraints: PathConstraints::Pedestrian,
-            }),
-            TripSpec::UsingBike { start, .. } => Some(PathRequest {
-                start: map.get_b(*start).sidewalk_pos,
-                end: SidewalkSpot::bike_rack(*start, map).unwrap().sidewalk_pos,
-                constraints: PathConstraints::Pedestrian,
-            }),
-            TripSpec::UsingTransit { start, stop1, .. } => Some(PathRequest {
-                start: start.sidewalk_pos,
-                end: SidewalkSpot::bus_stop(*stop1, map).sidewalk_pos,
-                constraints: PathConstraints::Pedestrian,
-            }),
-        }
-    }
-
     /// Turn an origin/destination pair and mode into a specific plan for instantiating a trip.
     /// Decisions like how to use public transit happen here.
     pub fn maybe_new(
