@@ -1530,6 +1530,23 @@
 <span id="1527">1527</span>
 <span id="1528">1528</span>
 <span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -1690,10 +1707,6 @@
         }
         <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">started</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
-        <span class="comment">// Defer calculating the path until now, to handle live map edits.</span>
-        <span class="kw">let</span> <span class="ident">maybe_req</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">get_pathfinding_request</span>(<span class="ident">ctx</span>.<span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">maybe_path</span> <span class="op">=</span> <span class="ident">maybe_req</span>.<span class="ident">clone</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>));
-
         <span class="kw">match</span> <span class="ident">spec</span> {
             <span class="ident">TripSpec</span>::<span class="ident">VehicleAppearing</span> {
                 <span class="ident">start_pos</span>,
@@ -1711,7 +1724,16 @@
 
                 <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">get_vehicle</span>(<span class="ident">use_vehicle</span>);
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>).<span class="ident">is_none</span>());
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">maybe_req</span>.<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_vehicle</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
+                    <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">PathConstraints</span>::<span class="ident">Car</span>
+                };
+                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
+                    <span class="ident">start</span>: <span class="ident">start_pos</span>,
+                    <span class="ident">end</span>: <span class="ident">goal</span>.<span class="ident">goal_pos</span>(<span class="ident">constraints</span>, <span class="ident">ctx</span>.<span class="ident">map</span>).<span class="ident">unwrap</span>(),
+                    <span class="ident">constraints</span>,
+                };
                 <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">id</span>;
 
                 <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">vehicle</span>.<span class="ident">id</span>) {
@@ -1818,8 +1840,12 @@
                 );
                 <span class="ident">person</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">trip</span>);
 
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">maybe_req</span>.<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">maybe_path</span> {
+                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
+                    <span class="ident">start</span>: <span class="ident">start</span>.<span class="ident">sidewalk_pos</span>,
+                    <span class="ident">end</span>: <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>,
+                    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                };
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>()) {
                     <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
                         <span class="ident">now</span>,
                         <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="ident">CreatePedestrian</span> {
@@ -1848,8 +1874,12 @@
                 <span class="ident">person</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">trip</span>);
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">walk_to</span>) <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">bike_rack</span>(<span class="ident">start</span>, <span class="ident">ctx</span>.<span class="ident">map</span>) {
-                    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">maybe_req</span>.<span class="ident">unwrap</span>();
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">maybe_path</span> {
+                    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
+                        <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="ident">start</span>, <span class="ident">ctx</span>.<span class="ident">map</span>).<span class="ident">sidewalk_pos</span>,
+                        <span class="ident">end</span>: <span class="ident">walk_to</span>.<span class="ident">sidewalk_pos</span>,
+                        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                    };
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>()) {
                         <span class="comment">// Where we start biking may have slightly changed due to live map edits!</span>
                         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">legs</span>.<span class="ident">front_mut</span>() {
                             <span class="prelude-val">Some</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">spot</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1925,8 +1955,12 @@
                 <span class="ident">person</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">trip</span>);
 
                 <span class="kw">let</span> <span class="ident">walk_to</span> <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">bus_stop</span>(<span class="ident">stop1</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">maybe_req</span>.<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">maybe_path</span> {
+                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
+                    <span class="ident">start</span>: <span class="ident">start</span>.<span class="ident">sidewalk_pos</span>,
+                    <span class="ident">end</span>: <span class="ident">walk_to</span>.<span class="ident">sidewalk_pos</span>,
+                    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                };
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>()) {
                     <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
                         <span class="ident">now</span>,
                         <span class="ident">Command</span>::<span class="ident">SpawnPed</span>(<span class="ident">CreatePedestrian</span> {
