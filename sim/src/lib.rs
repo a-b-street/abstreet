@@ -19,8 +19,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, ParkingLotID,
-    Path, PathConstraints, PathRequest, Position,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path,
+    PathConstraints, PathRequest, Position,
 };
 
 pub use crate::render::{
@@ -36,7 +36,7 @@ pub(crate) use self::make::TripSpec;
 pub use self::make::{
     BorderSpawnOverTime, ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip,
     PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags, SpawnOverTime,
-    TripPurpose,
+    TripEndpoint, TripPurpose,
 };
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
@@ -47,8 +47,8 @@ pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::{AgentProperties, AlertHandler, DelayCause, Sim, SimCallback, SimOptions};
 pub(crate) use self::transit::TransitSimState;
+pub use self::trips::TripMode;
 pub use self::trips::{CommutersVehiclesCounts, Person, PersonState, TripInfo, TripResult};
-pub use self::trips::{TripEndpoint, TripMode};
 pub(crate) use self::trips::{TripLeg, TripManager};
 
 mod analytics;
@@ -352,8 +352,6 @@ pub struct ParkedCar {
     pub parked_since: Time,
 }
 
-/// It'd be nice to inline the goal_pos like SidewalkSpot does, but DrivingGoal is persisted in
-/// Scenarios, so this wouldn't survive map edits.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub(crate) enum DrivingGoal {
     ParkNear(BuildingID),
@@ -361,20 +359,6 @@ pub(crate) enum DrivingGoal {
 }
 
 impl DrivingGoal {
-    pub fn end_at_border(
-        dr: DirectedRoadID,
-        constraints: PathConstraints,
-        map: &Map,
-    ) -> Option<DrivingGoal> {
-        let lanes = dr.lanes(constraints, map);
-        if lanes.is_empty() {
-            None
-        } else {
-            // TODO ideally could use any
-            Some(DrivingGoal::Border(dr.dst_i(map), lanes[0]))
-        }
-    }
-
     pub fn goal_pos(&self, constraints: PathConstraints, map: &Map) -> Option<Position> {
         match self {
             DrivingGoal::ParkNear(b) => match constraints {
@@ -390,7 +374,7 @@ impl DrivingGoal {
         }
     }
 
-    pub(crate) fn make_router(&self, owner: CarID, path: Path, map: &Map) -> Router {
+    pub fn make_router(&self, owner: CarID, path: Path, map: &Map) -> Router {
         match self {
             DrivingGoal::ParkNear(b) => {
                 if owner.1 == VehicleType::Bike {
