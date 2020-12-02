@@ -55,7 +55,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
             panic!("error building shader: {:?}", err);
         });
 
-        for shader in shaders.iter() {
+        for shader in &shaders {
             gl.attach_shader(program, *shader);
         }
 
@@ -63,7 +63,7 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         if !gl.get_program_link_status(program) {
             panic!(gl.get_program_info_log(program));
         }
-        for shader in shaders.iter() {
+        for shader in &shaders {
             gl.detach_shader(program, *shader);
             gl.delete_shader(*shader);
         }
