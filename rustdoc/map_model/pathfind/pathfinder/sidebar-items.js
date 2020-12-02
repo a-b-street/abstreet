@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Pathfinder","Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra's maneuever."]]});

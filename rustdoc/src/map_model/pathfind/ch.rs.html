@@ -424,6 +424,63 @@
         }
     }
 
+    <span class="comment">// Doesn&#39;t handle zones</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">constraints</span> {
+            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">walking_path_to_steps</span>(<span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>, <span class="ident">map</span>);
+                <span class="prelude-val">Some</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>()))
+            }
+            <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
+            <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
+            <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
+            <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_walking_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">start</span>: <span class="ident">Position</span>,
+        <span class="ident">end</span>: <span class="ident">Position</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span>
+            .<span class="ident">should_use_transit</span>(<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">end</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
+        <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
+        <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
+        <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
+
+        <span class="comment">// Can&#39;t edit anything related to trains</span>
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
+        <span class="self">self</span>.<span class="ident">walking_graph</span>
+            .<span class="ident">apply_edits</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_graph</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">train_graph</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
+        <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span>
+            .<span class="ident">apply_edits</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_graph</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">train_graph</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
+    }
+}
+
+<span class="comment">// TODO Lift this out of here</span>
+<span class="kw">impl</span> <span class="ident">ContractionHierarchyPathfinder</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() <span class="op">&amp;&amp;</span> <span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">one_step_walking_path</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>));
@@ -496,16 +553,7 @@
             }
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {}
         }
-        <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">constraints</span> {
-            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">walking_path_to_steps</span>(<span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>, <span class="ident">map</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>()))
-            }
-            <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-        }
+        <span class="self">self</span>.<span class="ident">simple_pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)
     }
 
     <span class="comment">// TODO Alright, reconsider refactoring pieces of this again. :)</span>
@@ -574,7 +622,7 @@
                 <span class="ident">one_step</span>.<span class="ident">dedup</span>();
                 <span class="ident">one_step</span>
             } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>
+                <span class="self">self</span>.<span class="ident">simple_walking_path</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>
             };
             <span class="ident">interior_path</span>.<span class="ident">extend</span>(<span class="ident">main_path</span>);
             <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">walking_path_to_steps</span>(<span class="ident">interior_path</span>, <span class="ident">map</span>);
@@ -582,13 +630,7 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">interior_path</span> <span class="op">=</span> <span class="ident">zone</span>.<span class="ident">pathfind</span>(<span class="ident">interior_req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">main_path</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">constraints</span> {
-            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-        }<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">main_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">simple_pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
         <span class="ident">interior_path</span>.<span class="ident">append</span>(<span class="ident">main_path</span>, <span class="ident">map</span>);
         <span class="prelude-val">Some</span>(<span class="ident">interior_path</span>)
     }
@@ -659,7 +701,7 @@
                 <span class="ident">one_step</span>.<span class="ident">dedup</span>();
                 <span class="ident">one_step</span>
             } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>
+                <span class="self">self</span>.<span class="ident">simple_walking_path</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>
             };
 
             <span class="ident">main_path</span>.<span class="ident">extend</span>(<span class="ident">interior_path</span>);
@@ -668,52 +710,10 @@
         }
 
         <span class="kw">let</span> <span class="ident">interior_path</span> <span class="op">=</span> <span class="ident">zone</span>.<span class="ident">pathfind</span>(<span class="ident">interior_req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">main_path</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">constraints</span> {
-            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-            <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">p</span>),
-        }<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">main_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">simple_pathfind</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
         <span class="ident">main_path</span>.<span class="ident">append</span>(<span class="ident">interior_path</span>, <span class="ident">map</span>);
         <span class="ident">main_path</span>.<span class="ident">end_dist</span> <span class="op">=</span> <span class="ident">orig_end_dist</span>;
         <span class="prelude-val">Some</span>(<span class="ident">main_path</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">start</span>: <span class="ident">Position</span>,
-        <span class="ident">end</span>: <span class="ident">Position</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span>
-            .<span class="ident">should_use_transit</span>(<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">end</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
-
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
-
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
-
-        <span class="comment">// Can&#39;t edit anything related to trains</span>
-
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">walking_graph</span>
-            .<span class="ident">apply_edits</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_graph</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">train_graph</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
-
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span>
-            .<span class="ident">apply_edits</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_graph</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">train_graph</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
     }
 }
 </pre></div>
