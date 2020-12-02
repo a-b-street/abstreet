@@ -109,7 +109,7 @@ pub struct ColorScheme {
     pub map_background: Fill,
     pub unzoomed_interesting_intersection: Color,
     pub residential_building: Color,
-    pub commerical_building: Color,
+    pub commercial_building: Color,
     pub building_outline: Color,
     pub parking_lot: Color,
     pub grass: Fill,
@@ -231,7 +231,7 @@ impl ColorScheme {
             map_background: Color::grey(0.87).into(),
             unzoomed_interesting_intersection: Color::BLACK,
             residential_building: hex("#C4C1BC"),
-            commerical_building: hex("#9FABA7"),
+            commercial_building: hex("#9FABA7"),
             building_outline: hex("#938E85"),
             parking_lot: Color::grey(0.7),
             grass: hex("#94C84A").into(),
@@ -387,7 +387,7 @@ impl ColorScheme {
         cs.grass = Color::hex("#243A1F").into();
         cs.water = Color::hex("#21374E").into();
         cs.residential_building = Color::hex("#5E8962");
-        cs.commerical_building = Color::hex("#5D5F97");
+        cs.commercial_building = Color::hex("#5D5F97");
 
         cs.driving_lane = Color::hex("#404040");
         cs.parking_lane = Color::hex("#353535");
@@ -498,7 +498,7 @@ impl ColorScheme {
         cs.grass = hex("#ECEEED").into();
         cs.water = hex("#CAD2D3").into();
         cs.residential_building = hex("#E9E9E7").into();
-        cs.commerical_building = hex("#E9E9E7").into();
+        cs.commercial_building = hex("#E9E9E7").into();
         cs
     }
 
@@ -512,7 +512,7 @@ impl ColorScheme {
         cs.grass = hex("#323432").into();
         cs.water = hex("#181919").into();
         cs.residential_building = hex("#2C2C2B").into();
-        cs.commerical_building = hex("#2C2C2B").into();
+        cs.commercial_building = hex("#2C2C2B").into();
 
         // TODO Things like this could be refactored in zoomed_road_surface
         cs.driving_lane = road;
@@ -541,7 +541,7 @@ impl ColorScheme {
         cs.water = hex("#75CFF0").into();
 
         cs.residential_building = hex("#DCD9D6");
-        cs.commerical_building = cs.residential_building;
+        cs.commercial_building = cs.residential_building;
 
         cs
     }
@@ -551,7 +551,7 @@ impl ColorScheme {
         let nonempty_space = Color::BLACK;
         cs.map_background = Color::WHITE.into();
         cs.residential_building = nonempty_space;
-        cs.commerical_building = nonempty_space;
+        cs.commercial_building = nonempty_space;
         cs.building_outline = nonempty_space;
         cs.normal_intersection = nonempty_space;
         cs.general_road_marking = nonempty_space;

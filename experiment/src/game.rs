@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::load::MapLoader;
-use map_gui::tools::{ColorScale, SimpleMinimap};
+use map_gui::tools::{ColorLegend, ColorScale, SimpleMinimap};
 use map_gui::{SimpleApp, ID};
 use map_model::{BuildingID, BuildingType};
 use widgetry::{
@@ -78,6 +78,11 @@ impl Game {
                             .align_right(),
                     ]),
                     "use upzone".draw_text(ctx).named("use upzone"),
+                    Widget::horiz_separator(ctx, 0.2),
+                    ColorLegend::row(ctx, app.cs.residential_building, "single-family house"),
+                    ColorLegend::row(ctx, app.cs.commercial_building, "2-5-family unit"),
+                    ColorLegend::row(ctx, Color::CYAN, "apartment building"),
+                    ColorLegend::row(ctx, Color::YELLOW, "store"),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
                 .build(ctx);
@@ -277,22 +282,14 @@ impl State<SimpleApp> for Game {
 
     fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
         self.panel.draw(g);
-        if self.state.has_energy() {
-            self.minimap.draw_with_extra_layers(
-                g,
-                app,
-                vec![&self.state.draw_todo_houses, &self.state.draw_done_houses],
-            );
-        } else {
-            self.minimap
-                .draw_with_extra_layers(g, app, vec![&self.state.draw_all_depots]);
-        }
+        self.minimap.draw_with_extra_layers(
+            g,
+            app,
+            vec![&self.state.draw_todo_houses, &self.state.draw_done_houses],
+        );
 
         g.redraw(&self.state.draw_todo_houses);
         g.redraw(&self.state.draw_done_houses);
-        if !self.state.has_energy() {
-            g.redraw(&self.state.draw_all_depots);
-        }
 
         GeomBatch::load_svg(g.prerender, "system/assets/characters/santa.svg")
             .scale(0.1)
@@ -321,7 +318,6 @@ struct SleighState {
     upzones_used: usize,
     upzoned_depots: Vec<BuildingID>,
 
-    draw_all_depots: Drawable,
     // This gets covered up by draw_done_houses, instead of an expensive update
     draw_todo_houses: Drawable,
     draw_done_houses: Drawable,
@@ -361,7 +357,6 @@ impl SleighState {
             upzones_used: 0,
             upzoned_depots: Vec::new(),
 
-            draw_all_depots: Drawable::empty(ctx),
             draw_todo_houses: Drawable::empty(ctx),
             draw_done_houses: Drawable::empty(ctx),
             energyless_arrow: None,
@@ -374,17 +369,25 @@ impl SleighState {
     }
 
     fn recalc_depots(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
+        let sfh_color = app.cs.residential_building;
+        let duplex_color = app.cs.commercial_building;
+        let apartment_color = Color::CYAN;
+        let depot_color = Color::YELLOW;
+
         let mut batch = GeomBatch::new();
-        for b in &self.upzoned_depots {
-            batch.push(
-                app.cs.commerical_building,
-                app.map.get_b(*b).polygon.clone(),
-            );
-        }
 
         for b in app.map.all_buildings() {
             match self.houses.get(&b.id) {
                 Some(BldgState::Undelivered(housing_units)) => {
+                    let color = if *housing_units == 1 {
+                        sfh_color
+                    } else if *housing_units <= 5 {
+                        duplex_color
+                    } else {
+                        apartment_color
+                    };
+                    batch.push(color, b.polygon.clone());
+
                     // Call out non-single family homes
                     if *housing_units > 1 {
                         // TODO Text can be slow to render, and this should be louder anyway
@@ -395,24 +398,18 @@ impl SleighState {
                                 .centered_on(b.label_center),
                         );
                     }
-                    continue;
                 }
-                Some(BldgState::Depot) => continue,
-                _ => {}
+                Some(BldgState::Depot) => {
+                    batch.push(depot_color, b.polygon.clone());
+                }
+                // If the house isn't a depot or residence, just blank it out
+                Some(BldgState::Done) | None => {
+                    batch.push(Color::BLACK, b.polygon.clone());
+                }
             }
-            // If the house isn't reachable at all or it's not a depot or residence, just blank it
-            // out
-            batch.push(Color::BLACK, b.polygon.clone());
         }
 
         self.draw_todo_houses = ctx.upload(batch);
-
-        // Now highlight all depots for when we run out
-        let mut batch = GeomBatch::new();
-        for b in self.all_depots() {
-            batch.push(Color::YELLOW, app.map.get_b(b).polygon.clone());
-        }
-        self.draw_all_depots = ctx.upload(batch);
     }
 
     fn recalc_deliveries(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {

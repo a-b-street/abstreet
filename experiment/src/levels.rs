@@ -27,7 +27,7 @@ fn all_levels() -> Vec<Config> {
             title: "Level 1 - a small neighborhood",
             map: MapName::seattle("montlake"),
             start_depot: osm::OsmID::Way(osm::WayID(217700589)),
-            minimap_zoom: 0,
+            minimap_zoom: 1,
 
             normal_speed: Speed::miles_per_hour(30.0),
             tired_speed: Speed::miles_per_hour(10.0),
@@ -104,21 +104,10 @@ impl State<SimpleApp> for TitleScreen {
                         vec![
                             "It's Christmas Eve, so it's time for Santa to deliver presents in \
                              Seattle. 2020 has thoroughly squashed any remaining magic out of the \
-                             world, and so your reindeer can't fly.",
-                            "Luckily, Amazon sells a hybrid diesel/electric sleigh. It runs out \
-                             of energy the farther away from your charging station you get.",
-                            "You can only recharge on commercial buildings, where you won't wake \
-                             up any sleeping children.",
-                            "",
-                            "Use the arrow keys to move around.",
-                            "Pass over colored houses to make deliveries. Houses close to your \
-                             charging station are colored green, and they become white, then red \
-                             as they get farther away.",
-                            "You get more points for delivering to buildings with multiple \
-                             families inside.",
-                            "",
-                            "To recharge, stop on a commercial building and hold down the \
-                             spacebar key. This resets your charging station.",
+                             world, so your sleigh can only hold so many presents at a time.",
+                            "Deliver presents as fast as you can. When you run out, refill from a \
+                             yellow-colored store.",
+                            "It's faster to deliver to buildings with multiple families inside.",
                             "",
                             "When you deliver enough presents, a little bit of magic is restored, \
                              and you can upzone buildings to make your job easier.",

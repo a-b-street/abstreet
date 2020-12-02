@@ -39,7 +39,7 @@ impl DrawBuilding {
         let bldg_color = if bldg.amenities.is_empty() {
             cs.residential_building
         } else {
-            cs.commerical_building
+            cs.commercial_building
         };
 
         match &opts.camera_angle {
