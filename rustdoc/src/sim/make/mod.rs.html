@@ -27,6 +27,7 @@
 <span id="24">24</span>
 <span id="25">25</span>
 <span id="26">26</span>
+<span id="27">27</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything needed to setup a simulation.</span>
 <span class="doccomment">//! &lt;https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html&gt; for context.</span>
@@ -39,6 +40,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">load</span>::<span class="ident">SimFlags</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">modifier</span>::<span class="ident">ScenarioModifier</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">scenario</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">spawner</span>::<span class="ident">TripEndpoint</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">spawner</span>::<span class="ident">TripSpec</span>;
 
 <span class="kw">mod</span> <span class="ident">activity_model</span>;
