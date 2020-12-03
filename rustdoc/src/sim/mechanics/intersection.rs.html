@@ -936,6 +936,29 @@
 <span id="933">933</span>
 <span id="934">934</span>
 <span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -947,7 +970,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PhaseType</span>,
-    <span class="ident">Traversable</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+    <span class="ident">Traversable</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>, <span class="ident">UberTurn</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::<span class="ident">Car</span>;
@@ -1579,12 +1602,15 @@
         <span class="ident">queues</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
     ) {
         <span class="comment">// Don&#39;t use self.blocked_by -- that gets complicated with uber-turns and such.</span>
+        <span class="comment">//</span>
+        <span class="comment">// This also assumes default values for handle_uber_turns, disable_turn_conflicts, etc!</span>
         <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">values</span>() {
             <span class="kw">for</span> (<span class="ident">req</span>, <span class="ident">started_at</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">waiting</span> {
                 <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">req</span>.<span class="ident">turn</span>);
                 <span class="comment">// In the absence of other explanations, the agent must be pausing at a stop sign</span>
                 <span class="comment">// or before making an unprotected movement, aka, in the middle of</span>
-                <span class="comment">// WAIT_AT_STOP_SIGN or WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL.</span>
+                <span class="comment">// WAIT_AT_STOP_SIGN or WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL. Or they&#39;re waiting for</span>
+                <span class="comment">// a signal to change.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cause</span> <span class="op">=</span> <span class="ident">DelayCause</span>::<span class="ident">Intersection</span>(<span class="ident">state</span>.<span class="ident">id</span>);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">other</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">accepted</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">other</span><span class="op">|</span> {
                     <span class="ident">turn</span>.<span class="ident">conflicts_with</span>(<span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">other</span>.<span class="ident">turn</span>)) <span class="op">|</span><span class="op">|</span> <span class="ident">turn</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">turn</span>
@@ -1592,15 +1618,35 @@
                     <span class="ident">cause</span> <span class="op">=</span> <span class="ident">DelayCause</span>::<span class="ident">Agent</span>(<span class="ident">other</span>.<span class="ident">agent</span>);
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">agent</span> {
                     <span class="kw">let</span> <span class="ident">queue</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">dst</span>)];
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">room_for_car</span>(<span class="ident">cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>).<span class="ident">unwrap</span>()) {
+                    <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="ident">cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">room_for_car</span>(<span class="ident">car</span>) {
                         <span class="comment">// TODO Or it&#39;s reserved due to an uber turn or something</span>
                         <span class="kw">let</span> <span class="ident">blocker</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">cars</span>.<span class="ident">back</span>().<span class="ident">cloned</span>().<span class="ident">or</span>(<span class="ident">queue</span>.<span class="ident">laggy_head</span>).<span class="ident">unwrap</span>();
                         <span class="ident">cause</span> <span class="op">=</span> <span class="ident">DelayCause</span>::<span class="ident">Agent</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">blocker</span>));
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ut</span>) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">about_to_start_ut</span>() {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">blocker</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">check_for_conflicts_before_uber_turn</span>(<span class="ident">ut</span>, <span class="ident">map</span>) {
+                            <span class="ident">cause</span> <span class="op">=</span> <span class="ident">DelayCause</span>::<span class="ident">Agent</span>(<span class="ident">blocker</span>);
+                        }
                     }
                 }
                 <span class="ident">graph</span>.<span class="ident">insert</span>(<span class="ident">req</span>.<span class="ident">agent</span>, (<span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">started_at</span>, <span class="ident">cause</span>));
             }
         }
+    }
+
+    <span class="doccomment">/// See if any agent is currently performing a turn that conflicts with an uber-turn. Doesn&#39;t</span>
+    <span class="doccomment">/// check for room on the queues.</span>
+    <span class="kw">fn</span> <span class="ident">check_for_conflicts_before_uber_turn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ut</span>: <span class="kw-2">&amp;</span><span class="ident">UberTurn</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ut</span>.<span class="ident">path</span> {
+            <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>);
+            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>];
+            <span class="kw">for</span> <span class="ident">other</span> <span class="kw">in</span> <span class="ident">state</span>.<span class="ident">accepted</span>.<span class="ident">iter</span>().<span class="ident">chain</span>(<span class="ident">state</span>.<span class="ident">reserved</span>.<span class="ident">iter</span>()) {
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">other</span>.<span class="ident">turn</span>).<span class="ident">conflicts_with</span>(<span class="ident">turn</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">other</span>.<span class="ident">agent</span>);
+                }
+            }
+        }
+        <span class="prelude-val">None</span>
     }
 }
 
