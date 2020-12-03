@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use map_gui::load::MapLoader;
 use map_gui::{SimpleApp, ID};
 use map_model::BuildingID;
 use widgetry::{
@@ -22,31 +23,39 @@ pub struct Picker {
 
 impl Picker {
     pub fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> Box<dyn State<SimpleApp>> {
-        ctx.canvas.cam_zoom = ZOOM;
+        MapLoader::new(
+            ctx,
+            app,
+            config.map.clone(),
+            Box::new(move |ctx, app| {
+                ctx.canvas.cam_zoom = ZOOM;
+                ctx.canvas.center_on_map_pt(app.map.get_bounds().center());
 
-        // Just start playing immediately
-        if config.num_upzones == 0 {
-            return Game::new(ctx, app, config, HashSet::new());
-        }
+                // Just start playing immediately
+                if config.num_upzones == 0 {
+                    return Transition::Replace(Game::new(ctx, app, config, HashSet::new()));
+                }
 
-        let bldgs = Buildings::new(ctx, app, HashSet::new());
+                let bldgs = Buildings::new(ctx, app, HashSet::new());
 
-        Box::new(Picker {
-            panel: Panel::new(Widget::col(vec![
-                Line("Upzone").small_heading().draw(ctx),
-                format!(
-                    "You can select {} houses to transform into stores",
-                    config.num_upzones
-                )
-                .draw_text(ctx),
-                Btn::text_bg2("Start game").build_def(ctx, Key::Enter),
-            ]))
-            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-            .build(ctx),
-            config,
-            bldgs,
-            current_picks: HashSet::new(),
-        })
+                Transition::Replace(Box::new(Picker {
+                    panel: Panel::new(Widget::col(vec![
+                        Line("Upzone").small_heading().draw(ctx),
+                        format!(
+                            "You can select {} houses to transform into stores",
+                            config.num_upzones
+                        )
+                        .draw_text(ctx),
+                        Btn::text_bg2("Start game").build_def(ctx, Key::Enter),
+                    ]))
+                    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+                    .build(ctx),
+                    config,
+                    bldgs,
+                    current_picks: HashSet::new(),
+                }))
+            }),
+        )
     }
 }
 

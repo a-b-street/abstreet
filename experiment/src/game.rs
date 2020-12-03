@@ -2,13 +2,12 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
-use map_gui::load::MapLoader;
-use map_gui::tools::{ColorLegend, ColorScale, SimpleMinimap};
+use map_gui::tools::{ChooseSomething, ColorLegend, ColorScale, SimpleMinimap};
 use map_gui::SimpleApp;
 use map_model::BuildingID;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
+    Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::animation::{Animator, SnowEffect};
@@ -18,8 +17,11 @@ use crate::meters::make_bar;
 use crate::movement::Player;
 
 pub struct Game {
-    panel: Panel,
+    title_panel: Panel,
+    status_panel: Panel,
+    time_panel: Panel,
     minimap: SimpleMinimap,
+
     animator: Animator,
     snow: SnowEffect,
 
@@ -35,73 +37,78 @@ impl Game {
         config: Config,
         upzones: HashSet<BuildingID>,
     ) -> Box<dyn State<SimpleApp>> {
-        MapLoader::new(
-            ctx,
-            app,
-            config.map.clone(),
-            Box::new(move |ctx, app| {
-                let start = app
-                    .map
-                    .find_i_by_osm_id(config.start)
-                    .expect(&format!("can't find {}", config.start));
-                let player = Player::new(ctx, app, start);
+        let title_panel = Panel::new(Widget::row(vec![
+            Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", Key::Escape),
+            "15 min Santa".draw_text(ctx),
+            Widget::draw_svg(ctx, "system/assets/tools/map.svg"),
+            config.title.draw_text(ctx),
+        ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
 
-                let bldgs = Buildings::new(ctx, app, upzones);
-                let state = GameState::new(ctx, app, config, bldgs);
+        let status_panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                "Complete Deliveries".draw_text(ctx),
+                Widget::draw_batch(ctx, GeomBatch::new())
+                    .named("score")
+                    .align_right(),
+            ]),
+            Widget::row(vec![
+                "Remaining Gifts:".draw_text(ctx),
+                Widget::draw_batch(ctx, GeomBatch::new())
+                    .named("energy")
+                    .align_right(),
+            ]),
+            Widget::horiz_separator(ctx, 0.2),
+            // TODO Share constants for colors
+            ColorLegend::row(ctx, app.cs.residential_building, "single-family house"),
+            ColorLegend::row(ctx, Color::CYAN, "apartment building"),
+            ColorLegend::row(ctx, Color::YELLOW, "store"),
+        ]))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+        .build(ctx);
 
-                let panel = Panel::new(Widget::col(vec![
-                    Widget::row(vec![
-                        Line("15-minute Santa").small_heading().draw(ctx),
-                        Btn::close(ctx),
-                    ]),
-                    Widget::row(vec![
-                        "Time spent:".draw_text(ctx),
-                        Widget::draw_batch(ctx, GeomBatch::new())
-                            .named("time")
-                            .align_right(),
-                    ]),
-                    Widget::row(vec![
-                        "Deliveries completed:".draw_text(ctx),
-                        Widget::draw_batch(ctx, GeomBatch::new())
-                            .named("score")
-                            .align_right(),
-                    ]),
-                    Widget::row(vec![
-                        "Presents in bag:".draw_text(ctx),
-                        Widget::draw_batch(ctx, GeomBatch::new())
-                            .named("energy")
-                            .align_right(),
-                    ]),
-                    Widget::horiz_separator(ctx, 0.2),
-                    // TODO Share constants for colors
-                    ColorLegend::row(ctx, app.cs.residential_building, "single-family house"),
-                    ColorLegend::row(ctx, Color::CYAN, "apartment building"),
-                    ColorLegend::row(ctx, Color::YELLOW, "store"),
-                ]))
-                .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-                .build(ctx);
-                let with_zorder = false;
-                let mut game = Game {
-                    panel,
-                    minimap: SimpleMinimap::new(ctx, app, with_zorder),
-                    animator: Animator::new(ctx),
-                    snow: SnowEffect::new(ctx),
+        let time_panel = Panel::new(Widget::row(vec![
+            "Time spent:".draw_text(ctx),
+            Widget::draw_batch(ctx, GeomBatch::new())
+                .named("time")
+                .align_right(),
+        ]))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .build(ctx);
 
-                    time: Time::START_OF_DAY,
-                    state,
-                    player,
-                };
-                game.update_panel(ctx);
-                game.minimap
-                    .set_zoom(ctx, app, game.state.config.minimap_zoom);
-                Transition::Replace(Box::new(game))
-            }),
-        )
+        let start = app
+            .map
+            .find_i_by_osm_id(config.start)
+            .expect(&format!("can't find {}", config.start));
+        let player = Player::new(ctx, app, start);
+
+        let bldgs = Buildings::new(ctx, app, upzones);
+        let state = GameState::new(ctx, app, config, bldgs);
+
+        let with_zorder = false;
+        let mut game = Game {
+            title_panel,
+            status_panel,
+            time_panel,
+            minimap: SimpleMinimap::new(ctx, app, with_zorder),
+
+            animator: Animator::new(ctx),
+            snow: SnowEffect::new(ctx),
+
+            time: Time::START_OF_DAY,
+            state,
+            player,
+        };
+        game.update_panels(ctx);
+        game.minimap
+            .set_zoom(ctx, app, game.state.config.minimap_zoom);
+        Box::new(game)
     }
 
-    fn update_panel(&mut self, ctx: &mut EventCtx) {
+    fn update_panels(&mut self, ctx: &mut EventCtx) {
         let time = format!("{}", self.time - Time::START_OF_DAY).draw_text(ctx);
-        self.panel.replace(ctx, "time", time);
+        self.time_panel.replace(ctx, "time", time);
 
         let score_bar = make_bar(
             ctx,
@@ -109,7 +116,7 @@ impl Game {
             self.state.score,
             self.state.bldgs.total_housing_units,
         );
-        self.panel.replace(ctx, "score", score_bar);
+        self.status_panel.replace(ctx, "score", score_bar);
 
         let energy_bar = make_bar(
             ctx,
@@ -117,7 +124,7 @@ impl Game {
             self.state.energy,
             self.state.config.max_energy,
         );
-        self.panel.replace(ctx, "energy", energy_bar);
+        self.status_panel.replace(ctx, "energy", energy_bar);
     }
 }
 
@@ -189,10 +196,22 @@ impl State<SimpleApp> for Game {
             );
         }
 
-        match self.panel.event(ctx) {
+        match self.title_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
+                "back" => {
+                    return Transition::Push(ChooseSomething::new(
+                        ctx,
+                        "Game Paused",
+                        vec![
+                            Choice::string("Resume").key(Key::Escape),
+                            Choice::string("Quit"),
+                        ],
+                        Box::new(|resp, _, _| match resp.as_ref() {
+                            "Resume" => Transition::Pop,
+                            "Quit" => Transition::Multi(vec![Transition::Pop, Transition::Pop]),
+                            _ => unreachable!(),
+                        }),
+                    ));
                 }
                 _ => unreachable!(),
             },
@@ -200,13 +219,16 @@ impl State<SimpleApp> for Game {
         }
 
         // Time is constantly passing
-        self.update_panel(ctx);
+        self.update_panels(ctx);
         ctx.request_update(UpdateType::Game);
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
-        self.panel.draw(g);
+        self.title_panel.draw(g);
+        self.status_panel.draw(g);
+        self.time_panel.draw(g);
+
         self.minimap.draw_with_extra_layers(
             g,
             app,

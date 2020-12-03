@@ -79,7 +79,7 @@ impl TitleScreen {
                         txt.add(Line("An experiment"));
                         txt.draw(ctx).centered_horiz()
                     },
-                    Btn::text_fg("Santa character created by @parallaxcreativedesign").build(
+                    Btn::text_bg1("Santa character created by @parallaxcreativedesign").build(
                         ctx,
                         "open https://www.instagram.com/parallaxcreativedesign/",
                         None,
