@@ -369,6 +369,16 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
@@ -693,15 +703,19 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenPt</span> {
         <span class="kw">let</span> <span class="ident">x1</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">horiz</span> {
             <span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.0</span>,
+            <span class="ident">HorizontalAlignment</span>::<span class="ident">LeftInset</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">INSET</span>,
             <span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>,
             <span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span>,
+            <span class="ident">HorizontalAlignment</span>::<span class="ident">RightInset</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">INSET</span>,
             <span class="ident">HorizontalAlignment</span>::<span class="ident">Percent</span>(<span class="ident">pct</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pct</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_width</span>,
             <span class="ident">HorizontalAlignment</span>::<span class="ident">Centered</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span> <span class="op">-</span> (<span class="ident">dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>),
         };
         <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">vert</span> {
             <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.0</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">INSET</span>,
             <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span>) <span class="op">/</span> <span class="number">2.0</span>,
             <span class="ident">VerticalAlignment</span>::<span class="ident">Bottom</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span>,
+            <span class="ident">VerticalAlignment</span>::<span class="ident">BottomInset</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">-</span> <span class="ident">INSET</span>,
             <span class="comment">// TODO Hack</span>
             <span class="ident">VerticalAlignment</span>::<span class="ident">BottomAboveOSD</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">-</span> <span class="number">60.0</span>,
             <span class="ident">VerticalAlignment</span>::<span class="ident">Percent</span>(<span class="ident">pct</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pct</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_height</span>,
@@ -712,11 +726,15 @@
     }
 }
 
+<span class="kw">const</span> <span class="ident">INSET</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">16.0</span>;
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HorizontalAlignment</span> {
     <span class="ident">Left</span>,
+    <span class="ident">LeftInset</span>,
     <span class="ident">Center</span>,
     <span class="ident">Right</span>,
+    <span class="ident">RightInset</span>,
     <span class="ident">Percent</span>(<span class="ident">f64</span>),
     <span class="ident">Centered</span>(<span class="ident">f64</span>),
 }
@@ -724,8 +742,10 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">VerticalAlignment</span> {
     <span class="ident">Top</span>,
+    <span class="ident">TopInset</span>,
     <span class="ident">Center</span>,
     <span class="ident">Bottom</span>,
+    <span class="ident">BottomInset</span>,
     <span class="ident">BottomAboveOSD</span>,
     <span class="ident">Percent</span>(<span class="ident">f64</span>),
     <span class="ident">Above</span>(<span class="ident">f64</span>),

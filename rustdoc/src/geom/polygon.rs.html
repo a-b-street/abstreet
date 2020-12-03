@@ -498,6 +498,13 @@
 <span id="495">495</span>
 <span id="496">496</span>
 <span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -732,11 +739,12 @@
     }
 
     <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
-    <span class="doccomment">/// If radius is None, be as round as possible</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rounded_rectangle</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+    <span class="doccomment">/// If radius is None, be as round as possible. Fails if the radius is too big.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">w</span>.<span class="ident">min</span>(<span class="ident">h</span>) <span class="op">/</span> <span class="number">2.0</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">w</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">h</span>);
+        <span class="kw">if</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span> <span class="op">&gt;</span> <span class="ident">w</span> <span class="op">|</span><span class="op">|</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span> <span class="op">&gt;</span> <span class="ident">h</span> {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
 
@@ -764,7 +772,13 @@
         <span class="comment">// If the radius was maximized, then some of the edges will be zero length.</span>
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
 
-        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">to_polygon</span>()
+        <span class="prelude-val">Some</span>(<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">to_polygon</span>())
+    }
+
+    <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
+    <span class="doccomment">/// If radius is None, be as round as possible</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rounded_rectangle</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+        <span class="ident">Polygon</span>::<span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="comment">// TODO Result won&#39;t be a nice Ring</span>

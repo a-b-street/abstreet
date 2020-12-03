@@ -32,73 +32,37 @@
 <span id="29">29</span>
 <span id="30">30</span>
 <span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">ColorScale</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">LinearGradient</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_bar</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">scale</span>: <span class="ident">ColorScale</span>, <span class="ident">value</span>: <span class="ident">usize</span>, <span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">pct_full</span> <span class="op">=</span> (<span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">max</span> <span class="kw">as</span> <span class="ident">f64</span>);
-
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_bar</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">filled_color</span>: <span class="ident">Color</span>, <span class="ident">value</span>: <span class="ident">usize</span>, <span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="number">300.0</span>;
     <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">32.0</span>;
-    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">scale</span>.<span class="number">0</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="ident">width_each</span> <span class="op">=</span> <span class="ident">total_width</span> <span class="op">/</span> ((<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pieces</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width_remaining</span> <span class="op">=</span> <span class="ident">pct_full</span> <span class="op">*</span> <span class="ident">total_width</span>;
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span> {
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">width_each</span>.<span class="ident">min</span>(<span class="ident">width_remaining</span>);
-        <span class="ident">pieces</span>.<span class="ident">push</span>(<span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>).<span class="ident">translate</span>((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">width_each</span>, <span class="number">0.0</span>));
-        <span class="kw">if</span> <span class="ident">width</span> <span class="op">&lt;</span> <span class="ident">width_each</span> {
-            <span class="kw">break</span>;
-        }
-        <span class="ident">width_remaining</span> <span class="op">-</span><span class="op">=</span> <span class="ident">width</span>;
-    }
+    <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">4.0</span>);
+    <span class="kw">let</span> <span class="ident">pct_full</span> <span class="op">=</span> (<span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">max</span> <span class="kw">as</span> <span class="ident">f64</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+    <span class="comment">// Background</span>
     <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">Fill</span>::<span class="ident">LinearGradient</span>(<span class="ident">LinearGradient</span> {
-            <span class="ident">line</span>: <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">total_width</span>, <span class="number">0.0</span>)),
-            <span class="ident">stops</span>: <span class="ident">scale</span>
-                .<span class="number">0</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">enumerate</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">color</span>)<span class="op">|</span> ((<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>), <span class="kw-2">*</span><span class="ident">color</span>))
-                .<span class="ident">collect</span>(),
-        }),
-        <span class="ident">Polygon</span>::<span class="ident">union_all</span>(<span class="ident">pieces</span>),
+        <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#666666&quot;</span>),
+        <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="ident">total_width</span>, <span class="ident">height</span>, <span class="ident">radius</span>),
     );
-    <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">Color</span>::<span class="ident">BLACK</span>,
-        <span class="ident">Polygon</span>::<span class="ident">rectangle</span>((<span class="number">1.0</span> <span class="op">-</span> <span class="ident">pct_full</span>) <span class="op">*</span> <span class="ident">total_width</span>, <span class="ident">height</span>)
-            .<span class="ident">translate</span>(<span class="ident">pct_full</span> <span class="op">*</span> <span class="ident">total_width</span>, <span class="number">0.0</span>),
-    );
-    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} / {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">value</span>), <span class="ident">prettyprint_usize</span>(<span class="ident">max</span>)).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>)
-            .<span class="ident">padding</span>(<span class="number">2</span>)
-            .<span class="ident">outline</span>(<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>),
-    ])
+    <span class="comment">// Foreground</span>
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">maybe_rounded_rectangle</span>(<span class="ident">pct_full</span> <span class="op">*</span> <span class="ident">total_width</span>, <span class="ident">height</span>, <span class="ident">radius</span>) {
+        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">filled_color</span>, <span class="ident">poly</span>);
+    }
+    <span class="comment">// Text</span>
+    <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="string">&quot;{} / {}&quot;</span>,
+        <span class="ident">prettyprint_usize</span>(<span class="ident">value</span>),
+        <span class="ident">prettyprint_usize</span>(<span class="ident">max</span>)
+    )))
+    .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>);
+    <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">get_dims</span>();
+    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">label</span>.<span class="ident">translate</span>(<span class="number">10.0</span>, <span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>));
+    <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "experiment";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
