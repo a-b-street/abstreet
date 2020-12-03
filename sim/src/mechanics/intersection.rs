@@ -8,7 +8,7 @@ use abstutil::{
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, PhaseType,
-    Traversable, TurnID, TurnPriority, TurnType,
+    Traversable, TurnID, TurnPriority, TurnType, UberTurn,
 };
 
 use crate::mechanics::car::Car;
@@ -640,12 +640,15 @@ impl IntersectionSimState {
         queues: &HashMap<Traversable, Queue>,
     ) {
         // Don't use self.blocked_by -- that gets complicated with uber-turns and such.
+        //
+        // This also assumes default values for handle_uber_turns, disable_turn_conflicts, etc!
         for state in self.state.values() {
             for (req, started_at) in &state.waiting {
                 let turn = map.get_t(req.turn);
                 // In the absence of other explanations, the agent must be pausing at a stop sign
                 // or before making an unprotected movement, aka, in the middle of
-                // WAIT_AT_STOP_SIGN or WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL.
+                // WAIT_AT_STOP_SIGN or WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL. Or they're waiting for
+                // a signal to change.
                 let mut cause = DelayCause::Intersection(state.id);
                 if let Some(other) = state.accepted.iter().find(|other| {
                     turn.conflicts_with(map.get_t(other.turn)) || turn.id == other.turn
@@ -653,15 +656,35 @@ impl IntersectionSimState {
                     cause = DelayCause::Agent(other.agent);
                 } else if let AgentID::Car(car) = req.agent {
                     let queue = &queues[&Traversable::Lane(req.turn.dst)];
-                    if !queue.room_for_car(cars.get(&car).unwrap()) {
+                    let car = cars.get(&car).unwrap();
+                    if !queue.room_for_car(car) {
                         // TODO Or it's reserved due to an uber turn or something
                         let blocker = queue.cars.back().cloned().or(queue.laggy_head).unwrap();
                         cause = DelayCause::Agent(AgentID::Car(blocker));
+                    } else if let Some(ut) = car.router.get_path().about_to_start_ut() {
+                        if let Some(blocker) = self.check_for_conflicts_before_uber_turn(ut, map) {
+                            cause = DelayCause::Agent(blocker);
+                        }
                     }
                 }
                 graph.insert(req.agent, (now - *started_at, cause));
             }
         }
+    }
+
+    /// See if any agent is currently performing a turn that conflicts with an uber-turn. Doesn't
+    /// check for room on the queues.
+    fn check_for_conflicts_before_uber_turn(&self, ut: &UberTurn, map: &Map) -> Option<AgentID> {
+        for t in &ut.path {
+            let turn = map.get_t(*t);
+            let state = &self.state[&turn.id.parent];
+            for other in state.accepted.iter().chain(state.reserved.iter()) {
+                if map.get_t(other.turn).conflicts_with(turn) {
+                    return Some(other.agent);
+                }
+            }
+        }
+        None
     }
 }
 

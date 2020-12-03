@@ -40,7 +40,7 @@ impl Game {
                     .expect(&format!("can't find {}", config.start));
                 let player = Player::new(ctx, app, start);
 
-                let state = GamehState::new(ctx, app, config);
+                let state = GameState::new(ctx, app, config);
 
                 let panel = Panel::new(Widget::col(vec![
                     Widget::row(vec![
