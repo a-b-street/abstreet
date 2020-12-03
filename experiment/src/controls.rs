@@ -21,6 +21,7 @@ impl InstantController {
         let mut dy = 0.0;
 
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+            // TODO Diagonal movement is faster. Normalize some vectors!
             let dist = (dt * HACK * speed).inner_meters();
             let mut x = 0;
             let mut y = 0;

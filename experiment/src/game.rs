@@ -5,7 +5,7 @@ use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::load::MapLoader;
 use map_gui::tools::{ColorLegend, ColorScale, SimpleMinimap};
 use map_gui::{SimpleApp, ID};
-use map_model::{BuildingID, BuildingType};
+use map_model::{BuildingID, BuildingType, IntersectionID, RoadID};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
@@ -29,6 +29,7 @@ pub struct Game {
     sleigh: Pt2D,
     state: SleighState,
     over_bldg: Option<BuildingID>,
+    on: On,
 }
 
 impl Game {
@@ -40,9 +41,9 @@ impl Game {
             Box::new(move |ctx, app| {
                 let start = app
                     .map
-                    .find_b_by_osm_id(config.start_depot)
-                    .expect(&format!("can't find {}", config.start_depot));
-                let sleigh = app.map.get_b(start).label_center;
+                    .find_i_by_osm_id(config.start)
+                    .expect(&format!("can't find {}", config.start));
+                let sleigh = app.map.get_i(start).polygon.center();
                 ctx.canvas.center_on_map_pt(sleigh);
                 ctx.canvas.cam_zoom = ZOOM;
 
@@ -98,6 +99,7 @@ impl Game {
                     sleigh,
                     state,
                     over_bldg: None,
+                    on: On::Intersection(start),
                 };
                 game.update_panel(ctx);
                 game.minimap
@@ -162,18 +164,69 @@ impl Game {
         ctx.canvas.center_on_map_pt(self.sleigh);
     }
 
-    fn over_bldg(&self, app: &SimpleApp) -> Option<BuildingID> {
+    fn apply_displacement(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        dx: f64,
+        dy: f64,
+        recurse: bool,
+    ) {
+        let new_pos = self.sleigh.offset(dx, dy);
+
+        // Make sure we're still on the road
+        let mut on = None;
         for id in app
             .draw_map
             .get_matching_objects(Circle::new(self.sleigh, Distance::meters(3.0)).get_bounds())
         {
-            if let ID::Building(b) = id {
-                if app.map.get_b(b).polygon.contains_pt(self.sleigh) {
-                    return Some(b);
+            if let ID::Intersection(i) = id {
+                if app.map.get_i(i).polygon.contains_pt(new_pos) {
+                    on = Some(On::Intersection(i));
+                    break;
+                }
+            } else if let ID::Road(r) = id {
+                if app
+                    .map
+                    .get_r(r)
+                    .get_thick_polygon(&app.map)
+                    .contains_pt(new_pos)
+                {
+                    on = Some(On::Road(r));
+                    break;
                 }
             }
         }
-        None
+
+        if let Some(on) = on {
+            self.sleigh = new_pos;
+            ctx.canvas.center_on_map_pt(self.sleigh);
+            self.on = on;
+        } else {
+            // We went out of bounds. Undo this movement.
+            // TODO Draw a line between the old and new position, and snap to the boundary of
+            // whatever we hit.
+
+            // Apply horizontal and vertical movement independently, so we "slide" along boundaries
+            // if possible
+            if recurse {
+                let orig = self.sleigh;
+                if dx != 0.0 {
+                    self.apply_displacement(ctx, app, dx, 0.0, false);
+                }
+                if dy != 0.0 {
+                    self.apply_displacement(ctx, app, 0.0, dy, false);
+                }
+
+                // If we're stuck, try bouncing in the opposite direction.
+                // TODO This is jittery and we can sometimes go out of bounds now. :D
+                if self.sleigh == orig {
+                    self.apply_displacement(ctx, app, -dx, -dy, false);
+                }
+            }
+
+            return;
+        }
     }
 }
 
@@ -190,9 +243,7 @@ impl State<SimpleApp> for Game {
         };
         let (dx, dy) = self.controls.displacement(ctx, speed);
         if dx != 0.0 || dy != 0.0 {
-            self.sleigh = self.sleigh.offset(dx, dy);
-            ctx.canvas.center_on_map_pt(self.sleigh);
-            self.over_bldg = self.over_bldg(app);
+            self.apply_displacement(ctx, app, dx, dy, true);
         }
 
         if let Some(b) = self.over_bldg {
@@ -291,11 +342,20 @@ impl State<SimpleApp> for Game {
         g.redraw(&self.state.draw_todo_houses);
         g.redraw(&self.state.draw_done_houses);
 
-        GeomBatch::load_svg(g.prerender, "system/assets/characters/santa.svg")
-            .scale(0.1)
-            .centered_on(self.sleigh)
-            .rotate_around_batch_center(self.controls.facing)
-            .draw(g);
+        if false {
+            GeomBatch::load_svg(g.prerender, "system/assets/characters/santa.svg")
+                .scale(0.1)
+                .centered_on(self.sleigh)
+                .rotate_around_batch_center(self.controls.facing)
+                .draw(g);
+        } else {
+            // Debug
+            g.draw_polygon(
+                Color::RED,
+                Circle::new(self.sleigh, Distance::meters(2.0)).to_polygon(),
+            );
+        }
+
         self.snow.draw(g);
         self.animator.draw(g);
         if let Some(ref arrow) = self.state.energyless_arrow {
@@ -530,4 +590,9 @@ impl EnergylessArrow {
         .make_arrow(thickness, ArrowCap::Triangle);
         self.draw = ctx.upload(GeomBatch::from(vec![(Color::RED.alpha(0.8), arrow)]));
     }
+}
+
+enum On {
+    Intersection(IntersectionID),
+    Road(RoadID),
 }

@@ -11,7 +11,7 @@ use widgetry::{
 pub struct Config {
     pub title: &'static str,
     pub map: MapName,
-    pub start_depot: osm::OsmID,
+    pub start: osm::NodeID,
     pub minimap_zoom: usize,
 
     pub normal_speed: Speed,
@@ -26,7 +26,7 @@ fn all_levels() -> Vec<Config> {
         Config {
             title: "Level 1 - a small neighborhood",
             map: MapName::seattle("montlake"),
-            start_depot: osm::OsmID::Way(osm::WayID(217700589)),
+            start: osm::NodeID(53084814),
             minimap_zoom: 1,
 
             normal_speed: Speed::miles_per_hour(30.0),
@@ -37,7 +37,7 @@ fn all_levels() -> Vec<Config> {
         Config {
             title: "Level 2 - Magnolia",
             map: MapName::seattle("ballard"),
-            start_depot: osm::OsmID::Way(osm::WayID(38655876)),
+            start: osm::NodeID(53117102),
             minimap_zoom: 2,
 
             normal_speed: Speed::miles_per_hour(40.0),
