@@ -168,7 +168,7 @@ impl LinearGradient {
     fn interp(&self, pt: Pt2D) -> Color {
         let pct = self
             .line
-            .percent_along_of_point(self.line.project_pt(pt))
+            .percent_along_of_point(self.line.to_polyline().project_pt(pt))
             .unwrap();
         if pct < self.stops[0].0 {
             return self.stops[0].1;

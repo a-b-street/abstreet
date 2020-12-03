@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use abstutil::prettyprint_usize;
+use abstutil::{prettyprint_usize, MultiMap};
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::load::MapLoader;
 use map_gui::tools::{ColorLegend, ColorScale, SimpleMinimap};
 use map_gui::{SimpleApp, ID};
-use map_model::{BuildingID, BuildingType, IntersectionID, RoadID};
+use map_model::{BuildingID, BuildingType, Direction, IntersectionID, RoadID};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
@@ -28,8 +28,8 @@ pub struct Game {
     time: Time,
     sleigh: Pt2D,
     state: SleighState,
-    over_bldg: Option<BuildingID>,
     on: On,
+    bldgs_along_road: BuildingsAlongRoad,
 }
 
 impl Game {
@@ -98,8 +98,8 @@ impl Game {
                     time: Time::START_OF_DAY,
                     sleigh,
                     state,
-                    over_bldg: None,
                     on: On::Intersection(start),
+                    bldgs_along_road: BuildingsAlongRoad::new(app),
                 };
                 game.update_panel(ctx);
                 game.minimap
@@ -164,6 +164,7 @@ impl Game {
         ctx.canvas.center_on_map_pt(self.sleigh);
     }
 
+    /// Returns any buildings we pass
     fn apply_displacement(
         &mut self,
         ctx: &mut EventCtx,
@@ -171,7 +172,7 @@ impl Game {
         dx: f64,
         dy: f64,
         recurse: bool,
-    ) {
+    ) -> Vec<BuildingID> {
         let new_pos = self.sleigh.offset(dx, dy);
 
         // Make sure we're still on the road
@@ -186,22 +187,36 @@ impl Game {
                     break;
                 }
             } else if let ID::Road(r) = id {
-                if app
-                    .map
-                    .get_r(r)
-                    .get_thick_polygon(&app.map)
-                    .contains_pt(new_pos)
-                {
-                    on = Some(On::Road(r));
+                let road = app.map.get_r(r);
+                if road.get_thick_polygon(&app.map).contains_pt(new_pos) {
+                    // Where along the road are we?
+                    let pt_on_center_line = road.center_pts.project_pt(new_pos);
+                    if let Some((dist, _)) = road.center_pts.dist_along_of_point(pt_on_center_line)
+                    {
+                        on = Some(On::Road(r, dist));
+                    } else {
+                        error!(
+                            "{} snapped to {} on {}, but dist_along_of_point failed",
+                            new_pos, pt_on_center_line, r
+                        );
+                    }
                     break;
                 }
             }
         }
 
-        if let Some(on) = on {
+        let mut buildings_passed = Vec::new();
+        if let Some(new_on) = on {
             self.sleigh = new_pos;
             ctx.canvas.center_on_map_pt(self.sleigh);
-            self.on = on;
+
+            if let (On::Road(r1, dist1), On::Road(r2, dist2)) = (self.on.clone(), new_on.clone()) {
+                if r1 == r2 {
+                    // Find all buildings in this range of distance along
+                    buildings_passed.extend(self.bldgs_along_road.query_range(r1, dist1, dist2));
+                }
+            }
+            self.on = new_on;
         } else {
             // We went out of bounds. Undo this movement.
             // TODO Draw a line between the old and new position, and snap to the boundary of
@@ -212,21 +227,20 @@ impl Game {
             if recurse {
                 let orig = self.sleigh;
                 if dx != 0.0 {
-                    self.apply_displacement(ctx, app, dx, 0.0, false);
+                    buildings_passed.extend(self.apply_displacement(ctx, app, dx, 0.0, false));
                 }
                 if dy != 0.0 {
-                    self.apply_displacement(ctx, app, 0.0, dy, false);
+                    buildings_passed.extend(self.apply_displacement(ctx, app, 0.0, dy, false));
                 }
 
                 // If we're stuck, try bouncing in the opposite direction.
                 // TODO This is jittery and we can sometimes go out of bounds now. :D
                 if self.sleigh == orig {
-                    self.apply_displacement(ctx, app, -dx, -dy, false);
+                    buildings_passed.extend(self.apply_displacement(ctx, app, -dx, -dy, false));
                 }
             }
-
-            return;
         }
+        buildings_passed
     }
 }
 
@@ -243,42 +257,41 @@ impl State<SimpleApp> for Game {
         };
         let (dx, dy) = self.controls.displacement(ctx, speed);
         if dx != 0.0 || dy != 0.0 {
-            self.apply_displacement(ctx, app, dx, dy, true);
-        }
-
-        if let Some(b) = self.over_bldg {
-            match self.state.houses.get(&b) {
-                Some(BldgState::Undelivered(_)) => {
-                    if let Some(increase) = self.state.present_dropped(ctx, app, b) {
-                        self.animator.add(
-                            self.time,
-                            Duration::seconds(0.5),
-                            (1.0, 4.0),
-                            app.map.get_b(b).label_center,
-                            Text::from(Line(format!("+{}", prettyprint_usize(increase))))
-                                .bg(Color::RED)
-                                .render_to_batch(ctx.prerender)
-                                .scale(0.1),
-                        );
+            let passed_buildings = self.apply_displacement(ctx, app, dx, dy, true);
+            for b in passed_buildings {
+                match self.state.houses.get(&b) {
+                    Some(BldgState::Undelivered(_)) => {
+                        if let Some(increase) = self.state.present_dropped(ctx, app, b) {
+                            self.animator.add(
+                                self.time,
+                                Duration::seconds(0.5),
+                                (1.0, 4.0),
+                                app.map.get_b(b).label_center,
+                                Text::from(Line(format!("+{}", prettyprint_usize(increase))))
+                                    .bg(Color::RED)
+                                    .render_to_batch(ctx.prerender)
+                                    .scale(0.1),
+                            );
+                        }
                     }
-                }
-                Some(BldgState::Depot) => {
-                    let refill = self.state.config.max_energy - self.state.energy;
-                    if refill > 0 {
-                        self.state.energy += refill;
-                        self.animator.add(
-                            self.time,
-                            Duration::seconds(0.5),
-                            (1.0, 4.0),
-                            app.map.get_b(b).label_center,
-                            Text::from(Line(format!("Refilled {}", prettyprint_usize(refill))))
-                                .bg(Color::BLUE)
-                                .render_to_batch(ctx.prerender)
-                                .scale(0.1),
-                        );
+                    Some(BldgState::Depot) => {
+                        let refill = self.state.config.max_energy - self.state.energy;
+                        if refill > 0 {
+                            self.state.energy += refill;
+                            self.animator.add(
+                                self.time,
+                                Duration::seconds(0.5),
+                                (1.0, 4.0),
+                                app.map.get_b(b).label_center,
+                                Text::from(Line(format!("Refilled {}", prettyprint_usize(refill))))
+                                    .bg(Color::BLUE)
+                                    .render_to_batch(ctx.prerender)
+                                    .scale(0.1),
+                            );
+                        }
                     }
+                    _ => {}
                 }
-                _ => {}
             }
         }
 
@@ -592,7 +605,55 @@ impl EnergylessArrow {
     }
 }
 
+#[derive(Clone)]
 enum On {
     Intersection(IntersectionID),
-    Road(RoadID),
+    // Distance along the center line
+    Road(RoadID, Distance),
+}
+
+struct BuildingsAlongRoad {
+    // For each road, all of the buildings along it. Ascending distance, with the distance matching
+    // the road's center points.
+    per_road: HashMap<RoadID, Vec<(Distance, BuildingID)>>,
+}
+
+impl BuildingsAlongRoad {
+    fn new(app: &SimpleApp) -> BuildingsAlongRoad {
+        let mut raw: MultiMap<RoadID, (Distance, BuildingID)> = MultiMap::new();
+        for b in app.map.all_buildings() {
+            // TODO Happily assuming road and lane length is roughly the same
+            let road = app.map.get_parent(b.sidewalk_pos.lane());
+            let dist = match road.dir(b.sidewalk_pos.lane()) {
+                Direction::Fwd => b.sidewalk_pos.dist_along(),
+                Direction::Back => road.center_pts.length() - b.sidewalk_pos.dist_along(),
+            };
+            raw.insert(road.id, (dist, b.id));
+        }
+
+        let mut per_road = HashMap::new();
+        for (road, list) in raw.consume() {
+            // BTreeSet will sort by the distance
+            per_road.insert(road, list.into_iter().collect());
+        }
+
+        BuildingsAlongRoad { per_road }
+    }
+
+    fn query_range(&self, road: RoadID, dist1: Distance, dist2: Distance) -> Vec<BuildingID> {
+        if dist1 > dist2 {
+            return self.query_range(road, dist2, dist1);
+        }
+
+        let mut results = Vec::new();
+        if let Some(list) = self.per_road.get(&road) {
+            // TODO Binary search to find start?
+            for (dist, b) in list {
+                if *dist >= dist1 && *dist <= dist2 {
+                    results.push(*b);
+                }
+            }
+        }
+        results
+    }
 }

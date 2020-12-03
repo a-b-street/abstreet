@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::fmt;
 
+use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -781,6 +782,16 @@ impl PolyLine {
         }
         geojson::Geometry::new(geojson::Value::LineString(pts))
     }
+
+    /// Returns the point on the polyline closest to the query.
+    pub fn project_pt(&self, query: Pt2D) -> Pt2D {
+        match pts_to_line_string(&self.pts).closest_point(&geo::Point::new(query.x(), query.y())) {
+            geo::Closest::Intersection(hit) | geo::Closest::SinglePoint(hit) => {
+                Pt2D::new(hit.x(), hit.y())
+            }
+            geo::Closest::Indeterminate => unreachable!(),
+        }
+    }
 }
 
 impl fmt::Display for PolyLine {
@@ -843,4 +854,12 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
         }
     }
     (deduped, dupes)
+}
+
+fn pts_to_line_string(raw_pts: &Vec<Pt2D>) -> geo::LineString<f64> {
+    let pts: Vec<geo::Point<f64>> = raw_pts
+        .iter()
+        .map(|pt| geo::Point::new(pt.x(), pt.y()))
+        .collect();
+    pts.into()
 }

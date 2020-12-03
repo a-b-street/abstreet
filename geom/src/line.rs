@@ -1,6 +1,5 @@
 use std::fmt;
 
-use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
 
 use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
@@ -210,21 +209,6 @@ impl Line {
     pub fn percent_along_of_point(&self, pt: Pt2D) -> Option<f64> {
         let dist = self.dist_along_of_point(pt)?;
         Some(dist / self.length())
-    }
-
-    // Returns a point on the line segment.
-    pub fn project_pt(&self, pt: Pt2D) -> Pt2D {
-        let line: geo::LineString<f64> = vec![
-            geo::Point::new(self.0.x(), self.0.y()),
-            geo::Point::new(self.1.x(), self.1.y()),
-        ]
-        .into();
-        match line.closest_point(&geo::Point::new(pt.x(), pt.y())) {
-            geo::Closest::Intersection(hit) | geo::Closest::SinglePoint(hit) => {
-                Pt2D::new(hit.x(), hit.y())
-            }
-            geo::Closest::Indeterminate => unreachable!(),
-        }
     }
 }
 

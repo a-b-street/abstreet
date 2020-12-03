@@ -15,6 +15,7 @@ wasm = ["map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 kml = { path = "../kml" }
+log = "0.4.11"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
 rand = "0.7.0"

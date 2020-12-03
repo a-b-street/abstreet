@@ -713,6 +713,7 @@ dependencies = [
  "abstutil",
  "geom",
  "kml",
+ "log",
  "map_gui",
  "map_model",
  "rand",

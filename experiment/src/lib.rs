@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 mod animation;
 mod controls;
 mod game;
