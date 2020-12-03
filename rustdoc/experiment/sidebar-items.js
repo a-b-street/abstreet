@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""]],"mod":[["animation",""],["buildings",""],["controls",""],["game",""],["levels",""],["meters",""],["movement",""],["upzone",""]]});
+initSidebarItems({"fn":[["main",""]],"mod":[["animation",""],["buildings",""],["controls",""],["game",""],["levels",""],["meters",""],["movement",""],["upzone",""],["vehicles",""]]});
