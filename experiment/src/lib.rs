@@ -6,6 +6,7 @@ mod controls;
 mod game;
 mod levels;
 mod meters;
+mod movement;
 mod upzone;
 
 pub fn main() {
