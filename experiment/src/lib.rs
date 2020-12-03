@@ -2,6 +2,7 @@
 extern crate log;
 
 mod animation;
+mod buildings;
 mod controls;
 mod game;
 mod levels;

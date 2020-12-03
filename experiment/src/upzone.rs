@@ -62,14 +62,7 @@ impl State<SimpleApp> for Picker {
                     ]),
                     Box::new(move |_, _, app| {
                         app.current_selection = None;
-                        Transition::Multi(vec![
-                            Transition::Pop,
-                            Transition::Pop,
-                            Transition::ModifyState(Box::new(move |state, ctx, app| {
-                                let game = state.downcast_mut::<crate::game::Game>().unwrap();
-                                game.upzone(ctx, app, b);
-                            })),
-                        ])
+                        Transition::Multi(vec![Transition::Pop, Transition::Pop])
                     }),
                 ));
             }
