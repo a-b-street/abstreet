@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use map_gui::SimpleApp;
 use map_model::{BuildingID, BuildingType};
@@ -23,7 +23,7 @@ pub enum BldgState {
 }
 
 impl Buildings {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Buildings {
+    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, upzones: HashSet<BuildingID>) -> Buildings {
         let house_color = app.cs.residential_building;
         let apartment_color = Color::CYAN;
         let store_color = Color::YELLOW;
@@ -33,6 +33,12 @@ impl Buildings {
         let mut total_housing_units = 0;
         let mut batch = GeomBatch::new();
         for b in app.map.all_buildings() {
+            if upzones.contains(&b.id) {
+                buildings.insert(b.id, BldgState::Store);
+                batch.push(store_color, b.polygon.clone());
+                continue;
+            }
+
             if let BuildingType::Residential {
                 num_housing_units, ..
             } = b.bldg_type

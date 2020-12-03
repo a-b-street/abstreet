@@ -20,9 +20,9 @@ pub struct Player {
 
 impl Player {
     pub fn new(ctx: &mut EventCtx, app: &SimpleApp, start: IntersectionID) -> Player {
+        ctx.canvas.cam_zoom = ZOOM;
         let pos = app.map.get_i(start).polygon.center();
         ctx.canvas.center_on_map_pt(pos);
-        ctx.canvas.cam_zoom = ZOOM;
 
         Player {
             pos,

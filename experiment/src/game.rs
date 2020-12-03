@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::load::MapLoader;
@@ -27,7 +29,12 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> Box<dyn State<SimpleApp>> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        config: Config,
+        upzones: HashSet<BuildingID>,
+    ) -> Box<dyn State<SimpleApp>> {
         MapLoader::new(
             ctx,
             app,
@@ -39,7 +46,8 @@ impl Game {
                     .expect(&format!("can't find {}", config.start));
                 let player = Player::new(ctx, app, start);
 
-                let state = GameState::new(ctx, app, config);
+                let bldgs = Buildings::new(ctx, app, upzones);
+                let state = GameState::new(ctx, app, config, bldgs);
 
                 let panel = Panel::new(Widget::col(vec![
                     Widget::row(vec![
@@ -244,11 +252,11 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> GameState {
+    fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config, bldgs: Buildings) -> GameState {
         let energy = config.max_energy;
         let mut s = GameState {
             config,
-            bldgs: Buildings::new(ctx, app),
+            bldgs,
 
             score: 0,
             energy,

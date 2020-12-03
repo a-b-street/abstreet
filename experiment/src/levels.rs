@@ -8,16 +8,17 @@ use widgetry::{
     Widget,
 };
 
+#[derive(Clone)]
 pub struct Config {
     pub title: &'static str,
     pub map: MapName,
     pub start: osm::NodeID,
     pub minimap_zoom: usize,
+    pub num_upzones: usize,
 
     pub normal_speed: Speed,
     pub tired_speed: Speed,
     pub max_energy: usize,
-    pub upzone_rate: usize,
 }
 
 // TODO Like Challenge::all; cache with lazy static?
@@ -28,22 +29,33 @@ fn all_levels() -> Vec<Config> {
             map: MapName::seattle("montlake"),
             start: osm::NodeID(53084814),
             minimap_zoom: 1,
+            num_upzones: 0,
 
             normal_speed: Speed::miles_per_hour(30.0),
             tired_speed: Speed::miles_per_hour(10.0),
             max_energy: 80,
-            upzone_rate: 100,
         },
         Config {
-            title: "Level 2 - Magnolia",
+            title: "Level 2 - a small neighborhood with upzones",
+            map: MapName::seattle("montlake"),
+            start: osm::NodeID(53084814),
+            minimap_zoom: 1,
+            num_upzones: 3,
+
+            normal_speed: Speed::miles_per_hour(30.0),
+            tired_speed: Speed::miles_per_hour(10.0),
+            max_energy: 80,
+        },
+        Config {
+            title: "Level 3 - Magnolia",
             map: MapName::seattle("ballard"),
             start: osm::NodeID(53117102),
             minimap_zoom: 2,
+            num_upzones: 5,
 
             normal_speed: Speed::miles_per_hour(40.0),
             tired_speed: Speed::miles_per_hour(15.0),
             max_energy: 100,
-            upzone_rate: 150,
         },
     ]
 }
@@ -125,7 +137,7 @@ impl State<SimpleApp> for TitleScreen {
 
                     for lvl in all_levels() {
                         if x == lvl.title {
-                            return Transition::Push(crate::game::Game::new(ctx, app, lvl));
+                            return Transition::Push(crate::upzone::Picker::new(ctx, app, lvl));
                         }
                     }
                     panic!("Unknown action {}", x);

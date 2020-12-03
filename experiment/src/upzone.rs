@@ -1,42 +1,51 @@
 use std::collections::HashSet;
 
-use map_gui::tools::ChooseSomething;
 use map_gui::{SimpleApp, ID};
 use map_model::BuildingID;
 use widgetry::{
-    Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, State, TextExt, Transition, VerticalAlignment, Widget,
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
+    Transition, VerticalAlignment, Widget,
 };
+
+use crate::buildings::{BldgState, Buildings};
+use crate::game::Game;
+use crate::levels::Config;
+
+const ZOOM: f64 = 2.0;
 
 pub struct Picker {
     panel: Panel,
-    choices: HashSet<BuildingID>,
-    draw_all_choices: Drawable,
+    config: Config,
+    bldgs: Buildings,
+    current_picks: HashSet<BuildingID>,
 }
 
 impl Picker {
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &SimpleApp,
-        choices: HashSet<BuildingID>,
-    ) -> Box<dyn State<SimpleApp>> {
-        let mut batch = GeomBatch::new();
-        for b in &choices {
-            batch.push(Color::GREEN, app.map.get_b(*b).polygon.clone());
+    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config) -> Box<dyn State<SimpleApp>> {
+        ctx.canvas.cam_zoom = ZOOM;
+
+        // Just start playing immediately
+        if config.num_upzones == 0 {
+            return Game::new(ctx, app, config, HashSet::new());
         }
+
+        let bldgs = Buildings::new(ctx, app, HashSet::new());
 
         Box::new(Picker {
             panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Upzone").small_heading().draw(ctx),
-                    Btn::close(ctx),
-                ]),
-                format!("Click on a residential building to upzone it").draw_text(ctx),
+                Line("Upzone").small_heading().draw(ctx),
+                format!(
+                    "You can select {} houses to transform into stores",
+                    config.num_upzones
+                )
+                .draw_text(ctx),
+                Btn::text_bg2("Start game").build_def(ctx, Key::Enter),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
-            choices,
-            draw_all_choices: ctx.upload(batch),
+            config,
+            bldgs,
+            current_picks: HashSet::new(),
         })
     }
 }
@@ -46,33 +55,33 @@ impl State<SimpleApp> for Picker {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
-            app.current_selection = app
-                .mouseover_unzoomed_buildings(ctx)
-                .filter(|id| self.choices.contains(&id.as_building()));
+            app.current_selection = app.mouseover_unzoomed_buildings(ctx).filter(|id| {
+                match self.bldgs.buildings[&id.as_building()] {
+                    BldgState::Undelivered(_) => true,
+                    _ => false,
+                }
+            });
         }
         if let Some(ID::Building(b)) = app.current_selection {
             if ctx.normal_left_click() {
-                return Transition::Push(ChooseSomething::new(
-                    ctx,
-                    "What do you want to build here?",
-                    Choice::strings(vec![
-                        "Pokémon-themed poké bar",
-                        "caviar donut shop",
-                        "curry beignet stand",
-                    ]),
-                    Box::new(move |_, _, app| {
-                        app.current_selection = None;
-                        Transition::Multi(vec![Transition::Pop, Transition::Pop])
-                    }),
-                ));
+                if self.current_picks.contains(&b) {
+                    self.current_picks.remove(&b);
+                } else if self.current_picks.len() < self.config.num_upzones {
+                    self.current_picks.insert(b);
+                }
             }
         }
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
+                "Start game" => {
                     app.current_selection = None;
-                    return Transition::Pop;
+                    return Transition::Replace(Game::new(
+                        ctx,
+                        app,
+                        self.config.clone(),
+                        self.current_picks.clone(),
+                    ));
                 }
                 _ => unreachable!(),
             },
@@ -84,7 +93,10 @@ impl State<SimpleApp> for Picker {
 
     fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
         self.panel.draw(g);
-        g.redraw(&self.draw_all_choices);
+        g.redraw(&self.bldgs.draw_all);
+        for b in &self.current_picks {
+            g.draw_polygon(Color::PINK, app.map.get_b(*b).polygon.clone());
+        }
         // This covers up the current selection, so...
         if let Some(ID::Building(b)) = app.current_selection {
             g.draw_polygon(app.cs.selected, app.map.get_b(b).polygon.clone());
