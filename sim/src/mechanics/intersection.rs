@@ -809,7 +809,11 @@ impl IntersectionSimState {
         let turn = map.get_t(req.turn);
         let mut cycle_detected = false;
         let mut ok = true;
-        for other in &self.state[&req.turn.parent].accepted {
+        for other in self.state[&req.turn.parent]
+            .accepted
+            .iter()
+            .chain(self.state[&req.turn.parent].reserved.iter())
+        {
             // Never short-circuit; always record all of the dependencies; it might help someone
             // else unstick things.
             if map.get_t(other.turn).conflicts_with(turn) {
@@ -843,15 +847,7 @@ impl IntersectionSimState {
                 }
             }
         }
-        if !ok {
-            return false;
-        }
-        for other in &self.state[&req.turn.parent].reserved {
-            if !self.disable_turn_conflicts && map.get_t(other.turn).conflicts_with(turn) {
-                return false;
-            }
-        }
-        true
+        ok
     }
 
     fn detect_conflict_cycle(
