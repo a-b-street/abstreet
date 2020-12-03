@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MITER_THRESHOLD",""]],"enum":[["ArrowCap",""]],"fn":[["fix_angles",""],["to_set",""]],"struct":[["PolyLine",""]]});
+initSidebarItems({"constant":[["MITER_THRESHOLD",""]],"enum":[["ArrowCap",""]],"fn":[["fix_angles",""],["pts_to_line_string",""],["to_set",""]],"struct":[["PolyLine",""]]});

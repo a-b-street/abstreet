@@ -398,7 +398,7 @@
     <span class="kw">fn</span> <span class="ident">interp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
         <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">line</span>
-            .<span class="ident">percent_along_of_point</span>(<span class="self">self</span>.<span class="ident">line</span>.<span class="ident">project_pt</span>(<span class="ident">pt</span>))
+            .<span class="ident">percent_along_of_point</span>(<span class="self">self</span>.<span class="ident">line</span>.<span class="ident">to_polyline</span>().<span class="ident">project_pt</span>(<span class="ident">pt</span>))
             .<span class="ident">unwrap</span>();
         <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">stops</span>[<span class="number">0</span>].<span class="number">0</span> {
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">stops</span>[<span class="number">0</span>].<span class="number">1</span>;
