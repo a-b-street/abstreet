@@ -321,15 +321,19 @@ impl Canvas {
     ) -> ScreenPt {
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
+            HorizontalAlignment::LeftInset => INSET,
             HorizontalAlignment::Center => (self.window_width - dims.width) / 2.0,
             HorizontalAlignment::Right => self.window_width - dims.width,
+            HorizontalAlignment::RightInset => self.window_width - dims.width - INSET,
             HorizontalAlignment::Percent(pct) => pct * self.window_width,
             HorizontalAlignment::Centered(x) => x - (dims.width / 2.0),
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,
+            VerticalAlignment::TopInset => INSET,
             VerticalAlignment::Center => (self.window_height - dims.height) / 2.0,
             VerticalAlignment::Bottom => self.window_height - dims.height,
+            VerticalAlignment::BottomInset => self.window_height - dims.height - INSET,
             // TODO Hack
             VerticalAlignment::BottomAboveOSD => self.window_height - dims.height - 60.0,
             VerticalAlignment::Percent(pct) => pct * self.window_height,
@@ -340,11 +344,15 @@ impl Canvas {
     }
 }
 
+const INSET: f64 = 16.0;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum HorizontalAlignment {
     Left,
+    LeftInset,
     Center,
     Right,
+    RightInset,
     Percent(f64),
     Centered(f64),
 }
@@ -352,8 +360,10 @@ pub enum HorizontalAlignment {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum VerticalAlignment {
     Top,
+    TopInset,
     Center,
     Bottom,
+    BottomInset,
     BottomAboveOSD,
     Percent(f64),
     Above(f64),

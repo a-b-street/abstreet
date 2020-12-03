@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
-use map_gui::tools::{ChooseSomething, ColorLegend, ColorScale, SimpleMinimap};
+use map_gui::tools::{ChooseSomething, ColorLegend, SimpleMinimap};
 use map_gui::SimpleApp;
 use map_model::BuildingID;
 use widgetry::{
@@ -45,29 +45,21 @@ impl Game {
             Widget::draw_svg(ctx, "system/assets/tools/map.svg"),
             level.title.draw_text(ctx),
         ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
         .build(ctx);
 
         let status_panel = Panel::new(Widget::col(vec![
-            Widget::row(vec![
-                "Complete Deliveries".draw_text(ctx),
-                Widget::draw_batch(ctx, GeomBatch::new())
-                    .named("score")
-                    .align_right(),
-            ]),
-            Widget::row(vec![
-                "Remaining Gifts:".draw_text(ctx),
-                Widget::draw_batch(ctx, GeomBatch::new())
-                    .named("energy")
-                    .align_right(),
-            ]),
+            "Complete Deliveries".draw_text(ctx),
+            Widget::draw_batch(ctx, GeomBatch::new()).named("score"),
+            "Remaining Gifts:".draw_text(ctx),
+            Widget::draw_batch(ctx, GeomBatch::new()).named("energy"),
             Widget::horiz_separator(ctx, 0.2),
             // TODO Share constants for colors
             ColorLegend::row(ctx, app.cs.residential_building, "single-family house"),
             ColorLegend::row(ctx, Color::CYAN, "apartment building"),
             ColorLegend::row(ctx, Color::YELLOW, "store"),
         ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+        .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
         let time_panel = Panel::new(Widget::row(vec![
@@ -76,7 +68,7 @@ impl Game {
                 .named("time")
                 .align_right(),
         ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
         .build(ctx);
 
         let start = app
@@ -114,7 +106,7 @@ impl Game {
 
         let score_bar = make_bar(
             ctx,
-            ColorScale(vec![Color::WHITE, Color::GREEN]),
+            Color::hex("#83AA51"),
             self.state.score,
             self.state.bldgs.total_housing_units,
         );
@@ -122,7 +114,7 @@ impl Game {
 
         let energy_bar = make_bar(
             ctx,
-            ColorScale(vec![Color::RED, Color::YELLOW, Color::GREEN]),
+            Color::hex("#D8B830"),
             self.state.energy,
             self.state.vehicle.max_energy,
         );
@@ -231,10 +223,18 @@ impl State<SimpleApp> for Game {
         self.status_panel.draw(g);
         self.time_panel.draw(g);
 
+        let santa_tracker = g.upload(GeomBatch::from(vec![(
+            Color::RED,
+            Circle::new(self.player.get_pos(), Distance::meters(20.0)).to_polygon(),
+        )]));
         self.minimap.draw_with_extra_layers(
             g,
             app,
-            vec![&self.state.bldgs.draw_all, &self.state.draw_done_houses],
+            vec![
+                &self.state.bldgs.draw_all,
+                &self.state.draw_done_houses,
+                &santa_tracker,
+            ],
         );
 
         g.redraw(&self.state.bldgs.draw_all);
