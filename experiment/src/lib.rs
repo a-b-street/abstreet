@@ -9,6 +9,7 @@ mod levels;
 mod meters;
 mod movement;
 mod upzone;
+mod vehicles;
 
 pub fn main() {
     widgetry::run(widgetry::Settings::new("experiment"), |ctx| {

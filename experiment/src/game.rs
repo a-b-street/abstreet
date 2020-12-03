@@ -12,9 +12,10 @@ use widgetry::{
 
 use crate::animation::{Animator, SnowEffect};
 use crate::buildings::{BldgState, Buildings};
-use crate::levels::Config;
+use crate::levels::Level;
 use crate::meters::make_bar;
 use crate::movement::Player;
+use crate::vehicles::Vehicle;
 
 pub struct Game {
     title_panel: Panel,
@@ -34,14 +35,15 @@ impl Game {
     pub fn new(
         ctx: &mut EventCtx,
         app: &SimpleApp,
-        config: Config,
+        level: Level,
+        vehicle: Vehicle,
         upzones: HashSet<BuildingID>,
     ) -> Box<dyn State<SimpleApp>> {
         let title_panel = Panel::new(Widget::row(vec![
             Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", Key::Escape),
             "15 min Santa".draw_text(ctx),
             Widget::draw_svg(ctx, "system/assets/tools/map.svg"),
-            config.title.draw_text(ctx),
+            level.title.draw_text(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -79,12 +81,12 @@ impl Game {
 
         let start = app
             .map
-            .find_i_by_osm_id(config.start)
-            .expect(&format!("can't find {}", config.start));
+            .find_i_by_osm_id(level.start)
+            .expect(&format!("can't find {}", level.start));
         let player = Player::new(ctx, app, start);
 
         let bldgs = Buildings::new(ctx, app, upzones);
-        let state = GameState::new(ctx, app, config, bldgs);
+        let state = GameState::new(ctx, app, level, vehicle, bldgs);
 
         let with_zorder = false;
         let mut game = Game {
@@ -102,7 +104,7 @@ impl Game {
         };
         game.update_panels(ctx);
         game.minimap
-            .set_zoom(ctx, app, game.state.config.minimap_zoom);
+            .set_zoom(ctx, app, game.state.level.minimap_zoom);
         Box::new(game)
     }
 
@@ -122,7 +124,7 @@ impl Game {
             ctx,
             ColorScale(vec![Color::RED, Color::YELLOW, Color::GREEN]),
             self.state.energy,
-            self.state.config.max_energy,
+            self.state.vehicle.max_energy,
         );
         self.status_panel.replace(ctx, "energy", energy_bar);
     }
@@ -135,9 +137,9 @@ impl State<SimpleApp> for Game {
         }
 
         let speed = if self.state.has_energy() {
-            self.state.config.normal_speed
+            self.state.vehicle.normal_speed
         } else {
-            self.state.config.tired_speed
+            self.state.vehicle.tired_speed
         };
         for b in self.player.update_with_speed(ctx, app, speed) {
             match self.state.bldgs.buildings[&b] {
@@ -156,7 +158,7 @@ impl State<SimpleApp> for Game {
                     }
                 }
                 BldgState::Store => {
-                    let refill = self.state.config.max_energy - self.state.energy;
+                    let refill = self.state.vehicle.max_energy - self.state.energy;
                     if refill > 0 {
                         self.state.energy += refill;
                         self.animator.add(
@@ -239,7 +241,7 @@ impl State<SimpleApp> for Game {
         g.redraw(&self.state.draw_done_houses);
 
         if true {
-            GeomBatch::load_svg(g.prerender, "system/assets/characters/santa.svg")
+            GeomBatch::load_svg(g.prerender, &self.state.vehicle.animate(self.time))
                 .scale(0.1)
                 .centered_on(self.player.get_pos())
                 .rotate_around_batch_center(self.player.get_angle())
@@ -261,7 +263,8 @@ impl State<SimpleApp> for Game {
 }
 
 struct GameState {
-    config: Config,
+    level: Level,
+    vehicle: Vehicle,
     bldgs: Buildings,
 
     // Number of deliveries
@@ -274,10 +277,17 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut EventCtx, app: &SimpleApp, config: Config, bldgs: Buildings) -> GameState {
-        let energy = config.max_energy;
+    fn new(
+        ctx: &mut EventCtx,
+        app: &SimpleApp,
+        level: Level,
+        vehicle: Vehicle,
+        bldgs: Buildings,
+    ) -> GameState {
+        let energy = vehicle.max_energy;
         let mut s = GameState {
-            config,
+            level,
+            vehicle,
             bldgs,
 
             score: 0,

@@ -1,5 +1,4 @@
 use abstutil::MapName;
-use geom::Speed;
 use map_gui::tools::{open_browser, PopupMsg};
 use map_gui::SimpleApp;
 use map_model::osm;
@@ -9,53 +8,41 @@ use widgetry::{
 };
 
 #[derive(Clone)]
-pub struct Config {
+pub struct Level {
     pub title: &'static str,
     pub map: MapName,
     pub start: osm::NodeID,
     pub minimap_zoom: usize,
     pub num_upzones: usize,
-
-    pub normal_speed: Speed,
-    pub tired_speed: Speed,
-    pub max_energy: usize,
+    pub vehicles: Vec<&'static str>,
 }
 
 // TODO Like Challenge::all; cache with lazy static?
-fn all_levels() -> Vec<Config> {
+fn all_levels() -> Vec<Level> {
     vec![
-        Config {
+        Level {
             title: "Level 1 - a small neighborhood",
             map: MapName::seattle("montlake"),
             start: osm::NodeID(53084814),
             minimap_zoom: 1,
             num_upzones: 0,
-
-            normal_speed: Speed::miles_per_hour(30.0),
-            tired_speed: Speed::miles_per_hour(10.0),
-            max_energy: 80,
+            vehicles: vec!["sleigh"],
         },
-        Config {
+        Level {
             title: "Level 2 - a small neighborhood with upzones",
             map: MapName::seattle("montlake"),
             start: osm::NodeID(53084814),
             minimap_zoom: 1,
             num_upzones: 3,
-
-            normal_speed: Speed::miles_per_hour(30.0),
-            tired_speed: Speed::miles_per_hour(10.0),
-            max_energy: 80,
+            vehicles: vec!["bike", "cargo bike", "sleigh"],
         },
-        Config {
+        Level {
             title: "Level 3 - Magnolia",
             map: MapName::seattle("ballard"),
             start: osm::NodeID(53117102),
             minimap_zoom: 2,
             num_upzones: 5,
-
-            normal_speed: Speed::miles_per_hour(40.0),
-            tired_speed: Speed::miles_per_hour(15.0),
-            max_energy: 100,
+            vehicles: vec!["bike", "cargo bike", "sleigh"],
         },
     ]
 }
