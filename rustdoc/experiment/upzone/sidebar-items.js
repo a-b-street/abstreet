@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Picker",""]]});
+initSidebarItems({"constant":[["ZOOM",""]],"struct":[["Picker",""]]});
