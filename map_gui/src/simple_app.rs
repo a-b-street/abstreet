@@ -11,20 +11,27 @@ use crate::render::{DrawOptions, Renderable};
 use crate::{AppLike, ID};
 
 /// Simple app state that just renders a static map, without any dynamic agents on the map.
-pub struct SimpleApp {
+pub struct SimpleApp<T> {
     pub map: Map,
     pub draw_map: DrawMap,
     pub cs: ColorScheme,
     pub opts: Options,
     pub current_selection: Option<ID>,
+    /// Custom per-app state can be stored here
+    pub session: T,
 }
 
-impl SimpleApp {
-    pub fn new(ctx: &mut EventCtx, args: CmdArgs) -> SimpleApp {
-        SimpleApp::new_with_opts(ctx, args, Options::default())
+impl<T> SimpleApp<T> {
+    pub fn new(ctx: &mut EventCtx, args: CmdArgs, session: T) -> SimpleApp<T> {
+        SimpleApp::new_with_opts(ctx, args, Options::default(), session)
     }
 
-    pub fn new_with_opts(ctx: &mut EventCtx, mut args: CmdArgs, mut opts: Options) -> SimpleApp {
+    pub fn new_with_opts(
+        ctx: &mut EventCtx,
+        mut args: CmdArgs,
+        mut opts: Options,
+        session: T,
+    ) -> SimpleApp<T> {
         ctx.loading_screen("load map", |ctx, mut timer| {
             opts.update_from_args(&mut args);
             let map_path = args
@@ -42,6 +49,7 @@ impl SimpleApp {
                 cs,
                 opts,
                 current_selection: None,
+                session,
             }
         })
     }
@@ -189,7 +197,7 @@ impl SimpleApp {
     }
 }
 
-impl AppLike for SimpleApp {
+impl<T> AppLike for SimpleApp<T> {
     #[inline]
     fn map(&self) -> &Map {
         &self.map
@@ -244,7 +252,7 @@ impl AppLike for SimpleApp {
         pt: Pt2D,
         target_cam_zoom: Option<f64>,
         _: Option<ID>,
-    ) -> Box<dyn State<SimpleApp>> {
+    ) -> Box<dyn State<SimpleApp<T>>> {
         Box::new(SimpleWarper {
             warper: Warper::new(ctx, pt, target_cam_zoom),
         })
@@ -264,7 +272,7 @@ impl AppLike for SimpleApp {
     }
 }
 
-impl SharedAppState for SimpleApp {
+impl<T> SharedAppState for SimpleApp<T> {
     fn draw_default(&self, g: &mut GfxCtx) {
         self.draw_with_opts(g, DrawOptions::new());
     }
@@ -282,8 +290,8 @@ struct SimpleWarper {
     warper: Warper,
 }
 
-impl State<SimpleApp> for SimpleWarper {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut SimpleApp) -> Transition<SimpleApp> {
+impl<T> State<SimpleApp<T>> for SimpleWarper {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut SimpleApp<T>) -> Transition<SimpleApp<T>> {
         if self.warper.event(ctx) {
             Transition::Keep
         } else {
@@ -291,7 +299,7 @@ impl State<SimpleApp> for SimpleWarper {
         }
     }
 
-    fn draw(&self, _: &mut GfxCtx, _: &SimpleApp) {}
+    fn draw(&self, _: &mut GfxCtx, _: &SimpleApp<T>) {}
 }
 
 /// Store a cached key/value pair, only recalculating when the key changes.

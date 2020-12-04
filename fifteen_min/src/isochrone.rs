@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use abstutil::MultiMap;
 use geom::{Duration, Polygon};
 use map_gui::tools::{amenity_type, Grid};
-use map_gui::SimpleApp;
 use map_model::{connectivity, BuildingID, Map, Path, PathConstraints, PathRequest};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
+
+use crate::App;
 
 /// Represents the area reachable from a single building.
 pub struct Isochrone {
@@ -24,7 +25,7 @@ pub struct Isochrone {
 impl Isochrone {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         start: BuildingID,
         constraints: PathConstraints,
     ) -> Isochrone {
@@ -57,10 +58,7 @@ impl Isochrone {
     }
 }
 
-fn draw_isochrone(
-    app: &SimpleApp,
-    time_to_reach_building: &HashMap<BuildingID, Duration>,
-) -> GeomBatch {
+fn draw_isochrone(app: &App, time_to_reach_building: &HashMap<BuildingID, Duration>) -> GeomBatch {
     // To generate the polygons covering areas between 0-5 mins, 5-10 mins, etc, we have to feed
     // in a 2D grid of costs. Use a 100x100 meter resolution.
     let bounds = app.map.get_bounds();

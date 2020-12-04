@@ -2,17 +2,18 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use map_gui::load::MapLoader;
-use map_gui::{SimpleApp, ID};
+use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
     Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    Text, TextExt, Transition, VerticalAlignment, Widget,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
 use crate::game::Game;
 use crate::levels::Level;
 use crate::vehicles::Vehicle;
+use crate::{App, Transition};
 
 const ZOOM: f64 = 2.0;
 
@@ -24,7 +25,7 @@ pub struct Picker {
 }
 
 impl Picker {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, level: Level) -> Box<dyn State<SimpleApp>> {
+    pub fn new(ctx: &mut EventCtx, app: &App, level: Level) -> Box<dyn State<App>> {
         MapLoader::new(
             ctx,
             app,
@@ -89,8 +90,8 @@ impl Picker {
     }
 }
 
-impl State<SimpleApp> for Picker {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
+impl State<App> for Picker {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
@@ -132,7 +133,7 @@ impl State<SimpleApp> for Picker {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         g.redraw(&self.bldgs.draw_all);
         for b in &self.current_picks {

@@ -3,11 +3,10 @@ use std::collections::HashSet;
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::tools::{ChooseSomething, ColorLegend, SimpleMinimap};
-use map_gui::SimpleApp;
 use map_model::BuildingID;
 use widgetry::{
     Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
+    Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::after_level::Results;
@@ -17,6 +16,7 @@ use crate::levels::Level;
 use crate::meters::{custom_bar, make_bar};
 use crate::movement::Player;
 use crate::vehicles::Vehicle;
+use crate::{App, Transition};
 
 const ACQUIRE_BOOST_RATE: f64 = 0.5;
 const BOOST_SPEED_MULTIPLIER: f64 = 2.0;
@@ -39,11 +39,11 @@ pub struct Game {
 impl Game {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         level: Level,
         vehicle: Vehicle,
         upzones: HashSet<BuildingID>,
-    ) -> Box<dyn State<SimpleApp>> {
+    ) -> Box<dyn State<App>> {
         let title_panel = Panel::new(Widget::row(vec![
             Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", Key::Escape),
             "15 min Santa".draw_text(ctx),
@@ -153,8 +153,8 @@ impl Game {
     }
 }
 
-impl State<SimpleApp> for Game {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
+impl State<App> for Game {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             self.time += dt;
 
@@ -301,7 +301,7 @@ impl State<SimpleApp> for Game {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.title_panel.draw(g);
         self.status_panel.draw(g);
         self.time_panel.draw(g);
@@ -364,7 +364,7 @@ struct GameState {
 impl GameState {
     fn new(
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         level: Level,
         vehicle: Vehicle,
         bldgs: Buildings,
@@ -386,7 +386,7 @@ impl GameState {
         s
     }
 
-    fn recalc_deliveries(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
+    fn recalc_deliveries(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut batch = GeomBatch::new();
         for (b, state) in &self.bldgs.buildings {
             if let BldgState::Done = state {
@@ -398,12 +398,7 @@ impl GameState {
     }
 
     // If something changed, return the update to the score
-    fn present_dropped(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &SimpleApp,
-        id: BuildingID,
-    ) -> Option<usize> {
+    fn present_dropped(&mut self, ctx: &mut EventCtx, app: &App, id: BuildingID) -> Option<usize> {
         if !self.has_energy() {
             return None;
         }
@@ -442,7 +437,7 @@ impl EnergylessArrow {
     fn update(
         &mut self,
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         time: Time,
         sleigh: Pt2D,
         all_stores: Vec<BuildingID>,

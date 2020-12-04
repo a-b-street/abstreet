@@ -25,7 +25,7 @@ pub struct SimpleMinimap {
 }
 
 impl SimpleMinimap {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, with_zorder: bool) -> SimpleMinimap {
+    pub fn new<T>(ctx: &mut EventCtx, app: &SimpleApp<T>, with_zorder: bool) -> SimpleMinimap {
         // Initially pick a zoom to fit the smaller of the entire map's width or height in the
         // minimap. Arbitrary and probably pretty weird.
         let bounds = app.map.get_bounds();
@@ -49,7 +49,7 @@ impl SimpleMinimap {
         m
     }
 
-    pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &SimpleApp) {
+    pub fn recreate_panel<T>(&mut self, ctx: &mut EventCtx, app: &SimpleApp<T>) {
         if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             self.panel = Panel::empty(ctx);
             return;
@@ -138,7 +138,7 @@ impl SimpleMinimap {
         (pct_x, pct_y)
     }
 
-    pub fn set_zoom(&mut self, ctx: &mut EventCtx, app: &SimpleApp, zoom_lvl: usize) {
+    pub fn set_zoom<T>(&mut self, ctx: &mut EventCtx, app: &SimpleApp<T>, zoom_lvl: usize) {
         // Make the frame wind up in the same relative position on the minimap
         let (pct_x, pct_y) = self.map_to_minimap_pct(ctx.canvas.center_to_map_pt());
 
@@ -154,7 +154,7 @@ impl SimpleMinimap {
         self.offset_y = map_center.y() * self.zoom - pct_y * inner_rect.height();
     }
 
-    fn recenter(&mut self, ctx: &EventCtx, app: &SimpleApp) {
+    fn recenter<T>(&mut self, ctx: &EventCtx, app: &SimpleApp<T>) {
         // Recenter the minimap on the screen bounds
         let map_center = ctx.canvas.center_to_map_pt();
         let rect = self.panel.rect_of("minimap");
@@ -169,11 +169,11 @@ impl SimpleMinimap {
         self.offset_y = off_y.max(0.0).min(bounds.max_y * self.zoom - rect.height());
     }
 
-    pub fn event(
+    pub fn event<T: 'static>(
         &mut self,
         ctx: &mut EventCtx,
-        app: &mut SimpleApp,
-    ) -> Option<Transition<SimpleApp>> {
+        app: &mut SimpleApp<T>,
+    ) -> Option<Transition<SimpleApp<T>>> {
         let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
         if zoomed != self.zoomed {
             let just_zoomed_in = zoomed && !self.zoomed;
@@ -303,11 +303,16 @@ impl SimpleMinimap {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
+    pub fn draw<T>(&self, g: &mut GfxCtx, app: &SimpleApp<T>) {
         self.draw_with_extra_layers(g, app, Vec::new());
     }
 
-    pub fn draw_with_extra_layers(&self, g: &mut GfxCtx, app: &SimpleApp, extra: Vec<&Drawable>) {
+    pub fn draw_with_extra_layers<T>(
+        &self,
+        g: &mut GfxCtx,
+        app: &SimpleApp<T>,
+        extra: Vec<&Drawable>,
+    ) {
         self.panel.draw(g);
         if !self.zoomed {
             return;

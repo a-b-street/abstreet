@@ -13,6 +13,8 @@ use widgetry::{
     Line, Menu, Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
+type App = SimpleApp<()>;
+
 pub struct ParkingMapper {
     panel: Panel,
     draw_layer: Drawable,
@@ -41,16 +43,16 @@ pub enum Value {
 }
 
 impl ParkingMapper {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         ParkingMapper::make(ctx, app, Show::TODO, BTreeMap::new())
     }
 
     fn make(
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         show: Show,
         data: BTreeMap<WayID, Value>,
-    ) -> Box<dyn State<SimpleApp>> {
+    ) -> Box<dyn State<App>> {
         let map = &app.map;
 
         let color = match show {
@@ -189,8 +191,8 @@ impl ParkingMapper {
     }
 }
 
-impl State<SimpleApp> for ParkingMapper {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
+impl State<App> for ParkingMapper {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         let map = &app.map;
 
         ctx.canvas_movement();
@@ -371,7 +373,7 @@ impl State<SimpleApp> for ParkingMapper {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.draw_layer);
         if let Some((_, ref roads)) = self.selected {
             g.redraw(roads);
@@ -391,11 +393,11 @@ struct ChangeWay {
 impl ChangeWay {
     fn new(
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         selected: &HashSet<RoadID>,
         show: Show,
         data: BTreeMap<WayID, Value>,
-    ) -> Box<dyn State<SimpleApp>> {
+    ) -> Box<dyn State<App>> {
         let map = &app.map;
         let osm_way_id = map
             .get_r(*selected.iter().next().unwrap())
@@ -453,8 +455,8 @@ impl ChangeWay {
     }
 }
 
-impl State<SimpleApp> for ChangeWay {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
+impl State<App> for ChangeWay {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         ctx.canvas_movement();
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -493,7 +495,7 @@ impl State<SimpleApp> for ChangeWay {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.draw);
         self.panel.draw(g);
     }
@@ -597,7 +599,7 @@ fn generate_osmc(
     Ok(())
 }
 
-fn find_divided_highways(app: &SimpleApp) -> HashSet<RoadID> {
+fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let map = &app.map;
     let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
     // TODO Consider not even filtering by oneway. I keep finding mistakes where people split a
@@ -640,7 +642,7 @@ fn find_divided_highways(app: &SimpleApp) -> HashSet<RoadID> {
 }
 
 // TODO Lots of false positives here... why?
-fn find_overlapping_stuff(app: &SimpleApp, timer: &mut Timer) -> Vec<Polygon> {
+fn find_overlapping_stuff(app: &App, timer: &mut Timer) -> Vec<Polygon> {
     let map = &app.map;
     let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
     for r in map.all_roads() {

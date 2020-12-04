@@ -2,11 +2,12 @@ use std::collections::{HashMap, HashSet};
 
 use abstutil::MultiMap;
 use geom::{Angle, Circle, Distance, Pt2D, Speed};
-use map_gui::{SimpleApp, ID};
+use map_gui::ID;
 use map_model::{BuildingID, Direction, IntersectionID, LaneType, RoadID};
 use widgetry::EventCtx;
 
 use crate::controls::InstantController;
+use crate::App;
 
 pub const ZOOM: f64 = 10.0;
 
@@ -19,7 +20,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, start: IntersectionID) -> Player {
+    pub fn new(ctx: &mut EventCtx, app: &App, start: IntersectionID) -> Player {
         ctx.canvas.cam_zoom = ZOOM;
         let pos = app.map.get_i(start).polygon.center();
         ctx.canvas.center_on_map_pt(pos);
@@ -37,7 +38,7 @@ impl Player {
     pub fn update_with_speed(
         &mut self,
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         speed: Speed,
     ) -> Vec<BuildingID> {
         let (dx, dy) = self.controls.displacement(ctx, speed);
@@ -52,7 +53,7 @@ impl Player {
     fn apply_displacement(
         &mut self,
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         dx: f64,
         dy: f64,
         recurse: bool,
@@ -144,7 +145,7 @@ impl Player {
     }
 
     /// Is the player currently on a road with a bus or bike lane?
-    pub fn on_good_road(&self, app: &SimpleApp) -> bool {
+    pub fn on_good_road(&self, app: &App) -> bool {
         if let On::Road(r, _) = self.on {
             for (_, _, lt) in app.map.get_r(r).lanes_ltr() {
                 if lt == LaneType::Biking || lt == LaneType::Bus {
@@ -164,7 +165,7 @@ enum On {
 }
 
 impl On {
-    fn get_connections(&self, app: &SimpleApp) -> (HashSet<RoadID>, HashSet<IntersectionID>) {
+    fn get_connections(&self, app: &App) -> (HashSet<RoadID>, HashSet<IntersectionID>) {
         let mut valid_roads = HashSet::new();
         let mut valid_intersections = HashSet::new();
         match self {
@@ -198,7 +199,7 @@ struct BuildingsAlongRoad {
 }
 
 impl BuildingsAlongRoad {
-    fn new(app: &SimpleApp) -> BuildingsAlongRoad {
+    fn new(app: &App) -> BuildingsAlongRoad {
         let mut raw: MultiMap<RoadID, (Distance, BuildingID)> = MultiMap::new();
         for b in app.map.all_buildings() {
             // TODO Happily assuming road and lane length is roughly the same

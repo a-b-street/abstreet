@@ -1,8 +1,9 @@
 use std::collections::{HashMap, HashSet};
 
-use map_gui::SimpleApp;
 use map_model::{BuildingID, BuildingType};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, Line, Text};
+
+use crate::App;
 
 pub struct Buildings {
     // Every building in the map is here, to simplify lookup logic.
@@ -23,7 +24,7 @@ pub enum BldgState {
 }
 
 impl Buildings {
-    pub fn new(ctx: &mut EventCtx, app: &SimpleApp, upzones: HashSet<BuildingID>) -> Buildings {
+    pub fn new(ctx: &mut EventCtx, app: &App, upzones: HashSet<BuildingID>) -> Buildings {
         let house_color = app.cs.residential_building;
         let apartment_color = Color::CYAN;
         let store_color = Color::YELLOW;

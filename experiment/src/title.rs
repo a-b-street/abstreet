@@ -1,18 +1,17 @@
 use map_gui::tools::{open_browser, PopupMsg};
-use map_gui::SimpleApp;
 use widgetry::{
-    Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Transition,
-    Widget,
+    Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget,
 };
 
 use crate::levels::Level;
+use crate::{App, Transition};
 
 pub struct TitleScreen {
     panel: Panel,
 }
 
 impl TitleScreen {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<SimpleApp>> {
+    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let levels = Level::all();
 
         Box::new(TitleScreen {
@@ -47,8 +46,8 @@ impl TitleScreen {
     }
 }
 
-impl State<SimpleApp> for TitleScreen {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
+impl State<App> for TitleScreen {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
@@ -102,7 +101,7 @@ impl State<SimpleApp> for TitleScreen {
         DrawBaselayer::Custom
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &SimpleApp) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
     }

@@ -6,7 +6,7 @@
 
 use geom::{Distance, Pt2D};
 use map_gui::tools::{amenity_type, nice_map_name, CityPicker, PopupMsg};
-use map_gui::{Cached, SimpleApp, ID};
+use map_gui::{Cached, ID};
 use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -14,6 +14,7 @@ use widgetry::{
 };
 
 use crate::isochrone::Isochrone;
+use crate::App;
 
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
 pub struct Viewer {
@@ -26,17 +27,13 @@ pub struct Viewer {
 
 impl Viewer {
     /// Start with a random building
-    pub fn random_start(ctx: &mut EventCtx, app: &SimpleApp) -> Box<dyn State<SimpleApp>> {
+    pub fn random_start(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let bldgs = app.map.all_buildings();
         let start = bldgs[bldgs.len() / 2].id;
         Viewer::new(ctx, app, start)
     }
 
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &SimpleApp,
-        start: BuildingID,
-    ) -> Box<dyn State<SimpleApp>> {
+    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         let constraints = PathConstraints::Pedestrian;
         let start = app.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, start.id, constraints);
@@ -52,8 +49,8 @@ impl Viewer {
     }
 }
 
-impl State<SimpleApp> for Viewer {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
+impl State<App> for Viewer {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         // Allow panning and zooming
         ctx.canvas_movement();
 
@@ -155,7 +152,7 @@ impl State<SimpleApp> for Viewer {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.isochrone.draw);
         g.redraw(&self.highlight_start);
         self.panel.draw(g);
@@ -175,12 +172,7 @@ fn draw_star(ctx: &mut EventCtx, center: Pt2D) -> Drawable {
     )
 }
 
-fn build_panel(
-    ctx: &mut EventCtx,
-    app: &SimpleApp,
-    start: &Building,
-    isochrone: &Isochrone,
-) -> Panel {
+fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
     let mut rows = Vec::new();
 
     rows.push(Widget::row(vec![
@@ -236,7 +228,7 @@ struct HoverOnBuilding {
 type HoverKey = (BuildingID, f64);
 
 impl HoverOnBuilding {
-    fn key(ctx: &EventCtx, app: &SimpleApp) -> Option<HoverKey> {
+    fn key(ctx: &EventCtx, app: &App) -> Option<HoverKey> {
         match app.mouseover_unzoomed_buildings(ctx) {
             Some(ID::Building(b)) => {
                 let scale_factor = if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
@@ -252,7 +244,7 @@ impl HoverOnBuilding {
 
     fn value(
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &App,
         key: HoverKey,
         isochrone: &Isochrone,
     ) -> HoverOnBuilding {

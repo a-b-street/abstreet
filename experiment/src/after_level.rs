@@ -1,12 +1,11 @@
 use abstutil::prettyprint_usize;
-use map_gui::SimpleApp;
 use widgetry::{
-    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, Transition,
+    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
 };
 
 use crate::levels::Level;
-use crate::session::Session;
+use crate::{App, Transition};
 
 const ZOOM: f64 = 2.0;
 
@@ -20,16 +19,14 @@ pub struct Results {
 impl Results {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &SimpleApp,
+        app: &mut App,
         score: usize,
         level: &Level,
-    ) -> Box<dyn State<SimpleApp>> {
+    ) -> Box<dyn State<App>> {
         ctx.canvas.cam_zoom = ZOOM;
         ctx.canvas.center_on_map_pt(app.map.get_bounds().center());
 
-        // TODO Store in app
-        let mut session = Session::new();
-        session.record_score(level.title, score);
+        app.session.record_score(level.title, score);
 
         let mut txt = Text::new();
         txt.add(Line(format!("Results for {}", level.title)).small_heading());
@@ -41,7 +38,7 @@ impl Results {
         )));
         txt.add(Line(""));
         txt.add(Line("High scores:"));
-        for (idx, score) in session.high_scores[level.title].iter().enumerate() {
+        for (idx, score) in app.session.high_scores[level.title].iter().enumerate() {
             txt.add(Line(format!("{}) {}", idx + 1, prettyprint_usize(*score))));
         }
 
@@ -55,8 +52,8 @@ impl Results {
     }
 }
 
-impl State<SimpleApp> for Results {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut SimpleApp) -> Transition<SimpleApp> {
+impl State<App> for Results {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
 
         match self.panel.event(ctx) {
@@ -72,7 +69,7 @@ impl State<SimpleApp> for Results {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &SimpleApp) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
     }
 }
