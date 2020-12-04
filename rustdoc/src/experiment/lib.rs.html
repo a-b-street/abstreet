@@ -35,6 +35,14 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
@@ -52,11 +60,19 @@
 <span class="kw">mod</span> <span class="ident">title</span>;
 <span class="kw">mod</span> <span class="ident">vehicles</span>;
 
+<span class="kw">type</span> <span class="ident">App</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">session</span>::<span class="ident">Session</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">Transition</span> <span class="op">=</span> <span class="ident">widgetry</span>::<span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span>;
+
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;experiment&quot;</span>), <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>::<span class="ident">default</span>();
         <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>;
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>::<span class="ident">new_with_opts</span>(<span class="ident">ctx</span>, <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>(), <span class="ident">opts</span>);
+        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>::<span class="ident">new_with_opts</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>(),
+            <span class="ident">opts</span>,
+            <span class="ident">session</span>::<span class="ident">Session</span>::<span class="ident">new</span>(),
+        );
         <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">title</span>::<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)];
         (<span class="ident">app</span>, <span class="ident">states</span>)
     });
