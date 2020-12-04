@@ -2,11 +2,10 @@ use abstutil::prettyprint_usize;
 use geom::Polygon;
 use widgetry::{Color, EventCtx, GeomBatch, Line, Text, Widget};
 
-pub fn make_bar(ctx: &mut EventCtx, filled_color: Color, value: usize, max: usize) -> Widget {
+pub fn custom_bar(ctx: &mut EventCtx, filled_color: Color, pct_full: f64, txt: Text) -> Widget {
     let total_width = 300.0;
     let height = 32.0;
     let radius = Some(4.0);
-    let pct_full = (value as f64) / (max as f64);
 
     let mut batch = GeomBatch::new();
     // Background
@@ -19,13 +18,18 @@ pub fn make_bar(ctx: &mut EventCtx, filled_color: Color, value: usize, max: usiz
         batch.push(filled_color, poly);
     }
     // Text
-    let label = Text::from(Line(format!(
-        "{} / {}",
-        prettyprint_usize(value),
-        prettyprint_usize(max)
-    )))
-    .render_to_batch(ctx.prerender);
+    let label = txt.render_to_batch(ctx.prerender);
     let dims = label.get_dims();
     batch.append(label.translate(10.0, height / 2.0 - dims.height / 2.0));
     Widget::draw_batch(ctx, batch)
+}
+
+pub fn make_bar(ctx: &mut EventCtx, filled_color: Color, value: usize, max: usize) -> Widget {
+    let pct_full = (value as f64) / (max as f64);
+    let txt = Text::from(Line(format!(
+        "{} / {}",
+        prettyprint_usize(value),
+        prettyprint_usize(max)
+    )));
+    custom_bar(ctx, filled_color, pct_full, txt)
 }

@@ -13,14 +13,18 @@ use widgetry::{
 use crate::animation::{Animator, SnowEffect};
 use crate::buildings::{BldgState, Buildings};
 use crate::levels::Level;
-use crate::meters::make_bar;
+use crate::meters::{custom_bar, make_bar};
 use crate::movement::Player;
 use crate::vehicles::Vehicle;
+
+const ACQUIRE_BOOST_RATE: f64 = 0.5;
+const BOOST_SPEED_MULTIPLIER: f64 = 1.5;
 
 pub struct Game {
     title_panel: Panel,
     status_panel: Panel,
     time_panel: Panel,
+    boost_panel: Panel,
     minimap: SimpleMinimap,
 
     animator: Animator,
@@ -71,6 +75,15 @@ impl Game {
         .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
         .build(ctx);
 
+        let boost_panel = Panel::new(Widget::row(vec![
+            "Boost".draw_text(ctx),
+            Widget::draw_batch(ctx, GeomBatch::new())
+                .named("boost")
+                .align_right(),
+        ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::BottomInset)
+        .build(ctx);
+
         let start = app
             .map
             .find_i_by_osm_id(level.start)
@@ -85,6 +98,7 @@ impl Game {
             title_panel,
             status_panel,
             time_panel,
+            boost_panel,
             minimap: SimpleMinimap::new(ctx, app, with_zorder),
 
             animator: Animator::new(ctx),
@@ -119,6 +133,18 @@ impl Game {
             self.state.vehicle.max_energy,
         );
         self.status_panel.replace(ctx, "energy", energy_bar);
+
+        let boost_bar = custom_bar(
+            ctx,
+            Color::hex("#A32015"),
+            self.state.boost / self.state.vehicle.max_boost,
+            if self.state.boost == Duration::ZERO {
+                Text::from(Line("Find a bike or bus lane to get a boost"))
+            } else {
+                Text::from(Line("Press space to boost"))
+            },
+        );
+        self.boost_panel.replace(ctx, "boost", boost_bar);
     }
 }
 
@@ -128,11 +154,21 @@ impl State<SimpleApp> for Game {
             self.time += dt;
         }
 
-        let speed = if self.state.has_energy() {
+        let base_speed = if self.state.has_energy() {
             self.state.vehicle.normal_speed
         } else {
             self.state.vehicle.tired_speed
         };
+        let speed = if ctx.is_key_down(Key::Space) && self.state.boost > Duration::ZERO {
+            if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+                self.state.boost -= dt;
+                self.state.boost = self.state.boost.max(Duration::ZERO);
+            }
+            base_speed * BOOST_SPEED_MULTIPLIER
+        } else {
+            base_speed
+        };
+
         for b in self.player.update_with_speed(ctx, app, speed) {
             match self.state.bldgs.buildings[&b] {
                 BldgState::Undelivered(_) => {
@@ -166,6 +202,12 @@ impl State<SimpleApp> for Game {
                     }
                 }
                 BldgState::Done => {}
+            }
+        }
+        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+            if self.player.on_good_road(app) {
+                self.state.boost += dt * ACQUIRE_BOOST_RATE;
+                self.state.boost = self.state.boost.min(self.state.vehicle.max_boost);
             }
         }
 
@@ -222,6 +264,7 @@ impl State<SimpleApp> for Game {
         self.title_panel.draw(g);
         self.status_panel.draw(g);
         self.time_panel.draw(g);
+        self.boost_panel.draw(g);
 
         let santa_tracker = g.upload(GeomBatch::from(vec![(
             Color::RED,
@@ -271,6 +314,7 @@ struct GameState {
     score: usize,
     // Number of gifts currently being carried
     energy: usize,
+    boost: Duration,
 
     draw_done_houses: Drawable,
     energyless_arrow: Option<EnergylessArrow>,
@@ -292,6 +336,7 @@ impl GameState {
 
             score: 0,
             energy,
+            boost: Duration::ZERO,
 
             draw_done_houses: Drawable::empty(ctx),
             energyless_arrow: None,

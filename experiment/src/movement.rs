@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::MultiMap;
 use geom::{Angle, Circle, Distance, Pt2D, Speed};
 use map_gui::{SimpleApp, ID};
-use map_model::{BuildingID, Direction, IntersectionID, RoadID};
+use map_model::{BuildingID, Direction, IntersectionID, LaneType, RoadID};
 use widgetry::EventCtx;
 
 use crate::controls::InstantController;
@@ -133,6 +133,18 @@ impl Player {
 
     pub fn get_angle(&self) -> Angle {
         self.controls.facing
+    }
+
+    /// Is the player currently on a road with a bus or bike lane?
+    pub fn on_good_road(&self, app: &SimpleApp) -> bool {
+        if let On::Road(r, _) = self.on {
+            for (_, _, lt) in app.map.get_r(r).lanes_ltr() {
+                if lt == LaneType::Biking || lt == LaneType::Bus {
+                    return true;
+                }
+            }
+        }
+        false
     }
 }
 
