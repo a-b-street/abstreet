@@ -451,6 +451,33 @@
 <span id="448">448</span>
 <span id="449">449</span>
 <span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -465,7 +492,7 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">after_level</span>::<span class="ident">Results</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">SnowEffect</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">Effect</span>, <span class="ident">SnowEffect</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">buildings</span>::{<span class="ident">BldgState</span>, <span class="ident">Buildings</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Level</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">meters</span>::{<span class="ident">custom_bar</span>, <span class="ident">make_bar</span>};
@@ -641,15 +668,27 @@
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">bldgs</span>.<span class="ident">buildings</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>] {
                 <span class="ident">BldgState</span>::<span class="ident">Undelivered</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">increase</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">present_dropped</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">b</span>) {
+                        <span class="kw">let</span> <span class="ident">path_speed</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.2</span>);
                         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
                             <span class="self">self</span>.<span class="ident">time</span>,
+                            <span class="ident">path_speed</span>,
+                            <span class="ident">Effect</span>::<span class="ident">FollowPath</span> {
+                                <span class="ident">color</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#83AA51&quot;</span>),
+                                <span class="ident">width</span>: <span class="ident">map_model</span>::<span class="ident">NORMAL_LANE_THICKNESS</span>,
+                                <span class="ident">pl</span>: <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>.<span class="ident">reversed</span>(),
+                            },
+                        );
+                        <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
+                            <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span> <span class="ident">path_speed</span>,
                             <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.5</span>),
-                            (<span class="number">1.0</span>, <span class="number">4.0</span>),
-                            <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
-                            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;+{}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">increase</span>))))
-                                .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#83AA51&quot;</span>))
-                                .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
-                                .<span class="ident">scale</span>(<span class="number">0.1</span>),
+                            <span class="ident">Effect</span>::<span class="ident">Scale</span> {
+                                <span class="ident">lerp_scale</span>: (<span class="number">1.0</span>, <span class="number">4.0</span>),
+                                <span class="ident">center</span>: <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
+                                <span class="ident">orig</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;+{}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">increase</span>))))
+                                    .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#83AA51&quot;</span>))
+                                    .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
+                                    .<span class="ident">scale</span>(<span class="number">0.1</span>),
+                            },
                         );
                     }
                 }
@@ -657,15 +696,30 @@
                     <span class="kw">let</span> <span class="ident">refill</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">max_energy</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span>;
                     <span class="kw">if</span> <span class="ident">refill</span> <span class="op">&gt;</span> <span class="number">0</span> {
                         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span> <span class="op">+</span><span class="op">=</span> <span class="ident">refill</span>;
+                        <span class="kw">let</span> <span class="ident">path_speed</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.2</span>);
                         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
                             <span class="self">self</span>.<span class="ident">time</span>,
+                            <span class="ident">path_speed</span>,
+                            <span class="ident">Effect</span>::<span class="ident">FollowPath</span> {
+                                <span class="ident">color</span>: <span class="ident">Color</span>::<span class="ident">BLUE</span>,
+                                <span class="ident">width</span>: <span class="ident">map_model</span>::<span class="ident">NORMAL_LANE_THICKNESS</span>,
+                                <span class="ident">pl</span>: <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>.<span class="ident">clone</span>(),
+                            },
+                        );
+                        <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
+                            <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span> <span class="ident">path_speed</span>,
                             <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.5</span>),
-                            (<span class="number">1.0</span>, <span class="number">4.0</span>),
-                            <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
-                            <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Refilled {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">refill</span>))))
+                            <span class="ident">Effect</span>::<span class="ident">Scale</span> {
+                                <span class="ident">lerp_scale</span>: (<span class="number">1.0</span>, <span class="number">4.0</span>),
+                                <span class="ident">center</span>: <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
+                                <span class="ident">orig</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                                    <span class="string">&quot;Refilled {}&quot;</span>,
+                                    <span class="ident">prettyprint_usize</span>(<span class="ident">refill</span>)
+                                )))
                                 .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>)
                                 .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
                                 .<span class="ident">scale</span>(<span class="number">0.1</span>),
+                            },
                         );
                     }
                 }

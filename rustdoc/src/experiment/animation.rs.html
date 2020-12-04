@@ -143,25 +143,60 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Animator</span> {
-    <span class="ident">active</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Effect</span><span class="op">&gt;</span>,
+    <span class="ident">active</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Animation</span><span class="op">&gt;</span>,
     <span class="ident">draw_current</span>: <span class="ident">Drawable</span>,
 }
 
-<span class="kw">struct</span> <span class="ident">Effect</span> {
+<span class="kw">struct</span> <span class="ident">Animation</span> {
     <span class="ident">start</span>: <span class="ident">Time</span>,
     <span class="ident">end</span>: <span class="ident">Time</span>,
-    <span class="ident">orig</span>: <span class="ident">GeomBatch</span>,
-    <span class="ident">center</span>: <span class="ident">Pt2D</span>,
-    <span class="comment">// Scaling is the only transformation for now</span>
-    <span class="ident">lerp_scale</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>),
+    <span class="ident">effect</span>: <span class="ident">Effect</span>,
+}
+
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Effect</span> {
+    <span class="ident">Scale</span> {
+        <span class="ident">orig</span>: <span class="ident">GeomBatch</span>,
+        <span class="ident">center</span>: <span class="ident">Pt2D</span>,
+        <span class="ident">lerp_scale</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>),
+    },
+    <span class="ident">FollowPath</span> {
+        <span class="ident">color</span>: <span class="ident">Color</span>,
+        <span class="ident">width</span>: <span class="ident">Distance</span>,
+        <span class="ident">pl</span>: <span class="ident">PolyLine</span>,
+    },
 }
 
 <span class="kw">impl</span> <span class="ident">Animator</span> {
@@ -172,20 +207,12 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">duration</span>: <span class="ident">Duration</span>,
-        <span class="ident">lerp_scale</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>),
-        <span class="ident">center</span>: <span class="ident">Pt2D</span>,
-        <span class="ident">orig</span>: <span class="ident">GeomBatch</span>,
-    ) {
-        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">push</span>(<span class="ident">Effect</span> {
+    <span class="doccomment">/// Pass in a future value for `now` to schedule a delayed effect</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>, <span class="ident">effect</span>: <span class="ident">Effect</span>) {
+        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">push</span>(<span class="ident">Animation</span> {
             <span class="ident">start</span>: <span class="ident">now</span>,
             <span class="ident">end</span>: <span class="ident">now</span> <span class="op">+</span> <span class="ident">duration</span>,
-            <span class="ident">orig</span>,
-            <span class="ident">lerp_scale</span>,
-            <span class="ident">center</span>,
+            <span class="ident">effect</span>,
         });
     }
 
@@ -194,7 +221,18 @@
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">effect</span><span class="op">|</span> <span class="ident">effect</span>.<span class="ident">update</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>));
+        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">anim</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">now</span> <span class="op">-</span> <span class="ident">anim</span>.<span class="ident">start</span>) <span class="op">/</span> (<span class="ident">anim</span>.<span class="ident">end</span> <span class="op">-</span> <span class="ident">anim</span>.<span class="ident">start</span>);
+            <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
+                <span class="comment">// Hasn&#39;t started yet</span>
+                <span class="bool-val">true</span>
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
+                <span class="bool-val">false</span>
+            } <span class="kw">else</span> {
+                <span class="ident">anim</span>.<span class="ident">effect</span>.<span class="ident">render</span>(<span class="ident">pct</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
+                <span class="bool-val">true</span>
+            }
+        });
         <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
     }
 
@@ -204,14 +242,26 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Effect</span> {
-    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">now</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>);
-        <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pct</span>: <span class="ident">f64</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Effect</span>::<span class="ident">Scale</span> {
+                <span class="kw-2">ref</span> <span class="ident">orig</span>,
+                <span class="ident">center</span>,
+                <span class="ident">lerp_scale</span>,
+            } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">lerp_scale</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">pct</span> <span class="op">*</span> (<span class="ident">lerp_scale</span>.<span class="number">1</span> <span class="op">-</span> <span class="ident">lerp_scale</span>.<span class="number">0</span>);
+                <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">orig</span>.<span class="ident">clone</span>().<span class="ident">scale</span>(<span class="ident">scale</span>).<span class="ident">centered_on</span>(<span class="kw-2">*</span><span class="ident">center</span>));
+            }
+            <span class="ident">Effect</span>::<span class="ident">FollowPath</span> {
+                <span class="ident">color</span>,
+                <span class="ident">width</span>,
+                <span class="kw-2">ref</span> <span class="ident">pl</span>,
+            } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">pct</span> <span class="op">*</span> <span class="ident">pl</span>.<span class="ident">length</span>()) {
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">color</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="kw-2">*</span><span class="ident">width</span>));
+                }
+            }
         }
-        <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lerp_scale</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">pct</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">lerp_scale</span>.<span class="number">1</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">lerp_scale</span>.<span class="number">0</span>);
-        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="self">self</span>.<span class="ident">orig</span>.<span class="ident">clone</span>().<span class="ident">scale</span>(<span class="ident">scale</span>).<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">center</span>));
-        <span class="bool-val">true</span>
     }
 }
 

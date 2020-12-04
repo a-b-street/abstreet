@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Animator",""],["Effect",""],["SnowEffect",""],["Snowflake",""]]});
+initSidebarItems({"enum":[["Effect",""]],"struct":[["Animation",""],["Animator",""],["SnowEffect",""],["Snowflake",""]]});
