@@ -203,8 +203,44 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
@@ -265,6 +301,10 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">new_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">offset</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
 
+        <span class="comment">// Make sure we only move between roads/intersections that&#39;re actually connected. Don&#39;t</span>
+        <span class="comment">// warp to bridges/tunnels.</span>
+        <span class="kw">let</span> (<span class="ident">valid_roads</span>, <span class="ident">valid_intersections</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">on</span>.<span class="ident">get_connections</span>(<span class="ident">app</span>);
+
         <span class="comment">// Make sure we&#39;re still on the road</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">on</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>
@@ -272,13 +312,17 @@
             .<span class="ident">get_matching_objects</span>(<span class="ident">Circle</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">pos</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>)).<span class="ident">get_bounds</span>())
         {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">id</span> {
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">new_pos</span>) {
+                <span class="kw">if</span> <span class="ident">valid_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">new_pos</span>)
+                {
                     <span class="ident">on</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">On</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>));
                     <span class="kw">break</span>;
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">id</span> {
                 <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-                <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">get_thick_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>).<span class="ident">contains_pt</span>(<span class="ident">new_pos</span>) {
+                <span class="kw">if</span> <span class="ident">valid_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>)
+                    <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">is_light_rail</span>()
+                    <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">get_thick_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>).<span class="ident">contains_pt</span>(<span class="ident">new_pos</span>)
+                {
                     <span class="comment">// Where along the road are we?</span>
                     <span class="kw">let</span> <span class="ident">pt_on_center_line</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">project_pt</span>(<span class="ident">new_pos</span>);
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt_on_center_line</span>)
@@ -354,11 +398,39 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">enum</span> <span class="ident">On</span> {
     <span class="ident">Intersection</span>(<span class="ident">IntersectionID</span>),
     <span class="comment">// Distance along the center line</span>
     <span class="ident">Road</span>(<span class="ident">RoadID</span>, <span class="ident">Distance</span>),
+}
+
+<span class="kw">impl</span> <span class="ident">On</span> {
+    <span class="kw">fn</span> <span class="ident">get_connections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleApp</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">valid_roads</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">valid_intersections</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">On</span>::<span class="ident">Road</span>(<span class="ident">r</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                <span class="ident">valid_intersections</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">src_i</span>);
+                <span class="ident">valid_intersections</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">dst_i</span>);
+                <span class="comment">// Intersections might be pretty small</span>
+                <span class="ident">valid_roads</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">r</span>.<span class="ident">src_i</span>).<span class="ident">roads</span>.<span class="ident">clone</span>());
+                <span class="ident">valid_roads</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">r</span>.<span class="ident">dst_i</span>).<span class="ident">roads</span>.<span class="ident">clone</span>());
+            }
+            <span class="ident">On</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>);
+                <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
+                    <span class="ident">valid_roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                    <span class="comment">// Roads can be small</span>
+                    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                    <span class="ident">valid_intersections</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">src_i</span>);
+                    <span class="ident">valid_intersections</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">dst_i</span>);
+                }
+            }
+        }
+        (<span class="ident">valid_roads</span>, <span class="ident">valid_intersections</span>)
+    }
 }
 
 <span class="kw">struct</span> <span class="ident">BuildingsAlongRoad</span> {
