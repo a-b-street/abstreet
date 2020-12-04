@@ -1,11 +1,12 @@
 use std::collections::HashSet;
 
+use abstutil::prettyprint_usize;
 use map_gui::load::MapLoader;
 use map_gui::{SimpleApp, ID};
 use map_model::BuildingID;
 use widgetry::{
     Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    TextExt, Transition, VerticalAlignment, Widget,
+    Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
@@ -32,35 +33,49 @@ impl Picker {
                 ctx.canvas.cam_zoom = ZOOM;
                 ctx.canvas.center_on_map_pt(app.map.get_bounds().center());
 
-                // Just start playing immediately
-                if level.num_upzones == 0 {
-                    // TODO Maybe we still want to choose a vehicle
-                    let vehicle = Vehicle::get(level.vehicles[0]);
-                    return Transition::Replace(Game::new(
-                        ctx,
-                        app,
-                        level,
-                        vehicle,
-                        HashSet::new(),
-                    ));
-                }
-
                 let bldgs = Buildings::new(ctx, app, HashSet::new());
+
+                let mut txt = Text::new();
+                txt.add(Line(format!("Prepare for {}", level.title)).small_heading());
+                txt.add(Line(format!(
+                    "Goal: deliver {} presents in {}",
+                    prettyprint_usize(level.goal),
+                    level.time_limit
+                )));
+                txt.add_appended(vec![
+                    Line("Use the "),
+                    Line("arrow keys").fg(ctx.style().hotkey_color),
+                    Line(" to move"),
+                ]);
+                txt.add_appended(vec![
+                    Line("Deliver presents to "),
+                    Line("single-family homes").fg(app.cs.residential_building),
+                    Line(" and "),
+                    Line("apartments").fg(Color::CYAN),
+                ]);
+                txt.add_appended(vec![
+                    Line("Refill presents from "),
+                    Line("stores").fg(Color::YELLOW),
+                ]);
+                if level.num_upzones > 0 {
+                    txt.add(Line(format!(
+                        "Upzone power: You can select {} houses to transform into stores",
+                        level.num_upzones
+                    )));
+                }
 
                 Transition::Replace(Box::new(Picker {
                     panel: Panel::new(Widget::col(vec![
-                        Line("Upzone").small_heading().draw(ctx),
-                        format!(
-                            "You can select {} houses to transform into stores",
-                            level.num_upzones
-                        )
-                        .draw_text(ctx),
-                        Widget::dropdown(
-                            ctx,
-                            "vehicle",
-                            level.vehicles[0].to_string(),
-                            Choice::strings(level.vehicles.clone()),
-                        ),
+                        txt.draw(ctx),
+                        Widget::row(vec![
+                            "Your vehicle:".draw_text(ctx),
+                            Widget::dropdown(
+                                ctx,
+                                "vehicle",
+                                level.vehicles[0].to_string(),
+                                Choice::strings(level.vehicles.clone()),
+                            ),
+                        ]),
                         Btn::text_bg2("Start game").build_def(ctx, Key::Enter),
                     ]))
                     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

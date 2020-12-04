@@ -1,4 +1,5 @@
 use abstutil::MapName;
+use geom::Duration;
 use map_gui::tools::{open_browser, PopupMsg};
 use map_gui::SimpleApp;
 use map_model::osm;
@@ -15,6 +16,8 @@ pub struct Level {
     pub minimap_zoom: usize,
     pub num_upzones: usize,
     pub vehicles: Vec<&'static str>,
+    pub time_limit: Duration,
+    pub goal: usize,
 }
 
 // TODO Like Challenge::all; cache with lazy static?
@@ -27,6 +30,8 @@ fn all_levels() -> Vec<Level> {
             minimap_zoom: 1,
             num_upzones: 0,
             vehicles: vec!["sleigh"],
+            time_limit: Duration::minutes(1),
+            goal: 1000,
         },
         Level {
             title: "Level 2 - a small neighborhood with upzones",
@@ -35,6 +40,8 @@ fn all_levels() -> Vec<Level> {
             minimap_zoom: 1,
             num_upzones: 3,
             vehicles: vec!["bike", "cargo bike", "sleigh"],
+            time_limit: Duration::minutes(4),
+            goal: 1000,
         },
         Level {
             title: "Level 3 - Magnolia",
@@ -43,6 +50,8 @@ fn all_levels() -> Vec<Level> {
             minimap_zoom: 2,
             num_upzones: 5,
             vehicles: vec!["bike", "cargo bike", "sleigh"],
+            time_limit: Duration::minutes(5),
+            goal: 1000,
         },
     ]
 }
@@ -124,7 +133,9 @@ impl State<SimpleApp> for TitleScreen {
 
                     for lvl in all_levels() {
                         if x == lvl.title {
-                            return Transition::Push(crate::upzone::Picker::new(ctx, app, lvl));
+                            return Transition::Push(crate::before_level::Picker::new(
+                                ctx, app, lvl,
+                            ));
                         }
                     }
                     panic!("Unknown action {}", x);

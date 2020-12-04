@@ -10,6 +10,7 @@ use widgetry::{
     Outcome, Panel, State, Text, TextExt, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
+use crate::after_level::Results;
 use crate::animation::{Animator, SnowEffect};
 use crate::buildings::{BldgState, Buildings};
 use crate::levels::Level;
@@ -18,7 +19,7 @@ use crate::movement::Player;
 use crate::vehicles::Vehicle;
 
 const ACQUIRE_BOOST_RATE: f64 = 0.5;
-const BOOST_SPEED_MULTIPLIER: f64 = 1.5;
+const BOOST_SPEED_MULTIPLIER: f64 = 2.0;
 
 pub struct Game {
     title_panel: Panel,
@@ -67,7 +68,7 @@ impl Game {
         .build(ctx);
 
         let time_panel = Panel::new(Widget::row(vec![
-            "Time spent:".draw_text(ctx),
+            "Time remaining:".draw_text(ctx),
             Widget::draw_batch(ctx, GeomBatch::new())
                 .named("time")
                 .align_right(),
@@ -115,7 +116,11 @@ impl Game {
     }
 
     fn update_panels(&mut self, ctx: &mut EventCtx) {
-        let time = format!("{}", self.time - Time::START_OF_DAY).draw_text(ctx);
+        let time = format!(
+            "{}",
+            self.state.level.time_limit - (self.time - Time::START_OF_DAY)
+        )
+        .draw_text(ctx);
         self.time_panel.replace(ctx, "time", time);
 
         let score_bar = make_bar(
@@ -152,6 +157,15 @@ impl State<SimpleApp> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut SimpleApp) -> Transition<SimpleApp> {
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             self.time += dt;
+
+            if self.time - Time::START_OF_DAY >= self.state.level.time_limit {
+                return Transition::Replace(Results::new(
+                    ctx,
+                    app,
+                    self.state.score,
+                    &self.state.level,
+                ));
+            }
         }
 
         let base_speed = if self.state.has_energy() {
