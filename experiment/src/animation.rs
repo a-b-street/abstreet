@@ -1,21 +1,31 @@
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
-use geom::{Circle, Distance, Duration, Pt2D, Time};
+use geom::{Circle, Distance, Duration, PolyLine, Pt2D, Time};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 
 pub struct Animator {
-    active: Vec<Effect>,
+    active: Vec<Animation>,
     draw_current: Drawable,
 }
 
-struct Effect {
+struct Animation {
     start: Time,
     end: Time,
-    orig: GeomBatch,
-    center: Pt2D,
-    // Scaling is the only transformation for now
-    lerp_scale: (f64, f64),
+    effect: Effect,
+}
+
+pub enum Effect {
+    Scale {
+        orig: GeomBatch,
+        center: Pt2D,
+        lerp_scale: (f64, f64),
+    },
+    FollowPath {
+        color: Color,
+        width: Distance,
+        pl: PolyLine,
+    },
 }
 
 impl Animator {
@@ -26,20 +36,12 @@ impl Animator {
         }
     }
 
-    pub fn add(
-        &mut self,
-        now: Time,
-        duration: Duration,
-        lerp_scale: (f64, f64),
-        center: Pt2D,
-        orig: GeomBatch,
-    ) {
-        self.active.push(Effect {
+    /// Pass in a future value for `now` to schedule a delayed effect
+    pub fn add(&mut self, now: Time, duration: Duration, effect: Effect) {
+        self.active.push(Animation {
             start: now,
             end: now + duration,
-            orig,
-            lerp_scale,
-            center,
+            effect,
         });
     }
 
@@ -48,7 +50,18 @@ impl Animator {
             return;
         }
         let mut batch = GeomBatch::new();
-        self.active.retain(|effect| effect.update(now, &mut batch));
+        self.active.retain(|anim| {
+            let pct = (now - anim.start) / (anim.end - anim.start);
+            if pct < 0.0 {
+                // Hasn't started yet
+                true
+            } else if pct > 1.0 {
+                false
+            } else {
+                anim.effect.render(pct, &mut batch);
+                true
+            }
+        });
         self.draw_current = ctx.upload(batch);
     }
 
@@ -58,14 +71,26 @@ impl Animator {
 }
 
 impl Effect {
-    fn update(&self, now: Time, batch: &mut GeomBatch) -> bool {
-        let pct = (now - self.start) / (self.end - self.start);
-        if pct > 1.0 {
-            return false;
+    fn render(&self, pct: f64, batch: &mut GeomBatch) {
+        match self {
+            Effect::Scale {
+                ref orig,
+                center,
+                lerp_scale,
+            } => {
+                let scale = lerp_scale.0 + pct * (lerp_scale.1 - lerp_scale.0);
+                batch.append(orig.clone().scale(scale).centered_on(*center));
+            }
+            Effect::FollowPath {
+                color,
+                width,
+                ref pl,
+            } => {
+                if let Ok(pl) = pl.maybe_exact_slice(Distance::ZERO, pct * pl.length()) {
+                    batch.push(*color, pl.make_polygons(*width));
+                }
+            }
         }
-        let scale = self.lerp_scale.0 + pct * (self.lerp_scale.1 - self.lerp_scale.0);
-        batch.append(self.orig.clone().scale(scale).centered_on(self.center));
-        true
     }
 }
 

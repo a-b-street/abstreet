@@ -11,7 +11,7 @@ use widgetry::{
 };
 
 use crate::after_level::Results;
-use crate::animation::{Animator, SnowEffect};
+use crate::animation::{Animator, Effect, SnowEffect};
 use crate::buildings::{BldgState, Buildings};
 use crate::levels::Level;
 use crate::meters::{custom_bar, make_bar};
@@ -187,15 +187,27 @@ impl State<SimpleApp> for Game {
             match self.state.bldgs.buildings[&b] {
                 BldgState::Undelivered(_) => {
                     if let Some(increase) = self.state.present_dropped(ctx, app, b) {
+                        let path_speed = Duration::seconds(0.2);
                         self.animator.add(
                             self.time,
+                            path_speed,
+                            Effect::FollowPath {
+                                color: Color::hex("#83AA51"),
+                                width: map_model::NORMAL_LANE_THICKNESS,
+                                pl: app.map.get_b(b).driveway_geom.reversed(),
+                            },
+                        );
+                        self.animator.add(
+                            self.time + path_speed,
                             Duration::seconds(0.5),
-                            (1.0, 4.0),
-                            app.map.get_b(b).label_center,
-                            Text::from(Line(format!("+{}", prettyprint_usize(increase))))
-                                .bg(Color::hex("#83AA51"))
-                                .render_to_batch(ctx.prerender)
-                                .scale(0.1),
+                            Effect::Scale {
+                                lerp_scale: (1.0, 4.0),
+                                center: app.map.get_b(b).label_center,
+                                orig: Text::from(Line(format!("+{}", prettyprint_usize(increase))))
+                                    .bg(Color::hex("#83AA51"))
+                                    .render_to_batch(ctx.prerender)
+                                    .scale(0.1),
+                            },
                         );
                     }
                 }
@@ -203,15 +215,30 @@ impl State<SimpleApp> for Game {
                     let refill = self.state.vehicle.max_energy - self.state.energy;
                     if refill > 0 {
                         self.state.energy += refill;
+                        let path_speed = Duration::seconds(0.2);
                         self.animator.add(
                             self.time,
+                            path_speed,
+                            Effect::FollowPath {
+                                color: Color::BLUE,
+                                width: map_model::NORMAL_LANE_THICKNESS,
+                                pl: app.map.get_b(b).driveway_geom.clone(),
+                            },
+                        );
+                        self.animator.add(
+                            self.time + path_speed,
                             Duration::seconds(0.5),
-                            (1.0, 4.0),
-                            app.map.get_b(b).label_center,
-                            Text::from(Line(format!("Refilled {}", prettyprint_usize(refill))))
+                            Effect::Scale {
+                                lerp_scale: (1.0, 4.0),
+                                center: app.map.get_b(b).label_center,
+                                orig: Text::from(Line(format!(
+                                    "Refilled {}",
+                                    prettyprint_usize(refill)
+                                )))
                                 .bg(Color::BLUE)
                                 .render_to_batch(ctx.prerender)
                                 .scale(0.1),
+                            },
                         );
                     }
                 }
