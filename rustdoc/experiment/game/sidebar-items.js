@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["EnergylessArrow",""],["Game",""],["GameState",""]]});
+initSidebarItems({"constant":[["ACQUIRE_BOOST_RATE",""],["BOOST_SPEED_MULTIPLIER",""]],"struct":[["EnergylessArrow",""],["Game",""],["GameState",""]]});

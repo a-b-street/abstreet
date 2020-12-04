@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_bar",""]]});
+initSidebarItems({"fn":[["custom_bar",""],["make_bar",""]]});

@@ -64,8 +64,12 @@
 <span id="61">61</span>
 <span id="62">62</span>
 <span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Speed</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Vehicle</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
@@ -73,6 +77,7 @@
     <span class="kw">pub</span> <span class="ident">normal_speed</span>: <span class="ident">Speed</span>,
     <span class="kw">pub</span> <span class="ident">tired_speed</span>: <span class="ident">Speed</span>,
     <span class="kw">pub</span> <span class="ident">max_energy</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">max_boost</span>: <span class="ident">Duration</span>,
 
     <span class="comment">// Paths to SVGs to draw in sequence</span>
     <span class="kw">pub</span> <span class="ident">draw_frames</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
@@ -87,6 +92,7 @@
                 <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>),
                 <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>),
                 <span class="ident">max_energy</span>: <span class="number">80</span>,
+                <span class="ident">max_boost</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">5.0</span>),
 
                 <span class="ident">draw_frames</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;sleigh.svg&quot;</span>],
             },
@@ -96,6 +102,7 @@
                 <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>),
                 <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">15.0</span>),
                 <span class="ident">max_energy</span>: <span class="number">50</span>,
+                <span class="ident">max_boost</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">8.0</span>),
 
                 <span class="ident">draw_frames</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike1.svg&quot;</span>, <span class="string">&quot;bike2.svg&quot;</span>, <span class="string">&quot;bike1.svg&quot;</span>, <span class="string">&quot;bike3.svg&quot;</span>],
             },
@@ -105,6 +112,7 @@
                 <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>),
                 <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">5.0</span>),
                 <span class="ident">max_energy</span>: <span class="number">150</span>,
+                <span class="ident">max_boost</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>),
 
                 <span class="ident">draw_frames</span>: <span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;cargo_bike1.svg&quot;</span>,
