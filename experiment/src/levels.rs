@@ -63,7 +63,7 @@ impl TitleScreen {
                         .align_left(),
                     {
                         let mut txt = Text::from(Line("15 minute Santa").display_title());
-                        txt.add(Line("An experiment"));
+                        txt.add(Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk"));
                         txt.draw(ctx).centered_horiz()
                     },
                     Btn::text_bg1("Santa character created by @parallaxcreativedesign").build(

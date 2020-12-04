@@ -401,7 +401,7 @@ impl ColorScheme {
         cs.unzoomed_highway = cs.parking_lane;
         cs.unzoomed_residential = cs.driving_lane;
 
-        cs.panel_bg = Color::rgba(0, 48, 70, 0.6);
+        cs.panel_bg = Color::hex("#003046").alpha(0.8);
         cs.gui_style.panel_bg = cs.panel_bg;
         cs.inner_panel = cs.panel_bg;
         cs.minimap_cursor = Color::WHITE;

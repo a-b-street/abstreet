@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use abstutil::MultiMap;
 use geom::{Angle, Circle, Distance, Pt2D, Speed};
@@ -59,6 +59,10 @@ impl Player {
     ) -> Vec<BuildingID> {
         let new_pos = self.pos.offset(dx, dy);
 
+        // Make sure we only move between roads/intersections that're actually connected. Don't
+        // warp to bridges/tunnels.
+        let (valid_roads, valid_intersections) = self.on.get_connections(app);
+
         // Make sure we're still on the road
         let mut on = None;
         for id in app
@@ -66,13 +70,17 @@ impl Player {
             .get_matching_objects(Circle::new(self.pos, Distance::meters(3.0)).get_bounds())
         {
             if let ID::Intersection(i) = id {
-                if app.map.get_i(i).polygon.contains_pt(new_pos) {
+                if valid_intersections.contains(&i) && app.map.get_i(i).polygon.contains_pt(new_pos)
+                {
                     on = Some(On::Intersection(i));
                     break;
                 }
             } else if let ID::Road(r) = id {
                 let road = app.map.get_r(r);
-                if road.get_thick_polygon(&app.map).contains_pt(new_pos) {
+                if valid_roads.contains(&r)
+                    && !road.is_light_rail()
+                    && road.get_thick_polygon(&app.map).contains_pt(new_pos)
+                {
                     // Where along the road are we?
                     let pt_on_center_line = road.center_pts.project_pt(new_pos);
                     if let Some((dist, _)) = road.center_pts.dist_along_of_point(pt_on_center_line)
@@ -148,11 +156,39 @@ impl Player {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 enum On {
     Intersection(IntersectionID),
     // Distance along the center line
     Road(RoadID, Distance),
+}
+
+impl On {
+    fn get_connections(&self, app: &SimpleApp) -> (HashSet<RoadID>, HashSet<IntersectionID>) {
+        let mut valid_roads = HashSet::new();
+        let mut valid_intersections = HashSet::new();
+        match self {
+            On::Road(r, _) => {
+                let r = app.map.get_r(*r);
+                valid_intersections.insert(r.src_i);
+                valid_intersections.insert(r.dst_i);
+                // Intersections might be pretty small
+                valid_roads.extend(app.map.get_i(r.src_i).roads.clone());
+                valid_roads.extend(app.map.get_i(r.dst_i).roads.clone());
+            }
+            On::Intersection(i) => {
+                let i = app.map.get_i(*i);
+                for r in &i.roads {
+                    valid_roads.insert(*r);
+                    // Roads can be small
+                    let r = app.map.get_r(*r);
+                    valid_intersections.insert(r.src_i);
+                    valid_intersections.insert(r.dst_i);
+                }
+            }
+        }
+        (valid_roads, valid_intersections)
+    }
 }
 
 struct BuildingsAlongRoad {
