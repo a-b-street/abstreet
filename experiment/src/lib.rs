@@ -10,6 +10,8 @@ mod game;
 mod levels;
 mod meters;
 mod movement;
+mod session;
+mod title;
 mod vehicles;
 
 pub fn main() {
@@ -17,7 +19,7 @@ pub fn main() {
         let mut opts = map_gui::options::Options::default();
         opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
         let app = map_gui::SimpleApp::new_with_opts(ctx, abstutil::CmdArgs::new(), opts);
-        let states = vec![levels::TitleScreen::new(ctx)];
+        let states = vec![title::TitleScreen::new(ctx)];
         (app, states)
     });
 }

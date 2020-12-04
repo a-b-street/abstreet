@@ -1,11 +1,12 @@
 use abstutil::prettyprint_usize;
 use map_gui::SimpleApp;
 use widgetry::{
-    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
-    Transition, VerticalAlignment, Widget,
+    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, Transition,
+    VerticalAlignment, Widget,
 };
 
 use crate::levels::Level;
+use crate::session::Session;
 
 const ZOOM: f64 = 2.0;
 
@@ -26,17 +27,26 @@ impl Results {
         ctx.canvas.cam_zoom = ZOOM;
         ctx.canvas.center_on_map_pt(app.map.get_bounds().center());
 
+        // TODO Store in app
+        let mut session = Session::new();
+        session.record_score(level.title, score);
+
+        let mut txt = Text::new();
+        txt.add(Line(format!("Results for {}", level.title)).small_heading());
+        txt.add(Line(format!(
+            "You delivered {} presents in {}. Your goal was {}",
+            prettyprint_usize(score),
+            level.time_limit,
+            prettyprint_usize(level.goal)
+        )));
+        txt.add(Line(""));
+        txt.add(Line("High scores:"));
+        for (idx, score) in session.high_scores[level.title].iter().enumerate() {
+            txt.add(Line(format!("{}) {}", idx + 1, prettyprint_usize(*score))));
+        }
+
         let panel = Panel::new(Widget::col(vec![
-            Line(format!("Results for {}", level.title))
-                .small_heading()
-                .draw(ctx),
-            format!(
-                "You delivered {} presents in {}. Your goal was {}",
-                prettyprint_usize(score),
-                level.time_limit,
-                prettyprint_usize(level.goal)
-            )
-            .draw_text(ctx),
+            txt.draw(ctx),
             Btn::text_bg2("Back to title screen").build_def(ctx, Key::Enter),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
