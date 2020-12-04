@@ -437,6 +437,20 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -450,6 +464,7 @@
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">after_level</span>::<span class="ident">Results</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">SnowEffect</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">buildings</span>::{<span class="ident">BldgState</span>, <span class="ident">Buildings</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Level</span>;
@@ -458,7 +473,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">vehicles</span>::<span class="ident">Vehicle</span>;
 
 <span class="kw">const</span> <span class="ident">ACQUIRE_BOOST_RATE</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.5</span>;
-<span class="kw">const</span> <span class="ident">BOOST_SPEED_MULTIPLIER</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.5</span>;
+<span class="kw">const</span> <span class="ident">BOOST_SPEED_MULTIPLIER</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Game</span> {
     <span class="ident">title_panel</span>: <span class="ident">Panel</span>,
@@ -507,7 +522,7 @@
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
         <span class="kw">let</span> <span class="ident">time_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;Time spent:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Time remaining:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>())
                 .<span class="ident">named</span>(<span class="string">&quot;time&quot;</span>)
                 .<span class="ident">align_right</span>(),
@@ -555,7 +570,11 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">time</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
+        <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+            <span class="string">&quot;{}&quot;</span>,
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>.<span class="ident">time_limit</span> <span class="op">-</span> (<span class="self">self</span>.<span class="ident">time</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>)
+        )
+        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
         <span class="self">self</span>.<span class="ident">time_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;time&quot;</span>, <span class="ident">time</span>);
 
         <span class="kw">let</span> <span class="ident">score_bar</span> <span class="op">=</span> <span class="ident">make_bar</span>(
@@ -592,6 +611,15 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SimpleApp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
             <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>;
+
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>.<span class="ident">time_limit</span> {
+                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Results</span>::<span class="ident">new</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>,
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>,
+                ));
+            }
         }
 
         <span class="kw">let</span> <span class="ident">base_speed</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {

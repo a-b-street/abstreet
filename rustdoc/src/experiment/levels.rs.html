@@ -148,8 +148,20 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
@@ -166,6 +178,8 @@
     <span class="kw">pub</span> <span class="ident">minimap_zoom</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">num_upzones</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">vehicles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">time_limit</span>: <span class="ident">Duration</span>,
+    <span class="kw">pub</span> <span class="ident">goal</span>: <span class="ident">usize</span>,
 }
 
 <span class="comment">// TODO Like Challenge::all; cache with lazy static?</span>
@@ -178,6 +192,8 @@
             <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
             <span class="ident">num_upzones</span>: <span class="number">0</span>,
             <span class="ident">vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;sleigh&quot;</span>],
+            <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">1</span>),
+            <span class="ident">goal</span>: <span class="number">1000</span>,
         },
         <span class="ident">Level</span> {
             <span class="ident">title</span>: <span class="string">&quot;Level 2 - a small neighborhood with upzones&quot;</span>,
@@ -186,6 +202,8 @@
             <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
             <span class="ident">num_upzones</span>: <span class="number">3</span>,
             <span class="ident">vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>, <span class="string">&quot;cargo bike&quot;</span>, <span class="string">&quot;sleigh&quot;</span>],
+            <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">4</span>),
+            <span class="ident">goal</span>: <span class="number">1000</span>,
         },
         <span class="ident">Level</span> {
             <span class="ident">title</span>: <span class="string">&quot;Level 3 - Magnolia&quot;</span>,
@@ -194,6 +212,8 @@
             <span class="ident">minimap_zoom</span>: <span class="number">2</span>,
             <span class="ident">num_upzones</span>: <span class="number">5</span>,
             <span class="ident">vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>, <span class="string">&quot;cargo bike&quot;</span>, <span class="string">&quot;sleigh&quot;</span>],
+            <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
+            <span class="ident">goal</span>: <span class="number">1000</span>,
         },
     ]
 }
@@ -275,7 +295,9 @@
 
                     <span class="kw">for</span> <span class="ident">lvl</span> <span class="kw">in</span> <span class="ident">all_levels</span>() {
                         <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lvl</span>.<span class="ident">title</span> {
-                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">upzone</span>::<span class="ident">Picker</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">lvl</span>));
+                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">before_level</span>::<span class="ident">Picker</span>::<span class="ident">new</span>(
+                                <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">lvl</span>,
+                            ));
                         }
                     }
                     <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unknown action {}&quot;</span>, <span class="ident">x</span>);
