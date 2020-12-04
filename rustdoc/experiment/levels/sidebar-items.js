@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["all_levels",""]],"struct":[["Level",""],["TitleScreen",""]]});
+initSidebarItems({"struct":[["Level",""]]});

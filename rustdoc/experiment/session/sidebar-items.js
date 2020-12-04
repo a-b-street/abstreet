@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Session","Persistent state that lasts across levels."]]});

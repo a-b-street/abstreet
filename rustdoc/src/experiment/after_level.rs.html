@@ -69,15 +69,26 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Level</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
 
 <span class="kw">const</span> <span class="ident">ZOOM</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
 
@@ -98,17 +109,26 @@
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">ZOOM</span>;
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>());
 
+        <span class="comment">// TODO Store in app</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">Session</span>::<span class="ident">new</span>();
+        <span class="ident">session</span>.<span class="ident">record_score</span>(<span class="ident">level</span>.<span class="ident">title</span>, <span class="ident">score</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
+        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Results for {}&quot;</span>, <span class="ident">level</span>.<span class="ident">title</span>)).<span class="ident">small_heading</span>());
+        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="string">&quot;You delivered {} presents in {}. Your goal was {}&quot;</span>,
+            <span class="ident">prettyprint_usize</span>(<span class="ident">score</span>),
+            <span class="ident">level</span>.<span class="ident">time_limit</span>,
+            <span class="ident">prettyprint_usize</span>(<span class="ident">level</span>.<span class="ident">goal</span>)
+        )));
+        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;&quot;</span>));
+        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;High scores:&quot;</span>));
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">score</span>) <span class="kw">in</span> <span class="ident">session</span>.<span class="ident">high_scores</span>[<span class="ident">level</span>.<span class="ident">title</span>].<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">prettyprint_usize</span>(<span class="kw-2">*</span><span class="ident">score</span>))));
+        }
+
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Results for {}&quot;</span>, <span class="ident">level</span>.<span class="ident">title</span>))
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-            <span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;You delivered {} presents in {}. Your goal was {}&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">score</span>),
-                <span class="ident">level</span>.<span class="ident">time_limit</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">level</span>.<span class="ident">goal</span>)
-            )
-            .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
             <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Back to title screen&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)

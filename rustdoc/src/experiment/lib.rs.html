@@ -33,6 +33,8 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
@@ -46,6 +48,8 @@
 <span class="kw">mod</span> <span class="ident">levels</span>;
 <span class="kw">mod</span> <span class="ident">meters</span>;
 <span class="kw">mod</span> <span class="ident">movement</span>;
+<span class="kw">mod</span> <span class="ident">session</span>;
+<span class="kw">mod</span> <span class="ident">title</span>;
 <span class="kw">mod</span> <span class="ident">vehicles</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
@@ -53,7 +57,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>::<span class="ident">default</span>();
         <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>;
         <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>::<span class="ident">new_with_opts</span>(<span class="ident">ctx</span>, <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>(), <span class="ident">opts</span>);
-        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">levels</span>::<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">title</span>::<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)];
         (<span class="ident">app</span>, <span class="ident">states</span>)
     });
 }
