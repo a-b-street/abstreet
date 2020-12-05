@@ -73,7 +73,7 @@
             <span class="ident">opts</span>,
             <span class="ident">session</span>::<span class="ident">Session</span>::<span class="ident">new</span>(),
         );
-        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">title</span>::<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">title</span>::<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>)];
         (<span class="ident">app</span>, <span class="ident">states</span>)
     });
 }
