@@ -27,7 +27,7 @@ pub fn main() {
             opts,
             session::Session::new(),
         );
-        let states = vec![title::TitleScreen::new(ctx)];
+        let states = vec![title::TitleScreen::new(ctx, &app)];
         (app, states)
     });
 }

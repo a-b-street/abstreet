@@ -25,8 +25,8 @@ impl Level {
                 minimap_zoom: 1,
                 num_upzones: 0,
                 vehicles: vec!["sleigh"],
-                time_limit: Duration::minutes(1),
-                goal: 1000,
+                time_limit: Duration::seconds(30.0),
+                goal: 25,
             },
             Level {
                 title: "Level 2 - a small neighborhood with upzones",

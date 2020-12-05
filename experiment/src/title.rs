@@ -3,7 +3,6 @@ use widgetry::{
     Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget,
 };
 
-use crate::levels::Level;
 use crate::{App, Transition};
 
 pub struct TitleScreen {
@@ -11,8 +10,15 @@ pub struct TitleScreen {
 }
 
 impl TitleScreen {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        let levels = Level::all();
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        let mut level_buttons = Vec::new();
+        for (idx, level) in app.session.levels.iter().enumerate() {
+            if idx < app.session.levels_unlocked {
+                level_buttons.push(Btn::text_bg2(level.title).build_def(ctx, None));
+            } else {
+                level_buttons.push(Btn::text_bg2(level.title).inactive(ctx));
+            }
+        }
 
         Box::new(TitleScreen {
             panel: Panel::new(
@@ -31,12 +37,7 @@ impl TitleScreen {
                         None,
                     ),
                     Btn::text_bg2("Instructions").build_def(ctx, None),
-                    Widget::row(
-                        levels
-                            .into_iter()
-                            .map(|lvl| Btn::text_bg2(lvl.title).build_def(ctx, None))
-                            .collect(),
-                    ),
+                    Widget::row(level_buttons),
                 ])
                 .evenly_spaced(),
             )
@@ -54,24 +55,17 @@ impl State<App> for TitleScreen {
                     std::process::exit(0);
                 }
                 "Instructions" => {
-                    // TODO As I'm writing the range argument, I don't buy the hybrid motor.
-                    // Wireless Tesla energy instead?
                     return Transition::Push(PopupMsg::new(
                         ctx,
                         "Instructions",
                         vec![
                             "It's Christmas Eve, so it's time for Santa to deliver presents in \
-                             Seattle. 2020 has thoroughly squashed any remaining magic out of the \
-                             world, so your sleigh can only hold so many presents at a time.",
+                             Seattle.",
+                            "2020 has thoroughly squashed any remaining magic out of the world, \
+                             so your sleigh can only hold so many presents at a time.",
                             "Deliver presents as fast as you can. When you run out, refill from a \
                              yellow-colored store.",
                             "It's faster to deliver to buildings with multiple families inside.",
-                            "",
-                            "When you deliver enough presents, a little bit of magic is restored, \
-                             and you can upzone buildings to make your job easier.",
-                            "If you're having trouble delivering to houses far away from \
-                             businesses, why not build a new grocery store where it might be \
-                             needed?",
                         ],
                     ));
                 }
@@ -81,10 +75,12 @@ impl State<App> for TitleScreen {
                         return Transition::Keep;
                     }
 
-                    for lvl in Level::all() {
-                        if x == lvl.title {
+                    for level in &app.session.levels {
+                        if x == level.title {
                             return Transition::Push(crate::before_level::Picker::new(
-                                ctx, app, lvl,
+                                ctx,
+                                app,
+                                level.clone(),
                             ));
                         }
                     }
