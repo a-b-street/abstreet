@@ -105,6 +105,18 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -128,6 +140,17 @@
             }
         }
 
+        <span class="kw">let</span> <span class="ident">upgrades</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;Vehicles unlocked: {}&quot;</span>,
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">vehicles_unlocked</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
+            )),
+            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;Upzones unlocked: {}&quot;</span>,
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span>
+            )),
+        ]);
+
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -146,6 +169,7 @@
                     ),
                     <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Instructions&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">level_buttons</span>),
+                    <span class="ident">upgrades</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 ])
                 .<span class="ident">evenly_spaced</span>(),
             )

@@ -112,7 +112,7 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Results</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">unlock_message</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">unlock_messages</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Results</span> {
@@ -125,7 +125,7 @@
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">ZOOM</span>;
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>());
 
-        <span class="kw">let</span> <span class="ident">unlock_message</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">record_score</span>(<span class="ident">level</span>.<span class="ident">title</span>, <span class="ident">score</span>);
+        <span class="kw">let</span> <span class="ident">unlock_messages</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">record_score</span>(<span class="ident">level</span>.<span class="ident">title</span>, <span class="ident">score</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Results for {}&quot;</span>, <span class="ident">level</span>.<span class="ident">title</span>)).<span class="ident">small_heading</span>());
@@ -149,7 +149,7 @@
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Results</span> {
             <span class="ident">panel</span>,
-            <span class="ident">unlock_message</span>,
+            <span class="ident">unlock_messages</span>,
         })
     }
 }
@@ -165,11 +165,11 @@
                         <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                         <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
                     ];
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">msg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unlock_message</span>.<span class="ident">take</span>() {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">msgs</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unlock_messages</span>.<span class="ident">take</span>() {
                         <span class="ident">transitions</span>.<span class="ident">push</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Level complete!&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">msg</span>],
+                            <span class="ident">msgs</span>,
                         )));
                     }
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="ident">transitions</span>);
