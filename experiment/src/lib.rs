@@ -21,12 +21,16 @@ pub fn main() {
     widgetry::run(widgetry::Settings::new("experiment"), |ctx| {
         let mut opts = map_gui::options::Options::default();
         opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
-        let app = map_gui::SimpleApp::new_with_opts(
+        let mut app = map_gui::SimpleApp::new_with_opts(
             ctx,
             abstutil::CmdArgs::new(),
             opts,
             session::Session::new(),
         );
+        if app.opts.dev {
+            app.session.unlock_all();
+        }
+
         let states = vec![title::TitleScreen::new(ctx, &app)];
         (app, states)
     });

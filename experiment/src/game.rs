@@ -39,11 +39,13 @@ pub struct Game {
 impl Game {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         level: Level,
         vehicle: Vehicle,
         upzones: HashSet<BuildingID>,
     ) -> Box<dyn State<App>> {
+        app.session.current_vehicle = vehicle.name;
+
         let title_panel = Panel::new(Widget::row(vec![
             Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", Key::Escape),
             "15 min Santa".draw_text(ctx),

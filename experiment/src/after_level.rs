@@ -16,7 +16,7 @@ const ZOOM: f64 = 2.0;
 
 pub struct Results {
     panel: Panel,
-    unlock_message: Option<String>,
+    unlock_messages: Option<Vec<String>>,
 }
 
 impl Results {
@@ -29,7 +29,7 @@ impl Results {
         ctx.canvas.cam_zoom = ZOOM;
         ctx.canvas.center_on_map_pt(app.map.get_bounds().center());
 
-        let unlock_message = app.session.record_score(level.title, score);
+        let unlock_messages = app.session.record_score(level.title, score);
 
         let mut txt = Text::new();
         txt.add(Line(format!("Results for {}", level.title)).small_heading());
@@ -53,7 +53,7 @@ impl Results {
         .build(ctx);
         Box::new(Results {
             panel,
-            unlock_message,
+            unlock_messages,
         })
     }
 }
@@ -69,11 +69,11 @@ impl State<App> for Results {
                         Transition::Pop,
                         Transition::Replace(TitleScreen::new(ctx, app)),
                     ];
-                    if let Some(msg) = self.unlock_message.take() {
+                    if let Some(msgs) = self.unlock_messages.take() {
                         transitions.push(Transition::Push(PopupMsg::new(
                             ctx,
                             "Level complete!",
-                            vec![msg],
+                            msgs,
                         )));
                     }
                     return Transition::Multi(transitions);

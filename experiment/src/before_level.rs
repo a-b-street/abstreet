@@ -58,10 +58,10 @@ impl Picker {
                     Line("Refill presents from "),
                     Line("stores").fg(Color::YELLOW),
                 ]);
-                if level.num_upzones > 0 {
+                if app.session.upzones_unlocked > 0 {
                     txt.add(Line(format!(
                         "Upzone power: You can select {} houses to transform into stores",
-                        level.num_upzones
+                        app.session.upzones_unlocked
                     )));
                 }
 
@@ -73,8 +73,8 @@ impl Picker {
                             Widget::dropdown(
                                 ctx,
                                 "vehicle",
-                                level.vehicles[0].to_string(),
-                                Choice::strings(level.vehicles.clone()),
+                                app.session.current_vehicle.to_string(),
+                                Choice::strings(app.session.vehicles_unlocked.clone()),
                             ),
                         ]),
                         Btn::text_bg2("Start game").build_def(ctx, Key::Enter),
@@ -106,7 +106,7 @@ impl State<App> for Picker {
             if ctx.normal_left_click() {
                 if self.current_picks.contains(&b) {
                     self.current_picks.remove(&b);
-                } else if self.current_picks.len() < self.level.num_upzones {
+                } else if self.current_picks.len() < app.session.upzones_unlocked {
                     self.current_picks.insert(b);
                 }
             }

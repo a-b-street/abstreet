@@ -20,6 +20,17 @@ impl TitleScreen {
             }
         }
 
+        let upgrades = Text::from_multiline(vec![
+            Line(format!(
+                "Vehicles unlocked: {}",
+                app.session.vehicles_unlocked.join(", "),
+            )),
+            Line(format!(
+                "Upzones unlocked: {}",
+                app.session.upzones_unlocked
+            )),
+        ]);
+
         Box::new(TitleScreen {
             panel: Panel::new(
                 Widget::col(vec![
@@ -38,6 +49,7 @@ impl TitleScreen {
                     ),
                     Btn::text_bg2("Instructions").build_def(ctx, None),
                     Widget::row(level_buttons),
+                    upgrades.draw(ctx),
                 ])
                 .evenly_spaced(),
             )
