@@ -1,4 +1,5 @@
 use geom::{Duration, Speed, Time};
+use widgetry::{GeomBatch, GfxCtx};
 
 pub struct Vehicle {
     pub name: &'static str,
@@ -9,7 +10,8 @@ pub struct Vehicle {
     pub max_boost: Duration,
 
     // Paths to SVGs to draw in sequence
-    pub draw_frames: Vec<&'static str>,
+    draw_frames: Vec<&'static str>,
+    scale: f64,
 }
 
 impl Vehicle {
@@ -24,6 +26,7 @@ impl Vehicle {
                 max_boost: Duration::seconds(5.0),
 
                 draw_frames: vec!["sleigh.svg"],
+                scale: 0.1,
             },
             "bike" => Vehicle {
                 name: "bike",
@@ -34,6 +37,7 @@ impl Vehicle {
                 max_boost: Duration::seconds(8.0),
 
                 draw_frames: vec!["bike1.svg", "bike2.svg", "bike1.svg", "bike3.svg"],
+                scale: 0.05,
             },
             "cargo bike" => Vehicle {
                 name: "cargo bike",
@@ -49,19 +53,21 @@ impl Vehicle {
                     "cargo_bike1.svg",
                     "cargo_bike3.svg",
                 ],
+                scale: 0.05,
             },
             x => panic!("Don't know vehicle {}", x),
         }
     }
 
-    pub fn animate(&self, time: Time) -> String {
+    pub fn animate(&self, g: &mut GfxCtx, time: Time) -> GeomBatch {
         // TODO I don't know what I'm doing
         let rate = 0.1;
         let frame = (time.inner_seconds() / rate) as usize;
 
-        format!(
+        let path = format!(
             "system/assets/santa/{}",
             self.draw_frames[frame % self.draw_frames.len()]
-        )
+        );
+        GeomBatch::load_svg(g.prerender, &path).scale(self.scale)
     }
 }

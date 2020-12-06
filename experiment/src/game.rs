@@ -327,8 +327,9 @@ impl State<App> for Game {
         g.redraw(&self.state.draw_done_houses);
 
         if true {
-            GeomBatch::load_svg(g.prerender, &self.state.vehicle.animate(self.time))
-                .scale(0.1)
+            self.state
+                .vehicle
+                .animate(g, self.time)
                 .centered_on(self.player.get_pos())
                 .rotate_around_batch_center(self.player.get_angle())
                 .draw(g);
