@@ -1,9 +1,14 @@
 use glow::HasContext;
 
+use abstutil::Timer;
+
 use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
 use crate::ScreenDims;
 
-pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
+pub fn setup(
+    window_title: &str,
+    timer: &mut Timer,
+) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::WindowBuilder::new()
         .with_title(window_title)
@@ -83,7 +88,9 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         );
     }
 
+    timer.start("load textures");
     crate::backend_glow::load_textures(&gl, "system/assets/textures/spritesheet.png", 64).unwrap();
+    timer.stop("load textures");
 
     (
         PrerenderInnards::new(gl, program, WindowAdapter(windowed_context)),

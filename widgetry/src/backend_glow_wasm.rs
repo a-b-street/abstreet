@@ -3,10 +3,15 @@ use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use winit::platform::web::WindowExtWebSys;
 
+use abstutil::Timer;
+
 use crate::backend_glow::{GfxCtxInnards, PrerenderInnards};
 use crate::ScreenDims;
 
-pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
+pub fn setup(
+    window_title: &str,
+    timer: &mut Timer,
+) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     info!("Setting up widgetry");
 
     // This doesn't seem to work for the shader panics here, but later it does work. Huh.
@@ -113,7 +118,9 @@ pub fn setup(window_title: &str) -> (PrerenderInnards, winit::event_loop::EventL
         );
     }
 
+    timer.start("load textures");
     crate::backend_glow::load_textures(&gl, "system/assets/textures/spritesheet.png", 64).unwrap();
+    timer.stop("load textures");
 
     (
         PrerenderInnards::new(gl, program, WindowAdapter(winit_window)),
