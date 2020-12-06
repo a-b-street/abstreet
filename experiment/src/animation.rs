@@ -103,7 +103,20 @@ pub struct SnowEffect {
 
 struct Snowflake {
     start: Time,
-    top_left: Pt2D,
+    initial_pos: Pt2D,
+    fall_speed: f64,
+    swoop_period: f64,
+    max_swoop: f64,
+}
+
+impl Snowflake {
+    fn pos(&self, time: Time) -> Pt2D {
+        let arg =
+            (2.0 * std::f64::consts::PI) * (time - self.start).inner_seconds() / self.swoop_period;
+        let x = self.initial_pos.x() + self.max_swoop * arg.cos();
+        let y = self.initial_pos.y() + self.fall_speed * (time - self.start).inner_seconds();
+        Pt2D::new(x, y)
+    }
 }
 
 impl SnowEffect {
@@ -116,46 +129,48 @@ impl SnowEffect {
 
         let now = Time::START_OF_DAY;
         for _ in 0..60 {
-            snow.spawn_new(ctx, now);
+            let initial_pos = Pt2D::new(
+                snow.rng.gen_range(0.0, ctx.canvas.window_width),
+                snow.rng.gen_range(0.0, ctx.canvas.window_height),
+            );
+            let flake = snow.spawn_new(now, initial_pos);
+            snow.flakes.push(flake);
         }
         snow.event(ctx, now);
 
         snow
     }
 
-    fn spawn_new(&mut self, ctx: &EventCtx, now: Time) {
-        let top_left = Pt2D::new(
-            self.rng.gen_range(0.0, ctx.canvas.window_width),
-            self.rng.gen_range(0.0, ctx.canvas.window_height),
-        );
-        self.flakes.push(Snowflake {
+    fn spawn_new(&mut self, now: Time, initial_pos: Pt2D) -> Snowflake {
+        Snowflake {
             start: now,
-            top_left,
-        });
+            initial_pos,
+            // Pixels per second
+            // TODO It'd be neat to speed this up as time runs out
+            fall_speed: self.rng.gen_range(150.0, 300.0),
+            swoop_period: self.rng.gen_range(1.0, 5.0),
+            // Pixels
+            max_swoop: self.rng.gen_range(0.0, 50.0),
+        }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, now: Time) {
-        let shape = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(50.0)).to_polygon();
-
-        let lifetime = Duration::seconds(5.0);
-        let lerp_scale = (1.0, 0.1);
+        let shape = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
 
         let mut batch = GeomBatch::new();
-        self.flakes.retain(|flake| {
-            let pct = (now - flake.start) / lifetime;
-            if pct > 1.0 {
-                false
+        let prev_flakes = std::mem::replace(&mut self.flakes, Vec::new());
+        let mut new_flakes = Vec::new();
+        for flake in prev_flakes {
+            let pt = flake.pos(now);
+            if pt.y() > ctx.canvas.window_height {
+                let initial_pos = Pt2D::new(self.rng.gen_range(0.0, ctx.canvas.window_width), 0.0);
+                new_flakes.push(self.spawn_new(now, initial_pos));
             } else {
-                let scale = lerp_scale.0 + pct * (lerp_scale.1 - lerp_scale.0);
-                batch.push(
-                    Color::WHITE.alpha(0.5),
-                    shape
-                        .scale(scale)
-                        .translate(flake.top_left.x(), flake.top_left.y()),
-                );
-                true
+                batch.push(Color::WHITE.alpha(0.5), shape.translate(pt.x(), pt.y()));
+                new_flakes.push(flake);
             }
-        });
+        }
+        self.flakes = new_flakes;
         self.draw = ctx.upload(batch);
     }
 
