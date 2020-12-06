@@ -475,6 +475,7 @@
 <span id="472">472</span>
 <span id="473">473</span>
 <span id="474">474</span>
+<span id="475">475</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -805,8 +806,9 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">draw_done_houses</span>);
 
         <span class="kw">if</span> <span class="bool-val">true</span> {
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">animate</span>(<span class="self">self</span>.<span class="ident">time</span>))
-                .<span class="ident">scale</span>(<span class="number">0.1</span>)
+            <span class="self">self</span>.<span class="ident">state</span>
+                .<span class="ident">vehicle</span>
+                .<span class="ident">animate</span>(<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">time</span>)
                 .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>())
                 .<span class="ident">rotate_around_batch_center</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_angle</span>())
                 .<span class="ident">draw</span>(<span class="ident">g</span>);
