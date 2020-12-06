@@ -329,6 +329,11 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
@@ -337,6 +342,7 @@
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">Icon</span>;
 
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app_state</span>::<span class="ident">App</span>;
@@ -521,7 +527,8 @@
     <span class="ident">settings</span>: <span class="ident">Settings</span>,
     <span class="ident">make_app</span>: <span class="ident">F</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
-    <span class="kw">let</span> (<span class="ident">prerender_innards</span>, <span class="ident">event_loop</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">backend</span>::<span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">window_title</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;setup widgetry&quot;</span>);
+    <span class="kw">let</span> (<span class="ident">prerender_innards</span>, <span class="ident">event_loop</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">backend</span>::<span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">window_title</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">window_icon</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
@@ -550,6 +557,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">canvas</span> <span class="op">=</span> <span class="ident">Canvas</span>::<span class="ident">new</span>(<span class="ident">initial_size</span>);
     <span class="ident">prerender</span>.<span class="ident">window_resized</span>(<span class="ident">initial_size</span>);
 
+    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;setup app&quot;</span>);
     <span class="kw">let</span> (<span class="ident">shared_app_state</span>, <span class="ident">states</span>) <span class="op">=</span> <span class="ident">make_app</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span> {
         <span class="ident">fake_mouseover</span>: <span class="bool-val">true</span>,
         <span class="ident">input</span>: <span class="ident">UserInput</span>::<span class="ident">new</span>(<span class="ident">Event</span>::<span class="ident">NoOp</span>, <span class="kw-2">&amp;</span><span class="ident">canvas</span>),
@@ -558,10 +566,12 @@
         <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">style</span>,
         <span class="ident">updates_requested</span>: <span class="macro">vec</span><span class="macro">!</span>[],
     });
+    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;setup app&quot;</span>);
     <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
         <span class="ident">shared_app_state</span>,
         <span class="ident">states</span>,
     };
+    <span class="ident">timer</span>.<span class="ident">done</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span> { <span class="ident">canvas</span>, <span class="ident">app</span>, <span class="ident">style</span> };
 
