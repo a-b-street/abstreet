@@ -1,74 +1,39 @@
-use std::sync::RwLock;
-
-use instant::Instant;
-
-use crate::elapsed_seconds;
-
-pub struct Logger {
-    last_fast_paths_note: RwLock<Option<Instant>>,
-}
-
-impl Logger {
-    /// On native: intercept messages using the `log` crate and print them to STDOUT. Contains
-    /// special handling to filter/throttle spammy messages from `fast_paths` and `hyper`.
-    ///
-    /// On web: Just use console_log.
-    pub fn setup() {
-        #[cfg(target_arch = "wasm32")]
-        {
-            console_log::init_with_level(log::Level::Info).unwrap();
-        }
-
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            log::set_boxed_logger(Box::new(Logger {
-                last_fast_paths_note: RwLock::new(None),
-            }))
-            .unwrap();
-            log::set_max_level(log::LevelFilter::Info);
-        }
-    }
-}
-
-impl log::Log for Logger {
-    fn enabled(&self, _: &log::Metadata) -> bool {
-        true
+/// ## On native: uses env_log
+///
+/// You can adjust the log level without recompiling with the RUST_LOG env variable.
+///
+///     RUST_LOG=debug cargo run --bin game
+///
+/// This can be done on a per lib basis:
+///
+///     RUST_LOG=my_lib=debug cargo run --bin game
+///
+/// Or a module-by-module basis:
+///
+///     RUST_LOG=my_lib::module=debug cargo run --bin game
+///
+/// You can mix and match:
+///
+///     # error logging by default, except the foo:bar module at debug level
+///     # and the entire baz crate at info level
+///     RUST_LOG=error,foo::bar=debug,baz=info cargo run --bin game
+///
+/// For some special cases, you might want to use regex matching by specifying a pattern with the
+/// "/":
+///
+///     # only log once every 10k
+///     RUST_LOG="fast_paths=debug/contracted node [0-9]+0000 " mike import_la
+///
+/// ## On web: uses console_log
+pub fn setup() {
+    #[cfg(target_arch = "wasm32")]
+    {
+        console_log::init_with_level(log::Level::Info).unwrap();
     }
 
-    fn log(&self, record: &log::Record) {
-        let target = if record.target().len() > 0 {
-            record.target()
-        } else {
-            record.module_path().unwrap_or_default()
-        };
-
-        // Throttle these. Only triggered by the importer, by way of map_model
-        if target == "fast_paths::fast_graph_builder" {
-            let mut last = self.last_fast_paths_note.write().unwrap();
-            if last
-                .map(|start| elapsed_seconds(start) < 1.0)
-                .unwrap_or(false)
-            {
-                return;
-            }
-            *last = Some(Instant::now());
-        }
-
-        let contents = format!("{}", record.args());
-
-        // Silence these; they're expected on any map using simplified Chinese or kanji. Triggered
-        // by anything using widgetry.
-        if target == "usvg::convert::text::shaper" && contents.contains("Fallback") {
-            return;
-        }
-
-        // Silence byte counts from hyper.
-        if target == "hyper::proto::h1::io" {
-            return;
-        }
-
-        println!("[{}] {}: {}", record.level(), target, contents);
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use env_logger::{Builder, Env};
+        Builder::from_env(Env::default().default_filter_or("info")).init();
     }
-
-    fn flush(&self) {}
 }
