@@ -31,6 +31,7 @@ dependencies = [
  "serde",
  "serde_json",
  "termion",
+ "web-sys",
 ]
 
 [[package]]
