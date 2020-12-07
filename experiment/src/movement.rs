@@ -41,8 +41,7 @@ impl Player {
         app: &App,
         speed: Speed,
     ) -> Vec<BuildingID> {
-        let (dx, dy) = self.controls.displacement(ctx, speed);
-        if dx != 0.0 || dy != 0.0 {
+        if let Some((dx, dy)) = self.controls.displacement(ctx, speed) {
             self.apply_displacement(ctx, app, dx, dy, true)
         // TODO Do the center_on_map_pt here, actually
         } else {
