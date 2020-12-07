@@ -61,10 +61,9 @@ impl Game {
             "Remaining Gifts:".draw_text(ctx),
             Widget::draw_batch(ctx, GeomBatch::new()).named("energy"),
             Widget::horiz_separator(ctx, 0.2),
-            // TODO Share constants for colors
-            ColorLegend::row(ctx, app.cs.residential_building, "single-family house"),
-            ColorLegend::row(ctx, Color::CYAN, "apartment building"),
-            ColorLegend::row(ctx, Color::YELLOW, "store"),
+            ColorLegend::row(ctx, app.session.colors.house, "single-family house"),
+            ColorLegend::row(ctx, app.session.colors.apartment, "apartment building"),
+            ColorLegend::row(ctx, app.session.colors.store, "store"),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
@@ -111,13 +110,13 @@ impl Game {
             state,
             player,
         };
-        game.update_panels(ctx);
+        game.update_panels(ctx, app);
         game.minimap
             .set_zoom(ctx, app, game.state.level.minimap_zoom);
         Box::new(game)
     }
 
-    fn update_panels(&mut self, ctx: &mut EventCtx) {
+    fn update_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         let time = format!(
             "{}",
             self.state.level.time_limit - (self.time - Time::START_OF_DAY)
@@ -127,7 +126,7 @@ impl Game {
 
         let score_bar = make_bar(
             ctx,
-            Color::hex("#83AA51"),
+            app.session.colors.score,
             self.state.score,
             self.state.bldgs.total_housing_units,
         );
@@ -135,7 +134,7 @@ impl Game {
 
         let energy_bar = make_bar(
             ctx,
-            Color::hex("#D8B830"),
+            app.session.colors.energy,
             self.state.energy,
             self.state.vehicle.max_energy,
         );
@@ -143,7 +142,7 @@ impl Game {
 
         let boost_bar = custom_bar(
             ctx,
-            Color::hex("#A32015"),
+            app.session.colors.boost,
             self.state.boost / self.state.vehicle.max_boost,
             if self.state.boost == Duration::ZERO {
                 Text::from(Line("Find a bike or bus lane to get a boost"))
@@ -194,7 +193,7 @@ impl State<App> for Game {
                             self.time,
                             path_speed,
                             Effect::FollowPath {
-                                color: Color::hex("#83AA51"),
+                                color: app.session.colors.score,
                                 width: map_model::NORMAL_LANE_THICKNESS,
                                 pl: app.map.get_b(b).driveway_geom.reversed(),
                             },
@@ -206,7 +205,7 @@ impl State<App> for Game {
                                 lerp_scale: (1.0, 4.0),
                                 center: app.map.get_b(b).label_center,
                                 orig: Text::from(Line(format!("+{}", prettyprint_usize(increase))))
-                                    .bg(Color::hex("#83AA51"))
+                                    .bg(app.session.colors.score)
                                     .render_to_batch(ctx.prerender)
                                     .scale(0.1),
                             },
@@ -222,7 +221,7 @@ impl State<App> for Game {
                             self.time,
                             path_speed,
                             Effect::FollowPath {
-                                color: Color::BLUE,
+                                color: app.session.colors.energy,
                                 width: map_model::NORMAL_LANE_THICKNESS,
                                 pl: app.map.get_b(b).driveway_geom.clone(),
                             },
@@ -237,7 +236,7 @@ impl State<App> for Game {
                                     "Refilled {}",
                                     prettyprint_usize(refill)
                                 )))
-                                .bg(Color::BLUE)
+                                .bg(app.session.colors.energy)
                                 .render_to_batch(ctx.prerender)
                                 .scale(0.1),
                             },
@@ -298,7 +297,7 @@ impl State<App> for Game {
         }
 
         // Time is constantly passing
-        self.update_panels(ctx);
+        self.update_panels(ctx, app);
         ctx.request_update(UpdateType::Game);
         Transition::Keep
     }
@@ -393,8 +392,10 @@ impl GameState {
         let mut batch = GeomBatch::new();
         for (b, state) in &self.bldgs.buildings {
             if let BldgState::Done = state {
-                // TODO Stick constants in buildings
-                batch.push(Color::BLACK, app.map.get_b(*b).polygon.clone());
+                batch.push(
+                    app.session.colors.visited,
+                    app.map.get_b(*b).polygon.clone(),
+                );
             }
         }
         self.draw_done_houses = ctx.upload(batch);
@@ -450,6 +451,7 @@ impl EnergylessArrow {
         }
         self.last_update = time;
         // Find the closest store as the crow -- or Santa -- flies
+        // TODO Or pathfind and show them that?
         let store = app.map.get_b(
             all_stores
                 .into_iter()

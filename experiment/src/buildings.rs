@@ -25,10 +25,7 @@ pub enum BldgState {
 
 impl Buildings {
     pub fn new(ctx: &mut EventCtx, app: &App, upzones: HashSet<BuildingID>) -> Buildings {
-        let house_color = app.cs.residential_building;
-        let apartment_color = Color::CYAN;
-        let store_color = Color::YELLOW;
-        let done_color = Color::BLACK;
+        let colors = &app.session.colors;
 
         let mut buildings = HashMap::new();
         let mut total_housing_units = 0;
@@ -36,7 +33,7 @@ impl Buildings {
         for b in app.map.all_buildings() {
             if upzones.contains(&b.id) {
                 buildings.insert(b.id, BldgState::Store);
-                batch.push(store_color, b.polygon.clone());
+                batch.push(colors.store, b.polygon.clone());
                 continue;
             }
 
@@ -50,9 +47,9 @@ impl Buildings {
                     total_housing_units += num_housing_units;
 
                     let color = if num_housing_units > 5 {
-                        apartment_color
+                        colors.apartment
                     } else {
-                        house_color
+                        colors.house
                     };
                     batch.push(color, b.polygon.clone());
                     // Call out non-single family homes
@@ -70,13 +67,13 @@ impl Buildings {
             } else if !b.amenities.is_empty() {
                 // TODO Maybe just food?
                 buildings.insert(b.id, BldgState::Store);
-                batch.push(store_color, b.polygon.clone());
+                batch.push(colors.store, b.polygon.clone());
                 continue;
             }
 
             // If it's not a residence or store, just blank it out.
             buildings.insert(b.id, BldgState::Done);
-            batch.push(done_color, b.polygon.clone());
+            batch.push(colors.visited, b.polygon.clone());
         }
 
         Buildings {

@@ -3,19 +3,35 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
+use widgetry::Color;
 
 use crate::levels::Level;
 
 /// Persistent state that lasts across levels.
 #[derive(Serialize, Deserialize)]
 pub struct Session {
+    // It's convenient to also serialize these, to tune the game without recompiling.
     pub levels: Vec<Level>,
+    pub colors: ColorScheme,
+
     /// Level title -> the top 3 scores
     pub high_scores: HashMap<String, Vec<usize>>,
     pub levels_unlocked: usize,
     pub current_vehicle: String,
     pub vehicles_unlocked: Vec<String>,
     pub upzones_unlocked: usize,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ColorScheme {
+    pub house: Color,
+    pub apartment: Color,
+    pub store: Color,
+    pub visited: Color,
+
+    pub score: Color,
+    pub energy: Color,
+    pub boost: Color,
 }
 
 impl Session {
@@ -26,6 +42,7 @@ impl Session {
             abstutil::path_player("santa.json"),
             &mut Timer::throwaway(),
         ) {
+            // TODO Explicit version number to detect more easily?
             if session.levels == levels {
                 return session;
             }
@@ -40,6 +57,17 @@ impl Session {
         }
         Session {
             levels,
+            colors: ColorScheme {
+                house: Color::hex("#5E8962"),
+                apartment: Color::CYAN,
+                store: Color::YELLOW,
+                visited: Color::BLACK,
+
+                score: Color::hex("#83AA51"),
+                energy: Color::hex("#D8B830"),
+                boost: Color::hex("#A32015"),
+            },
+
             high_scores,
             levels_unlocked: 1,
             current_vehicle: "sleigh".to_string(),

@@ -52,11 +52,11 @@ impl Picker {
                     Line("Deliver presents to "),
                     Line("single-family homes").fg(app.cs.residential_building),
                     Line(" and "),
-                    Line("apartments").fg(Color::CYAN),
+                    Line("apartments").fg(app.session.colors.apartment),
                 ]);
                 txt.add_appended(vec![
                     Line("Refill presents from "),
-                    Line("stores").fg(Color::YELLOW),
+                    Line("stores").fg(app.session.colors.store),
                 ]);
                 if app.session.upzones_unlocked > 0 {
                     txt.add(Line(format!(

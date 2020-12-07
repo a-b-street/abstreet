@@ -81,7 +81,7 @@ latest input.
 
 Building contraction hierarchies for pathfinding occurs in the --map stage. It
 can take a few minutes for larger maps. To view occasional progress updates,
-you can run the importer with 
+you can run the importer with
 
     RUST_LOG="fast_paths=debug/contracted node [0-9]+0000 "
 
@@ -97,7 +97,7 @@ You can rerun specific stages of the importer:
   `./import.sh --map downtown`.
 - By default, Seattle is assumed as the city. You have to specify otherwise:
   `./import.sh --city=los_angeles --map downtown_la`.
- 
+
 You can also make the importer [import a new city](../howto/new_city.md).
 
 ## Understanding stuff
