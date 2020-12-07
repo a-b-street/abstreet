@@ -5,8 +5,8 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [features]
-native-backend = ["glow", "glutin", "usvg/text", "usvg/text_native"]
-wasm-backend = ["glow/web-sys", "instant/wasm-bindgen", "usvg/text", "usvg/text_web-sys", "wasm-bindgen", "web-sys", "winit/web-sys"]
+native-backend = ["glow", "glutin", "usvg/system-fonts", "usvg/text"]
+wasm-backend = ["glow/web-sys", "instant/wasm-bindgen", "usvg/text", "wasm-bindgen", "web-sys", "winit/web-sys"]
 
 [dependencies]
 abstutil = { path = "../abstutil" }
@@ -24,7 +24,7 @@ lyon = "0.16.2"
 serde = "1.0.116"
 stretch = "0.3.2"
 ttf-parser = "0.8.2"
-usvg = { git = "https://github.com/dabreegster/resvg/", branch = "wasm", default-features=false }
+usvg = { git = "https://github.com/RazrFalcon/resvg", default-features=false }
 wasm-bindgen = { version = "0.2.68", optional = true }
 web-sys = { version = "0.3.45", optional = true }
 winit = "0.23.0"
