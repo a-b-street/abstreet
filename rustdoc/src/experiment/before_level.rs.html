@@ -203,11 +203,11 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Deliver presents to &quot;</span>),
                     <span class="ident">Line</span>(<span class="string">&quot;single-family homes&quot;</span>).<span class="ident">fg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">residential_building</span>),
                     <span class="ident">Line</span>(<span class="string">&quot; and &quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;apartments&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">CYAN</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;apartments&quot;</span>).<span class="ident">fg</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">apartment</span>),
                 ]);
                 <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Refill presents from &quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;stores&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">YELLOW</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;stores&quot;</span>).<span class="ident">fg</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">store</span>),
                 ]);
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> <span class="op">&gt;</span> <span class="number">0</span> {
                     <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
