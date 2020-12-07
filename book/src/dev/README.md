@@ -79,6 +79,12 @@ King County GIS, and so on. If the mirrors are slow or the files vanish, you
 could fill out `data/config` and use the `updater` described above to grab the
 latest input.
 
+Building contraction hierarchies for pathfinding occurs in the --map stage. It
+can take a few minutes for larger maps. To view occasional progress updates,
+you can run the importer with 
+
+    RUST_LOG="fast_paths=debug/contracted node [0-9]+0000 "
+
 You can rerun specific stages of the importer:
 
 - If you're modifying the initial OSM data -> RawMap conversion in
@@ -91,7 +97,7 @@ You can rerun specific stages of the importer:
   `./import.sh --map downtown`.
 - By default, Seattle is assumed as the city. You have to specify otherwise:
   `./import.sh --city=los_angeles --map downtown_la`.
-
+ 
 You can also make the importer [import a new city](../howto/new_city.md).
 
 ## Understanding stuff
@@ -165,12 +171,42 @@ problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.
 
-Prefer using `info!`, `warn!`, `error!`, etc from the `log` crate. Or if a
-`Timer` is available and you want to collect all notes together, `timer.note`.
-There are still many places calling `println!`, but we're trying to clean these
-up.
-
 See the [testing strategy](testing.md) page.
+
+## Logging
+
+Prefer using `info!`, `warn!`, `error!`, etc from the `log` crate rather than
+`println`. Or if a `Timer` is available and you want to collect all notes
+together, `timer.note`. There are still many places calling `println!`, but
+we're trying to clean these up.
+
+Adjust the log level without recompiling via the `RUST_LOG` env variable.
+
+    RUST_LOG=debug cargo run --bin game
+
+This can be done on a per lib basis:
+
+    RUST_LOG=my_lib=debug cargo run --bin game
+
+Or a module-by-module basis:
+
+    RUST_LOG=my_lib::module=debug cargo run --bin game
+
+You can mix and match:
+
+    # error logging by default, except the foo:bar module at debug level
+    # and the entire baz crate at info level
+    RUST_LOG=error,foo::bar=debug,baz=info cargo run --bin game
+
+For some special cases, you might want to use regex matching by specifying a
+pattern with the "/":
+
+    # only log once every 10k
+    RUST_LOG="fast_paths=debug/contracted node [0-9]+0000 " mike import_la
+
+See the [env_logger
+documentation](https://docs.rs/env_logger/0.8.2/env_logger/) for more usage
+examples.
 
 ## Profiling
 
