@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Logger",""]]});
+initSidebarItems({"fn":[["setup","On native: uses env_logYou can adjust the log level without recompiling with the RUST_LOG env variable."]]});

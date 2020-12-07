@@ -149,7 +149,7 @@
     <span class="doccomment">/// Calling this has the side-effect of initializing logging on both native and web. This</span>
     <span class="doccomment">/// should probably be done independently, but for the moment, every app wants both.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CmdArgs</span> {
-        <span class="kw">crate</span>::<span class="ident">Logger</span>::<span class="ident">setup</span>();
+        <span class="kw">crate</span>::<span class="ident">logger</span>::<span class="ident">setup</span>();
 
         <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
             <span class="ident">CmdArgs</span>::<span class="ident">from_args</span>(<span class="ident">Vec</span>::<span class="ident">new</span>())
