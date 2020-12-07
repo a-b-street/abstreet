@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SimpleMinimap",""]]});
+initSidebarItems({"struct":[["Minimap",""]],"trait":[["MinimapControls",""]]});

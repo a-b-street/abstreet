@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["BusinessSearch",""],["Viewer",""]],"type":[["App",""]]});
+initSidebarItems({"struct":[["BusinessSearch",""],["MinimapController",""],["Viewer",""]],"type":[["App",""]]});

@@ -478,12 +478,24 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">ColorLegend</span>, <span class="ident">SimpleMinimap</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">ColorLegend</span>, <span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">BuildingID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
@@ -507,7 +519,7 @@
     <span class="ident">status_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">time_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">boost_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">minimap</span>: <span class="ident">SimpleMinimap</span>,
+    <span class="ident">minimap</span>: <span class="ident">Minimap</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">MinimapController</span><span class="op">&gt;</span>,
 
     <span class="ident">animator</span>: <span class="ident">Animator</span>,
     <span class="ident">snow</span>: <span class="ident">SnowEffect</span>,
@@ -541,10 +553,6 @@
             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>),
             <span class="string">&quot;Remaining Gifts:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;energy&quot;</span>),
-            <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>),
-            <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">house</span>, <span class="string">&quot;single-family house&quot;</span>),
-            <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">apartment</span>, <span class="string">&quot;apartment building&quot;</span>),
-            <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">store</span>, <span class="string">&quot;store&quot;</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">RightInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -576,13 +584,12 @@
         <span class="kw">let</span> <span class="ident">bldgs</span> <span class="op">=</span> <span class="ident">Buildings</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">upzones</span>);
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">GameState</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">level</span>, <span class="ident">vehicle</span>, <span class="ident">bldgs</span>);
 
-        <span class="kw">let</span> <span class="ident">with_zorder</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">game</span> <span class="op">=</span> <span class="ident">Game</span> {
             <span class="ident">title_panel</span>,
             <span class="ident">status_panel</span>,
             <span class="ident">time_panel</span>,
             <span class="ident">boost_panel</span>,
-            <span class="ident">minimap</span>: <span class="ident">SimpleMinimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">with_zorder</span>),
+            <span class="ident">minimap</span>: <span class="ident">Minimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MinimapController</span>),
 
             <span class="ident">animator</span>: <span class="ident">Animator</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
             <span class="ident">snow</span>: <span class="ident">SnowEffect</span>::<span class="ident">new</span>(<span class="ident">ctx</span>),
@@ -954,6 +961,23 @@
         ])
         .<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>);
         <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">arrow</span>)]));
+    }
+}
+
+<span class="kw">struct</span> <span class="ident">MinimapController</span>;
+
+<span class="kw">impl</span> <span class="ident">MinimapControls</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MinimapController</span> {
+    <span class="kw">fn</span> <span class="ident">has_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="bool-val">false</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">house</span>, <span class="string">&quot;house&quot;</span>),
+            <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">apartment</span>, <span class="string">&quot;apartment&quot;</span>),
+            <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">store</span>, <span class="string">&quot;store&quot;</span>),
+        ])
+        .<span class="ident">evenly_spaced</span>()
     }
 }
 </pre></div>
