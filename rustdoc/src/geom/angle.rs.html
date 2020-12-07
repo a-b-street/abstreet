@@ -130,6 +130,7 @@
 <span id="127">127</span>
 <span id="128">128</span>
 <span id="129">129</span>
+<span id="130">130</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -142,8 +143,9 @@
 <span class="kw">impl</span> <span class="ident">Angle</span> {
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="ident">Angle</span> <span class="op">=</span> <span class="ident">Angle</span>(<span class="number">0.0</span>);
 
+    <span class="doccomment">/// Create an angle in radians.</span>
     <span class="comment">// TODO Normalize here, and be careful about % vs euclid_rem</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_rads</span>(<span class="ident">rads</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_rads</span>(<span class="ident">rads</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
         <span class="comment">// Retain more precision for angles...</span>
         <span class="ident">Angle</span>((<span class="ident">rads</span> <span class="op">*</span> <span class="number">10_000_000.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10_000_000.0</span>)
     }
