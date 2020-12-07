@@ -1,10 +1,12 @@
+use serde::{Deserialize, Serialize};
+
 use abstutil::MapName;
 use geom::Duration;
 use map_model::osm;
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct Level {
-    pub title: &'static str,
+    pub title: String,
     pub map: MapName,
     pub start: osm::NodeID,
     pub minimap_zoom: usize,
@@ -12,7 +14,7 @@ pub struct Level {
     pub goal: usize,
 
     pub unlock_upzones: usize,
-    pub unlock_vehicles: Vec<&'static str>,
+    pub unlock_vehicles: Vec<String>,
 }
 
 impl Level {
@@ -20,7 +22,7 @@ impl Level {
     pub fn all() -> Vec<Level> {
         vec![
             Level {
-                title: "Level 1 - a small neighborhood",
+                title: "Level 1 - a small neighborhood".to_string(),
                 map: MapName::seattle("montlake"),
                 start: osm::NodeID(53084814),
                 minimap_zoom: 1,
@@ -28,10 +30,10 @@ impl Level {
                 goal: 25,
 
                 unlock_upzones: 2,
-                unlock_vehicles: vec!["bike", "cargo bike"],
+                unlock_vehicles: vec!["bike".to_string(), "cargo bike".to_string()],
             },
             Level {
-                title: "Level 2 - a small neighborhood with upzones",
+                title: "Level 2 - a small neighborhood with upzones".to_string(),
                 map: MapName::seattle("montlake"),
                 start: osm::NodeID(53084814),
                 minimap_zoom: 1,
@@ -42,7 +44,7 @@ impl Level {
                 unlock_vehicles: vec![],
             },
             Level {
-                title: "Level 3 - Magnolia",
+                title: "Level 3 - Magnolia".to_string(),
                 map: MapName::seattle("ballard"),
                 start: osm::NodeID(53117102),
                 minimap_zoom: 2,

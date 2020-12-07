@@ -2,7 +2,7 @@ use geom::{Duration, Speed, Time};
 use widgetry::{GeomBatch, GfxCtx};
 
 pub struct Vehicle {
-    pub name: &'static str,
+    pub name: String,
 
     pub normal_speed: Speed,
     pub tired_speed: Speed,
@@ -18,7 +18,7 @@ impl Vehicle {
     pub fn get(name: &str) -> Vehicle {
         match name {
             "sleigh" => Vehicle {
-                name: "sleigh",
+                name: "sleigh".to_string(),
 
                 normal_speed: Speed::miles_per_hour(30.0),
                 tired_speed: Speed::miles_per_hour(10.0),
@@ -29,7 +29,7 @@ impl Vehicle {
                 scale: 0.1,
             },
             "bike" => Vehicle {
-                name: "bike",
+                name: "bike".to_string(),
 
                 normal_speed: Speed::miles_per_hour(40.0),
                 tired_speed: Speed::miles_per_hour(15.0),
@@ -40,7 +40,7 @@ impl Vehicle {
                 scale: 0.05,
             },
             "cargo bike" => Vehicle {
-                name: "cargo bike",
+                name: "cargo bike".to_string(),
 
                 normal_speed: Speed::miles_per_hour(40.0),
                 tired_speed: Speed::miles_per_hour(5.0),

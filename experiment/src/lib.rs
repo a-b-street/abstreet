@@ -25,7 +25,7 @@ pub fn main() {
             ctx,
             abstutil::CmdArgs::new(),
             opts,
-            session::Session::new(),
+            session::Session::load(),
         );
         if app.opts.dev {
             app.session.unlock_all();

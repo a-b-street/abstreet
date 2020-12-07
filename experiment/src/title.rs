@@ -14,9 +14,9 @@ impl TitleScreen {
         let mut level_buttons = Vec::new();
         for (idx, level) in app.session.levels.iter().enumerate() {
             if idx < app.session.levels_unlocked {
-                level_buttons.push(Btn::text_bg2(level.title).build_def(ctx, None));
+                level_buttons.push(Btn::text_bg2(&level.title).build_def(ctx, None));
             } else {
-                level_buttons.push(Btn::text_bg2(level.title).inactive(ctx));
+                level_buttons.push(Btn::text_bg2(&level.title).inactive(ctx));
             }
         }
 

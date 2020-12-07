@@ -1,39 +1,56 @@
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+
+use abstutil::Timer;
+
 use crate::levels::Level;
 
 /// Persistent state that lasts across levels.
-// TODO Save and load it!
+#[derive(Serialize, Deserialize)]
 pub struct Session {
     pub levels: Vec<Level>,
     /// Level title -> the top 3 scores
-    pub high_scores: HashMap<&'static str, Vec<usize>>,
+    pub high_scores: HashMap<String, Vec<usize>>,
     pub levels_unlocked: usize,
-    pub current_vehicle: &'static str,
-    pub vehicles_unlocked: Vec<&'static str>,
+    pub current_vehicle: String,
+    pub vehicles_unlocked: Vec<String>,
     pub upzones_unlocked: usize,
 }
 
 impl Session {
-    pub fn new() -> Session {
+    pub fn load() -> Session {
         let levels = Level::all();
+
+        if let Ok(session) = abstutil::maybe_read_json::<Session>(
+            abstutil::path_player("santa.json"),
+            &mut Timer::throwaway(),
+        ) {
+            if session.levels == levels {
+                return session;
+            }
+            // TODO Try to preserve high scores or levels unlocked? It could get complicated,
+            // depending on how levels were changed or reordered.
+            warn!("Loaded session data, but the levels have changed, so discarding!");
+        }
+
         let mut high_scores = HashMap::new();
         for level in &levels {
-            high_scores.insert(level.title, Vec::new());
+            high_scores.insert(level.title.clone(), Vec::new());
         }
         Session {
             levels,
             high_scores,
             levels_unlocked: 1,
-            current_vehicle: "sleigh",
-            vehicles_unlocked: vec!["sleigh"],
+            current_vehicle: "sleigh".to_string(),
+            vehicles_unlocked: vec!["sleigh".to_string()],
             upzones_unlocked: 0,
         }
     }
 
     /// If a message is returned, a new level and some powers were unlocked.
-    pub fn record_score(&mut self, level: &'static str, score: usize) -> Option<Vec<String>> {
-        let scores = self.high_scores.get_mut(level).unwrap();
+    pub fn record_score(&mut self, level: String, score: usize) -> Option<Vec<String>> {
+        let scores = self.high_scores.get_mut(&level).unwrap();
         scores.push(score);
         scores.sort();
         scores.reverse();
@@ -45,7 +62,7 @@ impl Session {
             .position(|lvl| lvl.title == level)
             .unwrap();
         let level = &self.levels[idx];
-        if idx + 1 == self.levels_unlocked && score >= level.goal {
+        let msg = if idx + 1 == self.levels_unlocked && score >= level.goal {
             if idx + 1 == self.levels.len() {
                 Some(vec![
                     format!("All levels complete! Nice."),
@@ -62,7 +79,7 @@ impl Session {
                     ));
                 }
                 for x in &level.unlock_vehicles {
-                    self.vehicles_unlocked.push(*x);
+                    self.vehicles_unlocked.push(x.clone());
                     messages.push(format!("Unlocked the {}", x));
                 }
                 Some(messages)
@@ -70,7 +87,9 @@ impl Session {
         } else {
             // Nothing new unlocked
             None
-        }
+        };
+        abstutil::write_json(abstutil::path_player("santa.json"), self);
+        msg
     }
 
     pub fn unlock_all(&mut self) {

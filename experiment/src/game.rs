@@ -44,13 +44,13 @@ impl Game {
         vehicle: Vehicle,
         upzones: HashSet<BuildingID>,
     ) -> Box<dyn State<App>> {
-        app.session.current_vehicle = vehicle.name;
+        app.session.current_vehicle = vehicle.name.clone();
 
         let title_panel = Panel::new(Widget::row(vec![
             Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", Key::Escape),
             "15 min Santa".draw_text(ctx),
             Widget::draw_svg(ctx, "system/assets/tools/map.svg"),
-            level.title.draw_text(ctx),
+            Line(&level.title).draw(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
         .build(ctx);

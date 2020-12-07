@@ -164,6 +164,10 @@ pub fn parse_scenario_path(path: &str) -> (MapName, String) {
 
 // Player data (Players edit this)
 
+pub fn path_player<I: Into<String>>(p: I) -> String {
+    path(format!("player/{}", p.into()))
+}
+
 pub fn path_camera_state(name: &MapName) -> String {
     path(format!(
         "player/camera_state/{}/{}.json",

@@ -29,7 +29,7 @@ impl Results {
         ctx.canvas.cam_zoom = ZOOM;
         ctx.canvas.center_on_map_pt(app.map.get_bounds().center());
 
-        let unlock_messages = app.session.record_score(level.title, score);
+        let unlock_messages = app.session.record_score(level.title.clone(), score);
 
         let mut txt = Text::new();
         txt.add(Line(format!("Results for {}", level.title)).small_heading());
@@ -41,7 +41,7 @@ impl Results {
         )));
         txt.add(Line(""));
         txt.add(Line("High scores:"));
-        for (idx, score) in app.session.high_scores[level.title].iter().enumerate() {
+        for (idx, score) in app.session.high_scores[&level.title].iter().enumerate() {
             txt.add(Line(format!("{}) {}", idx + 1, prettyprint_usize(*score))));
         }
 
