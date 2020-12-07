@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use abstutil::MultiMap;
-use geom::{Angle, Circle, Distance, Pt2D, Speed};
+use geom::{Angle, Circle, Distance, PolyLine, Pt2D, Speed};
 use map_gui::ID;
 use map_model::{BuildingID, Direction, IntersectionID, LaneType, RoadID};
 use widgetry::EventCtx;
@@ -50,6 +50,44 @@ impl Player {
         }
     }
 
+    fn pos_to_on(&self, app: &App, pos: Pt2D) -> Option<On> {
+        // Make sure we only move between roads/intersections that're actually connected. Don't
+        // warp to bridges/tunnels.
+        let (valid_roads, valid_intersections) = self.on.get_connections(app);
+
+        // Make sure we're still on the road
+        for id in app
+            .draw_map
+            .get_matching_objects(Circle::new(pos, Distance::meters(3.0)).get_bounds())
+        {
+            if let ID::Intersection(i) = id {
+                if valid_intersections.contains(&i) && app.map.get_i(i).polygon.contains_pt(pos) {
+                    return Some(On::Intersection(i));
+                }
+            } else if let ID::Road(r) = id {
+                let road = app.map.get_r(r);
+                if valid_roads.contains(&r)
+                    && !road.is_light_rail()
+                    && road.get_thick_polygon(&app.map).contains_pt(pos)
+                {
+                    // Where along the road are we?
+                    let pt_on_center_line = road.center_pts.project_pt(pos);
+                    if let Some((dist, _)) = road.center_pts.dist_along_of_point(pt_on_center_line)
+                    {
+                        return Some(On::Road(r, dist));
+                    } else {
+                        error!(
+                            "{} snapped to {} on {}, but dist_along_of_point failed",
+                            pos, pt_on_center_line, r
+                        );
+                        return None;
+                    }
+                }
+            }
+        }
+        None
+    }
+
     fn apply_displacement(
         &mut self,
         ctx: &mut EventCtx,
@@ -59,47 +97,8 @@ impl Player {
         recurse: bool,
     ) -> Vec<BuildingID> {
         let new_pos = self.pos.offset(dx, dy);
-
-        // Make sure we only move between roads/intersections that're actually connected. Don't
-        // warp to bridges/tunnels.
-        let (valid_roads, valid_intersections) = self.on.get_connections(app);
-
-        // Make sure we're still on the road
-        let mut on = None;
-        for id in app
-            .draw_map
-            .get_matching_objects(Circle::new(self.pos, Distance::meters(3.0)).get_bounds())
-        {
-            if let ID::Intersection(i) = id {
-                if valid_intersections.contains(&i) && app.map.get_i(i).polygon.contains_pt(new_pos)
-                {
-                    on = Some(On::Intersection(i));
-                    break;
-                }
-            } else if let ID::Road(r) = id {
-                let road = app.map.get_r(r);
-                if valid_roads.contains(&r)
-                    && !road.is_light_rail()
-                    && road.get_thick_polygon(&app.map).contains_pt(new_pos)
-                {
-                    // Where along the road are we?
-                    let pt_on_center_line = road.center_pts.project_pt(new_pos);
-                    if let Some((dist, _)) = road.center_pts.dist_along_of_point(pt_on_center_line)
-                    {
-                        on = Some(On::Road(r, dist));
-                    } else {
-                        error!(
-                            "{} snapped to {} on {}, but dist_along_of_point failed",
-                            new_pos, pt_on_center_line, r
-                        );
-                    }
-                    break;
-                }
-            }
-        }
-
         let mut buildings_passed = Vec::new();
-        if let Some(new_on) = on {
+        if let Some(new_on) = self.pos_to_on(app, new_pos) {
             self.pos = new_pos;
             ctx.canvas.center_on_map_pt(self.pos);
 
@@ -112,8 +111,6 @@ impl Player {
             self.on = new_on;
         } else {
             // We went out of bounds. Undo this movement.
-            // TODO Draw a line between the old and new position, and snap to the boundary of
-            // whatever we hit.
 
             // Apply horizontal and vertical movement independently, so we "slide" along boundaries
             // if possible
@@ -126,10 +123,37 @@ impl Player {
                     buildings_passed.extend(self.apply_displacement(ctx, app, 0.0, dy, false));
                 }
 
-                // If we're stuck, try bouncing in the opposite direction.
-                // TODO This is jittery and we can sometimes go out of bounds now. :D
+                // Are we stuck?
                 if self.pos == orig {
-                    buildings_passed.extend(self.apply_displacement(ctx, app, -dx, -dy, false));
+                    if true {
+                        // Resolve by just bouncing in the opposite direction. Jittery, but we keep
+                        // moving.
+                        buildings_passed.extend(self.apply_displacement(ctx, app, -dx, -dy, false));
+                    } else {
+                        // Find the exact point on the boundary where we go out of bounds
+                        let old_ring = match self.on {
+                            On::Intersection(i) => app.map.get_i(i).polygon.clone().into_ring(),
+                            On::Road(r, _) => {
+                                let road = app.map.get_r(r);
+                                road.center_pts
+                                    .to_thick_ring(2.0 * road.get_half_width(&app.map))
+                            }
+                        };
+                        // TODO Brittle order, but should be the first from the PolyLine's
+                        // perspective
+                        if let Some(pt) = old_ring
+                            .all_intersections(&PolyLine::must_new(vec![self.pos, new_pos]))
+                            .get(0)
+                        {
+                            buildings_passed.extend(self.apply_displacement(
+                                ctx,
+                                app,
+                                pt.x() - self.pos.x(),
+                                pt.y() - self.pos.y(),
+                                false,
+                            ));
+                        }
+                    }
                 }
             }
         }

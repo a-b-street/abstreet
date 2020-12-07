@@ -445,11 +445,13 @@ impl PolyLine {
         result
     }
 
+    /// The resulting polygon is manually triangulated and doesn't have a valid outer Ring.
     pub fn make_polygons(&self, width: Distance) -> Polygon {
         // TODO How to tune this?
         self.make_polygons_with_miter_threshold(width, MITER_THRESHOLD)
     }
 
+    /// The resulting polygon is manually triangulated and doesn't have a valid outer Ring.
     pub fn make_polygons_with_miter_threshold(
         &self,
         width: Distance,
