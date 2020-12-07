@@ -15,7 +15,7 @@ impl CmdArgs {
     /// Calling this has the side-effect of initializing logging on both native and web. This
     /// should probably be done independently, but for the moment, every app wants both.
     pub fn new() -> CmdArgs {
-        crate::Logger::setup();
+        crate::logger::setup();
 
         if cfg!(target_arch = "wasm32") {
             CmdArgs::from_args(Vec::new())
