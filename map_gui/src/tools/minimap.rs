@@ -7,7 +7,6 @@ use widgetry::{
     Panel, ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
 };
 
-use crate::tools::Navigator;
 use crate::AppLike;
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
@@ -16,9 +15,10 @@ pub struct Minimap<A: AppLike, T: MinimapControls<A>> {
     app_type: PhantomData<A>,
 
     dragging: bool,
-    pub(crate) panel: Panel,
+    panel: Panel,
     // Update panel when other things change
     zoomed: bool,
+    layer: bool,
 
     // [0, 3], with 0 meaning the most unzoomed
     zoom_lvl: usize,
@@ -28,9 +28,40 @@ pub struct Minimap<A: AppLike, T: MinimapControls<A>> {
     offset_y: f64,
 }
 
+/// Customize the appearance and behavior of a minimap.
 pub trait MinimapControls<A: AppLike> {
+    /// Should the user be able to control the z-order visible? The control is only present when
+    /// zoomed in, placed beneath the zoom column.
     fn has_zorder(&self, app: &A) -> bool;
-    fn make_legend(&self, ctx: &mut EventCtx, app: &A) -> Widget;
+    /// Is there some additional layer displayed on the minimap? If this changes, the panel gets
+    /// recalculated.
+    fn has_layer(&self, _: &A) -> bool {
+        false
+    }
+
+    /// Draw extra stuff on the minimap, just pulling from the app.
+    fn draw_extra(&self, _: &mut GfxCtx, _: &A) {}
+
+    /// When unzoomed, display this panel. By default, no controls when unzoomed.
+    fn make_unzoomed_panel(&self, ctx: &mut EventCtx, _: &A) -> Panel {
+        Panel::empty(ctx)
+    }
+    /// A row beneath the minimap in the zoomed view, usually used as a legend for things on the
+    /// minimap.
+    fn make_legend(&self, _: &mut EventCtx, _: &A) -> Widget {
+        Widget::nothing()
+    }
+    /// Controls to be placed to the left to the zoomed-in panel
+    fn make_zoomed_side_panel(&self, _: &mut EventCtx, _: &A) -> Widget {
+        Widget::nothing()
+    }
+
+    /// If a button is clicked that was produced by some method in this trait, respond to it here.
+    fn panel_clicked(&self, _: &mut EventCtx, _: &mut A, _: &str) -> Option<Transition<A>> {
+        unreachable!()
+    }
+    /// Called for `Outcome::Changed` on the panel.
+    fn panel_changed(&self, _: &mut EventCtx, _: &mut A, _: &Panel) {}
 }
 
 impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
@@ -39,6 +70,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         // minimap. Arbitrary and probably pretty weird.
         let bounds = app.map().get_bounds();
         let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height());
+        let layer = controls.has_layer(app);
         let mut m = Minimap {
             controls,
             app_type: PhantomData,
@@ -46,6 +78,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             dragging: false,
             panel: Panel::empty(ctx),
             zoomed: ctx.canvas.cam_zoom >= app.opts().min_zoom_for_detail,
+            layer,
 
             zoom_lvl: 0,
             base_zoom,
@@ -62,7 +95,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
 
     pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &A) {
         if ctx.canvas.cam_zoom < app.opts().min_zoom_for_detail {
-            self.panel = Panel::empty(ctx);
+            self.panel = self.controls.make_unzoomed_panel(ctx, app);
             return;
         }
 
@@ -129,12 +162,15 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                 .centered_horiz(),
         ]);
 
-        self.panel = Panel::new(Widget::row(vec![Widget::col(vec![
-            Widget::row(vec![minimap_controls, zoom_col]),
-            self.controls.make_legend(ctx, app),
-        ])
-        .padding(16)
-        .bg(app.cs().panel_bg)]))
+        self.panel = Panel::new(Widget::row(vec![
+            self.controls.make_zoomed_side_panel(ctx, app),
+            Widget::col(vec![
+                Widget::row(vec![minimap_controls, zoom_col]),
+                self.controls.make_legend(ctx, app),
+            ])
+            .padding(16)
+            .bg(app.cs().panel_bg),
+        ]))
         .aligned(
             HorizontalAlignment::Right,
             VerticalAlignment::BottomAboveOSD,
@@ -182,10 +218,12 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Option<Transition<A>> {
         let zoomed = ctx.canvas.cam_zoom >= app.opts().min_zoom_for_detail;
-        if zoomed != self.zoomed {
+        let layer = self.controls.has_layer(app);
+        if zoomed != self.zoomed || layer != self.layer {
             let just_zoomed_in = zoomed && !self.zoomed;
 
             self.zoomed = zoomed;
+            self.layer = layer;
             self.recreate_panel(ctx, app);
 
             if just_zoomed_in {
@@ -266,13 +304,17 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                 x if x == "zoom to level 4" => {
                     self.set_zoom(ctx, app, 3);
                 }
-                x if x == "search" => {
-                    return Some(Transition::Push(Navigator::new(ctx, app)));
+                x => {
+                    if let Some(transition) = self.controls.panel_clicked(ctx, app, &x) {
+                        return Some(transition);
+                    }
                 }
-                _ => unreachable!(),
             },
             Outcome::Changed => {
-                app.mut_draw_map().show_zorder = self.panel.spinner("zorder");
+                self.controls.panel_changed(ctx, app, &self.panel);
+                if self.panel.has_widget("zorder") {
+                    app.mut_draw_map().show_zorder = self.panel.spinner("zorder");
+                }
                 self.recreate_panel(ctx, app);
             }
             _ => {}
@@ -345,6 +387,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         for draw in extra {
             g.redraw(draw);
         }
+        self.controls.draw_extra(g, app);
         // Not the building or parking lot paths
 
         // The cursor
@@ -371,5 +414,9 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         );
         g.disable_clipping();
         g.unfork();
+    }
+
+    pub fn get_panel(&self) -> &Panel {
+        &self.panel
     }
 }

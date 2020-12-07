@@ -6,7 +6,7 @@ pub use time_warp::TimeWarpScreen;
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::load::{FileLoader, MapLoader};
-use map_gui::tools::{ChooseSomething, PopupMsg, TurnExplorer};
+use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::AppLike;
 use map_gui::ID;
 use sim::{Analytics, Scenario};
@@ -17,7 +17,7 @@ use widgetry::{
 
 use self::misc_tools::{RoutePreview, TrafficRecorder};
 use crate::app::{App, Transition};
-use crate::common::{tool_panel, CommonState, Minimap};
+use crate::common::{tool_panel, CommonState, MinimapController};
 use crate::debug::DebugMode;
 use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
@@ -52,7 +52,7 @@ pub struct SandboxControls {
     time_panel: Option<TimePanel>,
     speed: Option<SpeedControls>,
     pub agent_meter: Option<AgentMeter>,
-    minimap: Option<Minimap>,
+    minimap: Option<Minimap<App, MinimapController>>,
 }
 
 impl SandboxMode {
@@ -140,7 +140,7 @@ impl State<App> for SandboxMode {
             if let Some(t) = m.event(ctx, app) {
                 return t;
             }
-            if let Some(t) = PickLayer::update(ctx, app, &m.panel) {
+            if let Some(t) = PickLayer::update(ctx, app, m.get_panel()) {
                 return t;
             }
         }
@@ -874,7 +874,7 @@ impl SandboxControls {
                 None
             },
             minimap: if gameplay.has_minimap() {
-                Some(Minimap::new(ctx, app))
+                Some(Minimap::new(ctx, app, MinimapController))
             } else {
                 None
             },

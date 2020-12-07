@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
-use map_gui::tools::{grey_out_map, PopupMsg};
+use map_gui::tools::{grey_out_map, Minimap, PopupMsg};
 use map_gui::ID;
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
@@ -17,7 +17,7 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::challenges::cutscene::CutsceneBuilder;
-use crate::common::{tool_panel, Minimap, Warping};
+use crate::common::{tool_panel, MinimapController, Warping};
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{
@@ -902,7 +902,7 @@ impl TutorialState {
         // The minimap is hidden at low zoom levels
         let orig_zoom = ctx.canvas.cam_zoom;
         ctx.canvas.cam_zoom = 100.0;
-        let minimap = Minimap::new(ctx, app);
+        let minimap = Minimap::new(ctx, app, MinimapController);
         ctx.canvas.cam_zoom = orig_zoom;
 
         let map = &app.primary.map;
@@ -1170,7 +1170,7 @@ impl TutorialState {
                          overview of all activity. You can click and drag it just like the normal \
                          map.",
                     ],
-                    arrow(minimap.panel.center_of("minimap")),
+                    arrow(minimap.get_panel().center_of("minimap")),
                 )
                 .msg(
                     vec![
@@ -1180,7 +1180,7 @@ impl TutorialState {
                         "- bus stops",
                         "- how much parking is filled up",
                     ],
-                    arrow(minimap.panel.center_of("change layers")),
+                    arrow(minimap.get_panel().center_of("change layers")),
                 )
                 .msg(
                     vec![

@@ -10,7 +10,7 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
-pub use self::minimap::Minimap;
+pub use self::minimap::MinimapController;
 pub use self::warp::Warping;
 use crate::app::App;
 use crate::app::Transition;
