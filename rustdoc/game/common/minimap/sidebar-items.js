@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_tool_panel",""]],"struct":[["Minimap",""]]});
+initSidebarItems({"fn":[["make_tool_panel",""]],"struct":[["MinimapController",""]]});
