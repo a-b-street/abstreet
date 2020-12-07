@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
@@ -6,15 +8,17 @@ use widgetry::{
 };
 
 use crate::tools::Navigator;
-use crate::SimpleApp;
+use crate::AppLike;
 
 // TODO Some of the math in here might assume map bound minimums start at (0, 0).
-pub struct SimpleMinimap {
+pub struct Minimap<A: AppLike, T: MinimapControls<A>> {
+    controls: T,
+    app_type: PhantomData<A>,
+
     dragging: bool,
     pub(crate) panel: Panel,
     // Update panel when other things change
     zoomed: bool,
-    with_zorder: bool,
 
     // [0, 3], with 0 meaning the most unzoomed
     zoom_lvl: usize,
@@ -24,17 +28,24 @@ pub struct SimpleMinimap {
     offset_y: f64,
 }
 
-impl SimpleMinimap {
-    pub fn new<T>(ctx: &mut EventCtx, app: &SimpleApp<T>, with_zorder: bool) -> SimpleMinimap {
+pub trait MinimapControls<A: AppLike> {
+    fn has_zorder(&self, app: &A) -> bool;
+    fn make_legend(&self, ctx: &mut EventCtx, app: &A) -> Widget;
+}
+
+impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
+    pub fn new(ctx: &mut EventCtx, app: &A, controls: T) -> Minimap<A, T> {
         // Initially pick a zoom to fit the smaller of the entire map's width or height in the
         // minimap. Arbitrary and probably pretty weird.
-        let bounds = app.map.get_bounds();
+        let bounds = app.map().get_bounds();
         let base_zoom = 0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height());
-        let mut m = SimpleMinimap {
+        let mut m = Minimap {
+            controls,
+            app_type: PhantomData,
+
             dragging: false,
             panel: Panel::empty(ctx),
-            zoomed: ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail,
-            with_zorder,
+            zoomed: ctx.canvas.cam_zoom >= app.opts().min_zoom_for_detail,
 
             zoom_lvl: 0,
             base_zoom,
@@ -49,8 +60,8 @@ impl SimpleMinimap {
         m
     }
 
-    pub fn recreate_panel<T>(&mut self, ctx: &mut EventCtx, app: &SimpleApp<T>) {
-        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+    pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &A) {
+        if ctx.canvas.cam_zoom < app.opts().min_zoom_for_detail {
             self.panel = Panel::empty(ctx);
             return;
         }
@@ -69,7 +80,7 @@ impl SimpleMinimap {
                 col.push(
                     Btn::custom(
                         GeomBatch::from(vec![(color, rect.clone())]),
-                        GeomBatch::from(vec![(app.cs.hovering, rect.clone())]),
+                        GeomBatch::from(vec![(app.cs().hovering, rect.clone())]),
                         rect,
                         None,
                     )
@@ -85,11 +96,11 @@ impl SimpleMinimap {
             // pan up arrow. Also, double column to avoid the background color
             // stretching to the bottom of the row.
             Widget::custom_col(vec![
-                Widget::custom_col(col).padding(10).bg(app.cs.inner_panel),
-                if self.with_zorder {
+                Widget::custom_col(col).padding(10).bg(app.cs().inner_panel),
+                if self.controls.has_zorder(app) {
                     Widget::col(vec![
                         Line("Z-order:").small().draw(ctx),
-                        Spinner::new(ctx, app.draw_map.zorder_range, app.draw_map.show_zorder)
+                        Spinner::new(ctx, app.draw_map().zorder_range, app.draw_map().show_zorder)
                             .named("zorder"),
                     ])
                     .margin_above(10)
@@ -119,11 +130,11 @@ impl SimpleMinimap {
         ]);
 
         self.panel = Panel::new(Widget::row(vec![Widget::col(vec![
-            // TODO Remove
             Widget::row(vec![minimap_controls, zoom_col]),
+            self.controls.make_legend(ctx, app),
         ])
         .padding(16)
-        .bg(app.cs.panel_bg)]))
+        .bg(app.cs().panel_bg)]))
         .aligned(
             HorizontalAlignment::Right,
             VerticalAlignment::BottomAboveOSD,
@@ -138,7 +149,7 @@ impl SimpleMinimap {
         (pct_x, pct_y)
     }
 
-    pub fn set_zoom<T>(&mut self, ctx: &mut EventCtx, app: &SimpleApp<T>, zoom_lvl: usize) {
+    pub fn set_zoom(&mut self, ctx: &mut EventCtx, app: &A, zoom_lvl: usize) {
         // Make the frame wind up in the same relative position on the minimap
         let (pct_x, pct_y) = self.map_to_minimap_pct(ctx.canvas.center_to_map_pt());
 
@@ -154,7 +165,7 @@ impl SimpleMinimap {
         self.offset_y = map_center.y() * self.zoom - pct_y * inner_rect.height();
     }
 
-    fn recenter<T>(&mut self, ctx: &EventCtx, app: &SimpleApp<T>) {
+    fn recenter(&mut self, ctx: &EventCtx, app: &A) {
         // Recenter the minimap on the screen bounds
         let map_center = ctx.canvas.center_to_map_pt();
         let rect = self.panel.rect_of("minimap");
@@ -162,19 +173,15 @@ impl SimpleMinimap {
         let off_y = map_center.y() * self.zoom - rect.height() / 2.0;
 
         // Don't go out of bounds.
-        let bounds = app.map.get_bounds();
+        let bounds = app.map().get_bounds();
         // TODO For boundaries without rectangular shapes, it'd be even nicer to clamp to the
         // boundary.
         self.offset_x = off_x.max(0.0).min(bounds.max_x * self.zoom - rect.width());
         self.offset_y = off_y.max(0.0).min(bounds.max_y * self.zoom - rect.height());
     }
 
-    pub fn event<T: 'static>(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut SimpleApp<T>,
-    ) -> Option<Transition<SimpleApp<T>>> {
-        let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Option<Transition<A>> {
+        let zoomed = ctx.canvas.cam_zoom >= app.opts().min_zoom_for_detail;
         if zoomed != self.zoomed {
             let just_zoomed_in = zoomed && !self.zoomed;
 
@@ -206,7 +213,7 @@ impl SimpleMinimap {
             // When the window is resized, just reset completely. This is important when the window
             // size at startup is incorrect and immediately corrected by the window manager after
             // Minimap::new happens.
-            let bounds = app.map.get_bounds();
+            let bounds = app.map().get_bounds();
             // On Windows, apparently minimizing can cause some resize events with 0, 0 dimensions!
             self.base_zoom =
                 (0.15 * ctx.canvas.window_width / bounds.width().min(bounds.height())).max(0.0001);
@@ -265,7 +272,7 @@ impl SimpleMinimap {
                 _ => unreachable!(),
             },
             Outcome::Changed => {
-                app.draw_map.show_zorder = self.panel.spinner("zorder");
+                app.mut_draw_map().show_zorder = self.panel.spinner("zorder");
                 self.recreate_panel(ctx, app);
             }
             _ => {}
@@ -303,16 +310,11 @@ impl SimpleMinimap {
         None
     }
 
-    pub fn draw<T>(&self, g: &mut GfxCtx, app: &SimpleApp<T>) {
+    pub fn draw(&self, g: &mut GfxCtx, app: &A) {
         self.draw_with_extra_layers(g, app, Vec::new());
     }
 
-    pub fn draw_with_extra_layers<T>(
-        &self,
-        g: &mut GfxCtx,
-        app: &SimpleApp<T>,
-        extra: Vec<&Drawable>,
-    ) {
+    pub fn draw_with_extra_layers(&self, g: &mut GfxCtx, app: &A, extra: Vec<&Drawable>) {
         self.panel.draw(g);
         if !self.zoomed {
             return;
@@ -320,7 +322,7 @@ impl SimpleMinimap {
 
         let inner_rect = self.panel.rect_of("minimap").clone();
 
-        let mut map_bounds = app.map.get_bounds().clone();
+        let mut map_bounds = app.map().get_bounds().clone();
         // Adjust bounds to account for the current pan and zoom
         map_bounds.min_x = (map_bounds.min_x + self.offset_x) / self.zoom;
         map_bounds.min_y = (map_bounds.min_y + self.offset_y) / self.zoom;
@@ -334,11 +336,12 @@ impl SimpleMinimap {
             None,
         );
         g.enable_clipping(inner_rect);
-        g.redraw(&app.draw_map.boundary_polygon);
-        g.redraw(&app.draw_map.draw_all_areas);
-        g.redraw(&app.draw_map.draw_all_unzoomed_parking_lots);
-        g.redraw(&app.draw_map.draw_all_unzoomed_roads_and_intersections);
-        g.redraw(&app.draw_map.draw_all_buildings);
+        let draw_map = app.draw_map();
+        g.redraw(&draw_map.boundary_polygon);
+        g.redraw(&draw_map.draw_all_areas);
+        g.redraw(&draw_map.draw_all_unzoomed_parking_lots);
+        g.redraw(&draw_map.draw_all_unzoomed_roads_and_intersections);
+        g.redraw(&draw_map.draw_all_buildings);
         for draw in extra {
             g.redraw(draw);
         }
@@ -356,7 +359,7 @@ impl SimpleMinimap {
             (pt.x(), pt.y())
         };
         g.draw_polygon(
-            app.cs.minimap_cursor,
+            app.cs().minimap_cursor,
             Ring::must_new(vec![
                 Pt2D::new(x1, y1),
                 Pt2D::new(x2, y1),

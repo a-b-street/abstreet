@@ -400,6 +400,7 @@ impl ColorScheme {
         cs.unzoomed_arterial = cs.sidewalk;
         cs.unzoomed_highway = cs.parking_lane;
         cs.unzoomed_residential = cs.driving_lane;
+        cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
 
         cs.panel_bg = Color::hex("#003046").alpha(0.8);
         cs.gui_style.panel_bg = cs.panel_bg;

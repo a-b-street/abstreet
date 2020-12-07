@@ -5,7 +5,8 @@ use geom::ArrowCap;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::{
-    nice_map_name, open_browser, CityPicker, Navigator, PopupMsg, SimpleMinimap, TurnExplorer,
+    nice_map_name, open_browser, CityPicker, Minimap, MinimapControls, Navigator, PopupMsg,
+    TurnExplorer,
 };
 use map_gui::{SimpleApp, ID};
 use map_model::osm;
@@ -20,16 +21,15 @@ type App = SimpleApp<()>;
 pub struct Viewer {
     top_panel: Panel,
     fixed_object_outline: Option<Drawable>,
-    minimap: SimpleMinimap,
+    minimap: Minimap<App, MinimapController>,
     businesses: Option<BusinessSearch>,
 }
 
 impl Viewer {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        let with_zorder = true;
         let mut viewer = Viewer {
             fixed_object_outline: None,
-            minimap: SimpleMinimap::new(ctx, app, with_zorder),
+            minimap: Minimap::new(ctx, app, MinimapController),
             businesses: None,
             top_panel: Panel::empty(ctx),
         };
@@ -458,5 +458,17 @@ impl BusinessSearch {
             ));
         }
         Widget::col(col)
+    }
+}
+
+struct MinimapController;
+
+impl MinimapControls<App> for MinimapController {
+    fn has_zorder(&self, _: &App) -> bool {
+        true
+    }
+
+    fn make_legend(&self, _: &mut EventCtx, _: &App) -> Widget {
+        Widget::nothing()
     }
 }

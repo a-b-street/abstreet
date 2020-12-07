@@ -58,9 +58,9 @@ impl Session {
         Session {
             levels,
             colors: ColorScheme {
-                house: Color::hex("#5E8962"),
-                apartment: Color::CYAN,
-                store: Color::YELLOW,
+                house: Color::hex("#688865"),
+                apartment: Color::hex("#C0F879"),
+                store: Color::hex("#F4DF4D"),
                 visited: Color::BLACK,
 
                 score: Color::hex("#83AA51"),

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
-use map_gui::tools::{ChooseSomething, ColorLegend, SimpleMinimap};
+use map_gui::tools::{ChooseSomething, ColorLegend, Minimap, MinimapControls};
 use map_model::BuildingID;
 use widgetry::{
     Btn, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -26,7 +26,7 @@ pub struct Game {
     status_panel: Panel,
     time_panel: Panel,
     boost_panel: Panel,
-    minimap: SimpleMinimap,
+    minimap: Minimap<App, MinimapController>,
 
     animator: Animator,
     snow: SnowEffect,
@@ -60,10 +60,6 @@ impl Game {
             Widget::draw_batch(ctx, GeomBatch::new()).named("score"),
             "Remaining Gifts:".draw_text(ctx),
             Widget::draw_batch(ctx, GeomBatch::new()).named("energy"),
-            Widget::horiz_separator(ctx, 0.2),
-            ColorLegend::row(ctx, app.session.colors.house, "single-family house"),
-            ColorLegend::row(ctx, app.session.colors.apartment, "apartment building"),
-            ColorLegend::row(ctx, app.session.colors.store, "store"),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
@@ -95,13 +91,12 @@ impl Game {
         let bldgs = Buildings::new(ctx, app, upzones);
         let state = GameState::new(ctx, app, level, vehicle, bldgs);
 
-        let with_zorder = false;
         let mut game = Game {
             title_panel,
             status_panel,
             time_panel,
             boost_panel,
-            minimap: SimpleMinimap::new(ctx, app, with_zorder),
+            minimap: Minimap::new(ctx, app, MinimapController),
 
             animator: Animator::new(ctx),
             snow: SnowEffect::new(ctx),
@@ -473,5 +468,22 @@ impl EnergylessArrow {
         ])
         .make_arrow(thickness, ArrowCap::Triangle);
         self.draw = ctx.upload(GeomBatch::from(vec![(Color::RED.alpha(0.8), arrow)]));
+    }
+}
+
+struct MinimapController;
+
+impl MinimapControls<App> for MinimapController {
+    fn has_zorder(&self, _: &App) -> bool {
+        false
+    }
+
+    fn make_legend(&self, ctx: &mut EventCtx, app: &App) -> Widget {
+        Widget::row(vec![
+            ColorLegend::row(ctx, app.session.colors.house, "house"),
+            ColorLegend::row(ctx, app.session.colors.apartment, "apartment"),
+            ColorLegend::row(ctx, app.session.colors.store, "store"),
+        ])
+        .evenly_spaced()
     }
 }

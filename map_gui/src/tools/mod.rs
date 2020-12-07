@@ -7,7 +7,7 @@ use widgetry::{GfxCtx, Line, Text};
 pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
-pub use self::minimap::SimpleMinimap;
+pub use self::minimap::{Minimap, MinimapControls};
 pub use self::navigate::Navigator;
 pub use self::turn_explorer::TurnExplorer;
 pub use self::ui::{ChooseSomething, PopupMsg, PromptInput};
