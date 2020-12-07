@@ -240,11 +240,35 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">EventCtx</span>;
@@ -293,6 +317,44 @@
         }
     }
 
+    <span class="kw">fn</span> <span class="ident">pos_to_on</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">pos</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">On</span><span class="op">&gt;</span> {
+        <span class="comment">// Make sure we only move between roads/intersections that&#39;re actually connected. Don&#39;t</span>
+        <span class="comment">// warp to bridges/tunnels.</span>
+        <span class="kw">let</span> (<span class="ident">valid_roads</span>, <span class="ident">valid_intersections</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">on</span>.<span class="ident">get_connections</span>(<span class="ident">app</span>);
+
+        <span class="comment">// Make sure we&#39;re still on the road</span>
+        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>
+            .<span class="ident">draw_map</span>
+            .<span class="ident">get_matching_objects</span>(<span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">pos</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>)).<span class="ident">get_bounds</span>())
+        {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">id</span> {
+                <span class="kw">if</span> <span class="ident">valid_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">pos</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">On</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>));
+                }
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">id</span> {
+                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
+                <span class="kw">if</span> <span class="ident">valid_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>)
+                    <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">is_light_rail</span>()
+                    <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">get_thick_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>).<span class="ident">contains_pt</span>(<span class="ident">pos</span>)
+                {
+                    <span class="comment">// Where along the road are we?</span>
+                    <span class="kw">let</span> <span class="ident">pt_on_center_line</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">project_pt</span>(<span class="ident">pos</span>);
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt_on_center_line</span>)
+                    {
+                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">On</span>::<span class="ident">Road</span>(<span class="ident">r</span>, <span class="ident">dist</span>));
+                    } <span class="kw">else</span> {
+                        <span class="macro">error</span><span class="macro">!</span>(
+                            <span class="string">&quot;{} snapped to {} on {}, but dist_along_of_point failed&quot;</span>,
+                            <span class="ident">pos</span>, <span class="ident">pt_on_center_line</span>, <span class="ident">r</span>
+                        );
+                        <span class="kw">return</span> <span class="prelude-val">None</span>;
+                    }
+                }
+            }
+        }
+        <span class="prelude-val">None</span>
+    }
+
     <span class="kw">fn</span> <span class="ident">apply_displacement</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
@@ -302,47 +364,8 @@
         <span class="ident">recurse</span>: <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">new_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">offset</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
-
-        <span class="comment">// Make sure we only move between roads/intersections that&#39;re actually connected. Don&#39;t</span>
-        <span class="comment">// warp to bridges/tunnels.</span>
-        <span class="kw">let</span> (<span class="ident">valid_roads</span>, <span class="ident">valid_intersections</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">on</span>.<span class="ident">get_connections</span>(<span class="ident">app</span>);
-
-        <span class="comment">// Make sure we&#39;re still on the road</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">on</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>
-            .<span class="ident">draw_map</span>
-            .<span class="ident">get_matching_objects</span>(<span class="ident">Circle</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">pos</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>)).<span class="ident">get_bounds</span>())
-        {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">id</span> {
-                <span class="kw">if</span> <span class="ident">valid_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">new_pos</span>)
-                {
-                    <span class="ident">on</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">On</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>));
-                    <span class="kw">break</span>;
-                }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">id</span> {
-                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-                <span class="kw">if</span> <span class="ident">valid_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>)
-                    <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">is_light_rail</span>()
-                    <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">get_thick_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>).<span class="ident">contains_pt</span>(<span class="ident">new_pos</span>)
-                {
-                    <span class="comment">// Where along the road are we?</span>
-                    <span class="kw">let</span> <span class="ident">pt_on_center_line</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">project_pt</span>(<span class="ident">new_pos</span>);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt_on_center_line</span>)
-                    {
-                        <span class="ident">on</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">On</span>::<span class="ident">Road</span>(<span class="ident">r</span>, <span class="ident">dist</span>));
-                    } <span class="kw">else</span> {
-                        <span class="macro">error</span><span class="macro">!</span>(
-                            <span class="string">&quot;{} snapped to {} on {}, but dist_along_of_point failed&quot;</span>,
-                            <span class="ident">new_pos</span>, <span class="ident">pt_on_center_line</span>, <span class="ident">r</span>
-                        );
-                    }
-                    <span class="kw">break</span>;
-                }
-            }
-        }
-
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings_passed</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_on</span>) <span class="op">=</span> <span class="ident">on</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_on</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pos_to_on</span>(<span class="ident">app</span>, <span class="ident">new_pos</span>) {
             <span class="self">self</span>.<span class="ident">pos</span> <span class="op">=</span> <span class="ident">new_pos</span>;
             <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="self">self</span>.<span class="ident">pos</span>);
 
@@ -355,8 +378,6 @@
             <span class="self">self</span>.<span class="ident">on</span> <span class="op">=</span> <span class="ident">new_on</span>;
         } <span class="kw">else</span> {
             <span class="comment">// We went out of bounds. Undo this movement.</span>
-            <span class="comment">// TODO Draw a line between the old and new position, and snap to the boundary of</span>
-            <span class="comment">// whatever we hit.</span>
 
             <span class="comment">// Apply horizontal and vertical movement independently, so we &quot;slide&quot; along boundaries</span>
             <span class="comment">// if possible</span>
@@ -369,10 +390,37 @@
                     <span class="ident">buildings_passed</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">apply_displacement</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0.0</span>, <span class="ident">dy</span>, <span class="bool-val">false</span>));
                 }
 
-                <span class="comment">// If we&#39;re stuck, try bouncing in the opposite direction.</span>
-                <span class="comment">// TODO This is jittery and we can sometimes go out of bounds now. :D</span>
+                <span class="comment">// Are we stuck?</span>
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pos</span> <span class="op">=</span><span class="op">=</span> <span class="ident">orig</span> {
-                    <span class="ident">buildings_passed</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">apply_displacement</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="op">-</span><span class="ident">dx</span>, <span class="op">-</span><span class="ident">dy</span>, <span class="bool-val">false</span>));
+                    <span class="kw">if</span> <span class="bool-val">true</span> {
+                        <span class="comment">// Resolve by just bouncing in the opposite direction. Jittery, but we keep</span>
+                        <span class="comment">// moving.</span>
+                        <span class="ident">buildings_passed</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">apply_displacement</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="op">-</span><span class="ident">dx</span>, <span class="op">-</span><span class="ident">dy</span>, <span class="bool-val">false</span>));
+                    } <span class="kw">else</span> {
+                        <span class="comment">// Find the exact point on the boundary where we go out of bounds</span>
+                        <span class="kw">let</span> <span class="ident">old_ring</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">on</span> {
+                            <span class="ident">On</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>(),
+                            <span class="ident">On</span>::<span class="ident">Road</span>(<span class="ident">r</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
+                                <span class="ident">road</span>.<span class="ident">center_pts</span>
+                                    .<span class="ident">to_thick_ring</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">get_half_width</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>))
+                            }
+                        };
+                        <span class="comment">// TODO Brittle order, but should be the first from the PolyLine&#39;s</span>
+                        <span class="comment">// perspective</span>
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">old_ring</span>
+                            .<span class="ident">all_intersections</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">pos</span>, <span class="ident">new_pos</span>]))
+                            .<span class="ident">get</span>(<span class="number">0</span>)
+                        {
+                            <span class="ident">buildings_passed</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">apply_displacement</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">app</span>,
+                                <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">x</span>(),
+                                <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">y</span>(),
+                                <span class="bool-val">false</span>,
+                            ));
+                        }
+                    }
                 }
             }
         }

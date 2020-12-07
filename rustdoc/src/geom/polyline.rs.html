@@ -866,6 +866,8 @@
 <span id="863">863</span>
 <span id="864">864</span>
 <span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1314,11 +1316,13 @@
         <span class="ident">result</span>
     }
 
+    <span class="doccomment">/// The resulting polygon is manually triangulated and doesn&#39;t have a valid outer Ring.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="comment">// TODO How to tune this?</span>
         <span class="self">self</span>.<span class="ident">make_polygons_with_miter_threshold</span>(<span class="ident">width</span>, <span class="ident">MITER_THRESHOLD</span>)
     }
 
+    <span class="doccomment">/// The resulting polygon is manually triangulated and doesn&#39;t have a valid outer Ring.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons_with_miter_threshold</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">width</span>: <span class="ident">Distance</span>,
