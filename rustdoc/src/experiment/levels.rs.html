@@ -58,14 +58,18 @@
 <span id="55">55</span>
 <span id="56">56</span>
 <span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Level</span> {
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">MapName</span>,
     <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
     <span class="kw">pub</span> <span class="ident">minimap_zoom</span>: <span class="ident">usize</span>,
@@ -73,7 +77,7 @@
     <span class="kw">pub</span> <span class="ident">goal</span>: <span class="ident">usize</span>,
 
     <span class="kw">pub</span> <span class="ident">unlock_upzones</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">unlock_vehicles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">unlock_vehicles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Level</span> {
@@ -81,7 +85,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Level</span><span class="op">&gt;</span> {
         <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Level</span> {
-                <span class="ident">title</span>: <span class="string">&quot;Level 1 - a small neighborhood&quot;</span>,
+                <span class="ident">title</span>: <span class="string">&quot;Level 1 - a small neighborhood&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53084814</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
@@ -89,10 +93,10 @@
                 <span class="ident">goal</span>: <span class="number">25</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">2</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>, <span class="string">&quot;cargo bike&quot;</span>],
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;cargo bike&quot;</span>.<span class="ident">to_string</span>()],
             },
             <span class="ident">Level</span> {
-                <span class="ident">title</span>: <span class="string">&quot;Level 2 - a small neighborhood with upzones&quot;</span>,
+                <span class="ident">title</span>: <span class="string">&quot;Level 2 - a small neighborhood with upzones&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53084814</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
@@ -103,7 +107,7 @@
                 <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
             },
             <span class="ident">Level</span> {
-                <span class="ident">title</span>: <span class="string">&quot;Level 3 - Magnolia&quot;</span>,
+                <span class="ident">title</span>: <span class="string">&quot;Level 3 - Magnolia&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;ballard&quot;</span>),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53117102</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">2</span>,

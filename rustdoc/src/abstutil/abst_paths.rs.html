@@ -206,6 +206,10 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -372,6 +376,10 @@
 }
 
 <span class="comment">// Player data (Players edit this)</span>
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_player</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">p</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;player/{}&quot;</span>, <span class="ident">p</span>.<span class="ident">into</span>()))
+}
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_camera_state</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(

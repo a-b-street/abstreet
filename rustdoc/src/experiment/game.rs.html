@@ -523,13 +523,13 @@
         <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
         <span class="ident">upzones</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">current_vehicle</span> <span class="op">=</span> <span class="ident">vehicle</span>.<span class="ident">name</span>;
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">current_vehicle</span> <span class="op">=</span> <span class="ident">vehicle</span>.<span class="ident">name</span>.<span class="ident">clone</span>();
 
         <span class="kw">let</span> <span class="ident">title_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
             <span class="string">&quot;15 min Santa&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/map.svg&quot;</span>),
-            <span class="ident">level</span>.<span class="ident">title</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">title</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
