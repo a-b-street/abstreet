@@ -340,6 +340,12 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -362,6 +368,8 @@
     <span class="kw">pub</span> <span class="ident">current_selection</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Custom per-app state can be stored here</span>
     <span class="kw">pub</span> <span class="ident">session</span>: <span class="ident">T</span>,
+    <span class="doccomment">/// If desired, this can be advanced to render traffic signals changing.</span>
+    <span class="kw">pub</span> <span class="ident">time</span>: <span class="ident">Time</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -393,6 +401,7 @@
                 <span class="ident">opts</span>,
                 <span class="ident">current_selection</span>: <span class="prelude-val">None</span>,
                 <span class="ident">session</span>,
+                <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
             }
         })
     }
@@ -602,16 +611,19 @@
     }
 
     <span class="kw">fn</span> <span class="ident">sim_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
-        <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>
+        <span class="self">self</span>.<span class="ident">time</span>
     }
 
     <span class="kw">fn</span> <span class="ident">current_stage_and_remaining_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">Duration</span>) {
-        (
-            <span class="number">0</span>,
-            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>).<span class="ident">stages</span>[<span class="number">0</span>]
-                .<span class="ident">phase_type</span>
-                .<span class="ident">simple_duration</span>(),
-        )
+        <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">time_left</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">time</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>) <span class="op">%</span> <span class="ident">signal</span>.<span class="ident">simple_cycle_duration</span>();
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">stage</span>) <span class="kw">in</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">if</span> <span class="ident">time_left</span> <span class="op">&lt;</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>() {
+                <span class="kw">return</span> (<span class="ident">idx</span>, <span class="ident">time_left</span>);
+            }
+            <span class="ident">time_left</span> <span class="op">-</span><span class="op">=</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
+        }
+        <span class="macro">unreachable</span><span class="macro">!</span>()
     }
 }
 
