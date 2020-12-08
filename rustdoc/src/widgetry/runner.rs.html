@@ -334,6 +334,14 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
@@ -342,7 +350,7 @@
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">Icon</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">elapsed_seconds</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app_state</span>::<span class="ident">App</span>;
@@ -353,6 +361,8 @@
 };
 
 <span class="kw">const</span> <span class="ident">UPDATE_FREQUENCY</span>: <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">1000</span> <span class="op">/</span> <span class="number">30</span>);
+<span class="comment">// Manually enable and then check STDOUT</span>
+<span class="kw">const</span> <span class="ident">DEBUG_PERFORMANCE</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
 <span class="comment">// TODO Rename this GUI or something</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">SharedAppState</span><span class="op">&gt;</span> {
@@ -437,7 +447,11 @@
                 <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">style</span>,
                 <span class="ident">updates_requested</span>: <span class="macro">vec</span><span class="macro">!</span>[],
             };
+            <span class="kw">let</span> <span class="ident">started</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
             <span class="self">self</span>.<span class="ident">app</span>.<span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
+            <span class="kw">if</span> <span class="ident">DEBUG_PERFORMANCE</span> {
+                <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- event() took {}s&quot;</span>, <span class="ident">elapsed_seconds</span>(<span class="ident">started</span>));
+            }
             <span class="comment">// TODO We should always do has_been_consumed, but various hacks prevent this from being</span>
             <span class="comment">// true. For now, just avoid the specific annoying redraw case when a KeyRelease event</span>
             <span class="comment">// is unused.</span>
@@ -461,6 +475,7 @@
 
         <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">start_drawing</span>();
 
+        <span class="kw">let</span> <span class="ident">started</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="ident">panic</span>::<span class="ident">AssertUnwindSafe</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="self">self</span>.<span class="ident">app</span>.<span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">g</span>);
         })) {
@@ -469,12 +484,13 @@
         }
         <span class="kw">let</span> <span class="ident">naming_hint</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">naming_hint</span>.<span class="ident">take</span>();
 
-        <span class="kw">if</span> <span class="bool-val">false</span> {
+        <span class="kw">if</span> <span class="ident">DEBUG_PERFORMANCE</span> {
             <span class="macro">println</span><span class="macro">!</span>(
-                <span class="string">&quot;----- {} uploads, {} draw calls, {} forks -----&quot;</span>,
+                <span class="string">&quot;----- {} uploads, {} draw calls, {} forks. draw() took {} -----&quot;</span>,
                 <span class="ident">g</span>.<span class="ident">get_num_uploads</span>(),
                 <span class="ident">g</span>.<span class="ident">num_draw_calls</span>,
-                <span class="ident">g</span>.<span class="ident">num_forks</span>
+                <span class="ident">g</span>.<span class="ident">num_forks</span>,
+                <span class="ident">elapsed_seconds</span>(<span class="ident">started</span>)
             );
         }
 

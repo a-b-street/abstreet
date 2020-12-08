@@ -297,6 +297,9 @@
 <span id="294">294</span>
 <span id="295">295</span>
 <span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
 
@@ -417,6 +420,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unfork</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">uniforms</span> <span class="op">=</span> <span class="ident">Uniforms</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">canvas</span>);
         <span class="self">self</span>.<span class="ident">num_forks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+
+        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {
@@ -561,9 +566,10 @@
     }
 
     <span class="kw">fn</span> <span class="ident">actually_upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permanent</span>: <span class="ident">bool</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
-        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());</span>
         <span class="self">self</span>.<span class="ident">num_uploads</span>.<span class="ident">set</span>(<span class="self">self</span>.<span class="ident">num_uploads</span>.<span class="ident">get</span>() <span class="op">+</span> <span class="number">1</span>);
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">actually_upload</span>(<span class="ident">permanent</span>, <span class="ident">batch</span>)
+
+        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());</span>
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">request_redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {

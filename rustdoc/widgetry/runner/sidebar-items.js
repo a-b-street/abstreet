@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["UPDATE_FREQUENCY",""]],"fn":[["run",""]],"struct":[["Settings",""],["State",""]]});
+initSidebarItems({"constant":[["DEBUG_PERFORMANCE",""],["UPDATE_FREQUENCY",""]],"fn":[["run",""]],"struct":[["Settings",""],["State",""]]});
