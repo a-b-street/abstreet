@@ -111,20 +111,24 @@ impl Game {
             state,
             player,
         };
-        game.update_panels(ctx, app);
+        game.update_time_panel(ctx, app);
+        game.update_status_panel(ctx, app);
+        game.update_boost_panel(ctx, app);
         game.minimap
             .set_zoom(ctx, app, game.state.level.minimap_zoom);
         Box::new(game)
     }
 
-    fn update_panels(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn update_time_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let time = format!(
             "{}",
             self.state.level.time_limit - (app.time - Time::START_OF_DAY)
         )
         .draw_text(ctx);
         self.time_panel.replace(ctx, "time", time);
+    }
 
+    fn update_status_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let score_bar = make_bar(
             ctx,
             app.session.colors.score,
@@ -140,7 +144,9 @@ impl Game {
             self.state.vehicle.max_energy,
         );
         self.status_panel.replace(ctx, "energy", energy_bar);
+    }
 
+    fn update_boost_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let boost_bar = custom_bar(
             ctx,
             app.session.colors.boost,
@@ -157,6 +163,10 @@ impl Game {
 
 impl State<App> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        let orig_boost = self.state.boost;
+        let (orig_score, orig_energy) = (self.state.score, self.state.energy);
+
+        // Most things depend on time passing and don't care about other events
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             app.time += dt;
 
@@ -168,136 +178,146 @@ impl State<App> for Game {
                     &self.state.level,
                 ));
             }
-        }
 
-        let base_speed = if self.state.has_energy() {
-            self.state.vehicle.normal_speed
-        } else {
-            self.state.vehicle.tired_speed
-        };
-        let speed = if ctx.is_key_down(Key::Space) && self.state.boost > Duration::ZERO {
-            if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-                self.state.boost -= dt;
-                self.state.boost = self.state.boost.max(Duration::ZERO);
-            }
-            base_speed * BOOST_SPEED_MULTIPLIER
-        } else {
-            base_speed
-        };
+            self.update_time_panel(ctx, app);
 
-        for b in self.player.update_with_speed(ctx, app, speed) {
-            match self.state.bldgs.buildings[&b] {
-                BldgState::Undelivered(_) => {
-                    if let Some(increase) = self.state.present_dropped(ctx, app, b) {
-                        let path_speed = Duration::seconds(0.2);
-                        self.animator.add(
-                            app.time,
-                            path_speed,
-                            Effect::FollowPath {
-                                color: app.session.colors.score,
-                                width: map_model::NORMAL_LANE_THICKNESS,
-                                pl: app.map.get_b(b).driveway_geom.reversed(),
-                            },
-                        );
-                        self.animator.add(
-                            app.time + path_speed,
-                            Duration::seconds(0.5),
-                            Effect::Scale {
-                                lerp_scale: (1.0, 4.0),
-                                center: app.map.get_b(b).label_center,
-                                orig: Text::from(Line(format!("+{}", prettyprint_usize(increase))))
+            let base_speed = if self.state.has_energy() {
+                self.state.vehicle.normal_speed
+            } else {
+                self.state.vehicle.tired_speed
+            };
+            let speed = if ctx.is_key_down(Key::Space) && self.state.boost > Duration::ZERO {
+                if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+                    self.state.boost -= dt;
+                    self.state.boost = self.state.boost.max(Duration::ZERO);
+                }
+                base_speed * BOOST_SPEED_MULTIPLIER
+            } else {
+                base_speed
+            };
+
+            for b in self.player.update_with_speed(ctx, app, speed) {
+                match self.state.bldgs.buildings[&b] {
+                    BldgState::Undelivered(_) => {
+                        if let Some(increase) = self.state.present_dropped(ctx, app, b) {
+                            let path_speed = Duration::seconds(0.2);
+                            self.animator.add(
+                                app.time,
+                                path_speed,
+                                Effect::FollowPath {
+                                    color: app.session.colors.score,
+                                    width: map_model::NORMAL_LANE_THICKNESS,
+                                    pl: app.map.get_b(b).driveway_geom.reversed(),
+                                },
+                            );
+                            self.animator.add(
+                                app.time + path_speed,
+                                Duration::seconds(0.5),
+                                Effect::Scale {
+                                    lerp_scale: (1.0, 4.0),
+                                    center: app.map.get_b(b).label_center,
+                                    orig: Text::from(Line(format!(
+                                        "+{}",
+                                        prettyprint_usize(increase)
+                                    )))
                                     .bg(app.session.colors.score)
                                     .render_to_batch(ctx.prerender)
                                     .scale(0.1),
-                            },
-                        );
+                                },
+                            );
+                        }
                     }
-                }
-                BldgState::Store => {
-                    let refill = self.state.vehicle.max_energy - self.state.energy;
-                    if refill > 0 {
-                        self.state.energy += refill;
-                        let path_speed = Duration::seconds(0.2);
-                        self.animator.add(
-                            app.time,
-                            path_speed,
-                            Effect::FollowPath {
-                                color: app.session.colors.energy,
-                                width: map_model::NORMAL_LANE_THICKNESS,
-                                pl: app.map.get_b(b).driveway_geom.clone(),
-                            },
-                        );
-                        self.animator.add(
-                            app.time + path_speed,
-                            Duration::seconds(0.5),
-                            Effect::Scale {
-                                lerp_scale: (1.0, 4.0),
-                                center: app.map.get_b(b).label_center,
-                                orig: Text::from(Line(format!(
-                                    "Refilled {}",
-                                    prettyprint_usize(refill)
-                                )))
-                                .bg(app.session.colors.energy)
-                                .render_to_batch(ctx.prerender)
-                                .scale(0.1),
-                            },
-                        );
+                    BldgState::Store => {
+                        let refill = self.state.vehicle.max_energy - self.state.energy;
+                        if refill > 0 {
+                            self.state.energy += refill;
+                            let path_speed = Duration::seconds(0.2);
+                            self.animator.add(
+                                app.time,
+                                path_speed,
+                                Effect::FollowPath {
+                                    color: app.session.colors.energy,
+                                    width: map_model::NORMAL_LANE_THICKNESS,
+                                    pl: app.map.get_b(b).driveway_geom.clone(),
+                                },
+                            );
+                            self.animator.add(
+                                app.time + path_speed,
+                                Duration::seconds(0.5),
+                                Effect::Scale {
+                                    lerp_scale: (1.0, 4.0),
+                                    center: app.map.get_b(b).label_center,
+                                    orig: Text::from(Line(format!(
+                                        "Refilled {}",
+                                        prettyprint_usize(refill)
+                                    )))
+                                    .bg(app.session.colors.energy)
+                                    .render_to_batch(ctx.prerender)
+                                    .scale(0.1),
+                                },
+                            );
+                        }
                     }
+                    BldgState::Done => {}
                 }
-                BldgState::Done => {}
             }
-        }
-        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+
             if self.player.on_good_road(app) {
                 self.state.boost += dt * ACQUIRE_BOOST_RATE;
                 self.state.boost = self.state.boost.min(self.state.vehicle.max_boost);
             }
-        }
 
-        if let Some(t) = self.minimap.event(ctx, app) {
-            return t;
-        }
-        self.animator.event(ctx, app.time);
-        self.snow.event(ctx, app.time);
-        if self.state.has_energy() {
-            self.state.energyless_arrow = None;
-        } else {
-            if self.state.energyless_arrow.is_none() {
-                self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, app.time));
-            }
-            let stores = self.state.bldgs.all_stores();
-            self.state.energyless_arrow.as_mut().unwrap().update(
-                ctx,
-                app,
-                self.player.get_pos(),
-                stores,
-            );
-        }
-
-        match self.title_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "back" => {
-                    return Transition::Push(ChooseSomething::new(
-                        ctx,
-                        "Game Paused",
-                        vec![
-                            Choice::string("Resume").key(Key::Escape),
-                            Choice::string("Quit"),
-                        ],
-                        Box::new(|resp, _, _| match resp.as_ref() {
-                            "Resume" => Transition::Pop,
-                            "Quit" => Transition::Multi(vec![Transition::Pop, Transition::Pop]),
-                            _ => unreachable!(),
-                        }),
-                    ));
+            self.animator.event(ctx, app.time);
+            self.snow.event(ctx, app.time);
+            if self.state.has_energy() {
+                self.state.energyless_arrow = None;
+            } else {
+                if self.state.energyless_arrow.is_none() {
+                    self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, app.time));
                 }
-                _ => unreachable!(),
-            },
-            _ => {}
+                let stores = self.state.bldgs.all_stores();
+                self.state.energyless_arrow.as_mut().unwrap().update(
+                    ctx,
+                    app,
+                    self.player.get_pos(),
+                    stores,
+                );
+            }
+
+            if self.state.boost != orig_boost {
+                self.update_boost_panel(ctx, app);
+            }
+            if self.state.score != orig_score || self.state.energy != orig_energy {
+                self.update_status_panel(ctx, app);
+            }
+        } else {
+            if let Some(t) = self.minimap.event(ctx, app) {
+                return t;
+            }
+
+            match self.title_panel.event(ctx) {
+                Outcome::Clicked(x) => match x.as_ref() {
+                    "back" => {
+                        return Transition::Push(ChooseSomething::new(
+                            ctx,
+                            "Game Paused",
+                            vec![
+                                Choice::string("Resume").key(Key::Escape),
+                                Choice::string("Quit"),
+                            ],
+                            Box::new(|resp, _, _| match resp.as_ref() {
+                                "Resume" => Transition::Pop,
+                                "Quit" => Transition::Multi(vec![Transition::Pop, Transition::Pop]),
+                                _ => unreachable!(),
+                            }),
+                        ));
+                    }
+                    _ => unreachable!(),
+                },
+                _ => {}
+            }
         }
 
-        // Time is constantly passing
-        self.update_panels(ctx, app);
         ctx.request_update(UpdateType::Game);
         Transition::Keep
     }
