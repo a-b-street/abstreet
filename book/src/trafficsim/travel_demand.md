@@ -131,4 +131,5 @@ modify the mode for some people (change 50% of all driving trips between 7 and
 - <https://github.com/RSGInc/DaySim>
 - <https://github.com/arup-group/pam>
 - <https://spatial-microsim-book.robinlovelace.net/smsimr.html>
-- https://github.com/DLR-VF/TAPAS
+- <https://github.com/DLR-VF/TAPAS>
+- <https://sumo.dlr.de/docs/Demand/Activity-based_Demand_Generation.html>

@@ -18,11 +18,45 @@ pub struct Level {
 }
 
 impl Level {
-    // TODO Like Challenge::all; cache with lazy static?
     pub fn all() -> Vec<Level> {
         vec![
             Level {
-                title: "Level 1 - a small neighborhood".to_string(),
+                title: "University District".to_string(),
+                map: MapName::seattle("udistrict_ravenna"),
+                start: osm::NodeID(53162661),
+                minimap_zoom: 1,
+                time_limit: Duration::seconds(90.0),
+                goal: 25,
+
+                unlock_upzones: 2,
+                unlock_vehicles: vec!["bike".to_string()],
+            },
+            Level {
+                title: "Wallingford".to_string(),
+                map: MapName::seattle("wallingford"),
+                start: osm::NodeID(53218389),
+                minimap_zoom: 2,
+                time_limit: Duration::seconds(90.0),
+                goal: 25,
+
+                unlock_upzones: 2,
+                unlock_vehicles: vec!["cargo bike".to_string()],
+            },
+            // TODO Super dense, starting point isn't even near apartments, run out of gifts after
+            // a few buildings. Unexpectedly hard!
+            Level {
+                title: "South Lake Union".to_string(),
+                map: MapName::seattle("slu"),
+                start: osm::NodeID(53142423),
+                minimap_zoom: 1,
+                time_limit: Duration::seconds(90.0),
+                goal: 25,
+
+                unlock_upzones: 2,
+                unlock_vehicles: vec![],
+            },
+            Level {
+                title: "Montlake".to_string(),
                 map: MapName::seattle("montlake"),
                 start: osm::NodeID(53084814),
                 minimap_zoom: 1,
@@ -30,21 +64,10 @@ impl Level {
                 goal: 25,
 
                 unlock_upzones: 2,
-                unlock_vehicles: vec!["bike".to_string(), "cargo bike".to_string()],
-            },
-            Level {
-                title: "Level 2 - a small neighborhood with upzones".to_string(),
-                map: MapName::seattle("montlake"),
-                start: osm::NodeID(53084814),
-                minimap_zoom: 1,
-                time_limit: Duration::minutes(4),
-                goal: 1000,
-
-                unlock_upzones: 3,
                 unlock_vehicles: vec![],
             },
             Level {
-                title: "Level 3 - Magnolia".to_string(),
+                title: "Magnolia".to_string(),
                 map: MapName::seattle("ballard"),
                 start: osm::NodeID(53117102),
                 minimap_zoom: 2,
