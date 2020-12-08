@@ -47,10 +47,17 @@ impl Game {
         app.session.current_vehicle = vehicle.name.clone();
 
         let title_panel = Panel::new(Widget::row(vec![
-            Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", Key::Escape),
-            "15 min Santa".draw_text(ctx),
-            Widget::draw_svg(ctx, "system/assets/tools/map.svg"),
-            Line(&level.title).draw(ctx),
+            Btn::svg_def("system/assets/tools/home.svg")
+                .build(ctx, "back", Key::Escape)
+                .centered_vert(),
+            "15 min Santa".draw_text(ctx).centered_vert(),
+            Widget::row(vec![
+                // TODO The blur is messed up
+                Widget::draw_svg(ctx, "system/assets/tools/map.svg").centered_vert(),
+                Line(&level.title).draw(ctx),
+            ])
+            .padding(10)
+            .bg(Color::hex("#003046")),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
         .build(ctx);
@@ -140,7 +147,7 @@ impl Game {
             app.session.colors.boost,
             self.state.boost / self.state.vehicle.max_boost,
             if self.state.boost == Duration::ZERO {
-                Text::from(Line("Find a bike or bus lane to get a boost"))
+                Text::from(Line("Find a bike or bus lane"))
             } else {
                 Text::from(Line("Press space to boost"))
             },

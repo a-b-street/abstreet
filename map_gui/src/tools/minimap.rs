@@ -3,8 +3,8 @@ use std::marker::PhantomData;
 use abstutil::clamp;
 use geom::{Distance, Polygon, Pt2D, Ring};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
-    Panel, ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
+    Btn, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
+    ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
 };
 
 use crate::AppLike;
@@ -105,9 +105,9 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                 .margin_below(20)];
             for i in (0..=3).rev() {
                 let color = if self.zoom_lvl < i {
-                    Color::WHITE.alpha(0.2)
+                    app.cs().minimap_unselected_zoom
                 } else {
-                    Color::WHITE
+                    app.cs().minimap_selected_zoom
                 };
                 let rect = Polygon::rectangle(20.0, 8.0);
                 col.push(
@@ -401,16 +401,19 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                 .screen_to_map(ScreenPt::new(g.canvas.window_width, g.canvas.window_height));
             (pt.x(), pt.y())
         };
+        let rect = Ring::must_new(vec![
+            Pt2D::new(x1, y1),
+            Pt2D::new(x2, y1),
+            Pt2D::new(x2, y2),
+            Pt2D::new(x1, y2),
+            Pt2D::new(x1, y1),
+        ]);
+        if let Some(color) = app.cs().minimap_cursor_bg {
+            g.draw_polygon(color, rect.clone().to_polygon());
+        }
         g.draw_polygon(
-            app.cs().minimap_cursor,
-            Ring::must_new(vec![
-                Pt2D::new(x1, y1),
-                Pt2D::new(x2, y1),
-                Pt2D::new(x2, y2),
-                Pt2D::new(x1, y2),
-                Pt2D::new(x1, y1),
-            ])
-            .to_outline(Distance::meters(20.0)),
+            app.cs().minimap_cursor_border,
+            rect.to_outline(Distance::meters(10.0)),
         );
         g.disable_clipping();
         g.unfork();

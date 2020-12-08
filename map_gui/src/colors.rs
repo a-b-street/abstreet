@@ -71,7 +71,10 @@ pub struct ColorScheme {
     pub fade_map_dark: Color,
     pub gui_style: Style,
     pub dialog_bg: Color,
-    pub minimap_cursor: Color,
+    pub minimap_cursor_border: Color,
+    pub minimap_cursor_bg: Option<Color>,
+    pub minimap_selected_zoom: Color,
+    pub minimap_unselected_zoom: Color,
 
     // Roads
     driving_lane: Color,
@@ -192,7 +195,10 @@ impl ColorScheme {
             bottom_bar_name: Color::CYAN,
             fade_map_dark: Color::BLACK.alpha(0.6),
             dialog_bg: hex("#94C84A"),
-            minimap_cursor: Color::BLACK,
+            minimap_cursor_border: Color::BLACK,
+            minimap_cursor_bg: None,
+            minimap_selected_zoom: Color::WHITE,
+            minimap_unselected_zoom: Color::WHITE.alpha(0.2),
             gui_style,
 
             // Roads
@@ -405,7 +411,10 @@ impl ColorScheme {
         cs.panel_bg = Color::hex("#003046").alpha(0.8);
         cs.gui_style.panel_bg = cs.panel_bg;
         cs.inner_panel = cs.panel_bg;
-        cs.minimap_cursor = Color::WHITE;
+        cs.minimap_cursor_border = Color::WHITE;
+        cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));
+        cs.minimap_selected_zoom = Color::hex("#EE702E");
+        cs.minimap_unselected_zoom = Color::WHITE.alpha(0.3);
 
         cs
     }

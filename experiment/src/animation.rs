@@ -1,7 +1,7 @@
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
-use geom::{Circle, Distance, Duration, PolyLine, Pt2D, Time};
+use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 
 pub struct Animator {
@@ -128,7 +128,8 @@ impl SnowEffect {
         };
 
         let now = Time::START_OF_DAY;
-        for _ in 0..60 {
+        // TODO Amp back up after fixing slow performance in debug mode
+        for _ in 0..20 {
             let initial_pos = Pt2D::new(
                 snow.rng.gen_range(0.0, ctx.canvas.window_width),
                 snow.rng.gen_range(0.0, ctx.canvas.window_height),
@@ -155,7 +156,8 @@ impl SnowEffect {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, now: Time) {
-        let shape = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
+        let shape =
+            GeomBatch::load_svg(ctx.prerender, "system/assets/map/snowflake.svg").scale(0.1);
 
         let mut batch = GeomBatch::new();
         let prev_flakes = std::mem::replace(&mut self.flakes, Vec::new());
@@ -166,7 +168,7 @@ impl SnowEffect {
                 let initial_pos = Pt2D::new(self.rng.gen_range(0.0, ctx.canvas.window_width), 0.0);
                 new_flakes.push(self.spawn_new(now, initial_pos));
             } else {
-                batch.push(Color::WHITE.alpha(0.5), shape.translate(pt.x(), pt.y()));
+                batch.append(shape.clone().translate(pt.x(), pt.y()));
                 new_flakes.push(flake);
             }
         }

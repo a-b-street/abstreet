@@ -62,3 +62,4 @@ Other binary data bundled in:
 - Bungee fonts (<https://fonts.google.com/specimen/Bungee>, Open Font License)
 - Material Design icons (<https://material.io/resources/icons>, Apache license)
 - Some Graphics textures (<https://www.kenney.nl/>, CC0 1.0 Universal)
+- Snowflake SVG (<https://www.svgrepo.com/page/licensing>, CC0)
