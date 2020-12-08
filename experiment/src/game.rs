@@ -31,7 +31,6 @@ pub struct Game {
     animator: Animator,
     snow: SnowEffect,
 
-    time: Time,
     state: GameState,
     player: Player,
 }
@@ -45,6 +44,7 @@ impl Game {
         upzones: HashSet<BuildingID>,
     ) -> Box<dyn State<App>> {
         app.session.current_vehicle = vehicle.name.clone();
+        app.time = Time::START_OF_DAY;
 
         let title_panel = Panel::new(Widget::row(vec![
             Btn::svg_def("system/assets/tools/home.svg")
@@ -108,7 +108,6 @@ impl Game {
             animator: Animator::new(ctx),
             snow: SnowEffect::new(ctx),
 
-            time: Time::START_OF_DAY,
             state,
             player,
         };
@@ -121,7 +120,7 @@ impl Game {
     fn update_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         let time = format!(
             "{}",
-            self.state.level.time_limit - (self.time - Time::START_OF_DAY)
+            self.state.level.time_limit - (app.time - Time::START_OF_DAY)
         )
         .draw_text(ctx);
         self.time_panel.replace(ctx, "time", time);
@@ -159,9 +158,9 @@ impl Game {
 impl State<App> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            self.time += dt;
+            app.time += dt;
 
-            if self.time - Time::START_OF_DAY >= self.state.level.time_limit {
+            if app.time - Time::START_OF_DAY >= self.state.level.time_limit {
                 return Transition::Replace(Results::new(
                     ctx,
                     app,
@@ -192,7 +191,7 @@ impl State<App> for Game {
                     if let Some(increase) = self.state.present_dropped(ctx, app, b) {
                         let path_speed = Duration::seconds(0.2);
                         self.animator.add(
-                            self.time,
+                            app.time,
                             path_speed,
                             Effect::FollowPath {
                                 color: app.session.colors.score,
@@ -201,7 +200,7 @@ impl State<App> for Game {
                             },
                         );
                         self.animator.add(
-                            self.time + path_speed,
+                            app.time + path_speed,
                             Duration::seconds(0.5),
                             Effect::Scale {
                                 lerp_scale: (1.0, 4.0),
@@ -220,7 +219,7 @@ impl State<App> for Game {
                         self.state.energy += refill;
                         let path_speed = Duration::seconds(0.2);
                         self.animator.add(
-                            self.time,
+                            app.time,
                             path_speed,
                             Effect::FollowPath {
                                 color: app.session.colors.energy,
@@ -229,7 +228,7 @@ impl State<App> for Game {
                             },
                         );
                         self.animator.add(
-                            self.time + path_speed,
+                            app.time + path_speed,
                             Duration::seconds(0.5),
                             Effect::Scale {
                                 lerp_scale: (1.0, 4.0),
@@ -258,19 +257,18 @@ impl State<App> for Game {
         if let Some(t) = self.minimap.event(ctx, app) {
             return t;
         }
-        self.animator.event(ctx, self.time);
-        self.snow.event(ctx, self.time);
+        self.animator.event(ctx, app.time);
+        self.snow.event(ctx, app.time);
         if self.state.has_energy() {
             self.state.energyless_arrow = None;
         } else {
             if self.state.energyless_arrow.is_none() {
-                self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, self.time));
+                self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, app.time));
             }
             let stores = self.state.bldgs.all_stores();
             self.state.energyless_arrow.as_mut().unwrap().update(
                 ctx,
                 app,
-                self.time,
                 self.player.get_pos(),
                 stores,
             );
@@ -330,7 +328,7 @@ impl State<App> for Game {
         if true {
             self.state
                 .vehicle
-                .animate(g, self.time)
+                .animate(g, app.time)
                 .centered_on(self.player.get_pos())
                 .rotate_around_batch_center(self.player.get_angle())
                 .draw(g);
@@ -440,18 +438,11 @@ impl EnergylessArrow {
         }
     }
 
-    fn update(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &App,
-        time: Time,
-        sleigh: Pt2D,
-        all_stores: Vec<BuildingID>,
-    ) {
-        if self.last_update == time {
+    fn update(&mut self, ctx: &mut EventCtx, app: &App, sleigh: Pt2D, all_stores: Vec<BuildingID>) {
+        if self.last_update == app.time {
             return;
         }
-        self.last_update = time;
+        self.last_update = app.time;
         // Find the closest store as the crow -- or Santa -- flies
         // TODO Or pathfind and show them that?
         let store = app.map.get_b(
@@ -463,7 +454,7 @@ impl EnergylessArrow {
 
         // Vibrate in size slightly
         let period = Duration::seconds(0.5);
-        let pct = ((time - self.started) % period) / period;
+        let pct = ((app.time - self.started) % period) / period;
         // -1 to 1
         let shift = (pct * std::f64::consts::PI).sin();
         let thickness = Distance::meters(5.0 + shift);

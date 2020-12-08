@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, VecDeque};
 
 use abstutil::Timer;
-use geom::{Distance, Duration, Line, Polygon, Pt2D};
+use geom::{Distance, Line, Polygon, Pt2D};
 use map_gui::options::TrafficSignalStyle;
 use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
 use map_gui::tools::PopupMsg;
@@ -600,14 +600,14 @@ fn make_side_panel(
     let mut col = vec![txt.draw(ctx)];
     col.push(Widget::horiz_separator(ctx, 0.2));
 
-    {
-        let mut total = Duration::ZERO;
-        for s in &canonical_signal.stages {
-            total += s.phase_type.simple_duration();
-        }
-        // TODO Say "normally" to account for adaptive stages?
-        col.push(format!("One full cycle lasts {}", total).draw_text(ctx));
-    }
+    // TODO Say "normally" to account for adaptive stages?
+    col.push(
+        format!(
+            "One full cycle lasts {}",
+            canonical_signal.simple_cycle_duration()
+        )
+        .draw_text(ctx),
+    );
 
     if members.len() == 1 {
         col.push(Btn::text_bg2("Edit entire signal").build_def(ctx, Key::E));

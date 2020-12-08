@@ -234,6 +234,15 @@ impl ControlTrafficSignal {
             turn, self.id
         )
     }
+
+    /// How long a full cycle of the signal lasts, assuming no actuated timings.
+    pub fn simple_cycle_duration(&self) -> Duration {
+        let mut total = Duration::ZERO;
+        for s in &self.stages {
+            total += s.phase_type.simple_duration();
+        }
+        total
+    }
 }
 
 impl Stage {

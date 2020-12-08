@@ -19,6 +19,8 @@ pub struct SimpleApp<T> {
     pub current_selection: Option<ID>,
     /// Custom per-app state can be stored here
     pub session: T,
+    /// If desired, this can be advanced to render traffic signals changing.
+    pub time: Time,
 }
 
 impl<T> SimpleApp<T> {
@@ -50,6 +52,7 @@ impl<T> SimpleApp<T> {
                 opts,
                 current_selection: None,
                 session,
+                time: Time::START_OF_DAY,
             }
         })
     }
@@ -259,16 +262,19 @@ impl<T> AppLike for SimpleApp<T> {
     }
 
     fn sim_time(&self) -> Time {
-        Time::START_OF_DAY
+        self.time
     }
 
     fn current_stage_and_remaining_time(&self, id: IntersectionID) -> (usize, Duration) {
-        (
-            0,
-            self.map.get_traffic_signal(id).stages[0]
-                .phase_type
-                .simple_duration(),
-        )
+        let signal = self.map.get_traffic_signal(id);
+        let mut time_left = (self.time - Time::START_OF_DAY) % signal.simple_cycle_duration();
+        for (idx, stage) in signal.stages.iter().enumerate() {
+            if time_left < stage.phase_type.simple_duration() {
+                return (idx, time_left);
+            }
+            time_left -= stage.phase_type.simple_duration();
+        }
+        unreachable!()
     }
 }
 
