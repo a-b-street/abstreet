@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
-use widgetry::Color;
+use widgetry::{Color, EventCtx};
 
 use crate::levels::Level;
+use crate::music::Music;
 
 /// Persistent state that lasts across levels.
 #[derive(Serialize, Deserialize)]
@@ -20,6 +21,10 @@ pub struct Session {
     pub current_vehicle: String,
     pub vehicles_unlocked: Vec<String>,
     pub upzones_unlocked: usize,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    pub music: Music,
+    pub play_music: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -73,6 +78,9 @@ impl Session {
             current_vehicle: "sleigh".to_string(),
             vehicles_unlocked: vec!["sleigh".to_string()],
             upzones_unlocked: 0,
+
+            music: Music::empty(),
+            play_music: true,
         }
     }
 
@@ -126,5 +134,14 @@ impl Session {
             self.upzones_unlocked += level.unlock_upzones;
         }
         self.levels_unlocked = self.levels.len();
+    }
+
+    pub fn update_music(&mut self, ctx: &mut EventCtx) {
+        let play_music = self.play_music;
+        self.music.event(ctx, &mut self.play_music);
+        if play_music != self.play_music {
+            // Save when we mute/unmute
+            abstutil::write_json(abstutil::path_player("santa.json"), self);
+        }
     }
 }

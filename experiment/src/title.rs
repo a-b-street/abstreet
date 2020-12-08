@@ -102,6 +102,8 @@ impl State<App> for TitleScreen {
             _ => {}
         }
 
+        app.session.update_music(ctx);
+
         Transition::Keep
     }
 
@@ -112,5 +114,6 @@ impl State<App> for TitleScreen {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
+        app.session.music.draw(g);
     }
 }

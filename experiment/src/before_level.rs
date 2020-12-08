@@ -130,11 +130,14 @@ impl State<App> for Picker {
             _ => {}
         }
 
+        app.session.update_music(ctx);
+
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
+        app.session.music.draw(g);
         g.redraw(&self.bldgs.draw_all);
         for b in &self.current_picks {
             g.draw_polygon(Color::PINK, app.map.get_b(*b).polygon.clone());

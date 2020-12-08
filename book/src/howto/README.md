@@ -63,3 +63,4 @@ Other binary data bundled in:
 - Material Design icons (<https://material.io/resources/icons>, Apache license)
 - Some Graphics textures (<https://www.kenney.nl/>, CC0 1.0 Universal)
 - Snowflake SVG (<https://www.svgrepo.com/page/licensing>, CC0)
+- Jingle Bells (<https://soundcloud.com/royaltyfreebackgroundmusic/creative-commons-music-4061>, CC BY-NC-ND)

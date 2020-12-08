@@ -316,6 +316,8 @@ impl State<App> for Game {
                 },
                 _ => {}
             }
+
+            app.session.update_music(ctx);
         }
 
         ctx.request_update(UpdateType::Game);
@@ -327,6 +329,7 @@ impl State<App> for Game {
         self.status_panel.draw(g);
         self.time_panel.draw(g);
         self.boost_panel.draw(g);
+        app.session.music.draw(g);
 
         let santa_tracker = g.upload(GeomBatch::from(vec![(
             Color::RED,
