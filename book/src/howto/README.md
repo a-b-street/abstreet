@@ -40,6 +40,15 @@ Or you can [compile from source](../dev/index.md).
 - Play the **challenges** for directed gameplay.
 - Try out any ideas in the **sandbox**.
 
+## Common issues
+
+If the size of text and panels
+[seems very strange](https://github.com/dabreegster/abstreet/issues/381), you
+can try editing `play_abstreet.sh` or `play_abstreet.bat` and passing
+`--scale_factor=1` on the command line. This value is detected from your monitor
+settings, so if you have a Retina or other HiDPI display, things may be too big
+or small.
+
 ## Data source licensing
 
 A/B Street binary releases contain pre-built maps that combine data from:
