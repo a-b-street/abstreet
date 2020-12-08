@@ -60,6 +60,29 @@
 <span id="57">57</span>
 <span id="58">58</span>
 <span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -81,11 +104,45 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Level</span> {
-    <span class="comment">// TODO Like Challenge::all; cache with lazy static?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Level</span><span class="op">&gt;</span> {
         <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Level</span> {
-                <span class="ident">title</span>: <span class="string">&quot;Level 1 - a small neighborhood&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">title</span>: <span class="string">&quot;University District&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;udistrict_ravenna&quot;</span>),
+                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53162661</span>),
+                <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
+                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
+                <span class="ident">goal</span>: <span class="number">25</span>,
+
+                <span class="ident">unlock_upzones</span>: <span class="number">2</span>,
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>()],
+            },
+            <span class="ident">Level</span> {
+                <span class="ident">title</span>: <span class="string">&quot;Wallingford&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;wallingford&quot;</span>),
+                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53218389</span>),
+                <span class="ident">minimap_zoom</span>: <span class="number">2</span>,
+                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
+                <span class="ident">goal</span>: <span class="number">25</span>,
+
+                <span class="ident">unlock_upzones</span>: <span class="number">2</span>,
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cargo bike&quot;</span>.<span class="ident">to_string</span>()],
+            },
+            <span class="comment">// TODO Super dense, starting point isn&#39;t even near apartments, run out of gifts after</span>
+            <span class="comment">// a few buildings. Unexpectedly hard!</span>
+            <span class="ident">Level</span> {
+                <span class="ident">title</span>: <span class="string">&quot;South Lake Union&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;slu&quot;</span>),
+                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53142423</span>),
+                <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
+                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
+                <span class="ident">goal</span>: <span class="number">25</span>,
+
+                <span class="ident">unlock_upzones</span>: <span class="number">2</span>,
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+            },
+            <span class="ident">Level</span> {
+                <span class="ident">title</span>: <span class="string">&quot;Montlake&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53084814</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
@@ -93,21 +150,10 @@
                 <span class="ident">goal</span>: <span class="number">25</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">2</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;cargo bike&quot;</span>.<span class="ident">to_string</span>()],
-            },
-            <span class="ident">Level</span> {
-                <span class="ident">title</span>: <span class="string">&quot;Level 2 - a small neighborhood with upzones&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53084814</span>),
-                <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">4</span>),
-                <span class="ident">goal</span>: <span class="number">1000</span>,
-
-                <span class="ident">unlock_upzones</span>: <span class="number">3</span>,
                 <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
             },
             <span class="ident">Level</span> {
-                <span class="ident">title</span>: <span class="string">&quot;Level 3 - Magnolia&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">title</span>: <span class="string">&quot;Magnolia&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;ballard&quot;</span>),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53117102</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">2</span>,
