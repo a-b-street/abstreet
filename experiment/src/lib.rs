@@ -10,6 +10,7 @@ mod game;
 mod levels;
 mod meters;
 mod movement;
+mod music;
 mod session;
 mod title;
 mod vehicles;
@@ -30,6 +31,7 @@ pub fn main() {
         if app.opts.dev {
             app.session.unlock_all();
         }
+        app.session.music = music::Music::start(ctx, app.session.play_music);
 
         let states = vec![title::TitleScreen::new(ctx, &app)];
         (app, states)

@@ -20,6 +20,7 @@ map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
 rand = "0.7.0"
 rand_xorshift = "0.2.0"
+rodio = { version = "0.13.0", default-features = false, features = ["vorbis"] }
 serde = "1.0.116"
 wasm-bindgen = { version = "0.2.68", optional = true }
 widgetry = { path = "../widgetry" }

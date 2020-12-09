@@ -83,10 +83,13 @@ impl State<App> for Results {
             _ => {}
         }
 
+        app.session.update_music(ctx);
+
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
+        app.session.music.draw(g);
     }
 }
