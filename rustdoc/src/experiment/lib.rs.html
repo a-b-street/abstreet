@@ -47,6 +47,8 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
@@ -60,6 +62,7 @@
 <span class="kw">mod</span> <span class="ident">levels</span>;
 <span class="kw">mod</span> <span class="ident">meters</span>;
 <span class="kw">mod</span> <span class="ident">movement</span>;
+<span class="kw">mod</span> <span class="ident">music</span>;
 <span class="kw">mod</span> <span class="ident">session</span>;
 <span class="kw">mod</span> <span class="ident">title</span>;
 <span class="kw">mod</span> <span class="ident">vehicles</span>;
@@ -80,6 +83,7 @@
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">unlock_all</span>();
         }
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span> <span class="op">=</span> <span class="ident">music</span>::<span class="ident">Music</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">play_music</span>);
 
         <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">title</span>::<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>)];
         (<span class="ident">app</span>, <span class="ident">states</span>)

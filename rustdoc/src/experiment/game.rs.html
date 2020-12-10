@@ -508,6 +508,9 @@
 <span id="505">505</span>
 <span id="506">506</span>
 <span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -827,6 +830,8 @@
                 },
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
+
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">update_music</span>(<span class="ident">ctx</span>);
         }
 
         <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">Game</span>);
@@ -838,6 +843,7 @@
         <span class="self">self</span>.<span class="ident">status_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">time_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">boost_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
         <span class="kw">let</span> <span class="ident">santa_tracker</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
             <span class="ident">Color</span>::<span class="ident">RED</span>,
