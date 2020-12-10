@@ -4,7 +4,6 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
-use geom::Distance;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest};
 use sim::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
@@ -67,13 +66,13 @@ pub fn make_person(
 
 fn find_building_for_activity(
     activity: Activity,
-    start: TripEndpoint,
+    _start: TripEndpoint,
     map: &Map,
-    rng: &mut XorShiftRng,
+    _rng: &mut XorShiftRng,
 ) -> Option<BuildingID> {
     // What types of OpenStreetMap amenities will satisfy each activity?
     let categories: HashSet<&'static str> = match activity {
-        Activity::Movies => vec!["cinema", "theatre"],
+        Activity::Entertainment => vec!["cinema", "theatre"],
         // TODO Fill this out. amenity_type in map_gui/src/tools/mod.rs might be helpful. It might
         // also be helpful to edit the list of possible activities in lib.rs too.
         _ => vec![],
