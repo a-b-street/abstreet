@@ -38,10 +38,7 @@ impl State<App> for CensusGenerator {
                 }
                 "Generate" => {
                     // Generate this from self.panel
-                    let config = Config {
-                        percent_drivers: 0.8,
-                    };
-
+                    let config = Config::default();
                     let scenario = popdat::generate_scenario(
                         "typical monday",
                         config,
