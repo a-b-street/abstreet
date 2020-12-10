@@ -297,7 +297,7 @@ impl TripSpec {
 }
 
 /// Specifies where a trip begins or ends.
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy)]
 pub enum TripEndpoint {
     Bldg(BuildingID),
     Border(IntersectionID),
