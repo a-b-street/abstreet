@@ -22,8 +22,8 @@ jobs:
 
       - name: Update apt
         run: sudo apt-get update
-      - name: Install plantuml
-        run: sudo apt-get install plantuml
+      - name: Install plantuml and ALSA
+        run: sudo apt-get install plantuml libasound2-dev
 
       - name: Install mdbook-plantuml
         run: cargo install mdbook-plantuml

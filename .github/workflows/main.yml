@@ -39,6 +39,10 @@ jobs:
         shell: bash
         run: if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then echo 'features=--features=map_gui/release_s3' >> $GITHUB_ENV; else echo 'features=' >> $GITHUB_ENV; fi
 
+      - name: Install dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install libasound2-dev
+
       - name: Build game
         working-directory: game
         run: cargo build --release ${features}
