@@ -29,19 +29,29 @@
 <span id="26">26</span>
 <span id="27">27</span>
 <span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">PersonSpec</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">CensusPerson</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CensusPerson</span>, <span class="ident">Config</span>};
 
 <span class="comment">// sim/src/make/activity_model.rs does parts of this, but in a simplified way. It might be a good</span>
 <span class="comment">// starting point though.</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_person</span>(<span class="ident">person</span>: <span class="ident">CensusPerson</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PersonSpec</span> {
-    <span class="kw">let</span> <span class="ident">schedule</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">generate_schedule</span>(<span class="ident">rng</span>);
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_person</span>(
+    <span class="ident">person</span>: <span class="ident">CensusPerson</span>,
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+    <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
+    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">Config</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PersonSpec</span> {
+    <span class="kw">let</span> <span class="ident">schedule</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">generate_schedule</span>(<span class="ident">config</span>, <span class="ident">rng</span>);
 
     <span class="comment">// TODO For each activity, we have to pick a specific building to satisfy that activity.</span>
     <span class="comment">// map_gui/src/tools/mod.rs has amenity_type, which is an incomplete mapping from different</span>
