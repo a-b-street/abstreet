@@ -43,7 +43,7 @@ pub struct CensusArea {
 pub struct CensusPerson {
     pub home: BuildingID,
     pub age: usize,
-    pub employeed: bool,
+    pub employed: bool,
     pub owns_car: bool,
 }
 
