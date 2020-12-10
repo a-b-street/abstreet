@@ -23,7 +23,7 @@ extern crate log;
 use rand_xorshift::XorShiftRng;
 
 use geom::Polygon;
-use geom::Time;
+use geom::{Distance, Time};
 use map_model::{BuildingID, Map};
 use sim::Scenario;
 
@@ -80,14 +80,15 @@ pub enum Activity {
 /// Any arbitrarily chosen parameters needed should be put here, so they can be controlled from the
 /// UI or tuned for different cities.
 pub struct Config {
-    /// Just an example
-    pub percent_drivers: f64,
+    pub walk_for_distances_shorter_than: Distance,
+    pub walk_or_bike_for_distances_shorter_than: Distance,
 }
 
 impl Config {
     pub fn default() -> Config {
         Config {
-            percent_drivers: 0.5,
+            walk_for_distances_shorter_than: Distance::miles(0.5),
+            walk_or_bike_for_distances_shorter_than: Distance::miles(3.0),
         }
     }
 }
