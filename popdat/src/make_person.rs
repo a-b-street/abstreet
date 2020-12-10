@@ -3,13 +3,18 @@ use rand_xorshift::XorShiftRng;
 use map_model::Map;
 use sim::PersonSpec;
 
-use crate::CensusPerson;
+use crate::{CensusPerson, Config};
 
 // sim/src/make/activity_model.rs does parts of this, but in a simplified way. It might be a good
 // starting point though.
 
-pub fn make_person(person: CensusPerson, map: &Map, rng: &mut XorShiftRng) -> PersonSpec {
-    let schedule = person.generate_schedule(rng);
+pub fn make_person(
+    person: CensusPerson,
+    map: &Map,
+    rng: &mut XorShiftRng,
+    config: &Config,
+) -> PersonSpec {
+    let schedule = person.generate_schedule(config, rng);
 
     // TODO For each activity, we have to pick a specific building to satisfy that activity.
     // map_gui/src/tools/mod.rs has amenity_type, which is an incomplete mapping from different

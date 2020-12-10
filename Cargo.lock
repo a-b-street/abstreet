@@ -1217,6 +1217,7 @@ dependencies = [
  "map_model",
  "maplit",
  "petname",
+ "popdat",
  "rand",
  "rand_xorshift",
  "serde",

@@ -19,7 +19,9 @@ fn main() {
     args.done();
 
     timer.start("generate");
-    let scenario = popdat::generate_scenario(&scenario_name, &map, &mut rng).unwrap();
+    let scenario =
+        popdat::generate_scenario(&scenario_name, popdat::Config::default(), &map, &mut rng)
+            .unwrap();
     timer.stop("generate");
     scenario.save();
 }

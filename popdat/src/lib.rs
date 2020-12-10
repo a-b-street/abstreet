@@ -73,17 +73,33 @@ pub enum Activity {
     Library,
 }
 
+/// Any arbitrarily chosen parameters needed should be put here, so they can be controlled from the
+/// UI or tuned for different cities.
+pub struct Config {
+    /// Just an example
+    pub percent_drivers: f64,
+}
+
+impl Config {
+    pub fn default() -> Config {
+        Config {
+            percent_drivers: 0.5,
+        }
+    }
+}
+
 /// Wires together all the pieces, so you can just hand this any map, and it'll automatically find
 /// appropriate census data, and use it to produce a Scenario.
 pub fn generate_scenario(
     scenario_name: &str,
+    config: Config,
     map: &Map,
     rng: &mut XorShiftRng,
 ) -> Result<Scenario, String> {
     /// find_data_for_map may return an error. If so, just plumb it back to the caller using the ?
     /// operator
     let areas = CensusArea::find_data_for_map(map)?;
-    let people = distribute_people::assign_people_to_houses(areas, map, rng);
+    let people = distribute_people::assign_people_to_houses(areas, map, rng, &config);
 
     let mut scenario = Scenario::empty(map, scenario_name);
     for person in people {
@@ -91,7 +107,7 @@ pub fn generate_scenario(
         // method that could be useful
         scenario
             .people
-            .push(make_person::make_person(person, map, rng));
+            .push(make_person::make_person(person, map, rng, &config));
     }
     Ok(scenario)
 }

@@ -34,6 +34,7 @@ maplit = "1.0.2"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
 petname = "1.0.12"
+popdat = { path = "../popdat" }
 rand = "0.7.0"
 rand_xorshift = "0.2.0"
 serde = "1.0.116"
