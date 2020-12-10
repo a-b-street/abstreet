@@ -16,6 +16,7 @@ members = [
   "map_model",
   "osm_viewer",
   "parking_mapper",
+  "popdat",
   "sim",
   "tests",
   "traffic_seitan",

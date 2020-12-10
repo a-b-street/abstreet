@@ -2750,6 +2750,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "popdat"
+version = "0.1.0"
+dependencies = [
+ "abstutil",
+ "geom",
+ "map_model",
+ "rand",
+ "rand_xorshift",
+ "sim",
+]
+
+[[package]]
 name = "ppv-lite86"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"

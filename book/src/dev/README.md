@@ -149,6 +149,7 @@ Other:
 - `parking_mapper`: a standalone tool to help map street parking in OSM
 - `osm_viewer`: a standalone tool to render OSM in detail
 - `fifteen_min`: a standalone tool to explore 15-minute neighborhoods
+- `popdat`: use census data to produce traffic simulation input
 
 ## Code conventions
 
