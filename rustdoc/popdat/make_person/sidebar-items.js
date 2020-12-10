@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_person",""]]});
+initSidebarItems({"fn":[["find_building_for_activity",""],["make_person",""],["pick_mode",""]]});

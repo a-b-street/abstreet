@@ -114,6 +114,10 @@
 <span id="111">111</span>
 <span id="112">112</span>
 <span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! popdat (&quot;population data&quot;) generates `Scenarios` given a map and some external census data.</span>
 <span class="doccomment">//! Some of this functionality should maybe be reorganized or incorporated into the importer crate,</span>
@@ -133,6 +137,9 @@
 <span class="doccomment">//! 3) For each CensusPerson, classify them into a PersonType, then generate a Schedule of</span>
 <span class="doccomment">//!    different Activities throughout the day.</span>
 <span class="doccomment">//! 4) Pick specific buildings to visit to satisfy the Schedule.</span>
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
@@ -179,6 +186,7 @@
 
 <span class="doccomment">/// Different things people might do in the day. Maybe it&#39;s more clear to call this a</span>
 <span class="doccomment">/// DestinationType or similar.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Activity</span> {
     <span class="ident">Home</span>,
     <span class="ident">School</span>,
@@ -213,8 +221,8 @@
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Scenario</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// find_data_for_map may return an error. If so, just plumb it back to the caller using the ?</span>
-    <span class="doccomment">/// operator</span>
+    <span class="comment">// find_data_for_map may return an error. If so, just plumb it back to the caller using the ?</span>
+    <span class="comment">// operator</span>
     <span class="kw">let</span> <span class="ident">areas</span> <span class="op">=</span> <span class="ident">CensusArea</span>::<span class="ident">find_data_for_map</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">distribute_people</span>::<span class="ident">assign_people_to_houses</span>(<span class="ident">areas</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>);
 
