@@ -118,6 +118,7 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! popdat (&quot;population data&quot;) generates `Scenarios` given a map and some external census data.</span>
 <span class="doccomment">//! Some of this functionality should maybe be reorganized or incorporated into the importer crate,</span>
@@ -144,7 +145,7 @@
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Time</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">Scenario</span>;
 
@@ -201,14 +202,15 @@
 <span class="doccomment">/// Any arbitrarily chosen parameters needed should be put here, so they can be controlled from the</span>
 <span class="doccomment">/// UI or tuned for different cities.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Config</span> {
-    <span class="doccomment">/// Just an example</span>
-    <span class="kw">pub</span> <span class="ident">percent_drivers</span>: <span class="ident">f64</span>,
+    <span class="kw">pub</span> <span class="ident">walk_for_distances_shorter_than</span>: <span class="ident">Distance</span>,
+    <span class="kw">pub</span> <span class="ident">walk_or_bike_for_distances_shorter_than</span>: <span class="ident">Distance</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Config</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Config</span> {
         <span class="ident">Config</span> {
-            <span class="ident">percent_drivers</span>: <span class="number">0.5</span>,
+            <span class="ident">walk_for_distances_shorter_than</span>: <span class="ident">Distance</span>::<span class="ident">miles</span>(<span class="number">0.5</span>),
+            <span class="ident">walk_or_bike_for_distances_shorter_than</span>: <span class="ident">Distance</span>::<span class="ident">miles</span>(<span class="number">3.0</span>),
         }
     }
 }
