@@ -2756,6 +2756,7 @@ version = "0.1.0"
 dependencies = [
  "abstutil",
  "geom",
+ "log",
  "map_model",
  "rand",
  "rand_xorshift",

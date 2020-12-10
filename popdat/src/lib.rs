@@ -17,6 +17,9 @@
 //!    different Activities throughout the day.
 //! 4) Pick specific buildings to visit to satisfy the Schedule.
 
+#[macro_use]
+extern crate log;
+
 use rand_xorshift::XorShiftRng;
 
 use geom::Polygon;
@@ -62,6 +65,7 @@ pub struct Schedule {
 
 /// Different things people might do in the day. Maybe it's more clear to call this a
 /// DestinationType or similar.
+#[derive(Clone, Copy, Debug)]
 pub enum Activity {
     Home,
     School,
@@ -96,8 +100,8 @@ pub fn generate_scenario(
     map: &Map,
     rng: &mut XorShiftRng,
 ) -> Result<Scenario, String> {
-    /// find_data_for_map may return an error. If so, just plumb it back to the caller using the ?
-    /// operator
+    // find_data_for_map may return an error. If so, just plumb it back to the caller using the ?
+    // operator
     let areas = CensusArea::find_data_for_map(map)?;
     let people = distribute_people::assign_people_to_houses(areas, map, rng, &config);
 
