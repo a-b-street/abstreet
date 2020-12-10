@@ -124,7 +124,9 @@ fn recurse(
 
 fn parse_pt(input: &str) -> Option<LonLat> {
     let coords: Vec<&str> = input.split(',').collect();
-    if coords.len() != 2 {
+    // Normally each coordinate is just (X, Y), but for census tract files, there's a third Z
+    // component that's always 0. Just ignore it.
+    if coords.len() < 2 {
         return None;
     }
     match (coords[0].parse::<f64>(), coords[1].parse::<f64>()) {
