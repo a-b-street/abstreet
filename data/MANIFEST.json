@@ -116,6 +116,34 @@
       "checksum": "4f651a450d9d6b73618db015c34a03ad",
       "size_bytes": 99666
     },
+    "data/input/nyc/footways.bin": {
+      "checksum": "58a6a3fcc2f3c7d9a85335ec8c5bfaac",
+      "size_bytes": 436756
+    },
+    "data/input/nyc/osm/lower_manhattan.osm": {
+      "checksum": "09bf8cdb40474741b58e74f4c486a69e",
+      "size_bytes": 34156510
+    },
+    "data/input/nyc/osm/midtown_manhattan.osm": {
+      "checksum": "d90c3be90e26add046724e76b7b3503b",
+      "size_bytes": 44314663
+    },
+    "data/input/nyc/osm/new-york-latest.osm.pbf": {
+      "checksum": "facc38237e51d386617203060c812a5c",
+      "size_bytes": 277455662
+    },
+    "data/input/nyc/raw_maps/lower_manhattan.bin": {
+      "checksum": "bba778a44cbf7b1fc7aaaae4ad03e0f1",
+      "size_bytes": 8694261
+    },
+    "data/input/nyc/raw_maps/midtown_manhattan.bin": {
+      "checksum": "1374a11f6e2751bfbd7181644b8c0341",
+      "size_bytes": 8823093
+    },
+    "data/input/nyc/service_roads.bin": {
+      "checksum": "41b6584f2c0af6324047e84995785132",
+      "size_bytes": 83733
+    },
     "data/input/paris/footways.bin": {
       "checksum": "8197a29367a323022a7d57338fc5fe5b",
       "size_bytes": 834703
@@ -455,6 +483,18 @@
     "data/system/london/maps/southbank.bin": {
       "checksum": "e1c97b9cfc9bb60d42aa51697eef698f",
       "size_bytes": 8499386
+    },
+    "data/system/nyc/city.bin": {
+      "checksum": "aae1b9807f852aa74b9d7d6e66db1810",
+      "size_bytes": 440489
+    },
+    "data/system/nyc/maps/lower_manhattan.bin": {
+      "checksum": "8566f19c9cf42a5b758ff019822c2ab7",
+      "size_bytes": 18433412
+    },
+    "data/system/nyc/maps/midtown_manhattan.bin": {
+      "checksum": "9c108eacd0bccde93bb3ee638ec8b0df",
+      "size_bytes": 17282440
     },
     "data/system/paris/city.bin": {
       "checksum": "0fd1914ef16ad3797ccfaf14c36c3a17",

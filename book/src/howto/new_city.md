@@ -77,7 +77,7 @@ use it as well.
 
 6.  Run it: `./import.sh --city=your_city --raw --map`
 
-7.  Update `.gitignore`, following `tel_aviv` as an example.
+7.  Update `.gitignore` and `data/regen.sh`, following `tel_aviv` as an example.
 
 Send a PR with your changes! I'll generate everything and make it work with
 `updater`, so most people don't have to build everything from scratch.
