@@ -68,9 +68,6 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">popdat</span>::<span class="ident">Config</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -112,10 +109,7 @@
                 }
                 <span class="string">&quot;Generate&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Generate this from self.panel</span>
-                    <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Config</span> {
-                        <span class="ident">percent_drivers</span>: <span class="number">0.8</span>,
-                    };
-
+                    <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Config</span>::<span class="ident">default</span>();
                     <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">popdat</span>::<span class="ident">generate_scenario</span>(
                         <span class="string">&quot;typical monday&quot;</span>,
                         <span class="ident">config</span>,
