@@ -67,14 +67,14 @@ pub struct Schedule {
 /// DestinationType or similar.
 #[derive(Clone, Copy, Debug)]
 pub enum Activity {
-    Home,
+    Breakfast,
+    Lunch,
+    Dinner,
     School,
+    Entertainment,
+    Errands,
+    Home,
     Work,
-    Mall,
-    Movies,
-    Coffee,
-    Restaurant,
-    Library,
 }
 
 /// Any arbitrarily chosen parameters needed should be put here, so they can be controlled from the
