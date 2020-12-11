@@ -113,10 +113,28 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Percent</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">open_browser</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
+    <span class="ident">Btn</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+};
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Level</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TitleScreen</span> {
@@ -128,45 +146,46 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">level_buttons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">level</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">levels</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">levels_unlocked</span> {
-                <span class="ident">level_buttons</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">title</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
+                <span class="ident">level_buttons</span>.<span class="ident">push</span>(<span class="ident">unlocked_level</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">level</span>, <span class="ident">idx</span>));
             } <span class="kw">else</span> {
-                <span class="ident">level_buttons</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">title</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>));
+                <span class="ident">level_buttons</span>.<span class="ident">push</span>(<span class="ident">locked_level</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">level</span>, <span class="ident">idx</span>));
             }
         }
 
-        <span class="kw">let</span> <span class="ident">upgrades</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;Vehicles unlocked: {}&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">vehicles_unlocked</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
-            )),
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;Upzones unlocked: {}&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span>
-            )),
-        ]);
-
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/quit.svg&quot;</span>)
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;quit&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                        .<span class="ident">align_left</span>(),
-                    {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;15 minute Santa&quot;</span>).<span class="ident">display_title</span>());
-                        <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>));
-                        <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>()
-                    },
-                    <span class="ident">Btn</span>::<span class="ident">text_bg1</span>(<span class="string">&quot;Santa character created by @parallaxcreativedesign&quot;</span>).<span class="ident">build</span>(
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/quit.svg&quot;</span>)
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;quit&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
+                    .<span class="ident">align_right</span>(),
+                <span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>)
+                    .<span class="ident">big_heading_plain</span>()
+                    .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_horiz</span>(),
+                <span class="ident">Line</span>(<span class="string">&quot;15 Minute Santa&quot;</span>)
+                    .<span class="ident">display_title</span>()
+                    .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_horiz</span>(),
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(
+                    <span class="string">&quot;Time for Santa to deliver presents in Seattle! But... 2020 has thoroughly \
+                     squashed any remaining magic out of the world, so your sleigh can only hold \
+                     so many presents at a time. When you run out, refill from a store. Those are \
+                     close to where people live... right?&quot;</span>,
+                ))
+                .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">50</span>)
+                .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_horiz</span>(),
+                <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">level_buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">80</span>)),
+                <span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>
+                    .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_horiz</span>(),
+                <span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;Santa made by @parallaxcreativedesign&quot;</span>)
+                    .<span class="ident">build</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;open https://www.instagram.com/parallaxcreativedesign/&quot;</span>,
                         <span class="prelude-val">None</span>,
-                    ),
-                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Instructions&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-                    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">level_buttons</span>),
-                    <span class="ident">upgrades</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
-                ])
-                .<span class="ident">evenly_spaced</span>(),
-            )
+                    )
+                    .<span class="ident">centered_horiz</span>(),
+            ]))
             .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">85</span>)
             .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
         })
@@ -179,21 +198,6 @@
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;quit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
-                }
-                <span class="string">&quot;Instructions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;Instructions&quot;</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="string">&quot;It&#39;s Christmas Eve, so it&#39;s time for Santa to deliver presents in \
-                             Seattle.&quot;</span>,
-                            <span class="string">&quot;2020 has thoroughly squashed any remaining magic out of the world, \
-                             so your sleigh can only hold so many presents at a time.&quot;</span>,
-                            <span class="string">&quot;Deliver presents as fast as you can. When you run out, refill from a \
-                             yellow-colored store.&quot;</span>,
-                            <span class="string">&quot;It&#39;s faster to deliver to buildings with multiple families inside.&quot;</span>,
-                        ],
-                    ));
                 }
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;open &quot;</span>) {
@@ -225,6 +229,30 @@
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
+}
+
+<span class="comment">// TODO Preview the map, add padding, add the linear gradient...</span>
+<span class="kw">fn</span> <span class="ident">locked_level</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">level</span>: <span class="kw-2">&amp;</span><span class="ident">Level</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bike</span>);
+    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LEVEL {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)).<span class="ident">small_heading</span>());
+    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">title</span>).<span class="ident">small_heading</span>());
+    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">description</span>));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">15</span>).<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>);
+    <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>();
+    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">hitbox</span>.<span class="ident">center</span>();
+    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">hitbox</span>);
+    <span class="ident">batch</span>.<span class="ident">append</span>(
+        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/locked.svg&quot;</span>).<span class="ident">centered_on</span>(<span class="ident">center</span>),
+    );
+    <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">unlocked_level</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">level</span>: <span class="kw-2">&amp;</span><span class="ident">Level</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bike</span>);
+    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LEVEL {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)).<span class="ident">small_heading</span>());
+    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">title</span>).<span class="ident">small_heading</span>());
+    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">description</span>));
+    <span class="ident">Btn</span>::<span class="ident">plaintext_custom</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">title</span>, <span class="ident">txt</span>.<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">15</span>)).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "experiment";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

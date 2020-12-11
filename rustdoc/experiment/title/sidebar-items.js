@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["TitleScreen",""]]});
+initSidebarItems({"fn":[["locked_level",""],["unlocked_level",""]],"struct":[["TitleScreen",""]]});
