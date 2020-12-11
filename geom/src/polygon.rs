@@ -304,7 +304,7 @@ impl Polygon {
 
     pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
         let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| to_geo(p.points())).collect();
-        from_geo(mp.convex_hull())
+        mp.convex_hull().into()
     }
 
     pub fn polylabel(&self) -> Pt2D {
@@ -476,19 +476,21 @@ fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
     )
 }
 
-fn from_geo(p: geo::Polygon<f64>) -> Polygon {
-    Polygon::buggy_new(
-        p.into_inner()
-            .0
-            .into_points()
-            .into_iter()
-            .map(|pt| Pt2D::new(pt.x(), pt.y()))
-            .collect(),
-    )
+impl From<geo::Polygon<f64>> for Polygon {
+    fn from(poly: geo::Polygon<f64>) -> Self {
+        Polygon::buggy_new(
+            poly.into_inner()
+                .0
+                .into_points()
+                .into_iter()
+                .map(|pt| Pt2D::new(pt.x(), pt.y()))
+                .collect(),
+        )
+    }
 }
 
 fn from_multi(multi: geo::MultiPolygon<f64>) -> Vec<Polygon> {
-    multi.into_iter().map(from_geo).collect()
+    multi.into_iter().map(From::from).collect()
 }
 
 fn downsize(input: Vec<usize>) -> Vec<u16> {
