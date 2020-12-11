@@ -42,23 +42,23 @@ pub fn make_person(
     for (departure_time, activity) in schedule.activities {
         // TODO This field isn't that important; later we could map Activity to a TripPurpose
         // better.
-        // let purpose = TripPurpose::Shopping;
+        let purpose = TripPurpose::Shopping;
 
-        // let goto = if let Some(destination) =
-        //     find_building_for_activity(activity, current_location, map, rng)
-        // {
-        //     TripEndpoint::Bldg(destination)
-        // } else {
-        //     // No buildings satisfy the activity. Just go somewhere off-map.
-        //     TripEndpoint::Border(*commuter_borders.choose(rng).unwrap())
-        // };
+        let goto = if let Some(destination) =
+            find_building_for_activity(activity, current_location, map, rng)
+        {
+            TripEndpoint::Bldg(destination)
+        } else {
+            No buildings satisfy the activity. Just go somewhere off-map.
+            TripEndpoint::Border(*commuter_borders.choose(rng).unwrap())
+        };
 
-        // let mode = pick_mode(current_location, goto, map, rng, config);
-        // output
-        //     .trips
-        //     .push(IndividTrip::new(departure_time, purpose, goto, mode));
+        let mode = pick_mode(current_location, goto, map, rng, config);
+        output
+            .trips
+            .push(IndividTrip::new(departure_time, purpose, goto, mode));
 
-        // current_location = goto;
+        current_location = goto;
     }
 
     output
