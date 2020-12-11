@@ -49,7 +49,7 @@ pub fn make_person(
         {
             TripEndpoint::Bldg(destination)
         } else {
-            No buildings satisfy the activity. Just go somewhere off-map.
+            // No buildings satisfy the activity. Just go somewhere off-map.
             TripEndpoint::Border(*commuter_borders.choose(rng).unwrap())
         };
 
