@@ -73,6 +73,8 @@ pub enum Activity {
     School,
     Entertainment,
     Errands,
+    Financial,
+    Healthcare,
     Home,
     Work,
 }
