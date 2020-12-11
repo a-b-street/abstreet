@@ -687,7 +687,6 @@ impl State<App> for SandboxLoader {
                                 }
                             }
 
-                            println!("blah blah blah kjsnfkwne: {:?}", path);
                             return Transition::Push(FileLoader::<App, Scenario>::new(
                                 ctx,
                                 path,
