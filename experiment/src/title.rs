@@ -1,7 +1,5 @@
 use map_gui::tools::{open_browser, PopupMsg};
-use widgetry::{
-    Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget,
-};
+use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
 
 use crate::{App, Transition};
 
@@ -34,7 +32,7 @@ impl TitleScreen {
         Box::new(TitleScreen {
             panel: Panel::new(
                 Widget::col(vec![
-                    Btn::svg_def("system/assets/pregame/quit.svg")
+                    Btn::svg_def("system/assets/tools/quit.svg")
                         .build(ctx, "quit", Key::Escape)
                         .align_left(),
                     {
@@ -64,7 +62,7 @@ impl State<App> for TitleScreen {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
-                    std::process::exit(0);
+                    return Transition::Pop;
                 }
                 "Instructions" => {
                     return Transition::Push(PopupMsg::new(
@@ -107,12 +105,7 @@ impl State<App> for TitleScreen {
         Transition::Keep
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.dialog_bg);
         self.panel.draw(g);
         app.session.music.draw(g);
     }

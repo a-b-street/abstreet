@@ -39,7 +39,7 @@ impl State<App> for CensusGenerator {
                 "Generate" => {
                     // Generate this from self.panel
                     let config = Config::default();
-                    let scenario = popdat::generate_scenario(
+                    let _scenario = popdat::generate_scenario(
                         "typical monday",
                         config,
                         &app.primary.map,

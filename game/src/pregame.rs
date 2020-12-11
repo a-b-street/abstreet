@@ -168,8 +168,7 @@ impl State<App> for MainMenu {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
-                    // TODO before_quit?
-                    std::process::exit(0);
+                    return Transition::Pop;
                 }
                 "Tutorial" => {
                     return Tutorial::start(ctx, app);

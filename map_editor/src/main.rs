@@ -173,8 +173,7 @@ impl widgetry::State<App> for MainState {
                         match self.panel.event(ctx) {
                             Outcome::Clicked(x) => match x.as_ref() {
                                 "quit" => {
-                                    app.before_quit(ctx.canvas);
-                                    std::process::exit(0);
+                                    return Transition::Pop;
                                 }
                                 "export to OSM" => {
                                     // TODO Only do this for synthetic maps
