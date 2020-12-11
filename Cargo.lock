@@ -1368,6 +1368,7 @@ version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df48768ce77d725b32f692a4653d4529a24e2882c8740bcaa03a0f788c853af6"
 dependencies = [
+ "geo-types 0.6.1",
  "num-traits 0.2.12",
  "serde",
  "serde_json",
@@ -2771,11 +2772,15 @@ name = "popdat"
 version = "0.1.0"
 dependencies = [
  "abstutil",
+ "geo 0.15.0",
+ "geo-types 0.6.1",
+ "geojson",
  "geom",
  "log",
  "map_model",
  "rand",
  "rand_xorshift",
+ "serde_json",
  "sim",
 ]
 
