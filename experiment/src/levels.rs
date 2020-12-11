@@ -7,6 +7,7 @@ use map_model::osm;
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct Level {
     pub title: String,
+    pub description: String,
     pub map: MapName,
     pub start: osm::NodeID,
     pub minimap_zoom: usize,
@@ -22,6 +23,9 @@ impl Level {
         vec![
             Level {
                 title: "University District".to_string(),
+                description: "Tear yourself away from all the bubble tea to deliver presents to \
+                              some college students, whether they've been naughty or nice."
+                    .to_string(),
                 map: MapName::seattle("udistrict_ravenna"),
                 start: osm::NodeID(53162661),
                 minimap_zoom: 1,
@@ -32,7 +36,10 @@ impl Level {
                 unlock_vehicles: vec!["bike".to_string()],
             },
             Level {
-                title: "Wallingford".to_string(),
+                title: "Wallingfjord".to_string(),
+                description: "Stone and 45th have food aplenty, but can you manage deliveries to \
+                              everyone tucked away in the neighborhood?"
+                    .to_string(),
                 map: MapName::seattle("wallingford"),
                 start: osm::NodeID(53218389),
                 minimap_zoom: 2,
@@ -46,6 +53,9 @@ impl Level {
             // a few buildings. Unexpectedly hard!
             Level {
                 title: "South Lake Union".to_string(),
+                description: "Don't get turned around in all of the construction while you \
+                              deliver to the apartments here!"
+                    .to_string(),
                 map: MapName::seattle("slu"),
                 start: osm::NodeID(53142423),
                 minimap_zoom: 1,
@@ -57,6 +67,9 @@ impl Level {
             },
             Level {
                 title: "Montlake".to_string(),
+                description: "With the Montlake Market closed, how will you manage to bring cheer \
+                              to this sleepy little pocket of the city?"
+                    .to_string(),
                 map: MapName::seattle("montlake"),
                 start: osm::NodeID(53084814),
                 minimap_zoom: 1,
@@ -68,6 +81,9 @@ impl Level {
             },
             Level {
                 title: "Magnolia".to_string(),
+                description: "Struggle past the intense hills and restrictive zoning to tackle \
+                              one of the lowest-density parts of Seattle!"
+                    .to_string(),
                 map: MapName::seattle("ballard"),
                 start: osm::NodeID(53117102),
                 minimap_zoom: 2,

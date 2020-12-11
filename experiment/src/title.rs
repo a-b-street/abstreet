@@ -1,6 +1,10 @@
-use map_gui::tools::{open_browser, PopupMsg};
-use widgetry::{Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
+use geom::Percent;
+use map_gui::tools::open_browser;
+use widgetry::{
+    Btn, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
+};
 
+use crate::levels::Level;
 use crate::{App, Transition};
 
 pub struct TitleScreen {
@@ -12,45 +16,46 @@ impl TitleScreen {
         let mut level_buttons = Vec::new();
         for (idx, level) in app.session.levels.iter().enumerate() {
             if idx < app.session.levels_unlocked {
-                level_buttons.push(Btn::text_bg2(&level.title).build_def(ctx, None));
+                level_buttons.push(unlocked_level(ctx, app, level, idx));
             } else {
-                level_buttons.push(Btn::text_bg2(&level.title).inactive(ctx));
+                level_buttons.push(locked_level(ctx, app, level, idx));
             }
         }
 
-        let upgrades = Text::from_multiline(vec![
-            Line(format!(
-                "Vehicles unlocked: {}",
-                app.session.vehicles_unlocked.join(", "),
-            )),
-            Line(format!(
-                "Upzones unlocked: {}",
-                app.session.upzones_unlocked
-            )),
-        ]);
-
         Box::new(TitleScreen {
-            panel: Panel::new(
-                Widget::col(vec![
-                    Btn::svg_def("system/assets/tools/quit.svg")
-                        .build(ctx, "quit", Key::Escape)
-                        .align_left(),
-                    {
-                        let mut txt = Text::from(Line("15 minute Santa").display_title());
-                        txt.add(Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk"));
-                        txt.draw(ctx).centered_horiz()
-                    },
-                    Btn::text_bg1("Santa character created by @parallaxcreativedesign").build(
+            panel: Panel::new(Widget::col(vec![
+                Btn::svg_def("system/assets/tools/quit.svg")
+                    .build(ctx, "quit", Key::Escape)
+                    .align_right(),
+                Line("A/B STREET")
+                    .big_heading_plain()
+                    .draw(ctx)
+                    .centered_horiz(),
+                Line("15 Minute Santa")
+                    .display_title()
+                    .draw(ctx)
+                    .centered_horiz(),
+                Text::from(Line(
+                    "Time for Santa to deliver presents in Seattle! But... 2020 has thoroughly \
+                     squashed any remaining magic out of the world, so your sleigh can only hold \
+                     so many presents at a time. When you run out, refill from a store. Those are \
+                     close to where people live... right?",
+                ))
+                .wrap_to_pct(ctx, 50)
+                .draw(ctx)
+                .centered_horiz(),
+                Widget::custom_row(level_buttons).flex_wrap(ctx, Percent::int(80)),
+                "Created by Dustin Carlino, Yuwen Li, & Michael Kirk"
+                    .draw_text(ctx)
+                    .centered_horiz(),
+                Btn::plaintext("Santa made by @parallaxcreativedesign")
+                    .build(
                         ctx,
                         "open https://www.instagram.com/parallaxcreativedesign/",
                         None,
-                    ),
-                    Btn::text_bg2("Instructions").build_def(ctx, None),
-                    Widget::row(level_buttons),
-                    upgrades.draw(ctx),
-                ])
-                .evenly_spaced(),
-            )
+                    )
+                    .centered_horiz(),
+            ]))
             .exact_size_percent(90, 85)
             .build_custom(ctx),
         })
@@ -63,21 +68,6 @@ impl State<App> for TitleScreen {
             Outcome::Clicked(x) => match x.as_ref() {
                 "quit" => {
                     return Transition::Pop;
-                }
-                "Instructions" => {
-                    return Transition::Push(PopupMsg::new(
-                        ctx,
-                        "Instructions",
-                        vec![
-                            "It's Christmas Eve, so it's time for Santa to deliver presents in \
-                             Seattle.",
-                            "2020 has thoroughly squashed any remaining magic out of the world, \
-                             so your sleigh can only hold so many presents at a time.",
-                            "Deliver presents as fast as you can. When you run out, refill from a \
-                             yellow-colored store.",
-                            "It's faster to deliver to buildings with multiple families inside.",
-                        ],
-                    ));
                 }
                 x => {
                     if let Some(url) = x.strip_prefix("open ") {
@@ -109,4 +99,28 @@ impl State<App> for TitleScreen {
         self.panel.draw(g);
         app.session.music.draw(g);
     }
+}
+
+// TODO Preview the map, add padding, add the linear gradient...
+fn locked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Widget {
+    let mut txt = Text::new().bg(app.cs.unzoomed_bike);
+    txt.add(Line(format!("LEVEL {}", idx + 1)).small_heading());
+    txt.add(Line(&level.title).small_heading());
+    txt.add(Line(&level.description));
+    let mut batch = txt.wrap_to_pct(ctx, 15).render_to_batch(ctx.prerender);
+    let hitbox = batch.get_bounds().get_rectangle();
+    let center = hitbox.center();
+    batch.push(app.cs.fade_map_dark, hitbox);
+    batch.append(
+        GeomBatch::load_svg(ctx.prerender, "system/assets/tools/locked.svg").centered_on(center),
+    );
+    Widget::draw_batch(ctx, batch)
+}
+
+fn unlocked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Widget {
+    let mut txt = Text::new().bg(app.cs.unzoomed_bike);
+    txt.add(Line(format!("LEVEL {}", idx + 1)).small_heading());
+    txt.add(Line(&level.title).small_heading());
+    txt.add(Line(&level.description));
+    Btn::plaintext_custom(&level.title, txt.wrap_to_pct(ctx, 15)).build_def(ctx, None)
 }
