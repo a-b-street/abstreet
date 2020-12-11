@@ -25,22 +25,6 @@ pub struct Scenario {
     pub people: Vec<PersonSpec>,
     /// None means seed all buses. Otherwise the route name must be present here.
     pub only_seed_buses: Option<BTreeSet<String>>,
-    pub trip_parameters: TripParameters,
-}
-
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct TripParameters {
-    pub trip_saturation: usize,
-}
-
-impl TripParameters {
-    pub fn new(
-        trip_saturation: usize,
-    ) -> TripParameters {
-        TripParameters {
-            trip_saturation,
-        }
-    }
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -138,7 +122,6 @@ impl Scenario {
     ) {
         // Any case where map edits could change the calls to the RNG, we have to fork.
         sim.set_name(self.scenario_name.clone());
-        // self.trip_parameters = TripParameters::new(12);
 
         timer.start(format!("Instantiating {}", self.scenario_name));
 
@@ -241,7 +224,6 @@ impl Scenario {
             map_name: map.get_name().clone(),
             people: Vec::new(),
             only_seed_buses: Some(BTreeSet::new()),
-            trip_parameters: TripParameters::new(12),
         }
     }
 

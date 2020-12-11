@@ -1,8 +1,9 @@
 use popdat::Config;
 use widgetry::{
     Btn, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, TextExt,
-    VerticalAlignment, Widget,
+    VerticalAlignment, Widget, Spinner
 };
+use geom::Distance;
 
 use crate::app::{App, Transition};
 
@@ -19,7 +20,23 @@ impl CensusGenerator {
                     .draw(ctx),
                 Btn::close(ctx),
             ]),
-            "Sliders and dropdowns and stuff for whatever config should go here".draw_text(ctx),
+            Widget::horiz_separator(ctx, 0.5),
+            Widget::row(vec![
+                Line("Edit Input Parameters").small_heading().draw(ctx),
+            ]),
+            Widget::row(vec![
+                "Walk for distances shorter than (0.1 miles):"
+                    .draw_text(ctx)
+                    .centered_vert(),
+                Spinner::new(ctx, (0, 100), 5).named("walk shorter than"),
+            ]),
+            Widget::row(vec![
+                "Walk or bike for distances shorter than (0.1 miles):"
+                    .draw_text(ctx)
+                    .centered_vert(),
+                Spinner::new(ctx, (0, 100), 30).named("walk bike shorter than"),
+            ]),
+            Widget::horiz_separator(ctx, 0.5),
             Btn::text_fg("Generate").build_def(ctx, None),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -38,15 +55,19 @@ impl State<App> for CensusGenerator {
                 }
                 "Generate" => {
                     // Generate this from self.panel
-                    let config = Config::default();
+                    let mut config = Config::default();
+                    let walk_shorter_than = self.panel.spinner("walk shorter than") as usize;
+                    let walk_bike_shorter_than = self.panel.spinner("walk bike shorter than") as usize;
+
+                    config.walk_for_distances_shorter_than = Distance::miles((walk_shorter_than as f64 / 10 as f64) as f64);
+                    config.walk_or_bike_for_distances_shorter_than = Distance::miles((walk_bike_shorter_than as f64 / 10 as f64) as f64);
+
                     let scenario = popdat::generate_scenario(
                         "typical monday",
                         config,
                         &app.primary.map,
                         &mut app.primary.current_flags.sim_flags.make_rng(),
                     );
-                    // TODO Do something with it -- save it, launch it in sandboxmode, display some
-                    // stats about it?
                     return Transition::Pop;
                 }
                 _ => unreachable!(),

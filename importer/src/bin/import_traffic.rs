@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use abstutil::{CmdArgs, Timer};
 use map_model::Map;
-use sim::{ExternalPerson, Scenario, TripParameters};
+use sim::{ExternalPerson, Scenario};
 
 fn main() {
     let mut args = CmdArgs::new();
@@ -17,7 +17,6 @@ fn main() {
     let mut s = Scenario::empty(&map, &input.scenario_name);
     // Include all buses/trains
     s.only_seed_buses = None;
-    s.trip_parameters = TripParameters::new(12);
     s.people = ExternalPerson::import(&map, input.people).unwrap();
     s.save();
 }

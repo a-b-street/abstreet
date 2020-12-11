@@ -36,7 +36,7 @@ pub(crate) use self::make::TripSpec;
 pub use self::make::{
     BorderSpawnOverTime, ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip,
     PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags, SpawnOverTime,
-    TripEndpoint, TripParameters, TripPurpose,
+    TripEndpoint, TripPurpose,
 };
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,

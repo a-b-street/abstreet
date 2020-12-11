@@ -5,7 +5,7 @@ use map_model::{IntersectionID, Map, PathStep, Position, Traversable};
 
 use crate::{
     AgentID, DrivingSimState, Event, IndividTrip, PersonSpec, Scenario, TripEndpoint, TripID,
-    TripManager, TripMode, TripParameters, TripPurpose, VehicleType,
+    TripManager, TripMode, TripPurpose, VehicleType,
 };
 
 /// Records trips beginning and ending at a specified set of intersections. This can be used to
@@ -92,7 +92,6 @@ impl TrafficRecorder {
             map_name: map.get_name().clone(),
             people,
             only_seed_buses: None,
-            trip_parameters: TripParameters::new(12),
         }
         .save();
     }

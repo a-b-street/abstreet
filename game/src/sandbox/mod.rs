@@ -9,7 +9,7 @@ use map_gui::load::{FileLoader, MapLoader};
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::AppLike;
 use map_gui::ID;
-use sim::{Analytics, Scenario, TripParameters};
+use sim::{Analytics, Scenario};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,

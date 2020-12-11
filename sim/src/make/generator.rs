@@ -12,7 +12,7 @@ use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::{IntersectionID, Map};
 
-use crate::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose, TripParameters};
+use crate::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 // TODO This can be simplified dramatically.
 
@@ -23,7 +23,6 @@ pub struct ScenarioGenerator {
     pub only_seed_buses: Option<BTreeSet<String>>,
     pub spawn_over_time: Vec<SpawnOverTime>,
     pub border_spawn_over_time: Vec<BorderSpawnOverTime>,
-    pub trip_parameters: TripParameters,
 }
 
 // SpawnOverTime and BorderSpawnOverTime should be kept separate. Agents in SpawnOverTime pick
@@ -59,7 +58,6 @@ impl ScenarioGenerator {
     pub fn generate(&self, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) -> Scenario {
         let mut scenario = Scenario::empty(map, &self.scenario_name);
         scenario.only_seed_buses = self.only_seed_buses.clone();
-        scenario.trip_parameters = TripParameters::new(12);
 
         timer.start(format!("Generating scenario {}", self.scenario_name));
 
@@ -107,7 +105,6 @@ impl ScenarioGenerator {
                 percent_biking: 0.5,
                 percent_use_transit: 0.5,
             }],
-            trip_parameters: TripParameters::new(12),
             // If there are no sidewalks/driving lanes at a border, scenario instantiation will
             // just warn and skip them.
             border_spawn_over_time: map
@@ -145,7 +142,6 @@ impl ScenarioGenerator {
             only_seed_buses: Some(BTreeSet::new()),
             spawn_over_time: Vec::new(),
             border_spawn_over_time: Vec::new(),
-            trip_parameters: TripParameters::new(12),
         }
     }
 }

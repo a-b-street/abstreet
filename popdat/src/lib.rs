@@ -103,16 +103,21 @@ pub fn generate_scenario(
 ) -> Result<Scenario, String> {
     // find_data_for_map may return an error. If so, just plumb it back to the caller using the ?
     // operator
-    let areas = CensusArea::find_data_for_map(map)?;
-    let people = distribute_people::assign_people_to_houses(areas, map, rng, &config);
+
+    // Logging to show data passed into thie func
+    let walk_or_bike = config.walk_or_bike_for_distances_shorter_than;
+    let walk = config.walk_for_distances_shorter_than;
+    info!("walk_or_bike: {}, walk: {}", walk_or_bike, walk);
+    // let areas = CensusArea::find_data_for_map(map)?;
+    // let people = distribute_people::assign_people_to_houses(areas, map, rng, &config);
 
     let mut scenario = Scenario::empty(map, scenario_name);
-    for person in people {
-        // TODO If we need to parallelize because make_person is slow, the sim crate has a fork_rng
-        // method that could be useful
-        scenario
-            .people
-            .push(make_person::make_person(person, map, rng, &config));
-    }
+    // for person in people {
+    //     // TODO If we need to parallelize because make_person is slow, the sim crate has a fork_rng
+    //     // method that could be useful
+    //     scenario
+    //         .people
+    //         .push(make_person::make_person(person, map, rng, &config));
+    // }
     Ok(scenario)
 }

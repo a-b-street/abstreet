@@ -1,6 +1,6 @@
 use abstutil::prettyprint_usize;
 use map_gui::tools::ColorDiscrete;
-use sim::{Scenario, TripParameters};
+use sim::Scenario;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
     Text, VerticalAlignment, Widget,
