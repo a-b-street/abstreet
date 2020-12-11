@@ -174,6 +174,61 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -249,7 +304,62 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
     <span class="comment">// What types of OpenStreetMap amenities will satisfy each activity?</span>
     <span class="kw">let</span> <span class="ident">categories</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">activity</span> {
-        <span class="ident">Activity</span>::<span class="ident">Entertainment</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cinema&quot;</span>, <span class="string">&quot;theatre&quot;</span>],
+        <span class="ident">Activity</span>::<span class="ident">Breakfast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cafe&quot;</span>],
+        <span class="ident">Activity</span>::<span class="ident">Lunch</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;pub&quot;</span>, <span class="string">&quot;food_court&quot;</span>, <span class="string">&quot;fast_food&quot;</span>],
+        <span class="ident">Activity</span>::<span class="ident">Dinner</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;restaurant&quot;</span>, <span class="string">&quot;theatre&quot;</span>, <span class="string">&quot;biergarten&quot;</span>],
+        <span class="ident">Activity</span>::<span class="ident">School</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="string">&quot;college&quot;</span>,
+            <span class="string">&quot;kindergarten&quot;</span>,
+            <span class="string">&quot;language_school&quot;</span>,
+            <span class="string">&quot;library&quot;</span>,
+            <span class="string">&quot;music_school&quot;</span>,
+            <span class="string">&quot;university&quot;</span>,
+        ],
+        <span class="ident">Activity</span>::<span class="ident">Entertainment</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="string">&quot;arts_centre&quot;</span>,
+            <span class="string">&quot;casino&quot;</span>,
+            <span class="string">&quot;cinema&quot;</span>,
+            <span class="string">&quot;community_centre&quot;</span>,
+            <span class="string">&quot;fountain&quot;</span>,
+            <span class="string">&quot;gambling&quot;</span>,
+            <span class="string">&quot;nightclub&quot;</span>,
+            <span class="string">&quot;planetarium&quot;</span>,
+            <span class="string">&quot;public_bookcase&quot;</span>,
+            <span class="string">&quot;pool&quot;</span>,
+            <span class="string">&quot;dojo&quot;</span>,
+            <span class="string">&quot;social_centre&quot;</span>,
+            <span class="string">&quot;social_centre&quot;</span>,
+            <span class="string">&quot;studio&quot;</span>,
+            <span class="string">&quot;theatre&quot;</span>,
+            <span class="string">&quot;bar&quot;</span>,
+            <span class="string">&quot;bbq&quot;</span>,
+            <span class="string">&quot;bicycle_rental&quot;</span>,
+            <span class="string">&quot;boat_rental&quot;</span>,
+            <span class="string">&quot;boat_sharing&quot;</span>,
+            <span class="string">&quot;dive_centre&quot;</span>,
+            <span class="string">&quot;internet_cafe&quot;</span>,
+        ],
+        <span class="ident">Activity</span>::<span class="ident">Errands</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="string">&quot;marketplace&quot;</span>,
+            <span class="string">&quot;post_box&quot;</span>,
+            <span class="string">&quot;photo_booth&quot;</span>,
+            <span class="string">&quot;recycling&quot;</span>,
+            <span class="string">&quot;townhall&quot;</span>,
+        ],
+        <span class="ident">Activity</span>::<span class="ident">Financial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;atm&quot;</span>, <span class="string">&quot;bureau_de_change&quot;</span>],
+        <span class="ident">Activity</span>::<span class="ident">Healthcare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="string">&quot;baby_hatch&quot;</span>,
+            <span class="string">&quot;clinic&quot;</span>,
+            <span class="string">&quot;dentist&quot;</span>,
+            <span class="string">&quot;doctors&quot;</span>,
+            <span class="string">&quot;hospital&quot;</span>,
+            <span class="string">&quot;nursing_home&quot;</span>,
+            <span class="string">&quot;pharmacy&quot;</span>,
+            <span class="string">&quot;social_facility&quot;</span>,
+            <span class="string">&quot;veterinary&quot;</span>,
+            <span class="string">&quot;childcare&quot;</span>,
+        ],
+        <span class="ident">Activity</span>::<span class="ident">Work</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;clinic&quot;</span>],
         <span class="comment">// TODO Fill this out. amenity_type in map_gui/src/tools/mod.rs might be helpful. It might</span>
         <span class="comment">// also be helpful to edit the list of possible activities in lib.rs too.</span>
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[],
