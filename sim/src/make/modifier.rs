@@ -6,7 +6,7 @@ use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::Map;
 
-use crate::{Scenario, TripMode};
+use crate::{Scenario, TripMode, TripParameters};
 
 /// Transforms an existing Scenario before instantiating it.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
@@ -18,6 +18,9 @@ pub enum ScenarioModifier {
         from_modes: BTreeSet<TripMode>,
         /// If `None`, then just cancel the trip.
         to_mode: Option<TripMode>,
+    },
+    EditInputParameters {
+        trip_saturation: usize,
     },
     /// Scenario name
     AddExtraTrips(String),
@@ -70,6 +73,12 @@ impl ScenarioModifier {
                 }
                 s
             }
+            ScenarioModifier::EditInputParameters {
+                trip_saturation
+            } => {
+                s.trip_parameters.trip_saturation = *trip_saturation;
+                s
+            }
             ScenarioModifier::AddExtraTrips(name) => {
                 let other: Scenario = abstutil::must_read_object(
                     abstutil::path_scenario(map.get_name(), name),
@@ -103,6 +112,7 @@ impl ScenarioModifier {
                 departure_filter.1.ampm_tostring(),
                 to_mode.map(|m| m.verb())
             ),
+            ScenarioModifier::EditInputParameters{trip_saturation} => format!("Adjust trip_saturation {}", trip_saturation),
             ScenarioModifier::AddExtraTrips(name) => format!("Add extra trips from {}", name),
         }
     }
@@ -132,5 +142,6 @@ fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
         }
         person.trips = trips;
     }
+    s.trip_parameters = TripParameters::new(12);
     s
 }

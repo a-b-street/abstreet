@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
 use geom::LonLat;
 use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
-use sim::{IndividTrip, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
+use sim::{IndividTrip, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode, TripParameters};
 
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 
@@ -290,6 +290,7 @@ pub fn make_weekday_scenario(
         map_name: map.get_name().clone(),
         people,
         only_seed_buses: None,
+        trip_parameters: TripParameters::new(12),
     }
     .remove_weird_schedules()
 }

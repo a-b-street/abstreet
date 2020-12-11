@@ -96,6 +96,11 @@ impl GameplayState for PlayScenario {
                     self.scenario_name.clone(),
                     self.modifiers.clone(),
                 ))),
+                "edit input parameters" => Some(Transition::Push(EditTripModifiers::new(
+                    ctx,
+                    self.scenario_name.clone(),
+                    self.modifiers.clone(),
+                ))),
                 _ => unreachable!(),
             },
             _ => None,
@@ -141,7 +146,20 @@ impl GameplayState for PlayScenario {
                         .draw_text(ctx),
                 ])
                 .centered_horiz()
-            } else {
+            }
+            else if self.scenario_name == "home_to_work" {
+                Widget::row(vec![
+                    Btn::svg_def("system/assets/tools/pencil.svg").build(
+                        ctx,
+                        "edit input parameters",
+                        None,
+                    ),
+                    format!("{} modification to trip parameters", self.modifiers.len())
+                        .draw_text(ctx),
+                ])
+                .centered_horiz()
+            }
+            else {
                 Widget::nothing()
             },
         ];
@@ -426,6 +444,111 @@ impl State<App> for ChangeMode {
             },
             _ => Transition::Keep,
         }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
+        self.panel.draw(g);
+    }
+}
+
+struct EditTripModifiers {
+    scenario_name: String,
+    modifiers: Vec<ScenarioModifier>,
+    panel: Panel,
+}
+
+impl EditTripModifiers {
+    pub fn new(
+        ctx: &mut EventCtx,
+        scenario_name: String,
+        modifiers: Vec<ScenarioModifier>,
+    ) -> Box<dyn State<App>> {
+        let mut rows = vec![
+        Line("New Title").small_heading().draw(ctx),
+        Text::from_multiline(vec![
+            Line(
+                "Data for all of the people in this simulation comes from PSRC's 2014 \
+                    Soundcast model. The exact trips everybody takes, when they leave, where \
+                    they go, and how they choose to get there are fixed.",
+            ),
+            Line(""),
+            Line("You can modify those patterns here. The modifications apply in order."),
+        ])
+        .wrap_to_pct(ctx, 50)
+        .draw(ctx),
+    ];
+
+    rows.push(
+        // The Spinner widget only accepts integers, we will then divide by 10 to get a saturation value between 0-2.
+        Widget::row(vec![
+            "Trip saturation:"
+                .draw_text(ctx)
+                .centered_vert(),
+            Spinner::new(ctx, (0, 20), 10).named("trip saturation"),
+        ]),
+    );
+
+    rows.push(Widget::horiz_separator(ctx, 0.5));
+    rows.push(
+        Widget::row(vec![
+            Btn::text_bg2("Apply").build_def(ctx, Key::Enter),
+            Btn::text_bg2("Discard changes").build_def(ctx, Key::Escape),
+        ])
+        .centered(),
+    );
+
+    Box::new(EditTripModifiers {
+        scenario_name,
+        modifiers,
+        panel: Panel::new(Widget::col(rows))
+            .exact_size_percent(80, 80)
+            .build(ctx),
+    })
+    }
+}
+
+impl State<App> for EditTripModifiers {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "Discard changes" => {
+                    return Transition::Pop;
+                }
+                "Apply" => {
+                    info!("To apply these modifiers in the future:");
+                    info!(
+                        "--scenario_modifiers='{}'",
+                        abstutil::to_json_terse(&self.modifiers)
+                    );
+                    let trip_saturation = self.panel.spinner("trip saturation") as usize;
+
+                    info!("{}", trip_saturation);
+
+                    let mut mods = self.modifiers.clone();
+                    mods.push(ScenarioModifier::EditInputParameters {
+                        trip_saturation
+                    });
+
+                    return Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::Replace(SandboxMode::simple_new(
+                            ctx,
+                            app,
+                            GameplayMode::PlayScenario(
+                                app.primary.map.get_name().clone(),
+                                self.scenario_name.clone(),
+                                mods
+                            ),
+                        )),
+                    ]);
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {

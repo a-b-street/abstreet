@@ -8,7 +8,7 @@ use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
 use sim::{
     AgentID, BorderSpawnOverTime, CarID, IndividTrip, PersonSpec, Scenario, ScenarioGenerator,
-    SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
+    SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType, TripParameters,
 };
 use widgetry::{
     hotkeys, lctrl, Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -1161,6 +1161,7 @@ impl TutorialState {
                         percent_use_transit: 0.0,
                     }],
                     border_spawn_over_time: Vec::new(),
+                    trip_parameters: TripParameters::new(12),
                 })
                 .msg(
                     vec![

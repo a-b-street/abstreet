@@ -3,7 +3,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::{MapName, Timer};
 use geom::Duration;
 use map_model::{EditCmd, EditIntersection, MapEdits};
-use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
+use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier, TripParameters};
 use widgetry::{
     lctrl, Btn, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt,
     Widget,
@@ -101,6 +101,7 @@ impl GameplayMode {
             GameplayMode::Freeform(_) => {
                 let mut s = Scenario::empty(map, "empty");
                 s.only_seed_buses = None;
+                s.trip_parameters = TripParameters::new(12);
                 return LoadScenario::Scenario(s);
             }
             GameplayMode::PlayScenario(_, ref scenario, _) => scenario.to_string(),

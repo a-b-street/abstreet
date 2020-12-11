@@ -13,7 +13,7 @@ use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
 
 use crate::make::fork_rng;
 use crate::{
-    IndividTrip, PersonSpec, Scenario, ScenarioGenerator, TripEndpoint, TripMode, TripPurpose,
+    IndividTrip, PersonSpec, Scenario, ScenarioGenerator, TripEndpoint, TripMode, TripPurpose, TripParameters,
 };
 
 impl ScenarioGenerator {
@@ -58,6 +58,7 @@ impl ScenarioGenerator {
         let mut s = Scenario::empty(map, "random people going to/from work");
         // Include all buses/trains
         s.only_seed_buses = None;
+        s.trip_parameters = TripParameters::new(12);
 
         let residents_cap = residents.len();
         let workers_cap = workers.len();
