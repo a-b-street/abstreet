@@ -15,7 +15,7 @@ use crate::{
 };
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 pub(crate) enum TripSpec {
     /// Can be used to spawn from a border or anywhere for interactive debugging.
     VehicleAppearing {
