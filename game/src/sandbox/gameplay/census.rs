@@ -44,7 +44,8 @@ impl State<App> for CensusGenerator {
                         config,
                         &app.primary.map,
                         &mut app.primary.current_flags.sim_flags.make_rng(),
-                    );
+                    )
+                    .expect("failed to generate scenario");
                     // TODO Do something with it -- save it, launch it in sandboxmode, display some
                     // stats about it?
                     return Transition::Pop;
