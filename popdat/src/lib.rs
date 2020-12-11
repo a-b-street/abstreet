@@ -22,6 +22,7 @@ extern crate log;
 
 use rand_xorshift::XorShiftRng;
 
+use abstutil::Timer;
 use geom::Polygon;
 use geom::{Distance, Time};
 use map_model::{BuildingID, Map};
@@ -105,7 +106,8 @@ pub fn generate_scenario(
 ) -> Result<Scenario, String> {
     // find_data_for_map may return an error. If so, just plumb it back to the caller using the ?
     // operator
-    let areas = CensusArea::find_data_for_map(map)?;
+    let mut timer = Timer::new("generate census scenario");
+    let areas = CensusArea::find_data_for_map(map, &mut timer)?;
     let people = distribute_people::assign_people_to_houses(areas, map, rng, &config);
 
     let mut scenario = Scenario::empty(map, scenario_name);
