@@ -26,26 +26,25 @@ impl CensusArea {
         if let GeoJson::FeatureCollection(collection) = geojson {
             debug!("collection.features: {}", &collection.features.len());
             for feature in collection.features {
-                let properties = feature.properties.expect("malformed population data.");
-
-                let total_population = match properties.get("population").unwrap() {
-                    serde_json::Value::Number(n) => n
-                        .as_u64()
-                        .expect(&format!("unexpected total population number: {:?}", n))
-                        as usize,
-                    _ => {
-                        return Err(format!(
-                            "unexpected format for 'population': {:?}",
-                            properties.get("population")
-                        ));
-                    }
-                };
+                let total_population =
+                    match feature.property("population").expect("missing population") {
+                        serde_json::Value::Number(n) => n
+                            .as_u64()
+                            .expect(&format!("unexpected total population number: {:?}", n))
+                            as usize,
+                        _ => {
+                            return Err(format!(
+                                "unexpected format for 'population': {:?}",
+                                feature.property("population")
+                            ));
+                        }
+                    };
 
                 let geometry = feature.geometry.expect("geojson feature missing geometry");
                 debug!("geometry: {:?}", &geometry);
                 use std::convert::TryFrom;
-                let multi_poly: Result<geo::MultiPolygon<f64>, _> = geometry.value.try_into();
-                let mut multi_poly = multi_poly.map_err(|e| e.to_string())?;
+                let mut multi_poly = geo::MultiPolygon::<f64>::try_from(geometry.value)
+                    .map_err(|e| e.to_string())?;
                 let geo_polygon = multi_poly
                     .0
                     .pop()
@@ -56,7 +55,7 @@ impl CensusArea {
                     // happening since we only use the first poly
                     error!(
                         "feature unexpectedly had multiple polygons: {:?}",
-                        &properties
+                        multi_poly.0[0]
                     );
                 }
 
