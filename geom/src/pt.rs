@@ -182,3 +182,12 @@ impl HashablePt2D {
         Pt2D::new(self.x_nan.into_inner(), self.y_nan.into_inner())
     }
 }
+
+impl From<Pt2D> for geo::Coordinate<f64> {
+    fn from(pt: Pt2D) -> Self {
+        geo::Coordinate {
+            x: pt.inner_x,
+            y: pt.inner_y,
+        }
+    }
+}

@@ -489,8 +489,25 @@ impl From<geo::Polygon<f64>> for Polygon {
     }
 }
 
+impl From<Polygon> for geo::Polygon<f64> {
+    fn from(poly: Polygon) -> Self {
+        let exterior_coords = poly
+            .points
+            .into_iter()
+            .map(geo::Coordinate::from)
+            .collect::<Vec<_>>();
+        let exterior = geo::LineString(exterior_coords);
+
+        let interiors: Vec<geo::LineString<f64>> = poly
+            .rings
+            .map(|rings| rings.into_iter().map(geo::LineString::from).collect())
+            .unwrap_or(Vec::new());
+        Self::new(exterior, interiors)
+    }
+}
+
 fn from_multi(multi: geo::MultiPolygon<f64>) -> Vec<Polygon> {
-    multi.into_iter().map(From::from).collect()
+    multi.into_iter().map(Polygon::from).collect()
 }
 
 fn downsize(input: Vec<usize>) -> Vec<u16> {

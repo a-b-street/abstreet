@@ -1,5 +1,6 @@
 use crate::CensusArea;
 use abstutil::Timer;
+use geo::algorithm::intersects::Intersects;
 use geojson::GeoJson;
 use map_model::Map;
 use std::convert::TryFrom;
@@ -27,6 +28,16 @@ impl CensusArea {
         let mut results = vec![];
         let collection =
             geojson::FeatureCollection::try_from(geojson).map_err(|e| e.to_string())?;
+
+        let map_area = map.get_boundary_polygon();
+        let bounds = map.get_gps_bounds();
+
+        use geo::algorithm::map_coords::MapCoordsInplace;
+        let mut geo_map_area: geo::Polygon<_> = map_area.clone().into();
+        geo_map_area.map_coords_inplace(|c| {
+            let projected = geom::Pt2D::new(c.0, c.1).to_gps(bounds);
+            (projected.x(), projected.y())
+        });
 
         debug!("collection.features: {}", &collection.features.len());
         timer.start("converting to `CensusArea`s");
@@ -62,13 +73,23 @@ impl CensusArea {
                 );
             }
 
+            if !geo_polygon.intersects(&geo_map_area) {
+                debug!(
+                    "skipping polygon outside of map area. polygon: {:?}, map_area: {:?}",
+                    geo_polygon, geo_map_area
+                );
+                continue;
+            }
+
             let polygon = geom::Polygon::from(geo_polygon);
             results.push(CensusArea {
                 polygon,
                 total_population,
             });
         }
+        debug!("built {} CensusAreas within map bounds", results.len());
         timer.stop("converting to `CensusArea`s");
+
         Ok(results)
     }
 }
