@@ -2,7 +2,7 @@ use crate::CensusArea;
 use abstutil::Timer;
 use geojson::GeoJson;
 use map_model::Map;
-use std::convert::TryInto;
+use std::convert::TryFrom;
 
 impl CensusArea {
     pub fn find_data_for_map(map: &Map, timer: &mut Timer) -> Result<Vec<CensusArea>, String> {
@@ -21,53 +21,55 @@ impl CensusArea {
 
         // TODO - can we change to Result<_,Box<dyn std::error::Error>> and avoid all these map_err?
         let str = String::from_utf8(bytes).map_err(|e| e.to_string())?;
+        timer.start("parsing geojson");
         let geojson = str.parse::<GeoJson>().map_err(|e| e.to_string())?;
+        timer.stop("parsing geojson");
         let mut results = vec![];
-        if let GeoJson::FeatureCollection(collection) = geojson {
-            debug!("collection.features: {}", &collection.features.len());
-            for feature in collection.features {
-                let total_population =
-                    match feature.property("population").expect("missing population") {
-                        serde_json::Value::Number(n) => n
-                            .as_u64()
-                            .expect(&format!("unexpected total population number: {:?}", n))
-                            as usize,
-                        _ => {
-                            return Err(format!(
-                                "unexpected format for 'population': {:?}",
-                                feature.property("population")
-                            ));
-                        }
-                    };
+        let collection =
+            geojson::FeatureCollection::try_from(geojson).map_err(|e| e.to_string())?;
 
-                let geometry = feature.geometry.expect("geojson feature missing geometry");
-                debug!("geometry: {:?}", &geometry);
-                use std::convert::TryFrom;
-                let mut multi_poly = geo::MultiPolygon::<f64>::try_from(geometry.value)
-                    .map_err(|e| e.to_string())?;
-                let geo_polygon = multi_poly
-                    .0
-                    .pop()
-                    .expect("multipolygon was unexpectedly empty");
-                if !multi_poly.0.is_empty() {
-                    // Annoyingly upstream GIS has packaged all these individual polygons into
-                    // "multipolygon" of length 1 Make sure nothing surprising is
-                    // happening since we only use the first poly
-                    error!(
-                        "feature unexpectedly had multiple polygons: {:?}",
-                        multi_poly.0[0]
-                    );
+        debug!("collection.features: {}", &collection.features.len());
+        timer.start("converting to `CensusArea`s");
+        for feature in collection.features.into_iter() {
+            let population = feature.property("population");
+            let total_population = match population {
+                Some(serde_json::Value::Number(n)) => n
+                    .as_u64()
+                    .expect(&format!("unexpected total population number: {:?}", n))
+                    as usize,
+                _ => {
+                    return Err(format!(
+                        "unexpected format for 'population': {:?}",
+                        population
+                    ));
                 }
+            };
 
-                let polygon = geom::Polygon::from(geo_polygon);
-                results.push(CensusArea {
-                    polygon,
-                    total_population,
-                });
+            let geometry = feature.geometry.expect("geojson feature missing geometry");
+            debug!("geometry: {:?}", &geometry);
+            let mut multi_poly =
+                geo::MultiPolygon::<f64>::try_from(geometry.value).map_err(|e| e.to_string())?;
+            let geo_polygon = multi_poly
+                .0
+                .pop()
+                .expect("multipolygon was unexpectedly empty");
+            if !multi_poly.0.is_empty() {
+                // Annoyingly upstream GIS has packaged all these individual polygons into
+                // "multipolygon" of length 1 Make sure nothing surprising is
+                // happening since we only use the first poly
+                error!(
+                    "feature unexpectedly had multiple polygons: {:?}",
+                    multi_poly.0[0]
+                );
             }
-        } else {
-            error!("unexpected geojson contents");
+
+            let polygon = geom::Polygon::from(geo_polygon);
+            results.push(CensusArea {
+                polygon,
+                total_population,
+            });
         }
+        timer.stop("converting to `CensusArea`s");
         Ok(results)
     }
 }
