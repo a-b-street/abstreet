@@ -15,5 +15,4 @@ sim = { path = "../sim" }
 geojson = { version = "0.21.0", features = ["geo-types"] }
 serde_json = "*"
 geo = "*"
-geo-types = "*"
 

@@ -33,5 +33,4 @@ members = [
 opt-level = 3
 
 [patch.crates-io]
-geojson = { path = "../../georust/geojson" }
-contour = { path = "../contour-rs" }
+geojson = { git = "https://github.com/georust/geojson", branch = "mkirk/try_from" }

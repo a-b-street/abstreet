@@ -457,7 +457,7 @@ dependencies = [
  "block",
  "cocoa-foundation",
  "core-foundation 0.9.1",
- "core-graphics 0.22.1",
+ "core-graphics 0.22.2",
  "foreign-types",
  "libc",
  "objc",
@@ -546,7 +546,9 @@ dependencies = [
 
 [[package]]
 name = "contour"
-version = "0.1.0"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "059e75b593068b026cb434c0140dd6a4557c1824ee029d5d3414fc77ecbe8494"
 dependencies = [
  "geojson",
  "lazy_static",
@@ -1366,6 +1368,7 @@ dependencies = [
 [[package]]
 name = "geojson"
 version = "0.21.0"
+source = "git+https://github.com/georust/geojson?branch=mkirk/try_from#ac0429218756af96c379a8701383ef4d36d78779"
 dependencies = [
  "geo-types 0.6.2",
  "num-traits 0.2.14",
@@ -2003,9 +2006,9 @@ dependencies = [
 
 [[package]]
 name = "lru"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be716eb6878ca2263eb5d00a781aa13264a794f519fe6af4fbb2668b2d5441c0"
+checksum = "3abe07af102235a56ac9a6dd904aab1e05483e2e8afdfffec3598be55b1b7606"
 dependencies = [
  "hashbrown",
 ]
@@ -2777,7 +2780,6 @@ version = "0.1.0"
 dependencies = [
  "abstutil",
  "geo 0.16.0",
- "geo-types 0.6.2",
  "geojson",
  "geom",
  "log",

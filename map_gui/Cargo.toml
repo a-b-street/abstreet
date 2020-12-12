@@ -16,7 +16,7 @@ release_s3 = []
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 colorous = "1.0.3"
-contour = "0.1.0"
+contour = "0.3.0"
 flate2 = "1.0.19"
 futures = { version = "0.3.8", optional = true }
 futures-channel = { version = "0.3.8", optional = true }
