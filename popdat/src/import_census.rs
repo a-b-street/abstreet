@@ -46,7 +46,6 @@ impl CensusArea {
             };
 
             let geometry = feature.geometry.expect("geojson feature missing geometry");
-            debug!("geometry: {:?}", &geometry);
             let mut multi_poly =
                 geo::MultiPolygon::<f64>::try_from(geometry.value).map_err(|e| e.to_string())?;
             let geo_polygon = multi_poly
@@ -58,8 +57,8 @@ impl CensusArea {
                 // "multipolygon" of length 1 Make sure nothing surprising is
                 // happening since we only use the first poly
                 error!(
-                    "feature unexpectedly had multiple polygons: {:?}",
-                    multi_poly.0[0]
+                    "unexpectedly had {} extra area polygons",
+                    multi_poly.0.len()
                 );
             }
 
