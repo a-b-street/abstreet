@@ -6,13 +6,13 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
+geo = "*"
+geojson = { version = "0.21.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 log = "0.4.11"
 map_model = { path = "../map_model" }
 rand = "0.7.0"
 rand_xorshift = "0.2.0"
 sim = { path = "../sim" }
-geojson = { version = "0.21.0", features = ["geo-types"] }
 serde_json = "*"
-geo = "*"
 
