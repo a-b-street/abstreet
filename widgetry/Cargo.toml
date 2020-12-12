@@ -14,7 +14,7 @@ abstutil = { path = "../abstutil" }
 downcast-rs = "1.2.0"
 geom = { path = "../geom" }
 glow = { version = "0.6.0", optional = true, default-features=false }
-glutin = { version = "0.25.0", optional = true }
+glutin = { version = "0.26.0", optional = true }
 htmlescape = "0.3.1"
 image = { version = "0.23.9", default-features = false, features=["png"] }
 instant = "0.1.7"
@@ -27,4 +27,4 @@ ttf-parser = "0.8.2"
 usvg = { git = "https://github.com/RazrFalcon/resvg", default-features=false }
 wasm-bindgen = { version = "0.2.68", optional = true }
 web-sys = { version = "0.3.45", optional = true }
-winit = "0.23.0"
+winit = "0.24.0"
