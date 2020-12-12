@@ -31,3 +31,7 @@ members = [
 # update dependencies often).
 [profile.dev.package."*"]
 opt-level = 3
+
+[patch.crates-io]
+geojson = { path = "../../georust/geojson" }
+contour = { path = "../contour-rs" }

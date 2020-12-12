@@ -16,11 +16,11 @@ release_s3 = []
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 colorous = "1.0.3"
-contour = { git = "https://github.com/dabreegster/contour-rs" }
+contour = "0.1.0"
 flate2 = "1.0.19"
 futures = { version = "0.3.8", optional = true }
 futures-channel = { version = "0.3.8", optional = true }
-geojson = "0.20.1"
+geojson = "0.21.0"
 geom = { path = "../geom" }
 instant = "0.1.7"
 js-sys = { version = "0.3.45", optional = true }

@@ -21,10 +21,10 @@ built = { version = "0.4.3", optional = true, features=["chrono"] }
 chrono = "0.4.15"
 collisions = { path = "../collisions" }
 colorous = "1.0.3"
-contour = { git = "https://github.com/dabreegster/contour-rs" }
+contour = "0.1.0"
 downcast-rs = "1.2.0"
 enumset = "1.0.1"
-geojson = "0.20.1"
+geojson = "0.21.0"
 geom = { path = "../geom" }
 instant = "0.1.7"
 kml = { path = "../kml" }
