@@ -74,7 +74,9 @@ impl Picker {
                                 ctx,
                                 "vehicle",
                                 app.session.current_vehicle.to_string(),
-                                Choice::strings(app.session.vehicles_unlocked.clone()),
+                                Choice::strings(
+                                    app.session.vehicles_unlocked.clone().into_iter().collect(),
+                                ),
                             ),
                         ]),
                         Btn::text_bg2("Start game").build_def(ctx, Key::Enter),

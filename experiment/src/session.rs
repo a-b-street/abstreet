@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use serde::{Deserialize, Serialize};
 
@@ -19,7 +19,7 @@ pub struct Session {
     pub high_scores: HashMap<String, Vec<usize>>,
     pub levels_unlocked: usize,
     pub current_vehicle: String,
-    pub vehicles_unlocked: Vec<String>,
+    pub vehicles_unlocked: BTreeSet<String>,
     pub upzones_unlocked: usize,
 
     #[serde(skip_serializing, skip_deserializing)]
@@ -76,7 +76,7 @@ impl Session {
             high_scores,
             levels_unlocked: 1,
             current_vehicle: "sleigh".to_string(),
-            vehicles_unlocked: vec!["sleigh".to_string()],
+            vehicles_unlocked: vec!["sleigh".to_string()].into_iter().collect(),
             upzones_unlocked: 0,
 
             music: Music::empty(),
@@ -115,7 +115,7 @@ impl Session {
                     ));
                 }
                 for x in &level.unlock_vehicles {
-                    self.vehicles_unlocked.push(x.clone());
+                    self.vehicles_unlocked.insert(x.clone());
                     messages.push(format!("Unlocked the {}", x));
                 }
                 Some(messages)

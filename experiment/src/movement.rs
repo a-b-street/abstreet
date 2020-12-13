@@ -9,7 +9,7 @@ use widgetry::EventCtx;
 use crate::controls::InstantController;
 use crate::App;
 
-pub const ZOOM: f64 = 10.0;
+const ZOOM: f64 = 10.0;
 
 pub struct Player {
     pos: Pt2D,

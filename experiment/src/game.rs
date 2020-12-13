@@ -26,6 +26,7 @@ pub struct Game {
     status_panel: Panel,
     time_panel: Panel,
     boost_panel: Panel,
+    pause_panel: Panel,
     minimap: Minimap<App, MinimapController>,
 
     animator: Animator,
@@ -47,9 +48,6 @@ impl Game {
         app.time = Time::START_OF_DAY;
 
         let title_panel = Panel::new(Widget::row(vec![
-            Btn::svg_def("system/assets/tools/home.svg")
-                .build(ctx, "back", Key::Escape)
-                .centered_vert(),
             "15 min Santa".draw_text(ctx).centered_vert(),
             Widget::row(vec![
                 // TODO The blur is messed up
@@ -63,19 +61,17 @@ impl Game {
         .build(ctx);
 
         let status_panel = Panel::new(Widget::col(vec![
-            "Complete Deliveries".draw_text(ctx),
+            "Complete Deliveries".draw_text(ctx).named("score label"),
             Widget::draw_batch(ctx, GeomBatch::new()).named("score"),
-            "Remaining Gifts:".draw_text(ctx),
+            "Remaining Gifts".draw_text(ctx),
             Widget::draw_batch(ctx, GeomBatch::new()).named("energy"),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
         let time_panel = Panel::new(Widget::row(vec![
-            "Time remaining:".draw_text(ctx),
-            Widget::draw_batch(ctx, GeomBatch::new())
-                .named("time")
-                .align_right(),
+            Widget::draw_batch(ctx, GeomBatch::new()).named("time circle"),
+            "Time".draw_text(ctx).named("time label"),
         ]))
         .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
         .build(ctx);
@@ -87,6 +83,18 @@ impl Game {
                 .align_right(),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::BottomInset)
+        .build(ctx);
+
+        let pause_panel = Panel::new(
+            Btn::svg_def("system/assets/speed/pause_v2.svg")
+                .build(ctx, "pause", Key::Escape)
+                .container(),
+        )
+        // TODO Very brittle layout to wind up to the right of the volume panel...
+        .aligned(
+            HorizontalAlignment::Percent(0.05),
+            VerticalAlignment::BottomInset,
+        )
         .build(ctx);
 
         let start = app
@@ -103,6 +111,7 @@ impl Game {
             status_panel,
             time_panel,
             boost_panel,
+            pause_panel,
             minimap: Minimap::new(ctx, app, MinimapController),
 
             animator: Animator::new(ctx),
@@ -120,12 +129,33 @@ impl Game {
     }
 
     fn update_time_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let time = format!(
+        let pct = (app.time - Time::START_OF_DAY) / self.state.level.time_limit;
+
+        let text_color = if pct < 0.75 { Color::WHITE } else { Color::RED };
+        let label = Line(format!(
             "{}",
             self.state.level.time_limit - (app.time - Time::START_OF_DAY)
-        )
-        .draw_text(ctx);
-        self.time_panel.replace(ctx, "time", time);
+        ))
+        .fg(text_color)
+        .draw(ctx)
+        .centered_vert();
+        self.time_panel.replace(ctx, "time label", label);
+
+        // TODO I couldn't quite work out how to get the partial outline from Figma working
+        let center = Pt2D::new(0.0, 0.0);
+        let outer = Distance::meters(15.0);
+        let draw = Widget::draw_batch(
+            ctx,
+            GeomBatch::from(vec![
+                (Color::WHITE, Circle::new(center, outer).to_polygon()),
+                (
+                    Color::hex("#5D92C2"),
+                    Circle::new(center, outer).to_partial_polygon(pct),
+                ),
+            ])
+            .autocrop(),
+        );
+        self.time_panel.replace(ctx, "time circle", draw);
     }
 
     fn update_status_panel(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -133,7 +163,11 @@ impl Game {
             ctx,
             app.session.colors.score,
             self.state.score,
-            self.state.bldgs.total_housing_units,
+            if self.state.met_goal() {
+                self.state.bldgs.total_housing_units
+            } else {
+                self.state.level.goal
+            },
         );
         self.status_panel.replace(ctx, "score", score_bar);
 
@@ -196,6 +230,7 @@ impl State<App> for Game {
                 base_speed
             };
 
+            let met_goal = self.state.met_goal();
             for b in self.player.update_with_speed(ctx, app, speed) {
                 match self.state.bldgs.buildings[&b] {
                     BldgState::Undelivered(_) => {
@@ -261,6 +296,12 @@ impl State<App> for Game {
                     BldgState::Done => {}
                 }
             }
+            if !met_goal && self.state.met_goal() {
+                // TODO What should we say here? Should we add some kind of animation to call this
+                // out?
+                let label = "Goal met! Keep going".draw_text(ctx);
+                self.status_panel.replace(ctx, "score label", label);
+            }
 
             if self.player.on_good_road(app) && !ctx.is_key_down(Key::Space) {
                 self.state.boost += dt * ACQUIRE_BOOST_RATE;
@@ -295,9 +336,9 @@ impl State<App> for Game {
                 return t;
             }
 
-            match self.title_panel.event(ctx) {
+            match self.pause_panel.event(ctx) {
                 Outcome::Clicked(x) => match x.as_ref() {
-                    "back" => {
+                    "pause" => {
                         return Transition::Push(ChooseSomething::new(
                             ctx,
                             "Game Paused",
@@ -317,6 +358,14 @@ impl State<App> for Game {
                 _ => {}
             }
 
+            if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
+                ctx.canvas.cam_zoom = 1.1_f64
+                    .powf(ctx.canvas.cam_zoom.log(1.1) + dy)
+                    .max(app.opts.min_zoom_for_detail)
+                    .min(50.0);
+                ctx.canvas.center_on_map_pt(self.player.get_pos());
+            }
+
             app.session.update_music(ctx);
         }
 
@@ -329,6 +378,7 @@ impl State<App> for Game {
         self.status_panel.draw(g);
         self.time_panel.draw(g);
         self.boost_panel.draw(g);
+        self.pause_panel.draw(g);
         app.session.music.draw(g);
 
         let santa_tracker = g.upload(GeomBatch::from(vec![(
@@ -443,6 +493,10 @@ impl GameState {
 
     fn has_energy(&self) -> bool {
         self.energy > 0
+    }
+
+    fn met_goal(&self) -> bool {
+        self.score >= self.level.goal
     }
 }
 

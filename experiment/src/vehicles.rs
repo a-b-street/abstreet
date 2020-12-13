@@ -26,7 +26,7 @@ impl Vehicle {
                 max_boost: Duration::seconds(5.0),
 
                 draw_frames: vec!["sleigh.svg"],
-                scale: 0.1,
+                scale: 0.08,
             },
             "bike" => Vehicle {
                 name: "bike".to_string(),
