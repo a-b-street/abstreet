@@ -14,7 +14,7 @@ use crate::animation::{Animator, Effect, SnowEffect};
 use crate::buildings::{BldgState, Buildings};
 use crate::levels::Level;
 use crate::meters::{custom_bar, make_bar};
-use crate::movement::Player;
+use crate::movement_v2::Player;
 use crate::vehicles::Vehicle;
 use crate::{App, Transition};
 
@@ -291,6 +291,8 @@ impl State<App> for Game {
                 self.update_status_panel(ctx, app);
             }
         } else {
+            self.player.event(ctx, app);
+
             if let Some(t) = self.minimap.event(ctx, app) {
                 return t;
             }
@@ -355,6 +357,7 @@ impl State<App> for Game {
                 .centered_on(self.player.get_pos())
                 .rotate_around_batch_center(self.player.get_angle())
                 .draw(g);
+            self.player.draw_next_step(g, app);
         } else {
             // Debug
             g.draw_polygon(
