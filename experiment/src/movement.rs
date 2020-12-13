@@ -75,7 +75,15 @@ impl Player {
                     let pt_on_center_line = road.center_pts.project_pt(pos);
                     if let Some((dist, _)) = road.center_pts.dist_along_of_point(pt_on_center_line)
                     {
-                        return Some(On::Road(r, dist));
+                        // We'll adjust the direction at the call-site if we're moving along the
+                        // same road. This heuristic is reasonable for moving from intersections to
+                        // roads.
+                        let dir = if dist < road.center_pts.length() / 2.0 {
+                            Direction::Fwd
+                        } else {
+                            Direction::Back
+                        };
+                        return Some(On::Road(r, dist, dir));
                     } else {
                         error!(
                             "{} snapped to {} on {}, but dist_along_of_point failed",
@@ -99,14 +107,21 @@ impl Player {
     ) -> Vec<BuildingID> {
         let new_pos = self.pos.offset(dx, dy);
         let mut buildings_passed = Vec::new();
-        if let Some(new_on) = self.pos_to_on(app, new_pos) {
+        if let Some(mut new_on) = self.pos_to_on(app, new_pos) {
             self.pos = new_pos;
             ctx.canvas.center_on_map_pt(self.pos);
 
-            if let (On::Road(r1, dist1), On::Road(r2, dist2)) = (self.on.clone(), new_on.clone()) {
+            if let (On::Road(r1, dist1, _), On::Road(r2, dist2, _)) =
+                (self.on.clone(), new_on.clone())
+            {
                 if r1 == r2 {
                     // Find all buildings in this range of distance along
                     buildings_passed.extend(self.bldgs_along_road.query_range(r1, dist1, dist2));
+                    if dist1 < dist2 {
+                        new_on = On::Road(r2, dist2, Direction::Fwd);
+                    } else {
+                        new_on = On::Road(r2, dist2, Direction::Back);
+                    }
                 }
             }
             self.on = new_on;
@@ -134,7 +149,7 @@ impl Player {
                         // Find the exact point on the boundary where we go out of bounds
                         let old_ring = match self.on {
                             On::Intersection(i) => app.map.get_i(i).polygon.clone().into_ring(),
-                            On::Road(r, _) => {
+                            On::Road(r, _, _) => {
                                 let road = app.map.get_r(r);
                                 road.center_pts
                                     .to_thick_ring(2.0 * road.get_half_width(&app.map))
@@ -160,10 +175,14 @@ impl Player {
         }
 
         // Snap to the center of the road
-        if let On::Road(r, dist) = self.on {
+        if let On::Road(r, dist, dir) = self.on {
             let (pt, angle) = app.map.get_r(r).center_pts.must_dist_along(dist);
             self.pos = pt;
-            self.facing = angle;
+            self.facing = if dir == Direction::Fwd {
+                angle.opposite()
+            } else {
+                angle
+            };
             ctx.canvas.center_on_map_pt(self.pos);
         } else {
             self.facing = self.controls.facing;
@@ -182,7 +201,7 @@ impl Player {
 
     /// Is the player currently on a road with a bus or bike lane?
     pub fn on_good_road(&self, app: &App) -> bool {
-        if let On::Road(r, _) = self.on {
+        if let On::Road(r, _, _) = self.on {
             for (_, _, lt) in app.map.get_r(r).lanes_ltr() {
                 if lt == LaneType::Biking || lt == LaneType::Bus {
                     return true;
@@ -196,8 +215,8 @@ impl Player {
 #[derive(Clone, PartialEq)]
 enum On {
     Intersection(IntersectionID),
-    // Distance along the center line
-    Road(RoadID, Distance),
+    // Distance along the center line, are we facing the same direction as the road
+    Road(RoadID, Distance, Direction),
 }
 
 impl On {
@@ -205,7 +224,7 @@ impl On {
         let mut valid_roads = HashSet::new();
         let mut valid_intersections = HashSet::new();
         match self {
-            On::Road(r, _) => {
+            On::Road(r, _, _) => {
                 let r = app.map.get_r(*r);
                 valid_intersections.insert(r.src_i);
                 valid_intersections.insert(r.dst_i);
