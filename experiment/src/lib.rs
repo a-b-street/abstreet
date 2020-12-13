@@ -10,7 +10,6 @@ mod game;
 mod levels;
 mod meters;
 mod movement;
-//mod movement_v2;
 mod music;
 mod session;
 mod title;

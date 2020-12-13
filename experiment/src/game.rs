@@ -154,7 +154,7 @@ impl Game {
             if self.state.boost == Duration::ZERO {
                 Text::from(Line("Find a bike or bus lane"))
             } else {
-                Text::from(Line("Press space to boost"))
+                Text::from(Line("Hold space to boost"))
             },
         );
         self.boost_panel.replace(ctx, "boost", boost_bar);
@@ -187,7 +187,7 @@ impl State<App> for Game {
                 self.state.vehicle.tired_speed
             };
             let speed = if ctx.is_key_down(Key::Space) && self.state.boost > Duration::ZERO {
-                if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+                if !self.player.on_good_road(app) {
                     self.state.boost -= dt;
                     self.state.boost = self.state.boost.max(Duration::ZERO);
                 }
@@ -262,7 +262,7 @@ impl State<App> for Game {
                 }
             }
 
-            if self.player.on_good_road(app) {
+            if self.player.on_good_road(app) && !ctx.is_key_down(Key::Space) {
                 self.state.boost += dt * ACQUIRE_BOOST_RATE;
                 self.state.boost = self.state.boost.min(self.state.vehicle.max_boost);
             }
