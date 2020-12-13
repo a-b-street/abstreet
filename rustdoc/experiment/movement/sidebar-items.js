@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["ZOOM",""]],"enum":[["On",""]],"struct":[["BuildingsAlongRoad",""],["Player",""]]});

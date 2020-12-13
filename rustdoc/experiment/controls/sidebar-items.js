@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["HACK",""]],"struct":[["InstantController",""]]});
