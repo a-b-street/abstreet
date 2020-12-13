@@ -130,7 +130,6 @@
 <span id="127">127</span>
 <span id="128">128</span>
 <span id="129">129</span>
-<span id="130">130</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -184,22 +183,21 @@
         <span class="self">self</span>.<span class="ident">normalized_radians</span>().<span class="ident">to_degrees</span>()
     }
 
+    <span class="doccomment">/// Returns [-180, 180]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_shortest_rotation_towards</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+        <span class="comment">// https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle</span>
+        ((<span class="self">self</span>.<span class="ident">normalized_degrees</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">normalized_degrees</span>() <span class="op">+</span> <span class="number">540.0</span>) <span class="op">%</span> <span class="number">360.0</span>) <span class="op">-</span> <span class="number">180.0</span>
+    }
+
     <span class="doccomment">/// Logically this returns [-180, 180], but keep in mind when we print this angle, it&#39;ll</span>
     <span class="doccomment">/// normalize to be [0, 360].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shortest_rotation_towards</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="comment">// https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle</span>
-        <span class="ident">Angle</span>::<span class="ident">degrees</span>(
-            ((<span class="self">self</span>.<span class="ident">normalized_degrees</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">normalized_degrees</span>() <span class="op">+</span> <span class="number">540.0</span>) <span class="op">%</span> <span class="number">360.0</span>) <span class="op">-</span> <span class="number">180.0</span>,
-        )
+        <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="self">self</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">other</span>))
     }
 
     <span class="doccomment">/// True if this angle is within some degrees of another, accounting for rotation</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>, <span class="ident">within_degrees</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="comment">// https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle</span>
-        <span class="comment">// This yields [-180, 180]</span>
-        <span class="kw">let</span> <span class="ident">rotation</span> <span class="op">=</span>
-            ((<span class="self">self</span>.<span class="ident">normalized_degrees</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">normalized_degrees</span>() <span class="op">+</span> <span class="number">540.0</span>) <span class="op">%</span> <span class="number">360.0</span>) <span class="op">-</span> <span class="number">180.0</span>;
-        <span class="ident">rotation</span>.<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="ident">within_degrees</span>
+        <span class="self">self</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">other</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="ident">within_degrees</span>
     }
 
     <span class="doccomment">/// I don&#39;t know how to describe what this does. Use for rotating labels in map-space and making</span>
