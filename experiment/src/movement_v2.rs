@@ -16,6 +16,8 @@ const HACK: f64 = 5.0;
 
 pub struct Player {
     on: On,
+    facing: Angle,
+
     pos: Pt2D,
     angle: Angle,
     bldgs_along_road: BuildingsAlongRoad,
@@ -25,16 +27,19 @@ impl Player {
     pub fn new(ctx: &mut EventCtx, app: &App, start: IntersectionID) -> Player {
         ctx.canvas.cam_zoom = ZOOM;
         let dr = all_connections(start, &app.map)[0].0;
+        let facing = Angle::ZERO;
         let on = On::Road {
             dr,
             dist: Distance::ZERO,
-            next_road: default_connection(dr, &app.map),
+            next_road: best_connection(dr, facing, &app.map),
         };
         let (pos, angle) = on.get_pos(app);
         ctx.canvas.center_on_map_pt(pos);
 
         Player {
             on,
+            facing,
+
             pos,
             angle,
             bldgs_along_road: BuildingsAlongRoad::new(app),
@@ -65,7 +70,7 @@ impl Player {
                             self.on = On::Road {
                                 dr: next_road,
                                 dist: Distance::ZERO,
-                                next_road: default_connection(next_road, &app.map),
+                                next_road: best_connection(next_road, self.facing, &app.map),
                             };
                         } else {
                             self.on = On::Intersection {
@@ -96,7 +101,7 @@ impl Player {
                         self.on = On::Road {
                             dr: to,
                             dist: Distance::ZERO,
-                            next_road: default_connection(to, &app.map),
+                            next_road: best_connection(to, self.facing, &app.map),
                         };
                     } else {
                         *dist += travelled;
@@ -113,27 +118,17 @@ impl Player {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &App) {
-        if ctx.input.pressed(Key::LeftArrow) {
-            if let On::Road {
-                dr,
-                ref mut next_road,
-                ..
-            } = self.on
-            {
-                let all = all_connections(dr.dst_i(&app.map), &app.map);
-                let idx = all.iter().position(|(x, _)| x == next_road).unwrap() as isize;
-                *next_road = wraparound_get(&all, idx - 1).0;
-            }
-        } else if ctx.input.pressed(Key::RightArrow) {
-            if let On::Road {
-                dr,
-                ref mut next_road,
-                ..
-            } = self.on
-            {
-                let all = all_connections(dr.dst_i(&app.map), &app.map);
-                let idx = all.iter().position(|(x, _)| x == next_road).unwrap() as isize;
-                *next_road = wraparound_get(&all, idx + 1).0;
+        if let Some(angle) = crate::controls::angle_from_arrow_keys(ctx) {
+            if angle != self.facing {
+                self.facing = angle;
+                if let On::Road {
+                    dr,
+                    ref mut next_road,
+                    ..
+                } = self.on
+                {
+                    *next_road = best_connection(dr, self.facing, &app.map);
+                }
             }
         }
     }
@@ -279,25 +274,10 @@ fn all_connections(i: IntersectionID, map: &Map) -> Vec<(DirectedRoadID, Angle)>
     all
 }
 
-fn default_connection(from: DirectedRoadID, map: &Map) -> DirectedRoadID {
-    let outgoing_angle = if from.dir == Direction::Fwd {
-        map.get_r(from.id).center_pts.last_line().angle()
-    } else {
-        map.get_r(from.id)
-            .center_pts
-            .first_line()
-            .angle()
-            .opposite()
-    };
-
-    // Do the thing closest to "go straight"
+fn best_connection(from: DirectedRoadID, facing: Angle, map: &Map) -> DirectedRoadID {
     all_connections(from.dst_i(map), map)
         .into_iter()
-        .min_by_key(|(_, angle)| {
-            outgoing_angle
-                .simple_shortest_rotation_towards(*angle)
-                .abs() as usize
-        })
+        .min_by_key(|(_, angle)| facing.simple_shortest_rotation_towards(*angle).abs() as usize)
         .unwrap()
         .0
 }

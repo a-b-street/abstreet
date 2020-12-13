@@ -5,7 +5,7 @@ mod after_level;
 mod animation;
 mod before_level;
 mod buildings;
-//mod controls;
+mod controls;
 mod game;
 mod levels;
 mod meters;

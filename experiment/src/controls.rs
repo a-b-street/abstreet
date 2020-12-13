@@ -18,7 +18,6 @@ impl InstantController {
 
     pub fn displacement(&mut self, ctx: &mut EventCtx, speed: Speed) -> Option<(f64, f64)> {
         let dt = ctx.input.nonblocking_is_update_event()?;
-
         // Work around a few bugs here.
         //
         // 1) The Santa sprites are all facing 180 degrees, not 0, so invert X.
@@ -26,29 +25,31 @@ impl InstantController {
         //
         // It's confusing, but self.facing winds up working for rotating the sprite, and the output
         // displacement works.
-
-        let mut x: f64 = 0.0;
-        let mut y: f64 = 0.0;
-        if ctx.is_key_down(Key::LeftArrow) {
-            x += 1.0;
-        }
-        if ctx.is_key_down(Key::RightArrow) {
-            x -= 1.0;
-        }
-        if ctx.is_key_down(Key::UpArrow) {
-            y += 1.0;
-        }
-        if ctx.is_key_down(Key::DownArrow) {
-            y -= 1.0;
-        }
-
-        if x == 0.0 && y == 0.0 {
-            return None;
-        }
-
-        self.facing = Angle::new_rads(y.atan2(x));
+        self.facing = angle_from_arrow_keys(ctx)?;
         let magnitude = (dt * HACK * speed).inner_meters();
         let (sin, cos) = self.facing.normalized_radians().sin_cos();
         Some((-magnitude * cos, -magnitude * sin))
     }
+}
+
+pub fn angle_from_arrow_keys(ctx: &EventCtx) -> Option<Angle> {
+    let mut x: f64 = 0.0;
+    let mut y: f64 = 0.0;
+    if ctx.is_key_down(Key::LeftArrow) {
+        x -= 1.0;
+    }
+    if ctx.is_key_down(Key::RightArrow) {
+        x += 1.0;
+    }
+    if ctx.is_key_down(Key::UpArrow) {
+        y -= 1.0;
+    }
+    if ctx.is_key_down(Key::DownArrow) {
+        y += 1.0;
+    }
+
+    if x == 0.0 && y == 0.0 {
+        return None;
+    }
+    Some(Angle::new_rads(y.atan2(x)))
 }
