@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::MultiMap;
 use geom::{Duration, Polygon};
 use map_gui::tools::{amenity_type, Grid};
-use map_model::{connectivity, BuildingID, Map, Path, PathConstraints, PathRequest};
+use map_model::{connectivity, BuildingID, BuildingType, Map, Path, PathConstraints, PathRequest};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 use crate::App;
@@ -20,6 +20,9 @@ pub struct Isochrone {
     pub time_to_reach_building: HashMap<BuildingID, Duration>,
     /// Per category of amenity (defined by helpers::amenity_type), what buildings have that?
     pub amenities_reachable: MultiMap<&'static str, BuildingID>,
+    /// How many people live in the returned area, according to estimates included in the map (from
+    /// city-specific parcel data, guesses from census, or a guess based on OSM tags)
+    pub population: usize,
 }
 
 impl Isochrone {
@@ -34,12 +37,20 @@ impl Isochrone {
         let draw = draw_isochrone(app, &time_to_reach_building).upload(ctx);
 
         let mut amenities_reachable = MultiMap::new();
+        let mut population = 0;
         for b in time_to_reach_building.keys() {
             let bldg = app.map.get_b(*b);
             for amenity in &bldg.amenities {
                 if let Some(category) = amenity_type(&amenity.amenity_type) {
                     amenities_reachable.insert(category, bldg.id);
                 }
+            }
+            match bldg.bldg_type {
+                BuildingType::Residential { num_residents, .. }
+                | BuildingType::ResidentialCommercial(num_residents, _) => {
+                    population += num_residents;
+                }
+                _ => {}
             }
         }
 
@@ -49,6 +60,7 @@ impl Isochrone {
             draw,
             time_to_reach_building,
             amenities_reachable,
+            population,
         }
     }
 

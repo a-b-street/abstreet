@@ -4,13 +4,15 @@
 //!
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
+use abstutil::prettyprint_usize;
 use geom::{Distance, Pt2D};
 use map_gui::tools::{amenity_type, nice_map_name, CityPicker, PopupMsg};
 use map_gui::{Cached, ID};
 use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, RewriteColor, State, Text, Transition, VerticalAlignment, Widget,
+    Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition, VerticalAlignment,
+    Widget,
 };
 
 use crate::isochrone::Isochrone;
@@ -182,16 +184,27 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         Btn::close(ctx),
     ]));
 
-    rows.push(Widget::row(vec![Btn::pop_up(
-        ctx,
-        Some(nice_map_name(app.map.get_name())),
-    )
-    .build(ctx, "change map", lctrl(Key::L))]));
+    rows.push(Widget::row(vec![
+        "Map:".draw_text(ctx),
+        Btn::pop_up(ctx, Some(nice_map_name(app.map.get_name()))).build(
+            ctx,
+            "change map",
+            lctrl(Key::L),
+        ),
+    ]));
 
     rows.push(
         Text::from_all(vec![
             Line("Starting from: ").secondary(),
             Line(&start.address),
+        ])
+        .draw(ctx),
+    );
+
+    rows.push(
+        Text::from_all(vec![
+            Line("Estimated population: ").secondary(),
+            Line(prettyprint_usize(isochrone.population)),
         ])
         .draw(ctx),
     );
