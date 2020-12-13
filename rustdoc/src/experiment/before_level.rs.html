@@ -151,6 +151,8 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -228,7 +230,9 @@
                                 <span class="ident">ctx</span>,
                                 <span class="string">&quot;vehicle&quot;</span>,
                                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">current_vehicle</span>.<span class="ident">to_string</span>(),
-                                <span class="ident">Choice</span>::<span class="ident">strings</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">vehicles_unlocked</span>.<span class="ident">clone</span>()),
+                                <span class="ident">Choice</span>::<span class="ident">strings</span>(
+                                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">vehicles_unlocked</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
+                                ),
                             ),
                         ]),
                         <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Start game&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
