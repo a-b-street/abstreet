@@ -50,22 +50,21 @@ impl Angle {
         self.normalized_radians().to_degrees()
     }
 
+    /// Returns [-180, 180]
+    pub fn simple_shortest_rotation_towards(self, other: Angle) -> f64 {
+        // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
+        ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0
+    }
+
     /// Logically this returns [-180, 180], but keep in mind when we print this angle, it'll
     /// normalize to be [0, 360].
     pub fn shortest_rotation_towards(self, other: Angle) -> Angle {
-        // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
-        Angle::degrees(
-            ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0,
-        )
+        Angle::degrees(self.simple_shortest_rotation_towards(other))
     }
 
     /// True if this angle is within some degrees of another, accounting for rotation
     pub fn approx_eq(self, other: Angle, within_degrees: f64) -> bool {
-        // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
-        // This yields [-180, 180]
-        let rotation =
-            ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0;
-        rotation.abs() < within_degrees
+        self.simple_shortest_rotation_towards(other).abs() < within_degrees
     }
 
     /// I don't know how to describe what this does. Use for rotating labels in map-space and making

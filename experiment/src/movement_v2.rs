@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::HashMap;
 
 use abstutil::{wraparound_get, MultiMap};
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
@@ -24,7 +24,7 @@ pub struct Player {
 impl Player {
     pub fn new(ctx: &mut EventCtx, app: &App, start: IntersectionID) -> Player {
         ctx.canvas.cam_zoom = ZOOM;
-        let dr = all_connections(start, &app.map).into_iter().next().unwrap();
+        let dr = all_connections(start, &app.map)[0].0;
         let on = On::Road {
             dr,
             dist: Distance::ZERO,
@@ -120,11 +120,9 @@ impl Player {
                 ..
             } = self.on
             {
-                let all: Vec<DirectedRoadID> = all_connections(dr.dst_i(&app.map), &app.map)
-                    .into_iter()
-                    .collect();
-                let idx = all.iter().position(|x| x == next_road).unwrap() as isize;
-                *next_road = *wraparound_get(&all, idx - 1);
+                let all = all_connections(dr.dst_i(&app.map), &app.map);
+                let idx = all.iter().position(|(x, _)| x == next_road).unwrap() as isize;
+                *next_road = wraparound_get(&all, idx - 1).0;
             }
         } else if ctx.input.pressed(Key::RightArrow) {
             if let On::Road {
@@ -133,11 +131,9 @@ impl Player {
                 ..
             } = self.on
             {
-                let all: Vec<DirectedRoadID> = all_connections(dr.dst_i(&app.map), &app.map)
-                    .into_iter()
-                    .collect();
-                let idx = all.iter().position(|x| x == next_road).unwrap() as isize;
-                *next_road = *wraparound_get(&all, idx + 1);
+                let all = all_connections(dr.dst_i(&app.map), &app.map);
+                let idx = all.iter().position(|(x, _)| x == next_road).unwrap() as isize;
+                *next_road = wraparound_get(&all, idx + 1).0;
             }
         }
     }
@@ -259,39 +255,51 @@ impl BuildingsAlongRoad {
 }
 
 /// All roads connected to this intersection, along with a direction assuming we're starting from
-/// the intersection. Arbitrary order.
-fn all_connections(i: IntersectionID, map: &Map) -> BTreeSet<DirectedRoadID> {
-    map.get_i(i)
+/// the intersection. Ordered by angle.
+fn all_connections(i: IntersectionID, map: &Map) -> Vec<(DirectedRoadID, Angle)> {
+    let mut all = map
+        .get_i(i)
         .roads
         .iter()
         .map(|r| {
             let r = map.get_r(*r);
-            DirectedRoadID {
-                id: r.id,
-                dir: if r.src_i == i {
-                    Direction::Fwd
-                } else {
-                    Direction::Back
-                },
+            let dir;
+            let angle;
+            if r.src_i == i {
+                dir = Direction::Fwd;
+                angle = r.center_pts.first_line().angle();
+            } else {
+                dir = Direction::Back;
+                angle = r.center_pts.last_line().angle().opposite();
             }
+            (DirectedRoadID { id: r.id, dir }, angle)
         })
-        .collect()
+        .collect::<Vec<_>>();
+    all.sort_by_key(|(_, angle)| angle.normalized_degrees() as i64);
+    all
 }
 
-// TODO Do the thing closest to "go straight"
 fn default_connection(from: DirectedRoadID, map: &Map) -> DirectedRoadID {
-    let mut all = all_connections(from.dst_i(map), map);
-    if all.len() == 1 {
-        // Deadend, we're forced to bounce back
-        all.into_iter().next().unwrap()
+    let outgoing_angle = if from.dir == Direction::Fwd {
+        map.get_r(from.id).center_pts.last_line().angle()
     } else {
-        // Don't go back the same way we just came
-        all.remove(&DirectedRoadID {
-            id: from.id,
-            dir: from.dir.opposite(),
-        });
-        all.into_iter().next().unwrap()
-    }
+        map.get_r(from.id)
+            .center_pts
+            .first_line()
+            .angle()
+            .opposite()
+    };
+
+    // Do the thing closest to "go straight"
+    all_connections(from.dst_i(map), map)
+        .into_iter()
+        .min_by_key(|(_, angle)| {
+            outgoing_angle
+                .simple_shortest_rotation_towards(*angle)
+                .abs() as usize
+        })
+        .unwrap()
+        .0
 }
 
 fn dr_pl(dr: DirectedRoadID, map: &Map) -> PolyLine {
