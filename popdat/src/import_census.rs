@@ -6,7 +6,7 @@ use map_model::Map;
 use std::convert::TryFrom;
 
 impl CensusArea {
-    pub fn find_data_for_map(map: &Map, timer: &mut Timer) -> Result<Vec<CensusArea>, String> {
+    pub fn find_data_for_map(map: &Map, timer: &mut Timer) -> anyhow::Result<Vec<CensusArea>> {
         // TODO eventually it'd be nice to lazily download the info needed. For now we expect a
         // prepared geojson file to exist in data/system/<city>/population_areas.geojson
         //
@@ -17,17 +17,16 @@ impl CensusArea {
             "system/{}/population_areas.geojson",
             map.get_name().city
         ));
-        let bytes = abstutil::slurp_file(&path)?;
+        let bytes = abstutil::slurp_file(&path).map_err(|s| anyhow!(s))?;
         debug!("parsing geojson at path: {}", &path);
 
         // TODO - can we change to Result<_,Box<dyn std::error::Error>> and avoid all these map_err?
-        let str = String::from_utf8(bytes).map_err(|e| e.to_string())?;
+        let str = String::from_utf8(bytes)?;
         timer.start("parsing geojson");
-        let geojson = str.parse::<GeoJson>().map_err(|e| e.to_string())?;
+        let geojson = str.parse::<GeoJson>()?;
         timer.stop("parsing geojson");
         let mut results = vec![];
-        let collection =
-            geojson::FeatureCollection::try_from(geojson).map_err(|e| e.to_string())?;
+        let collection = geojson::FeatureCollection::try_from(geojson)?;
 
         let map_area = map.get_boundary_polygon();
         let bounds = map.get_gps_bounds();
@@ -49,16 +48,12 @@ impl CensusArea {
                     .expect(&format!("unexpected total population number: {:?}", n))
                     as usize,
                 _ => {
-                    return Err(format!(
-                        "unexpected format for 'population': {:?}",
-                        population
-                    ));
+                    bail!("unexpected format for 'population': {:?}", population);
                 }
             };
 
             let geometry = feature.geometry.expect("geojson feature missing geometry");
-            let mut multi_poly =
-                geo::MultiPolygon::<f64>::try_from(geometry.value).map_err(|e| e.to_string())?;
+            let mut multi_poly = geo::MultiPolygon::<f64>::try_from(geometry.value)?;
             let geo_polygon = multi_poly
                 .0
                 .pop()

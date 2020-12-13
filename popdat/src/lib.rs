@@ -20,6 +20,9 @@
 #[macro_use]
 extern crate log;
 
+#[macro_use]
+extern crate anyhow;
+
 use rand_xorshift::XorShiftRng;
 
 use abstutil::Timer;
@@ -108,7 +111,7 @@ pub fn generate_scenario(
     // operator
     let mut timer = Timer::new("generate census scenario");
     timer.start("building population areas for map");
-    let areas = CensusArea::find_data_for_map(map, &mut timer)?;
+    let areas = CensusArea::find_data_for_map(map, &mut timer).map_err(|e| e.to_string())?;
     timer.stop("building population areas for map");
 
     timer.start("assigning people to houses");

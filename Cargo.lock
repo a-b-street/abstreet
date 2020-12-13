@@ -2779,6 +2779,7 @@ name = "popdat"
 version = "0.1.0"
 dependencies = [
  "abstutil",
+ "anyhow",
  "geo 0.16.0",
  "geojson",
  "geom",
