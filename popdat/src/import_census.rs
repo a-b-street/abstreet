@@ -54,7 +54,7 @@ impl CensusArea {
 
             let geometry = feature.geometry.expect("geojson feature missing geometry");
             let mut multi_poly = geo::MultiPolygon::<f64>::try_from(geometry.value)?;
-            let geo_polygon = multi_poly
+            let mut geo_polygon = multi_poly
                 .0
                 .pop()
                 .expect("multipolygon was unexpectedly empty");
@@ -76,6 +76,10 @@ impl CensusArea {
                 continue;
             }
 
+            geo_polygon.map_coords_inplace(|(x, y)| {
+                let point = geom::LonLat::new(*x, *y).to_pt(bounds);
+                (point.x(), point.y())
+            });
             let polygon = geom::Polygon::from(geo_polygon);
             results.push(CensusArea {
                 polygon,
