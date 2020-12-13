@@ -668,7 +668,7 @@
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Find a bike or bus lane&quot;</span>))
             } <span class="kw">else</span> {
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Press space to boost&quot;</span>))
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Hold space to boost&quot;</span>))
             },
         );
         <span class="self">self</span>.<span class="ident">boost_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;boost&quot;</span>, <span class="ident">boost_bar</span>);
@@ -701,7 +701,7 @@
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">tired_speed</span>
             };
             <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">Space</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
+                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">player</span>.<span class="ident">on_good_road</span>(<span class="ident">app</span>) {
                     <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">-</span><span class="op">=</span> <span class="ident">dt</span>;
                     <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span>.<span class="ident">max</span>(<span class="ident">Duration</span>::<span class="ident">ZERO</span>);
                 }
@@ -776,7 +776,7 @@
                 }
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">on_good_road</span>(<span class="ident">app</span>) {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">on_good_road</span>(<span class="ident">app</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">Space</span>) {
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span> <span class="op">*</span> <span class="ident">ACQUIRE_BOOST_RATE</span>;
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span>.<span class="ident">min</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">max_boost</span>);
             }
