@@ -25,7 +25,7 @@ impl InstantController {
         //
         // It's confusing, but self.facing winds up working for rotating the sprite, and the output
         // displacement works.
-        self.facing = angle_from_arrow_keys(ctx)?;
+        self.facing = angle_from_arrow_keys(ctx)?.opposite();
         let magnitude = (dt * HACK * speed).inner_meters();
         let (sin, cos) = self.facing.normalized_radians().sin_cos();
         Some((-magnitude * cos, -magnitude * sin))

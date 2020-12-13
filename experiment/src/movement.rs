@@ -13,6 +13,7 @@ pub const ZOOM: f64 = 10.0;
 
 pub struct Player {
     pos: Pt2D,
+    facing: Angle,
     on: On,
     bldgs_along_road: BuildingsAlongRoad,
 
@@ -27,6 +28,7 @@ impl Player {
 
         Player {
             pos,
+            facing: Angle::ZERO,
             on: On::Intersection(start),
             bldgs_along_road: BuildingsAlongRoad::new(app),
 
@@ -156,6 +158,17 @@ impl Player {
                 }
             }
         }
+
+        // Snap to the center of the road
+        if let On::Road(r, dist) = self.on {
+            let (pt, angle) = app.map.get_r(r).center_pts.must_dist_along(dist);
+            self.pos = pt;
+            self.facing = angle;
+            ctx.canvas.center_on_map_pt(self.pos);
+        } else {
+            self.facing = self.controls.facing;
+        }
+
         buildings_passed
     }
 
@@ -164,7 +177,7 @@ impl Player {
     }
 
     pub fn get_angle(&self) -> Angle {
-        self.controls.facing
+        self.facing
     }
 
     /// Is the player currently on a road with a bus or bike lane?
