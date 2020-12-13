@@ -20,7 +20,6 @@ impl CensusArea {
         let bytes = abstutil::slurp_file(&path).map_err(|s| anyhow!(s))?;
         debug!("parsing geojson at path: {}", &path);
 
-        // TODO - can we change to Result<_,Box<dyn std::error::Error>> and avoid all these map_err?
         let str = String::from_utf8(bytes)?;
         timer.start("parsing geojson");
         let geojson = str.parse::<GeoJson>()?;
@@ -41,23 +40,30 @@ impl CensusArea {
         debug!("collection.features: {}", &collection.features.len());
         timer.start("converting to `CensusArea`s");
         for feature in collection.features.into_iter() {
-            let population = feature.property("population");
-            let total_population = match population {
-                Some(serde_json::Value::Number(n)) => n
+            let population = match feature
+                .property("population")
+                .ok_or(anyhow!("missing 'population' property"))?
+            {
+                serde_json::Value::Number(n) => n
                     .as_u64()
-                    .expect(&format!("unexpected total population number: {:?}", n))
+                    .ok_or(anyhow!("unexpected population number: {:?}", n))?
                     as usize,
                 _ => {
-                    bail!("unexpected format for 'population': {:?}", population);
+                    bail!(
+                        "unexpected format for 'population': {:?}",
+                        feature.property("population")
+                    );
                 }
             };
 
-            let geometry = feature.geometry.expect("geojson feature missing geometry");
+            let geometry = feature
+                .geometry
+                .ok_or(anyhow!("geojson feature missing geometry"))?;
             let mut multi_poly = geo::MultiPolygon::<f64>::try_from(geometry.value)?;
             let mut geo_polygon = multi_poly
                 .0
                 .pop()
-                .expect("multipolygon was unexpectedly empty");
+                .ok_or(anyhow!("multipolygon was unexpectedly empty"))?;
             if !multi_poly.0.is_empty() {
                 // Annoyingly upstream GIS has packaged all these individual polygons into
                 // "multipolygon" of length 1 Make sure nothing surprising is
@@ -83,7 +89,7 @@ impl CensusArea {
             let polygon = geom::Polygon::from(geo_polygon);
             results.push(CensusArea {
                 polygon,
-                total_population,
+                population,
             });
         }
         debug!("built {} CensusAreas within map bounds", results.len());

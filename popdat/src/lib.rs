@@ -42,7 +42,7 @@ mod make_person;
 /// have two overlapping areas.
 pub struct CensusArea {
     pub polygon: Polygon,
-    pub total_population: usize,
+    pub population: usize,
     // TODO Not sure what goes here, whatever census data actually has that could be useful
 }
 
