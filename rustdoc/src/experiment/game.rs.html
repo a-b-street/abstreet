@@ -565,6 +565,15 @@
 <span id="562">562</span>
 <span id="563">563</span>
 <span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -765,12 +774,13 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Game</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">let</span> <span class="ident">orig_boost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span>;
-        <span class="kw">let</span> (<span class="ident">orig_score</span>, <span class="ident">orig_energy</span>) <span class="op">=</span> (<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>, <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span>);
-
         <span class="comment">// Most things depend on time passing and don&#39;t care about other events</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
             <span class="ident">app</span>.<span class="ident">time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>;
+
+            <span class="kw">let</span> <span class="ident">orig_boost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span>;
+            <span class="kw">let</span> (<span class="ident">orig_score</span>, <span class="ident">orig_energy</span>) <span class="op">=</span> (<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>, <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span>);
+            <span class="kw">let</span> <span class="ident">orig_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>();
 
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">time</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>.<span class="ident">time_limit</span> {
                 <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Results</span>::<span class="ident">new</span>(
@@ -899,6 +909,9 @@
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig_score</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig_energy</span> {
                 <span class="self">self</span>.<span class="ident">update_status_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">orig_pos</span> {
+                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">idle_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>;
+            }
         } <span class="kw">else</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">minimap</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
                 <span class="kw">return</span> <span class="ident">t</span>;
@@ -969,7 +982,7 @@
         <span class="kw">if</span> <span class="bool-val">true</span> {
             <span class="self">self</span>.<span class="ident">state</span>
                 .<span class="ident">vehicle</span>
-                .<span class="ident">animate</span>(<span class="ident">g</span>, <span class="ident">app</span>.<span class="ident">time</span>)
+                .<span class="ident">animate</span>(<span class="ident">g</span>, <span class="ident">app</span>.<span class="ident">time</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">idle_time</span>)
                 .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>())
                 .<span class="ident">rotate_around_batch_center</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_angle</span>())
                 .<span class="ident">draw</span>(<span class="ident">g</span>);
@@ -1002,6 +1015,9 @@
 
     <span class="ident">draw_done_houses</span>: <span class="ident">Drawable</span>,
     <span class="ident">energyless_arrow</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">EnergylessArrow</span><span class="op">&gt;</span>,
+
+    <span class="comment">// For animation</span>
+    <span class="ident">idle_time</span>: <span class="ident">Duration</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GameState</span> {
@@ -1024,6 +1040,8 @@
 
             <span class="ident">draw_done_houses</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
             <span class="ident">energyless_arrow</span>: <span class="prelude-val">None</span>,
+
+            <span class="ident">idle_time</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
         };
         <span class="ident">s</span>.<span class="ident">recalc_deliveries</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="ident">s</span>
