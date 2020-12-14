@@ -109,6 +109,8 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -124,6 +126,7 @@
     <span class="comment">// could even replace the one in DrawMap.</span>
     <span class="kw">pub</span> <span class="ident">draw_all</span>: <span class="ident">Drawable</span>,
     <span class="kw">pub</span> <span class="ident">total_housing_units</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">upzones</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
@@ -131,8 +134,9 @@
     <span class="comment">// Score</span>
     <span class="ident">Undelivered</span>(<span class="ident">usize</span>),
     <span class="ident">Store</span>,
-    <span class="comment">// Or not a relevant building</span>
     <span class="ident">Done</span>,
+    <span class="comment">// Not a relevant building</span>
+    <span class="ident">Ignore</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Buildings</span> {
@@ -166,7 +170,6 @@
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
                     <span class="comment">// Call out non-single family homes</span>
                     <span class="kw">if</span> <span class="ident">num_housing_units</span> <span class="op">&gt;</span> <span class="number">1</span> {
-                        <span class="comment">// TODO Text can be slow to render, and this should be louder anyway</span>
                         <span class="ident">batch</span>.<span class="ident">append</span>(
                             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">num_housing_units</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>))
                                 .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
@@ -184,7 +187,7 @@
             }
 
             <span class="comment">// If it&#39;s not a residence or store, just blank it out.</span>
-            <span class="ident">buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">BldgState</span>::<span class="ident">Done</span>);
+            <span class="ident">buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">BldgState</span>::<span class="ident">Ignore</span>);
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">colors</span>.<span class="ident">visited</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
         }
 
@@ -192,6 +195,7 @@
             <span class="ident">buildings</span>,
             <span class="ident">draw_all</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
             <span class="ident">total_housing_units</span>,
+            <span class="ident">upzones</span>,
         }
     }
 

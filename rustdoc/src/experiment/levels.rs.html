@@ -124,6 +124,20 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Level</span><span class="op">&gt;</span> {
         <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Level</span> {
+                <span class="ident">title</span>: <span class="string">&quot;Montlake&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">description</span>: <span class="string">&quot;With the Montlake Market closed, how will you manage to bring cheer \
+                              to this sleepy little pocket of the city?&quot;</span>
+                    .<span class="ident">to_string</span>(),
+                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
+                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53084814</span>),
+                <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
+                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">5.0</span>),
+                <span class="ident">goal</span>: <span class="number">20</span>,
+
+                <span class="ident">unlock_upzones</span>: <span class="number">2</span>,
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+            },
+            <span class="ident">Level</span> {
                 <span class="ident">title</span>: <span class="string">&quot;University District&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;Tear yourself away from all the bubble tea to deliver presents to \
                               some college students, whether they&#39;ve been naughty or nice.&quot;</span>
@@ -162,20 +176,6 @@
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53142423</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
                 <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
-                <span class="ident">goal</span>: <span class="number">25</span>,
-
-                <span class="ident">unlock_upzones</span>: <span class="number">2</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
-            },
-            <span class="ident">Level</span> {
-                <span class="ident">title</span>: <span class="string">&quot;Montlake&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">description</span>: <span class="string">&quot;With the Montlake Market closed, how will you manage to bring cheer \
-                              to this sleepy little pocket of the city?&quot;</span>
-                    .<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53084814</span>),
-                <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">5.0</span>),
                 <span class="ident">goal</span>: <span class="number">25</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">2</span>,

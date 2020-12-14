@@ -591,6 +591,10 @@
 <span id="588">588</span>
 <span id="589">589</span>
 <span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -603,7 +607,7 @@
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">after_level</span>::<span class="ident">Results</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">after_level</span>::{<span class="ident">Results</span>, <span class="ident">Strategize</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">Effect</span>, <span class="ident">SnowEffect</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">buildings</span>::{<span class="ident">BldgState</span>, <span class="ident">Buildings</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Level</span>;
@@ -872,7 +876,7 @@
                         );
                     }
                 }
-                <span class="ident">BldgState</span>::<span class="ident">Done</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="ident">BldgState</span>::<span class="ident">Done</span> <span class="op">|</span> <span class="ident">BldgState</span>::<span class="ident">Ignore</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
         <span class="kw">if</span> <span class="op">!</span><span class="ident">met_goal</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">met_goal</span>() {
@@ -929,12 +933,16 @@
             }
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">is_done</span>() {
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Results</span>::<span class="ident">new</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>,
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>,
-                ));
+                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Strategize</span>::<span class="ident">new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>,
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>,
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">bldgs</span>,
+                    )),
+                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Results</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>)),
+                ]);
             }
 
             <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">Game</span>);
