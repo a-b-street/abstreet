@@ -197,12 +197,13 @@ impl Game {
 
 impl State<App> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let orig_boost = self.state.boost;
-        let (orig_score, orig_energy) = (self.state.score, self.state.energy);
-
         // Most things depend on time passing and don't care about other events
         if let Some(dt) = ctx.input.nonblocking_is_update_event() {
             app.time += dt;
+
+            let orig_boost = self.state.boost;
+            let (orig_score, orig_energy) = (self.state.score, self.state.energy);
+            let orig_pos = self.player.get_pos();
 
             if app.time - Time::START_OF_DAY >= self.state.level.time_limit {
                 return Transition::Replace(Results::new(
@@ -331,6 +332,9 @@ impl State<App> for Game {
             if self.state.score != orig_score || self.state.energy != orig_energy {
                 self.update_status_panel(ctx, app);
             }
+            if self.player.get_pos() == orig_pos {
+                self.state.idle_time += dt;
+            }
         } else {
             if let Some(t) = self.minimap.event(ctx, app) {
                 return t;
@@ -401,7 +405,7 @@ impl State<App> for Game {
         if true {
             self.state
                 .vehicle
-                .animate(g, app.time)
+                .animate(g, app.time - self.state.idle_time)
                 .centered_on(self.player.get_pos())
                 .rotate_around_batch_center(self.player.get_angle())
                 .draw(g);
@@ -434,6 +438,9 @@ struct GameState {
 
     draw_done_houses: Drawable,
     energyless_arrow: Option<EnergylessArrow>,
+
+    // For animation
+    idle_time: Duration,
 }
 
 impl GameState {
@@ -456,6 +463,8 @@ impl GameState {
 
             draw_done_houses: Drawable::empty(ctx),
             energyless_arrow: None,
+
+            idle_time: Duration::ZERO,
         };
         s.recalc_deliveries(ctx, app);
         s
