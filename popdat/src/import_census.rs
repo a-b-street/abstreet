@@ -19,10 +19,8 @@ impl CensusArea {
         ));
         let bytes = abstutil::slurp_file(&path).map_err(|s| anyhow!(s))?;
         debug!("parsing geojson at path: {}", &path);
-
-        let str = String::from_utf8(bytes)?;
         timer.start("parsing geojson");
-        let geojson = str.parse::<GeoJson>()?;
+        let geojson = GeoJson::from_reader(&*bytes)?;
         timer.stop("parsing geojson");
         let mut results = vec![];
         let collection = geojson::FeatureCollection::try_from(geojson)?;
