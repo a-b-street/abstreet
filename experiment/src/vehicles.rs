@@ -22,7 +22,7 @@ impl Vehicle {
 
                 normal_speed: Speed::miles_per_hour(30.0),
                 tired_speed: Speed::miles_per_hour(10.0),
-                max_energy: 80,
+                max_energy: 20,
                 max_boost: Duration::seconds(5.0),
 
                 draw_frames: vec!["sleigh.svg"],

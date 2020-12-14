@@ -97,6 +97,8 @@ impl Strategize {
                 ColorLegend::row(ctx, app.session.colors.house, "house"),
                 ColorLegend::row(ctx, app.session.colors.apartment, "apartment"),
                 ColorLegend::row(ctx, app.session.colors.store, "store"),
+            ]),
+            Widget::row(vec![
                 ColorLegend::row(ctx, Color::PINK, "upzoned store"),
                 ColorLegend::row(ctx, Color::RED, "delivered!"),
             ])

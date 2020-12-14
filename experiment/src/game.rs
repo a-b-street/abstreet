@@ -14,7 +14,7 @@ use crate::animation::{Animator, Effect, SnowEffect};
 use crate::buildings::{BldgState, Buildings};
 use crate::levels::Level;
 use crate::meters::{custom_bar, make_bar};
-use crate::movement::Player;
+use crate::player::Player;
 use crate::vehicles::Vehicle;
 use crate::{App, Transition};
 
@@ -63,7 +63,7 @@ impl Game {
         let status_panel = Panel::new(Widget::col(vec![
             "Complete Deliveries".draw_text(ctx).named("score label"),
             Widget::draw_batch(ctx, GeomBatch::new()).named("score"),
-            "Remaining Gifts".draw_text(ctx),
+            "Remaining Gifts".draw_text(ctx).named("energy label"),
             Widget::draw_batch(ctx, GeomBatch::new()).named("energy"),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
@@ -296,18 +296,27 @@ impl Game {
         self.animator.event(ctx, app.time);
         self.snow.event(ctx, app.time);
         if self.state.has_energy() {
-            self.state.energyless_arrow = None;
+            if self.state.energyless_arrow.is_some() {
+                self.state.energyless_arrow = None;
+                let label = "Remaining Gifts".draw_text(ctx);
+                self.status_panel.replace(ctx, "energy label", label);
+            }
         } else {
             if self.state.energyless_arrow.is_none() {
-                self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, app.time));
+                self.state.energyless_arrow = Some(EnergylessArrow::new(
+                    ctx,
+                    app.time,
+                    self.state.bldgs.all_stores(),
+                ));
+                let label = Text::from(Line("Out of gifts - refill from a store!").fg(Color::RED))
+                    .draw(ctx);
+                self.status_panel.replace(ctx, "energy label", label);
             }
-            let stores = self.state.bldgs.all_stores();
-            self.state.energyless_arrow.as_mut().unwrap().update(
-                ctx,
-                app,
-                self.player.get_pos(),
-                stores,
-            );
+            self.state
+                .energyless_arrow
+                .as_mut()
+                .unwrap()
+                .update(ctx, app, self.player.get_pos());
         }
 
         if self.state.boost != orig_boost {
@@ -534,28 +543,33 @@ struct EnergylessArrow {
     draw: Drawable,
     started: Time,
     last_update: Time,
+    all_stores: Vec<BuildingID>,
 }
 
 impl EnergylessArrow {
-    fn new(ctx: &EventCtx, started: Time) -> EnergylessArrow {
+    fn new(ctx: &EventCtx, started: Time, all_stores: Vec<BuildingID>) -> EnergylessArrow {
         EnergylessArrow {
             draw: Drawable::empty(ctx),
             started,
             last_update: Time::START_OF_DAY,
+            all_stores,
         }
     }
 
-    fn update(&mut self, ctx: &mut EventCtx, app: &App, sleigh: Pt2D, all_stores: Vec<BuildingID>) {
+    fn update(&mut self, ctx: &mut EventCtx, app: &App, sleigh: Pt2D) {
         if self.last_update == app.time {
             return;
         }
         self.last_update = app.time;
-        // Find the closest store as the crow -- or Santa -- flies
+        // Find the closest store as the crow -- or Santa -- flies. Point to the end of the
+        // driveway, since sometimes it's hard to quickly spot which road a building is connected
+        // to.
         // TODO Or pathfind and show them that?
         let store = app.map.get_b(
-            all_stores
-                .into_iter()
-                .min_by_key(|b| app.map.get_b(*b).label_center.fast_dist(sleigh))
+            *self
+                .all_stores
+                .iter()
+                .min_by_key(|b| app.map.get_b(**b).driveway_geom.last_pt().fast_dist(sleigh))
                 .unwrap(),
         );
 
@@ -566,13 +580,22 @@ impl EnergylessArrow {
         let shift = (pct * std::f64::consts::PI).sin();
         let thickness = Distance::meters(5.0 + shift);
 
-        let angle = sleigh.angle_to(store.label_center);
-        let arrow = PolyLine::must_new(vec![
+        let goto = store.driveway_geom.last_pt();
+        let angle = sleigh.angle_to(goto);
+        // TODO When we're too close, we get an awkward arrowcap; the intention was for it to
+        // disappear...
+        if let Some(arrow) = PolyLine::new(vec![
             sleigh.project_away(Distance::meters(20.0), angle),
-            sleigh.project_away(Distance::meters(40.0), angle),
+            goto,
         ])
-        .make_arrow(thickness, ArrowCap::Triangle);
-        self.draw = ctx.upload(GeomBatch::from(vec![(Color::RED.alpha(0.8), arrow)]));
+        .and_then(|pl| {
+            pl.maybe_exact_slice(Distance::ZERO, Distance::meters(20.0).min(pl.length()))
+        })
+        .ok()
+        .and_then(|slice| slice.maybe_make_arrow(thickness, ArrowCap::Triangle))
+        {
+            self.draw = ctx.upload(GeomBatch::from(vec![(Color::RED.alpha(0.8), arrow)]));
+        }
     }
 }
 

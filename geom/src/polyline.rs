@@ -519,13 +519,13 @@ impl PolyLine {
             .exact_dashed_polygons(width, dash_len, dash_separation)
     }
 
-    pub fn make_arrow(&self, thickness: Distance, cap: ArrowCap) -> Polygon {
+    /// Fail if the length is too short.
+    pub fn maybe_make_arrow(&self, thickness: Distance, cap: ArrowCap) -> Option<Polygon> {
         let head_size = thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
 
         if self.length() < triangle_height + EPSILON_DIST {
-            // Just give up and make the thick line.
-            return self.make_polygons(thickness);
+            return None;
         }
         let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
 
@@ -550,7 +550,17 @@ impl PolyLine {
         pts.extend(side2);
         pts.push(pts[0]);
         pts.dedup();
-        Ring::must_new(pts).to_polygon()
+        Some(Ring::must_new(pts).to_polygon())
+    }
+
+    /// If the length is too short, just give up and make the thick line
+    pub fn make_arrow(&self, thickness: Distance, cap: ArrowCap) -> Polygon {
+        if let Some(p) = self.maybe_make_arrow(thickness, cap) {
+            p
+        } else {
+            // Just give up and make the thick line.
+            self.make_polygons(thickness)
+        }
     }
 
     pub fn make_double_arrow(&self, thickness: Distance, cap: ArrowCap) -> Polygon {
