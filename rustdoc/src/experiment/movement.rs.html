@@ -295,6 +295,11 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -507,6 +512,11 @@
             }
         }
         <span class="bool-val">false</span>
+    }
+
+    <span class="doccomment">/// For the game over animation</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">override_pos</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">Pt2D</span>) {
+        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">=</span> <span class="ident">pos</span>;
     }
 }
 
