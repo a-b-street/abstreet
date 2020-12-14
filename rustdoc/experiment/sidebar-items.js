@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""]],"mod":[["after_level",""],["animation",""],["before_level",""],["buildings",""],["controls",""],["game",""],["levels",""],["meters",""],["movement",""],["music",""],["session",""],["title",""],["vehicles",""]],"type":[["App",""],["Transition",""]]});
+initSidebarItems({"fn":[["main",""]],"mod":[["after_level",""],["animation",""],["before_level",""],["buildings",""],["controls",""],["game",""],["levels",""],["meters",""],["music",""],["player",""],["session",""],["title",""],["vehicles",""]],"type":[["App",""],["Transition",""]]});

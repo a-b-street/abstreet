@@ -868,6 +868,16 @@
 <span id="865">865</span>
 <span id="866">866</span>
 <span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1390,13 +1400,13 @@
             .<span class="ident">exact_dashed_polygons</span>(<span class="ident">width</span>, <span class="ident">dash_len</span>, <span class="ident">dash_separation</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_arrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>, <span class="ident">cap</span>: <span class="ident">ArrowCap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+    <span class="doccomment">/// Fail if the length is too short.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_make_arrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>, <span class="ident">cap</span>: <span class="ident">ArrowCap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">head_size</span> <span class="op">=</span> <span class="ident">thickness</span> <span class="op">*</span> <span class="number">2.0</span>;
         <span class="kw">let</span> <span class="ident">triangle_height</span> <span class="op">=</span> <span class="ident">head_size</span> <span class="op">/</span> <span class="number">2.0_f64</span>.<span class="ident">sqrt</span>();
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">triangle_height</span> <span class="op">+</span> <span class="ident">EPSILON_DIST</span> {
-            <span class="comment">// Just give up and make the thick line.</span>
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>);
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">triangle_height</span>);
 
@@ -1421,7 +1431,17 @@
         <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">side2</span>);
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
-        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">to_polygon</span>()
+        <span class="prelude-val">Some</span>(<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">to_polygon</span>())
+    }
+
+    <span class="doccomment">/// If the length is too short, just give up and make the thick line</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_arrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>, <span class="ident">cap</span>: <span class="ident">ArrowCap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">maybe_make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">cap</span>) {
+            <span class="ident">p</span>
+        } <span class="kw">else</span> {
+            <span class="comment">// Just give up and make the thick line.</span>
+            <span class="self">self</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_double_arrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>, <span class="ident">cap</span>: <span class="ident">ArrowCap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {

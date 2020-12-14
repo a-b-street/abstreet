@@ -221,6 +221,8 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
@@ -321,6 +323,8 @@
                 <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">house</span>, <span class="string">&quot;house&quot;</span>),
                 <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">apartment</span>, <span class="string">&quot;apartment&quot;</span>),
                 <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">store</span>, <span class="string">&quot;store&quot;</span>),
+            ]),
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">Color</span>::<span class="ident">PINK</span>, <span class="string">&quot;upzoned store&quot;</span>),
                 <span class="ident">ColorLegend</span>::<span class="ident">row</span>(<span class="ident">ctx</span>, <span class="ident">Color</span>::<span class="ident">RED</span>, <span class="string">&quot;delivered!&quot;</span>),
             ])
