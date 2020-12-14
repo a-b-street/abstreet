@@ -12,6 +12,7 @@ pub struct Buildings {
     // could even replace the one in DrawMap.
     pub draw_all: Drawable,
     pub total_housing_units: usize,
+    pub upzones: HashSet<BuildingID>,
 }
 
 #[derive(Clone)]
@@ -19,8 +20,9 @@ pub enum BldgState {
     // Score
     Undelivered(usize),
     Store,
-    // Or not a relevant building
     Done,
+    // Not a relevant building
+    Ignore,
 }
 
 impl Buildings {
@@ -54,7 +56,6 @@ impl Buildings {
                     batch.push(color, b.polygon.clone());
                     // Call out non-single family homes
                     if num_housing_units > 1 {
-                        // TODO Text can be slow to render, and this should be louder anyway
                         batch.append(
                             Text::from(Line(num_housing_units.to_string()).fg(Color::RED))
                                 .render_to_batch(ctx.prerender)
@@ -72,7 +73,7 @@ impl Buildings {
             }
 
             // If it's not a residence or store, just blank it out.
-            buildings.insert(b.id, BldgState::Done);
+            buildings.insert(b.id, BldgState::Ignore);
             batch.push(colors.visited, b.polygon.clone());
         }
 
@@ -80,6 +81,7 @@ impl Buildings {
             buildings,
             draw_all: ctx.upload(batch),
             total_housing_units,
+            upzones,
         }
     }
 

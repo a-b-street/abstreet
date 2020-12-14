@@ -22,6 +22,20 @@ impl Level {
     pub fn all() -> Vec<Level> {
         vec![
             Level {
+                title: "Montlake".to_string(),
+                description: "With the Montlake Market closed, how will you manage to bring cheer \
+                              to this sleepy little pocket of the city?"
+                    .to_string(),
+                map: MapName::seattle("montlake"),
+                start: osm::NodeID(53084814),
+                minimap_zoom: 1,
+                time_limit: Duration::seconds(5.0),
+                goal: 20,
+
+                unlock_upzones: 2,
+                unlock_vehicles: vec![],
+            },
+            Level {
                 title: "University District".to_string(),
                 description: "Tear yourself away from all the bubble tea to deliver presents to \
                               some college students, whether they've been naughty or nice."
@@ -60,20 +74,6 @@ impl Level {
                 start: osm::NodeID(53142423),
                 minimap_zoom: 1,
                 time_limit: Duration::seconds(90.0),
-                goal: 25,
-
-                unlock_upzones: 2,
-                unlock_vehicles: vec![],
-            },
-            Level {
-                title: "Montlake".to_string(),
-                description: "With the Montlake Market closed, how will you manage to bring cheer \
-                              to this sleepy little pocket of the city?"
-                    .to_string(),
-                map: MapName::seattle("montlake"),
-                start: osm::NodeID(53084814),
-                minimap_zoom: 1,
-                time_limit: Duration::seconds(5.0),
                 goal: 25,
 
                 unlock_upzones: 2,

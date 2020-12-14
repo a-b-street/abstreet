@@ -1,43 +1,46 @@
 use abstutil::prettyprint_usize;
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{ColorLegend, PopupMsg};
 use widgetry::{
-    Btn, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
-    VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, Text, VerticalAlignment, Widget,
 };
 
+use crate::buildings::{BldgState, Buildings};
 use crate::levels::Level;
 use crate::title::TitleScreen;
 use crate::{App, Transition};
 
 const ZOOM: f64 = 2.0;
 
-// TODO Display route, the buildings still undelivered, etc. Let the player strategize about how to
-// do better.
-
-pub struct Results {
+pub struct Strategize {
     panel: Panel,
     unlock_messages: Option<Vec<String>>,
+    draw_all: Drawable,
 }
 
-impl Results {
+impl Strategize {
     pub fn new(
         ctx: &mut EventCtx,
         app: &mut App,
         score: usize,
         level: &Level,
+        bldgs: &Buildings,
     ) -> Box<dyn State<App>> {
         ctx.canvas.cam_zoom = ZOOM;
-        ctx.canvas.center_on_map_pt(app.map.get_bounds().center());
+        let start = app
+            .map
+            .get_i(app.map.find_i_by_osm_id(level.start).unwrap())
+            .polygon
+            .center();
+        ctx.canvas.center_on_map_pt(start);
 
         let unlock_messages = app.session.record_score(level.title.clone(), score);
 
         let mut txt = Text::new();
         txt.add(Line(format!("Results for {}", level.title)).small_heading());
         txt.add(Line(format!(
-            "You delivered {} presents in {}. Your goal was {}",
-            prettyprint_usize(score),
-            level.time_limit,
-            prettyprint_usize(level.goal)
+            "You delivered {} presents",
+            prettyprint_usize(score)
         )));
         txt.add(Line(""));
         txt.add(Line("High scores:"));
@@ -45,20 +48,71 @@ impl Results {
             txt.add(Line(format!("{}) {}", idx + 1, prettyprint_usize(*score))));
         }
 
+        // Partly duplicated with Buildings::new, but we want to label upzones and finished houses
+        // differently
+        let mut batch = GeomBatch::new();
+        for b in app.map.all_buildings() {
+            match bldgs.buildings[&b.id] {
+                BldgState::Undelivered(num_housing_units) => {
+                    batch.push(
+                        if num_housing_units > 5 {
+                            app.session.colors.apartment
+                        } else {
+                            app.session.colors.house
+                        },
+                        b.polygon.clone(),
+                    );
+                    if num_housing_units > 1 {
+                        batch.append(
+                            Text::from(Line(num_housing_units.to_string()).fg(Color::RED))
+                                .render_to_batch(ctx.prerender)
+                                .scale(0.2)
+                                .centered_on(b.label_center),
+                        );
+                    }
+                }
+                BldgState::Store => {
+                    batch.push(
+                        if bldgs.upzones.contains(&b.id) {
+                            Color::PINK
+                        } else {
+                            app.session.colors.store
+                        },
+                        b.polygon.clone(),
+                    );
+                }
+                BldgState::Done => {
+                    batch.push(Color::RED, b.polygon.clone());
+                }
+                BldgState::Ignore => {
+                    batch.push(app.session.colors.visited, b.polygon.clone());
+                }
+            }
+        }
+
         let panel = Panel::new(Widget::col(vec![
             txt.draw(ctx),
             Btn::text_bg2("Back to title screen").build_def(ctx, Key::Enter),
+            Widget::row(vec![
+                ColorLegend::row(ctx, app.session.colors.house, "house"),
+                ColorLegend::row(ctx, app.session.colors.apartment, "apartment"),
+                ColorLegend::row(ctx, app.session.colors.store, "store"),
+                ColorLegend::row(ctx, Color::PINK, "upzoned store"),
+                ColorLegend::row(ctx, Color::RED, "delivered!"),
+            ])
+            .evenly_spaced(),
         ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
-        Box::new(Results {
+        Box::new(Strategize {
             panel,
             unlock_messages,
+            draw_all: ctx.upload(batch),
         })
     }
 }
 
-impl State<App> for Results {
+impl State<App> for Strategize {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
@@ -77,6 +131,77 @@ impl State<App> for Results {
                         )));
                     }
                     return Transition::Multi(transitions);
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+
+        app.session.update_music(ctx);
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        g.redraw(&self.draw_all);
+        self.panel.draw(g);
+        app.session.music.draw(g);
+    }
+}
+
+pub struct Results {
+    panel: Panel,
+}
+
+impl Results {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        score: usize,
+        level: &Level,
+    ) -> Box<dyn State<App>> {
+        let mut txt = Text::new();
+        if score < level.goal {
+            txt.add(Line("Not quite...").small_heading());
+            txt.add(Line(format!(
+                "You only delivered {} / {} presents",
+                prettyprint_usize(score),
+                prettyprint_usize(level.goal)
+            )));
+            txt.add(Line("Review your route and try again."));
+        } else {
+            txt.add(Line("Thank you, Santa!").small_heading());
+            txt.add(Line(format!(
+                "You delivered {} presents, more than the goal of {}!",
+                prettyprint_usize(score),
+                prettyprint_usize(level.goal)
+            )));
+            let high_score = app.session.high_scores[&level.title][0];
+            if high_score == score {
+                txt.add(Line("Wow, a new high score!"));
+            } else {
+                txt.add(Line(format!(
+                    "But can you beat the high score of {}?",
+                    prettyprint_usize(high_score)
+                )));
+            }
+        }
+
+        let panel = Panel::new(Widget::col(vec![
+            txt.draw(ctx),
+            Btn::text_bg2("OK").build_def(ctx, Key::Enter),
+        ]))
+        .build(ctx);
+        Box::new(Results { panel })
+    }
+}
+
+impl State<App> for Results {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "OK" => {
+                    return Transition::Pop;
                 }
                 _ => unreachable!(),
             },

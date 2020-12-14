@@ -9,7 +9,7 @@ use widgetry::{
     Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
-use crate::after_level::Results;
+use crate::after_level::{Results, Strategize};
 use crate::animation::{Animator, Effect, SnowEffect};
 use crate::buildings::{BldgState, Buildings};
 use crate::levels::Level;
@@ -278,7 +278,7 @@ impl Game {
                         );
                     }
                 }
-                BldgState::Done => {}
+                BldgState::Done | BldgState::Ignore => {}
             }
         }
         if !met_goal && self.state.met_goal() {
@@ -335,12 +335,16 @@ impl State<App> for Game {
             }
 
             if self.animator.is_done() {
-                return Transition::Replace(Results::new(
-                    ctx,
-                    app,
-                    self.state.score,
-                    &self.state.level,
-                ));
+                return Transition::Multi(vec![
+                    Transition::Replace(Strategize::new(
+                        ctx,
+                        app,
+                        self.state.score,
+                        &self.state.level,
+                        &self.state.bldgs,
+                    )),
+                    Transition::Push(Results::new(ctx, app, self.state.score, &self.state.level)),
+                ]);
             }
 
             ctx.request_update(UpdateType::Game);
