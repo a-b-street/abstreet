@@ -28,7 +28,6 @@ jobs:
           rust-version: 1.47.0
 
       - name: Cache build
-        if: matrix.os != 'macos-latest'
         uses: actions/cache@v2
         with:
                 path: target
