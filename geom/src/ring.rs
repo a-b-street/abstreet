@@ -199,3 +199,9 @@ impl From<Ring> for geo::LineString<f64> {
         Self(coords)
     }
 }
+
+impl From<geo::LineString<f64>> for Ring {
+    fn from(line_string: geo::LineString<f64>) -> Self {
+        Self::must_new(line_string.0.into_iter().map(Pt2D::from).collect())
+    }
+}

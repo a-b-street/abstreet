@@ -478,31 +478,30 @@ fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
 
 impl From<geo::Polygon<f64>> for Polygon {
     fn from(poly: geo::Polygon<f64>) -> Self {
-        Polygon::buggy_new(
-            poly.into_inner()
-                .0
-                .into_points()
-                .into_iter()
-                .map(|pt| Pt2D::new(pt.x(), pt.y()))
-                .collect(),
+        let (exterior, interiors) = poly.into_inner();
+        Polygon::with_holes(
+            Ring::from(exterior),
+            interiors.into_iter().map(Ring::from).collect(),
         )
     }
 }
 
 impl From<Polygon> for geo::Polygon<f64> {
     fn from(poly: Polygon) -> Self {
-        let exterior_coords = poly
-            .points
-            .into_iter()
-            .map(geo::Coordinate::from)
-            .collect::<Vec<_>>();
-        let exterior = geo::LineString(exterior_coords);
-
-        let interiors: Vec<geo::LineString<f64>> = poly
-            .rings
-            .map(|rings| rings.into_iter().map(geo::LineString::from).collect())
-            .unwrap_or(Vec::new());
-        Self::new(exterior, interiors)
+        if let Some(mut rings) = poly.rings {
+            let exterior = rings.pop().expect("expected poly.rings[0] to be exterior");
+            let interiors: Vec<geo::LineString<f64>> =
+                rings.into_iter().map(geo::LineString::from).collect();
+            Self::new(exterior.into(), interiors)
+        } else {
+            let exterior_coords = poly
+                .points
+                .into_iter()
+                .map(geo::Coordinate::from)
+                .collect::<Vec<_>>();
+            let exterior = geo::LineString(exterior_coords);
+            Self::new(exterior, Vec::new())
+        }
     }
 }
 
