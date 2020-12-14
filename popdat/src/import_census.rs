@@ -10,6 +10,34 @@ impl CensusArea {
         // TODO eventually it'd be nice to lazily download the info needed. For now we expect a
         // prepared geojson file to exist in data/system/<city>/population_areas.geojson
         //
+        // expected geojson formatted contents like:
+        // {
+        //     "type": "FeatureCollection",
+        //     "features": [
+        //          {
+        //              "type": "Feature",
+        //              "properties": { "population": 123 },
+        //              "geometry": {
+        //                  "type": "MultiPolygon",
+        //                  "coordinates": [ [ [ [ -73.7, 40.8 ], [ -73.7, 40.8 ], ...] ] ] ]
+        //               }
+        //          },
+        //          {
+        //              "type": "Feature",
+        //              "properties": { "population": 249 },
+        //              "geometry": {
+        //                  "type": "MultiPolygon",
+        //                  "coordinates": [ [ [ [ -73.8, 40.8 ], [ -73.8, 40.8 ], ...] ] ]
+        //               }
+        //           },
+        //          ...
+        //      ]
+        // }
+        //
+        // Note: intuitively you might expect a collection of Polygon's rather than  MultiPolygons,
+        // but anecdotally, the census data I've seen uses MultiPolygons. In practice almost
+        // all are MultiPoly's with just one element, but some truly have multiple polygons.
+        //
         // When we implement downloading, importer/src/utils.rs has a download() helper that we
         // could copy here. (And later dedupe, after deciding how this crate will integrate with
         // the importer)
@@ -63,11 +91,11 @@ impl CensusArea {
                 .pop()
                 .ok_or(anyhow!("multipolygon was unexpectedly empty"))?;
             if !multi_poly.0.is_empty() {
-                // Annoyingly upstream GIS has packaged all these individual polygons into
-                // "multipolygon" of length 1 Make sure nothing surprising is
-                // happening since we only use the first poly
-                error!(
-                    "unexpectedly had {} extra area polygons",
+                // I haven't looked into why this is happening - but intuitively a census area could
+                // include separate polygons - e.g. across bodies of water. In practice they are a
+                // vast minority, so we naively just take the first one for now.
+                warn!(
+                    "dropping {} polygons from census area with multiple polygons",
                     multi_poly.0.len()
                 );
             }
