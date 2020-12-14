@@ -92,4 +92,17 @@ impl Buildings {
         }
         stores
     }
+
+    pub fn draw_done_houses(&self, ctx: &mut EventCtx, app: &App) -> Drawable {
+        let mut batch = GeomBatch::new();
+        for (b, state) in &self.buildings {
+            if let BldgState::Done = state {
+                batch.push(
+                    app.session.colors.visited,
+                    app.map.get_b(*b).polygon.clone(),
+                );
+            }
+        }
+        ctx.upload(batch)
+    }
 }

@@ -73,7 +73,7 @@ impl Level {
                 map: MapName::seattle("montlake"),
                 start: osm::NodeID(53084814),
                 minimap_zoom: 1,
-                time_limit: Duration::seconds(30.0),
+                time_limit: Duration::seconds(5.0),
                 goal: 25,
 
                 unlock_upzones: 2,

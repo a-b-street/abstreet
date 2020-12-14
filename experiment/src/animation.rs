@@ -68,6 +68,10 @@ impl Animator {
     pub fn draw(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw_current);
     }
+
+    pub fn is_done(&self) -> bool {
+        self.active.is_empty()
+    }
 }
 
 impl Effect {

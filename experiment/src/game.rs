@@ -104,7 +104,7 @@ impl Game {
         let player = Player::new(ctx, app, start);
 
         let bldgs = Buildings::new(ctx, app, upzones);
-        let state = GameState::new(ctx, app, level, vehicle, bldgs);
+        let state = GameState::new(ctx, level, vehicle, bldgs);
 
         let mut game = Game {
             title_panel,
@@ -193,19 +193,148 @@ impl Game {
         );
         self.boost_panel.replace(ctx, "boost", boost_bar);
     }
+
+    fn update(&mut self, ctx: &mut EventCtx, app: &mut App, dt: Duration) {
+        app.time += dt;
+
+        let orig_boost = self.state.boost;
+        let (orig_score, orig_energy) = (self.state.score, self.state.energy);
+        let orig_pos = self.player.get_pos();
+
+        self.update_time_panel(ctx, app);
+
+        let base_speed = if self.state.has_energy() {
+            self.state.vehicle.normal_speed
+        } else {
+            self.state.vehicle.tired_speed
+        };
+        let speed = if ctx.is_key_down(Key::Space) && self.state.boost > Duration::ZERO {
+            if !self.player.on_good_road(app) {
+                self.state.boost -= dt;
+                self.state.boost = self.state.boost.max(Duration::ZERO);
+            }
+            base_speed * BOOST_SPEED_MULTIPLIER
+        } else {
+            base_speed
+        };
+
+        let met_goal = self.state.met_goal();
+        for b in self.player.update_with_speed(ctx, app, speed) {
+            match self.state.bldgs.buildings[&b] {
+                BldgState::Undelivered(_) => {
+                    if let Some(increase) = self.state.present_dropped(ctx, app, b) {
+                        let path_speed = Duration::seconds(0.2);
+                        self.animator.add(
+                            app.time,
+                            path_speed,
+                            Effect::FollowPath {
+                                color: app.session.colors.score,
+                                width: map_model::NORMAL_LANE_THICKNESS,
+                                pl: app.map.get_b(b).driveway_geom.reversed(),
+                            },
+                        );
+                        self.animator.add(
+                            app.time + path_speed,
+                            Duration::seconds(0.5),
+                            Effect::Scale {
+                                lerp_scale: (1.0, 4.0),
+                                center: app.map.get_b(b).label_center,
+                                orig: Text::from(Line(format!("+{}", prettyprint_usize(increase))))
+                                    .bg(app.session.colors.score)
+                                    .render_to_batch(ctx.prerender)
+                                    .scale(0.1),
+                            },
+                        );
+                    }
+                }
+                BldgState::Store => {
+                    let refill = self.state.vehicle.max_energy - self.state.energy;
+                    if refill > 0 {
+                        self.state.energy += refill;
+                        let path_speed = Duration::seconds(0.2);
+                        self.animator.add(
+                            app.time,
+                            path_speed,
+                            Effect::FollowPath {
+                                color: app.session.colors.energy,
+                                width: map_model::NORMAL_LANE_THICKNESS,
+                                pl: app.map.get_b(b).driveway_geom.clone(),
+                            },
+                        );
+                        self.animator.add(
+                            app.time + path_speed,
+                            Duration::seconds(0.5),
+                            Effect::Scale {
+                                lerp_scale: (1.0, 4.0),
+                                center: app.map.get_b(b).label_center,
+                                orig: Text::from(Line(format!(
+                                    "Refilled {}",
+                                    prettyprint_usize(refill)
+                                )))
+                                .bg(app.session.colors.energy)
+                                .render_to_batch(ctx.prerender)
+                                .scale(0.1),
+                            },
+                        );
+                    }
+                }
+                BldgState::Done => {}
+            }
+        }
+        if !met_goal && self.state.met_goal() {
+            // TODO What should we say here? Should we add some kind of animation to call this
+            // out?
+            let label = "Goal met! Keep going".draw_text(ctx);
+            self.status_panel.replace(ctx, "score label", label);
+        }
+
+        if self.player.on_good_road(app) && !ctx.is_key_down(Key::Space) {
+            self.state.boost += dt * ACQUIRE_BOOST_RATE;
+            self.state.boost = self.state.boost.min(self.state.vehicle.max_boost);
+        }
+
+        self.animator.event(ctx, app.time);
+        self.snow.event(ctx, app.time);
+        if self.state.has_energy() {
+            self.state.energyless_arrow = None;
+        } else {
+            if self.state.energyless_arrow.is_none() {
+                self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, app.time));
+            }
+            let stores = self.state.bldgs.all_stores();
+            self.state.energyless_arrow.as_mut().unwrap().update(
+                ctx,
+                app,
+                self.player.get_pos(),
+                stores,
+            );
+        }
+
+        if self.state.boost != orig_boost {
+            self.update_boost_panel(ctx, app);
+        }
+        if self.state.score != orig_score || self.state.energy != orig_energy {
+            self.update_status_panel(ctx, app);
+        }
+        if self.player.get_pos() == orig_pos {
+            self.state.idle_time += dt;
+        }
+    }
 }
 
 impl State<App> for Game {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // Most things depend on time passing and don't care about other events
-        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
-            app.time += dt;
+        if self.state.game_over {
+            if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+                app.time += dt;
+                self.animator.event(ctx, app.time);
+                self.player.override_pos(self.player.get_pos().project_away(
+                    dt * self.state.vehicle.normal_speed,
+                    self.player.get_angle().opposite(),
+                ));
+            }
 
-            let orig_boost = self.state.boost;
-            let (orig_score, orig_energy) = (self.state.score, self.state.energy);
-            let orig_pos = self.player.get_pos();
-
-            if app.time - Time::START_OF_DAY >= self.state.level.time_limit {
+            if self.animator.is_done() {
                 return Transition::Replace(Results::new(
                     ctx,
                     app,
@@ -214,164 +343,69 @@ impl State<App> for Game {
                 ));
             }
 
-            self.update_time_panel(ctx, app);
+            ctx.request_update(UpdateType::Game);
+            return Transition::Keep;
+        }
 
-            let base_speed = if self.state.has_energy() {
-                self.state.vehicle.normal_speed
-            } else {
-                self.state.vehicle.tired_speed
-            };
-            let speed = if ctx.is_key_down(Key::Space) && self.state.boost > Duration::ZERO {
-                if !self.player.on_good_road(app) {
-                    self.state.boost -= dt;
-                    self.state.boost = self.state.boost.max(Duration::ZERO);
-                }
-                base_speed * BOOST_SPEED_MULTIPLIER
-            } else {
-                base_speed
-            };
+        // Most things depend on time passing and don't care about other events
+        if let Some(dt) = ctx.input.nonblocking_is_update_event() {
+            self.update(ctx, app, dt);
 
-            let met_goal = self.state.met_goal();
-            for b in self.player.update_with_speed(ctx, app, speed) {
-                match self.state.bldgs.buildings[&b] {
-                    BldgState::Undelivered(_) => {
-                        if let Some(increase) = self.state.present_dropped(ctx, app, b) {
-                            let path_speed = Duration::seconds(0.2);
-                            self.animator.add(
-                                app.time,
-                                path_speed,
-                                Effect::FollowPath {
-                                    color: app.session.colors.score,
-                                    width: map_model::NORMAL_LANE_THICKNESS,
-                                    pl: app.map.get_b(b).driveway_geom.reversed(),
-                                },
-                            );
-                            self.animator.add(
-                                app.time + path_speed,
-                                Duration::seconds(0.5),
-                                Effect::Scale {
-                                    lerp_scale: (1.0, 4.0),
-                                    center: app.map.get_b(b).label_center,
-                                    orig: Text::from(Line(format!(
-                                        "+{}",
-                                        prettyprint_usize(increase)
-                                    )))
-                                    .bg(app.session.colors.score)
-                                    .render_to_batch(ctx.prerender)
-                                    .scale(0.1),
-                                },
-                            );
-                        }
-                    }
-                    BldgState::Store => {
-                        let refill = self.state.vehicle.max_energy - self.state.energy;
-                        if refill > 0 {
-                            self.state.energy += refill;
-                            let path_speed = Duration::seconds(0.2);
-                            self.animator.add(
-                                app.time,
-                                path_speed,
-                                Effect::FollowPath {
-                                    color: app.session.colors.energy,
-                                    width: map_model::NORMAL_LANE_THICKNESS,
-                                    pl: app.map.get_b(b).driveway_geom.clone(),
-                                },
-                            );
-                            self.animator.add(
-                                app.time + path_speed,
-                                Duration::seconds(0.5),
-                                Effect::Scale {
-                                    lerp_scale: (1.0, 4.0),
-                                    center: app.map.get_b(b).label_center,
-                                    orig: Text::from(Line(format!(
-                                        "Refilled {}",
-                                        prettyprint_usize(refill)
-                                    )))
-                                    .bg(app.session.colors.energy)
-                                    .render_to_batch(ctx.prerender)
-                                    .scale(0.1),
-                                },
-                            );
-                        }
-                    }
-                    BldgState::Done => {}
-                }
-            }
-            if !met_goal && self.state.met_goal() {
-                // TODO What should we say here? Should we add some kind of animation to call this
-                // out?
-                let label = "Goal met! Keep going".draw_text(ctx);
-                self.status_panel.replace(ctx, "score label", label);
-            }
-
-            if self.player.on_good_road(app) && !ctx.is_key_down(Key::Space) {
-                self.state.boost += dt * ACQUIRE_BOOST_RATE;
-                self.state.boost = self.state.boost.min(self.state.vehicle.max_boost);
-            }
-
-            self.animator.event(ctx, app.time);
-            self.snow.event(ctx, app.time);
-            if self.state.has_energy() {
-                self.state.energyless_arrow = None;
-            } else {
-                if self.state.energyless_arrow.is_none() {
-                    self.state.energyless_arrow = Some(EnergylessArrow::new(ctx, app.time));
-                }
-                let stores = self.state.bldgs.all_stores();
-                self.state.energyless_arrow.as_mut().unwrap().update(
-                    ctx,
-                    app,
-                    self.player.get_pos(),
-                    stores,
+            if app.time - Time::START_OF_DAY >= self.state.level.time_limit {
+                self.state.game_over = true;
+                self.animator.add(
+                    app.time,
+                    Duration::seconds(3.0),
+                    Effect::Scale {
+                        lerp_scale: (1.0, 4.0),
+                        center: self.player.get_pos(),
+                        orig: Text::from(Line("Time's up!"))
+                            .bg(Color::RED)
+                            .render_to_batch(ctx.prerender)
+                            .scale(0.1),
+                    },
                 );
             }
 
-            if self.state.boost != orig_boost {
-                self.update_boost_panel(ctx, app);
-            }
-            if self.state.score != orig_score || self.state.energy != orig_energy {
-                self.update_status_panel(ctx, app);
-            }
-            if self.player.get_pos() == orig_pos {
-                self.state.idle_time += dt;
-            }
-        } else {
-            if let Some(t) = self.minimap.event(ctx, app) {
-                return t;
-            }
-
-            match self.pause_panel.event(ctx) {
-                Outcome::Clicked(x) => match x.as_ref() {
-                    "pause" => {
-                        return Transition::Push(ChooseSomething::new(
-                            ctx,
-                            "Game Paused",
-                            vec![
-                                Choice::string("Resume").key(Key::Escape),
-                                Choice::string("Quit"),
-                            ],
-                            Box::new(|resp, _, _| match resp.as_ref() {
-                                "Resume" => Transition::Pop,
-                                "Quit" => Transition::Multi(vec![Transition::Pop, Transition::Pop]),
-                                _ => unreachable!(),
-                            }),
-                        ));
-                    }
-                    _ => unreachable!(),
-                },
-                _ => {}
-            }
-
-            if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
-                ctx.canvas.cam_zoom = 1.1_f64
-                    .powf(ctx.canvas.cam_zoom.log(1.1) + dy)
-                    .max(app.opts.min_zoom_for_detail)
-                    .min(50.0);
-                ctx.canvas.center_on_map_pt(self.player.get_pos());
-            }
-
-            app.session.update_music(ctx);
+            ctx.request_update(UpdateType::Game);
+            return Transition::Keep;
         }
+
+        if let Some(t) = self.minimap.event(ctx, app) {
+            return t;
+        }
+
+        match self.pause_panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "pause" => {
+                    return Transition::Push(ChooseSomething::new(
+                        ctx,
+                        "Game Paused",
+                        vec![
+                            Choice::string("Resume").key(Key::Escape),
+                            Choice::string("Quit"),
+                        ],
+                        Box::new(|resp, _, _| match resp.as_ref() {
+                            "Resume" => Transition::Pop,
+                            "Quit" => Transition::Multi(vec![Transition::Pop, Transition::Pop]),
+                            _ => unreachable!(),
+                        }),
+                    ));
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
+
+        if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
+            ctx.canvas.cam_zoom = 1.1_f64
+                .powf(ctx.canvas.cam_zoom.log(1.1) + dy)
+                .max(app.opts.min_zoom_for_detail)
+                .min(50.0);
+            ctx.canvas.center_on_map_pt(self.player.get_pos());
+        }
+
+        app.session.update_music(ctx);
 
         ctx.request_update(UpdateType::Game);
         Transition::Keep
@@ -441,18 +475,14 @@ struct GameState {
 
     // For animation
     idle_time: Duration,
+
+    game_over: bool,
 }
 
 impl GameState {
-    fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        level: Level,
-        vehicle: Vehicle,
-        bldgs: Buildings,
-    ) -> GameState {
+    fn new(ctx: &mut EventCtx, level: Level, vehicle: Vehicle, bldgs: Buildings) -> GameState {
         let energy = vehicle.max_energy;
-        let mut s = GameState {
+        GameState {
             level,
             vehicle,
             bldgs,
@@ -465,22 +495,9 @@ impl GameState {
             energyless_arrow: None,
 
             idle_time: Duration::ZERO,
-        };
-        s.recalc_deliveries(ctx, app);
-        s
-    }
 
-    fn recalc_deliveries(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut batch = GeomBatch::new();
-        for (b, state) in &self.bldgs.buildings {
-            if let BldgState::Done = state {
-                batch.push(
-                    app.session.colors.visited,
-                    app.map.get_b(*b).polygon.clone(),
-                );
-            }
+            game_over: false,
         }
-        self.draw_done_houses = ctx.upload(batch);
     }
 
     // If something changed, return the update to the score
@@ -494,7 +511,7 @@ impl GameState {
             self.score += deliveries;
             self.bldgs.buildings.insert(id, BldgState::Done);
             self.energy -= deliveries;
-            self.recalc_deliveries(ctx, app);
+            self.draw_done_houses = self.bldgs.draw_done_houses(ctx, app);
             return Some(deliveries);
         }
         None

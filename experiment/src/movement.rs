@@ -210,6 +210,11 @@ impl Player {
         }
         false
     }
+
+    /// For the game over animation
+    pub fn override_pos(&mut self, pos: Pt2D) {
+        self.pos = pos;
+    }
 }
 
 #[derive(Clone, PartialEq)]
