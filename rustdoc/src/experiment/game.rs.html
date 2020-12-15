@@ -618,6 +618,7 @@
 <span id="615">615</span>
 <span id="616">616</span>
 <span id="617">617</span>
+<span id="618">618</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -684,7 +685,7 @@
         <span class="kw">let</span> <span class="ident">status_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;Complete Deliveries&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score label&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>),
-            <span class="string">&quot;Remaining Gifts&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy label&quot;</span>),
+            <span class="string">&quot;Remaining Presents&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy label&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;energy&quot;</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">RightInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
@@ -919,7 +920,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span>.<span class="ident">is_some</span>() {
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="string">&quot;Remaining Gifts&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="string">&quot;Remaining Presents&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">status_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;energy label&quot;</span>, <span class="ident">label</span>);
             }
         } <span class="kw">else</span> {
@@ -929,8 +930,9 @@
                     <span class="ident">app</span>.<span class="ident">time</span>,
                     <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">bldgs</span>.<span class="ident">all_stores</span>(),
                 ));
-                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Out of gifts - refill from a store!&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>))
-                    .<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span>
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Out of presents - refill from a store!&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>))
+                        .<span class="ident">draw</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">status_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;energy label&quot;</span>, <span class="ident">label</span>);
             }
             <span class="self">self</span>.<span class="ident">state</span>
@@ -1100,7 +1102,7 @@
 
     <span class="comment">// Number of deliveries</span>
     <span class="ident">score</span>: <span class="ident">usize</span>,
-    <span class="comment">// Number of gifts currently being carried</span>
+    <span class="comment">// Number of presents currently being carried</span>
     <span class="ident">energy</span>: <span class="ident">usize</span>,
     <span class="ident">boost</span>: <span class="ident">Duration</span>,
 
