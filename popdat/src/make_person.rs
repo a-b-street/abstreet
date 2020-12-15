@@ -4,6 +4,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
+use abstutil::{Parallelism, Timer};
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest};
 use sim::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
@@ -12,6 +13,7 @@ use crate::{Activity, CensusPerson, Config};
 pub fn make_people(
     people: Vec<CensusPerson>,
     map: &Map,
+    timer: &mut Timer,
     rng: &mut XorShiftRng,
     config: &Config,
 ) -> Vec<PersonSpec> {
@@ -28,18 +30,22 @@ pub fn make_people(
         .map(|b| b.id)
         .collect();
 
-    let person_factory = PersonFactory::new(map);
-
     // TODO Where should we validate that at least one border exists? Probably in
     // generate_scenario, at minimum.
-    people
+
+    let person_factory = PersonFactory::new(map);
+    let make_person_inputs = people
         .into_iter()
-        .map(|person| {
-            // TODO If we need to parallelize because make_person is slow, the sim crate has a
-            // fork_rng method that could be useful
-            person_factory.make_person(person, map, &commuter_borders, rng, &config)
-        })
-        .collect()
+        .map(|person| (person, sim::fork_rng(rng)))
+        .collect();
+    timer.parallelize(
+        "making people in parallel",
+        Parallelism::Fastest,
+        make_person_inputs,
+        |(person, mut rng)| {
+            person_factory.make_person(person, map, &commuter_borders, &mut rng, &config)
+        },
+    )
 }
 
 struct PersonFactory {
