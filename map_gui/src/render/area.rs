@@ -24,7 +24,7 @@ impl DrawArea {
             if let Some(name) = area.osm_tags.get("name") {
                 all_areas.append(
                     Text::from(Line(name).fg(Color::BLACK))
-                        .render_to_batch(ctx.prerender)
+                        .render_autocropped(ctx)
                         .scale(1.0)
                         .centered_on(area.polygon.polylabel())
                         .set_z_offset(-0.1),

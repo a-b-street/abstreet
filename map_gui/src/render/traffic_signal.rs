@@ -195,7 +195,7 @@ pub fn draw_stage_number(
     );
     batch.append(
         Text::from(Line(format!("{}", idx + 1)))
-            .render_to_batch(prerender)
+            .render_autocropped(prerender)
             .scale(0.075)
             .centered_on(center),
     );
@@ -227,7 +227,7 @@ fn draw_time_left(
     );
     batch.append(
         Text::from(Line(format!("{}", idx + 1)))
-            .render_to_batch(prerender)
+            .render_autocropped(prerender)
             .scale(0.1)
             .centered_on(center),
     );

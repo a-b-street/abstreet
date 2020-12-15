@@ -8,7 +8,7 @@ use usvg::Options;
 use geom::Bounds;
 
 use crate::text::Font;
-use crate::{text, EventCtx, GeomBatch, GfxCtx};
+use crate::{text, EventCtx, GeomBatch, GfxCtx, Prerender};
 
 // TODO We don't need refcell maybe? Can we take &mut Assets?
 pub struct Assets {
@@ -138,6 +138,12 @@ impl std::convert::AsRef<Assets> for GfxCtx<'_> {
 impl std::convert::AsRef<Assets> for EventCtx<'_> {
     fn as_ref(&self) -> &Assets {
         &self.prerender.assets
+    }
+}
+
+impl std::convert::AsRef<Assets> for Prerender {
+    fn as_ref(&self) -> &Assets {
+        &self.assets
     }
 }
 

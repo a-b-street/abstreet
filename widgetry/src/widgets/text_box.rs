@@ -119,7 +119,7 @@ impl WidgetImpl for TextBox {
             text::BG_COLOR,
             Polygon::rectangle(self.dims.width, self.dims.height),
         )]);
-        batch.append(self.calculate_text().render_to_batch(g.prerender));
+        batch.append(self.calculate_text().render_autocropped(g));
         let draw = g.upload(batch);
         g.redraw_at(self.top_left, &draw);
     }

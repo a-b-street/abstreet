@@ -115,7 +115,7 @@ impl Renderable for DrawRoad {
                         let txt = Text::from(Line(name).fg(fg)).bg(bg);
                         let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
                         batch.append(
-                            txt.render_to_batch(g.prerender)
+                            txt.render_autocropped(g)
                                 .scale(0.1)
                                 .centered_on(pt)
                                 .rotate(angle.reorient()),

@@ -65,7 +65,7 @@ impl Strategize {
                     if num_housing_units > 1 {
                         batch.append(
                             Text::from(Line(num_housing_units.to_string()).fg(Color::RED))
-                                .render_to_batch(ctx.prerender)
+                                .render_autocropped(ctx)
                                 .scale(0.2)
                                 .centered_on(b.label_center),
                         );

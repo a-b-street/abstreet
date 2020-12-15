@@ -107,7 +107,7 @@ fn locked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Wid
     txt.add(Line(format!("LEVEL {}", idx + 1)).small_heading());
     txt.add(Line(&level.title).small_heading());
     txt.add(Line(&level.description));
-    let mut batch = txt.wrap_to_pct(ctx, 15).render_to_batch(ctx.prerender);
+    let mut batch = txt.wrap_to_pct(ctx, 15).render_autocropped(ctx);
     let hitbox = batch.get_bounds().get_rectangle();
     let center = hitbox.center();
     batch.push(app.cs.fade_map_dark, hitbox);

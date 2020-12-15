@@ -121,7 +121,7 @@ impl WidgetImpl for Spinner {
         )]);
         batch.append(
             Text::from(Line(self.current.to_string()))
-                .render_to_batch(g.prerender)
+                .render_autocropped(g)
                 .centered_on(Pt2D::new(TEXT_WIDTH / 2.0, self.dims.height / 2.0)),
         );
         let draw = g.upload(batch);

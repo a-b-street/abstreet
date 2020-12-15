@@ -36,7 +36,7 @@ impl ShowAbsolute {
                         .to_string(&app.opts.units),
                 ))
                 .bg(Color::PURPLE)
-                .render_to_batch(ctx.prerender)
+                .render_autocropped(ctx)
                 .color(RewriteColor::ChangeAlpha(0.8))
                 .scale(0.3)
                 .centered_on(app.primary.map.get_i(*i).polygon.center()),
@@ -124,7 +124,7 @@ impl ShowRelative {
                 batch.append(
                     Text::from(Line(offset.to_string(&app.opts.units)))
                         .bg(Color::PURPLE)
-                        .render_to_batch(ctx.prerender)
+                        .render_autocropped(ctx)
                         .color(RewriteColor::ChangeAlpha(0.8))
                         .scale(0.3)
                         .centered_on(app.primary.map.get_i(*i).polygon.center()),

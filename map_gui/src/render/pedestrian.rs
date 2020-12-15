@@ -227,7 +227,7 @@ impl DrawPedCrowd {
         batch.push(cs.ped_crowd, blob.clone());
         batch.append(
             Text::from(Line(format!("{}", input.members.len())).fg(Color::BLACK))
-                .render_to_batch(prerender)
+                .render_autocropped(prerender)
                 .scale(0.02)
                 .centered_on(blob.center()),
         );

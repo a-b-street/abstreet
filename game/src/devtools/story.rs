@@ -439,7 +439,7 @@ impl Marker {
             batch.append(
                 Text::from(Line(&event))
                     .with_bg()
-                    .render_to_batch(ctx.prerender)
+                    .render_autocropped(ctx)
                     .scale(0.5)
                     .centered_on(pts[0]),
             );
@@ -454,7 +454,7 @@ impl Marker {
             batch.append(
                 Text::from(Line(&event))
                     .with_bg()
-                    .render_to_batch(ctx.prerender)
+                    .render_autocropped(ctx)
                     .scale(0.5)
                     .centered_on(poly.polylabel()),
             );
@@ -480,7 +480,7 @@ impl Marker {
             batch.append(
                 Text::from(Line(&self.event))
                     .with_bg()
-                    .render_to_batch(g.prerender)
+                    .render_autocropped(g)
                     .scale(0.75)
                     .centered_on(self.pts[0]),
             );
@@ -493,7 +493,7 @@ impl Marker {
             batch.append(
                 Text::from(Line(&self.event))
                     .with_bg()
-                    .render_to_batch(g.prerender)
+                    .render_autocropped(g)
                     .scale(0.75)
                     .centered_on(self.hitbox.polylabel()),
             );

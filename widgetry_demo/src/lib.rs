@@ -267,7 +267,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
     // Text rendering also goes through lyon and usvg.
     batch.append(
         Text::from(Line("Awesome vector text thanks to usvg and lyon").fg(Color::hex("#DF8C3D")))
-            .render_to_batch(&ctx.prerender)
+            .render_autocropped(ctx)
             .scale(2.0)
             .centered_on(Pt2D::new(600.0, 500.0))
             .rotate(Angle::degrees(-30.0)),

@@ -18,14 +18,18 @@ pub fn custom_bar(ctx: &mut EventCtx, filled_color: Color, pct_full: f64, txt: T
         batch.push(filled_color, poly);
     }
     // Text
-    let label = txt.render_to_batch(ctx.prerender);
+    let label = txt.render_autocropped(ctx);
     let dims = label.get_dims();
     batch.append(label.translate(10.0, height / 2.0 - dims.height / 2.0));
     Widget::draw_batch(ctx, batch)
 }
 
 pub fn make_bar(ctx: &mut EventCtx, filled_color: Color, value: usize, max: usize) -> Widget {
-    let pct_full = (value as f64) / (max as f64);
+    let pct_full = if max == 0 {
+        0.0
+    } else {
+        (value as f64) / (max as f64)
+    };
     let txt = Text::from(Line(format!(
         "{} / {}",
         prettyprint_usize(value),

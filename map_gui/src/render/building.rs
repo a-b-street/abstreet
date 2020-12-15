@@ -242,7 +242,7 @@ impl Renderable for DrawBuilding {
                         txt.append(Line(format!(" (+{})", b.amenities.len() - 1)).fg(Color::BLACK));
                     }
                     batch.append(
-                        txt.render_to_batch(g.prerender)
+                        txt.render_autocropped(g)
                             .scale(0.1)
                             .centered_on(b.label_center),
                     );

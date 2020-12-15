@@ -170,7 +170,7 @@ impl DrawCar {
             {
                 draw_default.append(
                     Text::from(Line(line).fg(cs.bus_label))
-                        .render_to_batch(prerender)
+                        .render_autocropped(prerender)
                         .scale(0.07)
                         .centered_on(pt)
                         .rotate(angle.reorient()),

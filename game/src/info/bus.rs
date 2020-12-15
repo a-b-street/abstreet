@@ -321,13 +321,13 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
             details.unzoomed.append(
                 Text::from(Line(format!("{}) {}", idx + 1, bs.name)))
                     .with_bg()
-                    .render_to_batch(ctx.prerender)
+                    .render_autocropped(ctx)
                     .centered_on(bs.sidewalk_pos.pt(map)),
             );
             details.zoomed.append(
                 Text::from(Line(format!("{}) {}", idx + 1, bs.name)))
                     .with_bg()
-                    .render_to_batch(ctx.prerender)
+                    .render_autocropped(ctx)
                     .scale(0.1)
                     .centered_on(bs.sidewalk_pos.pt(map)),
             );

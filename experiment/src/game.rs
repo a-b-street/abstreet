@@ -241,7 +241,7 @@ impl Game {
                                 center: app.map.get_b(b).label_center,
                                 orig: Text::from(Line(format!("+{}", prettyprint_usize(increase))))
                                     .bg(app.session.colors.score)
-                                    .render_to_batch(ctx.prerender)
+                                    .render_autocropped(ctx)
                                     .scale(0.1),
                             },
                         );
@@ -272,7 +272,7 @@ impl Game {
                                     prettyprint_usize(refill)
                                 )))
                                 .bg(app.session.colors.energy)
-                                .render_to_batch(ctx.prerender)
+                                .render_autocropped(ctx)
                                 .scale(0.1),
                             },
                         );
@@ -376,7 +376,7 @@ impl State<App> for Game {
                         center: self.player.get_pos(),
                         orig: Text::from(Line("Time's up!"))
                             .bg(Color::RED)
-                            .render_to_batch(ctx.prerender)
+                            .render_autocropped(ctx)
                             .scale(0.1),
                     },
                 );
