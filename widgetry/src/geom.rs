@@ -23,7 +23,7 @@ impl GeomBatch {
         }
     }
 
-    // Adds a single polygon, painted according to `Fill`
+    /// Adds a single polygon, painted according to `Fill`
     pub fn push<F: Into<Fill>>(&mut self, fill: F, p: Polygon) {
         self.push_with_z(fill, p, 0.0);
     }
@@ -35,6 +35,11 @@ impl GeomBatch {
         debug_assert!(z_offset > -1.0);
         debug_assert!(z_offset <= 0.0);
         self.list.push((fill.into(), p, z_offset));
+    }
+
+    /// Adds a single polygon to the front of the batch, painted according to `Fill`
+    pub fn unshift<F: Into<Fill>>(&mut self, fill: F, p: Polygon) {
+        self.list.insert(0, (fill.into(), p, 0.0));
     }
 
     /// Applies one Fill to many polygons.
@@ -72,11 +77,14 @@ impl GeomBatch {
         DeferDraw::new(self)
     }
 
-    /// Turn this batch into a button.
+    /// Turn this batch into a button, with the hovered version rewriting all colors.
     pub fn to_btn(self, ctx: &EventCtx) -> BtnBuilder {
-        let hovered = self
-            .clone()
-            .color(RewriteColor::ChangeAll(ctx.style().hovering_color));
+        self.to_btn_custom(RewriteColor::ChangeAll(ctx.style().hovering_color))
+    }
+
+    /// Turn this batch into a button.
+    pub fn to_btn_custom(self, rewrite: RewriteColor) -> BtnBuilder {
+        let hovered = self.clone().color(rewrite);
         let hitbox = self.get_bounds().get_rectangle();
         Btn::custom(self, hovered, hitbox, None)
     }
