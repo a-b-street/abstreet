@@ -619,6 +619,7 @@
 <span id="616">616</span>
 <span id="617">617</span>
 <span id="618">618</span>
+<span id="619">619</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -960,6 +961,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
                 <span class="ident">app</span>.<span class="ident">time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>;
                 <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">time</span>);
+                <span class="self">self</span>.<span class="ident">snow</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">time</span>);
                 <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">override_pos</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>().<span class="ident">project_away</span>(
                     <span class="ident">dt</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">normal_speed</span>,
                     <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_angle</span>().<span class="ident">opposite</span>(),
