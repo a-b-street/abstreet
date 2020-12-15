@@ -23,7 +23,7 @@ pub fn make_people(
     // an incoming border "near" the outgoing border, to allow a broader set of
     // realistic options.
     // TODO: prefer larger thoroughfares to better reflect reality.
-    let commuter_borders: Vec<map_model::IntersectionID> = map
+    let commuter_borders: Vec<IntersectionID> = map
         .all_outgoing_borders()
         .into_iter()
         .filter(|b| b.is_incoming_border())

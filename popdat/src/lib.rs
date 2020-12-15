@@ -119,8 +119,7 @@ pub fn generate_scenario(
 
     let mut scenario = Scenario::empty(map, scenario_name);
     timer.start("building people");
-
-    scenario.people.append(&mut make_person::make_people(
+    scenario.people.extend(make_person::make_people(
         people, map, &mut timer, rng, &config,
     ));
 
