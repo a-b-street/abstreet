@@ -229,32 +229,89 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Activity</span>, <span class="ident">CensusPerson</span>, <span class="ident">Config</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_person</span>(
-    <span class="ident">person</span>: <span class="ident">CensusPerson</span>,
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_people</span>(
+    <span class="ident">people</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CensusPerson</span><span class="op">&gt;</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">Config</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PersonSpec</span> {
-    <span class="kw">let</span> <span class="ident">schedule</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">generate_schedule</span>(<span class="ident">config</span>, <span class="ident">rng</span>);
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">PersonSpec</span> {
-        <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">person</span>.<span class="ident">home</span>),
-        <span class="ident">trips</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-    };
-
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span> {
     <span class="comment">// Only consider two-way intersections, so the agent can return the same way</span>
     <span class="comment">// they came.</span>
     <span class="comment">// TODO: instead, if it&#39;s not a two-way border, we should find an intersection</span>
@@ -267,124 +324,193 @@
         .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">is_incoming_border</span>())
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">id</span>)
         .<span class="ident">collect</span>();
+
     <span class="comment">// TODO Where should we validate that at least one border exists? Probably in</span>
     <span class="comment">// generate_scenario, at minimum.</span>
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_location</span> <span class="op">=</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">person</span>.<span class="ident">home</span>);
-    <span class="kw">for</span> (<span class="ident">departure_time</span>, <span class="ident">activity</span>) <span class="kw">in</span> <span class="ident">schedule</span>.<span class="ident">activities</span> {
-        <span class="comment">// TODO This field isn&#39;t that important; later we could map Activity to a TripPurpose</span>
-        <span class="comment">// better.</span>
-        <span class="kw">let</span> <span class="ident">purpose</span> <span class="op">=</span> <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>;
-
-        <span class="kw">let</span> <span class="ident">goto</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">destination</span>) <span class="op">=</span>
-            <span class="ident">find_building_for_activity</span>(<span class="ident">activity</span>, <span class="ident">current_location</span>, <span class="ident">map</span>, <span class="ident">rng</span>)
-        {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">destination</span>)
-        } <span class="kw">else</span> {
-            <span class="comment">// No buildings satisfy the activity. Just go somewhere off-map.</span>
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw-2">*</span><span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>())
-        };
-
-        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">pick_mode</span>(<span class="ident">current_location</span>, <span class="ident">goto</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="ident">config</span>);
-        <span class="ident">output</span>
-            .<span class="ident">trips</span>
-            .<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">departure_time</span>, <span class="ident">purpose</span>, <span class="ident">goto</span>, <span class="ident">mode</span>));
-
-        <span class="ident">current_location</span> <span class="op">=</span> <span class="ident">goto</span>;
-    }
-
-    <span class="ident">output</span>
+    <span class="kw">let</span> <span class="ident">person_factory</span> <span class="op">=</span> <span class="ident">PersonFactory</span>::<span class="ident">new</span>(<span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">make_person_inputs</span> <span class="op">=</span> <span class="ident">people</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">person</span><span class="op">|</span> (<span class="ident">person</span>, <span class="ident">sim</span>::<span class="ident">fork_rng</span>(<span class="ident">rng</span>)))
+        .<span class="ident">collect</span>();
+    <span class="ident">timer</span>.<span class="ident">parallelize</span>(
+        <span class="string">&quot;making people in parallel&quot;</span>,
+        <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
+        <span class="ident">make_person_inputs</span>,
+        <span class="op">|</span>(<span class="ident">person</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> {
+            <span class="ident">person_factory</span>.<span class="ident">make_person</span>(<span class="ident">person</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">commuter_borders</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>)
+        },
+    )
 }
 
-<span class="kw">fn</span> <span class="ident">find_building_for_activity</span>(
-    <span class="ident">activity</span>: <span class="ident">Activity</span>,
-    <span class="ident">_start</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
-    <span class="comment">// What types of OpenStreetMap amenities will satisfy each activity?</span>
-    <span class="kw">let</span> <span class="ident">categories</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">activity</span> {
-        <span class="ident">Activity</span>::<span class="ident">Breakfast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cafe&quot;</span>],
-        <span class="ident">Activity</span>::<span class="ident">Lunch</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;pub&quot;</span>, <span class="string">&quot;food_court&quot;</span>, <span class="string">&quot;fast_food&quot;</span>],
-        <span class="ident">Activity</span>::<span class="ident">Dinner</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;restaurant&quot;</span>, <span class="string">&quot;theatre&quot;</span>, <span class="string">&quot;biergarten&quot;</span>],
-        <span class="ident">Activity</span>::<span class="ident">School</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;college&quot;</span>,
-            <span class="string">&quot;kindergarten&quot;</span>,
-            <span class="string">&quot;language_school&quot;</span>,
-            <span class="string">&quot;library&quot;</span>,
-            <span class="string">&quot;music_school&quot;</span>,
-            <span class="string">&quot;university&quot;</span>,
-        ],
-        <span class="ident">Activity</span>::<span class="ident">Entertainment</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;arts_centre&quot;</span>,
-            <span class="string">&quot;casino&quot;</span>,
-            <span class="string">&quot;cinema&quot;</span>,
-            <span class="string">&quot;community_centre&quot;</span>,
-            <span class="string">&quot;fountain&quot;</span>,
-            <span class="string">&quot;gambling&quot;</span>,
-            <span class="string">&quot;nightclub&quot;</span>,
-            <span class="string">&quot;planetarium&quot;</span>,
-            <span class="string">&quot;public_bookcase&quot;</span>,
-            <span class="string">&quot;pool&quot;</span>,
-            <span class="string">&quot;dojo&quot;</span>,
-            <span class="string">&quot;social_centre&quot;</span>,
-            <span class="string">&quot;social_centre&quot;</span>,
-            <span class="string">&quot;studio&quot;</span>,
-            <span class="string">&quot;theatre&quot;</span>,
-            <span class="string">&quot;bar&quot;</span>,
-            <span class="string">&quot;bbq&quot;</span>,
-            <span class="string">&quot;bicycle_rental&quot;</span>,
-            <span class="string">&quot;boat_rental&quot;</span>,
-            <span class="string">&quot;boat_sharing&quot;</span>,
-            <span class="string">&quot;dive_centre&quot;</span>,
-            <span class="string">&quot;internet_cafe&quot;</span>,
-        ],
-        <span class="ident">Activity</span>::<span class="ident">Errands</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;marketplace&quot;</span>,
-            <span class="string">&quot;post_box&quot;</span>,
-            <span class="string">&quot;photo_booth&quot;</span>,
-            <span class="string">&quot;recycling&quot;</span>,
-            <span class="string">&quot;townhall&quot;</span>,
-        ],
-        <span class="ident">Activity</span>::<span class="ident">Financial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;atm&quot;</span>, <span class="string">&quot;bureau_de_change&quot;</span>],
-        <span class="ident">Activity</span>::<span class="ident">Healthcare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="string">&quot;baby_hatch&quot;</span>,
-            <span class="string">&quot;clinic&quot;</span>,
-            <span class="string">&quot;dentist&quot;</span>,
-            <span class="string">&quot;doctors&quot;</span>,
-            <span class="string">&quot;hospital&quot;</span>,
-            <span class="string">&quot;nursing_home&quot;</span>,
-            <span class="string">&quot;pharmacy&quot;</span>,
-            <span class="string">&quot;social_facility&quot;</span>,
-            <span class="string">&quot;veterinary&quot;</span>,
-            <span class="string">&quot;childcare&quot;</span>,
-        ],
-        <span class="ident">Activity</span>::<span class="ident">Work</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;clinic&quot;</span>],
-        <span class="comment">// TODO Fill this out. amenity_type in map_gui/src/tools/mod.rs might be helpful. It might</span>
-        <span class="comment">// also be helpful to edit the list of possible activities in lib.rs too.</span>
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[],
-    }
-    .<span class="ident">into_iter</span>()
-    .<span class="ident">collect</span>();
+<span class="kw">struct</span> <span class="ident">PersonFactory</span> {
+    <span class="ident">activity_to_buildings</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Activity</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
 
-    <span class="comment">// Find all buildings with a matching amenity</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-            <span class="kw">if</span> <span class="ident">categories</span>.<span class="ident">contains</span>(<span class="ident">amenity</span>.<span class="ident">amenity_type</span>.<span class="ident">as_str</span>()) {
-                <span class="ident">candidates</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
-            }
+<span class="kw">impl</span> <span class="ident">PersonFactory</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">activity_to_buildings</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">activity_to_buildings</span>(<span class="ident">map</span>);
+        <span class="self">Self</span> {
+            <span class="ident">activity_to_buildings</span>,
         }
     }
 
-    <span class="comment">// TODO If there are several choices of building that satisfy an activity, which one will</span>
-    <span class="comment">// someone choose? One simple approach could just calculate the difficulty of going from the</span>
-    <span class="comment">// previous location (starting from home) to that place, using some mode of travel. Then either</span>
-    <span class="comment">// pick the closest choice, or even better, randomize, but weight based on the cost of getting</span>
-    <span class="comment">// there. map.pathfind() may be helpful.</span>
+    <span class="kw">fn</span> <span class="ident">activity_to_buildings</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Activity</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="comment">// What types of OpenStreetMap amenities will satisfy each activity?</span>
+        <span class="kw">let</span> <span class="ident">categories</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+            (<span class="ident">Activity</span>::<span class="ident">Breakfast</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cafe&quot;</span>]),
+            (<span class="ident">Activity</span>::<span class="ident">Lunch</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;pub&quot;</span>, <span class="string">&quot;food_court&quot;</span>, <span class="string">&quot;fast_food&quot;</span>]),
+            (
+                <span class="ident">Activity</span>::<span class="ident">Dinner</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;restaurant&quot;</span>, <span class="string">&quot;theatre&quot;</span>, <span class="string">&quot;biergarten&quot;</span>],
+            ),
+            (
+                <span class="ident">Activity</span>::<span class="ident">School</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;college&quot;</span>,
+                    <span class="string">&quot;kindergarten&quot;</span>,
+                    <span class="string">&quot;language_school&quot;</span>,
+                    <span class="string">&quot;library&quot;</span>,
+                    <span class="string">&quot;music_school&quot;</span>,
+                    <span class="string">&quot;university&quot;</span>,
+                ],
+            ),
+            (
+                <span class="ident">Activity</span>::<span class="ident">Entertainment</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;arts_centre&quot;</span>,
+                    <span class="string">&quot;casino&quot;</span>,
+                    <span class="string">&quot;cinema&quot;</span>,
+                    <span class="string">&quot;community_centre&quot;</span>,
+                    <span class="string">&quot;fountain&quot;</span>,
+                    <span class="string">&quot;gambling&quot;</span>,
+                    <span class="string">&quot;nightclub&quot;</span>,
+                    <span class="string">&quot;planetarium&quot;</span>,
+                    <span class="string">&quot;public_bookcase&quot;</span>,
+                    <span class="string">&quot;pool&quot;</span>,
+                    <span class="string">&quot;dojo&quot;</span>,
+                    <span class="string">&quot;social_centre&quot;</span>,
+                    <span class="string">&quot;social_centre&quot;</span>,
+                    <span class="string">&quot;studio&quot;</span>,
+                    <span class="string">&quot;theatre&quot;</span>,
+                    <span class="string">&quot;bar&quot;</span>,
+                    <span class="string">&quot;bbq&quot;</span>,
+                    <span class="string">&quot;bicycle_rental&quot;</span>,
+                    <span class="string">&quot;boat_rental&quot;</span>,
+                    <span class="string">&quot;boat_sharing&quot;</span>,
+                    <span class="string">&quot;dive_centre&quot;</span>,
+                    <span class="string">&quot;internet_cafe&quot;</span>,
+                ],
+            ),
+            (
+                <span class="ident">Activity</span>::<span class="ident">Errands</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;marketplace&quot;</span>,
+                    <span class="string">&quot;post_box&quot;</span>,
+                    <span class="string">&quot;photo_booth&quot;</span>,
+                    <span class="string">&quot;recycling&quot;</span>,
+                    <span class="string">&quot;townhall&quot;</span>,
+                ],
+            ),
+            (<span class="ident">Activity</span>::<span class="ident">Financial</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;atm&quot;</span>, <span class="string">&quot;bureau_de_change&quot;</span>]),
+            (
+                <span class="ident">Activity</span>::<span class="ident">Healthcare</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;baby_hatch&quot;</span>,
+                    <span class="string">&quot;clinic&quot;</span>,
+                    <span class="string">&quot;dentist&quot;</span>,
+                    <span class="string">&quot;doctors&quot;</span>,
+                    <span class="string">&quot;hospital&quot;</span>,
+                    <span class="string">&quot;nursing_home&quot;</span>,
+                    <span class="string">&quot;pharmacy&quot;</span>,
+                    <span class="string">&quot;social_facility&quot;</span>,
+                    <span class="string">&quot;veterinary&quot;</span>,
+                    <span class="string">&quot;childcare&quot;</span>,
+                ],
+            ),
+            (<span class="ident">Activity</span>::<span class="ident">Work</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;clinic&quot;</span>]),
+        ];
 
-    <span class="comment">// For now, just pick the first choice arbitrarily</span>
-    <span class="ident">candidates</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">cloned</span>()
+        <span class="comment">// TODO Others to fill out. amenity_type in map_gui/src/tools/mod.rs might be helpful. It</span>
+        <span class="comment">// might also be helpful to edit the list of possible activities in lib.rs too.</span>
+
+        <span class="comment">// Find all buildings with a matching amenity</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Activity</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
+            <span class="kw">for</span> (<span class="ident">activity</span>, <span class="ident">categories</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">categories</span> {
+                <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
+                    <span class="kw">if</span> <span class="ident">categories</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">amenity</span>.<span class="ident">amenity_type</span>.<span class="ident">as_str</span>()) {
+                        <span class="ident">candidates</span>
+                            .<span class="ident">entry</span>(<span class="kw-2">*</span><span class="ident">activity</span>)
+                            .<span class="ident">and_modify</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>))
+                            .<span class="ident">or_insert</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">b</span>.<span class="ident">id</span>]);
+                    }
+                }
+            }
+        }
+        <span class="ident">candidates</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">find_building_for_activity</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">activity</span>: <span class="ident">Activity</span>,
+        <span class="ident">_start</span>: <span class="ident">TripEndpoint</span>,
+        <span class="ident">_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
+        <span class="comment">// TODO If there are several choices of building that satisfy an activity, which one will</span>
+        <span class="comment">// someone choose? One simple approach could just calculate the difficulty of going from the</span>
+        <span class="comment">// previous location (starting from home) to that place, using some mode of travel. Then</span>
+        <span class="comment">// either pick the closest choice, or even better, randomize, but weight based on</span>
+        <span class="comment">// the cost of getting there. map.pathfind() may be helpful.</span>
+
+        <span class="comment">// For now, just pick a random one</span>
+        <span class="self">self</span>.<span class="ident">activity_to_buildings</span>
+            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">activity</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">buildings</span><span class="op">|</span> <span class="ident">buildings</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">cloned</span>())
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_person</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">person</span>: <span class="ident">CensusPerson</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">commuter_borders</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
+        <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
+        <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">Config</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PersonSpec</span> {
+        <span class="kw">let</span> <span class="ident">schedule</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">generate_schedule</span>(<span class="ident">config</span>, <span class="ident">rng</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">PersonSpec</span> {
+            <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">person</span>.<span class="ident">home</span>),
+            <span class="ident">trips</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+        };
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_location</span> <span class="op">=</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">person</span>.<span class="ident">home</span>);
+        <span class="kw">for</span> (<span class="ident">departure_time</span>, <span class="ident">activity</span>) <span class="kw">in</span> <span class="ident">schedule</span>.<span class="ident">activities</span> {
+            <span class="comment">// TODO This field isn&#39;t that important; later we could map Activity to a TripPurpose</span>
+            <span class="comment">// better.</span>
+            <span class="kw">let</span> <span class="ident">purpose</span> <span class="op">=</span> <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>;
+
+            <span class="kw">let</span> <span class="ident">goto</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">destination</span>) <span class="op">=</span>
+                <span class="self">self</span>.<span class="ident">find_building_for_activity</span>(<span class="ident">activity</span>, <span class="ident">current_location</span>, <span class="ident">map</span>, <span class="ident">rng</span>)
+            {
+                <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">destination</span>)
+            } <span class="kw">else</span> {
+                <span class="comment">// No buildings satisfy the activity. Just go somewhere off-map.</span>
+                <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw-2">*</span><span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>())
+            };
+
+            <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">pick_mode</span>(<span class="ident">current_location</span>, <span class="ident">goto</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="ident">config</span>);
+            <span class="ident">output</span>
+                .<span class="ident">trips</span>
+                .<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">departure_time</span>, <span class="ident">purpose</span>, <span class="ident">goto</span>, <span class="ident">mode</span>));
+
+            <span class="ident">current_location</span> <span class="op">=</span> <span class="ident">goto</span>;
+        }
+
+        <span class="ident">output</span>
+    }
 }
 
 <span class="kw">fn</span> <span class="ident">pick_mode</span>(
