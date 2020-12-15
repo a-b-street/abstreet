@@ -145,7 +145,8 @@ impl Scenario {
             timer.next();
 
             if let Err(err) = p.check_schedule() {
-                panic!("{}", err);
+                error!("skipping invalid schedule: {}", err);
+                continue;
             }
 
             let (vehicle_specs, cars_initially_parked_at, vehicle_foreach_trip) =
