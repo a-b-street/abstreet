@@ -328,6 +328,7 @@ impl Text {
         output_batch
     }
 
+    // TODO How is this different than render()?
     pub fn render_to_batch(self, prerender: &Prerender) -> GeomBatch {
         let mut batch = self.render(&prerender.assets);
         batch.autocrop_dims = true;

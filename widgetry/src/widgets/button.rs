@@ -481,13 +481,18 @@ impl BtnBuilder {
 
     pub fn inactive(self, ctx: &EventCtx) -> Widget {
         match self {
-            BtnBuilder::TextFG(label, txt, _) => txt
-                .change_fg(Color::grey(0.5))
-                .draw(ctx)
-                .container()
-                .padding(8)
-                .outline(2.0, Color::WHITE)
-                .named(label),
+            BtnBuilder::TextFG(label, txt, _) => Widget::draw_batch(
+                ctx,
+                txt.change_fg(Color::grey(0.5))
+                    .render(ctx)
+                    .batch()
+                    .container()
+                    .padding(8)
+                    .outline(2.0, Color::WHITE)
+                    .to_geom(ctx, None)
+                    .0,
+            )
+            .named(label),
             // TODO This'll only work reasonably for text_bg2
             BtnBuilder::TextBG {
                 text,
@@ -496,18 +501,29 @@ impl BtnBuilder {
                 ..
             } => {
                 assert_eq!(unselected_bg_color, Color::WHITE);
-                text.draw(ctx)
-                    .container()
-                    .padding(15)
-                    .bg(Color::grey(0.7))
-                    .named(label)
+                Widget::draw_batch(
+                    ctx,
+                    text.render(ctx)
+                        .batch()
+                        .container()
+                        .padding(15)
+                        .bg(Color::grey(0.7))
+                        .to_geom(ctx, None)
+                        .0,
+                )
+                .named(label)
             }
-            BtnBuilder::PlainText { txt, label, .. } => txt
-                .change_fg(Color::grey(0.5))
-                .draw(ctx)
-                .container()
-                .padding(8)
-                .named(label),
+            BtnBuilder::PlainText { txt, label, .. } => Widget::draw_batch(
+                ctx,
+                txt.change_fg(Color::grey(0.5))
+                    .render(ctx)
+                    .batch()
+                    .container()
+                    .padding(8)
+                    .to_geom(ctx, None)
+                    .0,
+            )
+            .named(label),
             _ => panic!("Can't use inactive on this kind of button"),
         }
     }
