@@ -68,6 +68,11 @@ impl Distance {
         self.0
     }
 
+    /// Returns the distance in feet.
+    pub fn to_feet(self) -> f64 {
+        self.0 * 3.28084
+    }
+
     /// Describes the distance according to formatting rules.
     pub fn to_string(self, fmt: &UnitFmt) -> String {
         if fmt.metric {
@@ -78,7 +83,7 @@ impl Distance {
                 format!("{}km", (km * 10.0).round() / 10.0)
             }
         } else {
-            let feet = self.0 * 3.28084;
+            let feet = self.to_feet();
             let miles = feet / 5280.0;
             if miles >= 0.1 {
                 format!("{} miles", (miles * 10.0).round() / 10.0)

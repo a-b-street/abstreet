@@ -29,7 +29,7 @@ fn road(id: RoadID, map: &Map) -> serde_json::Map<String, serde_json::value::Val
 fn lane(lane: &Lane, dir: Direction) -> serde_json::Map<String, serde_json::value::Value> {
     let mut segment = serde_json::Map::new();
     segment.insert("id".to_string(), lane.id.to_string().into());
-    segment.insert("width".to_string(), lane.width.inner_meters().into());
+    segment.insert("width".to_string(), lane.width.to_feet().into());
 
     // TODO I'm taking wild stabs at these values for now. Once I can visualize the results, will
     // iterate on these.
