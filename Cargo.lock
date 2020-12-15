@@ -1038,6 +1038,7 @@ dependencies = [
 [[package]]
 name = "flatgeobuf"
 version = "0.3.4"
+source = "git+https://github.com/bjornharrtell/flatgeobuf#4411e90a50a9d4647cc03a30cc719a714ea7f5ca"
 dependencies = [
  "async-trait",
  "byteorder",
@@ -2899,6 +2900,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "flatgeobuf",
+ "futures",
  "geo 0.16.0",
  "geojson 0.21.0",
  "geom",
@@ -2909,6 +2911,7 @@ dependencies = [
  "rand_xorshift",
  "serde_json",
  "sim",
+ "tokio",
 ]
 
 [[package]]
