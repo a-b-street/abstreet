@@ -1,5 +1,5 @@
 use geom::{Duration, Speed, Time};
-use widgetry::{GeomBatch, GfxCtx};
+use widgetry::{GeomBatch, Prerender};
 
 pub struct Vehicle {
     pub name: String,
@@ -59,7 +59,7 @@ impl Vehicle {
         }
     }
 
-    pub fn animate(&self, g: &mut GfxCtx, time: Time) -> GeomBatch {
+    pub fn animate(&self, prerender: &Prerender, time: Time) -> GeomBatch {
         // TODO I don't know what I'm doing
         let rate = 0.1;
         let frame = (time.inner_seconds() / rate) as usize;
@@ -68,6 +68,18 @@ impl Vehicle {
             "system/assets/santa/{}",
             self.draw_frames[frame % self.draw_frames.len()]
         );
-        GeomBatch::load_svg(g.prerender, &path).scale(self.scale)
+        GeomBatch::load_svg(prerender, &path).scale(self.scale)
+    }
+
+    /// (max speed, max energy)
+    pub fn max_stats() -> (Speed, usize) {
+        let mut speed = Speed::ZERO;
+        let mut energy = 0;
+        for x in vec!["bike", "cargo bike", "sleigh"] {
+            let vehicle = Vehicle::get(x);
+            speed = speed.max(vehicle.normal_speed);
+            energy = energy.max(vehicle.max_energy);
+        }
+        (speed, energy)
     }
 }

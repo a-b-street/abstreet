@@ -222,11 +222,19 @@ impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
     }
 }
 
+/// A way to transform all colors in a GeomBatch.
 pub enum RewriteColor {
+    /// Don't do anything
     NoOp,
+    /// Change every instance of the first color to the second
     Change(Color, Color),
+    /// Change all colors to the specified value. For this to be interesting, the batch shouldn't
+    /// be a solid block of color.
     ChangeAll(Color),
+    /// Change the alpha value of all colors to this value.
     ChangeAlpha(f32),
+    /// Convert all colors to greyscale.
+    MakeGrayscale,
 }
 
 impl RewriteColor {
@@ -242,6 +250,10 @@ impl RewriteColor {
             }
             RewriteColor::ChangeAll(to) => *to,
             RewriteColor::ChangeAlpha(alpha) => c.alpha(*alpha),
+            RewriteColor::MakeGrayscale => {
+                let avg = (c.r + c.g + c.b) / 3.0;
+                Color::grey(avg).alpha(c.a)
+            }
         }
     }
 }

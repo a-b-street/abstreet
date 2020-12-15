@@ -1,23 +1,26 @@
 use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
+use geom::Time;
 use map_gui::load::MapLoader;
 use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
-    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
+    State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
 use crate::game::Game;
 use crate::levels::Level;
+use crate::meters::custom_bar;
 use crate::vehicles::Vehicle;
 use crate::{App, Transition};
 
 const ZOOM: f64 = 2.0;
 
 pub struct Picker {
+    vehicle_panel: Panel,
     panel: Panel,
     level: Level,
     bldgs: Buildings,
@@ -66,19 +69,9 @@ impl Picker {
                 }
 
                 Transition::Replace(Box::new(Picker {
+                    vehicle_panel: make_vehicle_panel(ctx, app),
                     panel: Panel::new(Widget::col(vec![
                         txt.draw(ctx),
-                        Widget::row(vec![
-                            "Your vehicle:".draw_text(ctx),
-                            Widget::dropdown(
-                                ctx,
-                                "vehicle",
-                                app.session.current_vehicle.to_string(),
-                                Choice::strings(
-                                    app.session.vehicles_unlocked.clone().into_iter().collect(),
-                                ),
-                            ),
-                        ]),
                         Btn::text_bg2("Start game").build_def(ctx, Key::Enter),
                     ]))
                     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -118,17 +111,24 @@ impl State<App> for Picker {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Start game" => {
                     app.current_selection = None;
-                    let vehicle: String = self.panel.dropdown_value("vehicle");
                     return Transition::Replace(Game::new(
                         ctx,
                         app,
                         self.level.clone(),
-                        Vehicle::get(&vehicle),
+                        Vehicle::get(&app.session.current_vehicle),
                         self.current_picks.clone(),
                     ));
                 }
                 _ => unreachable!(),
             },
+            _ => {}
+        }
+
+        match self.vehicle_panel.event(ctx) {
+            Outcome::Clicked(x) => {
+                app.session.current_vehicle = x;
+                self.vehicle_panel = make_vehicle_panel(ctx, app);
+            }
             _ => {}
         }
 
@@ -138,6 +138,7 @@ impl State<App> for Picker {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.vehicle_panel.draw(g);
         self.panel.draw(g);
         app.session.music.draw(g);
         g.redraw(&self.bldgs.draw_all);
@@ -149,4 +150,62 @@ impl State<App> for Picker {
             g.draw_polygon(app.cs.selected, app.map.get_b(b).polygon.clone());
         }
     }
+}
+
+fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
+    let mut buttons = Vec::new();
+    for name in &app.session.vehicles_unlocked {
+        let vehicle = Vehicle::get(name);
+        let batch = vehicle
+            .animate(ctx.prerender, Time::START_OF_DAY)
+            .scale(10.0);
+
+        buttons.push(
+            if name == &app.session.current_vehicle {
+                Widget::draw_batch(ctx, batch)
+                    .container()
+                    .padding(5)
+                    .outline(2.0, Color::WHITE)
+            } else {
+                let hitbox = batch.get_bounds().get_rectangle();
+                let normal = batch.clone().color(RewriteColor::MakeGrayscale);
+                let hovered = batch;
+                Btn::custom(normal, hovered, hitbox, None).build(ctx, name, None)
+            }
+            .centered_vert(),
+        );
+        buttons.push(Widget::vert_separator(ctx, 150.0));
+    }
+    buttons.pop();
+
+    let vehicle = Vehicle::get(&app.session.current_vehicle);
+    let (max_speed, max_energy) = Vehicle::max_stats();
+
+    Panel::new(Widget::col(vec![
+        Line("Pick Santa's vehicle").small_heading().draw(ctx),
+        Widget::row(buttons),
+        Line(&vehicle.name).small_heading().draw(ctx),
+        Widget::row(vec![
+            "Speed:".draw_text(ctx),
+            custom_bar(
+                ctx,
+                app.session.colors.boost,
+                vehicle.normal_speed / max_speed,
+                Text::new(),
+            )
+            .align_right(),
+        ]),
+        Widget::row(vec![
+            "Carrying capacity:".draw_text(ctx),
+            custom_bar(
+                ctx,
+                app.session.colors.energy,
+                (vehicle.max_energy as f64) / (max_energy as f64),
+                Text::new(),
+            )
+            .align_right(),
+        ]),
+    ]))
+    .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
+    .build(ctx)
 }

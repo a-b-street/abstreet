@@ -452,7 +452,7 @@ impl State<App> for Game {
         if true {
             self.state
                 .vehicle
-                .animate(g, app.time - self.state.idle_time)
+                .animate(g.prerender, app.time - self.state.idle_time)
                 .centered_on(self.player.get_pos())
                 .rotate_around_batch_center(self.player.get_angle())
                 .draw(g);
