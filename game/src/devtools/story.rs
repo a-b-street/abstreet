@@ -277,10 +277,9 @@ impl State<App> for StoryMapEditor {
         match self.mode {
             Mode::PlacingMarker => {
                 if g.canvas.get_cursor_in_map_space().is_some() {
-                    let batch =
-                        GeomBatch::load_svg(g.prerender, "system/assets/timeline/goal_pos.svg")
-                            .centered_on(g.canvas.get_cursor().to_pt())
-                            .color(RewriteColor::Change(Color::hex("#5B5B5B"), Color::GREEN));
+                    let batch = GeomBatch::load_svg(g, "system/assets/timeline/goal_pos.svg")
+                        .centered_on(g.canvas.get_cursor().to_pt())
+                        .color(RewriteColor::Change(Color::hex("#5B5B5B"), Color::GREEN));
                     g.fork_screenspace();
                     batch.draw(g);
                     g.unfork();
@@ -428,7 +427,7 @@ impl Marker {
 
         let hitbox = if pts.len() == 1 {
             batch.append(
-                GeomBatch::load_svg(ctx.prerender, "system/assets/timeline/goal_pos.svg")
+                GeomBatch::load_svg(ctx, "system/assets/timeline/goal_pos.svg")
                     .scale(2.0)
                     .centered_on(pts[0])
                     .color(RewriteColor::Change(
@@ -472,7 +471,7 @@ impl Marker {
         let mut batch = GeomBatch::new();
         if self.pts.len() == 1 {
             batch.append(
-                GeomBatch::load_svg(g.prerender, "system/assets/timeline/goal_pos.svg")
+                GeomBatch::load_svg(g, "system/assets/timeline/goal_pos.svg")
                     .scale(2.0)
                     .centered_on(self.pts[0])
                     .color(RewriteColor::Change(Color::hex("#5B5B5B"), app.cs.hovering)),

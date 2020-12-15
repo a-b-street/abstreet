@@ -202,7 +202,7 @@ impl Btn {
         icon_batch.push(Color::INVISIBLE, icon_container);
 
         let path = "system/assets/widgetry/arrow_drop_down.svg";
-        let icon = GeomBatch::load_svg(ctx.prerender, &path)
+        let icon = GeomBatch::load_svg(ctx, &path)
             .color(RewriteColor::ChangeAll(ctx.style().outline_color))
             .autocrop()
             .centered_on(icon_batch.get_bounds().center());

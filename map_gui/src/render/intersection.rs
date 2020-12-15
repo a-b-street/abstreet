@@ -94,7 +94,7 @@ impl DrawIntersection {
             IntersectionType::Construction => {
                 // TODO Centering seems weird
                 default_geom.append(
-                    GeomBatch::load_svg(g.prerender, "system/assets/map/under_construction.svg")
+                    GeomBatch::load_svg(g, "system/assets/map/under_construction.svg")
                         .scale(0.08)
                         .centered_on(i.polygon.center()),
                 );

@@ -111,9 +111,7 @@ fn locked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Wid
     let hitbox = batch.get_bounds().get_rectangle();
     let center = hitbox.center();
     batch.push(app.cs.fade_map_dark, hitbox);
-    batch.append(
-        GeomBatch::load_svg(ctx.prerender, "system/assets/tools/locked.svg").centered_on(center),
-    );
+    batch.append(GeomBatch::load_svg(ctx, "system/assets/tools/locked.svg").centered_on(center));
     Widget::draw_batch(ctx, batch)
 }
 

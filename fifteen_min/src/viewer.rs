@@ -168,7 +168,7 @@ impl State<App> for Viewer {
 /// Draw a star on the start building.
 fn draw_star(ctx: &mut EventCtx, center: Pt2D) -> Drawable {
     ctx.upload(
-        GeomBatch::load_svg(ctx.prerender, "system/assets/tools/star.svg")
+        GeomBatch::load_svg(ctx, "system/assets/tools/star.svg")
             .centered_on(center)
             .color(RewriteColor::ChangeAll(Color::BLACK)),
     )

@@ -297,3 +297,9 @@ impl std::convert::AsRef<Prerender> for EventCtx<'_> {
         &self.prerender
     }
 }
+
+impl std::convert::AsRef<Prerender> for Prerender {
+    fn as_ref(&self) -> &Prerender {
+        self
+    }
+}

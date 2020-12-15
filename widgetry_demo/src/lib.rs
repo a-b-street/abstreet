@@ -260,10 +260,8 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
         Polygon::rounded_rectangle(5000.0, 5000.0, Some(25.0)),
     );
     // SVG support using lyon and usvg. Map-space means don't scale for high DPI monitors.
-    batch.append(
-        GeomBatch::load_svg(&ctx.prerender, "system/assets/pregame/logo.svg")
-            .translate(300.0, 300.0),
-    );
+    batch
+        .append(GeomBatch::load_svg(ctx, "system/assets/pregame/logo.svg").translate(300.0, 300.0));
     // Text rendering also goes through lyon and usvg.
     batch.append(
         Text::from(Line("Awesome vector text thanks to usvg and lyon").fg(Color::hex("#DF8C3D")))

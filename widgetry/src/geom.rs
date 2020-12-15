@@ -139,8 +139,8 @@ impl GeomBatch {
     }
 
     /// Returns a batch containing an SVG from a file.
-    pub fn load_svg(prerender: &Prerender, filename: &str) -> GeomBatch {
-        svg::load_svg(prerender, filename).0
+    pub fn load_svg<P: AsRef<Prerender>>(prerender: &P, filename: &str) -> GeomBatch {
+        svg::load_svg(prerender.as_ref(), filename).0
     }
 
     /// Transforms all colors in a batch.

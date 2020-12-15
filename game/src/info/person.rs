@@ -492,7 +492,7 @@ pub fn parked_car(
                 )
             } else {
                 // TODO Blink
-                GeomBatch::load_svg(ctx.prerender, "system/assets/tools/location.svg")
+                GeomBatch::load_svg(ctx, "system/assets/tools/location.svg")
                     .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .to_btn(ctx)
                     .build(ctx, "unfollow (pause the simulation)", Key::F)
@@ -612,7 +612,7 @@ fn header(
                 )
             } else {
                 // TODO Blink
-                GeomBatch::load_svg(ctx.prerender, "system/assets/tools/location.svg")
+                GeomBatch::load_svg(ctx, "system/assets/tools/location.svg")
                     .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
                     .to_btn(ctx)
                     .build(ctx, "unfollow (pause the simulation)", Key::F)

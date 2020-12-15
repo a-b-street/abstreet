@@ -205,7 +205,7 @@ fn make_panel(
                 Layout::PlayerSpeaking => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::load_svg(ctx.prerender, "system/assets/characters/boss.svg")
+                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg")
                             .scale(0.75)
                             .autocrop(),
                     ),
@@ -218,7 +218,7 @@ fn make_panel(
                 Layout::BossSpeaking => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::load_svg(ctx.prerender, "system/assets/characters/boss.svg")
+                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg")
                             .scale(0.75)
                             .autocrop(),
                     ),
@@ -228,7 +228,7 @@ fn make_panel(
                 Layout::Extra(name, scale) => Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::load_svg(ctx.prerender, "system/assets/characters/boss.svg")
+                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg")
                             .scale(0.75)
                             .autocrop(),
                     ),

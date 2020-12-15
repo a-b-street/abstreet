@@ -139,21 +139,21 @@ impl DrawLane {
                 let (pt, angle) = lane.lane_center_pts.must_dist_along(dist);
                 if lane.is_bus() {
                     draw.append(
-                        GeomBatch::load_svg(g.prerender, "system/assets/map/bus_only.svg")
+                        GeomBatch::load_svg(g, "system/assets/map/bus_only.svg")
                             .scale(0.06)
                             .centered_on(pt)
                             .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
                     );
                 } else if lane.is_biking() {
                     draw.append(
-                        GeomBatch::load_svg(g.prerender, "system/assets/meters/bike.svg")
+                        GeomBatch::load_svg(g, "system/assets/meters/bike.svg")
                             .scale(0.06)
                             .centered_on(pt)
                             .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
                     );
                 } else if lane.lane_type == LaneType::SharedLeftTurn {
                     draw.append(
-                        GeomBatch::load_svg(g.prerender, "system/assets/map/shared_left_turn.svg")
+                        GeomBatch::load_svg(g, "system/assets/map/shared_left_turn.svg")
                             .autocrop()
                             .scale(0.003)
                             .centered_on(pt)

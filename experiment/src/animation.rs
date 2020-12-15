@@ -160,8 +160,7 @@ impl SnowEffect {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, now: Time) {
-        let shape =
-            GeomBatch::load_svg(ctx.prerender, "system/assets/map/snowflake.svg").scale(0.1);
+        let shape = GeomBatch::load_svg(ctx, "system/assets/map/snowflake.svg").scale(0.1);
 
         let mut batch = GeomBatch::new();
         let prev_flakes = std::mem::replace(&mut self.flakes, Vec::new());
