@@ -352,7 +352,7 @@
 
     <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="ident">id</span>);
     <span class="ident">batch</span>.<span class="ident">append</span>(
-        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
             .<span class="ident">scale</span>(<span class="number">10.0</span>)
             .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
             .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
@@ -366,7 +366,7 @@
             }),
     );
     <span class="ident">batch</span>.<span class="ident">append</span>(
-        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
             .<span class="ident">scale</span>(<span class="number">10.0</span>)
             .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
             .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(

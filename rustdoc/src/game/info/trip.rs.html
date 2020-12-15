@@ -911,8 +911,6 @@
 <span id="908">908</span>
 <span id="909">909</span>
 <span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -1445,11 +1443,9 @@
             <span class="comment">// Show where we are in the trip currently</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">progress_along_path</span> {
                 <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/current_pos.svg&quot;</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(
-                            <span class="ident">x1</span> <span class="op">+</span> <span class="ident">p</span> <span class="op">*</span> <span class="ident">phase_width</span>,
-                            <span class="ident">icon_height</span> <span class="op">+</span> (<span class="ident">rectangle_height</span> <span class="op">/</span> <span class="number">2.0</span>),
-                        )),
+                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/timeline/current_pos.svg&quot;</span>).<span class="ident">centered_on</span>(
+                        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x1</span> <span class="op">+</span> <span class="ident">p</span> <span class="op">*</span> <span class="ident">phase_width</span>, <span class="ident">icon_height</span> <span class="op">+</span> (<span class="ident">rectangle_height</span> <span class="op">/</span> <span class="number">2.0</span>)),
+                    ),
                 );
             }
         }
@@ -1582,7 +1578,7 @@
             .<span class="ident">insert</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to start of {}&quot;</span>, <span class="ident">trip_id</span>), <span class="ident">id</span>);
 
         <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
                 .<span class="ident">scale</span>(<span class="number">3.0</span>)
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
@@ -1592,7 +1588,7 @@
                 .<span class="ident">centered_on</span>(<span class="ident">center</span>),
         );
         <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
                     <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>),
@@ -1616,7 +1612,7 @@
             .<span class="ident">insert</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jump to goal of {}&quot;</span>, <span class="ident">trip_id</span>), <span class="ident">id</span>);
 
         <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
                 .<span class="ident">scale</span>(<span class="number">3.0</span>)
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
@@ -1626,7 +1622,7 @@
                 .<span class="ident">centered_on</span>(<span class="ident">center</span>),
         );
         <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>))
                 .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
                     <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>),

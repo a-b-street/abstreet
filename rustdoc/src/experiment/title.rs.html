@@ -125,8 +125,6 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Percent</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">open_browser</span>;
@@ -241,9 +239,7 @@
     <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>();
     <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">hitbox</span>.<span class="ident">center</span>();
     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">hitbox</span>);
-    <span class="ident">batch</span>.<span class="ident">append</span>(
-        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/locked.svg&quot;</span>).<span class="ident">centered_on</span>(<span class="ident">center</span>),
-    );
+    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/locked.svg&quot;</span>).<span class="ident">centered_on</span>(<span class="ident">center</span>));
     <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>)
 }
 

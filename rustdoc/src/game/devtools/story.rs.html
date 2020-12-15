@@ -582,7 +582,6 @@
 <span id="579">579</span>
 <span id="580">580</span>
 <span id="581">581</span>
-<span id="582">582</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -863,10 +862,9 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
             <span class="ident">Mode</span>::<span class="ident">PlacingMarker</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() {
-                    <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span>
-                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
-                            .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>().<span class="ident">to_pt</span>())
-                            .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>), <span class="ident">Color</span>::<span class="ident">GREEN</span>));
+                    <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+                        .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>().<span class="ident">to_pt</span>())
+                        .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>), <span class="ident">Color</span>::<span class="ident">GREEN</span>));
                     <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
                     <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
                     <span class="ident">g</span>.<span class="ident">unfork</span>();
@@ -1014,7 +1012,7 @@
 
         <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
             <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+                <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
                     .<span class="ident">scale</span>(<span class="number">2.0</span>)
                     .<span class="ident">centered_on</span>(<span class="ident">pts</span>[<span class="number">0</span>])
                     .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(
@@ -1058,7 +1056,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
             <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+                <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
                     .<span class="ident">scale</span>(<span class="number">2.0</span>)
                     .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>])
                     .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>), <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>)),

@@ -543,21 +543,21 @@
                 <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
                 <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>() {
                     <span class="ident">draw</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/bus_only.svg&quot;</span>)
+                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/map/bus_only.svg&quot;</span>)
                             .<span class="ident">scale</span>(<span class="number">0.06</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
                             .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">90.0</span>))),
                     );
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_biking</span>() {
                     <span class="ident">draw</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
+                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
                             .<span class="ident">scale</span>(<span class="number">0.06</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
                             .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">90.0</span>))),
                     );
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> {
                     <span class="ident">draw</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>)
+                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>)
                             .<span class="ident">autocrop</span>()
                             .<span class="ident">scale</span>(<span class="number">0.003</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">pt</span>)

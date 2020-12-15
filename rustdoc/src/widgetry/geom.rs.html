@@ -402,8 +402,8 @@
     }
 
     <span class="doccomment">/// Returns a batch containing an SVG from a file.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg</span>(<span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
-        <span class="ident">svg</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>, <span class="ident">filename</span>).<span class="number">0</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="ident">svg</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>.<span class="ident">as_ref</span>(), <span class="ident">filename</span>).<span class="number">0</span>
     }
 
     <span class="doccomment">/// Transforms all colors in a batch.</span>

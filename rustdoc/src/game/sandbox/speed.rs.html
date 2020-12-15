@@ -485,7 +485,7 @@
                     <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">LeftArrow</span>, <span class="string">&quot;slow down&quot;</span>));
                     <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">RightArrow</span>, <span class="string">&quot;speed up&quot;</span>));
 
-                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
+                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
                         .<span class="ident">color</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">setting</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">s</span> {
                             <span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>
                         } <span class="kw">else</span> {

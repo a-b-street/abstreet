@@ -334,7 +334,7 @@
                     <span class="comment">// Might need to scale down more for some buildings, but so far, this works</span>
                     <span class="comment">// everywhere.</span>
                     <span class="ident">bldg_batch</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/parking.svg&quot;</span>)
+                        <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/map/parking.svg&quot;</span>)
                             .<span class="ident">scale</span>(<span class="number">0.1</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">bldg</span>.<span class="ident">label_center</span>),
                     );
