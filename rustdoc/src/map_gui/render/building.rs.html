@@ -519,7 +519,7 @@
                         <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot; (+{})&quot;</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>));
                     }
                     <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">txt</span>.<span class="ident">render_to_batch</span>(<span class="ident">g</span>.<span class="ident">prerender</span>)
+                        <span class="ident">txt</span>.<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
                             .<span class="ident">scale</span>(<span class="number">0.1</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">b</span>.<span class="ident">label_center</span>),
                     );

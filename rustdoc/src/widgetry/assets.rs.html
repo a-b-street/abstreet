@@ -149,6 +149,12 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -160,7 +166,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Bounds</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::<span class="ident">Font</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">text</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">text</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>};
 
 <span class="comment">// TODO We don&#39;t need refcell maybe? Can we take &amp;mut Assets?</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Assets</span> {
@@ -290,6 +296,12 @@
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EventCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Prerender</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">assets</span>
     }
 }
 

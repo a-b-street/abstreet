@@ -499,7 +499,7 @@
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">cs</span>.<span class="ident">ped_crowd</span>, <span class="ident">blob</span>.<span class="ident">clone</span>());
         <span class="ident">batch</span>.<span class="ident">append</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">input</span>.<span class="ident">members</span>.<span class="ident">len</span>())).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
-                .<span class="ident">render_to_batch</span>(<span class="ident">prerender</span>)
+                .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>)
                 .<span class="ident">scale</span>(<span class="number">0.02</span>)
                 .<span class="ident">centered_on</span>(<span class="ident">blob</span>.<span class="ident">center</span>()),
         );

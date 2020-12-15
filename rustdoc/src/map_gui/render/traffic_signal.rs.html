@@ -458,7 +458,7 @@
     );
     <span class="ident">batch</span>.<span class="ident">append</span>(
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)))
-            .<span class="ident">render_to_batch</span>(<span class="ident">prerender</span>)
+            .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>)
             .<span class="ident">scale</span>(<span class="number">0.075</span>)
             .<span class="ident">centered_on</span>(<span class="ident">center</span>),
     );
@@ -490,7 +490,7 @@
     );
     <span class="ident">batch</span>.<span class="ident">append</span>(
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)))
-            .<span class="ident">render_to_batch</span>(<span class="ident">prerender</span>)
+            .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>)
             .<span class="ident">scale</span>(<span class="number">0.1</span>)
             .<span class="ident">centered_on</span>(<span class="ident">center</span>),
     );

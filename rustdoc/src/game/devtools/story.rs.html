@@ -1025,7 +1025,7 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>))
                     .<span class="ident">with_bg</span>()
-                    .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
+                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                     .<span class="ident">scale</span>(<span class="number">0.5</span>)
                     .<span class="ident">centered_on</span>(<span class="ident">pts</span>[<span class="number">0</span>]),
             );
@@ -1040,7 +1040,7 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>))
                     .<span class="ident">with_bg</span>()
-                    .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
+                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                     .<span class="ident">scale</span>(<span class="number">0.5</span>)
                     .<span class="ident">centered_on</span>(<span class="ident">poly</span>.<span class="ident">polylabel</span>()),
             );
@@ -1066,7 +1066,7 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>))
                     .<span class="ident">with_bg</span>()
-                    .<span class="ident">render_to_batch</span>(<span class="ident">g</span>.<span class="ident">prerender</span>)
+                    .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
                     .<span class="ident">scale</span>(<span class="number">0.75</span>)
                     .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>]),
             );
@@ -1079,7 +1079,7 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>))
                     .<span class="ident">with_bg</span>()
-                    .<span class="ident">render_to_batch</span>(<span class="ident">g</span>.<span class="ident">prerender</span>)
+                    .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
                     .<span class="ident">scale</span>(<span class="number">0.75</span>)
                     .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">polylabel</span>()),
             );

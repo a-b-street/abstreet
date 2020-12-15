@@ -990,7 +990,7 @@
                             .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
                         <span class="kw">let</span> <span class="ident">label_text</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">count</span>));
                         <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label_text</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
-                            .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
+                            .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                             .<span class="ident">scale</span>(<span class="number">2.0</span>)
                             .<span class="ident">centered_on</span>(<span class="ident">compare_to_block</span>.<span class="ident">shape</span>.<span class="ident">polylabel</span>());
 

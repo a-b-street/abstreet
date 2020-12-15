@@ -258,7 +258,7 @@
         )]);
         <span class="ident">batch</span>.<span class="ident">append</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">to_string</span>()))
-                .<span class="ident">render_to_batch</span>(<span class="ident">g</span>.<span class="ident">prerender</span>)
+                .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
                 .<span class="ident">centered_on</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">TEXT_WIDTH</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>)),
         );
         <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);

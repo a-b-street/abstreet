@@ -621,7 +621,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
                 <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">describe_obj</span>(<span class="ident">id</span>);
                 <span class="comment">// TODO We used to display actions and hotkeys here</span>
-                <span class="self">self</span>.<span class="ident">popup</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">txt</span>.<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)));
+                <span class="self">self</span>.<span class="ident">popup</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">txt</span>.<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)));
             }
         }
 
@@ -695,7 +695,7 @@
         <span class="ident">batch</span>.<span class="ident">append</span>(
             <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>))
                 .<span class="ident">with_bg</span>()
-                .<span class="ident">render_to_batch</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>)
+                .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                 .<span class="ident">scale</span>(<span class="number">0.1</span>)
                 .<span class="ident">centered_on</span>(<span class="ident">center</span>),
         );

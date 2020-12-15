@@ -249,7 +249,7 @@
             <span class="ident">text</span>::<span class="ident">BG_COLOR</span>,
             <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>),
         )]);
-        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="self">self</span>.<span class="ident">calculate_text</span>().<span class="ident">render_to_batch</span>(<span class="ident">g</span>.<span class="ident">prerender</span>));
+        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="self">self</span>.<span class="ident">calculate_text</span>().<span class="ident">render_autocropped</span>(<span class="ident">g</span>));
         <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
         <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="ident">draw</span>);
     }
