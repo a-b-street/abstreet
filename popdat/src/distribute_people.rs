@@ -28,7 +28,7 @@ pub fn assign_people_to_houses(
         let pct_overlap = Polygon::union_all(area.polygon.intersection(map.get_boundary_polygon()))
             .area()
             / area.polygon.area();
-        let num_residents = (pct_overlap * (area.total_population as f64)) as usize;
+        let num_residents = (pct_overlap * (area.population as f64)) as usize;
         debug!(
             "Distributing {} residents to {} buildings. {}% of this area overlapped with the map, \
              scaled residents accordingly.",

@@ -10,7 +10,7 @@ abstutil = { path = "../abstutil" }
 earcutr = { git = "https://github.com/donbright/earcutr" }
 geo = "0.15.0"
 geo-booleanop = "= 0.3.2"
-geojson = "0.20.1"
+geojson = "0.21.0"
 histogram = "0.6.9"
 instant = "0.1.7"
 ordered-float = { version = "2.0.0", features=["serde"] }

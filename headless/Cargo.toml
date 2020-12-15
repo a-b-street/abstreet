@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-geojson = "0.20.1"
+geojson = "0.21.0"
 geom = { path = "../geom" }
 hyper = "0.13.9"
 lazy_static = "1.4.0"

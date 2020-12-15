@@ -9,8 +9,8 @@ default = ["map_gui/native", "widgetry/native-backend"]
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-contour = { git = "https://github.com/dabreegster/contour-rs" }
-geojson = "0.20.1"
+contour = "0.3.0"
+geojson = "0.21.0"
 geom = { path = "../geom" }
 log = "0.4"
 map_gui = { path = "../map_gui" }

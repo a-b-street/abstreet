@@ -18,10 +18,13 @@
 //! 4) Pick specific buildings to visit to satisfy the Schedule.
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use rand_xorshift::XorShiftRng;
 
+use abstutil::Timer;
 use geom::Polygon;
 use geom::{Distance, Time};
 use map_model::{BuildingID, Map};
@@ -38,7 +41,7 @@ mod make_person;
 /// have two overlapping areas.
 pub struct CensusArea {
     pub polygon: Polygon,
-    pub total_population: usize,
+    pub population: usize,
     // TODO Not sure what goes here, whatever census data actually has that could be useful
 }
 
@@ -105,10 +108,17 @@ pub fn generate_scenario(
 ) -> Result<Scenario, String> {
     // find_data_for_map may return an error. If so, just plumb it back to the caller using the ?
     // operator
-    let areas = CensusArea::find_data_for_map(map)?;
+    let mut timer = Timer::new("generate census scenario");
+    timer.start("building population areas for map");
+    let areas = CensusArea::find_data_for_map(map, &mut timer).map_err(|e| e.to_string())?;
+    timer.stop("building population areas for map");
+
+    timer.start("assigning people to houses");
     let people = distribute_people::assign_people_to_houses(areas, map, rng, &config);
+    timer.stop("assigning people to houses");
 
     let mut scenario = Scenario::empty(map, scenario_name);
+    timer.start("building people");
     for person in people {
         // TODO If we need to parallelize because make_person is slow, the sim crate has a fork_rng
         // method that could be useful
@@ -116,5 +126,6 @@ pub fn generate_scenario(
             .people
             .push(make_person::make_person(person, map, rng, &config));
     }
+    timer.stop("building people");
     Ok(scenario)
 }
