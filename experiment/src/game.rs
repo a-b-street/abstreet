@@ -338,6 +338,7 @@ impl State<App> for Game {
             if let Some(dt) = ctx.input.nonblocking_is_update_event() {
                 app.time += dt;
                 self.animator.event(ctx, app.time);
+                self.snow.event(ctx, app.time);
                 self.player.override_pos(self.player.get_pos().project_away(
                     dt * self.state.vehicle.normal_speed,
                     self.player.get_angle().opposite(),

@@ -408,7 +408,7 @@ impl ColorScheme {
         cs.unzoomed_residential = cs.driving_lane;
         cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
 
-        cs.panel_bg = Color::hex("#003046").alpha(0.8);
+        cs.panel_bg = Color::hex("#003046").alpha(0.9);
         cs.gui_style.panel_bg = cs.panel_bg;
         cs.inner_panel = cs.panel_bg;
         cs.minimap_cursor_border = Color::WHITE;
