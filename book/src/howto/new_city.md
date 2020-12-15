@@ -79,6 +79,8 @@ use it as well.
 
 7.  Update `.gitignore` and `data/regen.sh`, following `tel_aviv` as an example.
 
+8.  Fill out `nice_map_name` in `map_gui/src/tools/mod.rs`.
+
 Send a PR with your changes! I'll generate everything and make it work with
 `updater`, so most people don't have to build everything from scratch.
 

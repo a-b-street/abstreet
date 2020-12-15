@@ -196,6 +196,50 @@
       "checksum": "611fd252dc503d8ff7f4c62182821c85",
       "size_bytes": 241244
     },
+    "data/input/salzburg/footways.bin": {
+      "checksum": "44083ff1b9ebe01c84d2545e427d8ae2",
+      "size_bytes": 501316
+    },
+    "data/input/salzburg/osm/austria-latest.osm.pbf": {
+      "checksum": "53a70dc6134b6370502218b9f2f5ecf2",
+      "size_bytes": 631097048
+    },
+    "data/input/salzburg/osm/east.osm": {
+      "checksum": "39da899991664fdf28007c9891f07ef7",
+      "size_bytes": 11994259
+    },
+    "data/input/salzburg/osm/north.osm": {
+      "checksum": "d3ebaeff3f7b3628cde1a1f5719224a5",
+      "size_bytes": 23422428
+    },
+    "data/input/salzburg/osm/south.osm": {
+      "checksum": "6bc842dad1a5646ca6c319dcc58ec2cf",
+      "size_bytes": 19330391
+    },
+    "data/input/salzburg/osm/west.osm": {
+      "checksum": "7bfabc548c0401bfa84f8740922e8d9a",
+      "size_bytes": 50703065
+    },
+    "data/input/salzburg/raw_maps/east.bin": {
+      "checksum": "1815584eee168e1a01944f856e85af26",
+      "size_bytes": 1534755
+    },
+    "data/input/salzburg/raw_maps/north.bin": {
+      "checksum": "8e81e256be865d5478a35c12e781bacd",
+      "size_bytes": 3551913
+    },
+    "data/input/salzburg/raw_maps/south.bin": {
+      "checksum": "4651361faee759ceee5bdbcc45e7be89",
+      "size_bytes": 3478945
+    },
+    "data/input/salzburg/raw_maps/west.bin": {
+      "checksum": "c50ba43c1e73d7c4206428ae7385a4cd",
+      "size_bytes": 8498059
+    },
+    "data/input/salzburg/service_roads.bin": {
+      "checksum": "6d2bdc62eb7ae9cc8ce57714b086ae09",
+      "size_bytes": 527270
+    },
     "data/input/seattle/N47W122.hgt": {
       "checksum": "0db4e23e51f7680538b0bbbc72208e07",
       "size_bytes": 25934402
@@ -519,6 +563,26 @@
     "data/system/paris/maps/west.bin": {
       "checksum": "ad68b60eb16e0ac74a5755713a517160",
       "size_bytes": 44754109
+    },
+    "data/system/salzburg/city.bin": {
+      "checksum": "b6391bf5249fdaa7d506f7209561684c",
+      "size_bytes": 823575
+    },
+    "data/system/salzburg/maps/east.bin": {
+      "checksum": "4fe372a0ef0b924fa73ff56327e77f8c",
+      "size_bytes": 3566200
+    },
+    "data/system/salzburg/maps/north.bin": {
+      "checksum": "0e510d49c50b5c26644cc715a0355ab8",
+      "size_bytes": 8499366
+    },
+    "data/system/salzburg/maps/south.bin": {
+      "checksum": "c0293ea1ee18e5d7530133fe3ff9ea25",
+      "size_bytes": 7611348
+    },
+    "data/system/salzburg/maps/west.bin": {
+      "checksum": "5dbdfe932d2ee212157e1001ec6a088a",
+      "size_bytes": 20770984
     },
     "data/system/seattle/city.bin": {
       "checksum": "87545752f96e85f82b6bdeef0891e128",

@@ -506,7 +506,21 @@ impl From<Polygon> for geo::Polygon<f64> {
 }
 
 fn from_multi(multi: geo::MultiPolygon<f64>) -> Vec<Polygon> {
-    multi.into_iter().map(Polygon::from).collect()
+    // TODO This should just call Polygon::from, but while importing maps, it seems like
+    // intersection() is hitting non-Ring cases that crash. So keep using buggy_new for now.
+    multi
+        .into_iter()
+        .map(|p| {
+            let pts = p
+                .into_inner()
+                .0
+                .into_points()
+                .into_iter()
+                .map(|pt| Pt2D::new(pt.x(), pt.y()))
+                .collect();
+            Polygon::buggy_new(pts)
+        })
+        .collect()
 }
 
 fn downsize(input: Vec<usize>) -> Vec<u16> {
