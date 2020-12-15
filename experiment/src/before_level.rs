@@ -10,8 +10,8 @@ use map_gui::load::MapLoader;
 use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
-    Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
@@ -30,6 +30,7 @@ pub struct Picker {
     level: Level,
     bldgs: Buildings,
     current_picks: HashSet<BuildingID>,
+    draw_start: Drawable,
 }
 
 impl Picker {
@@ -40,22 +41,22 @@ impl Picker {
             level.map.clone(),
             Box::new(move |ctx, app| {
                 ctx.canvas.cam_zoom = ZOOM;
-                ctx.canvas.center_on_map_pt(app.map.get_bounds().center());
+                let start = app
+                    .map
+                    .get_i(app.map.find_i_by_osm_id(level.start).unwrap())
+                    .polygon
+                    .center();
+                ctx.canvas.center_on_map_pt(start);
 
                 let bldgs = Buildings::new(ctx, app, HashSet::new());
 
                 let mut txt = Text::new();
-                txt.add(Line(format!("Prepare for {}", level.title)).small_heading());
+                txt.add(Line(format!("Ready for {}?", level.title)).small_heading());
                 txt.add(Line(format!(
-                    "Goal: deliver {} presents in {}",
-                    prettyprint_usize(level.goal),
-                    level.time_limit
+                    "Goal: deliver {} presents",
+                    prettyprint_usize(level.goal)
                 )));
-                txt.add_appended(vec![
-                    Line("Use the "),
-                    Line("arrow keys").fg(ctx.style().hotkey_color),
-                    Line(" to move"),
-                ]);
+                txt.add(Line(format!("Time limit: {}", level.time_limit)));
                 txt.add_appended(vec![
                     Line("Deliver presents to "),
                     Line("single-family homes").fg(app.cs.residential_building),
@@ -67,15 +68,46 @@ impl Picker {
                     Line("stores").fg(app.session.colors.store),
                 ]);
 
+                let instructions_panel = Panel::new(Widget::col(vec![
+                    txt.draw(ctx),
+                    Widget::row(vec![
+                        Widget::draw_svg(ctx, "system/assets/tools/arrow_keys.svg"),
+                        Text::from_all(vec![
+                            Line("arrow keys").fg(ctx.style().hotkey_color),
+                            Line(" to move"),
+                        ])
+                        .draw(ctx),
+                    ]),
+                    Widget::row(vec![
+                        Widget::draw_svg(ctx, "system/assets/tools/mouse.svg"),
+                        Text::from_all(vec![
+                            Line("mouse scroll wheel or touchpad").fg(ctx.style().hotkey_color),
+                            Line(" to zoom in or out"),
+                        ])
+                        .draw(ctx),
+                    ]),
+                    Text::from_all(vec![
+                        Line("Escape key").fg(ctx.style().hotkey_color),
+                        Line(" to pause"),
+                    ])
+                    .draw(ctx),
+                ]))
+                .aligned(HorizontalAlignment::Center, VerticalAlignment::BottomInset)
+                .build(ctx);
+
+                let draw_start = GeomBatch::load_svg(ctx, "system/assets/timeline/start_pos.svg")
+                    .scale(3.0)
+                    .color(RewriteColor::ChangeAll(Color::RED))
+                    .centered_on(start);
+
                 Transition::Replace(Box::new(Picker {
                     vehicle_panel: make_vehicle_panel(ctx, app),
                     upzone_panel: make_upzone_panel(ctx, app, 0),
-                    instructions_panel: Panel::new(txt.draw(ctx).container())
-                        .aligned(HorizontalAlignment::Center, VerticalAlignment::BottomInset)
-                        .build(ctx),
+                    instructions_panel,
                     level,
                     bldgs,
                     current_picks: HashSet::new(),
+                    draw_start: ctx.upload(draw_start),
                 }))
             }),
         )
@@ -169,6 +201,7 @@ impl State<App> for Picker {
         if let Some(ID::Building(b)) = app.current_selection {
             g.draw_polygon(app.cs.selected, app.map.get_b(b).polygon.clone());
         }
+        g.redraw(&self.draw_start);
     }
 }
 
