@@ -68,6 +68,7 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
+<span id="68">68</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">popdat</span>::<span class="ident">Config</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -115,7 +116,8 @@
                         <span class="ident">config</span>,
                         <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>(),
-                    );
+                    )
+                    .<span class="ident">expect</span>(<span class="string">&quot;failed to generate scenario&quot;</span>);
                     <span class="comment">// TODO Do something with it -- save it, launch it in sandboxmode, display some</span>
                     <span class="comment">// stats about it?</span>
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;

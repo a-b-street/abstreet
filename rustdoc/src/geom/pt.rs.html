@@ -185,6 +185,33 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -368,6 +395,33 @@
 <span class="kw">impl</span> <span class="ident">HashablePt2D</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_pt2d</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">x_nan</span>.<span class="ident">into_inner</span>(), <span class="self">self</span>.<span class="ident">y_nan</span>.<span class="ident">into_inner</span>())
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo</span>::<span class="ident">Coordinate</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">geo</span>::<span class="ident">Coordinate</span> {
+            <span class="ident">x</span>: <span class="ident">pt</span>.<span class="ident">inner_x</span>,
+            <span class="ident">y</span>: <span class="ident">pt</span>.<span class="ident">inner_y</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo</span>::<span class="ident">Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">geo</span>::<span class="ident">Point</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">inner_x</span>, <span class="ident">pt</span>.<span class="ident">inner_y</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo</span>::<span class="ident">Coordinate</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pt2D</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">coord</span>: <span class="ident">geo</span>::<span class="ident">Coordinate</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">coord</span>.<span class="ident">x</span>, <span class="ident">coord</span>.<span class="ident">y</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo</span>::<span class="ident">Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pt2D</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">point</span>: <span class="ident">geo</span>::<span class="ident">Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">point</span>.<span class="ident">x</span>(), <span class="ident">point</span>.<span class="ident">y</span>())
     }
 }
 </pre></div>

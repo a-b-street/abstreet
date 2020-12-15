@@ -505,6 +505,24 @@
 <span id="502">502</span>
 <span id="503">503</span>
 <span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -812,7 +830,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convex_hull</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo</span>::<span class="ident">MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">to_geo</span>(<span class="ident">p</span>.<span class="ident">points</span>())).<span class="ident">collect</span>();
-        <span class="ident">from_geo</span>(<span class="ident">mp</span>.<span class="ident">convex_hull</span>())
+        <span class="ident">mp</span>.<span class="ident">convex_hull</span>().<span class="ident">into</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
@@ -984,19 +1002,37 @@
     )
 }
 
-<span class="kw">fn</span> <span class="ident">from_geo</span>(<span class="ident">p</span>: <span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-    <span class="ident">Polygon</span>::<span class="ident">buggy_new</span>(
-        <span class="ident">p</span>.<span class="ident">into_inner</span>()
-            .<span class="number">0</span>
-            .<span class="ident">into_points</span>()
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
-            .<span class="ident">collect</span>(),
-    )
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> (<span class="ident">exterior</span>, <span class="ident">interiors</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">into_inner</span>();
+        <span class="ident">Polygon</span>::<span class="ident">with_holes</span>(
+            <span class="ident">Ring</span>::<span class="ident">from</span>(<span class="ident">exterior</span>),
+            <span class="ident">interiors</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Ring</span>::<span class="ident">from</span>).<span class="ident">collect</span>(),
+        )
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">Polygon</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rings</span> {
+            <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">pop</span>().<span class="ident">expect</span>(<span class="string">&quot;expected poly.rings[0] to be exterior&quot;</span>);
+            <span class="kw">let</span> <span class="ident">interiors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo</span>::<span class="ident">LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+                <span class="ident">rings</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">geo</span>::<span class="ident">LineString</span>::<span class="ident">from</span>).<span class="ident">collect</span>();
+            <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">exterior</span>.<span class="ident">into</span>(), <span class="ident">interiors</span>)
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="ident">exterior_coords</span> <span class="op">=</span> <span class="ident">poly</span>
+                .<span class="ident">points</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="ident">geo</span>::<span class="ident">Coordinate</span>::<span class="ident">from</span>)
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+            <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">geo</span>::<span class="ident">LineString</span>(<span class="ident">exterior_coords</span>);
+            <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">exterior</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+        }
+    }
 }
 
 <span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo</span>::<span class="ident">MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-    <span class="ident">multi</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">from_geo</span>).<span class="ident">collect</span>()
+    <span class="ident">multi</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Polygon</span>::<span class="ident">from</span>).<span class="ident">collect</span>()
 }
 
 <span class="kw">fn</span> <span class="ident">downsize</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {

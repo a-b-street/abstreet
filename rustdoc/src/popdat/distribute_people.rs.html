@@ -99,7 +99,7 @@
         <span class="kw">let</span> <span class="ident">pct_overlap</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">union_all</span>(<span class="ident">area</span>.<span class="ident">polygon</span>.<span class="ident">intersection</span>(<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>()))
             .<span class="ident">area</span>()
             <span class="op">/</span> <span class="ident">area</span>.<span class="ident">polygon</span>.<span class="ident">area</span>();
-        <span class="kw">let</span> <span class="ident">num_residents</span> <span class="op">=</span> (<span class="ident">pct_overlap</span> <span class="op">*</span> (<span class="ident">area</span>.<span class="ident">total_population</span> <span class="kw">as</span> <span class="ident">f64</span>)) <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="kw">let</span> <span class="ident">num_residents</span> <span class="op">=</span> (<span class="ident">pct_overlap</span> <span class="op">*</span> (<span class="ident">area</span>.<span class="ident">population</span> <span class="kw">as</span> <span class="ident">f64</span>)) <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="macro">debug</span><span class="macro">!</span>(
             <span class="string">&quot;Distributing {} residents to {} buildings. {}% of this area overlapped with the map, \
              scaled residents accordingly.&quot;</span>,
