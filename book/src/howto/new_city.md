@@ -19,7 +19,7 @@ available to other users yet.
   `import.sh` directly, changing the `$@` at the end to `--oneshot=map.osm` or
   whatever arguments you're passing in.
 
-The oneshot importer will will generate a new file in `data/system/oneshot/maps`
+The oneshot importer will generate a new file in `data/system/oneshot/maps`
 that you can then load in the game. If you have an Osmosis polygon filter (see
 below), you can also pass `--oneshot_clip=clip.poly` to improve the result. You
 should first make sure your .osm has been clipped:
