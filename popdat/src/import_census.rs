@@ -1,9 +1,12 @@
-use crate::CensusArea;
-use abstutil::Timer;
+use std::convert::TryFrom;
+
 use geo::algorithm::intersects::Intersects;
 use geojson::GeoJson;
+
+use abstutil::Timer;
 use map_model::Map;
-use std::convert::TryFrom;
+
+use crate::CensusArea;
 
 impl CensusArea {
     pub fn find_data_for_map(map: &Map, timer: &mut Timer) -> anyhow::Result<Vec<CensusArea>> {

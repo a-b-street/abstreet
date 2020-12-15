@@ -18,10 +18,9 @@
 //! 4) Pick specific buildings to visit to satisfy the Schedule.
 
 #[macro_use]
-extern crate log;
-
-#[macro_use]
 extern crate anyhow;
+#[macro_use]
+extern crate log;
 
 use rand_xorshift::XorShiftRng;
 
