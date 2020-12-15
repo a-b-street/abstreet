@@ -122,7 +122,11 @@ pub fn generate_scenario(
     scenario.people.extend(make_person::make_people(
         people, map, &mut timer, rng, &config,
     ));
-
     timer.stop("building people");
+
+    timer.start("removing weird schedules");
+    scenario = scenario.remove_weird_schedules();
+    timer.stop("removing weird schedules");
+
     Ok(scenario)
 }
