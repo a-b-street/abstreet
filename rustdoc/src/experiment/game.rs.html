@@ -1073,7 +1073,7 @@
         <span class="kw">if</span> <span class="bool-val">true</span> {
             <span class="self">self</span>.<span class="ident">state</span>
                 .<span class="ident">vehicle</span>
-                .<span class="ident">animate</span>(<span class="ident">g</span>, <span class="ident">app</span>.<span class="ident">time</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">idle_time</span>)
+                .<span class="ident">animate</span>(<span class="ident">g</span>.<span class="ident">prerender</span>, <span class="ident">app</span>.<span class="ident">time</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">idle_time</span>)
                 .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>())
                 .<span class="ident">rotate_around_batch_center</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_angle</span>())
                 .<span class="ident">draw</span>(<span class="ident">g</span>);

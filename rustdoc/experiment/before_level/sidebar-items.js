@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ZOOM",""]],"struct":[["Picker",""]]});
+initSidebarItems({"constant":[["ZOOM",""]],"fn":[["make_vehicle_panel",""]],"struct":[["Picker",""]]});
