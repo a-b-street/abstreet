@@ -523,6 +523,20 @@
 <span id="520">520</span>
 <span id="521">521</span>
 <span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1032,7 +1046,21 @@
 }
 
 <span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo</span>::<span class="ident">MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-    <span class="ident">multi</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Polygon</span>::<span class="ident">from</span>).<span class="ident">collect</span>()
+    <span class="comment">// TODO This should just call Polygon::from, but while importing maps, it seems like</span>
+    <span class="comment">// intersection() is hitting non-Ring cases that crash. So keep using buggy_new for now.</span>
+    <span class="ident">multi</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">p</span>
+                .<span class="ident">into_inner</span>()
+                .<span class="number">0</span>
+                .<span class="ident">into_points</span>()
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
+                .<span class="ident">collect</span>();
+            <span class="ident">Polygon</span>::<span class="ident">buggy_new</span>(<span class="ident">pts</span>)
+        })
+        .<span class="ident">collect</span>()
 }
 
 <span class="kw">fn</span> <span class="ident">downsize</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
