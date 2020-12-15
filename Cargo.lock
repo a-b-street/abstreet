@@ -561,7 +561,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "059e75b593068b026cb434c0140dd6a4557c1824ee029d5d3414fc77ecbe8494"
 dependencies = [
- "geojson",
+ "geojson 0.21.0",
  "lazy_static",
  "rustc-hash",
  "serde_json",
@@ -987,7 +987,7 @@ version = "0.1.0"
 dependencies = [
  "abstutil",
  "contour",
- "geojson",
+ "geojson 0.21.0",
  "geom",
  "log",
  "map_gui",
@@ -1229,7 +1229,7 @@ dependencies = [
  "contour",
  "downcast-rs",
  "enumset",
- "geojson",
+ "geojson 0.21.0",
  "geom",
  "instant",
  "kml",
@@ -1383,6 +1383,17 @@ dependencies = [
 
 [[package]]
 name = "geojson"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2b6970b36b77807a4ea232fcbc13b29026eab7c7e906500446c1e03d16f43af"
+dependencies = [
+ "num-traits 0.2.14",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "geojson"
 version = "0.21.0"
 source = "git+https://github.com/georust/geojson?branch=mkirk/try_from#ac0429218756af96c379a8701383ef4d36d78779"
 dependencies = [
@@ -1402,7 +1413,7 @@ dependencies = [
  "earcutr",
  "geo 0.15.0",
  "geo-booleanop",
- "geojson",
+ "geojson 0.21.0",
  "histogram",
  "instant",
  "ordered-float",
@@ -1419,6 +1430,19 @@ dependencies = [
  "async-trait",
  "seek_bufread",
  "thiserror",
+]
+
+[[package]]
+name = "geozero-core"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a014cc8c23c30539692ca943bd00ccdef79a5447a7fb6e58920083782192d3b"
+dependencies = [
+ "bytes",
+ "geo-types 0.6.2",
+ "geojson 0.18.0",
+ "geozero",
+ "scroll",
 ]
 
 [[package]]
@@ -1582,7 +1606,7 @@ name = "headless"
 version = "0.1.0"
 dependencies = [
  "abstutil",
- "geojson",
+ "geojson 0.21.0",
  "geom",
  "hyper",
  "lazy_static",
@@ -1775,7 +1799,7 @@ dependencies = [
  "convert_osm",
  "csv",
  "gdal",
- "geojson",
+ "geojson 0.21.0",
  "geom",
  "kml",
  "map_model",
@@ -2151,7 +2175,7 @@ dependencies = [
  "flate2",
  "futures",
  "futures-channel",
- "geojson",
+ "geojson 0.21.0",
  "geom",
  "instant",
  "js-sys",
@@ -2876,8 +2900,9 @@ dependencies = [
  "anyhow",
  "flatgeobuf",
  "geo 0.16.0",
- "geojson",
+ "geojson 0.21.0",
  "geom",
+ "geozero-core",
  "log",
  "map_model",
  "rand",
@@ -3304,6 +3329,12 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+
+[[package]]
+name = "scroll"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fda28d4b4830b807a8b43f7b0e6b5df875311b3e7621d84577188c175b6ec1ec"
 
 [[package]]
 name = "sct"

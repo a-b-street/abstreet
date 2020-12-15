@@ -10,6 +10,7 @@ anyhow = "1.0.35"
 flatgeobuf = { version = "*", path = "../../../georust/flatgeobuf/src/rust" }
 # flatgeobuf = { version = "*" }
 geo = "0.16.0"
+geozero-core = { version = "0.5.1" }
 geojson = { version = "0.21.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 log = "0.4.11"

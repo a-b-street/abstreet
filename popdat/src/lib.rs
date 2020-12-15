@@ -39,6 +39,7 @@ mod make_person;
 /// blocks, depending what data we find. All of the areas should roughly partition the map -- we
 /// probably don't need to guarantee we cover every single building, but we definitely shouldn't
 /// have two overlapping areas.
+#[derive(Debug, PartialEq)]
 pub struct CensusArea {
     pub polygon: Polygon,
     pub population: usize,
