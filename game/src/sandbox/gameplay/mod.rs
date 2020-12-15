@@ -118,6 +118,12 @@ impl GameplayMode {
             LoadScenario::Scenario(ScenarioGenerator::small_run(map).generate(map, &mut rng, timer))
         } else if name == "home_to_work" {
             LoadScenario::Scenario(ScenarioGenerator::proletariat_robot(map, &mut rng, timer))
+        } else if name == "census" {
+            let config = popdat::Config::default();
+            LoadScenario::Scenario(
+                popdat::generate_scenario("typical monday", config, map, &mut rng)
+                    .expect("unable to build census scenario"),
+            )
         } else {
             LoadScenario::Path(abstutil::path_scenario(map.get_name(), &name))
         }

@@ -294,7 +294,7 @@ impl Scenario {
                 false
             }
         });
-        println!(
+        warn!(
             "{} of {} people have nonsense schedules",
             prettyprint_usize(orig - self.people.len()),
             prettyprint_usize(orig)

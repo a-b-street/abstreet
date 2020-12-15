@@ -68,7 +68,7 @@ pub struct Schedule {
 
 /// Different things people might do in the day. Maybe it's more clear to call this a
 /// DestinationType or similar.
-#[derive(Clone, Copy, Debug)]
+#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Activity {
     Breakfast,
     Lunch,
@@ -119,13 +119,14 @@ pub fn generate_scenario(
 
     let mut scenario = Scenario::empty(map, scenario_name);
     timer.start("building people");
-    for person in people {
-        // TODO If we need to parallelize because make_person is slow, the sim crate has a fork_rng
-        // method that could be useful
-        scenario
-            .people
-            .push(make_person::make_person(person, map, rng, &config));
-    }
+    scenario.people.extend(make_person::make_people(
+        people, map, &mut timer, rng, &config,
+    ));
     timer.stop("building people");
+
+    timer.start("removing weird schedules");
+    scenario = scenario.remove_weird_schedules();
+    timer.stop("removing weird schedules");
+
     Ok(scenario)
 }

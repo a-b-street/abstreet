@@ -196,12 +196,6 @@ pub fn make_change_traffic(
         &btn,
         choices,
         Box::new(|scenario_name, ctx, app| {
-            if scenario_name == "census" {
-                return Transition::Push(crate::sandbox::gameplay::census::CensusGenerator::new(
-                    ctx,
-                ));
-            }
-
             Transition::Multi(vec![
                 Transition::Pop,
                 Transition::Replace(SandboxMode::simple_new(

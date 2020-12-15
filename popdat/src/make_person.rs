@@ -1,28 +1,22 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
+use abstutil::{Parallelism, Timer};
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest};
 use sim::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
 use crate::{Activity, CensusPerson, Config};
 
-pub fn make_person(
-    person: CensusPerson,
+pub fn make_people(
+    people: Vec<CensusPerson>,
     map: &Map,
+    timer: &mut Timer,
     rng: &mut XorShiftRng,
     config: &Config,
-) -> PersonSpec {
-    let schedule = person.generate_schedule(config, rng);
-
-    let mut output = PersonSpec {
-        orig_id: None,
-        origin: TripEndpoint::Bldg(person.home),
-        trips: Vec::new(),
-    };
-
+) -> Vec<PersonSpec> {
     // Only consider two-way intersections, so the agent can return the same way
     // they came.
     // TODO: instead, if it's not a two-way border, we should find an intersection
@@ -35,124 +29,193 @@ pub fn make_person(
         .filter(|b| b.is_incoming_border())
         .map(|b| b.id)
         .collect();
+
     // TODO Where should we validate that at least one border exists? Probably in
     // generate_scenario, at minimum.
 
-    let mut current_location = TripEndpoint::Bldg(person.home);
-    for (departure_time, activity) in schedule.activities {
-        // TODO This field isn't that important; later we could map Activity to a TripPurpose
-        // better.
-        let purpose = TripPurpose::Shopping;
-
-        let goto = if let Some(destination) =
-            find_building_for_activity(activity, current_location, map, rng)
-        {
-            TripEndpoint::Bldg(destination)
-        } else {
-            // No buildings satisfy the activity. Just go somewhere off-map.
-            TripEndpoint::Border(*commuter_borders.choose(rng).unwrap())
-        };
-
-        let mode = pick_mode(current_location, goto, map, rng, config);
-        output
-            .trips
-            .push(IndividTrip::new(departure_time, purpose, goto, mode));
-
-        current_location = goto;
-    }
-
-    output
+    let person_factory = PersonFactory::new(map);
+    let make_person_inputs = people
+        .into_iter()
+        .map(|person| (person, sim::fork_rng(rng)))
+        .collect();
+    timer.parallelize(
+        "making people in parallel",
+        Parallelism::Fastest,
+        make_person_inputs,
+        |(person, mut rng)| {
+            person_factory.make_person(person, map, &commuter_borders, &mut rng, &config)
+        },
+    )
 }
 
-fn find_building_for_activity(
-    activity: Activity,
-    _start: TripEndpoint,
-    map: &Map,
-    _rng: &mut XorShiftRng,
-) -> Option<BuildingID> {
-    // What types of OpenStreetMap amenities will satisfy each activity?
-    let categories: HashSet<&'static str> = match activity {
-        Activity::Breakfast => vec!["cafe"],
-        Activity::Lunch => vec!["pub", "food_court", "fast_food"],
-        Activity::Dinner => vec!["restaurant", "theatre", "biergarten"],
-        Activity::School => vec![
-            "college",
-            "kindergarten",
-            "language_school",
-            "library",
-            "music_school",
-            "university",
-        ],
-        Activity::Entertainment => vec![
-            "arts_centre",
-            "casino",
-            "cinema",
-            "community_centre",
-            "fountain",
-            "gambling",
-            "nightclub",
-            "planetarium",
-            "public_bookcase",
-            "pool",
-            "dojo",
-            "social_centre",
-            "social_centre",
-            "studio",
-            "theatre",
-            "bar",
-            "bbq",
-            "bicycle_rental",
-            "boat_rental",
-            "boat_sharing",
-            "dive_centre",
-            "internet_cafe",
-        ],
-        Activity::Errands => vec![
-            "marketplace",
-            "post_box",
-            "photo_booth",
-            "recycling",
-            "townhall",
-        ],
-        Activity::Financial => vec!["bank", "atm", "bureau_de_change"],
-        Activity::Healthcare => vec![
-            "baby_hatch",
-            "clinic",
-            "dentist",
-            "doctors",
-            "hospital",
-            "nursing_home",
-            "pharmacy",
-            "social_facility",
-            "veterinary",
-            "childcare",
-        ],
-        Activity::Work => vec!["bank", "clinic"],
-        // TODO Fill this out. amenity_type in map_gui/src/tools/mod.rs might be helpful. It might
-        // also be helpful to edit the list of possible activities in lib.rs too.
-        _ => vec![],
-    }
-    .into_iter()
-    .collect();
+struct PersonFactory {
+    activity_to_buildings: HashMap<Activity, Vec<BuildingID>>,
+}
 
-    // Find all buildings with a matching amenity
-    let mut candidates: Vec<BuildingID> = Vec::new();
-    for b in map.all_buildings() {
-        for amenity in &b.amenities {
-            if categories.contains(amenity.amenity_type.as_str()) {
-                candidates.push(b.id);
-            }
+impl PersonFactory {
+    fn new(map: &Map) -> Self {
+        let activity_to_buildings = Self::activity_to_buildings(map);
+        Self {
+            activity_to_buildings,
         }
     }
 
-    // TODO If there are several choices of building that satisfy an activity, which one will
-    // someone choose? One simple approach could just calculate the difficulty of going from the
-    // previous location (starting from home) to that place, using some mode of travel. Then either
-    // pick the closest choice, or even better, randomize, but weight based on the cost of getting
-    // there. map.pathfind() may be helpful.
+    fn activity_to_buildings(map: &Map) -> HashMap<Activity, Vec<BuildingID>> {
+        // What types of OpenStreetMap amenities will satisfy each activity?
+        let categories = vec![
+            (Activity::Breakfast, vec!["cafe"]),
+            (Activity::Lunch, vec!["pub", "food_court", "fast_food"]),
+            (
+                Activity::Dinner,
+                vec!["restaurant", "theatre", "biergarten"],
+            ),
+            (
+                Activity::School,
+                vec![
+                    "college",
+                    "kindergarten",
+                    "language_school",
+                    "library",
+                    "music_school",
+                    "university",
+                ],
+            ),
+            (
+                Activity::Entertainment,
+                vec![
+                    "arts_centre",
+                    "casino",
+                    "cinema",
+                    "community_centre",
+                    "fountain",
+                    "gambling",
+                    "nightclub",
+                    "planetarium",
+                    "public_bookcase",
+                    "pool",
+                    "dojo",
+                    "social_centre",
+                    "social_centre",
+                    "studio",
+                    "theatre",
+                    "bar",
+                    "bbq",
+                    "bicycle_rental",
+                    "boat_rental",
+                    "boat_sharing",
+                    "dive_centre",
+                    "internet_cafe",
+                ],
+            ),
+            (
+                Activity::Errands,
+                vec![
+                    "marketplace",
+                    "post_box",
+                    "photo_booth",
+                    "recycling",
+                    "townhall",
+                ],
+            ),
+            (Activity::Financial, vec!["bank", "atm", "bureau_de_change"]),
+            (
+                Activity::Healthcare,
+                vec![
+                    "baby_hatch",
+                    "clinic",
+                    "dentist",
+                    "doctors",
+                    "hospital",
+                    "nursing_home",
+                    "pharmacy",
+                    "social_facility",
+                    "veterinary",
+                    "childcare",
+                ],
+            ),
+            (Activity::Work, vec!["bank", "clinic"]),
+        ];
 
-    // For now, just pick the first choice arbitrarily
-    candidates.get(0).cloned()
+        // TODO Others to fill out. amenity_type in map_gui/src/tools/mod.rs might be helpful. It
+        // might also be helpful to edit the list of possible activities in lib.rs too.
+
+        // Find all buildings with a matching amenity
+        let mut candidates: HashMap<Activity, Vec<BuildingID>> = HashMap::new();
+        for b in map.all_buildings() {
+            for (activity, categories) in &categories {
+                for amenity in &b.amenities {
+                    if categories.contains(&amenity.amenity_type.as_str()) {
+                        candidates
+                            .entry(*activity)
+                            .and_modify(|v| v.push(b.id))
+                            .or_insert(vec![b.id]);
+                    }
+                }
+            }
+        }
+        candidates
+    }
+
+    fn find_building_for_activity(
+        &self,
+        activity: Activity,
+        _start: TripEndpoint,
+        _map: &Map,
+        rng: &mut XorShiftRng,
+    ) -> Option<BuildingID> {
+        // TODO If there are several choices of building that satisfy an activity, which one will
+        // someone choose? One simple approach could just calculate the difficulty of going from the
+        // previous location (starting from home) to that place, using some mode of travel. Then
+        // either pick the closest choice, or even better, randomize, but weight based on
+        // the cost of getting there. map.pathfind() may be helpful.
+
+        // For now, just pick a random one
+        self.activity_to_buildings
+            .get(&activity)
+            .and_then(|buildings| buildings.choose(rng).cloned())
+    }
+
+    pub fn make_person(
+        &self,
+        person: CensusPerson,
+        map: &Map,
+        commuter_borders: &Vec<IntersectionID>,
+        rng: &mut XorShiftRng,
+        config: &Config,
+    ) -> PersonSpec {
+        let schedule = person.generate_schedule(config, rng);
+
+        let mut output = PersonSpec {
+            orig_id: None,
+            origin: TripEndpoint::Bldg(person.home),
+            trips: Vec::new(),
+        };
+
+        let mut current_location = TripEndpoint::Bldg(person.home);
+        for (departure_time, activity) in schedule.activities {
+            // TODO This field isn't that important; later we could map Activity to a TripPurpose
+            // better.
+            let purpose = TripPurpose::Shopping;
+
+            let goto = if let Some(destination) =
+                self.find_building_for_activity(activity, current_location, map, rng)
+            {
+                TripEndpoint::Bldg(destination)
+            } else {
+                // No buildings satisfy the activity. Just go somewhere off-map.
+                TripEndpoint::Border(*commuter_borders.choose(rng).unwrap())
+            };
+
+            let mode = pick_mode(current_location, goto, map, rng, config);
+            output
+                .trips
+                .push(IndividTrip::new(departure_time, purpose, goto, mode));
+
+            current_location = goto;
+        }
+
+        output
+    }
 }
 
 fn pick_mode(
