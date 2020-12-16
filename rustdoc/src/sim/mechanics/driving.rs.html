@@ -1152,6 +1152,27 @@
 <span id="1149">1149</span>
 <span id="1150">1150</span>
 <span id="1151">1151</span>
+<span id="1152">1152</span>
+<span id="1153">1153</span>
+<span id="1154">1154</span>
+<span id="1155">1155</span>
+<span id="1156">1156</span>
+<span id="1157">1157</span>
+<span id="1158">1158</span>
+<span id="1159">1159</span>
+<span id="1160">1160</span>
+<span id="1161">1161</span>
+<span id="1162">1162</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+<span id="1167">1167</span>
+<span id="1168">1168</span>
+<span id="1169">1169</span>
+<span id="1170">1170</span>
+<span id="1171">1171</span>
+<span id="1172">1172</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1159,7 +1180,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_hashmap</span>, <span class="ident">serialize_hashmap</span>, <span class="ident">FixedMap</span>, <span class="ident">IndexableKey</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">Traversable</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">car</span>::{<span class="ident">Car</span>, <span class="ident">CarState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechanics</span>::<span class="ident">Queue</span>;
@@ -1195,6 +1216,8 @@
     <span class="ident">queues</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
     <span class="ident">events</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
 
+    <span class="ident">waiting_to_spawn</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, (<span class="ident">Position</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+
     <span class="ident">recalc_lanechanging</span>: <span class="ident">bool</span>,
     <span class="ident">handle_uber_turns</span>: <span class="ident">bool</span>,
 
@@ -1213,6 +1236,7 @@
             <span class="ident">events</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">recalc_lanechanging</span>: <span class="ident">opts</span>.<span class="ident">recalc_lanechanging</span>,
             <span class="ident">handle_uber_turns</span>: <span class="ident">opts</span>.<span class="ident">handle_uber_turns</span>,
+            <span class="ident">waiting_to_spawn</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
 
             <span class="ident">time_to_unpark_onstreet</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>),
             <span class="ident">time_to_park_onstreet</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">15.0</span>),
@@ -1332,10 +1356,17 @@
                 <span class="comment">// get_idx_to_insert_car does a more detailed check of the current space usage.</span>
                 <span class="ident">queue</span>.<span class="ident">reserved_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>;
             }
+            <span class="self">self</span>.<span class="ident">waiting_to_spawn</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>);
             <span class="self">self</span>.<span class="ident">cars</span>.<span class="ident">insert</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">car</span>);
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(<span class="ident">params</span>)
+    }
+
+    <span class="doccomment">/// If start_car_on_lane fails and a retry is scheduled, this is an idempotent way to mark the</span>
+    <span class="doccomment">/// vehicle as active, but waiting to spawn.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vehicle_waiting_to_spawn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>) {
+        <span class="self">self</span>.<span class="ident">waiting_to_spawn</span>.<span class="ident">insert</span>(<span class="ident">id</span>, (<span class="ident">pos</span>, <span class="ident">person</span>));
     }
 
     <span class="doccomment">/// State transitions for this car:</span>
@@ -1775,6 +1806,8 @@
     <span class="doccomment">/// Abruptly remove a vehicle from the simulation. They may be in any arbitrary state, like in</span>
     <span class="doccomment">/// the middle of a turn or parking.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">c</span>: <span class="ident">CarID</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vehicle</span> {
+        <span class="self">self</span>.<span class="ident">waiting_to_spawn</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>);
+
         <span class="kw">let</span> <span class="ident">dists</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">c</span>].<span class="ident">router</span>.<span class="ident">head</span>()].<span class="ident">get_car_positions</span>(
             <span class="ident">now</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>,
@@ -2074,6 +2107,15 @@
                     <span class="ident">parking</span>: <span class="ident">car</span>.<span class="ident">is_parking</span>(),
                 });
             }
+        }
+
+        <span class="kw">for</span> (<span class="ident">id</span>, (<span class="ident">pos</span>, <span class="ident">person</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">waiting_to_spawn</span> {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">UnzoomedAgent</span> {
+                <span class="ident">id</span>: <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+                <span class="ident">pos</span>: <span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>),
+                <span class="ident">person</span>: <span class="kw-2">*</span><span class="ident">person</span>,
+                <span class="ident">parking</span>: <span class="bool-val">false</span>,
+            });
         }
 
         <span class="ident">result</span>

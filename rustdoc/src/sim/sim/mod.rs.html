@@ -1032,6 +1032,15 @@
 <span id="1029">1029</span>
 <span id="1030">1030</span>
 <span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1538,6 +1547,15 @@
                     {
                         <span class="comment">// Starting the car failed for some reason.</span>
                         <span class="kw">if</span> <span class="ident">retry_if_no_room</span> {
+                            <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">vehicle_waiting_to_spawn</span>(
+                                <span class="ident">id</span>,
+                                <span class="ident">Position</span>::<span class="ident">new</span>(
+                                    <span class="ident">create_car</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>(),
+                                    <span class="ident">create_car</span>.<span class="ident">start_dist</span>,
+                                ),
+                                <span class="ident">trip_and_person</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">p</span>)<span class="op">|</span> <span class="ident">p</span>),
+                            );
+
                             <span class="comment">// TODO Record this in the trip log</span>
                             <span class="self">self</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
                                 <span class="self">self</span>.<span class="ident">time</span> <span class="op">+</span> <span class="ident">BLIND_RETRY_TO_SPAWN</span>,
