@@ -131,18 +131,43 @@ impl Path {
         if false {
             validate_restrictions(map, &steps);
         }
-        // Slightly expensive, but the contraction hierarchy weights aren't distances.
-        let mut total_length = Distance::ZERO;
-        for s in &steps {
-            total_length += s.as_traversable().length(map);
-        }
-        Path {
+        let mut path = Path {
             steps: VecDeque::from(steps),
             orig_req,
-            total_length,
+            total_length: Distance::ZERO,
             crossed_so_far: Distance::ZERO,
             uber_turns: uber_turns.into_iter().collect(),
             currently_inside_ut: None,
+        };
+        for step in &path.steps {
+            path.total_length += path.dist_crossed_from_step(map, step);
+        }
+        path
+    }
+
+    fn dist_crossed_from_step(&self, map: &Map, step: &PathStep) -> Distance {
+        match step {
+            PathStep::Lane(l) => {
+                let lane = map.get_l(*l);
+                if self.orig_req.start.lane() == lane.id {
+                    lane.length() - self.orig_req.start.dist_along()
+                } else if self.orig_req.end.lane() == lane.id {
+                    self.orig_req.end.dist_along()
+                } else {
+                    lane.length()
+                }
+            }
+            PathStep::ContraflowLane(l) => {
+                let lane = map.get_l(*l);
+                if self.orig_req.start.lane() == lane.id {
+                    self.orig_req.start.dist_along()
+                } else if self.orig_req.end.lane() == lane.id {
+                    lane.length() - self.orig_req.end.dist_along()
+                } else {
+                    lane.length()
+                }
+            }
+            PathStep::Turn(t) => map.get_t(*t).geom.length(),
         }
     }
 
@@ -202,7 +227,7 @@ impl Path {
 
     pub fn shift(&mut self, map: &Map) -> PathStep {
         let step = self.steps.pop_front().unwrap();
-        self.crossed_so_far += step.as_traversable().length(map);
+        self.crossed_so_far += self.dist_crossed_from_step(map, &step);
 
         if let Some(ref ut) = self.currently_inside_ut {
             if step == PathStep::Turn(*ut.path.last().unwrap()) {
@@ -223,10 +248,17 @@ impl Path {
         step
     }
 
-    // TODO Maybe need to amend uber_turns?
     pub fn add(&mut self, step: PathStep, map: &Map) {
+        if let Some(PathStep::Lane(l)) = self.steps.back() {
+            if *l == self.orig_req.end.lane() {
+                self.total_length += map.get_l(*l).length() - self.orig_req.end.dist_along();
+            }
+        }
+        // TODO We assume we'll be going along the full length of this new step
         self.total_length += step.as_traversable().length(map);
+
         self.steps.push_back(step);
+        // TODO Maybe need to amend uber_turns?
     }
 
     pub fn is_upcoming_uber_turn_component(&self, t: TurnID) -> bool {
@@ -240,6 +272,8 @@ impl Path {
     pub fn modify_step(&mut self, idx: usize, step: PathStep, map: &Map) {
         assert!(self.currently_inside_ut.is_none());
         assert!(idx != 0);
+        // We're assuming this step was in the middle of the path, meaning we were planning to
+        // travel its full length
         self.total_length -= self.steps[idx].as_traversable().length(map);
 
         // When replacing a turn, also update any references to it in uber_turns
@@ -401,6 +435,7 @@ impl Path {
             _ => unreachable!(),
         };
         self.steps.push_back(PathStep::Turn(turn));
+        // TODO Need to correct for the uncrossed start/end distance where we're gluing together
         self.total_length += map.get_t(turn).geom.length();
         self.steps.extend(other.steps);
         self.total_length += other.total_length;
