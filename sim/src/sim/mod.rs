@@ -503,6 +503,15 @@ impl Sim {
                     {
                         // Starting the car failed for some reason.
                         if retry_if_no_room {
+                            self.driving.vehicle_waiting_to_spawn(
+                                id,
+                                Position::new(
+                                    create_car.router.head().as_lane(),
+                                    create_car.start_dist,
+                                ),
+                                trip_and_person.map(|(_, p)| p),
+                            );
+
                             // TODO Record this in the trip log
                             self.scheduler.push(
                                 self.time + BLIND_RETRY_TO_SPAWN,

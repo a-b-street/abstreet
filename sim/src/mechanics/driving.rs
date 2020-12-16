@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_hashmap, serialize_hashmap, FixedMap, IndexableKey};
 use geom::{Distance, Duration, PolyLine, Speed, Time};
-use map_model::{IntersectionID, LaneID, Map, Path, Traversable};
+use map_model::{IntersectionID, LaneID, Map, Path, Position, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
@@ -40,6 +40,8 @@ pub(crate) struct DrivingSimState {
     queues: HashMap<Traversable, Queue>,
     events: Vec<Event>,
 
+    waiting_to_spawn: BTreeMap<CarID, (Position, Option<PersonID>)>,
+
     recalc_lanechanging: bool,
     handle_uber_turns: bool,
 
@@ -58,6 +60,7 @@ impl DrivingSimState {
             events: Vec::new(),
             recalc_lanechanging: opts.recalc_lanechanging,
             handle_uber_turns: opts.handle_uber_turns,
+            waiting_to_spawn: BTreeMap::new(),
 
             time_to_unpark_onstreet: Duration::seconds(10.0),
             time_to_park_onstreet: Duration::seconds(15.0),
@@ -177,10 +180,17 @@ impl DrivingSimState {
                 // get_idx_to_insert_car does a more detailed check of the current space usage.
                 queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
             }
+            self.waiting_to_spawn.remove(&car.vehicle.id);
             self.cars.insert(car.vehicle.id, car);
             return None;
         }
         Some(params)
+    }
+
+    /// If start_car_on_lane fails and a retry is scheduled, this is an idempotent way to mark the
+    /// vehicle as active, but waiting to spawn.
+    pub fn vehicle_waiting_to_spawn(&mut self, id: CarID, pos: Position, person: Option<PersonID>) {
+        self.waiting_to_spawn.insert(id, (pos, person));
     }
 
     /// State transitions for this car:
@@ -620,6 +630,8 @@ impl DrivingSimState {
     /// Abruptly remove a vehicle from the simulation. They may be in any arbitrary state, like in
     /// the middle of a turn or parking.
     pub fn delete_car(&mut self, c: CarID, now: Time, ctx: &mut Ctx) -> Vehicle {
+        self.waiting_to_spawn.remove(&c);
+
         let dists = self.queues[&self.cars[&c].router.head()].get_car_positions(
             now,
             &self.cars,
@@ -919,6 +931,15 @@ impl DrivingSimState {
                     parking: car.is_parking(),
                 });
             }
+        }
+
+        for (id, (pos, person)) in &self.waiting_to_spawn {
+            result.push(UnzoomedAgent {
+                id: AgentID::Car(*id),
+                pos: pos.pt(map),
+                person: *person,
+                parking: false,
+            });
         }
 
         result
