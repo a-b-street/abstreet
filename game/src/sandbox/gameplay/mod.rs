@@ -19,7 +19,6 @@ use crate::pregame::MainMenu;
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
 // TODO pub so challenges can grab cutscenes and SandboxMode can dispatch to actions. Weird?
-mod census;
 pub mod commute;
 pub mod fix_traffic_signals;
 pub mod freeform;
