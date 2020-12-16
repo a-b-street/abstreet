@@ -537,9 +537,11 @@ impl Map {
         &self.boundary_polygon
     }
 
-    pub fn pathfind(&self, req: PathRequest) -> Option<Path> {
+    pub fn pathfind(&self, req: PathRequest) -> Result<Path, String> {
         assert!(!self.pathfinder_dirty);
-        self.pathfinder.pathfind(req, self)
+        self.pathfinder
+            .pathfind(req.clone(), self)
+            .ok_or_else(|| format!("can't fulfill {}", req))
     }
     pub fn pathfind_avoiding_lanes(
         &self,

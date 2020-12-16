@@ -414,7 +414,9 @@ impl Efficiency {
                     if req.start == req.end {
                         Some((car_pt, Distance::ZERO))
                     } else {
-                        map.pathfind(req).map(|path| (car_pt, path.total_length()))
+                        map.pathfind(req)
+                            .ok()
+                            .map(|path| (car_pt, path.total_length()))
                     }
                 })
                 .into_iter()

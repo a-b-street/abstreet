@@ -306,11 +306,13 @@ impl Sim {
 
         let start = SidewalkSpot::building(b, map).sidewalk_pos;
         let end = SidewalkSpot::parking_spot(spot, map, &self.parking).sidewalk_pos;
-        let path = map.pathfind(PathRequest {
-            start,
-            end,
-            constraints: PathConstraints::Pedestrian,
-        })?;
+        let path = map
+            .pathfind(PathRequest {
+                start,
+                end,
+                constraints: PathConstraints::Pedestrian,
+            })
+            .ok()?;
         Some((path, start.dist_along()))
     }
 

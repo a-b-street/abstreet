@@ -166,12 +166,12 @@ fn make_route(
             ));
         }
 
-        if map.pathfind(req.clone()).is_none() {
+        if let Err(err) = map.pathfind(req.clone()) {
             return Err(format!(
                 "No path between stop on {} and {}: {}. {}",
                 map.get_parent(req.start.lane()).orig_id,
                 map.get_parent(req.end.lane()).orig_id,
-                req,
+                err,
                 debug_route
             ));
         }

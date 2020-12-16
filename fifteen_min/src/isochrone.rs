@@ -66,7 +66,7 @@ impl Isochrone {
 
     pub fn path_to(&self, map: &Map, to: BuildingID) -> Option<Path> {
         let req = PathRequest::between_buildings(map, self.start, to, self.constraints)?;
-        map.pathfind(req)
+        map.pathfind(req).ok()
     }
 }
 

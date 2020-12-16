@@ -171,7 +171,7 @@ impl Demand {
                 |(_, trip)| {
                     let departure = trip.departure;
                     TripEndpoint::path_req(trip.start, trip.end, trip.mode, map)
-                        .and_then(|req| map.pathfind(req))
+                        .and_then(|req| map.pathfind(req).ok())
                         .map(|path| (departure, path))
                 },
             )

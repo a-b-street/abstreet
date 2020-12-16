@@ -225,30 +225,27 @@ impl TripManager {
                         end: walking_goal.sidewalk_pos,
                         constraints: PathConstraints::Pedestrian,
                     };
-                    if let Some(path) = ctx.map.pathfind(req.clone()) {
-                        ctx.scheduler.push(
-                            now,
-                            Command::SpawnPed(CreatePedestrian {
-                                id: person.ped,
-                                speed: person.ped_speed,
-                                start,
-                                goal: walking_goal,
-                                path,
-                                req,
-                                trip,
-                                person: person.id,
-                            }),
-                        );
-                    } else {
-                        // Move the car to the destination
-                        ctx.parking.remove_parked_car(parked_car.clone());
-                        self.cancel_trip(
-                            now,
-                            trip,
-                            format!("UsingParkedCar trip couldn't find the walking path {}", req),
-                            Some(parked_car.vehicle),
-                            ctx,
-                        );
+                    match ctx.map.pathfind(req.clone()) {
+                        Ok(path) => {
+                            ctx.scheduler.push(
+                                now,
+                                Command::SpawnPed(CreatePedestrian {
+                                    id: person.ped,
+                                    speed: person.ped_speed,
+                                    start,
+                                    goal: walking_goal,
+                                    path,
+                                    req,
+                                    trip,
+                                    person: person.id,
+                                }),
+                            );
+                        }
+                        Err(err) => {
+                            // Move the car to the destination
+                            ctx.parking.remove_parked_car(parked_car.clone());
+                            self.cancel_trip(now, trip, err, Some(parked_car.vehicle), ctx);
+                        }
                     }
                 } else {
                     // This should only happen when a driving trip has been cancelled and there was
@@ -295,28 +292,25 @@ impl TripManager {
                     end: goal.sidewalk_pos,
                     constraints: PathConstraints::Pedestrian,
                 };
-                if let Some(path) = ctx.map.pathfind(req.clone()) {
-                    ctx.scheduler.push(
-                        now,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: person.ped,
-                            speed: person.ped_speed,
-                            start,
-                            goal,
-                            path,
-                            req,
-                            trip,
-                            person: person.id,
-                        }),
-                    );
-                } else {
-                    self.cancel_trip(
-                        now,
-                        trip,
-                        format!("JustWalking trip couldn't find the first path {}", req),
-                        None,
-                        ctx,
-                    );
+                match ctx.map.pathfind(req.clone()) {
+                    Ok(path) => {
+                        ctx.scheduler.push(
+                            now,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: person.ped,
+                                speed: person.ped_speed,
+                                start,
+                                goal,
+                                path,
+                                req,
+                                trip,
+                                person: person.id,
+                            }),
+                        );
+                    }
+                    Err(err) => {
+                        self.cancel_trip(now, trip, err, None, ctx);
+                    }
                 }
             }
             TripSpec::UsingBike { start, .. } => {
@@ -329,39 +323,37 @@ impl TripManager {
                         end: walk_to.sidewalk_pos,
                         constraints: PathConstraints::Pedestrian,
                     };
-                    if let Some(path) = ctx.map.pathfind(req.clone()) {
-                        // Where we start biking may have slightly changed due to live map edits!
-                        match self.trips[trip.0].legs.front_mut() {
-                            Some(TripLeg::Walk(ref mut spot)) => {
-                                if spot.clone() != walk_to {
-                                    // We could assert both have a BikeRack connection, but eh
-                                    *spot = walk_to.clone();
+                    match ctx.map.pathfind(req.clone()) {
+                        Ok(path) => {
+                            // Where we start biking may have slightly changed due to live map
+                            // edits!
+                            match self.trips[trip.0].legs.front_mut() {
+                                Some(TripLeg::Walk(ref mut spot)) => {
+                                    if spot.clone() != walk_to {
+                                        // We could assert both have a BikeRack connection, but eh
+                                        *spot = walk_to.clone();
+                                    }
                                 }
+                                _ => unreachable!(),
                             }
-                            _ => unreachable!(),
-                        }
 
-                        ctx.scheduler.push(
-                            now,
-                            Command::SpawnPed(CreatePedestrian {
-                                id: person.ped,
-                                speed: person.ped_speed,
-                                start: SidewalkSpot::building(start, ctx.map),
-                                goal: walk_to,
-                                path,
-                                req,
-                                trip,
-                                person: person.id,
-                            }),
-                        );
-                    } else {
-                        self.cancel_trip(
-                            now,
-                            trip,
-                            format!("UsingBike trip couldn't find the first path {}", req),
-                            None,
-                            ctx,
-                        );
+                            ctx.scheduler.push(
+                                now,
+                                Command::SpawnPed(CreatePedestrian {
+                                    id: person.ped,
+                                    speed: person.ped_speed,
+                                    start: SidewalkSpot::building(start, ctx.map),
+                                    goal: walk_to,
+                                    path,
+                                    req,
+                                    trip,
+                                    person: person.id,
+                                }),
+                            );
+                        }
+                        Err(err) => {
+                            self.cancel_trip(now, trip, err, None, ctx);
+                        }
                     }
                 } else {
                     self.cancel_trip(
@@ -410,28 +402,25 @@ impl TripManager {
                     end: walk_to.sidewalk_pos,
                     constraints: PathConstraints::Pedestrian,
                 };
-                if let Some(path) = ctx.map.pathfind(req.clone()) {
-                    ctx.scheduler.push(
-                        now,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: person.ped,
-                            speed: person.ped_speed,
-                            start,
-                            goal: walk_to,
-                            path,
-                            req,
-                            trip,
-                            person: person.id,
-                        }),
-                    );
-                } else {
-                    self.cancel_trip(
-                        now,
-                        trip,
-                        format!("UsingTransit trip couldn't find the first path {}", req),
-                        None,
-                        ctx,
-                    );
+                match ctx.map.pathfind(req.clone()) {
+                    Ok(path) => {
+                        ctx.scheduler.push(
+                            now,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: person.ped,
+                                speed: person.ped_speed,
+                                start,
+                                goal: walk_to,
+                                path,
+                                req,
+                                trip,
+                                person: person.id,
+                            }),
+                        );
+                    }
+                    Err(err) => {
+                        self.cancel_trip(now, trip, err, None, ctx);
+                    }
                 }
             }
         }
@@ -624,39 +613,36 @@ impl TripManager {
         let maybe_router = if req.start.lane() == req.end.lane() {
             // TODO Convert to a walking trip! Ideally, do this earlier and convert the trip to
             // walking, like schedule_trip does
-            None
+            Err(format!(
+                "biking to a different part of {} is silly, why not walk?",
+                req.start.lane()
+            ))
         } else {
             ctx.map
                 .pathfind(req.clone())
                 .map(|path| drive_to.make_router(bike, path, ctx.map))
         };
-        if let Some(router) = maybe_router {
-            ctx.scheduler.push(
-                now,
-                Command::SpawnCar(
-                    CreateCar::for_appearing(
-                        self.people[trip.person.0].get_vehicle(bike),
-                        driving_pos,
-                        router,
-                        req,
-                        trip.id,
-                        trip.person,
+        match maybe_router {
+            Ok(router) => {
+                ctx.scheduler.push(
+                    now,
+                    Command::SpawnCar(
+                        CreateCar::for_appearing(
+                            self.people[trip.person.0].get_vehicle(bike),
+                            driving_pos,
+                            router,
+                            req,
+                            trip.id,
+                            trip.person,
+                        ),
+                        true,
                     ),
-                    true,
-                ),
-            );
-        } else {
-            let trip = trip.id;
-            self.cancel_trip(
-                now,
-                trip,
-                format!(
-                    "no path for the bike portion (or sidewalk connection at end), from {} to {}",
-                    driving_pos, end
-                ),
-                None,
-                ctx,
-            );
+                );
+            }
+            Err(err) => {
+                let trip = trip.id;
+                self.cancel_trip(now, trip, err, None, ctx);
+            }
         }
     }
 
@@ -960,24 +946,26 @@ impl TripManager {
             end: walk_to.sidewalk_pos,
             constraints: PathConstraints::Pedestrian,
         };
-        if let Some(path) = ctx.map.pathfind(req.clone()) {
-            let person = &self.people[trip.person.0];
-            ctx.scheduler.push(
-                now,
-                Command::SpawnPed(CreatePedestrian {
-                    id: person.ped,
-                    speed: person.ped_speed,
-                    start,
-                    goal: walk_to,
-                    path,
-                    req,
-                    trip: id,
-                    person: person.id,
-                }),
-            );
-        } else {
-            self.cancel_trip(now, id, format!("no path for {}", req), None, ctx);
-            return;
+        match ctx.map.pathfind(req.clone()) {
+            Ok(path) => {
+                let person = &self.people[trip.person.0];
+                ctx.scheduler.push(
+                    now,
+                    Command::SpawnPed(CreatePedestrian {
+                        id: person.ped,
+                        speed: person.ped_speed,
+                        start,
+                        goal: walk_to,
+                        path,
+                        req,
+                        trip: id,
+                        person: person.id,
+                    }),
+                );
+            }
+            Err(err) => {
+                self.cancel_trip(now, id, err, None, ctx);
+            }
         }
     }
 
@@ -991,10 +979,7 @@ impl TripManager {
         req: PathRequest,
         car: CarID,
     ) -> Result<Path, String> {
-        let path = ctx
-            .map
-            .pathfind(req.clone())
-            .ok_or_else(|| format!("no path for {}", req))?;
+        let path = ctx.map.pathfind(req.clone())?;
         match ctx
             .cap
             .maybe_cap_path(&req, path, now, car, ctx.intersections, ctx.map)

@@ -107,17 +107,20 @@ impl TransitSimState {
                     end: map.get_bs(bus_route.stops[idx + 1]).driving_pos,
                     constraints: bus_route.route_type,
                 };
-                if let Some(path) = map.pathfind(req.clone()) {
-                    if path.is_empty() {
-                        panic!("Empty path between stops?! {}", req);
+                match map.pathfind(req.clone()) {
+                    Ok(path) => {
+                        if path.is_empty() {
+                            panic!("Empty path between stops?! {}", req);
+                        }
+                        stops.push(Stop {
+                            id: stop1.id,
+                            driving_pos: stop1.driving_pos,
+                            next_stop: Some((req, path)),
+                        });
                     }
-                    stops.push(Stop {
-                        id: stop1.id,
-                        driving_pos: stop1.driving_pos,
-                        next_stop: Some((req, path)),
-                    });
-                } else {
-                    panic!("No route between stops: {}", req);
+                    Err(err) => {
+                        panic!("No route between stops: {}", err);
+                    }
                 }
             }
             let start_req = PathRequest {

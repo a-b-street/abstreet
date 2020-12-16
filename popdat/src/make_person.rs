@@ -236,7 +236,7 @@ fn pick_mode(
     // Decide mode based on walking distance
     let distance = if let Some(path) =
         PathRequest::between_buildings(map, b1, b2, PathConstraints::Pedestrian)
-            .and_then(|req| map.pathfind(req))
+            .and_then(|req| map.pathfind(req).ok())
     {
         path.total_length()
     } else {

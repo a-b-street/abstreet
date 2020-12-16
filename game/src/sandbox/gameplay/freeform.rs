@@ -318,7 +318,7 @@ impl State<App> for AgentSpawner {
                         self.panel.dropdown_value("mode"),
                         &app.primary.map,
                     )
-                    .and_then(|req| app.primary.map.pathfind(req))
+                    .and_then(|req| app.primary.map.pathfind(req).ok())
                     {
                         self.goal = Some((
                             to,
@@ -383,7 +383,7 @@ impl State<App> for AgentSpawner {
                         self.panel.dropdown_value("mode"),
                         &app.primary.map,
                     )
-                    .and_then(|req| app.primary.map.pathfind(req))
+                    .and_then(|req| app.primary.map.pathfind(req).ok())
                     {
                         self.goal = Some((
                             hovering,

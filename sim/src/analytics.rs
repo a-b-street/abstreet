@@ -355,6 +355,7 @@ impl Analytics {
                 end_time: None,
                 path: maybe_req.as_ref().and_then(|req| {
                     map.pathfind(req.clone())
+                        .ok()
                         .map(|path| (req.start.dist_along(), path))
                 }),
                 has_path_req: maybe_req.is_some(),

@@ -413,35 +413,31 @@ impl Sim {
         let info = self.trips.trip_info(id);
         match TripEndpoint::path_req(info.start, info.end, info.mode, map) {
             Some(req) => {
-                match map.pathfind(req.clone()) {
-                    Some(path) => {
-                        let person = self
-                            .trips
-                            .get_person(self.trips.trip_to_person(id).unwrap())
-                            .unwrap();
-                        let mut constraints = info.mode.to_constraints();
-                        // TODO Fix TripMode.to_constraints
-                        if info.mode == TripMode::Transit {
-                            constraints = PathConstraints::Pedestrian;
-                        }
-                        let max_speed = match info.mode {
-                            TripMode::Walk | TripMode::Transit => Some(person.ped_speed),
-                            // TODO We should really search the vehicles and grab it from there
-                            TripMode::Drive => None,
-                            // Assume just one bike
-                            TripMode::Bike => {
-                                person
-                                    .vehicles
-                                    .iter()
-                                    .find(|v| v.vehicle_type == VehicleType::Bike)
-                                    .unwrap()
-                                    .max_speed
-                            }
-                        };
-                        Ok(path.estimate_duration(map, constraints, max_speed))
-                    }
-                    None => Err(format!("can't find path for {}", req)),
+                let path = map.pathfind(req)?;
+                let person = self
+                    .trips
+                    .get_person(self.trips.trip_to_person(id).unwrap())
+                    .unwrap();
+                let mut constraints = info.mode.to_constraints();
+                // TODO Fix TripMode.to_constraints
+                if info.mode == TripMode::Transit {
+                    constraints = PathConstraints::Pedestrian;
                 }
+                let max_speed = match info.mode {
+                    TripMode::Walk | TripMode::Transit => Some(person.ped_speed),
+                    // TODO We should really search the vehicles and grab it from there
+                    TripMode::Drive => None,
+                    // Assume just one bike
+                    TripMode::Bike => {
+                        person
+                            .vehicles
+                            .iter()
+                            .find(|v| v.vehicle_type == VehicleType::Bike)
+                            .unwrap()
+                            .max_speed
+                    }
+                };
+                Ok(path.estimate_duration(map, constraints, max_speed))
             }
             None => Err(format!(
                 "can't figure out PathRequest from {:?} to {:?} via {}",

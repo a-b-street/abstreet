@@ -102,7 +102,7 @@ impl TransitNetwork {
                     continue;
                 }
                 for req in br.all_steps(map) {
-                    if let Some(path) = map.pathfind(req) {
+                    if let Ok(path) = map.pathfind(req) {
                         for step in path.get_steps() {
                             if let PathStep::Lane(l) = step {
                                 colorer.add_l(*l, "routes");

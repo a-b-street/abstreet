@@ -225,7 +225,7 @@ fn create_prole(
                 *work_bldg,
                 PathConstraints::Pedestrian,
             )
-            .and_then(|req| map.pathfind(req))
+            .and_then(|req| map.pathfind(req).ok())
             {
                 path.total_length()
             } else {
