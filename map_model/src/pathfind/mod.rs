@@ -6,7 +6,7 @@ use std::fmt;
 use enumset::EnumSetType;
 use serde::{Deserialize, Serialize};
 
-use geom::{Distance, PolyLine, EPSILON_DIST};
+use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
 
 pub use self::ch::ContractionHierarchyPathfinder;
 pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles};
@@ -411,6 +411,33 @@ impl Path {
         self.steps.extend(other.steps);
         self.total_length += other.total_length;
         self.uber_turns.extend(other.uber_turns);
+    }
+
+    /// Estimate how long following the path will take in the best case, assuming no traffic or
+    /// delay at intersections. To determine the speed along each step, the agent following their
+    /// path and their optional max_speed must be specified.
+    pub fn estimate_duration(
+        &self,
+        map: &Map,
+        constraints: PathConstraints,
+        max_speed: Option<Speed>,
+    ) -> Duration {
+        let mut total = Duration::ZERO;
+        for step in &self.steps {
+            let on = step.as_traversable();
+            let dist = on.length(map);
+            let speed_limit = on.speed_limit(map);
+            let speed = if constraints == PathConstraints::Pedestrian {
+                // Pedestrians don't care about the road's speed limit
+                max_speed.unwrap()
+            } else if let Some(max) = max_speed {
+                speed_limit.min(max)
+            } else {
+                speed_limit
+            };
+            total += dist / speed;
+        }
+        total
     }
 }
 

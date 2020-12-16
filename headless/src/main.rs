@@ -321,6 +321,11 @@ fn handle_command(
         "/data/get-blocked-by-graph" => Ok(abstutil::to_json(&BlockedByGraph {
             blocked_by: sim.get_blocked_by_graph(map),
         })),
+        "/data/trip-time-lower-bound" => {
+            let id = TripID(params["id"].parse::<usize>()?);
+            let duration = sim.get_trip_time_lower_bound(map, id)?;
+            Ok(duration.inner_seconds().to_string())
+        }
         // Controlling the map
         "/map/get-edits" => {
             let mut edits = map.get_edits().clone();

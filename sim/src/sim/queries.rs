@@ -6,15 +6,16 @@ use std::collections::BTreeMap;
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
-    Traversable, TurnID,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, PathConstraints,
+    Position, Traversable, TurnID,
 };
 
 use crate::analytics::Window;
 use crate::{
     AgentID, AgentType, Analytics, CarID, CommutersVehiclesCounts, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, OrigPersonID, PandemicModel, ParkedCar, ParkingSim, PedestrianID, Person,
-    PersonID, PersonState, Scenario, Sim, TripID, TripInfo, TripResult, UnzoomedAgent, VehicleType,
+    PersonID, PersonState, Scenario, Sim, TripEndpoint, TripID, TripInfo, TripMode, TripResult,
+    UnzoomedAgent, VehicleType,
 };
 
 // TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.
@@ -403,6 +404,52 @@ impl Sim {
 
     pub fn debug_queue_lengths(&self, l: LaneID) -> Option<(Distance, Distance)> {
         self.driving.debug_queue_lengths(l)
+    }
+
+    /// Returns the best-case time for a trip in a world with no traffic or intersection delays.
+    /// Might fail in some cases where the real trip succeeds, but the single-mode path can't be
+    /// found. Assumes the TripID exists.
+    pub fn get_trip_time_lower_bound(&self, map: &Map, id: TripID) -> Result<Duration, String> {
+        let info = self.trips.trip_info(id);
+        match TripEndpoint::path_req(info.start, info.end, info.mode, map) {
+            Some(req) => {
+                match map.pathfind(req.clone()) {
+                    Some(path) => {
+                        let person = self
+                            .trips
+                            .get_person(self.trips.trip_to_person(id).unwrap())
+                            .unwrap();
+                        let mut constraints = info.mode.to_constraints();
+                        // TODO Fix TripMode.to_constraints
+                        if info.mode == TripMode::Transit {
+                            constraints = PathConstraints::Pedestrian;
+                        }
+                        let max_speed = match info.mode {
+                            TripMode::Walk | TripMode::Transit => Some(person.ped_speed),
+                            // TODO We should really search the vehicles and grab it from there
+                            TripMode::Drive => None,
+                            // Assume just one bike
+                            TripMode::Bike => {
+                                person
+                                    .vehicles
+                                    .iter()
+                                    .find(|v| v.vehicle_type == VehicleType::Bike)
+                                    .unwrap()
+                                    .max_speed
+                            }
+                        };
+                        Ok(path.estimate_duration(map, constraints, max_speed))
+                    }
+                    None => Err(format!("can't find path for {}", req)),
+                }
+            }
+            None => Err(format!(
+                "can't figure out PathRequest from {:?} to {:?} via {}",
+                info.start,
+                info.end,
+                info.mode.ongoing_verb()
+            )),
+        }
     }
 }
 
