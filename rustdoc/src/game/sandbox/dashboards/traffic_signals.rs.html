@@ -425,7 +425,7 @@
                 <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">trip</span>)<span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">departure</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">departure</span>;
                     <span class="ident">TripEndpoint</span>::<span class="ident">path_req</span>(<span class="ident">trip</span>.<span class="ident">start</span>, <span class="ident">trip</span>.<span class="ident">end</span>, <span class="ident">trip</span>.<span class="ident">mode</span>, <span class="ident">map</span>)
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>))
+                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">departure</span>, <span class="ident">path</span>))
                 },
             )

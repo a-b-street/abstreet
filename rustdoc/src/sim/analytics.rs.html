@@ -655,6 +655,7 @@
 <span id="652">652</span>
 <span id="653">653</span>
 <span id="654">654</span>
+<span id="655">655</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -1013,6 +1014,7 @@
                 <span class="ident">end_time</span>: <span class="prelude-val">None</span>,
                 <span class="ident">path</span>: <span class="ident">maybe_req</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
                     <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
+                        .<span class="ident">ok</span>()
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>(), <span class="ident">path</span>))
                 }),
                 <span class="ident">has_path_req</span>: <span class="ident">maybe_req</span>.<span class="ident">is_some</span>(),

@@ -553,7 +553,7 @@
                 <span class="kw-2">*</span><span class="ident">work_bldg</span>,
                 <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
             )
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
             {
                 <span class="ident">path</span>.<span class="ident">total_length</span>()
             } <span class="kw">else</span> {

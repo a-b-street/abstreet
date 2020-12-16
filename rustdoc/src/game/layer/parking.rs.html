@@ -449,6 +449,8 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -866,7 +868,9 @@
                     <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span> <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span> {
                         <span class="prelude-val">Some</span>((<span class="ident">car_pt</span>, <span class="ident">Distance</span>::<span class="ident">ZERO</span>))
                     } <span class="kw">else</span> {
-                        <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">car_pt</span>, <span class="ident">path</span>.<span class="ident">total_length</span>()))
+                        <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>)
+                            .<span class="ident">ok</span>()
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">car_pt</span>, <span class="ident">path</span>.<span class="ident">total_length</span>()))
                     }
                 })
                 .<span class="ident">into_iter</span>()

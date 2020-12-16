@@ -531,7 +531,7 @@
     <span class="comment">// Decide mode based on walking distance</span>
     <span class="kw">let</span> <span class="ident">distance</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span>
         <span class="ident">PathRequest</span>::<span class="ident">between_buildings</span>(<span class="ident">map</span>, <span class="ident">b1</span>, <span class="ident">b2</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
     {
         <span class="ident">path</span>.<span class="ident">total_length</span>()
     } <span class="kw">else</span> {

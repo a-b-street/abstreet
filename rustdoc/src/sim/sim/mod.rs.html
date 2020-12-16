@@ -1030,6 +1030,8 @@
 <span id="1027">1027</span>
 <span id="1028">1028</span>
 <span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1339,11 +1341,13 @@
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="ident">b</span>, <span class="ident">map</span>).<span class="ident">sidewalk_pos</span>;
         <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">parking_spot</span>(<span class="ident">spot</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking</span>).<span class="ident">sidewalk_pos</span>;
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">PathRequest</span> {
-            <span class="ident">start</span>,
-            <span class="ident">end</span>,
-            <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-        })<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">map</span>
+            .<span class="ident">pathfind</span>(<span class="ident">PathRequest</span> {
+                <span class="ident">start</span>,
+                <span class="ident">end</span>,
+                <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+            })
+            .<span class="ident">ok</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">start</span>.<span class="ident">dist_along</span>()))
     }
 
