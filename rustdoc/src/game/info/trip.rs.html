@@ -911,6 +911,8 @@
 <span id="908">908</span>
 <span id="909">909</span>
 <span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -1477,7 +1479,7 @@
 <span class="comment">// TODO Restore this, figuring out why some delays don&#39;t show up</span>
 <span class="comment">/*
     let mut sum_phase_dist = Distance::ZERO;
-    if let Some((_, step_list)) = &amp;p.path {
+    if let Some(step_list) = &amp;p.path {
         let mut norm_distance = Distance::meters(0.0);
         for step in step_list.get_steps() {
             match step {
@@ -1644,7 +1646,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path_impossible</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">p</span>) <span class="kw">in</span> <span class="ident">phases</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">color_for_trip_phase</span>(<span class="ident">app</span>, <span class="ident">p</span>.<span class="ident">phase_type</span>).<span class="ident">alpha</span>(<span class="number">0.7</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist</span>, <span class="kw-2">ref</span> <span class="ident">path</span>)) <span class="op">=</span> <span class="ident">p</span>.<span class="ident">path</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">path</span> {
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>
                 <span class="op">&amp;&amp;</span> (<span class="ident">p</span>.<span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Walking</span> <span class="op">|</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">phase_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripPhaseType</span>::<span class="ident">Biking</span>)
             {
@@ -1659,7 +1661,9 @@
 
             <span class="comment">// This is expensive, so cache please</span>
             <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">open_trip</span>.<span class="ident">cached_routes</span>.<span class="ident">len</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trace</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map_for_pathfinding</span>, <span class="ident">dist</span>, <span class="prelude-val">None</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trace</span>) <span class="op">=</span>
+                    <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map_for_pathfinding</span>, <span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">start</span>.<span class="ident">dist_along</span>(), <span class="prelude-val">None</span>)
+                {
                     <span class="ident">open_trip</span>.<span class="ident">cached_routes</span>.<span class="ident">push</span>(<span class="prelude-val">Some</span>((
                         <span class="ident">trace</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>)),
                         <span class="ident">trace</span>.<span class="ident">dashed_lines</span>(

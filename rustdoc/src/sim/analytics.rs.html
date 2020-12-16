@@ -651,18 +651,13 @@
 <span id="648">648</span>
 <span id="649">649</span>
 <span id="650">650</span>
-<span id="651">651</span>
-<span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
-<span id="655">655</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Counter</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>,
     <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
@@ -1012,11 +1007,7 @@
             <span class="ident">phases</span>.<span class="ident">push</span>(<span class="ident">TripPhase</span> {
                 <span class="ident">start_time</span>: <span class="kw-2">*</span><span class="ident">t</span>,
                 <span class="ident">end_time</span>: <span class="prelude-val">None</span>,
-                <span class="ident">path</span>: <span class="ident">maybe_req</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                    <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
-                        .<span class="ident">ok</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>(), <span class="ident">path</span>))
-                }),
+                <span class="ident">path</span>: <span class="ident">maybe_req</span>.<span class="ident">clone</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>()),
                 <span class="ident">has_path_req</span>: <span class="ident">maybe_req</span>.<span class="ident">is_some</span>(),
                 <span class="ident">phase_type</span>: <span class="kw-2">*</span><span class="ident">phase_type</span>,
             })
@@ -1164,8 +1155,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripPhase</span> {
     <span class="kw">pub</span> <span class="ident">start_time</span>: <span class="ident">Time</span>,
     <span class="kw">pub</span> <span class="ident">end_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Plumb along start distance</span>
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Path</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">has_path_req</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">phase_type</span>: <span class="ident">TripPhaseType</span>,
 }
