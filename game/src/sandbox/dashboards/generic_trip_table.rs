@@ -146,8 +146,10 @@ fn preview_route(g: &mut GfxCtx, app: &App, id: TripID) -> GeomBatch {
         .get_analytics()
         .get_trip_phases(id, &app.primary.map)
     {
-        if let Some((dist, ref path)) = p.path {
-            if let Some(trace) = path.trace(&app.primary.map, dist, None) {
+        if let Some(path) = &p.path {
+            if let Some(trace) =
+                path.trace(&app.primary.map, path.get_req().start.dist_along(), None)
+            {
                 batch.push(
                     color_for_trip_phase(app, p.phase_type),
                     trace.make_polygons(Distance::meters(20.0)),

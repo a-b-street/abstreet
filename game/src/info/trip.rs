@@ -563,7 +563,7 @@ fn make_timeline(
 // TODO Restore this, figuring out why some delays don't show up
 /*
     let mut sum_phase_dist = Distance::ZERO;
-    if let Some((_, step_list)) = &p.path {
+    if let Some(step_list) = &p.path {
         let mut norm_distance = Distance::meters(0.0);
         for step in step_list.get_steps() {
             match step {
@@ -730,7 +730,7 @@ fn make_trip_details(
     let mut path_impossible = false;
     for (idx, p) in phases.into_iter().enumerate() {
         let color = color_for_trip_phase(app, p.phase_type).alpha(0.7);
-        if let Some((dist, ref path)) = p.path {
+        if let Some(path) = &p.path {
             if app.opts.dev
                 && (p.phase_type == TripPhaseType::Walking || p.phase_type == TripPhaseType::Biking)
             {
@@ -745,7 +745,9 @@ fn make_trip_details(
 
             // This is expensive, so cache please
             if idx == open_trip.cached_routes.len() {
-                if let Some(trace) = path.trace(map_for_pathfinding, dist, None) {
+                if let Some(trace) =
+                    path.trace(map_for_pathfinding, path.get_req().start.dist_along(), None)
+                {
                     open_trip.cached_routes.push(Some((
                         trace.make_polygons(Distance::meters(10.0)),
                         trace.dashed_lines(
