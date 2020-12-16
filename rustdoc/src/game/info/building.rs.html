@@ -347,7 +347,7 @@
         .<span class="ident">primary</span>
         .<span class="ident">sim</span>
         .<span class="ident">walking_path_to_nearest_parking_spot</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">id</span>)
-        .<span class="ident">and_then</span>(<span class="op">|</span>(<span class="ident">path</span>, <span class="ident">start_dist</span>)<span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">start_dist</span>, <span class="prelude-val">None</span>))
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">start</span>.<span class="ident">dist_along</span>(), <span class="prelude-val">None</span>))
     {
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_trip</span>;
         <span class="comment">// TODO But this color doesn&#39;t show up well against the info panel...</span>

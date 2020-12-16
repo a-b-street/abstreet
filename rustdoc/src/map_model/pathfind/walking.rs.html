@@ -949,21 +949,21 @@
         <span class="ident">Path</span>::<span class="ident">new</span>(
             <span class="ident">map</span>,
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>())],
-            <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>(),
+            <span class="ident">req</span>.<span class="ident">clone</span>(),
             <span class="ident">Vec</span>::<span class="ident">new</span>(),
         )
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>() {
         <span class="ident">Path</span>::<span class="ident">new</span>(
             <span class="ident">map</span>,
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>())],
-            <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>(),
+            <span class="ident">req</span>.<span class="ident">clone</span>(),
             <span class="ident">Vec</span>::<span class="ident">new</span>(),
         )
     } <span class="kw">else</span> {
         <span class="ident">Path</span>::<span class="ident">new</span>(
             <span class="ident">map</span>,
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">ContraflowLane</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>())],
-            <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>(),
+            <span class="ident">req</span>.<span class="ident">clone</span>(),
             <span class="ident">Vec</span>::<span class="ident">new</span>(),
         )
     }

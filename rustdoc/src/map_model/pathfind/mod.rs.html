@@ -628,12 +628,6 @@
 <span id="625">625</span>
 <span id="626">626</span>
 <span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -739,7 +733,9 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Path</span> {
     <span class="ident">steps</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>,
-    <span class="ident">end_dist</span>: <span class="ident">Distance</span>,
+    <span class="comment">// The original request used to produce this path. Calling shift(), add(), modify_step(), etc</span>
+    <span class="comment">// will NOT affect this.</span>
+    <span class="ident">orig_req</span>: <span class="ident">PathRequest</span>,
 
     <span class="comment">// Also track progress along the original path.</span>
     <span class="ident">total_length</span>: <span class="ident">Distance</span>,
@@ -756,7 +752,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">steps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>,
-        <span class="ident">end_dist</span>: <span class="ident">Distance</span>,
+        <span class="ident">orig_req</span>: <span class="ident">PathRequest</span>,
         <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Path</span> {
         <span class="comment">// Haven&#39;t seen problems here in a very long time. Noticeably saves some time to skip.</span>
@@ -773,7 +769,7 @@
         }
         <span class="ident">Path</span> {
             <span class="ident">steps</span>: <span class="ident">VecDeque</span>::<span class="ident">from</span>(<span class="ident">steps</span>),
-            <span class="ident">end_dist</span>,
+            <span class="ident">orig_req</span>,
             <span class="ident">total_length</span>,
             <span class="ident">crossed_so_far</span>: <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
             <span class="ident">uber_turns</span>: <span class="ident">uber_turns</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
@@ -781,25 +777,15 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">one_step</span>(<span class="ident">l</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Path</span> {
-        <span class="ident">Path</span>::<span class="ident">new</span>(
-            <span class="ident">map</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)],
-            <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">length</span>(),
-            <span class="ident">Vec</span>::<span class="ident">new</span>(),
-        )
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">one_step</span>(<span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Path</span> {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>(), <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>());
+        <span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>())], <span class="ident">req</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
     }
 
-    <span class="doccomment">/// Only used for weird serialization magic.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Path</span> {
-        <span class="ident">Path</span> {
-            <span class="ident">steps</span>: <span class="ident">VecDeque</span>::<span class="ident">new</span>(),
-            <span class="ident">end_dist</span>: <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
-            <span class="ident">total_length</span>: <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
-            <span class="ident">crossed_so_far</span>: <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
-            <span class="ident">uber_turns</span>: <span class="ident">VecDeque</span>::<span class="ident">new</span>(),
-            <span class="ident">currently_inside_ut</span>: <span class="prelude-val">None</span>,
-        }
+    <span class="doccomment">/// The original PathRequest used to produce this path. If the path has been modified since</span>
+    <span class="doccomment">/// creation, the start and end of the request won&#39;t match up with the current path steps.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_req</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PathRequest</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">orig_req</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crossed_so_far</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
@@ -930,7 +916,8 @@
         <span class="self">self</span>.<span class="ident">steps</span>[<span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]
     }
 
-    <span class="doccomment">/// dist_ahead is unlimited when None.</span>
+    <span class="doccomment">/// dist_ahead is unlimited when None. Note this starts at the beginning (or end, for some</span>
+    <span class="doccomment">/// walking paths) of the first lane, not accounting for the original request&#39;s start distance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
@@ -939,12 +926,13 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts_so_far</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_remaining</span> <span class="op">=</span> <span class="ident">dist_ahead</span>;
+        <span class="kw">let</span> <span class="ident">orig_end_dist</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>();
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">start_dist</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">end_dist</span> {
-                <span class="self">self</span>.<span class="ident">end_dist</span> <span class="op">-</span> <span class="ident">start_dist</span>
+            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">start_dist</span> <span class="op">&lt;</span> <span class="ident">orig_end_dist</span> {
+                <span class="ident">orig_end_dist</span> <span class="op">-</span> <span class="ident">start_dist</span>
             } <span class="kw">else</span> {
-                <span class="ident">start_dist</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">end_dist</span>
+                <span class="ident">start_dist</span> <span class="op">-</span> <span class="ident">orig_end_dist</span>
             };
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">dist_remaining</span> {
                 <span class="kw">if</span> <span class="ident">dist</span> <span class="op">&lt;</span> <span class="ident">d</span> {
@@ -983,9 +971,9 @@
             <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                 <span class="kw">let</span> <span class="ident">end_dist</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">i</span>] {
                     <span class="ident">PathStep</span>::<span class="ident">ContraflowLane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_center_pts</span>.<span class="ident">reversed</span>().<span class="ident">length</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">end_dist</span>
+                        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_center_pts</span>.<span class="ident">reversed</span>().<span class="ident">length</span>() <span class="op">-</span> <span class="ident">orig_end_dist</span>
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">end_dist</span>,
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">orig_end_dist</span>,
                 };
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">dist_remaining</span> {
                     <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">&lt;</span> <span class="ident">d</span> {

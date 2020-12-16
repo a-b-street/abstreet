@@ -284,7 +284,7 @@
         }
         <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()));
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">steps</span>[<span class="number">0</span>], <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()));
-        <span class="prelude-val">Some</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>()))
+        <span class="prelude-val">Some</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="ident">req</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()))
     }
 
     <span class="comment">// TODO Not happy this works so differently</span>

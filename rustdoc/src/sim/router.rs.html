@@ -478,6 +478,13 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
 <span class="doccomment">//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
@@ -551,10 +558,17 @@
             <span class="ident">owner</span>,
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vanish_bus</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vanish_bus</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
+        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>.<span class="ident">lane</span>());
         <span class="ident">Router</span> {
-            <span class="ident">path</span>: <span class="ident">Path</span>::<span class="ident">one_step</span>(<span class="ident">l</span>, <span class="ident">map</span>),
+            <span class="ident">path</span>: <span class="ident">Path</span>::<span class="ident">one_step</span>(
+                <span class="ident">PathRequest</span> {
+                    <span class="ident">start</span>,
+                    <span class="ident">end</span>: <span class="ident">Position</span>::<span class="ident">end</span>(<span class="ident">lane</span>.<span class="ident">id</span>, <span class="ident">map</span>),
+                    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>::<span class="ident">Bus</span>,
+                },
+                <span class="ident">map</span>,
+            ),
             <span class="ident">goal</span>: <span class="ident">Goal</span>::<span class="ident">EndAtBorder</span> {
                 <span class="ident">end_dist</span>: <span class="ident">lane</span>.<span class="ident">length</span>(),
                 <span class="ident">i</span>: <span class="ident">lane</span>.<span class="ident">dst_i</span>,
