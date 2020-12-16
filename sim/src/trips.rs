@@ -225,7 +225,7 @@ impl TripManager {
                         end: walking_goal.sidewalk_pos,
                         constraints: PathConstraints::Pedestrian,
                     };
-                    match ctx.map.pathfind(req.clone()) {
+                    match ctx.map.pathfind(req) {
                         Ok(path) => {
                             ctx.scheduler.push(
                                 now,
@@ -235,7 +235,6 @@ impl TripManager {
                                     start,
                                     goal: walking_goal,
                                     path,
-                                    req,
                                     trip,
                                     person: person.id,
                                 }),
@@ -292,7 +291,7 @@ impl TripManager {
                     end: goal.sidewalk_pos,
                     constraints: PathConstraints::Pedestrian,
                 };
-                match ctx.map.pathfind(req.clone()) {
+                match ctx.map.pathfind(req) {
                     Ok(path) => {
                         ctx.scheduler.push(
                             now,
@@ -302,7 +301,6 @@ impl TripManager {
                                 start,
                                 goal,
                                 path,
-                                req,
                                 trip,
                                 person: person.id,
                             }),
@@ -323,7 +321,7 @@ impl TripManager {
                         end: walk_to.sidewalk_pos,
                         constraints: PathConstraints::Pedestrian,
                     };
-                    match ctx.map.pathfind(req.clone()) {
+                    match ctx.map.pathfind(req) {
                         Ok(path) => {
                             // Where we start biking may have slightly changed due to live map
                             // edits!
@@ -345,7 +343,6 @@ impl TripManager {
                                     start: SidewalkSpot::building(start, ctx.map),
                                     goal: walk_to,
                                     path,
-                                    req,
                                     trip,
                                     person: person.id,
                                 }),
@@ -402,7 +399,7 @@ impl TripManager {
                     end: walk_to.sidewalk_pos,
                     constraints: PathConstraints::Pedestrian,
                 };
-                match ctx.map.pathfind(req.clone()) {
+                match ctx.map.pathfind(req) {
                     Ok(path) => {
                         ctx.scheduler.push(
                             now,
@@ -412,7 +409,6 @@ impl TripManager {
                                 start,
                                 goal: walk_to,
                                 path,
-                                req,
                                 trip,
                                 person: person.id,
                             }),
@@ -946,7 +942,7 @@ impl TripManager {
             end: walk_to.sidewalk_pos,
             constraints: PathConstraints::Pedestrian,
         };
-        match ctx.map.pathfind(req.clone()) {
+        match ctx.map.pathfind(req) {
             Ok(path) => {
                 let person = &self.people[trip.person.0];
                 ctx.scheduler.push(
@@ -957,7 +953,6 @@ impl TripManager {
                         start,
                         goal: walk_to,
                         path,
-                        req,
                         trip: id,
                         person: person.id,
                     }),
@@ -979,10 +974,10 @@ impl TripManager {
         req: PathRequest,
         car: CarID,
     ) -> Result<Path, String> {
-        let path = ctx.map.pathfind(req.clone())?;
+        let path = ctx.map.pathfind(req)?;
         match ctx
             .cap
-            .maybe_cap_path(&req, path, now, car, ctx.intersections, ctx.map)
+            .maybe_cap_path(path, now, car, ctx.intersections, ctx.map)
         {
             CapResult::OK(path) => Ok(path),
             CapResult::Reroute(path) => {

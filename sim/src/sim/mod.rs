@@ -273,12 +273,7 @@ impl Sim {
         self.parking.bldg_to_parked_cars(b)
     }
 
-    /// Also returns the start distance of the building. TODO Do that in the Path properly.
-    pub fn walking_path_to_nearest_parking_spot(
-        &self,
-        map: &Map,
-        b: BuildingID,
-    ) -> Option<(Path, Distance)> {
+    pub fn walking_path_to_nearest_parking_spot(&self, map: &Map, b: BuildingID) -> Option<Path> {
         let vehicle = Vehicle {
             id: CarID(0, VehicleType::Car),
             owner: None,
@@ -306,14 +301,12 @@ impl Sim {
 
         let start = SidewalkSpot::building(b, map).sidewalk_pos;
         let end = SidewalkSpot::parking_spot(spot, map, &self.parking).sidewalk_pos;
-        let path = map
-            .pathfind(PathRequest {
-                start,
-                end,
-                constraints: PathConstraints::Pedestrian,
-            })
-            .ok()?;
-        Some((path, start.dist_along()))
+        map.pathfind(PathRequest {
+            start,
+            end,
+            constraints: PathConstraints::Pedestrian,
+        })
+        .ok()
     }
 
     pub(crate) fn new_person(
@@ -572,7 +565,7 @@ impl Sim {
                 events.push(Event::TripPhaseStarting(
                     create_ped.trip,
                     create_ped.person,
-                    Some(create_ped.req.clone()),
+                    Some(create_ped.path.get_req().clone()),
                     TripPhaseType::Walking,
                 ));
                 self.analytics.record_demand(&create_ped.path, map);

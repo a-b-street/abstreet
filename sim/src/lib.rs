@@ -581,7 +581,6 @@ pub(crate) struct CreatePedestrian {
     pub start: SidewalkSpot,
     pub speed: Speed,
     pub goal: SidewalkSpot,
-    pub req: PathRequest,
     pub path: Path,
     pub trip: TripID,
     pub person: PersonID,

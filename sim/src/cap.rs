@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 
 use geom::{Duration, Time};
-use map_model::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
+use map_model::{LaneID, Map, Path, PathConstraints, PathStep, TurnID};
 
 use crate::mechanics::IntersectionSimState;
 use crate::{CarID, SimOptions, VehicleType};
@@ -79,7 +79,6 @@ impl CapSimState {
     /// dynamic limits.
     pub fn maybe_cap_path(
         &mut self,
-        req: &PathRequest,
         path: Path,
         now: Time,
         car: CarID,
@@ -112,14 +111,14 @@ impl CapSimState {
                 avoid_lanes.insert(*l);
             }
         }
-        match map.pathfind_avoiding_lanes(req.clone(), avoid_lanes) {
+        match map.pathfind_avoiding_lanes(path.get_req().clone(), avoid_lanes) {
             Some(path) => CapResult::Reroute(path),
             None => {
                 if let Some(delay) = self.delay_trips_instead_of_cancelling {
                     CapResult::Delay(delay)
                 } else {
                     CapResult::Cancel {
-                        reason: format!("no path avoiding caps: {}", req),
+                        reason: format!("no path avoiding caps: {}", path.get_req()),
                     }
                 }
             }

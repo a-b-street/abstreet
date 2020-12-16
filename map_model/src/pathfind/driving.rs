@@ -116,7 +116,7 @@ impl VehiclePathfinder {
         }
         steps.push(PathStep::Lane(req.end.lane()));
         Some((
-            Path::new(map, steps, req.end.dist_along(), uber_turns),
+            Path::new(map, steps, req.clone(), uber_turns),
             raw_path.get_weight(),
         ))
     }

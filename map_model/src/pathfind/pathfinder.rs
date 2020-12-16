@@ -45,7 +45,7 @@ impl Pathfinder {
                         if req.constraints == PathConstraints::Pedestrian {
                             let steps =
                                 walking_path_to_steps(z1.pathfind_walking(req.clone(), map)?, map);
-                            return Some(Path::new(map, steps, req.end.dist_along(), Vec::new()));
+                            return Some(Path::new(map, steps, req, Vec::new()));
                         }
                         return z1.pathfind(req, map);
                     }
@@ -102,7 +102,7 @@ impl Pathfinder {
                 return Some(one_step_walking_path(&req, map));
             }
             let steps = walking_path_to_steps(self.simple_walking_path(&req, map)?, map);
-            return Some(Path::new(map, steps, req.end.dist_along(), Vec::new()));
+            return Some(Path::new(map, steps, req, Vec::new()));
         }
         self.simple_pathfind(&req, map)
     }
@@ -221,7 +221,7 @@ impl Pathfinder {
             };
             interior_path.extend(main_path);
             let steps = walking_path_to_steps(interior_path, map);
-            return Some(Path::new(map, steps, req.end.dist_along(), Vec::new()));
+            return Some(Path::new(map, steps, req, Vec::new()));
         }
 
         let mut interior_path = zone.pathfind(interior_req, map)?;
@@ -279,7 +279,7 @@ impl Pathfinder {
             end: req.end,
             constraints: req.constraints,
         };
-        let orig_end_dist = req.end.dist_along();
+        let orig_req = req.clone();
         req.end = if map.get_l(src).dst_i == i.id {
             Position::end(src, map)
         } else {
@@ -301,13 +301,13 @@ impl Pathfinder {
 
             main_path.extend(interior_path);
             let steps = walking_path_to_steps(main_path, map);
-            return Some(Path::new(map, steps, orig_end_dist, Vec::new()));
+            return Some(Path::new(map, steps, orig_req, Vec::new()));
         }
 
         let interior_path = zone.pathfind(interior_req, map)?;
         let mut main_path = self.simple_pathfind(&req, map)?;
         main_path.append(interior_path, map);
-        main_path.end_dist = orig_end_dist;
+        main_path.orig_req = orig_req;
         Some(main_path)
     }
 }

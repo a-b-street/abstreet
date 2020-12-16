@@ -287,7 +287,6 @@ impl TransitSimState {
                         bus.state = BusState::DrivingOffMap;
                         Router::follow_bus_route(id, path, req.end.dist_along())
                     } else {
-                        let on = stop.driving_pos.lane();
                         route.active_vehicles.remove(&id);
                         for (person, stop2) in &bus.passengers {
                             panic!(
@@ -297,7 +296,7 @@ impl TransitSimState {
                             );
                         }
                         bus.state = BusState::Done;
-                        Router::vanish_bus(id, on, map)
+                        Router::vanish_bus(id, stop.driving_pos, map)
                     }
                 }
             }

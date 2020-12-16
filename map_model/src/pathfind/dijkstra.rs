@@ -68,7 +68,7 @@ fn calc_path(graph: DiGraphMap<LaneID, TurnID>, req: &PathRequest, map: &Map) ->
     }
     steps.push(PathStep::Lane(req.end.lane()));
     assert_eq!(steps[0], PathStep::Lane(req.start.lane()));
-    Some(Path::new(map, steps, req.end.dist_along(), Vec::new()))
+    Some(Path::new(map, steps, req.clone(), Vec::new()))
 }
 
 // TODO Not happy this works so differently

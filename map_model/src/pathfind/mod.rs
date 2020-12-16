@@ -102,7 +102,9 @@ impl PathStep {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Path {
     steps: VecDeque<PathStep>,
-    end_dist: Distance,
+    // The original request used to produce this path. Calling shift(), add(), modify_step(), etc
+    // will NOT affect this.
+    orig_req: PathRequest,
 
     // Also track progress along the original path.
     total_length: Distance,
@@ -119,7 +121,7 @@ impl Path {
     pub(crate) fn new(
         map: &Map,
         steps: Vec<PathStep>,
-        end_dist: Distance,
+        orig_req: PathRequest,
         uber_turns: Vec<UberTurn>,
     ) -> Path {
         // Haven't seen problems here in a very long time. Noticeably saves some time to skip.
@@ -136,7 +138,7 @@ impl Path {
         }
         Path {
             steps: VecDeque::from(steps),
-            end_dist,
+            orig_req,
             total_length,
             crossed_so_far: Distance::ZERO,
             uber_turns: uber_turns.into_iter().collect(),
@@ -144,25 +146,15 @@ impl Path {
         }
     }
 
-    pub fn one_step(l: LaneID, map: &Map) -> Path {
-        Path::new(
-            map,
-            vec![PathStep::Lane(l)],
-            map.get_l(l).length(),
-            Vec::new(),
-        )
+    pub fn one_step(req: PathRequest, map: &Map) -> Path {
+        assert_eq!(req.start.lane(), req.end.lane());
+        Path::new(map, vec![PathStep::Lane(req.start.lane())], req, Vec::new())
     }
 
-    /// Only used for weird serialization magic.
-    pub fn dummy() -> Path {
-        Path {
-            steps: VecDeque::new(),
-            end_dist: Distance::ZERO,
-            total_length: Distance::ZERO,
-            crossed_so_far: Distance::ZERO,
-            uber_turns: VecDeque::new(),
-            currently_inside_ut: None,
-        }
+    /// The original PathRequest used to produce this path. If the path has been modified since
+    /// creation, the start and end of the request won't match up with the current path steps.
+    pub fn get_req(&self) -> &PathRequest {
+        &self.orig_req
     }
 
     pub fn crossed_so_far(&self) -> Distance {
@@ -293,7 +285,8 @@ impl Path {
         self.steps[self.steps.len() - 1]
     }
 
-    /// dist_ahead is unlimited when None.
+    /// dist_ahead is unlimited when None. Note this starts at the beginning (or end, for some
+    /// walking paths) of the first lane, not accounting for the original request's start distance.
     pub fn trace(
         &self,
         map: &Map,
@@ -302,12 +295,13 @@ impl Path {
     ) -> Option<PolyLine> {
         let mut pts_so_far: Option<PolyLine> = None;
         let mut dist_remaining = dist_ahead;
+        let orig_end_dist = self.orig_req.end.dist_along();
 
         if self.steps.len() == 1 {
-            let dist = if start_dist < self.end_dist {
-                self.end_dist - start_dist
+            let dist = if start_dist < orig_end_dist {
+                orig_end_dist - start_dist
             } else {
-                start_dist - self.end_dist
+                start_dist - orig_end_dist
             };
             if let Some(d) = dist_remaining {
                 if dist < d {
@@ -346,9 +340,9 @@ impl Path {
             if i == self.steps.len() - 1 {
                 let end_dist = match self.steps[i] {
                     PathStep::ContraflowLane(l) => {
-                        map.get_l(l).lane_center_pts.reversed().length() - self.end_dist
+                        map.get_l(l).lane_center_pts.reversed().length() - orig_end_dist
                     }
-                    _ => self.end_dist,
+                    _ => orig_end_dist,
                 };
                 if let Some(d) = dist_remaining {
                     if end_dist < d {

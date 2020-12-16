@@ -70,10 +70,17 @@ impl Router {
             owner,
         }
     }
-    pub fn vanish_bus(owner: CarID, l: LaneID, map: &Map) -> Router {
-        let lane = map.get_l(l);
+    pub fn vanish_bus(owner: CarID, start: Position, map: &Map) -> Router {
+        let lane = map.get_l(start.lane());
         Router {
-            path: Path::one_step(l, map),
+            path: Path::one_step(
+                PathRequest {
+                    start,
+                    end: Position::end(lane.id, map),
+                    constraints: PathConstraints::Bus,
+                },
+                map,
+            ),
             goal: Goal::EndAtBorder {
                 end_dist: lane.length(),
                 i: lane.dst_i,
