@@ -363,7 +363,13 @@ impl DrivingGoal {
         match self {
             DrivingGoal::ParkNear(b) => match constraints {
                 PathConstraints::Car => {
-                    Some(Position::start(map.find_driving_lane_near_building(*b)))
+                    let driving_lane = map.find_driving_lane_near_building(*b);
+                    let sidewalk_pos = map.get_b(*b).sidewalk_pos;
+                    if map.get_l(driving_lane).parent == map.get_l(sidewalk_pos.lane()).parent {
+                        Some(sidewalk_pos.equiv_pos(driving_lane, map))
+                    } else {
+                        Some(Position::start(driving_lane))
+                    }
                 }
                 PathConstraints::Bike => Some(map.get_b(*b).biking_connection(map)?.0),
                 PathConstraints::Bus | PathConstraints::Train | PathConstraints::Pedestrian => {

@@ -393,6 +393,8 @@ struct AgentPosition {
     ///   transit stop.
     /// - The value might be slightly undercounted or overcounted if the path crosses into or out
     ///   of an access-restricted or capped zone.
+    /// - At the very end of a driving trip, the agent may wind up crossing slightly more or less
+    ///   than the total path length, due to where they park along that last road.
     distance_crossed: Distance,
     /// None for buses
     person: Option<PersonID>,

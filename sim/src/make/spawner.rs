@@ -306,6 +306,10 @@ pub enum TripEndpoint {
 }
 
 impl TripEndpoint {
+    /// Figure out a single PathRequest that goes between two TripEndpoints. Assume a single mode
+    /// the entire time -- no walking to a car before driving, for instance. The result probably
+    /// won't be exactly what would happen on a real trip between the endpoints because of this
+    /// assumption.
     pub fn path_req(
         from: TripEndpoint,
         to: TripEndpoint,
@@ -361,7 +365,7 @@ impl TripEndpoint {
         }
     }
 
-    pub(crate) fn pos(self, mode: TripMode, from: bool, map: &Map) -> Option<Position> {
+    fn pos(self, mode: TripMode, from: bool, map: &Map) -> Option<Position> {
         match mode {
             TripMode::Walk | TripMode::Transit => (if from {
                 self.start_sidewalk_spot(map)
