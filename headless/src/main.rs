@@ -386,10 +386,13 @@ struct AgentPosition {
     /// The distance crossed so far by the agent, in meters. There are some caveats to this value:
     /// - The distance along driveways between buildings/parking lots and the road doesn't count
     ///   here.
-    /// - The distance will not change while an agent is travelling along a lane; it'll only
-    ///   increment when they completely cross one step of their path.
     /// - The distance only represents the current leg of the trip. If somebody walks to a car, the
     ///   distance will reset when they begin driving, and also vehicle_type will change.
+    /// - No meaning for bus passengers currently.
+    /// - For buses and trains, the value will reset every time the vehicle reaches the next
+    ///   transit stop.
+    /// - The value might be slightly undercounted or overcounted if the path crosses into or out
+    ///   of an access-restricted or capped zone.
     distance_crossed: Distance,
     /// None for buses
     person: Option<PersonID>,
