@@ -1173,6 +1173,10 @@ Vehicle type (or pedestrian), person ID, and position is included.</li>
 hour since midnight, throughput for that one hour period).</li>
 <li><strong>GET /data/get-blocked-by-graph</strong>: Returns a mapping from agent IDs to how
 long they've been waiting and why they're blocked.</li>
+<li><strong>GET /data/trip-time-lower-bound?id=123</strong>: Returns a reasonable lower bound
+for the total duration of trip 123, in seconds. The time is calculated
+assuming no delay at intersections, travelling full speed along every road,
+and using the primary mode for the entire trip (so just driving).</li>
 </ul>
 </li>
 <li><strong>/map</strong>
