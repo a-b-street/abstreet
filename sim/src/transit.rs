@@ -19,14 +19,14 @@ type StopIdx = usize;
 struct Stop {
     id: BusStopID,
     driving_pos: Position,
-    next_stop: Option<(PathRequest, Path)>,
+    next_stop: Option<Path>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Route {
     stops: Vec<Stop>,
-    start: (PathRequest, Path),
-    end_at_border: Option<(PathRequest, Path)>,
+    start: Path,
+    end_at_border: Option<Path>,
     active_vehicles: BTreeSet<CarID>,
 }
 
@@ -88,7 +88,7 @@ impl TransitSimState {
     }
 
     /// Returns the path for the first leg.
-    pub fn create_empty_route(&mut self, bus_route: &BusRoute, map: &Map) -> (PathRequest, Path) {
+    pub fn create_empty_route(&mut self, bus_route: &BusRoute, map: &Map) -> Path {
         if !self.routes.contains_key(&bus_route.id) {
             assert!(bus_route.stops.len() > 1);
             let mut stops = Vec::new();
@@ -107,15 +107,15 @@ impl TransitSimState {
                     end: map.get_bs(bus_route.stops[idx + 1]).driving_pos,
                     constraints: bus_route.route_type,
                 };
-                match map.pathfind(req.clone()) {
+                match map.pathfind(req) {
                     Ok(path) => {
                         if path.is_empty() {
-                            panic!("Empty path between stops?! {}", req);
+                            panic!("Empty path between stops?! {}", path.get_req());
                         }
                         stops.push(Stop {
                             id: stop1.id,
                             driving_pos: stop1.driving_pos,
-                            next_stop: Some((req, path)),
+                            next_stop: Some(path),
                         });
                     }
                     Err(err) => {
@@ -128,10 +128,7 @@ impl TransitSimState {
                 end: map.get_bs(bus_route.stops[0]).driving_pos,
                 constraints: bus_route.route_type,
             };
-            let start = (
-                start_req.clone(),
-                map.pathfind(start_req).expect("no route to first stop"),
-            );
+            let start = map.pathfind(start_req).expect("no route to first stop");
             let end_at_border = if let Some(l) = bus_route.end_border {
                 let req = PathRequest {
                     start: map.get_bs(*bus_route.stops.last().unwrap()).driving_pos,
@@ -139,9 +136,9 @@ impl TransitSimState {
                     constraints: bus_route.route_type,
                 };
                 let path = map
-                    .pathfind(req.clone())
+                    .pathfind(req)
                     .expect("no route from last stop to border");
-                Some((req, path))
+                Some(path)
             } else {
                 None
             };
@@ -233,7 +230,12 @@ impl TransitSimState {
                                 end: if let Some(stop2) = maybe_stop2 {
                                     ctx.map.get_bs(stop2).driving_pos
                                 } else {
-                                    self.routes[&route].end_at_border.as_ref().unwrap().0.end
+                                    self.routes[&route]
+                                        .end_at_border
+                                        .as_ref()
+                                        .unwrap()
+                                        .get_req()
+                                        .end
                                 },
                                 constraints: bus.car.1.to_constraints(),
                             }),
@@ -279,13 +281,13 @@ impl TransitSimState {
                 let stop = &route.stops[stop_idx];
                 self.events
                     .push(Event::BusDepartedFromStop(id, bus.route, stop.id));
-                if let Some((req, path)) = stop.next_stop.clone() {
+                if let Some(path) = stop.next_stop.clone() {
                     bus.state = BusState::DrivingToStop(stop_idx + 1);
-                    Router::follow_bus_route(id, path, req.end.dist_along())
+                    Router::follow_bus_route(id, path)
                 } else {
-                    if let Some((req, path)) = route.end_at_border.clone() {
+                    if let Some(path) = route.end_at_border.clone() {
                         bus.state = BusState::DrivingOffMap;
-                        Router::follow_bus_route(id, path, req.end.dist_along())
+                        Router::follow_bus_route(id, path)
                     } else {
                         route.active_vehicles.remove(&id);
                         for (person, stop2) in &bus.passengers {
@@ -333,7 +335,7 @@ impl TransitSimState {
                                 end: if let Some(stop2) = maybe_stop2 {
                                     map.get_bs(stop2).driving_pos
                                 } else {
-                                    route.end_at_border.as_ref().unwrap().0.end
+                                    route.end_at_border.as_ref().unwrap().get_req().end
                                 },
                                 constraints: bus.1.to_constraints(),
                             }),

@@ -22,7 +22,7 @@ use crate::{
     ParkingSimState, ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
     TrafficRecorder, TransitSimState, TripID, TripInfo, TripLeg, TripManager, TripPhaseType,
     TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH,
-    MIN_CAR_LENGTH, SPAWN_DIST,
+    MIN_CAR_LENGTH,
 };
 
 mod queries;
@@ -334,7 +334,7 @@ impl Sim {
 
     fn start_bus(&mut self, route: &BusRoute, map: &Map) {
         // Spawn one bus for the first leg.
-        let (req, path) = self.transit.create_empty_route(route, map);
+        let path = self.transit.create_empty_route(route, map);
 
         // For now, no desire for randomness. Caller can pass in list of specs if that ever
         // changes.
@@ -349,26 +349,13 @@ impl Sim {
             max_speed: None,
         }
         .make(CarID(self.trips.new_car_id(), vehicle_type), None);
-        let start_lane = map.get_l(path.current_step().as_lane());
-        let start_dist = if map.get_i(start_lane.src_i).is_incoming_border() {
-            SPAWN_DIST
-        } else {
-            assert!(start_lane.length() > vehicle.length);
-            vehicle.length
-        };
 
         self.scheduler.push(
             self.time,
             Command::SpawnCar(
                 CreateCar {
-                    start_dist,
-                    router: Router::follow_bus_route(
-                        vehicle.id,
-                        path.clone(),
-                        req.end.dist_along(),
-                    ),
+                    router: Router::follow_bus_route(vehicle.id, path),
                     vehicle,
-                    req,
                     maybe_parked_car: None,
                     trip_and_person: None,
                     maybe_route: Some(route.id),
@@ -488,7 +475,7 @@ impl Sim {
                     let maybe_route = create_car.maybe_route;
                     let trip_and_person = create_car.trip_and_person;
                     let maybe_parked_car = create_car.maybe_parked_car.clone();
-                    let req = create_car.req.clone();
+                    let req = create_car.router.get_path().get_req().clone();
 
                     if let Some(create_car) = self
                         .driving
@@ -498,10 +485,7 @@ impl Sim {
                         if retry_if_no_room {
                             self.driving.vehicle_waiting_to_spawn(
                                 id,
-                                Position::new(
-                                    create_car.router.head().as_lane(),
-                                    create_car.start_dist,
-                                ),
+                                req.start,
                                 trip_and_person.map(|(_, p)| p),
                             );
 

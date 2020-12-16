@@ -20,7 +20,7 @@ use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path,
-    PathConstraints, PathRequest, Position,
+    PathConstraints, Position,
 };
 
 pub use crate::render::{
@@ -590,8 +590,6 @@ pub(crate) struct CreatePedestrian {
 pub(crate) struct CreateCar {
     pub vehicle: Vehicle,
     pub router: Router,
-    pub req: PathRequest,
-    pub start_dist: Distance,
     pub maybe_parked_car: Option<ParkedCar>,
     /// None for buses
     pub trip_and_person: Option<(TripID, PersonID)>,
@@ -601,17 +599,13 @@ pub(crate) struct CreateCar {
 impl CreateCar {
     pub fn for_appearing(
         vehicle: Vehicle,
-        start_pos: Position,
         router: Router,
-        req: PathRequest,
         trip: TripID,
         person: PersonID,
     ) -> CreateCar {
         CreateCar {
             vehicle,
             router,
-            req,
-            start_dist: start_pos.dist_along(),
             maybe_parked_car: None,
             trip_and_person: Some((trip, person)),
             maybe_route: None,
@@ -622,16 +616,12 @@ impl CreateCar {
     pub fn for_parked_car(
         parked_car: ParkedCar,
         router: Router,
-        req: PathRequest,
-        start_dist: Distance,
         trip: TripID,
         person: PersonID,
     ) -> CreateCar {
         CreateCar {
             vehicle: parked_car.vehicle.clone(),
             router,
-            req,
-            start_dist,
             maybe_parked_car: Some(parked_car),
             trip_and_person: Some((trip, person)),
             maybe_route: None,

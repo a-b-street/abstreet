@@ -186,15 +186,13 @@ impl TripManager {
                 };
                 let person = person.id;
 
-                match self.maybe_spawn_car(ctx, now, trip, req.clone(), vehicle.id) {
+                match self.maybe_spawn_car(ctx, now, trip, req, vehicle.id) {
                     Ok(path) => {
                         let router = goal.make_router(vehicle.id, path, ctx.map);
                         ctx.scheduler.push(
                             now,
                             Command::SpawnCar(
-                                CreateCar::for_appearing(
-                                    vehicle, start_pos, router, req, trip, person,
-                                ),
+                                CreateCar::for_appearing(vehicle, router, trip, person),
                                 retry_if_no_room,
                             ),
                         );
@@ -535,20 +533,13 @@ impl TripManager {
 
         let person = trip.person;
         let trip = trip.id;
-        match self.maybe_spawn_car(ctx, now, trip, req.clone(), parked_car.vehicle.id) {
+        match self.maybe_spawn_car(ctx, now, trip, req, parked_car.vehicle.id) {
             Ok(path) => {
                 let router = drive_to.make_router(parked_car.vehicle.id, path, ctx.map);
                 ctx.scheduler.push(
                     now,
                     Command::SpawnCar(
-                        CreateCar::for_parked_car(
-                            parked_car,
-                            router,
-                            req,
-                            start.dist_along(),
-                            trip,
-                            person,
-                        ),
+                        CreateCar::for_parked_car(parked_car, router, trip, person),
                         true,
                     ),
                 );
@@ -615,7 +606,7 @@ impl TripManager {
             ))
         } else {
             ctx.map
-                .pathfind(req.clone())
+                .pathfind(req)
                 .map(|path| drive_to.make_router(bike, path, ctx.map))
         };
         match maybe_router {
@@ -625,9 +616,7 @@ impl TripManager {
                     Command::SpawnCar(
                         CreateCar::for_appearing(
                             self.people[trip.person.0].get_vehicle(bike),
-                            driving_pos,
                             router,
-                            req,
                             trip.id,
                             trip.person,
                         ),

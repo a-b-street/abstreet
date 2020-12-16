@@ -96,6 +96,7 @@ impl DrivingSimState {
         ctx: &mut Ctx,
     ) -> Option<CreateCar> {
         let first_lane = params.router.head().as_lane();
+        let start_dist = params.router.get_path().get_req().start.dist_along();
 
         if !ctx
             .intersections
@@ -104,7 +105,7 @@ impl DrivingSimState {
             return Some(params);
         }
         if let Some(idx) = self.queues[&Traversable::Lane(first_lane)].get_idx_to_insert_car(
-            params.start_dist,
+            start_dist,
             params.vehicle.length,
             now,
             &self.cars,
@@ -127,16 +128,13 @@ impl DrivingSimState {
                         self.time_to_unpark_offstreet
                     }
                 };
-                car.state = CarState::Unparking(
-                    params.start_dist,
-                    p.spot,
-                    TimeInterval::new(now, now + delay),
-                );
+                car.state =
+                    CarState::Unparking(start_dist, p.spot, TimeInterval::new(now, now + delay));
             } else {
                 // Have to do this early
                 if car.router.last_step() {
                     match car.router.maybe_handle_end(
-                        params.start_dist,
+                        start_dist,
                         &car.vehicle,
                         ctx.parking,
                         ctx.map,
@@ -154,12 +152,12 @@ impl DrivingSimState {
                     }
                     // We might've decided to go park somewhere farther, so get_end_dist no longer
                     // makes sense.
-                    if car.router.last_step() && params.start_dist > car.router.get_end_dist() {
+                    if car.router.last_step() && start_dist > car.router.get_end_dist() {
                         println!(
                             "WARNING: {} wants to spawn at {}, which is past their end of {} on a \
                              one-step path {}",
                             car.vehicle.id,
-                            params.start_dist,
+                            start_dist,
                             car.router.get_end_dist(),
                             first_lane
                         );
@@ -169,7 +167,7 @@ impl DrivingSimState {
                     }
                 }
 
-                car.state = car.crossing_state(params.start_dist, now, ctx.map);
+                car.state = car.crossing_state(start_dist, now, ctx.map);
             }
             ctx.scheduler
                 .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));

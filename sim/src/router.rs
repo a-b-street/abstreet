@@ -110,10 +110,12 @@ impl Router {
         }
     }
 
-    pub fn follow_bus_route(owner: CarID, path: Path, end_dist: Distance) -> Router {
+    pub fn follow_bus_route(owner: CarID, path: Path) -> Router {
         Router {
+            goal: Goal::FollowBusRoute {
+                end_dist: path.get_req().end.dist_along(),
+            },
             path,
-            goal: Goal::FollowBusRoute { end_dist },
             owner,
         }
     }
