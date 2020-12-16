@@ -422,6 +422,8 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -444,14 +446,14 @@
 <span class="kw">struct</span> <span class="ident">Stop</span> {
     <span class="ident">id</span>: <span class="ident">BusStopID</span>,
     <span class="ident">driving_pos</span>: <span class="ident">Position</span>,
-    <span class="ident">next_stop</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">PathRequest</span>, <span class="ident">Path</span>)<span class="op">&gt;</span>,
+    <span class="ident">next_stop</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Route</span> {
     <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Stop</span><span class="op">&gt;</span>,
-    <span class="ident">start</span>: (<span class="ident">PathRequest</span>, <span class="ident">Path</span>),
-    <span class="ident">end_at_border</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">PathRequest</span>, <span class="ident">Path</span>)<span class="op">&gt;</span>,
+    <span class="ident">start</span>: <span class="ident">Path</span>,
+    <span class="ident">end_at_border</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
     <span class="ident">active_vehicles</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
 }
 
@@ -513,7 +515,7 @@
     }
 
     <span class="doccomment">/// Returns the path for the first leg.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_empty_route</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bus_route</span>: <span class="kw-2">&amp;</span><span class="ident">BusRoute</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">PathRequest</span>, <span class="ident">Path</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_empty_route</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bus_route</span>: <span class="kw-2">&amp;</span><span class="ident">BusRoute</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Path</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">bus_route</span>.<span class="ident">id</span>) {
             <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">bus_route</span>.<span class="ident">stops</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stops</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
@@ -532,15 +534,15 @@
                     <span class="ident">end</span>: <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">bus_route</span>.<span class="ident">stops</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]).<span class="ident">driving_pos</span>,
                     <span class="ident">constraints</span>: <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
                 };
-                <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>()) {
+                <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_empty</span>() {
-                            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Empty path between stops?! {}&quot;</span>, <span class="ident">req</span>);
+                            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Empty path between stops?! {}&quot;</span>, <span class="ident">path</span>.<span class="ident">get_req</span>());
                         }
                         <span class="ident">stops</span>.<span class="ident">push</span>(<span class="ident">Stop</span> {
                             <span class="ident">id</span>: <span class="ident">stop1</span>.<span class="ident">id</span>,
                             <span class="ident">driving_pos</span>: <span class="ident">stop1</span>.<span class="ident">driving_pos</span>,
-                            <span class="ident">next_stop</span>: <span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="ident">path</span>)),
+                            <span class="ident">next_stop</span>: <span class="prelude-val">Some</span>(<span class="ident">path</span>),
                         });
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -553,10 +555,7 @@
                 <span class="ident">end</span>: <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">bus_route</span>.<span class="ident">stops</span>[<span class="number">0</span>]).<span class="ident">driving_pos</span>,
                 <span class="ident">constraints</span>: <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
             };
-            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> (
-                <span class="ident">start_req</span>.<span class="ident">clone</span>(),
-                <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">start_req</span>).<span class="ident">expect</span>(<span class="string">&quot;no route to first stop&quot;</span>),
-            );
+            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">start_req</span>).<span class="ident">expect</span>(<span class="string">&quot;no route to first stop&quot;</span>);
             <span class="kw">let</span> <span class="ident">end_at_border</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">bus_route</span>.<span class="ident">end_border</span> {
                 <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
                     <span class="ident">start</span>: <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bus_route</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()).<span class="ident">driving_pos</span>,
@@ -564,9 +563,9 @@
                     <span class="ident">constraints</span>: <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
                 };
                 <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">map</span>
-                    .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
+                    .<span class="ident">pathfind</span>(<span class="ident">req</span>)
                     .<span class="ident">expect</span>(<span class="string">&quot;no route from last stop to border&quot;</span>);
-                <span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="ident">path</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">path</span>)
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             };
@@ -658,7 +657,12 @@
                                 <span class="ident">end</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
                                     <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stop2</span>).<span class="ident">driving_pos</span>
                                 } <span class="kw">else</span> {
-                                    <span class="self">self</span>.<span class="ident">routes</span>[<span class="kw-2">&amp;</span><span class="ident">route</span>].<span class="ident">end_at_border</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">0</span>.<span class="ident">end</span>
+                                    <span class="self">self</span>.<span class="ident">routes</span>[<span class="kw-2">&amp;</span><span class="ident">route</span>]
+                                        .<span class="ident">end_at_border</span>
+                                        .<span class="ident">as_ref</span>()
+                                        .<span class="ident">unwrap</span>()
+                                        .<span class="ident">get_req</span>()
+                                        .<span class="ident">end</span>
                                 },
                                 <span class="ident">constraints</span>: <span class="ident">bus</span>.<span class="ident">car</span>.<span class="number">1</span>.<span class="ident">to_constraints</span>(),
                             }),
@@ -704,13 +708,13 @@
                 <span class="kw">let</span> <span class="ident">stop</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">stops</span>[<span class="ident">stop_idx</span>];
                 <span class="self">self</span>.<span class="ident">events</span>
                     .<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">BusDepartedFromStop</span>(<span class="ident">id</span>, <span class="ident">bus</span>.<span class="ident">route</span>, <span class="ident">stop</span>.<span class="ident">id</span>));
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="ident">path</span>)) <span class="op">=</span> <span class="ident">stop</span>.<span class="ident">next_stop</span>.<span class="ident">clone</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">stop</span>.<span class="ident">next_stop</span>.<span class="ident">clone</span>() {
                     <span class="ident">bus</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">BusState</span>::<span class="ident">DrivingToStop</span>(<span class="ident">stop_idx</span> <span class="op">+</span> <span class="number">1</span>);
-                    <span class="ident">Router</span>::<span class="ident">follow_bus_route</span>(<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>())
+                    <span class="ident">Router</span>::<span class="ident">follow_bus_route</span>(<span class="ident">id</span>, <span class="ident">path</span>)
                 } <span class="kw">else</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="ident">path</span>)) <span class="op">=</span> <span class="ident">route</span>.<span class="ident">end_at_border</span>.<span class="ident">clone</span>() {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">route</span>.<span class="ident">end_at_border</span>.<span class="ident">clone</span>() {
                         <span class="ident">bus</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">BusState</span>::<span class="ident">DrivingOffMap</span>;
-                        <span class="ident">Router</span>::<span class="ident">follow_bus_route</span>(<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>())
+                        <span class="ident">Router</span>::<span class="ident">follow_bus_route</span>(<span class="ident">id</span>, <span class="ident">path</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">route</span>.<span class="ident">active_vehicles</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
                         <span class="kw">for</span> (<span class="ident">person</span>, <span class="ident">stop2</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">bus</span>.<span class="ident">passengers</span> {
@@ -758,7 +762,7 @@
                                 <span class="ident">end</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
                                     <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stop2</span>).<span class="ident">driving_pos</span>
                                 } <span class="kw">else</span> {
-                                    <span class="ident">route</span>.<span class="ident">end_at_border</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">0</span>.<span class="ident">end</span>
+                                    <span class="ident">route</span>.<span class="ident">end_at_border</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">get_req</span>().<span class="ident">end</span>
                                 },
                                 <span class="ident">constraints</span>: <span class="ident">bus</span>.<span class="number">1</span>.<span class="ident">to_constraints</span>(),
                             }),

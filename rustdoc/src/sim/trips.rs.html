@@ -1516,17 +1516,6 @@
 <span id="1513">1513</span>
 <span id="1514">1514</span>
 <span id="1515">1515</span>
-<span id="1516">1516</span>
-<span id="1517">1517</span>
-<span id="1518">1518</span>
-<span id="1519">1519</span>
-<span id="1520">1520</span>
-<span id="1521">1521</span>
-<span id="1522">1522</span>
-<span id="1523">1523</span>
-<span id="1524">1524</span>
-<span id="1525">1525</span>
-<span id="1526">1526</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -1716,15 +1705,13 @@
                 };
                 <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">id</span>;
 
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">vehicle</span>.<span class="ident">id</span>) {
+                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>, <span class="ident">vehicle</span>.<span class="ident">id</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">router</span> <span class="op">=</span> <span class="ident">goal</span>.<span class="ident">make_router</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
                         <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
                             <span class="ident">now</span>,
                             <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(
-                                <span class="ident">CreateCar</span>::<span class="ident">for_appearing</span>(
-                                    <span class="ident">vehicle</span>, <span class="ident">start_pos</span>, <span class="ident">router</span>, <span class="ident">req</span>, <span class="ident">trip</span>, <span class="ident">person</span>,
-                                ),
+                                <span class="ident">CreateCar</span>::<span class="ident">for_appearing</span>(<span class="ident">vehicle</span>, <span class="ident">router</span>, <span class="ident">trip</span>, <span class="ident">person</span>),
                                 <span class="ident">retry_if_no_room</span>,
                             ),
                         );
@@ -2065,20 +2052,13 @@
 
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">person</span>;
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">id</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>, <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">router</span> <span class="op">=</span> <span class="ident">drive_to</span>.<span class="ident">make_router</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
                 <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
                     <span class="ident">now</span>,
                     <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(
-                        <span class="ident">CreateCar</span>::<span class="ident">for_parked_car</span>(
-                            <span class="ident">parked_car</span>,
-                            <span class="ident">router</span>,
-                            <span class="ident">req</span>,
-                            <span class="ident">start</span>.<span class="ident">dist_along</span>(),
-                            <span class="ident">trip</span>,
-                            <span class="ident">person</span>,
-                        ),
+                        <span class="ident">CreateCar</span>::<span class="ident">for_parked_car</span>(<span class="ident">parked_car</span>, <span class="ident">router</span>, <span class="ident">trip</span>, <span class="ident">person</span>),
                         <span class="bool-val">true</span>,
                     ),
                 );
@@ -2145,7 +2125,7 @@
             ))
         } <span class="kw">else</span> {
             <span class="ident">ctx</span>.<span class="ident">map</span>
-                .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>())
+                .<span class="ident">pathfind</span>(<span class="ident">req</span>)
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">drive_to</span>.<span class="ident">make_router</span>(<span class="ident">bike</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>))
         };
         <span class="kw">match</span> <span class="ident">maybe_router</span> {
@@ -2155,9 +2135,7 @@
                     <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(
                         <span class="ident">CreateCar</span>::<span class="ident">for_appearing</span>(
                             <span class="self">self</span>.<span class="ident">people</span>[<span class="ident">trip</span>.<span class="ident">person</span>.<span class="number">0</span>].<span class="ident">get_vehicle</span>(<span class="ident">bike</span>),
-                            <span class="ident">driving_pos</span>,
                             <span class="ident">router</span>,
-                            <span class="ident">req</span>,
                             <span class="ident">trip</span>.<span class="ident">id</span>,
                             <span class="ident">trip</span>.<span class="ident">person</span>,
                         ),

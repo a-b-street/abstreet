@@ -485,6 +485,8 @@
 <span id="482">482</span>
 <span id="483">483</span>
 <span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
 <span class="doccomment">//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
@@ -598,10 +600,12 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">follow_bus_route</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">end_dist</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">follow_bus_route</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
         <span class="ident">Router</span> {
+            <span class="ident">goal</span>: <span class="ident">Goal</span>::<span class="ident">FollowBusRoute</span> {
+                <span class="ident">end_dist</span>: <span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">end</span>.<span class="ident">dist_along</span>(),
+            },
             <span class="ident">path</span>,
-            <span class="ident">goal</span>: <span class="ident">Goal</span>::<span class="ident">FollowBusRoute</span> { <span class="ident">end_dist</span> },
             <span class="ident">owner</span>,
         }
     }

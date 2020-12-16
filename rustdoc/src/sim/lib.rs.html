@@ -631,16 +631,6 @@
 <span id="628">628</span>
 <span id="629">629</span>
 <span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also</span>
 <span class="doccomment">//! https://dabreegster.github.io/abstreet/trafficsim/index.html.</span>
@@ -664,7 +654,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>,
-    <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
+    <span class="ident">PathConstraints</span>, <span class="ident">Position</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{
@@ -1234,8 +1224,6 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">CreateCar</span> {
     <span class="kw">pub</span> <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
     <span class="kw">pub</span> <span class="ident">router</span>: <span class="ident">Router</span>,
-    <span class="kw">pub</span> <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-    <span class="kw">pub</span> <span class="ident">start_dist</span>: <span class="ident">Distance</span>,
     <span class="kw">pub</span> <span class="ident">maybe_parked_car</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>,
     <span class="doccomment">/// None for buses</span>
     <span class="kw">pub</span> <span class="ident">trip_and_person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>,
@@ -1245,17 +1233,13 @@
 <span class="kw">impl</span> <span class="ident">CreateCar</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_appearing</span>(
         <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
-        <span class="ident">start_pos</span>: <span class="ident">Position</span>,
         <span class="ident">router</span>: <span class="ident">Router</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
         <span class="ident">trip</span>: <span class="ident">TripID</span>,
         <span class="ident">person</span>: <span class="ident">PersonID</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateCar</span> {
         <span class="ident">CreateCar</span> {
             <span class="ident">vehicle</span>,
             <span class="ident">router</span>,
-            <span class="ident">req</span>,
-            <span class="ident">start_dist</span>: <span class="ident">start_pos</span>.<span class="ident">dist_along</span>(),
             <span class="ident">maybe_parked_car</span>: <span class="prelude-val">None</span>,
             <span class="ident">trip_and_person</span>: <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="ident">person</span>)),
             <span class="ident">maybe_route</span>: <span class="prelude-val">None</span>,
@@ -1266,16 +1250,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_parked_car</span>(
         <span class="ident">parked_car</span>: <span class="ident">ParkedCar</span>,
         <span class="ident">router</span>: <span class="ident">Router</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">start_dist</span>: <span class="ident">Distance</span>,
         <span class="ident">trip</span>: <span class="ident">TripID</span>,
         <span class="ident">person</span>: <span class="ident">PersonID</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateCar</span> {
         <span class="ident">CreateCar</span> {
             <span class="ident">vehicle</span>: <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">clone</span>(),
             <span class="ident">router</span>,
-            <span class="ident">req</span>,
-            <span class="ident">start_dist</span>,
             <span class="ident">maybe_parked_car</span>: <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>),
             <span class="ident">trip_and_person</span>: <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="ident">person</span>)),
             <span class="ident">maybe_route</span>: <span class="prelude-val">None</span>,

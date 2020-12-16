@@ -1018,22 +1018,6 @@
 <span id="1015">1015</span>
 <span id="1016">1016</span>
 <span id="1017">1017</span>
-<span id="1018">1018</span>
-<span id="1019">1019</span>
-<span id="1020">1020</span>
-<span id="1021">1021</span>
-<span id="1022">1022</span>
-<span id="1023">1023</span>
-<span id="1024">1024</span>
-<span id="1025">1025</span>
-<span id="1026">1026</span>
-<span id="1027">1027</span>
-<span id="1028">1028</span>
-<span id="1029">1029</span>
-<span id="1030">1030</span>
-<span id="1031">1031</span>
-<span id="1032">1032</span>
-<span id="1033">1033</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1059,7 +1043,7 @@
     <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Router</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>,
     <span class="ident">TrafficRecorder</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripLeg</span>, <span class="ident">TripManager</span>, <span class="ident">TripPhaseType</span>,
     <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">BUS_LENGTH</span>, <span class="ident">LIGHT_RAIL_LENGTH</span>,
-    <span class="ident">MIN_CAR_LENGTH</span>, <span class="ident">SPAWN_DIST</span>,
+    <span class="ident">MIN_CAR_LENGTH</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">queries</span>;
@@ -1371,7 +1355,7 @@
 
     <span class="kw">fn</span> <span class="ident">start_bus</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">route</span>: <span class="kw-2">&amp;</span><span class="ident">BusRoute</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
         <span class="comment">// Spawn one bus for the first leg.</span>
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="ident">path</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">transit</span>.<span class="ident">create_empty_route</span>(<span class="ident">route</span>, <span class="ident">map</span>);
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transit</span>.<span class="ident">create_empty_route</span>(<span class="ident">route</span>, <span class="ident">map</span>);
 
         <span class="comment">// For now, no desire for randomness. Caller can pass in list of specs if that ever</span>
         <span class="comment">// changes.</span>
@@ -1386,26 +1370,13 @@
             <span class="ident">max_speed</span>: <span class="prelude-val">None</span>,
         }
         .<span class="ident">make</span>(<span class="ident">CarID</span>(<span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">new_car_id</span>(), <span class="ident">vehicle_type</span>), <span class="prelude-val">None</span>);
-        <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_lane</span>());
-        <span class="kw">let</span> <span class="ident">start_dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">start_lane</span>.<span class="ident">src_i</span>).<span class="ident">is_incoming_border</span>() {
-            <span class="ident">SPAWN_DIST</span>
-        } <span class="kw">else</span> {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">start_lane</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="ident">vehicle</span>.<span class="ident">length</span>);
-            <span class="ident">vehicle</span>.<span class="ident">length</span>
-        };
 
         <span class="self">self</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
             <span class="self">self</span>.<span class="ident">time</span>,
             <span class="ident">Command</span>::<span class="ident">SpawnCar</span>(
                 <span class="ident">CreateCar</span> {
-                    <span class="ident">start_dist</span>,
-                    <span class="ident">router</span>: <span class="ident">Router</span>::<span class="ident">follow_bus_route</span>(
-                        <span class="ident">vehicle</span>.<span class="ident">id</span>,
-                        <span class="ident">path</span>.<span class="ident">clone</span>(),
-                        <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>(),
-                    ),
+                    <span class="ident">router</span>: <span class="ident">Router</span>::<span class="ident">follow_bus_route</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">path</span>),
                     <span class="ident">vehicle</span>,
-                    <span class="ident">req</span>,
                     <span class="ident">maybe_parked_car</span>: <span class="prelude-val">None</span>,
                     <span class="ident">trip_and_person</span>: <span class="prelude-val">None</span>,
                     <span class="ident">maybe_route</span>: <span class="prelude-val">Some</span>(<span class="ident">route</span>.<span class="ident">id</span>),
@@ -1525,7 +1496,7 @@
                     <span class="kw">let</span> <span class="ident">maybe_route</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">maybe_route</span>;
                     <span class="kw">let</span> <span class="ident">trip_and_person</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">trip_and_person</span>;
                     <span class="kw">let</span> <span class="ident">maybe_parked_car</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">maybe_parked_car</span>.<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">req</span>.<span class="ident">clone</span>();
+                    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">create_car</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">get_req</span>().<span class="ident">clone</span>();
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">create_car</span>) <span class="op">=</span> <span class="self">self</span>
                         .<span class="ident">driving</span>
@@ -1535,10 +1506,7 @@
                         <span class="kw">if</span> <span class="ident">retry_if_no_room</span> {
                             <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">vehicle_waiting_to_spawn</span>(
                                 <span class="ident">id</span>,
-                                <span class="ident">Position</span>::<span class="ident">new</span>(
-                                    <span class="ident">create_car</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>(),
-                                    <span class="ident">create_car</span>.<span class="ident">start_dist</span>,
-                                ),
+                                <span class="ident">req</span>.<span class="ident">start</span>,
                                 <span class="ident">trip_and_person</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">p</span>)<span class="op">|</span> <span class="ident">p</span>),
                             );
 
