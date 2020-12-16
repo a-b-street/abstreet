@@ -361,7 +361,7 @@ impl WalkingSimState {
         }
     }
 
-    pub fn agent_properties(&self, id: PedestrianID, now: Time) -> AgentProperties {
+    pub fn agent_properties(&self, map: &Map, id: PedestrianID, now: Time) -> AgentProperties {
         let p = &self.peds[&id];
 
         let time_spent_waiting = p.state.time_spent_waiting(now);
@@ -370,11 +370,30 @@ impl WalkingSimState {
             extra.push(format!("Waiting for bus {}", map.get_br(r).name));
         }*/
 
+        let current_state_dist = match p.state {
+            PedState::Crossing(ref dist_int, ref time_int) => {
+                time_int.percent(now) * dist_int.length()
+            }
+            // We're at the beginning of our trip and are only walking along a driveway or biking
+            // connection
+            PedState::LeavingBuilding(_, _)
+            | PedState::LeavingParkingLot(_, _)
+            | PedState::FinishingBiking(_, _, _) => Distance::ZERO,
+            // In all of these cases, we haven't shifted the PathStep that led us to this state yet
+            PedState::WaitingToTurn(_, _)
+            | PedState::EnteringBuilding(_, _)
+            | PedState::EnteringParkingLot(_, _)
+            | PedState::StartingToBike(_, _, _)
+            | PedState::WaitingForBus(_, _) => {
+                p.path.dist_crossed_from_step(map, &p.path.current_step())
+            }
+        };
+
         AgentProperties {
             total_time: now - p.started_at,
             waiting_here: time_spent_waiting,
             total_waiting: p.total_blocked_time + time_spent_waiting,
-            dist_crossed: p.path.crossed_so_far(),
+            dist_crossed: p.path.crossed_so_far() + current_state_dist,
             total_dist: p.path.total_length(),
         }
     }

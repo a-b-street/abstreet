@@ -304,7 +304,7 @@ fn handle_command(
                 .map(|a| AgentPosition {
                     vehicle_type: a.id.to_vehicle_type(),
                     pos: a.pos.to_gps(map.get_gps_bounds()),
-                    distance_crossed: sim.agent_properties(a.id).dist_crossed,
+                    distance_crossed: sim.agent_properties(map, a.id).dist_crossed,
                     person: a.person,
                 })
                 .collect(),

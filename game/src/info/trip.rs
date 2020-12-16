@@ -58,7 +58,7 @@ pub fn ongoing(
     let trip = app.primary.sim.trip_info(id);
 
     let col_width = Percent::int(7);
-    let props = app.primary.sim.agent_properties(agent);
+    let props = app.primary.sim.agent_properties(&app.primary.map, agent);
     let activity = agent.to_type().ongoing_verb();
     let time_so_far = app.primary.sim.time() - trip.departure;
 

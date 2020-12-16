@@ -145,7 +145,9 @@ impl Path {
         path
     }
 
-    fn dist_crossed_from_step(&self, map: &Map, step: &PathStep) -> Distance {
+    /// Once we finish this PathStep, how much distance will be crossed? If the step is at the
+    /// beginning or end of our path, then the full length may not be used.
+    pub fn dist_crossed_from_step(&self, map: &Map, step: &PathStep) -> Distance {
         match step {
             PathStep::Lane(l) => {
                 let lane = map.get_l(*l);

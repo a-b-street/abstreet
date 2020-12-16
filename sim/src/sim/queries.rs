@@ -67,9 +67,9 @@ impl Sim {
     }
 
     /// Only call for active agents, will panic otherwise
-    pub fn agent_properties(&self, id: AgentID) -> AgentProperties {
+    pub fn agent_properties(&self, map: &Map, id: AgentID) -> AgentProperties {
         match id {
-            AgentID::Pedestrian(id) => self.walking.agent_properties(id, self.time),
+            AgentID::Pedestrian(id) => self.walking.agent_properties(map, id, self.time),
             AgentID::Car(id) => self.driving.agent_properties(id, self.time),
             // TODO Harder to measure some of this stuff
             AgentID::BusPassenger(_, _) => AgentProperties {
@@ -514,7 +514,6 @@ pub struct AgentProperties {
     pub waiting_here: Duration,
     pub total_waiting: Duration,
 
-    // TODO More continuous on a single lane
     pub dist_crossed: Distance,
     pub total_dist: Distance,
 }
