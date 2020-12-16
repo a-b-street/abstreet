@@ -937,10 +937,10 @@
     <span class="doccomment">/// The distance crossed so far by the agent, in meters. There are some caveats to this value:</span>
     <span class="doccomment">/// - The distance along driveways between buildings/parking lots and the road doesn&#39;t count</span>
     <span class="doccomment">///   here.</span>
-    <span class="doccomment">/// - The distance will slightly exceed the true value if the agent begins or ends in the</span>
-    <span class="doccomment">///   middle of a lane.</span>
     <span class="doccomment">/// - The distance will not change while an agent is travelling along a lane; it&#39;ll only</span>
     <span class="doccomment">///   increment when they completely cross one step of their path.</span>
+    <span class="doccomment">/// - The distance only represents the current leg of the trip. If somebody walks to a car, the</span>
+    <span class="doccomment">///   distance will reset when they begin driving, and also vehicle_type will change.</span>
     <span class="ident">distance_crossed</span>: <span class="ident">Distance</span>,
     <span class="doccomment">/// None for buses</span>
     <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,
