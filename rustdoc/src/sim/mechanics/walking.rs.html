@@ -871,6 +871,25 @@
 <span id="868">868</span>
 <span id="869">869</span>
 <span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -1235,7 +1254,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>, <span class="ident">now</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AgentProperties</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>, <span class="ident">now</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AgentProperties</span> {
         <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
 
         <span class="kw">let</span> <span class="ident">time_spent_waiting</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">state</span>.<span class="ident">time_spent_waiting</span>(<span class="ident">now</span>);
@@ -1244,11 +1263,30 @@
             extra.push(format!(&quot;Waiting for bus {}&quot;, map.get_br(r).name));
         }*/</span>
 
+        <span class="kw">let</span> <span class="ident">current_state_dist</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">state</span> {
+            <span class="ident">PedState</span>::<span class="ident">Crossing</span>(<span class="kw-2">ref</span> <span class="ident">dist_int</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>) <span class="op">*</span> <span class="ident">dist_int</span>.<span class="ident">length</span>()
+            }
+            <span class="comment">// We&#39;re at the beginning of our trip and are only walking along a driveway or biking</span>
+            <span class="comment">// connection</span>
+            <span class="ident">PedState</span>::<span class="ident">LeavingBuilding</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">LeavingParkingLot</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">FinishingBiking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
+            <span class="comment">// In all of these cases, we haven&#39;t shifted the PathStep that led us to this state yet</span>
+            <span class="ident">PedState</span>::<span class="ident">WaitingToTurn</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">EnteringBuilding</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">EnteringParkingLot</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">StartingToBike</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="op">|</span> <span class="ident">PedState</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">dist_crossed_from_step</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">current_step</span>())
+            }
+        };
+
         <span class="ident">AgentProperties</span> {
             <span class="ident">total_time</span>: <span class="ident">now</span> <span class="op">-</span> <span class="ident">p</span>.<span class="ident">started_at</span>,
             <span class="ident">waiting_here</span>: <span class="ident">time_spent_waiting</span>,
             <span class="ident">total_waiting</span>: <span class="ident">p</span>.<span class="ident">total_blocked_time</span> <span class="op">+</span> <span class="ident">time_spent_waiting</span>,
-            <span class="ident">dist_crossed</span>: <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">crossed_so_far</span>(),
+            <span class="ident">dist_crossed</span>: <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">crossed_so_far</span>() <span class="op">+</span> <span class="ident">current_state_dist</span>,
             <span class="ident">total_dist</span>: <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">total_length</span>(),
         }
     }

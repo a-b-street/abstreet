@@ -855,7 +855,7 @@
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">AgentPosition</span> {
                     <span class="ident">vehicle_type</span>: <span class="ident">a</span>.<span class="ident">id</span>.<span class="ident">to_vehicle_type</span>(),
                     <span class="ident">pos</span>: <span class="ident">a</span>.<span class="ident">pos</span>.<span class="ident">to_gps</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
-                    <span class="ident">distance_crossed</span>: <span class="ident">sim</span>.<span class="ident">agent_properties</span>(<span class="ident">a</span>.<span class="ident">id</span>).<span class="ident">dist_crossed</span>,
+                    <span class="ident">distance_crossed</span>: <span class="ident">sim</span>.<span class="ident">agent_properties</span>(<span class="ident">map</span>, <span class="ident">a</span>.<span class="ident">id</span>).<span class="ident">dist_crossed</span>,
                     <span class="ident">person</span>: <span class="ident">a</span>.<span class="ident">person</span>,
                 })
                 .<span class="ident">collect</span>(),

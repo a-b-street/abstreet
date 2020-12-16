@@ -974,7 +974,7 @@
     <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="ident">id</span>);
 
     <span class="kw">let</span> <span class="ident">col_width</span> <span class="op">=</span> <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">7</span>);
-    <span class="kw">let</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">agent_properties</span>(<span class="ident">agent</span>);
+    <span class="kw">let</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">agent_properties</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">agent</span>);
     <span class="kw">let</span> <span class="ident">activity</span> <span class="op">=</span> <span class="ident">agent</span>.<span class="ident">to_type</span>().<span class="ident">ongoing_verb</span>();
     <span class="kw">let</span> <span class="ident">time_so_far</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="ident">trip</span>.<span class="ident">departure</span>;
 
