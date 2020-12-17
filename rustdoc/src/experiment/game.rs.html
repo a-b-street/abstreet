@@ -686,7 +686,7 @@
         <span class="kw">let</span> <span class="ident">status_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;Complete Deliveries&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;score label&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;score&quot;</span>),
-            <span class="string">&quot;Remaining Presents&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy label&quot;</span>),
+            <span class="string">&quot;Blood sugar&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;energy label&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(<span class="ident">ctx</span>, <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">named</span>(<span class="string">&quot;energy&quot;</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">RightInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
@@ -921,7 +921,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span>.<span class="ident">is_some</span>() {
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="string">&quot;Remaining Presents&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="string">&quot;Blood sugar&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">status_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;energy label&quot;</span>, <span class="ident">label</span>);
             }
         } <span class="kw">else</span> {
@@ -931,9 +931,10 @@
                     <span class="ident">app</span>.<span class="ident">time</span>,
                     <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">bldgs</span>.<span class="ident">all_stores</span>(),
                 ));
-                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span>
-                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Out of presents - refill from a store!&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>))
-                        .<span class="ident">draw</span>(<span class="ident">ctx</span>);
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(
+                    <span class="ident">Line</span>(<span class="string">&quot;SANTA&#39;S HANGRY - grab some cookies from a store!&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>),
+                )
+                .<span class="ident">draw</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">status_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;energy label&quot;</span>, <span class="ident">label</span>);
             }
             <span class="self">self</span>.<span class="ident">state</span>
@@ -1104,7 +1105,6 @@
 
     <span class="comment">// Number of deliveries</span>
     <span class="ident">score</span>: <span class="ident">usize</span>,
-    <span class="comment">// Number of presents currently being carried</span>
     <span class="ident">energy</span>: <span class="ident">usize</span>,
     <span class="ident">boost</span>: <span class="ident">Duration</span>,
 
@@ -1148,7 +1148,7 @@
             <span class="kw">let</span> <span class="ident">deliveries</span> <span class="op">=</span> <span class="ident">num_housing_units</span>.<span class="ident">min</span>(<span class="self">self</span>.<span class="ident">energy</span>);
             <span class="self">self</span>.<span class="ident">score</span> <span class="op">+</span><span class="op">=</span> <span class="ident">deliveries</span>;
             <span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">buildings</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">BldgState</span>::<span class="ident">Done</span>);
-            <span class="self">self</span>.<span class="ident">energy</span> <span class="op">-</span><span class="op">=</span> <span class="ident">deliveries</span>;
+            <span class="self">self</span>.<span class="ident">energy</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             <span class="self">self</span>.<span class="ident">draw_done_houses</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">draw_done_houses</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">deliveries</span>);
         }
