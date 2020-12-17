@@ -15,23 +15,23 @@ pub struct Vehicle {
 impl Vehicle {
     pub fn get(name: &str) -> Vehicle {
         match name {
-            "sleigh" => Vehicle {
-                name: "sleigh".to_string(),
-
-                speed: Speed::miles_per_hour(30.0),
-                max_energy: 20,
-
-                draw_frames: vec!["sleigh.svg"],
-                scale: 0.08,
-            },
             "bike" => Vehicle {
                 name: "bike".to_string(),
 
-                speed: Speed::miles_per_hour(40.0),
-                max_energy: 50,
+                speed: Speed::miles_per_hour(30.0),
+                max_energy: 100,
 
                 draw_frames: vec!["bike1.svg", "bike2.svg", "bike1.svg", "bike3.svg"],
                 scale: 0.05,
+            },
+            "sleigh" => Vehicle {
+                name: "sleigh".to_string(),
+
+                speed: Speed::miles_per_hour(25.0),
+                max_energy: 200,
+
+                draw_frames: vec!["sleigh.svg"],
+                scale: 0.08,
             },
             "cargo bike" => Vehicle {
                 name: "cargo bike".to_string(),

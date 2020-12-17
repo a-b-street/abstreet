@@ -22,20 +22,6 @@ impl Level {
     pub fn all() -> Vec<Level> {
         vec![
             Level {
-                title: "Montlake".to_string(),
-                description: "With the Montlake Market closed, how will you manage to bring cheer \
-                              to this sleepy little pocket of the city?"
-                    .to_string(),
-                map: MapName::seattle("montlake"),
-                start: osm::NodeID(53084814),
-                minimap_zoom: 1,
-                time_limit: Duration::seconds(50.0),
-                goal: 20,
-
-                unlock_upzones: 2,
-                unlock_vehicles: vec![],
-            },
-            Level {
                 title: "University District".to_string(),
                 description: "Tear yourself away from all the bubble tea to deliver presents to \
                               some college students, whether they've been naughty or nice."
@@ -44,10 +30,10 @@ impl Level {
                 start: osm::NodeID(53162661),
                 minimap_zoom: 1,
                 time_limit: Duration::seconds(90.0),
-                goal: 25,
+                goal: 1000,
 
-                unlock_upzones: 2,
-                unlock_vehicles: vec!["bike".to_string()],
+                unlock_upzones: 1,
+                unlock_vehicles: vec!["sleigh".to_string()],
             },
             Level {
                 title: "Wallingfjord".to_string(),
@@ -66,7 +52,7 @@ impl Level {
             // TODO Super dense, starting point isn't even near apartments, run out of gifts after
             // a few buildings. Unexpectedly hard!
             Level {
-                title: "South Lake Union".to_string(),
+                title: "South Pole Union".to_string(),
                 description: "Don't get turned around in all of the construction while you \
                               deliver to the apartments here!"
                     .to_string(),
@@ -75,6 +61,20 @@ impl Level {
                 minimap_zoom: 1,
                 time_limit: Duration::seconds(90.0),
                 goal: 25,
+
+                unlock_upzones: 2,
+                unlock_vehicles: vec![],
+            },
+            Level {
+                title: "Montlake".to_string(),
+                description: "With the Montlake Market closed, how will you manage to bring cheer \
+                              to this sleepy little pocket of the city?"
+                    .to_string(),
+                map: MapName::seattle("montlake"),
+                start: osm::NodeID(53084814),
+                minimap_zoom: 1,
+                time_limit: Duration::minutes(3),
+                goal: 1000,
 
                 unlock_upzones: 2,
                 unlock_vehicles: vec![],

@@ -75,8 +75,8 @@ impl Session {
 
             high_scores,
             levels_unlocked: 1,
-            current_vehicle: "sleigh".to_string(),
-            vehicles_unlocked: vec!["sleigh".to_string()].into_iter().collect(),
+            current_vehicle: "bike".to_string(),
+            vehicles_unlocked: vec!["bike".to_string()].into_iter().collect(),
             upzones_unlocked: 0,
 
             music: Music::empty(),
