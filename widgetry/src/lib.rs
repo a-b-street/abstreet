@@ -27,7 +27,7 @@
 #[macro_use]
 extern crate log;
 
-pub use crate::app_state::{DrawBaselayer, SharedAppState, State, Transition};
+pub use crate::app_state::{DrawBaselayer, SharedAppState, SimpleState, State, Transition};
 pub use crate::backend::Drawable;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::{Color, Fill, LinearGradient, Texture};

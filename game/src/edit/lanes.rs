@@ -2,13 +2,13 @@ use map_gui::render::Renderable;
 use map_gui::ID;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, State, Text,
-    TextExt, VerticalAlignment, Widget,
+    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
+    State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::common::{CommonState, SimpleState};
+use crate::common::CommonState;
 use crate::edit::zones::ZoneEditor;
 use crate::edit::{
     apply_map_edits, can_edit_lane, maybe_edit_intersection, speed_limit_choices, try_change_lt,
@@ -108,7 +108,7 @@ impl LaneEditor {
     }
 }
 
-impl SimpleState for LaneEditor {
+impl SimpleState<App> for LaneEditor {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
             "Edit multiple lanes" => Transition::Replace(crate::edit::bulk::BulkSelect::new(

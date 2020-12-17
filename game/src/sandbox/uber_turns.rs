@@ -7,11 +7,12 @@ use map_gui::ID;
 use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
 use widgetry::{
     Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
-use crate::common::{CommonState, SimpleState};
+use crate::common::CommonState;
 use crate::edit::ClusterTrafficSignalEditor;
 
 pub struct UberTurnPicker {
@@ -44,7 +45,7 @@ impl UberTurnPicker {
     }
 }
 
-impl SimpleState for UberTurnPicker {
+impl SimpleState<App> for UberTurnPicker {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
             "close" => Transition::Pop,
@@ -205,7 +206,7 @@ impl UberTurnViewer {
     }
 }
 
-impl SimpleState for UberTurnViewer {
+impl SimpleState<App> for UberTurnViewer {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
             "close" => Transition::Pop,

@@ -5,7 +5,7 @@
 //! screen or menu to choose a map, then a map viewer, then maybe a state to drill down into pieces
 //! of the map.
 
-use crate::{Canvas, Color, EventCtx, GfxCtx};
+use crate::{Canvas, Color, EventCtx, GfxCtx, Outcome, Panel};
 
 /// Any data that should last the entire lifetime of the application should be stored in the struct
 /// implementing this trait.
@@ -196,4 +196,69 @@ pub enum Transition<A> {
     Clear(Vec<Box<dyn State<A>>>),
     /// Execute a sequence of transitions in order.
     Multi(Vec<Transition<A>>),
+}
+
+/// Many states fit a pattern of managing a single panel, handling mouseover events, and other
+/// interactions on the map. Implementing this instead of `State` reduces some boilerplate.
+pub trait SimpleState<A> {
+    /// Called when something on the panel has been clicked. Since the action is just a string,
+    /// the fallback case can just use `unreachable!()`.
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut A,
+        action: &str,
+        panel: &Panel,
+    ) -> Transition<A>;
+    /// Called when something on the panel has changed. If a transition is returned, stop handling
+    /// the event and immediately apply the transition.
+    fn panel_changed(&mut self, _: &mut EventCtx, _: &mut A, _: &Panel) -> Option<Transition<A>> {
+        None
+    }
+    /// Called when the mouse has moved.
+    fn on_mouseover(&mut self, _: &mut EventCtx, _: &mut A) {}
+    /// If a panel `on_click` event didn't occur and `panel_changed` didn't return  transition, then
+    /// call this to handle all other events.
+    fn other_event(&mut self, _: &mut EventCtx, _: &mut A) -> Transition<A> {
+        Transition::Keep
+    }
+    fn draw(&self, _: &mut GfxCtx, _: &A) {}
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::DefaultDraw
+    }
+}
+
+impl<A: 'static> dyn SimpleState<A> {
+    pub fn new(panel: Panel, inner: Box<dyn SimpleState<A>>) -> Box<dyn State<A>> {
+        Box::new(SimpleStateWrapper { panel, inner })
+    }
+}
+
+pub struct SimpleStateWrapper<A> {
+    panel: Panel,
+    inner: Box<dyn SimpleState<A>>,
+}
+
+impl<A: 'static> State<A> for SimpleStateWrapper<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        if ctx.redo_mouseover() {
+            self.inner.on_mouseover(ctx, app);
+        }
+        match self.panel.event(ctx) {
+            Outcome::Clicked(action) => self.inner.on_click(ctx, app, &action, &self.panel),
+            Outcome::Changed => self
+                .inner
+                .panel_changed(ctx, app, &self.panel)
+                .unwrap_or_else(|| self.inner.other_event(ctx, app)),
+            Outcome::Nothing => self.inner.other_event(ctx, app),
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
+        self.panel.draw(g);
+        self.inner.draw(g, app);
+    }
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        self.inner.draw_baselayer()
+    }
 }

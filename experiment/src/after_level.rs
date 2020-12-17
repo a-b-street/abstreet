@@ -1,8 +1,8 @@
 use abstutil::prettyprint_usize;
 use map_gui::tools::{ColorLegend, PopupMsg};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, Text, VerticalAlignment, Widget,
+    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    SimpleState, State, Text, VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
@@ -13,7 +13,6 @@ use crate::{App, Transition};
 const ZOOM: f64 = 2.0;
 
 pub struct Strategize {
-    panel: Panel,
     unlock_messages: Option<Vec<String>>,
     draw_all: Drawable,
 }
@@ -106,54 +105,50 @@ impl Strategize {
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
-        Box::new(Strategize {
+        SimpleState::new(
             panel,
-            unlock_messages,
-            draw_all: ctx.upload(batch),
-        })
+            Box::new(Strategize {
+                unlock_messages,
+                draw_all: ctx.upload(batch),
+            }),
+        )
     }
 }
 
-impl State<App> for Strategize {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "Back to title screen" => {
-                    let mut transitions = vec![
-                        Transition::Pop,
-                        Transition::Replace(TitleScreen::new(ctx, app)),
-                    ];
-                    if let Some(msgs) = self.unlock_messages.take() {
-                        transitions.push(Transition::Push(PopupMsg::new(
-                            ctx,
-                            "Level complete!",
-                            msgs,
-                        )));
-                    }
-                    return Transition::Multi(transitions);
+impl SimpleState<App> for Strategize {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "Back to title screen" => {
+                let mut transitions = vec![
+                    Transition::Pop,
+                    Transition::Replace(TitleScreen::new(ctx, app)),
+                ];
+                if let Some(msgs) = self.unlock_messages.take() {
+                    transitions.push(Transition::Push(PopupMsg::new(
+                        ctx,
+                        "Level complete!",
+                        msgs,
+                    )));
                 }
-                _ => unreachable!(),
-            },
-            _ => {}
+                Transition::Multi(transitions)
+            }
+            _ => unreachable!(),
         }
+    }
 
+    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
         app.session.update_music(ctx);
-
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw_all);
-        self.panel.draw(g);
         app.session.music.draw(g);
     }
 }
 
-pub struct Results {
-    panel: Panel,
-}
+pub struct Results;
 
 impl Results {
     pub fn new(
@@ -189,34 +184,31 @@ impl Results {
             }
         }
 
-        let panel = Panel::new(Widget::col(vec![
-            txt.draw(ctx),
-            Btn::text_bg2("OK").build_def(ctx, Key::Enter),
-        ]))
-        .build(ctx);
-        Box::new(Results { panel })
+        SimpleState::new(
+            Panel::new(Widget::col(vec![
+                txt.draw(ctx),
+                Btn::text_bg2("OK").build_def(ctx, Key::Enter),
+            ]))
+            .build(ctx),
+            Box::new(Results),
+        )
     }
 }
 
-impl State<App> for Results {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "OK" => {
-                    return Transition::Pop;
-                }
-                _ => unreachable!(),
-            },
-            _ => {}
+impl SimpleState<App> for Results {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "OK" => Transition::Pop,
+            _ => unreachable!(),
         }
+    }
 
+    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         app.session.update_music(ctx);
-
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
         app.session.music.draw(g);
     }
 }

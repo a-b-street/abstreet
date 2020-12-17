@@ -1,16 +1,14 @@
 use geom::Percent;
 use map_gui::tools::open_browser;
 use widgetry::{
-    Btn, Color, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, RewriteColor,
-    State, Text, TextExt, Widget,
+    Btn, Color, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel, RewriteColor,
+    SimpleState, State, Text, TextExt, Widget,
 };
 
 use crate::levels::Level;
 use crate::{App, Transition};
 
-pub struct TitleScreen {
-    panel: Panel,
-}
+pub struct TitleScreen;
 
 impl TitleScreen {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
@@ -23,8 +21,8 @@ impl TitleScreen {
             }
         }
 
-        Box::new(TitleScreen {
-            panel: Panel::new(Widget::col(vec![
+        SimpleState::new(
+            Panel::new(Widget::col(vec![
                 Btn::svg_def("system/assets/tools/quit.svg")
                     .build(ctx, "quit", Key::Escape)
                     .align_right(),
@@ -61,43 +59,37 @@ impl TitleScreen {
             ]))
             .exact_size_percent(90, 85)
             .build_custom(ctx),
-        })
+            Box::new(TitleScreen),
+        )
     }
 }
 
-impl State<App> for TitleScreen {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "quit" => {
-                    return Transition::Pop;
-                }
-                "Credits" => {
-                    return Transition::Push(Credits::new(ctx));
-                }
-                x => {
-                    for level in &app.session.levels {
-                        if x == level.title {
-                            return Transition::Push(crate::before_level::Picker::new(
-                                ctx,
-                                app,
-                                level.clone(),
-                            ));
-                        }
+impl SimpleState<App> for TitleScreen {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "quit" => Transition::Pop,
+            "Credits" => Transition::Push(Credits::new(ctx)),
+            x => {
+                for level in &app.session.levels {
+                    if x == level.title {
+                        return Transition::Push(crate::before_level::Picker::new(
+                            ctx,
+                            app,
+                            level.clone(),
+                        ));
                     }
-                    panic!("Unknown action {}", x);
                 }
-            },
-            _ => {}
+                panic!("Unknown action {}", x);
+            }
         }
+    }
 
+    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         app.session.update_music(ctx);
-
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
         app.session.music.draw(g);
     }
 }
@@ -143,14 +135,12 @@ fn unlocked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> W
         .build(ctx, &level.title, None)
 }
 
-struct Credits {
-    panel: Panel,
-}
+struct Credits;
 
 impl Credits {
     fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        Box::new(Credits {
-            panel: Panel::new(Widget::col(vec![
+        SimpleState::new(
+            Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("15 Minute Santa").big_heading_plain().draw(ctx),
                     Btn::close(ctx),
@@ -180,8 +170,7 @@ impl Credits {
                 "Playtesting by Fridgehaus".draw_text(ctx),
                 Btn::text_bg2("Back").build_def(ctx, Key::Enter).centered_horiz(),
             ]))
-            .build(ctx),
-        })
+            .build(ctx), Box::new(Credits))
     }
 }
 
@@ -189,32 +178,27 @@ fn link(ctx: &mut EventCtx, label: &str, url: &str) -> Widget {
     Btn::plaintext(label).build(ctx, format!("open {}", url), None)
 }
 
-impl State<App> for Credits {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" | "Back" => {
-                    return Transition::Pop;
+impl SimpleState<App> for Credits {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "close" | "Back" => Transition::Pop,
+            x => {
+                if let Some(url) = x.strip_prefix("open ") {
+                    open_browser(url.to_string());
+                    return Transition::Keep;
                 }
-                x => {
-                    if let Some(url) = x.strip_prefix("open ") {
-                        open_browser(url.to_string());
-                        return Transition::Keep;
-                    }
 
-                    unreachable!()
-                }
-            },
-            _ => {}
+                unreachable!()
+            }
         }
+    }
 
+    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         app.session.update_music(ctx);
-
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
         app.session.music.draw(g);
     }
 }

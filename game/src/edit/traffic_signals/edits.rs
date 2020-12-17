@@ -5,12 +5,11 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
 };
 use widgetry::{
-    Btn, Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, Spinner, State, TextExt,
-    Widget,
+    Btn, Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State,
+    TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
-use crate::common::SimpleState;
 use crate::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
 use crate::sandbox::GameplayMode;
@@ -71,7 +70,7 @@ impl ChangeDuration {
     }
 }
 
-impl SimpleState for ChangeDuration {
+impl SimpleState<App> for ChangeDuration {
     fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, panel: &Panel) -> Transition {
         match x {
             "close" => Transition::Pop,

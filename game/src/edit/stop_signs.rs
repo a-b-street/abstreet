@@ -9,13 +9,13 @@ use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
 };
 use widgetry::{
-    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, State, Text,
-    VerticalAlignment, Widget,
+    Btn, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State,
+    Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::common::{CommonState, SimpleState};
+use crate::common::CommonState;
 use crate::edit::{apply_map_edits, check_sidewalk_connectivity, TrafficSignalEditor};
 use crate::sandbox::GameplayMode;
 
@@ -78,7 +78,7 @@ impl StopSignEditor {
     }
 }
 
-impl SimpleState for StopSignEditor {
+impl SimpleState<App> for StopSignEditor {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
             "Finish" => Transition::Pop,
