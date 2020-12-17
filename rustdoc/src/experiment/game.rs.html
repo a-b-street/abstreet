@@ -620,6 +620,15 @@
 <span id="617">617</span>
 <span id="618">618</span>
 <span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -669,6 +678,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">current_vehicle</span> <span class="op">=</span> <span class="ident">vehicle</span>.<span class="ident">name</span>.<span class="ident">clone</span>();
         <span class="ident">app</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>;
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="kw">crate</span>::<span class="ident">music</span>::<span class="ident">IN_GAME</span>);
 
         <span class="kw">let</span> <span class="ident">title_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;15 min Santa&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
@@ -1017,6 +1027,7 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pause_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;pause&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="kw">crate</span>::<span class="ident">music</span>::<span class="ident">OUT_OF_GAME</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Game Paused&quot;</span>,
@@ -1024,8 +1035,11 @@
                             <span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;Resume&quot;</span>).<span class="ident">key</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>),
                             <span class="ident">Choice</span>::<span class="ident">string</span>(<span class="string">&quot;Quit&quot;</span>),
                         ],
-                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">resp</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">resp</span>.<span class="ident">as_ref</span>() {
-                            <span class="string">&quot;Resume&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">resp</span>, <span class="kw">_</span>, <span class="ident">app</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">resp</span>.<span class="ident">as_ref</span>() {
+                            <span class="string">&quot;Resume&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="kw">crate</span>::<span class="ident">music</span>::<span class="ident">IN_GAME</span>);
+                                <span class="ident">Transition</span>::<span class="ident">Pop</span>
+                            }
                             <span class="string">&quot;Quit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Transition</span>::<span class="ident">Pop</span>, <span class="ident">Transition</span>::<span class="ident">Pop</span>]),
                             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
                         }),
@@ -1095,6 +1109,10 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">arrow</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energyless_arrow</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">arrow</span>.<span class="ident">draw</span>);
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">on_destroy</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="kw">crate</span>::<span class="ident">music</span>::<span class="ident">OUT_OF_GAME</span>);
     }
 }
 
