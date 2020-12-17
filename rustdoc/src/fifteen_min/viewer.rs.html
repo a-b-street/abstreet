@@ -560,7 +560,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">polyline</span>) <span class="op">=</span> <span class="ident">isochrone</span>
             .<span class="ident">path_to</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">hover_id</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">Distance</span>::<span class="ident">ZERO</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>))
         {
             <span class="kw">let</span> <span class="ident">dashed_lines</span> <span class="op">=</span> <span class="ident">polyline</span>.<span class="ident">dashed_lines</span>(
                 <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.75</span> <span class="op">*</span> <span class="ident">scale_factor</span>),
