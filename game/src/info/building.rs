@@ -74,7 +74,7 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingID
         .primary
         .sim
         .walking_path_to_nearest_parking_spot(&app.primary.map, id)
-        .and_then(|path| path.trace(&app.primary.map, path.get_req().start.dist_along()))
+        .and_then(|path| path.trace(&app.primary.map))
     {
         let color = app.cs.parking_trip;
         // TODO But this color doesn't show up well against the info panel...

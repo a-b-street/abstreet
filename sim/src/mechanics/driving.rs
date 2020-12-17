@@ -1050,7 +1050,7 @@ impl DrivingSimState {
     pub fn trace_route(&self, now: Time, id: CarID, map: &Map) -> Option<PolyLine> {
         let car = self.cars.get(&id)?;
         let front = self.get_car_front(now, car);
-        car.router.get_path().trace(map, front)
+        car.router.get_path().trace_from_start(map, front)
     }
 
     pub fn percent_along_route(&self, id: CarID) -> f64 {

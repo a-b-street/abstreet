@@ -403,7 +403,7 @@ impl WalkingSimState {
         let body_radius = SIDEWALK_THICKNESS / 4.0;
         let dist = (p.get_dist_along(now, map) + body_radius)
             .min(p.path.current_step().as_traversable().length(map));
-        p.path.trace(map, dist)
+        p.path.trace_from_start(map, dist)
     }
 
     pub fn get_path(&self, id: PedestrianID) -> Option<&Path> {

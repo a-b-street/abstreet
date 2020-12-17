@@ -321,8 +321,18 @@ impl Path {
         self.steps[self.steps.len() - 1]
     }
 
+    /// Traces along the path from its originally requested start. This is only valid to call for
+    /// an umodified path.
+    pub fn trace(&self, map: &Map) -> Option<PolyLine> {
+        assert_eq!(
+            self.steps[0].as_traversable(),
+            Traversable::Lane(self.orig_req.start.lane())
+        );
+        self.trace_from_start(map, self.orig_req.start.dist_along())
+    }
+
     /// Traces along the path from a specified distance along the first step until the end.
-    pub fn trace(&self, map: &Map, start_dist: Distance) -> Option<PolyLine> {
+    pub fn trace_from_start(&self, map: &Map, start_dist: Distance) -> Option<PolyLine> {
         let orig_end_dist = self.orig_req.end.dist_along();
 
         if self.steps.len() == 1 {

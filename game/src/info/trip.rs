@@ -745,9 +745,7 @@ fn make_trip_details(
 
             // This is expensive, so cache please
             if idx == open_trip.cached_routes.len() {
-                if let Some(trace) =
-                    path.trace(map_for_pathfinding, path.get_req().start.dist_along())
-                {
+                if let Some(trace) = path.trace(map_for_pathfinding) {
                     open_trip.cached_routes.push(Some((
                         trace.make_polygons(Distance::meters(10.0)),
                         trace.dashed_lines(
