@@ -553,6 +553,12 @@
 <span id="550">550</span>
 <span id="551">551</span>
 <span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -674,6 +680,12 @@
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>,
     <span class="ident">load</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">LoadSim</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">get</span> <span class="op">=</span> <span class="op">|</span><span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">|</span> {
+        <span class="ident">params</span>
+            .<span class="ident">get</span>(<span class="ident">key</span>)
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;missing GET parameter {}&quot;</span>, <span class="ident">key</span>))
+    };
+
     <span class="kw">match</span> <span class="ident">path</span> {
         <span class="comment">// Controlling the simulation</span>
         <span class="string">&quot;/sim/reset&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -698,7 +710,7 @@
         }
         <span class="string">&quot;/sim/get-time&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">to_string</span>()),
         <span class="string">&quot;/sim/goto-time&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>[<span class="string">&quot;t&quot;</span>])<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="ident">get</span>(<span class="string">&quot;t&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">sim</span>.<span class="ident">time</span>() {
                 <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} is in the past. call /sim/reset first?&quot;</span>, <span class="ident">t</span>).<span class="ident">into</span>())
             } <span class="kw">else</span> {
@@ -731,7 +743,7 @@
         }
         <span class="comment">// Traffic signals</span>
         <span class="string">&quot;/traffic-signals/get&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
+            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="ident">ts</span>))
             } <span class="kw">else</span> {
@@ -756,9 +768,9 @@
             <span class="prelude-val">Ok</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} has been updated&quot;</span>, <span class="ident">id</span>))
         }
         <span class="string">&quot;/traffic-signals/get-delays&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
-            <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>[<span class="string">&quot;t1&quot;</span>])<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>[<span class="string">&quot;t2&quot;</span>])<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
+            <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="ident">get</span>(<span class="string">&quot;t1&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="ident">get</span>(<span class="string">&quot;t2&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
                 <span class="ident">ts</span>
             } <span class="kw">else</span> {
@@ -786,7 +798,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">delays</span>))
         }
         <span class="string">&quot;/traffic-signals/get-cumulative-thruput&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
+            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
             <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
                 <span class="ident">ts</span>
             } <span class="kw">else</span> {
@@ -878,7 +890,7 @@
             <span class="ident">blocked_by</span>: <span class="ident">sim</span>.<span class="ident">get_blocked_by_graph</span>(<span class="ident">map</span>),
         })),
         <span class="string">&quot;/data/trip-time-lower-bound&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
+            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
             <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_trip_time_lower_bound</span>(<span class="ident">map</span>, <span class="ident">id</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">duration</span>.<span class="ident">inner_seconds</span>().<span class="ident">to_string</span>())
         }
@@ -890,13 +902,13 @@
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">to_permanent</span>(<span class="ident">map</span>)))
         }
         <span class="string">&quot;/map/get-edit-road-command&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RoadID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
+            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RoadID</span>(<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(
                 <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> {}).<span class="ident">to_perma</span>(<span class="ident">map</span>),
             ))
         }
         <span class="string">&quot;/map/get-intersection-geometry&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">params</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
+            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">export_geometry</span>(<span class="ident">map</span>, <span class="ident">i</span>)))
         }
         <span class="string">&quot;/map/get-all-geometry&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">export_all_geometry</span>(<span class="ident">map</span>))),
