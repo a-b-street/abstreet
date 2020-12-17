@@ -148,6 +148,8 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -172,6 +174,7 @@
     <span class="kw">pub</span> <span class="ident">current_vehicle</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">vehicles_unlocked</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">upzones_unlocked</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">upzones_explained</span>: <span class="ident">bool</span>,
 
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">music</span>: <span class="ident">Music</span>,
@@ -229,6 +232,7 @@
             <span class="ident">current_vehicle</span>: <span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">vehicles_unlocked</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>()].<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">upzones_unlocked</span>: <span class="number">0</span>,
+            <span class="ident">upzones_explained</span>: <span class="bool-val">false</span>,
 
             <span class="ident">music</span>: <span class="ident">Music</span>::<span class="ident">empty</span>(),
             <span class="ident">play_music</span>: <span class="bool-val">true</span>,

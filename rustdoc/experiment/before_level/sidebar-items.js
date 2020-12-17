@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ZOOM",""]],"fn":[["make_upzone_panel",""],["make_vehicle_panel",""]],"struct":[["Picker",""]]});
+initSidebarItems({"constant":[["ZOOM",""]],"fn":[["explain_upzoning",""],["make_upzone_panel",""],["make_vehicle_panel",""]],"struct":[["Picker",""]]});
