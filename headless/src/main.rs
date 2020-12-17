@@ -118,6 +118,12 @@ fn handle_command(
     map: &mut Map,
     load: &mut LoadSim,
 ) -> Result<String, Box<dyn Error>> {
+    let get = |key: &str| {
+        params
+            .get(key)
+            .ok_or_else(|| format!("missing GET parameter {}", key))
+    };
+
     match path {
         // Controlling the simulation
         "/sim/reset" => {
@@ -142,7 +148,7 @@ fn handle_command(
         }
         "/sim/get-time" => Ok(sim.time().to_string()),
         "/sim/goto-time" => {
-            let t = Time::parse(&params["t"])?;
+            let t = Time::parse(get("t")?)?;
             if t <= sim.time() {
                 Err(format!("{} is in the past. call /sim/reset first?", t).into())
             } else {
@@ -175,7 +181,7 @@ fn handle_command(
         }
         // Traffic signals
         "/traffic-signals/get" => {
-            let i = IntersectionID(params["id"].parse::<usize>()?);
+            let i = IntersectionID(get("id")?.parse::<usize>()?);
             if let Some(ts) = map.maybe_get_traffic_signal(i) {
                 Ok(abstutil::to_json(ts))
             } else {
@@ -200,9 +206,9 @@ fn handle_command(
             Ok(format!("{} has been updated", id))
         }
         "/traffic-signals/get-delays" => {
-            let i = IntersectionID(params["id"].parse::<usize>()?);
-            let t1 = Time::parse(&params["t1"])?;
-            let t2 = Time::parse(&params["t2"])?;
+            let i = IntersectionID(get("id")?.parse::<usize>()?);
+            let t1 = Time::parse(get("t1")?)?;
+            let t2 = Time::parse(get("t2")?)?;
             let ts = if let Some(ts) = map.maybe_get_traffic_signal(i) {
                 ts
             } else {
@@ -230,7 +236,7 @@ fn handle_command(
             Ok(abstutil::to_json(&delays))
         }
         "/traffic-signals/get-cumulative-thruput" => {
-            let i = IntersectionID(params["id"].parse::<usize>()?);
+            let i = IntersectionID(get("id")?.parse::<usize>()?);
             let ts = if let Some(ts) = map.maybe_get_traffic_signal(i) {
                 ts
             } else {
@@ -322,7 +328,7 @@ fn handle_command(
             blocked_by: sim.get_blocked_by_graph(map),
         })),
         "/data/trip-time-lower-bound" => {
-            let id = TripID(params["id"].parse::<usize>()?);
+            let id = TripID(get("id")?.parse::<usize>()?);
             let duration = sim.get_trip_time_lower_bound(map, id)?;
             Ok(duration.inner_seconds().to_string())
         }
@@ -334,13 +340,13 @@ fn handle_command(
             Ok(abstutil::to_json(&edits.to_permanent(map)))
         }
         "/map/get-edit-road-command" => {
-            let r = RoadID(params["id"].parse::<usize>()?);
+            let r = RoadID(get("id")?.parse::<usize>()?);
             Ok(abstutil::to_json(
                 &map.edit_road_cmd(r, |_| {}).to_perma(map),
             ))
         }
         "/map/get-intersection-geometry" => {
-            let i = IntersectionID(params["id"].parse::<usize>()?);
+            let i = IntersectionID(get("id")?.parse::<usize>()?);
             Ok(abstutil::to_json(&export_geometry(map, i)))
         }
         "/map/get-all-geometry" => Ok(abstutil::to_json(&export_all_geometry(map))),
