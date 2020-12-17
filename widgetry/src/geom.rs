@@ -123,7 +123,7 @@ impl GeomBatch {
     }
 
     /// True when the batch is empty.
-    pub(crate) fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.list.is_empty()
     }
 

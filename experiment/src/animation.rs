@@ -2,17 +2,19 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
 pub struct Animator {
     active: Vec<Animation>,
-    draw_current: Drawable,
+    draw_mapspace: Drawable,
+    draw_screenspace: Option<Drawable>,
 }
 
 struct Animation {
     start: Time,
     end: Time,
     effect: Effect,
+    screenspace: bool,
 }
 
 pub enum Effect {
@@ -26,13 +28,19 @@ pub enum Effect {
         width: Distance,
         pl: PolyLine,
     },
+    Flash {
+        orig: GeomBatch,
+        alpha_scale: (f32, f32),
+        cycles: usize,
+    },
 }
 
 impl Animator {
     pub fn new(ctx: &EventCtx) -> Animator {
         Animator {
             active: Vec::new(),
-            draw_current: Drawable::empty(ctx),
+            draw_mapspace: Drawable::empty(ctx),
+            draw_screenspace: None,
         }
     }
 
@@ -42,6 +50,16 @@ impl Animator {
             start: now,
             end: now + duration,
             effect,
+            screenspace: false,
+        });
+    }
+
+    pub fn add_screenspace(&mut self, now: Time, duration: Duration, effect: Effect) {
+        self.active.push(Animation {
+            start: now,
+            end: now + duration,
+            effect,
+            screenspace: true,
         });
     }
 
@@ -49,7 +67,8 @@ impl Animator {
         if self.active.is_empty() {
             return;
         }
-        let mut batch = GeomBatch::new();
+        let mut mapspace = GeomBatch::new();
+        let mut screenspace = GeomBatch::new();
         self.active.retain(|anim| {
             let pct = (now - anim.start) / (anim.end - anim.start);
             if pct < 0.0 {
@@ -58,15 +77,29 @@ impl Animator {
             } else if pct > 1.0 {
                 false
             } else {
-                anim.effect.render(pct, &mut batch);
+                if anim.screenspace {
+                    anim.effect.render(pct, &mut screenspace);
+                } else {
+                    anim.effect.render(pct, &mut mapspace);
+                }
                 true
             }
         });
-        self.draw_current = ctx.upload(batch);
+        self.draw_mapspace = ctx.upload(mapspace);
+        if screenspace.is_empty() {
+            self.draw_screenspace = None;
+        } else {
+            self.draw_screenspace = Some(ctx.upload(screenspace));
+        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.redraw(&self.draw_current);
+        g.redraw(&self.draw_mapspace);
+        if let Some(ref d) = self.draw_screenspace {
+            g.fork_screenspace();
+            g.redraw(d);
+            g.unfork();
+        }
     }
 
     pub fn is_done(&self) -> bool {
@@ -93,6 +126,19 @@ impl Effect {
                 if let Ok(pl) = pl.maybe_exact_slice(Distance::ZERO, pct * pl.length()) {
                     batch.push(*color, pl.make_polygons(*width));
                 }
+            }
+            Effect::Flash {
+                ref orig,
+                alpha_scale,
+                cycles,
+            } => {
+                // -1 to 1
+                let shift = (pct * (*cycles as f64) * (2.0 * std::f64::consts::PI)).sin() as f32;
+                let midpt = (alpha_scale.0 + alpha_scale.1) / 2.0;
+                let half_range = (alpha_scale.1 - alpha_scale.0) / 2.0;
+                let alpha = midpt + shift * half_range;
+
+                batch.append(orig.clone().color(RewriteColor::ChangeAlpha(alpha)));
             }
         }
     }

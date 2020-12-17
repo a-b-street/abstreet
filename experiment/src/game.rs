@@ -255,6 +255,7 @@ impl Game {
                     let refill = self.state.vehicle.max_energy - self.state.energy;
                     if refill > 0 {
                         self.state.energy += refill;
+                        self.state.warned_low_energy = false;
                         let path_speed = Duration::seconds(0.2);
                         self.animator.add(
                             app.time,
@@ -387,6 +388,69 @@ impl State<App> for Game {
                 );
             }
 
+            if !self.state.warned_low_time
+                && self.state.level.time_limit - (app.time - Time::START_OF_DAY)
+                    <= Duration::seconds(20.0)
+            {
+                self.state.warned_low_time = true;
+                self.animator.add(
+                    app.time,
+                    Duration::seconds(2.0),
+                    Effect::Flash {
+                        alpha_scale: (0.1, 0.5),
+                        cycles: 2,
+                        orig: GeomBatch::from(vec![(
+                            Color::RED,
+                            app.map.get_boundary_polygon().clone(),
+                        )]),
+                    },
+                );
+                self.animator.add_screenspace(
+                    app.time,
+                    Duration::seconds(2.0),
+                    Effect::Scale {
+                        lerp_scale: (1.0, 4.0),
+                        center: {
+                            let pt = ctx.canvas.center_to_screen_pt();
+                            Pt2D::new(pt.x, pt.y / 2.0)
+                        },
+                        orig: Text::from(Line("Almost out of time!"))
+                            .bg(Color::RED)
+                            .render_autocropped(ctx),
+                    },
+                );
+            }
+
+            if !self.state.warned_low_energy && self.state.energy < 30 {
+                self.state.warned_low_energy = true;
+                self.animator.add(
+                    app.time,
+                    Duration::seconds(2.0),
+                    Effect::Flash {
+                        alpha_scale: (0.1, 0.5),
+                        cycles: 2,
+                        orig: GeomBatch::from(vec![(
+                            Color::RED,
+                            app.map.get_boundary_polygon().clone(),
+                        )]),
+                    },
+                );
+                self.animator.add_screenspace(
+                    app.time,
+                    Duration::seconds(2.0),
+                    Effect::Scale {
+                        lerp_scale: (1.0, 4.0),
+                        center: {
+                            let pt = ctx.canvas.center_to_screen_pt();
+                            Pt2D::new(pt.x, pt.y / 2.0)
+                        },
+                        orig: Text::from(Line("Low on blood sugar, refill soon!"))
+                            .bg(Color::RED)
+                            .render_autocropped(ctx),
+                    },
+                );
+            }
+
             ctx.request_update(UpdateType::Game);
             return Transition::Keep;
         }
@@ -504,6 +568,8 @@ struct GameState {
     idle_time: Duration,
 
     game_over: bool,
+    warned_low_time: bool,
+    warned_low_energy: bool,
 }
 
 impl GameState {
@@ -524,6 +590,8 @@ impl GameState {
             idle_time: Duration::ZERO,
 
             game_over: false,
+            warned_low_time: false,
+            warned_low_energy: false,
         }
     }
 
