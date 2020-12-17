@@ -7,6 +7,10 @@ use widgetry::{
     Btn, Checkbox, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, VerticalAlignment,
 };
 
+// Don't play music loudly on the title screen, menus, etc
+pub const OUT_OF_GAME: f32 = 0.5;
+pub const IN_GAME: f32 = 1.0;
+
 pub struct Music {
     inner: Option<Inner>,
 }
@@ -21,6 +25,7 @@ struct Inner {
     // Have to keep this alive for the background thread to continue
     _stream: OutputStream,
     sink: Sink,
+    unmuted_volume: f32,
 
     panel: Panel,
 }
@@ -63,6 +68,12 @@ impl Music {
             inner.panel.draw(g);
         }
     }
+
+    pub fn specify_volume(&mut self, volume: f32) {
+        if let Some(ref mut inner) = self.inner {
+            inner.specify_volume(volume);
+        }
+    }
 }
 
 impl Inner {
@@ -94,15 +105,23 @@ impl Inner {
         Ok(Inner {
             _stream: stream,
             sink,
+            unmuted_volume: 1.0,
             panel,
         })
     }
 
     fn unmute(&mut self) {
-        self.sink.set_volume(1.0);
+        self.sink.set_volume(self.unmuted_volume);
     }
 
     fn mute(&mut self) {
         self.sink.set_volume(0.0);
+    }
+
+    fn specify_volume(&mut self, volume: f32) {
+        self.unmuted_volume = volume;
+        if self.sink.volume() != 0.0 {
+            self.unmute();
+        }
     }
 }

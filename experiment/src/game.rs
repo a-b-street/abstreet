@@ -46,6 +46,7 @@ impl Game {
     ) -> Box<dyn State<App>> {
         app.session.current_vehicle = vehicle.name.clone();
         app.time = Time::START_OF_DAY;
+        app.session.music.specify_volume(crate::music::IN_GAME);
 
         let title_panel = Panel::new(Widget::row(vec![
             "15 min Santa".draw_text(ctx).centered_vert(),
@@ -394,6 +395,7 @@ impl State<App> for Game {
         match self.pause_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "pause" => {
+                    app.session.music.specify_volume(crate::music::OUT_OF_GAME);
                     return Transition::Push(ChooseSomething::new(
                         ctx,
                         "Game Paused",
@@ -401,8 +403,11 @@ impl State<App> for Game {
                             Choice::string("Resume").key(Key::Escape),
                             Choice::string("Quit"),
                         ],
-                        Box::new(|resp, _, _| match resp.as_ref() {
-                            "Resume" => Transition::Pop,
+                        Box::new(|resp, _, app| match resp.as_ref() {
+                            "Resume" => {
+                                app.session.music.specify_volume(crate::music::IN_GAME);
+                                Transition::Pop
+                            }
                             "Quit" => Transition::Multi(vec![Transition::Pop, Transition::Pop]),
                             _ => unreachable!(),
                         }),
@@ -472,6 +477,10 @@ impl State<App> for Game {
         if let Some(ref arrow) = self.state.energyless_arrow {
             g.redraw(&arrow.draw);
         }
+    }
+
+    fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
+        app.session.music.specify_volume(crate::music::OUT_OF_GAME);
     }
 }
 
