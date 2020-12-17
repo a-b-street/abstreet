@@ -397,6 +397,10 @@
 <span id="394">394</span>
 <span id="395">395</span>
 <span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/dabreegster/abstreet/issues/258</span>
@@ -706,6 +710,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TripEndpoint</span> {
+    <span class="doccomment">/// Figure out a single PathRequest that goes between two TripEndpoints. Assume a single mode</span>
+    <span class="doccomment">/// the entire time -- no walking to a car before driving, for instance. The result probably</span>
+    <span class="doccomment">/// won&#39;t be exactly what would happen on a real trip between the endpoints because of this</span>
+    <span class="doccomment">/// assumption.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_req</span>(
         <span class="ident">from</span>: <span class="ident">TripEndpoint</span>,
         <span class="ident">to</span>: <span class="ident">TripEndpoint</span>,
@@ -761,7 +769,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pos</span>(<span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">TripMode</span>, <span class="ident">from</span>: <span class="ident">bool</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pos</span>(<span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">TripMode</span>, <span class="ident">from</span>: <span class="ident">bool</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">mode</span> {
             <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw">if</span> <span class="ident">from</span> {
                 <span class="self">self</span>.<span class="ident">start_sidewalk_spot</span>(<span class="ident">map</span>)
