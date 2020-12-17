@@ -52,14 +52,14 @@ impl PathStep {
         self.as_traversable().as_turn()
     }
 
-    // Returns dist_remaining. start is relative to the start of the actual geometry -- so from the
-    // lane's real start for ContraflowLane.
-    fn slice(
+    // start is relative to the start of the actual geometry -- so from the lane's real start for
+    // ContraflowLane.
+    fn exact_slice(
         &self,
         map: &Map,
         start: Distance,
         dist_ahead: Option<Distance>,
-    ) -> Result<(PolyLine, Distance), String> {
+    ) -> Result<PolyLine, String> {
         if let Some(d) = dist_ahead {
             if d < Distance::ZERO {
                 panic!("Negative dist_ahead?! {}", d);
@@ -73,26 +73,26 @@ impl PathStep {
             PathStep::Lane(id) => {
                 let pts = &map.get_l(*id).lane_center_pts;
                 if let Some(d) = dist_ahead {
-                    pts.slice(start, start + d)
+                    pts.maybe_exact_slice(start, start + d)
                 } else {
-                    pts.slice(start, pts.length())
+                    pts.maybe_exact_slice(start, pts.length())
                 }
             }
             PathStep::ContraflowLane(id) => {
                 let pts = map.get_l(*id).lane_center_pts.reversed();
                 let reversed_start = pts.length() - start;
                 if let Some(d) = dist_ahead {
-                    pts.slice(reversed_start, reversed_start + d)
+                    pts.maybe_exact_slice(reversed_start, reversed_start + d)
                 } else {
-                    pts.slice(reversed_start, pts.length())
+                    pts.maybe_exact_slice(reversed_start, pts.length())
                 }
             }
             PathStep::Turn(id) => {
                 let pts = &map.get_t(*id).geom;
                 if let Some(d) = dist_ahead {
-                    pts.slice(start, start + d)
+                    pts.maybe_exact_slice(start, start + d)
                 } else {
-                    pts.slice(start, pts.length())
+                    pts.maybe_exact_slice(start, pts.length())
                 }
             }
         }
@@ -321,73 +321,45 @@ impl Path {
         self.steps[self.steps.len() - 1]
     }
 
-    /// dist_ahead is unlimited when None. Note this starts at the beginning (or end, for some
-    /// walking paths) of the first lane, not accounting for the original request's start distance.
-    pub fn trace(
-        &self,
-        map: &Map,
-        start_dist: Distance,
-        dist_ahead: Option<Distance>,
-    ) -> Option<PolyLine> {
-        let mut pts_so_far: Option<PolyLine> = None;
-        let mut dist_remaining = dist_ahead;
+    /// Traces along the path from a specified distance along the first step until the end.
+    pub fn trace(&self, map: &Map, start_dist: Distance) -> Option<PolyLine> {
         let orig_end_dist = self.orig_req.end.dist_along();
 
         if self.steps.len() == 1 {
-            let dist = if start_dist < orig_end_dist {
+            let dist_ahead = if start_dist < orig_end_dist {
                 orig_end_dist - start_dist
             } else {
                 start_dist - orig_end_dist
             };
-            if let Some(d) = dist_remaining {
-                if dist < d {
-                    dist_remaining = Some(dist);
-                }
-            } else {
-                dist_remaining = Some(dist);
-            }
+
+            // Why might this fail? It's possible there are paths on their last step that're
+            // effectively empty, because they're a 0-length turn, or something like a pedestrian
+            // crossing a front path and immediately getting on a bike.
+            return self.steps[0]
+                .exact_slice(map, start_dist, Some(dist_ahead))
+                .ok();
         }
 
-        // Special case the first step.
-        if let Ok((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
+        let mut pts_so_far: Option<PolyLine> = None;
+
+        // Special case the first step with start_dist.
+        if let Ok(pts) = self.steps[0].exact_slice(map, start_dist, None) {
             pts_so_far = Some(pts);
-            if dist_remaining.is_some() {
-                dist_remaining = Some(dist);
-            }
-        }
-
-        if self.steps.len() == 1 {
-            // It's possible there are paths on their last step that're effectively empty, because
-            // they're a 0-length turn, or something like a pedestrian crossing a front path and
-            // immediately getting on a bike.
-            return pts_so_far;
         }
 
         // Crunch through the intermediate steps, as long as we can.
         for i in 1..self.steps.len() {
-            if let Some(d) = dist_remaining {
-                if d <= Distance::ZERO {
-                    // We know there's at least some geometry if we made it here, so unwrap to
-                    // verify that understanding.
-                    return Some(pts_so_far.unwrap());
-                }
-            }
-            // If we made it to the last step, maybe use the end_dist.
-            if i == self.steps.len() - 1 {
-                let end_dist = match self.steps[i] {
+            // Restrict the last step's slice
+            let dist_ahead = if i == self.steps.len() - 1 {
+                Some(match self.steps[i] {
                     PathStep::ContraflowLane(l) => {
                         map.get_l(l).lane_center_pts.reversed().length() - orig_end_dist
                     }
                     _ => orig_end_dist,
-                };
-                if let Some(d) = dist_remaining {
-                    if end_dist < d {
-                        dist_remaining = Some(end_dist);
-                    }
-                } else {
-                    dist_remaining = Some(end_dist);
-                }
-            }
+                })
+            } else {
+                None
+            };
 
             let start_dist_this_step = match self.steps[i] {
                 // TODO Length of a PolyLine can slightly change when points are reversed! That
@@ -395,9 +367,7 @@ impl Path {
                 PathStep::ContraflowLane(l) => map.get_l(l).lane_center_pts.reversed().length(),
                 _ => Distance::ZERO,
             };
-            if let Ok((new_pts, dist)) =
-                self.steps[i].slice(map, start_dist_this_step, dist_remaining)
-            {
+            if let Ok(new_pts) = self.steps[i].exact_slice(map, start_dist_this_step, dist_ahead) {
                 if pts_so_far.is_some() {
                     match pts_so_far.unwrap().extend(new_pts) {
                         Ok(new) => {
@@ -410,9 +380,6 @@ impl Path {
                     }
                 } else {
                     pts_so_far = Some(new_pts);
-                }
-                if dist_remaining.is_some() {
-                    dist_remaining = Some(dist);
                 }
             }
         }

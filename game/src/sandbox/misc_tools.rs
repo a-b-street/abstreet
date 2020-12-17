@@ -44,8 +44,7 @@ impl RoutePreview {
                 // Only draw the preview when zoomed in. If we wanted to do this unzoomed, we'd
                 // want a different style; the dashed lines don't show up well.
                 if zoomed {
-                    if let Some(trace) = app.primary.sim.trace_route(agent, &app.primary.map, None)
-                    {
+                    if let Some(trace) = app.primary.sim.trace_route(agent, &app.primary.map) {
                         batch.extend(
                             app.cs.route,
                             trace.dashed_lines(

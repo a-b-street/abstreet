@@ -215,15 +215,10 @@ impl Sim {
         self.driving.get_all_driving_paths()
     }
 
-    pub fn trace_route(
-        &self,
-        id: AgentID,
-        map: &Map,
-        dist_ahead: Option<Distance>,
-    ) -> Option<PolyLine> {
+    pub fn trace_route(&self, id: AgentID, map: &Map) -> Option<PolyLine> {
         match id {
-            AgentID::Car(car) => self.driving.trace_route(self.time, car, map, dist_ahead),
-            AgentID::Pedestrian(ped) => self.walking.trace_route(self.time, ped, map, dist_ahead),
+            AgentID::Car(car) => self.driving.trace_route(self.time, car, map),
+            AgentID::Pedestrian(ped) => self.walking.trace_route(self.time, ped, map),
             AgentID::BusPassenger(_, _) => None,
         }
     }

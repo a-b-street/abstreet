@@ -267,7 +267,7 @@ impl HoverOnBuilding {
         let mut batch = GeomBatch::new();
         if let Some(polyline) = isochrone
             .path_to(&app.map, hover_id)
-            .and_then(|path| path.trace(&app.map, Distance::ZERO, None))
+            .and_then(|path| path.trace(&app.map, Distance::ZERO))
         {
             let dashed_lines = polyline.dashed_lines(
                 Distance::meters(0.75 * scale_factor),

@@ -322,7 +322,7 @@ impl State<App> for AgentSpawner {
                     {
                         self.goal = Some((
                             to,
-                            path.trace(&app.primary.map, path.get_req().start.dist_along(), None)
+                            path.trace(&app.primary.map, path.get_req().start.dist_along())
                                 .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
                         ));
                     } else {
@@ -387,7 +387,7 @@ impl State<App> for AgentSpawner {
                     {
                         self.goal = Some((
                             hovering,
-                            path.trace(&app.primary.map, path.get_req().start.dist_along(), None)
+                            path.trace(&app.primary.map, path.get_req().start.dist_along())
                                 .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS)),
                         ));
                     } else {

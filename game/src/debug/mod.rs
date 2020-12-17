@@ -430,7 +430,7 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
         Parallelism::Fastest,
         agents,
         |id| {
-            sim.trace_route(id, map, None)
+            sim.trace_route(id, map)
                 .map(|trace| trace.make_polygons(NORMAL_LANE_THICKNESS))
         },
     ) {
