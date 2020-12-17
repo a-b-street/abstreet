@@ -36,10 +36,10 @@ impl TitleScreen {
                     .bg(app.cs.fade_map_dark)
                     .centered_horiz(),
                 Text::from(Line(
-                    "Time for Santa to deliver presents in Seattle! But... 2020 has thoroughly \
-                     squashed any remaining magic out of the world, so your sleigh can only hold \
-                     so many presents at a time. When you run out, refill from a store. Those are \
-                     close to where people live... right?",
+                    "Time for Santa to deliver presents in Seattle! But... COVID means no \
+                     stopping in houses to munch on cookies (gluten-free and paleo, obviously). \
+                     When your blood sugar gets low, you'll have to stop and refill your supply \
+                     from a store. Those are close to where people live... right?",
                 ))
                 .wrap_to_pct(ctx, 50)
                 .draw(ctx)

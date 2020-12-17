@@ -64,7 +64,7 @@ impl Picker {
                     Line("apartments").fg(app.session.colors.apartment),
                 ]);
                 txt.add_appended(vec![
-                    Line("Refill presents from "),
+                    Line("Raise your blood sugar by visiting "),
                     Line("stores").fg(app.session.colors.store),
                 ]);
 
@@ -249,7 +249,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .align_right(),
         ]),
         Widget::row(vec![
-            "Carrying capacity:".draw_text(ctx),
+            "Cookie jar capacity:".draw_text(ctx),
             custom_bar(
                 ctx,
                 app.session.colors.energy,
@@ -274,7 +274,7 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         "Multi-use buildings have stores on the ground floor, with apartments on top",
     ));
     txt.add(Line(
-        "Try finding the best spot for new stores, to help you refill faster",
+        "Try finding the best spot for new stores, to help you refill cookies faster",
     ));
     txt.add(Line(""));
     txt.add(Line("Use your mouse to select your changes."));

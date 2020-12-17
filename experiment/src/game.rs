@@ -63,7 +63,7 @@ impl Game {
         let status_panel = Panel::new(Widget::col(vec![
             "Complete Deliveries".draw_text(ctx).named("score label"),
             Widget::draw_batch(ctx, GeomBatch::new()).named("score"),
-            "Remaining Presents".draw_text(ctx).named("energy label"),
+            "Blood sugar".draw_text(ctx).named("energy label"),
             Widget::draw_batch(ctx, GeomBatch::new()).named("energy"),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
@@ -298,7 +298,7 @@ impl Game {
         if self.state.has_energy() {
             if self.state.energyless_arrow.is_some() {
                 self.state.energyless_arrow = None;
-                let label = "Remaining Presents".draw_text(ctx);
+                let label = "Blood sugar".draw_text(ctx);
                 self.status_panel.replace(ctx, "energy label", label);
             }
         } else {
@@ -308,9 +308,10 @@ impl Game {
                     app.time,
                     self.state.bldgs.all_stores(),
                 ));
-                let label =
-                    Text::from(Line("Out of presents - refill from a store!").fg(Color::RED))
-                        .draw(ctx);
+                let label = Text::from(
+                    Line("SANTA'S HANGRY - grab some cookies from a store!").fg(Color::RED),
+                )
+                .draw(ctx);
                 self.status_panel.replace(ctx, "energy label", label);
             }
             self.state
@@ -481,7 +482,6 @@ struct GameState {
 
     // Number of deliveries
     score: usize,
-    // Number of presents currently being carried
     energy: usize,
     boost: Duration,
 
@@ -525,7 +525,7 @@ impl GameState {
             let deliveries = num_housing_units.min(self.energy);
             self.score += deliveries;
             self.bldgs.buildings.insert(id, BldgState::Done);
-            self.energy -= deliveries;
+            self.energy -= 1;
             self.draw_done_houses = self.bldgs.draw_done_houses(ctx, app);
             return Some(deliveries);
         }
