@@ -74,7 +74,7 @@ impl Game {
 
         let time_panel = Panel::new(Widget::row(vec![
             Widget::draw_batch(ctx, GeomBatch::new()).named("time circle"),
-            "Time".draw_text(ctx).named("time label"),
+            "Time".draw_text(ctx).centered_vert().named("time label"),
         ]))
         .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
         .build(ctx);
@@ -139,6 +139,7 @@ impl Game {
             "{}",
             self.state.level.time_limit - (app.time - Time::START_OF_DAY)
         ))
+        .small_heading()
         .fg(text_color)
         .draw(ctx)
         .centered_vert();
@@ -146,7 +147,7 @@ impl Game {
 
         // TODO I couldn't quite work out how to get the partial outline from Figma working
         let center = Pt2D::new(0.0, 0.0);
-        let outer = Distance::meters(15.0);
+        let outer = Distance::meters(30.0);
         let draw = Widget::draw_batch(
             ctx,
             GeomBatch::from(vec![

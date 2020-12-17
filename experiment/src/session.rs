@@ -21,6 +21,7 @@ pub struct Session {
     pub current_vehicle: String,
     pub vehicles_unlocked: BTreeSet<String>,
     pub upzones_unlocked: usize,
+    pub upzones_explained: bool,
 
     #[serde(skip_serializing, skip_deserializing)]
     pub music: Music,
@@ -78,6 +79,7 @@ impl Session {
             current_vehicle: "bike".to_string(),
             vehicles_unlocked: vec!["bike".to_string()].into_iter().collect(),
             upzones_unlocked: 0,
+            upzones_explained: false,
 
             music: Music::empty(),
             play_music: true,

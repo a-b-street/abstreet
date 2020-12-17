@@ -7,6 +7,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::prettyprint_usize;
 use geom::Time;
 use map_gui::load::MapLoader;
+use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
@@ -92,7 +93,7 @@ impl Picker {
                     ])
                     .draw(ctx),
                 ]))
-                .aligned(HorizontalAlignment::Center, VerticalAlignment::BottomInset)
+                .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
                 .build(ctx);
 
                 let draw_start = GeomBatch::load_svg(ctx, "system/assets/timeline/start_pos.svg")
@@ -133,6 +134,11 @@ impl Picker {
 
 impl State<App> for Picker {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if app.session.upzones_unlocked > 0 && !app.session.upzones_explained {
+            app.session.upzones_explained = true;
+            return explain_upzoning(ctx);
+        }
+
         ctx.canvas_movement();
 
         if ctx.redo_mouseover() {
@@ -169,6 +175,9 @@ impl State<App> for Picker {
                 "Randomly choose upzones" => {
                     self.randomly_pick_upzones(app);
                     self.upzone_panel = make_upzone_panel(ctx, app, self.current_picks.len());
+                }
+                "help" => {
+                    return explain_upzoning(ctx);
                 }
                 _ => unreachable!(),
             },
@@ -259,28 +268,38 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .align_right(),
         ]),
     ]))
-    .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
+    .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
     .build(ctx)
 }
 
 fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel {
-    let mut txt = Text::new();
-    txt.add(Line("Upzoning").small_heading());
-    txt.add(Line(format!(
-        "You can upzone {} buildings",
-        app.session.upzones_unlocked
-    )));
-    txt.add(Line(
-        "Multi-use buildings have stores on the ground floor, with apartments on top",
-    ));
-    txt.add(Line(
-        "Try finding the best spot for new stores, to help you refill cookies faster",
-    ));
-    txt.add(Line(""));
-    txt.add(Line("Use your mouse to select your changes."));
+    // Don't overwhelm players on the very first level.
+    if app.session.upzones_unlocked == 0 {
+        return Panel::new(
+            Btn::text_bg2("Start game")
+                .build_def(ctx, Key::Enter)
+                .container(),
+        )
+        .aligned(
+            HorizontalAlignment::RightInset,
+            VerticalAlignment::BottomInset,
+        )
+        .build(ctx);
+    }
 
     Panel::new(Widget::col(vec![
-        txt.draw(ctx),
+        Widget::row(vec![
+            Line("Upzoning").small_heading().draw(ctx),
+            Btn::svg_def("system/assets/tools/info.svg")
+                .build(ctx, "help", None)
+                .align_right(),
+        ]),
+        Widget::row(vec![
+            Widget::draw_svg(ctx, "system/assets/tools/mouse.svg"),
+            Line("Select the houses you want to turn into stores")
+                .fg(ctx.style().hotkey_color)
+                .draw(ctx),
+        ]),
         Widget::row(vec![
             "Upzones chosen:".draw_text(ctx),
             make_bar(ctx, Color::PINK, num_picked, app.session.upzones_unlocked),
@@ -293,9 +312,27 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
         if num_picked == app.session.upzones_unlocked {
             Btn::text_bg2("Start game").build_def(ctx, Key::Enter)
         } else {
-            Btn::text_bg2("Start game").inactive(ctx)
+            Btn::text_bg2("Finish upzoning before playing").inactive(ctx)
         },
     ]))
-    .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
+    .aligned(
+        HorizontalAlignment::RightInset,
+        VerticalAlignment::BottomInset,
+    )
     .build(ctx)
+}
+
+fn explain_upzoning(ctx: &mut EventCtx) -> Transition {
+    Transition::Push(PopupMsg::new(
+        ctx,
+        "Upzoning power unlocked",
+        vec![
+            "It's hard to deliver to houses far away from shops, isn't it?",
+            "You've gained the power to change the zoning code for a residential building.",
+            "You can now transform a single-family house into a multi-use building,",
+            "with shops on the ground floor, and people living above.",
+            "",
+            "Where should you place the new store?",
+        ],
+    ))
 }
