@@ -243,7 +243,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             custom_bar(
                 ctx,
                 app.session.colors.boost,
-                vehicle.normal_speed / max_speed,
+                vehicle.speed / max_speed,
                 Text::new(),
             )
             .align_right(),

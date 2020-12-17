@@ -18,8 +18,10 @@ use crate::player::Player;
 use crate::vehicles::Vehicle;
 use crate::{App, Transition};
 
+const MAX_BOOST: Duration = Duration::const_seconds(5.0);
 const ACQUIRE_BOOST_RATE: f64 = 0.5;
 const BOOST_SPEED_MULTIPLIER: f64 = 2.0;
+const HANGRY_SPEED_MULTIPLIER: f64 = 0.3;
 
 pub struct Game {
     title_panel: Panel,
@@ -185,7 +187,7 @@ impl Game {
         let boost_bar = custom_bar(
             ctx,
             app.session.colors.boost,
-            self.state.boost / self.state.vehicle.max_boost,
+            self.state.boost / MAX_BOOST,
             if self.state.boost == Duration::ZERO {
                 Text::from(Line("Find a bike or bus lane"))
             } else {
@@ -205,9 +207,9 @@ impl Game {
         self.update_time_panel(ctx, app);
 
         let base_speed = if self.state.has_energy() {
-            self.state.vehicle.normal_speed
+            self.state.vehicle.speed
         } else {
-            self.state.vehicle.tired_speed
+            HANGRY_SPEED_MULTIPLIER * self.state.vehicle.speed
         };
         let speed = if ctx.is_key_down(Key::Space) && self.state.boost > Duration::ZERO {
             if !self.player.on_good_road(app) {
@@ -291,7 +293,7 @@ impl Game {
 
         if self.player.on_good_road(app) && !ctx.is_key_down(Key::Space) {
             self.state.boost += dt * ACQUIRE_BOOST_RATE;
-            self.state.boost = self.state.boost.min(self.state.vehicle.max_boost);
+            self.state.boost = self.state.boost.min(MAX_BOOST);
         }
 
         self.animator.event(ctx, app.time);
@@ -342,7 +344,7 @@ impl State<App> for Game {
                 self.animator.event(ctx, app.time);
                 self.snow.event(ctx, app.time);
                 self.player.override_pos(self.player.get_pos().project_away(
-                    dt * self.state.vehicle.normal_speed,
+                    dt * self.state.vehicle.speed,
                     self.player.get_angle().opposite(),
                 ));
             }

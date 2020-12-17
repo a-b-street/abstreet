@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
+use map_gui::tools::amenity_type;
 use map_model::{BuildingID, BuildingType};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, Line, Text};
 
@@ -65,8 +66,13 @@ impl Buildings {
                     }
                     continue;
                 }
-            } else if !b.amenities.is_empty() {
-                // TODO Maybe just food?
+            } else if b.amenities.iter().any(|a| {
+                if let Some(at) = amenity_type(&a.amenity_type) {
+                    at == "groceries" || at == "food" || at == "bar"
+                } else {
+                    false
+                }
+            }) {
                 buildings.insert(b.id, BldgState::Store);
                 batch.push(colors.store, b.polygon.clone());
                 continue;
