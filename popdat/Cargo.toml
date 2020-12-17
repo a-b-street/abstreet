@@ -7,6 +7,8 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.35"
+flatgeobuf = { version = "*", path = "../../../georust/flatgeobuf/src/rust" }
+# flatgeobuf = { version = "*" }
 geo = "0.16.0"
 geojson = { version = "0.21.0", features = ["geo-types"] }
 geom = { path = "../geom" }
