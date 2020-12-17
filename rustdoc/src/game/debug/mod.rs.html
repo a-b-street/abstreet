@@ -1221,7 +1221,7 @@
         <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
         <span class="ident">agents</span>,
         <span class="op">|</span><span class="ident">id</span><span class="op">|</span> {
-            <span class="ident">sim</span>.<span class="ident">trace_route</span>(<span class="ident">id</span>, <span class="ident">map</span>, <span class="prelude-val">None</span>)
+            <span class="ident">sim</span>.<span class="ident">trace_route</span>(<span class="ident">id</span>, <span class="ident">map</span>)
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">trace</span><span class="op">|</span> <span class="ident">trace</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>))
         },
     ) {
