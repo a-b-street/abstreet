@@ -397,7 +397,7 @@
         <span class="kw">let</span> <span class="ident">trip_saturation</span> <span class="op">=</span> <span class="number">1.2</span>;
         <span class="kw">let</span> <span class="ident">num_trips</span> <span class="op">=</span> (<span class="ident">trip_saturation</span> <span class="op">*</span> (<span class="ident">residents_cap</span> <span class="op">+</span> <span class="ident">workers_cap</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">usize</span>;
 
-        <span class="comment">// bound probabilities to ensure we&#39;re getting some diveristy of agents</span>
+        <span class="comment">// bound probabilities to ensure we&#39;re getting some diversity of agents</span>
         <span class="kw">let</span> <span class="ident">lower_bound_prob</span> <span class="op">=</span> <span class="number">0.05</span>;
         <span class="kw">let</span> <span class="ident">upper_bound_prob</span> <span class="op">=</span> <span class="number">0.90</span>;
         <span class="kw">let</span> <span class="ident">prob_local_resident</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">workers_cap</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
