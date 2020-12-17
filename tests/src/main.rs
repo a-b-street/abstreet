@@ -25,7 +25,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// when they change. The goldenfiles (and changes to them) themselves aren't easy to understand,
 /// but the test maps are.
 fn test_map_importer() -> Result<(), std::io::Error> {
-    for name in vec!["left_turn_and_bike_lane", "multiple_left_turn_lanes"] {
+    for name in vec![
+        "divided_highway_split",
+        "left_turn_and_bike_lane",
+        "multiple_left_turn_lanes",
+    ] {
         // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
         let map = import_map(abstutil::path(format!("../tests/input/{}.osm", name)));
         // Enable to debug the result wih the normal GUI

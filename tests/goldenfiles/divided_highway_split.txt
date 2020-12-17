@@ -1,0 +1,10 @@
+TurnID(Lane #2, Lane #6, Intersection #0) is a SharedSidewalkCorner
+TurnID(Lane #4, Lane #9, Intersection #0) is a Right
+TurnID(Lane #4, Lane #10, Intersection #0) is a Right
+TurnID(Lane #5, Lane #11, Intersection #0) is a SharedSidewalkCorner
+TurnID(Lane #6, Lane #2, Intersection #0) is a SharedSidewalkCorner
+TurnID(Lane #6, Lane #11, Intersection #0) is a Crosswalk
+TurnID(Lane #7, Lane #0, Intersection #0) is a Right
+TurnID(Lane #7, Lane #1, Intersection #0) is a Right
+TurnID(Lane #11, Lane #5, Intersection #0) is a SharedSidewalkCorner
+TurnID(Lane #11, Lane #6, Intersection #0) is a Crosswalk

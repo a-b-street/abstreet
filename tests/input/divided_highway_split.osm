@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Resembles https://www.openstreetmap.org/node/2706256854: a two-way road splits into a divided highway. -->
+<osm>
+        <bounds minlon="0.0" maxlon="0.001" minlat="0.0" maxlat="0.001"/>
+        <node id="1" lon="0.0005" lat="0.0005"/>
+        <node id="2" lon="0.9" lat="-0.2"/>
+        <node id="3" lon="0.9" lat="0.2"/>
+        <node id="4" lon="-0.1" lat="0.0005"/>
+        <node id="5" lon="1.0" lat="0.0005"/>
+        <way id="100">
+            <nd ref="1"/>
+            <nd ref="2"/>
+            <tag k="name" v="outbound"/>
+            <tag k="highway" v="residential"/>
+
+            <tag k="dual_carriageway" v="yes"/>
+            <tag k="lanes" v="2"/>
+	    <tag k="oneway" v="yes"/>
+        </way>
+        <way id="101">
+            <nd ref="3"/>
+            <nd ref="1"/>
+            <tag k="name" v="inbound"/>
+            <tag k="highway" v="residential"/>
+
+            <tag k="dual_carriageway" v="yes"/>
+            <tag k="lanes" v="2"/>
+	    <tag k="oneway" v="yes"/>
+        </way>
+        <way id="102">
+            <nd ref="1"/>
+            <nd ref="4"/>
+            <tag k="name" v="bidi"/>
+            <tag k="highway" v="residential"/>
+            <tag k="sidewalk" v="both"/>
+            <tag k="lanes" v="4"/>
+            <tag k="lanes:forward" v="2"/>
+            <tag k="lanes:backward" v="2"/>
+        </way>
+        <relation id="1000">
+            <member type="way" ref="101" role="from"/>
+            <member type="node" ref="1" role="via"/>
+            <member type="way" ref="100" role="to"/>
+            <tag k="type" v="restriction"/>
+            <tag k="restriction" v="no_left_turn"/>
+        </relation>
+</osm>
