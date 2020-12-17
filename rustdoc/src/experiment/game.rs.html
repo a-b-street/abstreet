@@ -629,6 +629,8 @@
 <span id="626">626</span>
 <span id="627">627</span>
 <span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -650,8 +652,10 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">vehicles</span>::<span class="ident">Vehicle</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 
+<span class="kw">const</span> <span class="ident">MAX_BOOST</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">5.0</span>);
 <span class="kw">const</span> <span class="ident">ACQUIRE_BOOST_RATE</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.5</span>;
 <span class="kw">const</span> <span class="ident">BOOST_SPEED_MULTIPLIER</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
+<span class="kw">const</span> <span class="ident">HANGRY_SPEED_MULTIPLIER</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.3</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Game</span> {
     <span class="ident">title_panel</span>: <span class="ident">Panel</span>,
@@ -817,7 +821,7 @@
         <span class="kw">let</span> <span class="ident">boost_bar</span> <span class="op">=</span> <span class="ident">custom_bar</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">boost</span>,
-            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">max_boost</span>,
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">/</span> <span class="ident">MAX_BOOST</span>,
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
                 <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Find a bike or bus lane&quot;</span>))
             } <span class="kw">else</span> {
@@ -837,9 +841,9 @@
         <span class="self">self</span>.<span class="ident">update_time_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
         <span class="kw">let</span> <span class="ident">base_speed</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_energy</span>() {
-            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">normal_speed</span>
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">speed</span>
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">tired_speed</span>
+            <span class="ident">HANGRY_SPEED_MULTIPLIER</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">speed</span>
         };
         <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">Space</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">player</span>.<span class="ident">on_good_road</span>(<span class="ident">app</span>) {
@@ -923,7 +927,7 @@
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">on_good_road</span>(<span class="ident">app</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key</span>::<span class="ident">Space</span>) {
             <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span> <span class="op">*</span> <span class="ident">ACQUIRE_BOOST_RATE</span>;
-            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span>.<span class="ident">min</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">max_boost</span>);
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">boost</span>.<span class="ident">min</span>(<span class="ident">MAX_BOOST</span>);
         }
 
         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">time</span>);
@@ -974,7 +978,7 @@
                 <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">time</span>);
                 <span class="self">self</span>.<span class="ident">snow</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">time</span>);
                 <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">override_pos</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>().<span class="ident">project_away</span>(
-                    <span class="ident">dt</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">normal_speed</span>,
+                    <span class="ident">dt</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">speed</span>,
                     <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_angle</span>().<span class="ident">opposite</span>(),
                 ));
             }

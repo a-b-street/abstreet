@@ -78,25 +78,15 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">GeomBatch</span>, <span class="ident">Prerender</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Vehicle</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
 
-    <span class="kw">pub</span> <span class="ident">normal_speed</span>: <span class="ident">Speed</span>,
-    <span class="kw">pub</span> <span class="ident">tired_speed</span>: <span class="ident">Speed</span>,
+    <span class="kw">pub</span> <span class="ident">speed</span>: <span class="ident">Speed</span>,
     <span class="kw">pub</span> <span class="ident">max_energy</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">max_boost</span>: <span class="ident">Duration</span>,
 
     <span class="comment">// Paths to SVGs to draw in sequence</span>
     <span class="ident">draw_frames</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
@@ -109,10 +99,8 @@
             <span class="string">&quot;sleigh&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vehicle</span> {
                 <span class="ident">name</span>: <span class="string">&quot;sleigh&quot;</span>.<span class="ident">to_string</span>(),
 
-                <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>),
-                <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">10.0</span>),
+                <span class="ident">speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">30.0</span>),
                 <span class="ident">max_energy</span>: <span class="number">20</span>,
-                <span class="ident">max_boost</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">5.0</span>),
 
                 <span class="ident">draw_frames</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;sleigh.svg&quot;</span>],
                 <span class="ident">scale</span>: <span class="number">0.08</span>,
@@ -120,10 +108,8 @@
             <span class="string">&quot;bike&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vehicle</span> {
                 <span class="ident">name</span>: <span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>(),
 
-                <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>),
-                <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">15.0</span>),
+                <span class="ident">speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>),
                 <span class="ident">max_energy</span>: <span class="number">50</span>,
-                <span class="ident">max_boost</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">8.0</span>),
 
                 <span class="ident">draw_frames</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike1.svg&quot;</span>, <span class="string">&quot;bike2.svg&quot;</span>, <span class="string">&quot;bike1.svg&quot;</span>, <span class="string">&quot;bike3.svg&quot;</span>],
                 <span class="ident">scale</span>: <span class="number">0.05</span>,
@@ -131,10 +117,8 @@
             <span class="string">&quot;cargo bike&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vehicle</span> {
                 <span class="ident">name</span>: <span class="string">&quot;cargo bike&quot;</span>.<span class="ident">to_string</span>(),
 
-                <span class="ident">normal_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>),
-                <span class="ident">tired_speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">5.0</span>),
+                <span class="ident">speed</span>: <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">40.0</span>),
                 <span class="ident">max_energy</span>: <span class="number">150</span>,
-                <span class="ident">max_boost</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>),
 
                 <span class="ident">draw_frames</span>: <span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;cargo_bike1.svg&quot;</span>,
@@ -166,7 +150,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">energy</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>, <span class="string">&quot;cargo bike&quot;</span>, <span class="string">&quot;sleigh&quot;</span>] {
             <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="ident">Vehicle</span>::<span class="ident">get</span>(<span class="ident">x</span>);
-            <span class="ident">speed</span> <span class="op">=</span> <span class="ident">speed</span>.<span class="ident">max</span>(<span class="ident">vehicle</span>.<span class="ident">normal_speed</span>);
+            <span class="ident">speed</span> <span class="op">=</span> <span class="ident">speed</span>.<span class="ident">max</span>(<span class="ident">vehicle</span>.<span class="ident">speed</span>);
             <span class="ident">energy</span> <span class="op">=</span> <span class="ident">energy</span>.<span class="ident">max</span>(<span class="ident">vehicle</span>.<span class="ident">max_energy</span>);
         }
         (<span class="ident">speed</span>, <span class="ident">energy</span>)
