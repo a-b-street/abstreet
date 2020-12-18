@@ -369,13 +369,28 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">nbez</span>::{<span class="ident">Bez3o</span>, <span class="ident">BezCurve</span>, <span class="ident">Point2d</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">RestrictionType</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Intersection</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>};
@@ -493,7 +508,7 @@
             <span class="comment">// TODO This was once an assertion, but disabled for</span>
             <span class="comment">// https://github.com/dabreegster/abstreet/issues/84. A crosswalk gets created twice</span>
             <span class="comment">// and deduplicated here. Not sure why it was double-created in the first place.</span>
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Duplicate turns {}!&quot;</span>, <span class="ident">t</span>.<span class="ident">id</span>);
+            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Duplicate turns {}!&quot;</span>, <span class="ident">t</span>.<span class="ident">id</span>);
         } <span class="kw">else</span> {
             <span class="ident">ids</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
             <span class="ident">keep</span>.<span class="ident">push</span>(<span class="ident">t</span>);
@@ -575,7 +590,7 @@
             }
 
             <span class="kw">let</span> <span class="ident">turn_type</span> <span class="op">=</span>
-                <span class="ident">TurnType</span>::<span class="ident">from_angles</span>(<span class="ident">src</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>(), <span class="ident">dst</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>());
+                <span class="ident">turn_type_from_angles</span>(<span class="ident">src</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>(), <span class="ident">dst</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>());
             <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Straight</span> {
                 <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">src</span>.<span class="ident">last_pt</span>(), <span class="ident">dst</span>.<span class="ident">first_pt</span>()])
             } <span class="kw">else</span> {
@@ -737,6 +752,21 @@
         <span class="comment">// remove this, but it may remove some valid U-turn movements (like on Mercer).</span>
     }
     <span class="ident">turns</span>
+}
+
+<span class="kw">fn</span> <span class="ident">turn_type_from_angles</span>(<span class="ident">from</span>: <span class="ident">Angle</span>, <span class="ident">to</span>: <span class="ident">Angle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TurnType</span> {
+    <span class="kw">let</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">to</span>);
+    <span class="comment">// This is a pretty arbitrary parameter, but a difference of 30 degrees seems reasonable for</span>
+    <span class="comment">// some observed cases.</span>
+    <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">30.0</span> {
+        <span class="ident">TurnType</span>::<span class="ident">Straight</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">diff</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
+        <span class="comment">// Clockwise rotation</span>
+        <span class="ident">TurnType</span>::<span class="ident">Right</span>
+    } <span class="kw">else</span> {
+        <span class="comment">// Counter-clockwise rotation</span>
+        <span class="ident">TurnType</span>::<span class="ident">Left</span>
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "map_model";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
