@@ -352,6 +352,14 @@
       "checksum": "72dab3f3be8ca9ff82ed22f891294801",
       "size_bytes": 104543987
     },
+    "data/input/seattle/osm/phinney.osm": {
+      "checksum": "3569d1a1d92ed1646191b7e4e5279f18",
+      "size_bytes": 16744961
+    },
+    "data/input/seattle/osm/qa.osm": {
+      "checksum": "09b0413878e59fee5477be7b97bcfbca",
+      "size_bytes": 6100774
+    },
     "data/input/seattle/osm/slu.osm": {
       "checksum": "0465af9eb03e12d10b64f44afa8f14a9",
       "size_bytes": 3719865
@@ -415,6 +423,14 @@
     "data/input/seattle/raw_maps/north_seattle.bin": {
       "checksum": "3684d4fa5e44f6a8c0c407e91834a4d3",
       "size_bytes": 29811412
+    },
+    "data/input/seattle/raw_maps/phinney.bin": {
+      "checksum": "abf33118c6451b88c1bcc2d464a5525d",
+      "size_bytes": 4846022
+    },
+    "data/input/seattle/raw_maps/qa.bin": {
+      "checksum": "94c7fb4a16ff6999924db50faa29af4f",
+      "size_bytes": 1772701
     },
     "data/input/seattle/raw_maps/slu.bin": {
       "checksum": "82fa1451ddc70934db9ba0ef65865a4d",
@@ -585,8 +601,8 @@
       "size_bytes": 20770984
     },
     "data/system/seattle/city.bin": {
-      "checksum": "87545752f96e85f82b6bdeef0891e128",
-      "size_bytes": 1366385
+      "checksum": "c5df7cb83a43f94f831fdb321f103122",
+      "size_bytes": 1366680
     },
     "data/system/seattle/maps/ballard.bin": {
       "checksum": "b653a4dadc76b289ac617a1f9f961d18",
@@ -611,6 +627,14 @@
     "data/system/seattle/maps/north_seattle.bin": {
       "checksum": "81253b386cb93186dd470252c4e436a2",
       "size_bytes": 64016535
+    },
+    "data/system/seattle/maps/phinney.bin": {
+      "checksum": "8253cfab5846155c254b9c9690b70b6d",
+      "size_bytes": 10161190
+    },
+    "data/system/seattle/maps/qa.bin": {
+      "checksum": "20c390a41b92d33222d89423c9cd645c",
+      "size_bytes": 3877326
     },
     "data/system/seattle/maps/slu.bin": {
       "checksum": "68ced2a1eae13720db4a4883e0c4c423",
@@ -671,6 +695,14 @@
     "data/system/seattle/scenarios/north_seattle/weekday.bin": {
       "checksum": "8e8f2634459f6db77626b7c1c057e74c",
       "size_bytes": 24678291
+    },
+    "data/system/seattle/scenarios/phinney/weekday.bin": {
+      "checksum": "ee286a702d5cd6a22c8fdd7fa0b1f2f6",
+      "size_bytes": 4829053
+    },
+    "data/system/seattle/scenarios/qa/weekday.bin": {
+      "checksum": "639833d2a2e51266689d9f8987d57fd0",
+      "size_bytes": 1896996
     },
     "data/system/seattle/scenarios/slu/weekday.bin": {
       "checksum": "8373f40754e6a918290451eb18c11bd2",

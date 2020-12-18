@@ -101,7 +101,7 @@ fn other_border(
         .osm_building
         .and_then(|id| huge_osm_id_to_bldg.get(&id))?;
     let req = PathRequest::between_buildings(huge_map, b1, b2, constraints)?;
-    let path = huge_map.pathfind(req)?;
+    let path = huge_map.pathfind(req).ok()?;
 
     // Do any of the usable borders match the path?
     // TODO Calculate this once

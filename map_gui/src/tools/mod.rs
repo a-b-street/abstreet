@@ -59,6 +59,8 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("seattle", "lakeslice") => "Lake Washington corridor",
         ("seattle", "montlake") => "Montlake and Eastlake",
         ("seattle", "north_seattle") => "North Seattle",
+        ("seattle", "phinney") => "Phinney Ridge",
+        ("seattle", "qa") => "Queen Anne",
         ("seattle", "slu") => "South Lake Union",
         ("seattle", "south_seattle") => "South Seattle",
         ("seattle", "udistrict") => "University District",
