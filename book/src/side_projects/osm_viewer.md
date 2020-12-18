@@ -1,5 +1,7 @@
 # OpenStreetMap viewer
 
+[Web version](abstreet.s3-website.us-east-2.amazonaws.com/dev/osm_viewer/)
+
 A separate tool that visualizes OpenStreetMap data, with details on lanes, turn
 restrictions, parking lot capacity, and road width. It's also very convenient to
 explore the raw attributes on roads. The

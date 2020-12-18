@@ -10,7 +10,7 @@ pedestrians.
   [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.22/abstreet_mac_v0_2_22.zip),
   [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.22/abstreet_linux_v0_2_22.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/),
-  [your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/dev), or
+  [your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/game), or
   [read all instructions](https://dabreegster.github.io/abstreet/howto/index.html)
   (new releases every Sunday)
 - [build from source](https://dabreegster.github.io/abstreet/dev/index.html)

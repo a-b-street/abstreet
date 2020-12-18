@@ -29,7 +29,7 @@ Grab a pre-built binary release -- updated every Sunday, announced at
   [Yuri](https://github.com/yurivict)
 
 Or you can try playing
-[directly in your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/dev)
+[directly in your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/game)
 -- still experimental for now.
 
 Or you can [compile from source](../dev/index.md).
