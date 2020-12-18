@@ -632,6 +632,74 @@
 <span id="629">629</span>
 <span id="630">630</span>
 <span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -890,6 +958,7 @@
                     <span class="kw">let</span> <span class="ident">refill</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">vehicle</span>.<span class="ident">max_energy</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span>;
                     <span class="kw">if</span> <span class="ident">refill</span> <span class="op">&gt;</span> <span class="number">0</span> {
                         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span> <span class="op">+</span><span class="op">=</span> <span class="ident">refill</span>;
+                        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">warned_low_energy</span> <span class="op">=</span> <span class="bool-val">false</span>;
                         <span class="kw">let</span> <span class="ident">path_speed</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.2</span>);
                         <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
                             <span class="ident">app</span>.<span class="ident">time</span>,
@@ -1022,6 +1091,69 @@
                 );
             }
 
+            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">warned_low_time</span>
+                <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>.<span class="ident">time_limit</span> <span class="op">-</span> (<span class="ident">app</span>.<span class="ident">time</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>)
+                    <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">20.0</span>)
+            {
+                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">warned_low_time</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
+                    <span class="ident">app</span>.<span class="ident">time</span>,
+                    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">2.0</span>),
+                    <span class="ident">Effect</span>::<span class="ident">Flash</span> {
+                        <span class="ident">alpha_scale</span>: (<span class="number">0.1</span>, <span class="number">0.5</span>),
+                        <span class="ident">cycles</span>: <span class="number">2</span>,
+                        <span class="ident">orig</span>: <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
+                            <span class="ident">Color</span>::<span class="ident">RED</span>,
+                            <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
+                        )]),
+                    },
+                );
+                <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add_screenspace</span>(
+                    <span class="ident">app</span>.<span class="ident">time</span>,
+                    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">2.0</span>),
+                    <span class="ident">Effect</span>::<span class="ident">Scale</span> {
+                        <span class="ident">lerp_scale</span>: (<span class="number">1.0</span>, <span class="number">4.0</span>),
+                        <span class="ident">center</span>: {
+                            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_screen_pt</span>();
+                            <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span> <span class="op">/</span> <span class="number">2.0</span>)
+                        },
+                        <span class="ident">orig</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Almost out of time!&quot;</span>))
+                            .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>)
+                            .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>),
+                    },
+                );
+            }
+
+            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">warned_low_energy</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">energy</span> <span class="op">&lt;</span> <span class="number">30</span> {
+                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">warned_low_energy</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add</span>(
+                    <span class="ident">app</span>.<span class="ident">time</span>,
+                    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">2.0</span>),
+                    <span class="ident">Effect</span>::<span class="ident">Flash</span> {
+                        <span class="ident">alpha_scale</span>: (<span class="number">0.1</span>, <span class="number">0.5</span>),
+                        <span class="ident">cycles</span>: <span class="number">2</span>,
+                        <span class="ident">orig</span>: <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
+                            <span class="ident">Color</span>::<span class="ident">RED</span>,
+                            <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
+                        )]),
+                    },
+                );
+                <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">add_screenspace</span>(
+                    <span class="ident">app</span>.<span class="ident">time</span>,
+                    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">2.0</span>),
+                    <span class="ident">Effect</span>::<span class="ident">Scale</span> {
+                        <span class="ident">lerp_scale</span>: (<span class="number">1.0</span>, <span class="number">4.0</span>),
+                        <span class="ident">center</span>: {
+                            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_screen_pt</span>();
+                            <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span> <span class="op">/</span> <span class="number">2.0</span>)
+                        },
+                        <span class="ident">orig</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Low on blood sugar, refill soon!&quot;</span>))
+                            .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>)
+                            .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>),
+                    },
+                );
+            }
+
             <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">Game</span>);
             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
         }
@@ -1139,6 +1271,8 @@
     <span class="ident">idle_time</span>: <span class="ident">Duration</span>,
 
     <span class="ident">game_over</span>: <span class="ident">bool</span>,
+    <span class="ident">warned_low_time</span>: <span class="ident">bool</span>,
+    <span class="ident">warned_low_energy</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GameState</span> {
@@ -1159,6 +1293,8 @@
             <span class="ident">idle_time</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
 
             <span class="ident">game_over</span>: <span class="bool-val">false</span>,
+            <span class="ident">warned_low_time</span>: <span class="bool-val">false</span>,
+            <span class="ident">warned_low_energy</span>: <span class="bool-val">false</span>,
         }
     }
 

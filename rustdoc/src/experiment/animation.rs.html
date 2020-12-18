@@ -188,22 +188,70 @@
 <span id="185">185</span>
 <span id="186">186</span>
 <span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Animator</span> {
     <span class="ident">active</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Animation</span><span class="op">&gt;</span>,
-    <span class="ident">draw_current</span>: <span class="ident">Drawable</span>,
+    <span class="ident">draw_mapspace</span>: <span class="ident">Drawable</span>,
+    <span class="ident">draw_screenspace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">Animation</span> {
     <span class="ident">start</span>: <span class="ident">Time</span>,
     <span class="ident">end</span>: <span class="ident">Time</span>,
     <span class="ident">effect</span>: <span class="ident">Effect</span>,
+    <span class="ident">screenspace</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Effect</span> {
@@ -217,13 +265,19 @@
         <span class="ident">width</span>: <span class="ident">Distance</span>,
         <span class="ident">pl</span>: <span class="ident">PolyLine</span>,
     },
+    <span class="ident">Flash</span> {
+        <span class="ident">orig</span>: <span class="ident">GeomBatch</span>,
+        <span class="ident">alpha_scale</span>: (<span class="ident">f32</span>, <span class="ident">f32</span>),
+        <span class="ident">cycles</span>: <span class="ident">usize</span>,
+    },
 }
 
 <span class="kw">impl</span> <span class="ident">Animator</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Animator</span> {
         <span class="ident">Animator</span> {
             <span class="ident">active</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">draw_current</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">draw_mapspace</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">draw_screenspace</span>: <span class="prelude-val">None</span>,
         }
     }
 
@@ -233,6 +287,16 @@
             <span class="ident">start</span>: <span class="ident">now</span>,
             <span class="ident">end</span>: <span class="ident">now</span> <span class="op">+</span> <span class="ident">duration</span>,
             <span class="ident">effect</span>,
+            <span class="ident">screenspace</span>: <span class="bool-val">false</span>,
+        });
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_screenspace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>, <span class="ident">effect</span>: <span class="ident">Effect</span>) {
+        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">push</span>(<span class="ident">Animation</span> {
+            <span class="ident">start</span>: <span class="ident">now</span>,
+            <span class="ident">end</span>: <span class="ident">now</span> <span class="op">+</span> <span class="ident">duration</span>,
+            <span class="ident">effect</span>,
+            <span class="ident">screenspace</span>: <span class="bool-val">true</span>,
         });
     }
 
@@ -240,7 +304,8 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span>;
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapspace</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">screenspace</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">anim</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">now</span> <span class="op">-</span> <span class="ident">anim</span>.<span class="ident">start</span>) <span class="op">/</span> (<span class="ident">anim</span>.<span class="ident">end</span> <span class="op">-</span> <span class="ident">anim</span>.<span class="ident">start</span>);
             <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
@@ -249,15 +314,29 @@
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
                 <span class="bool-val">false</span>
             } <span class="kw">else</span> {
-                <span class="ident">anim</span>.<span class="ident">effect</span>.<span class="ident">render</span>(<span class="ident">pct</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
+                <span class="kw">if</span> <span class="ident">anim</span>.<span class="ident">screenspace</span> {
+                    <span class="ident">anim</span>.<span class="ident">effect</span>.<span class="ident">render</span>(<span class="ident">pct</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">screenspace</span>);
+                } <span class="kw">else</span> {
+                    <span class="ident">anim</span>.<span class="ident">effect</span>.<span class="ident">render</span>(<span class="ident">pct</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mapspace</span>);
+                }
                 <span class="bool-val">true</span>
             }
         });
-        <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+        <span class="self">self</span>.<span class="ident">draw_mapspace</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">mapspace</span>);
+        <span class="kw">if</span> <span class="ident">screenspace</span>.<span class="ident">is_empty</span>() {
+            <span class="self">self</span>.<span class="ident">draw_screenspace</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">draw_screenspace</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">screenspace</span>));
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_current</span>);
+        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_mapspace</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">d</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw_screenspace</span> {
+            <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">d</span>);
+            <span class="ident">g</span>.<span class="ident">unfork</span>();
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_done</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
@@ -284,6 +363,19 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">pct</span> <span class="op">*</span> <span class="ident">pl</span>.<span class="ident">length</span>()) {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">color</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="kw-2">*</span><span class="ident">width</span>));
                 }
+            }
+            <span class="ident">Effect</span>::<span class="ident">Flash</span> {
+                <span class="kw-2">ref</span> <span class="ident">orig</span>,
+                <span class="ident">alpha_scale</span>,
+                <span class="ident">cycles</span>,
+            } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// -1 to 1</span>
+                <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> (<span class="ident">pct</span> <span class="op">*</span> (<span class="kw-2">*</span><span class="ident">cycles</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> (<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">PI</span>)).<span class="ident">sin</span>() <span class="kw">as</span> <span class="ident">f32</span>;
+                <span class="kw">let</span> <span class="ident">midpt</span> <span class="op">=</span> (<span class="ident">alpha_scale</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">alpha_scale</span>.<span class="number">1</span>) <span class="op">/</span> <span class="number">2.0</span>;
+                <span class="kw">let</span> <span class="ident">half_range</span> <span class="op">=</span> (<span class="ident">alpha_scale</span>.<span class="number">1</span> <span class="op">-</span> <span class="ident">alpha_scale</span>.<span class="number">0</span>) <span class="op">/</span> <span class="number">2.0</span>;
+                <span class="kw">let</span> <span class="ident">alpha</span> <span class="op">=</span> <span class="ident">midpt</span> <span class="op">+</span> <span class="ident">shift</span> <span class="op">*</span> <span class="ident">half_range</span>;
+
+                <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">orig</span>.<span class="ident">clone</span>().<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAlpha</span>(<span class="ident">alpha</span>)));
             }
         }
     }
