@@ -35,21 +35,6 @@ pub enum TurnType {
     Left,
 }
 
-impl TurnType {
-    pub fn from_angles(from: Angle, to: Angle) -> TurnType {
-        let diff = from.shortest_rotation_towards(to).normalized_degrees();
-        if diff < 10.0 || diff > 350.0 {
-            TurnType::Straight
-        } else if diff > 180.0 {
-            // Clockwise rotation
-            TurnType::Right
-        } else {
-            // Counter-clockwise rotation
-            TurnType::Left
-        }
-    }
-}
-
 // TODO This concept may be dated, now that Movements exist. Within a movement, the lane-changing
 // turns should be treated as less important.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
