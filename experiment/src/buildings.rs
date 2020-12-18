@@ -37,6 +37,12 @@ impl Buildings {
             if upzones.contains(&b.id) {
                 buildings.insert(b.id, BldgState::Store);
                 batch.push(colors.store, b.polygon.clone());
+                batch.append(
+                    Text::from(Line("Upzoned"))
+                        .render_autocropped(ctx)
+                        .scale(0.1)
+                        .centered_on(b.label_center),
+                );
                 continue;
             }
 
@@ -58,7 +64,7 @@ impl Buildings {
                     // Call out non-single family homes
                     if num_housing_units > 1 {
                         batch.append(
-                            Text::from(Line(num_housing_units.to_string()).fg(Color::RED))
+                            Text::from(Line(num_housing_units.to_string()).fg(Color::BLACK))
                                 .render_autocropped(ctx)
                                 .scale(0.2)
                                 .centered_on(b.label_center),
@@ -66,7 +72,7 @@ impl Buildings {
                     }
                     continue;
                 }
-            } else if b.amenities.iter().any(|a| {
+            } else if let Some(amenity) = b.amenities.iter().find(|a| {
                 if let Some(at) = amenity_type(&a.amenity_type) {
                     at == "groceries" || at == "food" || at == "bar"
                 } else {
@@ -75,6 +81,12 @@ impl Buildings {
             }) {
                 buildings.insert(b.id, BldgState::Store);
                 batch.push(colors.store, b.polygon.clone());
+                batch.append(
+                    Text::from(Line(amenity.names.get(app.opts.language.as_ref())))
+                        .render_autocropped(ctx)
+                        .scale(0.1)
+                        .centered_on(b.label_center),
+                );
                 continue;
             }
 

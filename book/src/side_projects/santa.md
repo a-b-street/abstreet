@@ -2,7 +2,8 @@
 
 Logo?
 
-Created by [Dustin Carlino](https://abstreet.org), [Yuwen Li](yuwen-li.com), &
+Created by [Dustin Carlino](https://abstreet.org),
+[Yuwen Li](https://www.yuwen-li.com/), &
 [Michael Kirk](https://michaelkirk.github.io/)
 
 - Play online (slower and no music -- download below if possible)
@@ -49,15 +50,16 @@ and sleighs on the market to tune the vehicles in the game.
 ### Modding the game
 
 You can adjust the difficulty of the levels or give yourself all the upzoning
-power you want by editing `data/player/santa.json`. If you break something, just
-delete the file to start over. If you come up with a better gameplay
-progression, please share -- tuning a game is hard!
+power you want by editing `data/player/santa.json` (sorry, not on the web
+version). If you break something, just delete the file to start over. If you
+come up with a better gameplay progression, please share -- tuning a game is
+hard!
 
 ### Adding new maps
 
 Missing your slice of Seattle, or want to run somewhere else? If you have a bit
 of technical experience,
 [follow this guide](https://dabreegster.github.io/abstreet/howto/new_city.html).
-Otherwise, draw the map boundaries in [http://geojson.io] and
+Otherwise, draw the map boundaries in <http://geojson.io> and
 [send it to us](https://github.com/dabreegster/abstreet/issues/new) along with a
 time limit, goal, and starting point on the map.

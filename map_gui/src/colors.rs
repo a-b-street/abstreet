@@ -408,6 +408,7 @@ impl ColorScheme {
         cs.unzoomed_residential = cs.driving_lane;
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
         cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
+        cs.private_road = Color::hex("#9E757F");
 
         cs.panel_bg = Color::hex("#003046").alpha(0.9);
         cs.gui_style.panel_bg = cs.panel_bg;
