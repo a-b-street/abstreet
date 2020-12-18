@@ -106,4 +106,4 @@ resources for fixing OSM:
 
 - <https://learnosm.org>
 - <https://wiki.openstreetmap.org/wiki/StreetComplete>
-- [Mapping parking](map_parking.md)
+- [Mapping parking](../side_projects/parking_mapper.md)

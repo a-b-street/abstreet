@@ -45,7 +45,7 @@ add pictures to explain better when I get time.
 - Types
   - On-street: parallel parking lanes from
     [GeoData blockface dataset](http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface)
-    and [manually mapped](howto/map_parking.md)
+    and [manually mapped](side_projects/parking_mapper.md)
   - Off-street: most buildings have at least a few parking spots in a driveway
     or carport
     - Currently experimenting in the downtown map: set the number of available

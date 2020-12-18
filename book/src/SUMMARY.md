@@ -2,7 +2,6 @@
 
 - [Overview](README.md)
 - [Instructions](howto/README.md)
-  - [How to map on-street parking](howto/map_parking.md)
   - [Importing a new city](howto/new_city.md)
 - [How it works](how_it_works.md)
 - [Case studies](case_studies/README.md)
@@ -47,3 +46,7 @@
   - [Full CHANGELOG](project/CHANGELOG.md)
   - [References](project/references.md)
   - [Collaborations](project/collaborations.md)
+- [Side projects](side_projects/README.md)
+  - [Mapping on-street parking](side_projects/parking_mapper.md)
+  - [OpenStreetMap viewer](side_projects/osm_viewer.md)
+  - [15-minute neighborhoods explorer](side_projects/fifteen_min.md)

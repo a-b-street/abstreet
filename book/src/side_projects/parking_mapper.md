@@ -1,4 +1,4 @@
-# Help map out on-street parking
+# Mapping on-street parking in OpenStreetMap
 
 ![parking_mapper](parking_mapper.gif)
 

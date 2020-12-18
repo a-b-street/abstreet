@@ -95,7 +95,7 @@ There's plenty to do besides programming!
 
 - Mapping, most of which directly contributes to OpenStreetMap:
   - sidewalks and crosswalks
-  - [on-street parking](../howto/map_parking.md)
+  - [on-street parking](../side_projects/parking_mapper.md)
   - [traffic signal timing](https://docs.google.com/document/d/1Od_7WvBVYsvpY4etRI0sKmYmZnwXMAXcJxVmm8Iwdcg/edit?usp=sharing)
 - Playtesting by attempting to implement real proposals would also be helpful,
   to expose where it's awkward for A/B Street to edit the map and to write up
