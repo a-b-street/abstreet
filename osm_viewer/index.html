@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script type="module">
+		import { default as init } from './osm_viewer.js';
+
+		function prettyPrintBytes(bytes) {
+			if (bytes < 1024 ** 2) {
+				return Math.round(bytes / 1024) + " KB";
+			}
+			return Math.round(bytes / 1024 ** 2) + " MB";
+		}
+
+		async function run() {
+			const t0 = performance.now();
+			console.log("Started loading WASM");
+			let response = await fetch('./osm_viewer_bg.wasm');
+			const contentLength = response.headers.get('Content-Length');
+			const reader = response.body.getReader();
+			let receivedLength = 0;
+			let chunks = [];
+			while (true) {
+				const {done, value} = await reader.read();
+				if (done) {
+					break;
+				}
+				chunks.push(value);
+				receivedLength += value.length;
+				document.getElementById("progress_text").innerText = prettyPrintBytes(receivedLength) + " / " + prettyPrintBytes(contentLength);
+				document.getElementById("progress_bar").style.width = (100.0 * receivedLength / contentLength) + "%";
+			}
+			document.getElementById("progress_text").innerText = "Loaded " + prettyPrintBytes(contentLength) + ", now initializing WASM module";
+			let blob = new Blob(chunks);
+			let buffer = await blob.arrayBuffer();
+			const t1 = performance.now();
+			console.log(`It took ${t1 - t0} ms to download WASM, now initializing it`);
+			await init(buffer);
+		}
+
+		run();
+	</script>
+</head>
+<body style="background-color:black;">
+	<div id="loading" style="padding-top: 40px; color: white; text-align: center; font-family: arial; font-size: 200%;">
+		<h1>Loading OpenStreetMap viewer...</h1>
+		<div style="width: 100%; background-color: white;">
+			<div style="width: 1%; height: 30px; background-color: red;" id="progress_bar"></div>
+		</div>
+		<div id="progress_text"></div>
+		<p>If you think something has broken, check your browser's developer console (Ctrl+Shift+I or similar)</p>
+		<p>(Your browser must support WebGL and WebAssembly)</p>
+	</div>
+</body>
+<html>

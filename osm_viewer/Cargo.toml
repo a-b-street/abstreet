@@ -4,12 +4,17 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
+[lib]
+crate-type = ["cdylib", "lib"]
+
 [features]
 default = ["map_gui/native", "widgetry/native-backend"]
+wasm = ["map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
+wasm-bindgen = { version = "0.2.68", optional = true }
 widgetry = { path = "../widgetry" }

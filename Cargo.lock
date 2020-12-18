@@ -999,6 +999,7 @@ dependencies = [
  "log",
  "map_gui",
  "map_model",
+ "wasm-bindgen",
  "widgetry",
 ]
 
@@ -2575,6 +2576,7 @@ dependencies = [
  "geom",
  "map_gui",
  "map_model",
+ "wasm-bindgen",
  "widgetry",
 ]
 
