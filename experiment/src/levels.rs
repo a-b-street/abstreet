@@ -93,6 +93,30 @@ impl Level {
                 unlock_upzones: 3,
                 unlock_vehicles: vec![],
             },
+            Level {
+                title: "Phinney Ridge".to_string(),
+                description: "...".to_string(),
+                map: MapName::seattle("phinney"),
+                start: osm::NodeID(53233319),
+                minimap_zoom: 1,
+                time_limit: Duration::minutes(5),
+                goal: 1000,
+
+                unlock_upzones: 3,
+                unlock_vehicles: vec![],
+            },
+            Level {
+                title: "Queen Anne".to_string(),
+                description: "...".to_string(),
+                map: MapName::seattle("qa"),
+                start: osm::NodeID(53234637),
+                minimap_zoom: 1,
+                time_limit: Duration::minutes(5),
+                goal: 1000,
+
+                unlock_upzones: 3,
+                unlock_vehicles: vec![],
+            },
         ]
     }
 }

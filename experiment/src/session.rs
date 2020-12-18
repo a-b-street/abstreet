@@ -66,7 +66,7 @@ impl Session {
             colors: ColorScheme {
                 house: Color::hex("#688865"),
                 apartment: Color::hex("#C0F879"),
-                store: Color::hex("#F4DF4D"),
+                store: Color::hex("#EE702E"),
                 visited: Color::BLACK,
 
                 score: Color::hex("#83AA51"),
