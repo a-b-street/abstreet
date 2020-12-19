@@ -72,6 +72,6 @@ Other binary data bundled in:
 - Material Design icons (<https://material.io/resources/icons>, Apache license)
 - Some Graphics textures (<https://www.kenney.nl/>, CC0 1.0 Universal)
 - Snowflake SVG (<https://www.svgrepo.com/page/licensing>, CC0)
-- Music
-  (<https://soundcloud.com/royaltyfreebackgroundmusic/sets/creative-commons-music-229>,
-  CC BY-NC-ND)
+- Music from
+  [various sources](https://github.com/dabreegster/abstreet/tree/master/data/system/assets/music/sources.md)
+  with Creative Commons licenses

@@ -60,7 +60,7 @@ impl Level {
                               deliver to the apartments here!"
                     .to_string(),
                 map: MapName::seattle("slu"),
-                music: "jingle_bells".to_string(),
+                music: "carol_bells".to_string(),
                 start: osm::NodeID(53142423),
                 minimap_zoom: 1,
                 time_limit: Duration::seconds(90.0),
@@ -75,7 +75,7 @@ impl Level {
                               to this sleepy little pocket of the city?"
                     .to_string(),
                 map: MapName::seattle("montlake"),
-                music: "silent_night".to_string(),
+                music: "dance_sugar_plum_fairy".to_string(),
                 start: osm::NodeID(53084814),
                 minimap_zoom: 1,
                 time_limit: Duration::minutes(3),
@@ -90,7 +90,7 @@ impl Level {
                               one of the lowest-density parts of Seattle!"
                     .to_string(),
                 map: MapName::seattle("ballard"),
-                music: "jingle_bells".to_string(),
+                music: "god_rest_ye_merry_gentlemen".to_string(),
                 start: osm::NodeID(53117102),
                 minimap_zoom: 2,
                 time_limit: Duration::minutes(5),
@@ -103,7 +103,7 @@ impl Level {
                 title: "Phinney Ridge".to_string(),
                 description: "...".to_string(),
                 map: MapName::seattle("phinney"),
-                music: "silent_night".to_string(),
+                music: "carol_bells".to_string(),
                 start: osm::NodeID(53233319),
                 minimap_zoom: 1,
                 time_limit: Duration::minutes(5),

@@ -7,6 +7,8 @@ use widgetry::{
     Btn, Checkbox, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, VerticalAlignment,
 };
 
+// TODO Speed up when we're almost out of time, slow down when we're low on energy
+
 // Don't play music loudly on the title screen, menus, etc
 pub const OUT_OF_GAME: f32 = 0.5;
 pub const IN_GAME: f32 = 1.0;
