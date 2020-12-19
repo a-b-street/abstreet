@@ -59,7 +59,7 @@ pub fn list_dir(dir: String) -> Vec<String> {
     for f in Manifest::load().entries.keys() {
         if let Some(path) = f.strip_prefix(&dir) {
             // Just list the things immediately in this directory; don't recurse arbitrarily
-            results.insert(format!("../{}/{}", dir, path.split("/").next().unwrap()));
+            results.insert(format!("../{}{}", dir, path.split("/").next().unwrap()));
         }
     }
 

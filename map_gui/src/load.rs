@@ -95,6 +95,7 @@ mod native_loader {
 
     impl<A: AppLike + 'static, T: 'static + DeserializeOwned> State<A> for FileLoader<A, T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+            debug!("Loading {}", self.path);
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
                 let file = abstutil::read_object(self.path.clone(), timer);
                 (self.on_load.take().unwrap())(ctx, app, timer, file)
@@ -161,6 +162,7 @@ mod wasm_loader {
             // the channel.
             let (tx, rx) = oneshot::channel();
             let url_copy = url.clone();
+            debug!("Loading {}", url_copy);
             wasm_bindgen_futures::spawn_local(async move {
                 let mut opts = RequestInit::new();
                 opts.method("GET");

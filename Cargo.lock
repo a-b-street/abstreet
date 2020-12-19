@@ -2115,6 +2115,7 @@ dependencies = [
  "geom",
  "instant",
  "js-sys",
+ "log",
  "map_model",
  "reqwest",
  "serde",
