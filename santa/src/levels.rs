@@ -49,7 +49,7 @@ impl Level {
                 time_limit: Duration::seconds(90.0),
                 goal: 25,
 
-                unlock_upzones: 2,
+                unlock_upzones: 1,
                 unlock_vehicles: vec!["cargo bike".to_string()],
             },
             // TODO Super dense, starting point isn't even near apartments, run out of gifts after
@@ -66,7 +66,7 @@ impl Level {
                 time_limit: Duration::seconds(90.0),
                 goal: 25,
 
-                unlock_upzones: 2,
+                unlock_upzones: 1,
                 unlock_vehicles: vec![],
             },
             Level {
@@ -81,7 +81,7 @@ impl Level {
                 time_limit: Duration::minutes(3),
                 goal: 1000,
 
-                unlock_upzones: 2,
+                unlock_upzones: 1,
                 unlock_vehicles: vec![],
             },
             Level {
@@ -96,7 +96,7 @@ impl Level {
                 time_limit: Duration::minutes(5),
                 goal: 1000,
 
-                unlock_upzones: 3,
+                unlock_upzones: 1,
                 unlock_vehicles: vec![],
             },
             Level {
@@ -122,7 +122,7 @@ impl Level {
                 time_limit: Duration::minutes(5),
                 goal: 1000,
 
-                unlock_upzones: 3,
+                unlock_upzones: 5,
                 unlock_vehicles: vec![],
             },
         ]

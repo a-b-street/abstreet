@@ -48,13 +48,10 @@ impl Session {
             abstutil::path_player("santa.json"),
             &mut Timer::throwaway(),
         ) {
-            // TODO Explicit version number to detect more easily?
-            if session.levels == levels {
-                return session;
+            if session.levels != levels {
+                warn!("Using modified levels from the session data");
             }
-            // TODO Try to preserve high scores or levels unlocked? It could get complicated,
-            // depending on how levels were changed or reordered.
-            warn!("Loaded session data, but the levels have changed, so discarding!");
+            return session;
         }
 
         let mut high_scores = HashMap::new();
@@ -131,11 +128,13 @@ impl Session {
     }
 
     pub fn unlock_all(&mut self) {
+        self.upzones_unlocked = 0;
         for level in &self.levels {
             self.vehicles_unlocked.extend(level.unlock_vehicles.clone());
             self.upzones_unlocked += level.unlock_upzones;
         }
         self.levels_unlocked = self.levels.len();
+        self.upzones_explained = true;
     }
 
     pub fn update_music(&mut self, ctx: &mut EventCtx) {
