@@ -123,6 +123,14 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -135,6 +143,7 @@
     <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">description</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">MapName</span>,
+    <span class="kw">pub</span> <span class="ident">music</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
     <span class="kw">pub</span> <span class="ident">minimap_zoom</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">time_limit</span>: <span class="ident">Duration</span>,
@@ -153,6 +162,7 @@
                               some college students, whether they&#39;ve been naughty or nice.&quot;</span>
                     .<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;udistrict_ravenna&quot;</span>),
+                <span class="ident">music</span>: <span class="string">&quot;jingle_bells&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53162661</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
                 <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
@@ -167,6 +177,7 @@
                               everyone tucked away in the neighborhood?&quot;</span>
                     .<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;wallingford&quot;</span>),
+                <span class="ident">music</span>: <span class="string">&quot;silent_night&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53218389</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">2</span>,
                 <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
@@ -183,6 +194,7 @@
                               deliver to the apartments here!&quot;</span>
                     .<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;slu&quot;</span>),
+                <span class="ident">music</span>: <span class="string">&quot;jingle_bells&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53142423</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
                 <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
@@ -197,6 +209,7 @@
                               to this sleepy little pocket of the city?&quot;</span>
                     .<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
+                <span class="ident">music</span>: <span class="string">&quot;silent_night&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53084814</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
                 <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>),
@@ -211,6 +224,7 @@
                               one of the lowest-density parts of Seattle!&quot;</span>
                     .<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;ballard&quot;</span>),
+                <span class="ident">music</span>: <span class="string">&quot;jingle_bells&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53117102</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">2</span>,
                 <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
@@ -223,6 +237,7 @@
                 <span class="ident">title</span>: <span class="string">&quot;Phinney Ridge&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;...&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;phinney&quot;</span>),
+                <span class="ident">music</span>: <span class="string">&quot;silent_night&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53233319</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
                 <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
@@ -235,6 +250,7 @@
                 <span class="ident">title</span>: <span class="string">&quot;Queen Anne&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;...&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;qa&quot;</span>),
+                <span class="ident">music</span>: <span class="string">&quot;jingle_bells&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53234637</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
                 <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),

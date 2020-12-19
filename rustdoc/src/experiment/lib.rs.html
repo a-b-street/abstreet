@@ -84,7 +84,7 @@
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">unlock_all</span>();
         }
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span> <span class="op">=</span> <span class="ident">music</span>::<span class="ident">Music</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">play_music</span>);
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span> <span class="op">=</span> <span class="ident">music</span>::<span class="ident">Music</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">play_music</span>, <span class="string">&quot;jingle_bells&quot;</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="ident">music</span>::<span class="ident">OUT_OF_GAME</span>);
 
         <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">title</span>::<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>)];
