@@ -303,6 +303,15 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -312,7 +321,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">amenity_type</span>, <span class="ident">nice_map_name</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">amenity_type</span>, <span class="ident">nice_map_name</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">Cached</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">PathConstraints</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -527,6 +536,15 @@
         ])
         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
     );
+
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">ColorLegend</span>::<span class="ident">categories</span>(
+        <span class="ident">ctx</span>,
+        <span class="macro">vec</span><span class="macro">!</span>[
+            (<span class="ident">Color</span>::<span class="ident">GREEN</span>, <span class="string">&quot;5 mins&quot;</span>),
+            (<span class="ident">Color</span>::<span class="ident">ORANGE</span>, <span class="string">&quot;10 mins&quot;</span>),
+            (<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="string">&quot;15 mins&quot;</span>),
+        ],
+    ));
 
     <span class="kw">for</span> (<span class="ident">amenity</span>, <span class="ident">buildings</span>) <span class="kw">in</span> <span class="ident">isochrone</span>.<span class="ident">amenities_reachable</span>.<span class="ident">borrow</span>() {
         <span class="ident">rows</span>.<span class="ident">push</span>(
