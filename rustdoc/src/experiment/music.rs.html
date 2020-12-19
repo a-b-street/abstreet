@@ -160,6 +160,8 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Cursor</span>;
@@ -169,6 +171,8 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">VerticalAlignment</span>,
 };
+
+<span class="comment">// TODO Speed up when we&#39;re almost out of time, slow down when we&#39;re low on energy</span>
 
 <span class="comment">// Don&#39;t play music loudly on the title screen, menus, etc</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OUT_OF_GAME</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.5</span>;
