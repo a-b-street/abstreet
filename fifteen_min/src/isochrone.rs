@@ -1,9 +1,11 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use abstutil::MultiMap;
 use geom::{Duration, Polygon};
 use map_gui::tools::{amenity_type, Grid};
-use map_model::{connectivity, BuildingID, BuildingType, Map, Path, PathConstraints, PathRequest};
+use map_model::{
+    connectivity, BuildingID, BuildingType, LaneType, Map, Path, PathConstraints, PathRequest,
+};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 use crate::App;
@@ -23,6 +25,8 @@ pub struct Isochrone {
     /// How many people live in the returned area, according to estimates included in the map (from
     /// city-specific parcel data, guesses from census, or a guess based on OSM tags)
     pub population: usize,
+    /// How many sreet parking spots are on the same road as any buildings returned.
+    pub onstreet_parking_spots: usize,
 }
 
 impl Isochrone {
@@ -38,6 +42,7 @@ impl Isochrone {
 
         let mut amenities_reachable = MultiMap::new();
         let mut population = 0;
+        let mut all_roads = HashSet::new();
         for b in time_to_reach_building.keys() {
             let bldg = app.map.get_b(*b);
             for amenity in &bldg.amenities {
@@ -52,6 +57,17 @@ impl Isochrone {
                 }
                 _ => {}
             }
+            all_roads.insert(app.map.get_l(bldg.sidewalk_pos.lane()).parent);
+        }
+
+        let mut onstreet_parking_spots = 0;
+        for r in all_roads {
+            let r = app.map.get_r(r);
+            for (l, _, lt) in r.lanes_ltr() {
+                if lt == LaneType::Parking {
+                    onstreet_parking_spots += app.map.get_l(l).number_parking_spots();
+                }
+            }
         }
 
         Isochrone {
@@ -61,6 +77,7 @@ impl Isochrone {
             time_to_reach_building,
             amenities_reachable,
             population,
+            onstreet_parking_spots,
         }
     }
 

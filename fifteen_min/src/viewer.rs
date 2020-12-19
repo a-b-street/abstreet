@@ -101,7 +101,7 @@ impl State<App> for Viewer {
                 "About" => {
                     return Transition::Push(PopupMsg::new(
                         ctx,
-                        "15-minute neighborhoods",
+                        "15-minute neighborhood explorer",
                         vec![
                             "What if you could access most of your daily needs with a 15-minute \
                              walk or bike ride from your house?",
@@ -111,6 +111,11 @@ impl State<App> for Viewer {
                              policy changes could lead to 15-minute neighborhoods.",
                             "This tool lets you see what commercial amenities are near you right \
                              now, using data from OpenStreetMap.",
+                            "",
+                            "Note that sidewalks and crosswalks are assumed on most roads.",
+                            "Especially around North Seattle, many roads lack sidewalks and \
+                             aren't safe for some people to use.",
+                            "We're working to improve the accuracy of the map.",
                         ],
                     ));
                 }
@@ -205,6 +210,14 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         Text::from_all(vec![
             Line("Estimated population: ").secondary(),
             Line(prettyprint_usize(isochrone.population)),
+        ])
+        .draw(ctx),
+    );
+
+    rows.push(
+        Text::from_all(vec![
+            Line("Estimated street parking spots: ").secondary(),
+            Line(prettyprint_usize(isochrone.onstreet_parking_spots)),
         ])
         .draw(ctx),
     );
