@@ -152,6 +152,33 @@ impl ColorLegend {
         ])
         .container()
     }
+
+    pub fn categories(ctx: &mut EventCtx, pairs: Vec<(Color, &str)>) -> Widget {
+        assert!(pairs.len() >= 2);
+        let width = 300.0;
+        let n = pairs.len();
+        let mut batch = GeomBatch::new();
+        let width_each = width / ((n - 1) as f64);
+        for (idx, (color, _)) in pairs.iter().enumerate() {
+            batch.push(
+                *color,
+                Polygon::rectangle(width_each, 32.0).translate((idx as f64) * width_each, 0.0),
+            );
+        }
+        // Extra wrapping to make the labels stretch against just the scale, not everything else
+        // TODO Long labels aren't nicely lined up with the boundaries between buckets
+        Widget::col(vec![
+            Widget::draw_batch(ctx, batch),
+            Widget::custom_row(
+                pairs
+                    .into_iter()
+                    .map(|(_, lbl)| Line(lbl).small().draw(ctx))
+                    .collect(),
+            )
+            .evenly_spaced(),
+        ])
+        .container()
+    }
 }
 
 pub struct DivergingScale {

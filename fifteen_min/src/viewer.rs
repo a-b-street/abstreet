@@ -6,7 +6,7 @@
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Pt2D};
-use map_gui::tools::{amenity_type, nice_map_name, CityPicker, PopupMsg};
+use map_gui::tools::{amenity_type, nice_map_name, CityPicker, ColorLegend, PopupMsg};
 use map_gui::{Cached, ID};
 use map_model::{Building, BuildingID, PathConstraints};
 use widgetry::{
@@ -221,6 +221,15 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         ])
         .draw(ctx),
     );
+
+    rows.push(ColorLegend::categories(
+        ctx,
+        vec![
+            (Color::GREEN, "5 mins"),
+            (Color::ORANGE, "10 mins"),
+            (Color::RED, "15 mins"),
+        ],
+    ));
 
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(
