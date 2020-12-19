@@ -149,7 +149,6 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
-<span id="149">149</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -201,13 +200,10 @@
             <span class="ident">abstutil</span>::<span class="ident">path_player</span>(<span class="string">&quot;santa.json&quot;</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
         ) {
-            <span class="comment">// TODO Explicit version number to detect more easily?</span>
-            <span class="kw">if</span> <span class="ident">session</span>.<span class="ident">levels</span> <span class="op">=</span><span class="op">=</span> <span class="ident">levels</span> {
-                <span class="kw">return</span> <span class="ident">session</span>;
+            <span class="kw">if</span> <span class="ident">session</span>.<span class="ident">levels</span> <span class="op">!</span><span class="op">=</span> <span class="ident">levels</span> {
+                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Using modified levels from the session data&quot;</span>);
             }
-            <span class="comment">// TODO Try to preserve high scores or levels unlocked? It could get complicated,</span>
-            <span class="comment">// depending on how levels were changed or reordered.</span>
-            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Loaded session data, but the levels have changed, so discarding!&quot;</span>);
+            <span class="kw">return</span> <span class="ident">session</span>;
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high_scores</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
@@ -284,11 +280,13 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unlock_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">upzones_unlocked</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">level</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">levels</span> {
             <span class="self">self</span>.<span class="ident">vehicles_unlocked</span>.<span class="ident">extend</span>(<span class="ident">level</span>.<span class="ident">unlock_vehicles</span>.<span class="ident">clone</span>());
             <span class="self">self</span>.<span class="ident">upzones_unlocked</span> <span class="op">+</span><span class="op">=</span> <span class="ident">level</span>.<span class="ident">unlock_upzones</span>;
         }
         <span class="self">self</span>.<span class="ident">levels_unlocked</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">levels</span>.<span class="ident">len</span>();
+        <span class="self">self</span>.<span class="ident">upzones_explained</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_music</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
