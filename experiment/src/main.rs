@@ -1,3 +1,0 @@
-fn main() {
-    experiment::main();
-}

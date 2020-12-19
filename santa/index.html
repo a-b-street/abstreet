@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<script type="module">
-		import { default as init } from './experiment.js';
+		import { default as init } from './santa.js';
 
 		function prettyPrintBytes(bytes) {
 			if (bytes < 1024 ** 2) {
@@ -15,7 +15,7 @@
 		async function run() {
 			const t0 = performance.now();
 			console.log("Started loading WASM");
-			let response = await fetch('./experiment_bg.wasm');
+			let response = await fetch('./santa_bg.wasm');
 			const contentLength = response.headers.get('Content-Length');
 			const reader = response.body.getReader();
 			let receivedLength = 0;
@@ -43,7 +43,7 @@
 </head>
 <body style="background-color:black;">
 	<div id="loading" style="padding-top: 40px; color: white; text-align: center; font-family: arial; font-size: 200%;">
-		<h1>Loading 15 minute Santa...</h1>
+		<h1>Loading 15-minute Santa...</h1>
 		<div style="width: 100%; background-color: white;">
 			<div style="width: 1%; height: 30px; background-color: red;" id="progress_bar"></div>
 		</div>

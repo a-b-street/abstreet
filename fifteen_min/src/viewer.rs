@@ -101,14 +101,14 @@ impl State<App> for Viewer {
                 "About" => {
                     return Transition::Push(PopupMsg::new(
                         ctx,
-                        "15 minute neighborhoods",
+                        "15-minute neighborhoods",
                         vec![
                             "What if you could access most of your daily needs with a 15-minute \
                              walk or bike ride from your house?",
                             "Wouldn't it be nice to not rely on a climate unfriendly motor \
                              vehicle and get stuck in traffic for these simple errands?",
                             "Different cities around the world are talking about what design and \
-                             policy changes could lead to 15 minute neighborhoods.",
+                             policy changes could lead to 15-minute neighborhoods.",
                             "This tool lets you see what commercial amenities are near you right \
                              now, using data from OpenStreetMap.",
                         ],

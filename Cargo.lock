@@ -928,24 +928,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "experiment"
-version = "0.1.0"
-dependencies = [
- "abstutil",
- "geom",
- "kml",
- "log",
- "map_gui",
- "map_model",
- "rand",
- "rand_xorshift",
- "rodio",
- "serde",
- "wasm-bindgen",
- "widgetry",
-]
-
-[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3162,6 +3144,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "santa"
+version = "0.1.0"
+dependencies = [
+ "abstutil",
+ "geom",
+ "kml",
+ "log",
+ "map_gui",
+ "map_model",
+ "rand",
+ "rand_xorshift",
+ "rodio",
+ "serde",
+ "wasm-bindgen",
+ "widgetry",
 ]
 
 [[package]]

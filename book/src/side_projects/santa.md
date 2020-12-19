@@ -1,4 +1,4 @@
-# 15 minute Santa
+# 15-minute Santa
 
 Logo?
 
@@ -11,7 +11,7 @@ Created by [Dustin Carlino](https://abstreet.org),
 - Mac
 - Linux
 
-15 minute Santa is a game where you deliver presents across Seattle. You earn
+15-minute Santa is a game where you deliver presents across Seattle. You earn
 more points delivering to high-density housing, and you need to refuel from
 shops, so you'll have to understand where people live in relation to where they
 work and shop.
@@ -27,7 +27,7 @@ We normally work on [A/B Street](https://abstreet.org), a traffic simulation
 that lets the general public explore a future prioritizing more sustainable
 modes of transportation. All of the recent
 [talk](https://crosscut.com/focus/2020/11/seattle-could-become-next-15-minute-city)
-about 15 minute cities prompted us to explore how Seattle's zoning causes many
+about 15-minute cities prompted us to explore how Seattle's zoning causes many
 people to live far from where they get groceries. After experimenting with a
 [more serious](fifteen_min.md) tool to understand walk-sheds, we decided to
 spend a few weeks on something a bit more light-hearted.

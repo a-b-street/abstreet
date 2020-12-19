@@ -45,8 +45,8 @@ jobs:
       - name: Build game
         working-directory: game
         run: cargo build --release ${features}
-      - name: Build experiment
-        working-directory: experiment
+      - name: Build santa
+        working-directory: santa
         run: cargo build --release ${features}
       - name: Build fifteen_min
         working-directory: fifteen_min

@@ -145,7 +145,7 @@ Other:
 - `collisions`: an experimental data format for real-world collision data
 - `traffic_seitan`: a bug-finding tool that randomly generates live map edits
 - `tests`: integration tests
-- `experiment`: ...
+- `santa`: 15-minute Santa, an arcade game about delivering and zoning
 - `parking_mapper`: a standalone tool to help map street parking in OSM
 - `osm_viewer`: a standalone tool to render OSM in detail
 - `fifteen_min`: a standalone tool to explore 15-minute neighborhoods

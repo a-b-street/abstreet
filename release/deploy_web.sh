@@ -5,7 +5,7 @@ VERSION=dev
 set -e
 
 # The parking mapper doesn't work on WASM yet, so don't include it
-for tool in game experiment fifteen_min osm_viewer; do
+for tool in game santa fifteen_min osm_viewer; do
 	cd $tool
 	wasm-pack build --release --target web -- --no-default-features --features wasm,map_gui/wasm_s3
 	cd pkg

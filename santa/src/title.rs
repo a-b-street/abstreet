@@ -26,7 +26,7 @@ impl TitleScreen {
                 Btn::svg_def("system/assets/tools/quit.svg")
                     .build(ctx, "quit", Key::Escape)
                     .align_right(),
-                Line("15 Minute Santa")
+                Line("15-minute Santa")
                     .display_title()
                     .draw(ctx)
                     .container()
@@ -142,7 +142,7 @@ impl Credits {
         SimpleState::new(
             Panel::new(Widget::col(vec![
                 Widget::row(vec![
-                    Line("15 Minute Santa").big_heading_plain().draw(ctx),
+                    Line("15-minute Santa").big_heading_plain().draw(ctx),
                     Btn::close(ctx),
                 ]),
                 link(

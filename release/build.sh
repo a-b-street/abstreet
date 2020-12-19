@@ -39,7 +39,7 @@ cp release/$runner $output
 mkdir $output/game
 cp target/release/game${suffix} $output/game
 
-for name in experiment fifteen_min osm_viewer parking_mapper; do
+for name in fifteen_min osm_viewer parking_mapper santa; do
 	cp target/release/${name}${suffix} $output;
 done
 

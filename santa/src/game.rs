@@ -51,7 +51,7 @@ impl Game {
         app.session.music.specify_volume(crate::music::IN_GAME);
 
         let title_panel = Panel::new(Widget::row(vec![
-            "15 min Santa".draw_text(ctx).centered_vert(),
+            "15-min Santa".draw_text(ctx).centered_vert(),
             Widget::row(vec![
                 // TODO The blur is messed up
                 Widget::draw_svg(ctx, "system/assets/tools/map.svg").centered_vert(),
