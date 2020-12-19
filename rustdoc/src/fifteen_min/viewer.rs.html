@@ -290,6 +290,19 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -394,7 +407,7 @@
                 <span class="string">&quot;About&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
-                        <span class="string">&quot;15-minute neighborhoods&quot;</span>,
+                        <span class="string">&quot;15-minute neighborhood explorer&quot;</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[
                             <span class="string">&quot;What if you could access most of your daily needs with a 15-minute \
                              walk or bike ride from your house?&quot;</span>,
@@ -404,6 +417,11 @@
                              policy changes could lead to 15-minute neighborhoods.&quot;</span>,
                             <span class="string">&quot;This tool lets you see what commercial amenities are near you right \
                              now, using data from OpenStreetMap.&quot;</span>,
+                            <span class="string">&quot;&quot;</span>,
+                            <span class="string">&quot;Note that sidewalks and crosswalks are assumed on most roads.&quot;</span>,
+                            <span class="string">&quot;Especially around North Seattle, many roads lack sidewalks and \
+                             aren&#39;t safe for some people to use.&quot;</span>,
+                            <span class="string">&quot;We&#39;re working to improve the accuracy of the map.&quot;</span>,
                         ],
                     ));
                 }
@@ -498,6 +516,14 @@
         <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Estimated population: &quot;</span>).<span class="ident">secondary</span>(),
             <span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">isochrone</span>.<span class="ident">population</span>)),
+        ])
+        .<span class="ident">draw</span>(<span class="ident">ctx</span>),
+    );
+
+    <span class="ident">rows</span>.<span class="ident">push</span>(
+        <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="string">&quot;Estimated street parking spots: &quot;</span>).<span class="ident">secondary</span>(),
+            <span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">isochrone</span>.<span class="ident">onstreet_parking_spots</span>)),
         ])
         .<span class="ident">draw</span>(<span class="ident">ctx</span>),
     );
