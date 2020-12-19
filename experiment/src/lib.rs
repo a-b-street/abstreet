@@ -31,7 +31,7 @@ pub fn main() {
         if app.opts.dev {
             app.session.unlock_all();
         }
-        app.session.music = music::Music::start(ctx, app.session.play_music);
+        app.session.music = music::Music::start(ctx, app.session.play_music, "jingle_bells");
         app.session.music.specify_volume(music::OUT_OF_GAME);
 
         let states = vec![title::TitleScreen::new(ctx, &app)];

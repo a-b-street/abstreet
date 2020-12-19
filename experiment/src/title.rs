@@ -165,7 +165,7 @@ impl Credits {
                     "Map data thanks to OpenStreetMap contributors",
                     "https://www.openstreetmap.org/about"),
                 link(ctx, "Land use data from Seattle GeoData", "https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail"),
-                link(ctx, "Music by Royalty Free Music", "https://soundcloud.com/royaltyfreebackgroundmusic/creative-commons-music-4061"),
+                link(ctx, "Music by Royalty Free Music", "https://soundcloud.com/royaltyfreebackgroundmusic/sets/creative-commons-music-229"),
                 link(ctx, "Fonts and icons by various sources", "https://dabreegster.github.io/abstreet/howto/#data-source-licensing"),
                 "Playtesting by Fridgehaus".draw_text(ctx),
                 Btn::text_bg2("Back").build_def(ctx, Key::Enter).centered_horiz(),

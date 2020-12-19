@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::io::Cursor;
 
-use rodio::{Decoder, OutputStream, Sink};
+use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
 use widgetry::{
     Btn, Checkbox, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, VerticalAlignment,
@@ -24,8 +24,10 @@ impl std::default::Default for Music {
 struct Inner {
     // Have to keep this alive for the background thread to continue
     _stream: OutputStream,
+    stream_handle: OutputStreamHandle,
     sink: Sink,
     unmuted_volume: f32,
+    current_song: String,
 
     panel: Panel,
 }
@@ -35,8 +37,8 @@ impl Music {
         Music { inner: None }
     }
 
-    pub fn start(ctx: &mut EventCtx, play_music: bool) -> Music {
-        match Inner::new(ctx, play_music) {
+    pub fn start(ctx: &mut EventCtx, play_music: bool, song: &str) -> Music {
+        match Inner::new(ctx, play_music, song) {
             Ok(inner) => Music { inner: Some(inner) },
             Err(err) => {
                 error!("No music, sorry: {}", err);
@@ -74,14 +76,25 @@ impl Music {
             inner.specify_volume(volume);
         }
     }
+
+    pub fn change_song(&mut self, song: &str) {
+        if let Some(ref mut inner) = self.inner {
+            if let Err(err) = inner.change_song(song) {
+                warn!("Couldn't play {}: {}", song, err);
+            }
+        }
+    }
 }
 
 impl Inner {
-    fn new(ctx: &mut EventCtx, play_music: bool) -> Result<Inner, Box<dyn Error>> {
+    fn new(ctx: &mut EventCtx, play_music: bool, song: &str) -> Result<Inner, Box<dyn Error>> {
         let (stream, stream_handle) = OutputStream::try_default()?;
         let sink = rodio::Sink::try_new(&stream_handle)?;
-        let raw_bytes =
-            Cursor::new(include_bytes!("../../data/system/assets/music/jingle_bells.ogg").to_vec());
+
+        let raw_bytes = Cursor::new(abstutil::slurp_file(&abstutil::path(format!(
+            "system/assets/music/{}.ogg",
+            song
+        )))?);
         sink.append(Decoder::new_looped(raw_bytes)?);
         if !play_music {
             sink.set_volume(0.0);
@@ -104,8 +117,10 @@ impl Inner {
 
         Ok(Inner {
             _stream: stream,
+            stream_handle,
             sink,
             unmuted_volume: 1.0,
+            current_song: song.to_string(),
             panel,
         })
     }
@@ -123,5 +138,22 @@ impl Inner {
         if self.sink.volume() != 0.0 {
             self.unmute();
         }
+    }
+
+    fn change_song(&mut self, song: &str) -> Result<(), Box<dyn Error>> {
+        if self.current_song == song {
+            return Ok(());
+        }
+        self.current_song = song.to_string();
+        let old_volume = self.sink.volume();
+
+        self.sink = rodio::Sink::try_new(&self.stream_handle)?;
+        let raw_bytes = Cursor::new(abstutil::slurp_file(&abstutil::path(format!(
+            "system/assets/music/{}.ogg",
+            song
+        )))?);
+        self.sink.append(Decoder::new_looped(raw_bytes)?);
+        self.sink.set_volume(old_volume);
+        Ok(())
     }
 }

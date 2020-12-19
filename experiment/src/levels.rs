@@ -9,6 +9,7 @@ pub struct Level {
     pub title: String,
     pub description: String,
     pub map: MapName,
+    pub music: String,
     pub start: osm::NodeID,
     pub minimap_zoom: usize,
     pub time_limit: Duration,
@@ -27,6 +28,7 @@ impl Level {
                               some college students, whether they've been naughty or nice."
                     .to_string(),
                 map: MapName::seattle("udistrict_ravenna"),
+                music: "jingle_bells".to_string(),
                 start: osm::NodeID(53162661),
                 minimap_zoom: 1,
                 time_limit: Duration::seconds(90.0),
@@ -41,6 +43,7 @@ impl Level {
                               everyone tucked away in the neighborhood?"
                     .to_string(),
                 map: MapName::seattle("wallingford"),
+                music: "silent_night".to_string(),
                 start: osm::NodeID(53218389),
                 minimap_zoom: 2,
                 time_limit: Duration::seconds(90.0),
@@ -57,6 +60,7 @@ impl Level {
                               deliver to the apartments here!"
                     .to_string(),
                 map: MapName::seattle("slu"),
+                music: "jingle_bells".to_string(),
                 start: osm::NodeID(53142423),
                 minimap_zoom: 1,
                 time_limit: Duration::seconds(90.0),
@@ -71,6 +75,7 @@ impl Level {
                               to this sleepy little pocket of the city?"
                     .to_string(),
                 map: MapName::seattle("montlake"),
+                music: "silent_night".to_string(),
                 start: osm::NodeID(53084814),
                 minimap_zoom: 1,
                 time_limit: Duration::minutes(3),
@@ -85,6 +90,7 @@ impl Level {
                               one of the lowest-density parts of Seattle!"
                     .to_string(),
                 map: MapName::seattle("ballard"),
+                music: "jingle_bells".to_string(),
                 start: osm::NodeID(53117102),
                 minimap_zoom: 2,
                 time_limit: Duration::minutes(5),
@@ -97,6 +103,7 @@ impl Level {
                 title: "Phinney Ridge".to_string(),
                 description: "...".to_string(),
                 map: MapName::seattle("phinney"),
+                music: "silent_night".to_string(),
                 start: osm::NodeID(53233319),
                 minimap_zoom: 1,
                 time_limit: Duration::minutes(5),
@@ -109,6 +116,7 @@ impl Level {
                 title: "Queen Anne".to_string(),
                 description: "...".to_string(),
                 map: MapName::seattle("qa"),
+                music: "jingle_bells".to_string(),
                 start: osm::NodeID(53234637),
                 minimap_zoom: 1,
                 time_limit: Duration::minutes(5),

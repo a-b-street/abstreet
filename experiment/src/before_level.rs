@@ -41,6 +41,8 @@ impl Picker {
             app,
             level.map.clone(),
             Box::new(move |ctx, app| {
+                app.session.music.change_song(&level.music);
+
                 ctx.canvas.cam_zoom = ZOOM;
                 let start = app
                     .map
