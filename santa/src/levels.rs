@@ -23,19 +23,34 @@ impl Level {
     pub fn all() -> Vec<Level> {
         vec![
             Level {
+                title: "Queen Anne".to_string(),
+                description: "Nice hilltop views, beautiful houses -- but are they far from \
+                              stores?"
+                    .to_string(),
+                map: MapName::seattle("qa"),
+                music: "jingle_bells".to_string(),
+                start: osm::NodeID(53234637),
+                minimap_zoom: 1,
+                time_limit: Duration::seconds(90.0),
+                goal: 350,
+
+                unlock_upzones: 1,
+                unlock_vehicles: vec![],
+            },
+            Level {
                 title: "University District".to_string(),
                 description: "Tear yourself away from all the bubble tea to deliver presents to \
                               some college students, whether they've been naughty or nice."
                     .to_string(),
                 map: MapName::seattle("udistrict_ravenna"),
-                music: "jingle_bells".to_string(),
+                music: "god_rest_ye_merry_gentlemen".to_string(),
                 start: osm::NodeID(53162661),
                 minimap_zoom: 1,
-                time_limit: Duration::seconds(90.0),
-                goal: 1000,
+                time_limit: Duration::minutes(2),
+                goal: 1500,
 
                 unlock_upzones: 1,
-                unlock_vehicles: vec!["sleigh".to_string()],
+                unlock_vehicles: vec!["cargo bike".to_string()],
             },
             Level {
                 title: "Wallingfjord".to_string(),
@@ -46,28 +61,11 @@ impl Level {
                 music: "silent_night".to_string(),
                 start: osm::NodeID(53218389),
                 minimap_zoom: 2,
-                time_limit: Duration::seconds(90.0),
-                goal: 25,
+                time_limit: Duration::minutes(3),
+                goal: 1500,
 
                 unlock_upzones: 1,
-                unlock_vehicles: vec!["cargo bike".to_string()],
-            },
-            // TODO Super dense, starting point isn't even near apartments, run out of gifts after
-            // a few buildings. Unexpectedly hard!
-            Level {
-                title: "South Pole Union".to_string(),
-                description: "Don't get turned around in all of the construction while you \
-                              deliver to the apartments here!"
-                    .to_string(),
-                map: MapName::seattle("slu"),
-                music: "carol_bells".to_string(),
-                start: osm::NodeID(53142423),
-                minimap_zoom: 1,
-                time_limit: Duration::seconds(90.0),
-                goal: 25,
-
-                unlock_upzones: 1,
-                unlock_vehicles: vec![],
+                unlock_vehicles: vec!["sleigh".to_string()],
             },
             Level {
                 title: "Montlake".to_string(),
@@ -85,42 +83,46 @@ impl Level {
                 unlock_vehicles: vec![],
             },
             Level {
+                title: "Phinney Ridge".to_string(),
+                description: "Take your pick from the scrumptious options along Greenwood Ave! \
+                              But stray into the neighborhood at your own risk..."
+                    .to_string(),
+                map: MapName::seattle("phinney"),
+                music: "silent_night".to_string(),
+                start: osm::NodeID(53233319),
+                minimap_zoom: 1,
+                time_limit: Duration::minutes(3),
+                goal: 1500,
+
+                unlock_upzones: 1,
+                unlock_vehicles: vec![],
+            },
+            Level {
+                title: "South Pole Union".to_string(),
+                description: "Suddenly, shops everywhere! Can you find all of the residents \
+                              huddled inside?"
+                    .to_string(),
+                map: MapName::seattle("slu"),
+                music: "carol_bells".to_string(),
+                start: osm::NodeID(53142423),
+                minimap_zoom: 1,
+                time_limit: Duration::seconds(90.0),
+                goal: 1300,
+
+                unlock_upzones: 3,
+                unlock_vehicles: vec![],
+            },
+            Level {
                 title: "Magnolia".to_string(),
                 description: "Struggle past the intense hills and restrictive zoning to tackle \
                               one of the lowest-density parts of Seattle!"
                     .to_string(),
                 map: MapName::seattle("ballard"),
                 music: "god_rest_ye_merry_gentlemen".to_string(),
-                start: osm::NodeID(53117102),
+                start: osm::NodeID(53130883),
                 minimap_zoom: 2,
-                time_limit: Duration::minutes(5),
-                goal: 1000,
-
-                unlock_upzones: 1,
-                unlock_vehicles: vec![],
-            },
-            Level {
-                title: "Phinney Ridge".to_string(),
-                description: "...".to_string(),
-                map: MapName::seattle("phinney"),
-                music: "carol_bells".to_string(),
-                start: osm::NodeID(53233319),
-                minimap_zoom: 1,
-                time_limit: Duration::minutes(5),
-                goal: 1000,
-
-                unlock_upzones: 3,
-                unlock_vehicles: vec![],
-            },
-            Level {
-                title: "Queen Anne".to_string(),
-                description: "...".to_string(),
-                map: MapName::seattle("qa"),
-                music: "jingle_bells".to_string(),
-                start: osm::NodeID(53234637),
-                minimap_zoom: 1,
-                time_limit: Duration::minutes(5),
-                goal: 1000,
+                time_limit: Duration::minutes(4),
+                goal: 5000,
 
                 unlock_upzones: 5,
                 unlock_vehicles: vec![],

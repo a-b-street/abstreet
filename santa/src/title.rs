@@ -33,12 +33,16 @@ impl TitleScreen {
                     .padding(16)
                     .bg(app.cs.fade_map_dark)
                     .centered_horiz(),
-                Text::from(Line(
-                    "Time for Santa to deliver presents in Seattle! But... COVID means no \
-                     stopping in houses to munch on cookies (gluten-free and paleo, obviously). \
-                     When your blood sugar gets low, you'll have to stop and refill your supply \
-                     from a store. Those are close to where people live... right?",
-                ))
+                Text::from(
+                    Line(
+                        "Time for Santa to deliver presents in Seattle! But... COVID means no \
+                         stopping in houses to munch on cookies (gluten-free and paleo, \
+                         obviously). When your blood sugar gets low, you'll have to stop and \
+                         refill your supply from a store. Those are close to where people live... \
+                         right?",
+                    )
+                    .small_heading(),
+                )
                 .wrap_to_pct(ctx, 50)
                 .draw(ctx)
                 .container()

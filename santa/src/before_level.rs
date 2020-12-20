@@ -260,7 +260,7 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .align_right(),
         ]),
         Widget::row(vec![
-            "Cookie jar capacity:".draw_text(ctx),
+            "Energy:".draw_text(ctx),
             custom_bar(
                 ctx,
                 app.session.colors.energy,

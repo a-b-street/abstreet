@@ -166,6 +166,8 @@ impl Results {
                 prettyprint_usize(level.goal)
             )));
             txt.add(Line("Review your route and try again."));
+            txt.add(Line(""));
+            txt.add(Line("Hint: look for any apartments you missed!"));
         } else {
             txt.add(Line("Thank you, Santa!").small_heading());
             txt.add(Line(format!(

@@ -19,7 +19,7 @@ impl Vehicle {
                 name: "bike".to_string(),
 
                 speed: Speed::miles_per_hour(30.0),
-                max_energy: 50,
+                max_energy: 100,
 
                 draw_frames: vec!["bike1.svg", "bike2.svg", "bike1.svg", "bike3.svg"],
                 scale: 0.05,
@@ -28,7 +28,7 @@ impl Vehicle {
                 name: "sleigh".to_string(),
 
                 speed: Speed::miles_per_hour(25.0),
-                max_energy: 200,
+                max_energy: 300,
 
                 draw_frames: vec!["sleigh.svg"],
                 scale: 0.08,
