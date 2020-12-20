@@ -300,6 +300,10 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -504,7 +508,11 @@
 
     <span class="doccomment">/// Is the player currently on a road with a bus or bike lane?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_good_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">On</span>::<span class="ident">Road</span>(<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">on</span> {
+        <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">on</span> {
+            <span class="ident">On</span>::<span class="ident">Road</span>(<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">r</span>],
+            <span class="ident">On</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
+        };
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">roads</span> {
             <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">lanes_ltr</span>() {
                 <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span> {
                     <span class="kw">return</span> <span class="bool-val">true</span>;
