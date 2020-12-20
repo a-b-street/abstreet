@@ -2,35 +2,54 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<style>
-	/*!
-	 * Load Awesome v1.1.0 (http://github.danielcardoso.net/load-awesome/)
-	 * Copyright 2015 Daniel Cardoso <@DanielCardoso>
-	 * Licensed under MIT
-	 */
-	.la-ball-beat,.la-ball-beat>div{position:relative;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.la-ball-beat{display:block;font-size:0;color:#fff}.la-ball-beat.la-dark{color:#333}.la-ball-beat>div{display:inline-block;float:none;background-color:currentColor;border:0 solid currentColor}.la-ball-beat{width:54px;height:18px}.la-ball-beat>div{width:10px;height:10px;margin:4px;border-radius:100%;-webkit-animation:ball-beat 0.7s -0.15s infinite linear;-moz-animation:ball-beat 0.7s -0.15s infinite linear;-o-animation:ball-beat 0.7s -0.15s infinite linear;animation:ball-beat 0.7s -0.15s infinite linear}.la-ball-beat>div:nth-child(2n-1){-webkit-animation-delay:-.5s;-moz-animation-delay:-.5s;-o-animation-delay:-.5s;animation-delay:-.5s}.la-ball-beat.la-sm{width:26px;height:8px}.la-ball-beat.la-sm>div{width:4px;height:4px;margin:2px}.la-ball-beat.la-2x{width:108px;height:36px}.la-ball-beat.la-2x>div{width:20px;height:20px;margin:8px}.la-ball-beat.la-3x{width:162px;height:54px}.la-ball-beat.la-3x>div{width:30px;height:30px;margin:12px}@-webkit-keyframes ball-beat{50%{opacity:.2;-webkit-transform:scale(0.75);transform:scale(0.75)}100%{opacity:1;-webkit-transform:scale(1);transform:scale(1)}}@-moz-keyframes ball-beat{50%{opacity:.2;-moz-transform:scale(0.75);transform:scale(0.75)}100%{opacity:1;-moz-transform:scale(1);transform:scale(1)}}@-o-keyframes ball-beat{50%{opacity:.2;-o-transform:scale(0.75);transform:scale(0.75)}100%{opacity:1;-o-transform:scale(1);transform:scale(1)}}@keyframes ball-beat{50%{opacity:.2;-webkit-transform:scale(0.75);-moz-transform:scale(0.75);-o-transform:scale(0.75);transform:scale(0.75)}100%{opacity:1;-webkit-transform:scale(1);-moz-transform:scale(1);-o-transform:scale(1);transform:scale(1)}}
-	</style>
-    <script type="module">
-        import { default as init } from './game.js';
+	<script type="module">
+		import { default as init } from './game.js';
 
-        async function run() {
-            await init('./game_bg.wasm');
-        }
+		function prettyPrintBytes(bytes) {
+			if (bytes < 1024 ** 2) {
+				return Math.round(bytes / 1024) + " KB";
+			}
+			return Math.round(bytes / 1024 ** 2) + " MB";
+		}
 
-        run();
-    </script>
+		async function run() {
+			const t0 = performance.now();
+			console.log("Started loading WASM");
+			let response = await fetch('./game_bg.wasm');
+			const contentLength = response.headers.get('Content-Length');
+			const reader = response.body.getReader();
+			let receivedLength = 0;
+			let chunks = [];
+			while (true) {
+				const {done, value} = await reader.read();
+				if (done) {
+					break;
+				}
+				chunks.push(value);
+				receivedLength += value.length;
+				document.getElementById("progress_text").innerText = prettyPrintBytes(receivedLength) + " / " + prettyPrintBytes(contentLength);
+				document.getElementById("progress_bar").style.width = (100.0 * receivedLength / contentLength) + "%";
+			}
+			document.getElementById("progress_text").innerText = "Loaded " + prettyPrintBytes(contentLength) + ", now initializing WASM module";
+			let blob = new Blob(chunks);
+			let buffer = await blob.arrayBuffer();
+			const t1 = performance.now();
+			console.log(`It took ${t1 - t0} ms to download WASM, now initializing it`);
+			await init(buffer);
+		}
+
+		run();
+	</script>
 </head>
 <body style="background-color:black;">
 	<div id="loading" style="padding-top: 40px; color: white; text-align: center; font-family: arial; font-size: 200%;">
-        <h1>Loading A/B Street...</h1>
-        <div style="margin: auto" class="la-ball-beat la-2x">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-        <h2>this may take up to 30 seconds</h2>
+		<h1>Loading A/B Street...</h1>
+		<div style="width: 100%; background-color: white;">
+			<div style="width: 1%; height: 30px; background-color: red;" id="progress_bar"></div>
+		</div>
+		<div id="progress_text"></div>
 		<p>If you think something has broken, check your browser's developer console (Ctrl+Shift+I or similar)</p>
-		<p>(your browser must support WebGL and WebAssembly)</p>
+		<p>(Your browser must support WebGL and WebAssembly)</p>
 	</div>
 </body>
 <html>
