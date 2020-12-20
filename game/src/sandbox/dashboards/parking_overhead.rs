@@ -1,10 +1,10 @@
 use geom::Duration;
 use sim::{TripEndpoint, TripID, TripPhaseType};
+use widgetry::table::{Col, Filter, Table};
 use widgetry::{Checkbox, EventCtx, Filler, Line, Panel, State, Text, Widget};
 
 use crate::app::App;
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
-use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;
 
 // TODO Compare all of these things before/after
@@ -92,8 +92,8 @@ fn produce_raw_data(app: &App) -> Vec<Entry> {
     data
 }
 
-fn make_table(app: &App) -> Table<Entry, Filters> {
-    let filter: Filter<Entry, Filters> = Filter {
+fn make_table(app: &App) -> Table<App, Entry, Filters> {
+    let filter: Filter<App, Entry, Filters> = Filter {
         state: Filters {
             starts_off_map: true,
             ends_off_map: true,
@@ -163,7 +163,7 @@ fn make_table(app: &App) -> Table<Entry, Filters> {
     table
 }
 
-fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<Entry, Filters>) -> Panel {
+fn make_panel(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filters>) -> Panel {
     let mut col = vec![DashTab::ParkingOverhead.picker(ctx, app)];
     col.push(
         Widget::row(vec![

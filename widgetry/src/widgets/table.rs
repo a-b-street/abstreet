@@ -1,18 +1,15 @@
 use abstutil::prettyprint_usize;
 use geom::Polygon;
-use widgetry::{Btn, Color, EventCtx, GeomBatch, Key, Line, Panel, Text, TextExt, Widget};
 
-use crate::app::App;
-
-// TODO With a bit more detangling from App, this could be lifted to widgetry!
+use crate::{Btn, Color, EventCtx, GeomBatch, Key, Line, Panel, Text, TextExt, Widget};
 
 const ROWS: usize = 8;
 
-pub struct Table<T, F> {
+pub struct Table<A, T, F> {
     data: Vec<T>,
     label_per_row: Box<dyn Fn(&T) -> String>,
-    columns: Vec<Column<T>>,
-    filter: Filter<T, F>,
+    columns: Vec<Column<A, T>>,
+    filter: Filter<A, T, F>,
 
     sort_by: String,
     descending: bool,
@@ -24,26 +21,26 @@ pub enum Col<T> {
     Sortable(Box<dyn Fn(&mut Vec<&T>)>),
 }
 
-struct Column<T> {
+struct Column<A, T> {
     name: String,
-    render: Box<dyn Fn(&EventCtx, &App, &T) -> GeomBatch>,
+    render: Box<dyn Fn(&EventCtx, &A, &T) -> GeomBatch>,
     col: Col<T>,
 }
 
-pub struct Filter<T, F> {
+pub struct Filter<A, T, F> {
     pub state: F,
-    pub to_controls: Box<dyn Fn(&mut EventCtx, &App, &F) -> Widget>,
+    pub to_controls: Box<dyn Fn(&mut EventCtx, &A, &F) -> Widget>,
     pub from_controls: Box<dyn Fn(&Panel) -> F>,
     pub apply: Box<dyn Fn(&F, &T) -> bool>,
 }
 
-impl<T, F> Table<T, F> {
+impl<A, T, F> Table<A, T, F> {
     pub fn new(
         data: Vec<T>,
         label_per_row: Box<dyn Fn(&T) -> String>,
         default_sort_by: &str,
-        filter: Filter<T, F>,
-    ) -> Table<T, F> {
+        filter: Filter<A, T, F>,
+    ) -> Table<A, T, F> {
         Table {
             data,
             label_per_row,
@@ -59,7 +56,7 @@ impl<T, F> Table<T, F> {
     pub fn column(
         &mut self,
         name: &str,
-        render: Box<dyn Fn(&EventCtx, &App, &T) -> GeomBatch>,
+        render: Box<dyn Fn(&EventCtx, &A, &T) -> GeomBatch>,
         col: Col<T>,
     ) {
         self.columns.push(Column {
@@ -69,7 +66,7 @@ impl<T, F> Table<T, F> {
         });
     }
 
-    pub fn render(&self, ctx: &mut EventCtx, app: &App) -> Widget {
+    pub fn render(&self, ctx: &mut EventCtx, app: &A) -> Widget {
         let mut data: Vec<&T> = Vec::new();
 
         // Filter
@@ -167,7 +164,7 @@ impl<T, F> Table<T, F> {
 
 // Simpler wrappers than column(). The more generic case exists to allow for icons and non-text
 // things.
-impl<T: 'static, F> Table<T, F> {
+impl<A, T: 'static, F> Table<A, T, F> {
     pub fn static_col(&mut self, name: &str, to_str: Box<dyn Fn(&T) -> String>) {
         self.column(
             name,

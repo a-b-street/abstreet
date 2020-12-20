@@ -20,6 +20,7 @@
 //! * [`ScatterPlot`] - visualize 2 variables with a scatter plot
 //! * [`Slider`] - horizontal and vertical sliders
 //! * [`Spinner`] - numeric input with up/down buttons
+//! * [`table::Table`] - rows and columns, supporting filtering and pagination
 //! * [`TexBox`] - single line text entry
 
 //#![warn(missing_docs)]
@@ -57,6 +58,7 @@ pub use crate::widgets::persistent_split::PersistentSplit;
 pub use crate::widgets::scatter_plot::ScatterPlot;
 pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::Spinner;
+pub use crate::widgets::table;
 pub(crate) use crate::widgets::text_box::TextBox;
 pub use crate::widgets::{EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput};
 

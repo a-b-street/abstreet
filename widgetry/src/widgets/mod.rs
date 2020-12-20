@@ -33,6 +33,7 @@ pub mod persistent_split;
 pub mod scatter_plot;
 pub mod slider;
 pub mod spinner;
+pub mod table;
 pub mod text_box;
 
 /// Create a new widget by implementing this trait. You can instantiate your widget by calling

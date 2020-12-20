@@ -3,12 +3,12 @@ use std::collections::{BTreeSet, HashMap};
 use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
 use sim::{TripEndpoint, TripID, TripMode};
+use widgetry::table::{Col, Filter, Table};
 use widgetry::{Btn, Checkbox, EventCtx, Filler, Line, Panel, State, Text, Widget};
 
 use crate::app::App;
 use crate::common::{checkbox_per_mode, cmp_duration_shorter, color_for_mode};
 use crate::sandbox::dashboards::generic_trip_table::GenericTripTable;
-use crate::sandbox::dashboards::table::{Col, Filter, Table};
 use crate::sandbox::dashboards::DashTab;
 
 pub struct FinishedTripTable;
@@ -166,7 +166,7 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
     (finished, cancelled)
 }
 
-fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
+fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
     let (finished, _) = produce_raw_data(app);
     let any_congestion_caps = app
         .primary
@@ -174,7 +174,7 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
         .all_zones()
         .iter()
         .any(|z| z.restrictions.cap_vehicles_per_hour.is_some());
-    let filter: Filter<FinishedTrip, Filters> = Filter {
+    let filter: Filter<App, FinishedTrip, Filters> = Filter {
         state: Filters {
             modes: TripMode::all().into_iter().collect(),
             off_map_starts: true,
@@ -388,10 +388,10 @@ fn make_table_finished_trips(app: &App) -> Table<FinishedTrip, Filters> {
     table
 }
 
-fn make_table_cancelled_trips(app: &App) -> Table<CancelledTrip, Filters> {
+fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
     let (_, cancelled) = produce_raw_data(app);
     // Reuse the same filters, but ignore modified and capped trips
-    let filter: Filter<CancelledTrip, Filters> = Filter {
+    let filter: Filter<App, CancelledTrip, Filters> = Filter {
         state: Filters {
             modes: TripMode::all().into_iter().collect(),
             off_map_starts: true,
@@ -474,7 +474,7 @@ fn make_table_cancelled_trips(app: &App) -> Table<CancelledTrip, Filters> {
     table
 }
 
-fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
+fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters> {
     // Only make one pass through prebaked data
     let trip_times_before = if app.has_prebaked().is_some() {
         let mut times = HashMap::new();
@@ -505,7 +505,7 @@ fn make_table_unfinished_trips(app: &App) -> Table<UnfinishedTrip, Filters> {
     }
 
     // Reuse the same filters, but ignore modified and capped trips
-    let filter: Filter<UnfinishedTrip, Filters> = Filter {
+    let filter: Filter<App, UnfinishedTrip, Filters> = Filter {
         state: Filters {
             modes: TripMode::all().into_iter().collect(),
             off_map_starts: true,
@@ -634,7 +634,7 @@ fn trip_category_selector(ctx: &mut EventCtx, app: &App, tab: DashTab) -> Widget
 fn make_panel_finished_trips(
     ctx: &mut EventCtx,
     app: &App,
-    table: &Table<FinishedTrip, Filters>,
+    table: &Table<App, FinishedTrip, Filters>,
 ) -> Panel {
     Panel::new(Widget::col(vec![
         DashTab::FinishedTripTable.picker(ctx, app),
@@ -652,7 +652,7 @@ fn make_panel_finished_trips(
 fn make_panel_cancelled_trips(
     ctx: &mut EventCtx,
     app: &App,
-    table: &Table<CancelledTrip, Filters>,
+    table: &Table<App, CancelledTrip, Filters>,
 ) -> Panel {
     Panel::new(Widget::col(vec![
         DashTab::FinishedTripTable.picker(ctx, app),
@@ -669,7 +669,7 @@ fn make_panel_cancelled_trips(
 fn make_panel_unfinished_trips(
     ctx: &mut EventCtx,
     app: &App,
-    table: &Table<UnfinishedTrip, Filters>,
+    table: &Table<App, UnfinishedTrip, Filters>,
 ) -> Panel {
     Panel::new(Widget::col(vec![
         DashTab::FinishedTripTable.picker(ctx, app),

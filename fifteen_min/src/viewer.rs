@@ -123,6 +123,7 @@ impl State<App> for Viewer {
                 category => {
                     // Describe all of the specific amenities matching this category
                     let mut details = Vec::new();
+                    // Category, name, address, distance away (sort by this by default)
                     for b in self.isochrone.amenities_reachable.get(category) {
                         let bldg = app.map.get_b(*b);
                         for amenity in &bldg.amenities {

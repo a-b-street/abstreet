@@ -1,5 +1,6 @@
 use geom::{Distance, Pt2D};
 use sim::{TripEndpoint, TripID};
+use widgetry::table::Table;
 use widgetry::{
     Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, RewriteColor, ScreenPt,
     State,
@@ -8,26 +9,26 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::color_for_trip_phase;
 use crate::info::{OpenTrip, Tab};
-use crate::sandbox::dashboards::table::Table;
 use crate::sandbox::dashboards::trip_table;
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::SandboxMode;
 
-pub struct GenericTripTable<T, F, P: 'static + Fn(&mut EventCtx, &App, &Table<T, F>) -> Panel> {
-    table: Table<T, F>,
+pub struct GenericTripTable<T, F, P: 'static + Fn(&mut EventCtx, &App, &Table<App, T, F>) -> Panel>
+{
+    table: Table<App, T, F>,
     panel: Panel,
     make_panel: P,
     tab: DashTab,
 }
 
-impl<T: 'static, F: 'static, P: 'static + Fn(&mut EventCtx, &App, &Table<T, F>) -> Panel>
+impl<T: 'static, F: 'static, P: 'static + Fn(&mut EventCtx, &App, &Table<App, T, F>) -> Panel>
     GenericTripTable<T, F, P>
 {
     pub fn new(
         ctx: &mut EventCtx,
         app: &App,
         tab: DashTab,
-        table: Table<T, F>,
+        table: Table<App, T, F>,
         make_panel: P,
     ) -> Box<dyn State<App>> {
         let panel = (make_panel)(ctx, app, &table);
@@ -46,8 +47,8 @@ impl<T: 'static, F: 'static, P: 'static + Fn(&mut EventCtx, &App, &Table<T, F>) 
     }
 }
 
-impl<T: 'static, F: 'static, P: 'static + Fn(&mut EventCtx, &App, &Table<T, F>) -> Panel> State<App>
-    for GenericTripTable<T, F, P>
+impl<T: 'static, F: 'static, P: 'static + Fn(&mut EventCtx, &App, &Table<App, T, F>) -> Panel>
+    State<App> for GenericTripTable<T, F, P>
 {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
