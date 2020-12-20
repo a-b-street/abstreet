@@ -149,6 +149,16 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -163,8 +173,9 @@
 <span class="doccomment">/// Persistent state that lasts across levels.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Session</span> {
-    <span class="comment">// It&#39;s convenient to also serialize these, to tune the game without recompiling.</span>
     <span class="kw">pub</span> <span class="ident">levels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Level</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Enable this to use the levels, instead of overwriting them with the version in the code.</span>
+    <span class="kw">pub</span> <span class="ident">enable_modding</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">colors</span>: <span class="ident">ColorScheme</span>,
 
     <span class="doccomment">/// Level title -&gt; the top 3 scores</span>
@@ -196,12 +207,17 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Session</span> {
         <span class="kw">let</span> <span class="ident">levels</span> <span class="op">=</span> <span class="ident">Level</span>::<span class="ident">all</span>();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">session</span>) <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>(
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">session</span>) <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>(
             <span class="ident">abstutil</span>::<span class="ident">path_player</span>(<span class="string">&quot;santa.json&quot;</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
         ) {
             <span class="kw">if</span> <span class="ident">session</span>.<span class="ident">levels</span> <span class="op">!</span><span class="op">=</span> <span class="ident">levels</span> {
-                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Using modified levels from the session data&quot;</span>);
+                <span class="kw">if</span> <span class="ident">session</span>.<span class="ident">enable_modding</span> {
+                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Using modified levels from the session data&quot;</span>);
+                } <span class="kw">else</span> {
+                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Levels have changed; overwriting with the new version from the code&quot;</span>);
+                    <span class="ident">session</span>.<span class="ident">levels</span> <span class="op">=</span> <span class="ident">levels</span>;
+                }
             }
             <span class="kw">return</span> <span class="ident">session</span>;
         }
@@ -212,6 +228,7 @@
         }
         <span class="ident">Session</span> {
             <span class="ident">levels</span>,
+            <span class="ident">enable_modding</span>: <span class="bool-val">false</span>,
             <span class="ident">colors</span>: <span class="ident">ColorScheme</span> {
                 <span class="ident">house</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#688865&quot;</span>),
                 <span class="ident">apartment</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#C0F879&quot;</span>),
@@ -275,7 +292,7 @@
             <span class="comment">// Nothing new unlocked</span>
             <span class="prelude-val">None</span>
         };
-        <span class="ident">abstutil</span>::<span class="ident">write_json</span>(<span class="ident">abstutil</span>::<span class="ident">path_player</span>(<span class="string">&quot;santa.json&quot;</span>), <span class="self">self</span>);
+        <span class="self">self</span>.<span class="ident">save</span>();
         <span class="ident">msg</span>
     }
 
@@ -293,9 +310,12 @@
         <span class="kw">let</span> <span class="ident">play_music</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">play_music</span>;
         <span class="self">self</span>.<span class="ident">music</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">play_music</span>);
         <span class="kw">if</span> <span class="ident">play_music</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">play_music</span> {
-            <span class="comment">// Save when we mute/unmute</span>
-            <span class="ident">abstutil</span>::<span class="ident">write_json</span>(<span class="ident">abstutil</span>::<span class="ident">path_player</span>(<span class="string">&quot;santa.json&quot;</span>), <span class="self">self</span>);
+            <span class="self">self</span>.<span class="ident">save</span>();
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="ident">abstutil</span>::<span class="ident">write_json</span>(<span class="ident">abstutil</span>::<span class="ident">path_player</span>(<span class="string">&quot;santa.json&quot;</span>), <span class="self">self</span>);
     }
 }
 </pre></div>

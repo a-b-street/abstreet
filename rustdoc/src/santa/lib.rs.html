@@ -48,8 +48,6 @@
 <span id="45">45</span>
 <span id="46">46</span>
 <span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
@@ -75,12 +73,10 @@
     <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;15-minute Santa&quot;</span>), <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>::<span class="ident">default</span>();
         <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>::<span class="ident">new_with_opts</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>(),
-            <span class="ident">opts</span>,
-            <span class="ident">session</span>::<span class="ident">Session</span>::<span class="ident">load</span>(),
-        );
+        <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">session</span>::<span class="ident">Session</span>::<span class="ident">load</span>();
+        <span class="ident">session</span>.<span class="ident">save</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span>
+            <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>::<span class="ident">new_with_opts</span>(<span class="ident">ctx</span>, <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>(), <span class="ident">opts</span>, <span class="ident">session</span>);
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">unlock_all</span>();
         }
