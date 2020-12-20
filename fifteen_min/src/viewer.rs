@@ -5,14 +5,17 @@
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
 use abstutil::prettyprint_usize;
-use geom::{Distance, Pt2D};
-use map_gui::tools::{amenity_type, nice_map_name, CityPicker, ColorLegend, PopupMsg};
+use geom::{Distance, Duration, Pt2D};
+use map_gui::tools::{
+    amenity_type, nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg,
+};
 use map_gui::{Cached, ID};
 use map_model::{Building, BuildingID, PathConstraints};
+use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition, VerticalAlignment,
-    Widget,
+    lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
+    VerticalAlignment, Widget,
 };
 
 use crate::isochrone::Isochrone;
@@ -121,23 +124,12 @@ impl State<App> for Viewer {
                 }
                 // If we reach here, we must've clicked one of the buttons for an amenity
                 category => {
-                    // Describe all of the specific amenities matching this category
-                    let mut details = Vec::new();
-                    // Category, name, address, distance away (sort by this by default)
-                    for b in self.isochrone.amenities_reachable.get(category) {
-                        let bldg = app.map.get_b(*b);
-                        for amenity in &bldg.amenities {
-                            if amenity_type(&amenity.amenity_type) == Some(category) {
-                                details.push(format!(
-                                    "{} ({} away) has {}",
-                                    bldg.address,
-                                    self.isochrone.time_to_reach_building[&bldg.id],
-                                    amenity.names.get(app.opts.language.as_ref())
-                                ));
-                            }
-                        }
-                    }
-                    return Transition::Push(PopupMsg::new(ctx, category, details));
+                    return Transition::Push(ExploreAmenities::new(
+                        ctx,
+                        app,
+                        &self.isochrone,
+                        category,
+                    ));
                 }
             },
             Outcome::Changed => {
@@ -308,5 +300,135 @@ impl HoverOnBuilding {
             },
             drawn_route: ctx.upload(batch),
         }
+    }
+}
+
+struct ExploreAmenities {
+    category: String,
+    table: Table<App, Entry, ()>,
+    panel: Panel,
+}
+
+struct Entry {
+    bldg: BuildingID,
+    name: String,
+    category: String,
+    address: String,
+    duration_away: Duration,
+}
+
+impl ExploreAmenities {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        isochrone: &Isochrone,
+        category: &str,
+    ) -> Box<dyn State<App>> {
+        let mut entries = Vec::new();
+        for b in isochrone.amenities_reachable.get(category) {
+            let bldg = app.map.get_b(*b);
+            for amenity in &bldg.amenities {
+                if amenity_type(&amenity.amenity_type) == Some(category) {
+                    entries.push(Entry {
+                        bldg: bldg.id,
+                        name: amenity.names.get(app.opts.language.as_ref()).to_string(),
+                        category: amenity.amenity_type.clone(),
+                        address: bldg.address.clone(),
+                        duration_away: isochrone.time_to_reach_building[&bldg.id],
+                    });
+                }
+            }
+        }
+
+        let mut table: Table<App, Entry, ()> = Table::new(
+            entries,
+            // The label has extra junk to avoid crashing when one building has two stores
+            Box::new(|x| format!("{}: {}", x.bldg.0, x.name)),
+            "Time to reach",
+            Filter::empty(),
+        );
+        table.column(
+            "Category",
+            Box::new(|ctx, _, x| Text::from(Line(&x.category)).render(ctx)),
+            Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.category.clone()))),
+        );
+        table.static_col("Name", Box::new(|x| x.name.clone()));
+        table.static_col("Address", Box::new(|x| x.address.clone()));
+        table.column(
+            "Time to reach",
+            Box::new(|ctx, app, x| {
+                Text::from(Line(x.duration_away.to_string(&app.opts.units))).render(ctx)
+            }),
+            Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_away))),
+        );
+
+        let panel = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Line(format!("{} within 15 minutes", category))
+                    .small_heading()
+                    .draw(ctx),
+                Btn::close(ctx),
+            ]),
+            table.render(ctx, app),
+        ]))
+        .build(ctx);
+
+        Box::new(ExploreAmenities {
+            category: category.to_string(),
+            table,
+            panel,
+        })
+    }
+
+    fn recalc(&mut self, ctx: &mut EventCtx, app: &App) {
+        let mut new = Panel::new(Widget::col(vec![
+            Widget::row(vec![
+                Line(format!("{} within 15 minutes", self.category))
+                    .small_heading()
+                    .draw(ctx),
+                Btn::close(ctx),
+            ]),
+            self.table.render(ctx, app),
+        ]))
+        .build(ctx);
+        new.restore(ctx, &self.panel);
+        self.panel = new;
+    }
+}
+
+impl State<App> for ExploreAmenities {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
+        ctx.canvas_movement();
+
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => {
+                if self.table.clicked(&x) {
+                    self.recalc(ctx, app);
+                } else if x == "close" {
+                    return Transition::Pop;
+                } else if let Some(idx) = x.split(":").next().and_then(|x| x.parse::<usize>().ok())
+                {
+                    let b = app.map.get_b(BuildingID(idx));
+                    open_browser(b.orig_id.to_string());
+                } else {
+                    unreachable!()
+                }
+            }
+            Outcome::Changed => {
+                self.table.panel_changed(&self.panel);
+                self.recalc(ctx, app);
+            }
+            _ => {}
+        }
+
+        Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.panel.draw(g);
     }
 }

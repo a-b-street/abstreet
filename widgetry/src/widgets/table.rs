@@ -162,6 +162,17 @@ impl<A, T, F> Table<A, T, F> {
     }
 }
 
+impl<A, T> Filter<A, T, ()> {
+    pub fn empty() -> Filter<A, T, ()> {
+        Filter {
+            state: (),
+            to_controls: Box::new(|_, _, _| Widget::nothing()),
+            from_controls: Box::new(|_| ()),
+            apply: Box::new(|_, _| true),
+        }
+    }
+}
+
 // Simpler wrappers than column(). The more generic case exists to allow for icons and non-text
 // things.
 impl<A, T: 'static, F> Table<A, T, F> {
