@@ -690,6 +690,13 @@
 <span id="687">687</span>
 <span id="688">688</span>
 <span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -702,7 +709,7 @@
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">after_level</span>::{<span class="ident">Results</span>, <span class="ident">Strategize</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">after_level</span>::{<span class="ident">RecordPath</span>, <span class="ident">Results</span>, <span class="ident">Strategize</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">animation</span>::{<span class="ident">Animator</span>, <span class="ident">Effect</span>, <span class="ident">SnowEffect</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">buildings</span>::{<span class="ident">BldgState</span>, <span class="ident">Buildings</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Level</span>;
@@ -1010,6 +1017,8 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">orig_pos</span> {
             <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">idle_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>;
         }
+
+        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">record_path</span>.<span class="ident">add_pt</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>());
     }
 }
 
@@ -1034,6 +1043,7 @@
                         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>,
                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>,
                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">bldgs</span>,
+                        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">record_path</span>, <span class="ident">RecordPath</span>::<span class="ident">new</span>()),
                     )),
                     <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Results</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>)),
                 ]);
@@ -1243,6 +1253,8 @@
     <span class="ident">game_over</span>: <span class="ident">bool</span>,
     <span class="ident">warned_low_time</span>: <span class="ident">bool</span>,
     <span class="ident">warned_low_energy</span>: <span class="ident">bool</span>,
+
+    <span class="ident">record_path</span>: <span class="ident">RecordPath</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GameState</span> {
@@ -1265,6 +1277,8 @@
             <span class="ident">game_over</span>: <span class="bool-val">false</span>,
             <span class="ident">warned_low_time</span>: <span class="bool-val">false</span>,
             <span class="ident">warned_low_energy</span>: <span class="bool-val">false</span>,
+
+            <span class="ident">record_path</span>: <span class="ident">RecordPath</span>::<span class="ident">new</span>(),
         }
     }
 

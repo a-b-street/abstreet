@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ZOOM",""]],"struct":[["Results",""],["Strategize",""]]});
+initSidebarItems({"constant":[["ZOOM",""]],"struct":[["RecordPath",""],["Results",""],["Strategize",""]]});
