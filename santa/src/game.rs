@@ -601,13 +601,11 @@ impl GameState {
             return None;
         }
         if let BldgState::Undelivered(num_housing_units) = self.bldgs.buildings[&id] {
-            // TODO No partial deliveries.
-            let deliveries = num_housing_units.min(self.energy);
-            self.score += deliveries;
+            self.score += num_housing_units;
             self.bldgs.buildings.insert(id, BldgState::Done);
             self.energy -= 1;
             self.draw_done_houses = self.bldgs.draw_done_houses(ctx, app);
-            return Some(deliveries);
+            return Some(num_housing_units);
         }
         None
     }
