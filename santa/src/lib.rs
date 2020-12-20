@@ -22,12 +22,10 @@ pub fn main() {
     widgetry::run(widgetry::Settings::new("15-minute Santa"), |ctx| {
         let mut opts = map_gui::options::Options::default();
         opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
-        let mut app = map_gui::SimpleApp::new_with_opts(
-            ctx,
-            abstutil::CmdArgs::new(),
-            opts,
-            session::Session::load(),
-        );
+        let session = session::Session::load();
+        session.save();
+        let mut app =
+            map_gui::SimpleApp::new_with_opts(ctx, abstutil::CmdArgs::new(), opts, session);
         if app.opts.dev {
             app.session.unlock_all();
         }

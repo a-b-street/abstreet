@@ -11,8 +11,9 @@ use crate::music::Music;
 /// Persistent state that lasts across levels.
 #[derive(Serialize, Deserialize)]
 pub struct Session {
-    // It's convenient to also serialize these, to tune the game without recompiling.
     pub levels: Vec<Level>,
+    /// Enable this to use the levels, instead of overwriting them with the version in the code.
+    pub enable_modding: bool,
     pub colors: ColorScheme,
 
     /// Level title -> the top 3 scores
@@ -44,12 +45,17 @@ impl Session {
     pub fn load() -> Session {
         let levels = Level::all();
 
-        if let Ok(session) = abstutil::maybe_read_json::<Session>(
+        if let Ok(mut session) = abstutil::maybe_read_json::<Session>(
             abstutil::path_player("santa.json"),
             &mut Timer::throwaway(),
         ) {
             if session.levels != levels {
-                warn!("Using modified levels from the session data");
+                if session.enable_modding {
+                    warn!("Using modified levels from the session data");
+                } else {
+                    warn!("Levels have changed; overwriting with the new version from the code");
+                    session.levels = levels;
+                }
             }
             return session;
         }
@@ -60,6 +66,7 @@ impl Session {
         }
         Session {
             levels,
+            enable_modding: false,
             colors: ColorScheme {
                 house: Color::hex("#688865"),
                 apartment: Color::hex("#C0F879"),
@@ -123,7 +130,7 @@ impl Session {
             // Nothing new unlocked
             None
         };
-        abstutil::write_json(abstutil::path_player("santa.json"), self);
+        self.save();
         msg
     }
 
@@ -141,8 +148,11 @@ impl Session {
         let play_music = self.play_music;
         self.music.event(ctx, &mut self.play_music);
         if play_music != self.play_music {
-            // Save when we mute/unmute
-            abstutil::write_json(abstutil::path_player("santa.json"), self);
+            self.save();
         }
+    }
+
+    pub fn save(&self) {
+        abstutil::write_json(abstutil::path_player("santa.json"), self);
     }
 }
