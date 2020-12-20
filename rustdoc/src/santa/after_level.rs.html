@@ -215,6 +215,8 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
@@ -384,6 +386,8 @@
                 <span class="ident">prettyprint_usize</span>(<span class="ident">level</span>.<span class="ident">goal</span>)
             )));
             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Review your route and try again.&quot;</span>));
+            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;&quot;</span>));
+            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Hint: look for any apartments you missed!&quot;</span>));
         } <span class="kw">else</span> {
             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Thank you, Santa!&quot;</span>).<span class="ident">small_heading</span>());
             <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
