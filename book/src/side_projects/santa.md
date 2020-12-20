@@ -4,7 +4,7 @@ Created by [Dustin Carlino](https://abstreet.org),
 [Yuwen Li](https://www.yuwen-li.com/), &
 [Michael Kirk](https://michaelkirk.github.io/)
 
-Embed trailer
+<iframe width="560" height="315" src="https://www.youtube.com/embed/mrIsVMLZ_yc" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 15-minute Santa is a game where you deliver presents across Seattle. You earn
 more points delivering to high-density housing, and you need to refuel from
@@ -16,7 +16,7 @@ Contact <dabreegster@gmail.com> with any feedback or
 
 ## Play it
 
-- [Play online](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/santa/)
+- [Play online](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/santa)
   (slower and no music -- download below if possible)
 - Windows
 - Mac
