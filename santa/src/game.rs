@@ -9,7 +9,7 @@ use widgetry::{
     Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
-use crate::after_level::{Results, Strategize};
+use crate::after_level::{RecordPath, Results, Strategize};
 use crate::animation::{Animator, Effect, SnowEffect};
 use crate::buildings::{BldgState, Buildings};
 use crate::levels::Level;
@@ -317,6 +317,8 @@ impl Game {
         if self.player.get_pos() == orig_pos {
             self.state.idle_time += dt;
         }
+
+        self.state.record_path.add_pt(self.player.get_pos());
     }
 }
 
@@ -341,6 +343,7 @@ impl State<App> for Game {
                         self.state.score,
                         &self.state.level,
                         &self.state.bldgs,
+                        std::mem::replace(&mut self.state.record_path, RecordPath::new()),
                     )),
                     Transition::Push(Results::new(ctx, app, self.state.score, &self.state.level)),
                 ]);
@@ -550,6 +553,8 @@ struct GameState {
     game_over: bool,
     warned_low_time: bool,
     warned_low_energy: bool,
+
+    record_path: RecordPath,
 }
 
 impl GameState {
@@ -572,6 +577,8 @@ impl GameState {
             game_over: false,
             warned_low_time: false,
             warned_low_energy: false,
+
+            record_path: RecordPath::new(),
         }
     }
 

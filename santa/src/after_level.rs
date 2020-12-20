@@ -1,4 +1,5 @@
 use abstutil::prettyprint_usize;
+use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_gui::tools::{ColorLegend, PopupMsg};
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
@@ -24,6 +25,7 @@ impl Strategize {
         score: usize,
         level: &Level,
         bldgs: &Buildings,
+        path: RecordPath,
     ) -> Box<dyn State<App>> {
         ctx.canvas.cam_zoom = ZOOM;
         let start = app
@@ -88,6 +90,8 @@ impl Strategize {
                 }
             }
         }
+
+        batch.push(Color::CYAN, path.render(Distance::meters(2.0)));
 
         let panel = Panel::new(Widget::col(vec![
             txt.draw(ctx),
@@ -212,5 +216,35 @@ impl SimpleState<App> for Results {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         app.session.music.draw(g);
+    }
+}
+
+pub struct RecordPath {
+    pts: Vec<Pt2D>,
+}
+
+impl RecordPath {
+    pub fn new() -> RecordPath {
+        RecordPath { pts: Vec::new() }
+    }
+
+    pub fn add_pt(&mut self, pt: Pt2D) {
+        // Do basic compression along the way
+        let len = self.pts.len();
+        if len >= 2 {
+            let same_line = self.pts[len - 2]
+                .angle_to(self.pts[len - 1])
+                .approx_eq(self.pts[len - 1].angle_to(pt), 0.1);
+            if same_line {
+                self.pts.pop();
+            }
+        }
+
+        self.pts.push(pt);
+    }
+
+    pub fn render(mut self, thickness: Distance) -> Polygon {
+        self.pts.dedup();
+        PolyLine::unchecked_new(self.pts).make_polygons(thickness)
     }
 }

@@ -87,6 +87,9 @@ easily configurable, with good defaults.
 
 The error handling is pretty bad; lots of unwraps and panics to clean up.
 
+When returning a `Transition::Replace`, ideally we can consume `self` instead of
+just having `&mut self`, so we can avoid cloning stuff from one `State`.
+
 ## Why another Rust GUI library?
 
 When I started, nothing did what I needed, or it required awkward callbacks.
