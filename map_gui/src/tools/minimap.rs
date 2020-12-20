@@ -422,4 +422,8 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
     pub fn get_panel(&self) -> &Panel {
         &self.panel
     }
+
+    pub fn mut_panel(&mut self) -> &mut Panel {
+        &mut self.panel
+    }
 }

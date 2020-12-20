@@ -24,10 +24,8 @@ const BOOST_SPEED_MULTIPLIER: f64 = 2.0;
 const HANGRY_SPEED_MULTIPLIER: f64 = 0.3;
 
 pub struct Game {
-    title_panel: Panel,
     status_panel: Panel,
     time_panel: Panel,
-    boost_panel: Panel,
     pause_panel: Panel,
     minimap: Minimap<App, MinimapController>,
 
@@ -50,7 +48,7 @@ impl Game {
         app.time = Time::START_OF_DAY;
         app.session.music.specify_volume(crate::music::IN_GAME);
 
-        let title_panel = Panel::new(Widget::row(vec![
+        let status_panel = Panel::new(Widget::col(vec![
             "15-min Santa".draw_text(ctx).centered_vert(),
             Widget::row(vec![
                 // TODO The blur is messed up
@@ -59,11 +57,6 @@ impl Game {
             ])
             .padding(10)
             .bg(Color::hex("#003046")),
-        ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
-        .build(ctx);
-
-        let status_panel = Panel::new(Widget::col(vec![
             "Complete Deliveries".draw_text(ctx).named("score label"),
             Widget::draw_batch(ctx, GeomBatch::new()).named("score"),
             "Blood sugar".draw_text(ctx).named("energy label"),
@@ -77,15 +70,6 @@ impl Game {
             "Time".draw_text(ctx).centered_vert().named("time label"),
         ]))
         .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
-        .build(ctx);
-
-        let boost_panel = Panel::new(Widget::row(vec![
-            "Boost".draw_text(ctx),
-            Widget::draw_batch(ctx, GeomBatch::new())
-                .named("boost")
-                .align_right(),
-        ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::BottomInset)
         .build(ctx);
 
         let pause_panel = Panel::new(
@@ -110,10 +94,8 @@ impl Game {
         let state = GameState::new(ctx, level, vehicle, bldgs);
 
         let mut game = Game {
-            title_panel,
             status_panel,
             time_panel,
-            boost_panel,
             pause_panel,
             minimap: Minimap::new(ctx, app, MinimapController),
 
@@ -125,9 +107,9 @@ impl Game {
         };
         game.update_time_panel(ctx, app);
         game.update_status_panel(ctx, app);
-        game.update_boost_panel(ctx, app);
         game.minimap
             .set_zoom(ctx, app, game.state.level.minimap_zoom);
+        game.update_boost_panel(ctx, app);
         Box::new(game)
     }
 
@@ -195,7 +177,7 @@ impl Game {
                 Text::from(Line("Hold space to boost"))
             },
         );
-        self.boost_panel.replace(ctx, "boost", boost_bar);
+        self.minimap.mut_panel().replace(ctx, "boost", boost_bar);
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &mut App, dt: Duration) {
@@ -500,10 +482,8 @@ impl State<App> for Game {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.title_panel.draw(g);
         self.status_panel.draw(g);
         self.time_panel.draw(g);
-        self.boost_panel.draw(g);
         self.pause_panel.draw(g);
         app.session.music.draw(g);
 
@@ -687,11 +667,23 @@ impl MinimapControls<App> for MinimapController {
     }
 
     fn make_legend(&self, ctx: &mut EventCtx, app: &App) -> Widget {
-        Widget::row(vec![
-            ColorLegend::row(ctx, app.session.colors.house, "house"),
-            ColorLegend::row(ctx, app.session.colors.apartment, "apartment"),
-            ColorLegend::row(ctx, app.session.colors.store, "store"),
+        Widget::col(vec![
+            Widget::row(vec![
+                ColorLegend::row(ctx, app.session.colors.house, "house"),
+                ColorLegend::row(ctx, app.session.colors.apartment, "apartment"),
+                ColorLegend::row(ctx, app.session.colors.store, "store"),
+            ])
+            .evenly_spaced(),
+            // TODO If the player messes with the minimap, the panel gets recreated, and we'll
+            // clobber the boost bar. No easy way to plumb everything we need for
+            // update_boost_panel here. It's not super common to actually mess with those controls,
+            // so fine with this for now.
+            Widget::row(vec![
+                "Boost".draw_text(ctx),
+                Widget::draw_batch(ctx, GeomBatch::new())
+                    .named("boost")
+                    .align_right(),
+            ]),
         ])
-        .evenly_spaced()
     }
 }
