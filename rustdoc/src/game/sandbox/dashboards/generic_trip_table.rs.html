@@ -191,9 +191,11 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
+<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">table</span>::<span class="ident">Table</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenPt</span>,
     <span class="ident">State</span>,
@@ -202,26 +204,26 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">color_for_trip_phase</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">OpenTrip</span>, <span class="ident">Tab</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">table</span>::<span class="ident">Table</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">trip_table</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>::<span class="ident">DashTab</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">SandboxMode</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericTripTable</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">P</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span><span class="op">&gt;</span> {
-    <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericTripTable</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">P</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span><span class="op">&gt;</span>
+{
+    <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">make_panel</span>: <span class="ident">P</span>,
     <span class="ident">tab</span>: <span class="ident">DashTab</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span>, <span class="ident">F</span>: <span class="lifetime">&#39;static</span>, <span class="ident">P</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span>, <span class="ident">F</span>: <span class="lifetime">&#39;static</span>, <span class="ident">P</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span><span class="op">&gt;</span>
     <span class="ident">GenericTripTable</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">P</span><span class="op">&gt;</span>
 {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">tab</span>: <span class="ident">DashTab</span>,
-        <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>,
+        <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>,
         <span class="ident">make_panel</span>: <span class="ident">P</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> (<span class="ident">make_panel</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">table</span>);
@@ -240,8 +242,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span>, <span class="ident">F</span>: <span class="lifetime">&#39;static</span>, <span class="ident">P</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">GenericTripTable</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">P</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span>, <span class="ident">F</span>: <span class="lifetime">&#39;static</span>, <span class="ident">P</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span><span class="op">&gt;</span>
+    <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GenericTripTable</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">P</span><span class="op">&gt;</span>
 {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
