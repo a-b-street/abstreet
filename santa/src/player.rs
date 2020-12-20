@@ -201,7 +201,11 @@ impl Player {
 
     /// Is the player currently on a road with a bus or bike lane?
     pub fn on_good_road(&self, app: &App) -> bool {
-        if let On::Road(r, _, _) = self.on {
+        let roads = match self.on {
+            On::Road(r, _, _) => vec![r],
+            On::Intersection(i) => app.map.get_i(i).roads.iter().cloned().collect(),
+        };
+        for r in roads {
             for (_, _, lt) in app.map.get_r(r).lanes_ltr() {
                 if lt == LaneType::Biking || lt == LaneType::Bus {
                     return true;
