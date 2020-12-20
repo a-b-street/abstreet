@@ -4,11 +4,6 @@ Created by [Dustin Carlino](https://abstreet.org),
 [Yuwen Li](https://www.yuwen-li.com/), &
 [Michael Kirk](https://michaelkirk.github.io/)
 
-- Play online (slower and no music -- download below if possible)
-- Windows
-- Mac
-- Linux
-
 Embed trailer
 
 15-minute Santa is a game where you deliver presents across Seattle. You earn
@@ -18,6 +13,16 @@ work and shop.
 
 Contact <dabreegster@gmail.com> with any feedback or
 [file an issue on Github](https://github.com/dabreegster/abstreet/issues/new).
+
+## Play it
+
+- [Play online](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/santa/)
+  (slower and no music -- download below if possible)
+- Windows
+- Mac
+- Linux
+
+Unzip, then run `santa.exe` or `santa`.
 
 ## FAQ
 

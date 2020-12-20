@@ -47,6 +47,7 @@
   - [References](project/references.md)
   - [Collaborations](project/collaborations.md)
 - [Side projects](side_projects/README.md)
+  - [15-minute Santa](side_projects/santa.md)
   - [Mapping on-street parking](side_projects/parking_mapper.md)
   - [OpenStreetMap viewer](side_projects/osm_viewer.md)
   - [15-minute neighborhoods explorer](side_projects/fifteen_min.md)

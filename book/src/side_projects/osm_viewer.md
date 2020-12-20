@@ -1,6 +1,9 @@
 # OpenStreetMap viewer
 
-[Web version](abstreet.s3-website.us-east-2.amazonaws.com/dev/osm_viewer/)
+- [Web version](abstreet.s3-website.us-east-2.amazonaws.com/dev/osm_viewer)
+- To run locally, get the
+  [latest release](https://github.com/dabreegster/abstreet/releases) for
+  Windows, Mac, or Linux. After unzipping, run `osm_viewer.exe` or `osm_viewer`.
 
 A separate tool that visualizes OpenStreetMap data, with details on lanes, turn
 restrictions, parking lot capacity, and road width. It's also very convenient to
