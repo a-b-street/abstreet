@@ -260,6 +260,17 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
@@ -422,6 +433,17 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
         <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">state</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">from_controls</span>)(<span class="ident">panel</span>);
         <span class="self">self</span>.<span class="ident">skip</span> <span class="op">=</span> <span class="number">0</span>;
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, ()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, ()<span class="op">&gt;</span> {
+        <span class="ident">Filter</span> {
+            <span class="ident">state</span>: (),
+            <span class="ident">to_controls</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Widget</span>::<span class="ident">nothing</span>()),
+            <span class="ident">from_controls</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()),
+            <span class="ident">apply</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>),
+        }
     }
 }
 
