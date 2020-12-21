@@ -102,6 +102,8 @@
 <span id="99"> 99</span>
 <span id="100">100</span>
 <span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -121,8 +123,10 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Entry</span> {
     <span class="doccomment">/// md5sum of the file</span>
     <span class="kw">pub</span> <span class="ident">checksum</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Size in bytes</span>
-    <span class="kw">pub</span> <span class="ident">size_bytes</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// Uncompressed size in bytes</span>
+    <span class="kw">pub</span> <span class="ident">uncompressed_size_bytes</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// Compressed size in bytes</span>
+    <span class="kw">pub</span> <span class="ident">compressed_size_bytes</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Manifest</span> {
