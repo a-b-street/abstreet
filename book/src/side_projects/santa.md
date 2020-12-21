@@ -18,7 +18,7 @@ Contact <dabreegster@gmail.com> with any feedback or
 
 - [Play online](http://abstreet.s3-website.us-east-2.amazonaws.com/dev/santa)
   (slower and no music -- download below if possible)
-- [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_windows_v0_2_23.zip)
+- [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_windows_v0_2_23a.zip)
 - [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_mac_v0_2_23.zip)
 - [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_linux_v0_2_23.zip)
 

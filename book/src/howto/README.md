@@ -9,7 +9,7 @@ hit problems.
 Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
-- [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_windows_v0_2_23.zip)
+- [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_windows_v0_2_23a.zip)
   - Unzip the folder, then run `play_abstreet.bat`. You'll probably getting a
     warning about running software from an unknown publisher.
 - [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_mac_v0_2_23.zip)
