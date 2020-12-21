@@ -162,6 +162,13 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Cursor</span>;
@@ -255,6 +262,13 @@
 
 <span class="kw">impl</span> <span class="ident">Inner</span> {
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">play_music</span>: <span class="ident">bool</span>, <span class="ident">song</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Inner</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">windows</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(
+                <span class="string">&quot;Audio disabled on Windows: https://github.com/dabreegster/abstreet/issues/430&quot;</span>
+                    .<span class="ident">into</span>(),
+            );
+        }
+
         <span class="kw">let</span> (<span class="ident">stream</span>, <span class="ident">stream_handle</span>) <span class="op">=</span> <span class="ident">OutputStream</span>::<span class="ident">try_default</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">sink</span> <span class="op">=</span> <span class="ident">rodio</span>::<span class="ident">Sink</span>::<span class="ident">try_new</span>(<span class="kw-2">&amp;</span><span class="ident">stream_handle</span>)<span class="question-mark">?</span>;
 
