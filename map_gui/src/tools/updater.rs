@@ -32,9 +32,12 @@ impl<A: AppLike + 'static> Picker<A> {
                 Btn::close(ctx),
             ]),
             "Select the cities you want to include".draw_text(ctx),
-            Line("The file sizes shown are uncompressed; the download size will be smaller")
-                .secondary()
-                .draw(ctx),
+            Line(
+                "The file sizes shown are compressed; after downloading, the files stored on disk \
+                 will be larger",
+            )
+            .secondary()
+            .draw(ctx),
         ];
         for (city, bytes) in size_per_city(&manifest) {
             col.push(Widget::row(vec![
@@ -93,7 +96,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
     }
 }
 
-// For each city, how many total bytes do the runtime files cost?
+// For each city, how many total bytes do the runtime files cost to download?
 fn size_per_city(manifest: &Manifest) -> BTreeMap<String, usize> {
     let mut per_city = BTreeMap::new();
     for (path, entry) in &manifest.entries {
@@ -105,7 +108,7 @@ fn size_per_city(manifest: &Manifest) -> BTreeMap<String, usize> {
             } else {
                 parts[2].to_string()
             };
-            *per_city.entry(city).or_insert(0) += entry.size_bytes;
+            *per_city.entry(city).or_insert(0) += entry.compressed_size_bytes;
         }
     }
     per_city
@@ -149,9 +152,9 @@ fn sync(timer: &mut Timer) -> Vec<String> {
             version, path
         );
         timer.note(format!(
-            "Downloading {} ({} uncompressed)",
+            "Downloading {} ({})",
             url,
-            prettyprint_bytes(entry.size_bytes)
+            prettyprint_bytes(entry.compressed_size_bytes)
         ));
         files_downloaded += 1;
 

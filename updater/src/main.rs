@@ -51,7 +51,7 @@ async fn download(version: String, quiet: bool) {
                     println!(
                         "> decompress {}, which is {} bytes compressed",
                         path,
-                        bytes.len()
+                        prettyprint_usize(bytes.len())
                     );
                     let mut decoder = flate2::read::GzDecoder::new(&bytes[..]);
                     let mut out = File::create(&path).unwrap();
@@ -96,7 +96,7 @@ fn just_compare() {
 fn upload(version: String) {
     let remote_base = format!("/home/dabreegster/s3_abst_data/{}", version);
 
-    let local = generate_manifest();
+    let mut local = generate_manifest();
     let remote: Manifest = abstutil::maybe_read_json(
         format!("{}/MANIFEST.json", remote_base),
         &mut Timer::throwaway(),
@@ -113,7 +113,7 @@ fn upload(version: String) {
     }
 
     // Anything missing or needing updating?
-    for (path, entry) in &local.entries {
+    for (path, entry) in &mut local.entries {
         let remote_path = format!("{}/{}.gz", remote_base, path);
         let changed = remote.entries.get(path).map(|x| &x.checksum) != Some(&entry.checksum);
         if changed {
@@ -126,6 +126,7 @@ fn upload(version: String) {
                 std::io::copy(&mut input, &mut encoder).unwrap();
                 encoder.finish().unwrap();
             }
+            entry.compressed_size_bytes = std::fs::metadata(&remote_path).unwrap().len() as usize;
         }
     }
 
@@ -178,12 +179,12 @@ fn generate_manifest() -> Manifest {
         let mut file = File::open(&orig_path).unwrap();
         let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
         let mut context = md5::Context::new();
-        let mut size_bytes = 0;
+        let mut uncompressed_size_bytes = 0;
         while let Ok(n) = file.read(&mut buffer) {
             if n == 0 {
                 break;
             }
-            size_bytes += n;
+            uncompressed_size_bytes += n;
             context.consume(&buffer[..n]);
         }
         let checksum = format!("{:x}", context.compute());
@@ -191,7 +192,9 @@ fn generate_manifest() -> Manifest {
             path,
             Entry {
                 checksum,
-                size_bytes,
+                uncompressed_size_bytes,
+                // Will calculate later
+                compressed_size_bytes: 0,
             },
         );
     }
