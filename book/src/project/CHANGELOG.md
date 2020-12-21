@@ -679,3 +679,9 @@ changes here.
 - saving some player state on the web (mostly camera position per map, for the main game)
 - partial prototype of a new census-based scenario generator, thanks to help from the Amazon SSPA hackathon
 - significant progress on the experiment, about one week left...
+
+0.2.23
+
+- released the 15-minute Santa experiment!
+- trip info panels now show more continuous progress along a route
+- fixing inactive buttons stretching too much
