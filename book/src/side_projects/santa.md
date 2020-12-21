@@ -22,7 +22,7 @@ Contact <dabreegster@gmail.com> with any feedback or
 - [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_mac_v0_2_23.zip)
 - [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.23/abstreet_linux_v0_2_23.zip)
 
-Unzip, then run `santa.exe` or `santa`.
+Unzip, then run `santa.exe` or `santa`. No mobile/tablet support, sorry -- you need a keyboard.
 
 ## FAQ
 

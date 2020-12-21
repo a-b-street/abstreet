@@ -90,6 +90,13 @@ impl Music {
 
 impl Inner {
     fn new(ctx: &mut EventCtx, play_music: bool, song: &str) -> Result<Inner, Box<dyn Error>> {
+        if cfg!(windows) {
+            return Err(
+                "Audio disabled on Windows: https://github.com/dabreegster/abstreet/issues/430"
+                    .into(),
+            );
+        }
+
         let (stream, stream_handle) = OutputStream::try_default()?;
         let sink = rodio::Sink::try_new(&stream_handle)?;
 
