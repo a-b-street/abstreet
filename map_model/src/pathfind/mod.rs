@@ -432,9 +432,8 @@ impl Path {
     ) -> Duration {
         let mut total = Duration::ZERO;
         for step in &self.steps {
-            let on = step.as_traversable();
-            let dist = on.length(map);
-            let speed_limit = on.speed_limit(map);
+            let dist = self.dist_crossed_from_step(map, step);
+            let speed_limit = step.as_traversable().speed_limit(map);
             let speed = if constraints == PathConstraints::Pedestrian {
                 // Pedestrians don't care about the road's speed limit
                 max_speed.unwrap()
