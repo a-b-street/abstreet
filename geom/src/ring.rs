@@ -34,18 +34,13 @@ impl Ring {
             seen_pts.insert(pt.to_hashable());
         }
         if seen_pts.len() != result.pts.len() - 1 {
-            // return Err(format!("Ring has repeat non-adjacent points"));
+            return Err(format!("Ring has repeat non-adjacent points"));
         }
 
         Ok(result)
     }
     pub fn must_new(pts: Vec<Pt2D>) -> Ring {
-        match Ring::new(pts) {
-            Ok(r) => r,
-            Err(e) => {
-                panic!("{}", e);
-            }
-        }
+        Ring::new(pts).unwrap()
     }
 
     /// Draws the ring with some thickness, with half of it straddling the interor of the ring, and
