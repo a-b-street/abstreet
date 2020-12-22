@@ -1,0 +1,15 @@
+{
+  "osm_url": "http://download.geofabrik.de/europe/great-britain/england/greater-london-latest.osm.pbf",
+  "map_config": {
+    "driving_side": "Left",
+    "bikes_can_use_bus_lanes": true,
+    "inferred_sidewalks": true
+  },
+  "onstreet_parking": "JustOSM",
+  "public_offstreet_parking": "None",
+  "private_offstreet_parking": {
+    "FixedPerBldg": 10
+  },
+  "elevation": null,
+  "include_railroads": true
+}

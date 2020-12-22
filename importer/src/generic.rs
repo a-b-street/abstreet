@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use abstutil::MapName;
+use map_model::raw::RawMap;
 
 use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, osmconvert};
@@ -33,7 +34,7 @@ impl GenericCityImporter {
         name: MapName,
         timer: &mut abstutil::Timer,
         config: &ImporterConfiguration,
-    ) {
+    ) -> RawMap {
         let local_osm_file = format!(
             "input/{}/osm/{}",
             name.city,
@@ -69,5 +70,6 @@ impl GenericCityImporter {
             timer,
         );
         map.save();
+        map
     }
 }

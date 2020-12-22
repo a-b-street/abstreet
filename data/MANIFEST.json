@@ -90,7 +90,7 @@
       "uncompressed_size_bytes": 130969890,
       "compressed_size_bytes": 12269621
     },
-    "data/input/leeds/osm/west-yorkshire.osm.pbf": {
+    "data/input/leeds/osm/west-yorkshire-latest.osm.pbf": {
       "checksum": "0de99323ac548f889860f597704b2910",
       "uncompressed_size_bytes": 33826429,
       "compressed_size_bytes": 33785174

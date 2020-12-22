@@ -126,8 +126,10 @@ fn upload(version: String) {
                 std::io::copy(&mut input, &mut encoder).unwrap();
                 encoder.finish().unwrap();
             }
-            entry.compressed_size_bytes = std::fs::metadata(&remote_path).unwrap().len() as usize;
         }
+        // Always do this -- even if nothing changed, compressed_size_bytes isn't filled out by
+        // generate_manifest.
+        entry.compressed_size_bytes = std::fs::metadata(&remote_path).unwrap().len() as usize;
     }
 
     abstutil::write_json(format!("{}/MANIFEST.json", remote_base), &local);

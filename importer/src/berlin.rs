@@ -4,29 +4,21 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::Deserialize;
 
-use abstutil::{prettyprint_usize, MapName, Timer};
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Polygon, Ring};
 use kml::ExtraShapes;
+use map_model::raw::RawMap;
 use map_model::BuildingType;
 
 use crate::configuration::ImporterConfiguration;
-use crate::utils::{download, download_kml, osmconvert};
+use crate::utils::{download, download_kml};
 
-fn input(config: &ImporterConfiguration, timer: &mut Timer) {
-    download(
-        config,
-        "input/berlin/osm/berlin-latest.osm.pbf",
-        "http://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf",
-    );
-
-    let bounds = geom::GPSBounds::from(
-        geom::LonLat::read_osmosis_polygon("importer/config/berlin/center.poly").unwrap(),
-    );
+pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &mut Timer) {
     // From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
     download_kml(
         "input/berlin/planning_areas.bin",
         "https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume/lor_planungsraeume.kml",
-        &bounds,
+        &map.gps_bounds,
         // Keep partly out-of-bounds polygons
         false,
         timer
@@ -46,38 +38,6 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
         "data/input/berlin/EWR201812E_Matrix.csv",
         timer,
     );
-}
-
-pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration) {
-    input(config, timer);
-    osmconvert(
-        "input/berlin/osm/berlin-latest.osm.pbf",
-        format!("importer/config/berlin/{}.poly", name),
-        format!("input/berlin/osm/{}.osm", name),
-        config,
-    );
-
-    let map = convert_osm::convert(
-        convert_osm::Options {
-            osm_input: abstutil::path(format!("input/berlin/osm/{}.osm", name)),
-            name: MapName::new("berlin", name),
-
-            clip: Some(format!("importer/config/berlin/{}.poly", name)),
-            map_config: map_model::MapConfig {
-                driving_side: map_model::DrivingSide::Right,
-                bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
-            },
-
-            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(3),
-            elevation: None,
-            include_railroads: true,
-        },
-        timer,
-    );
-    map.save();
 }
 
 // Modify the filtered KML of planning areas with the number of residents from a different dataset.
