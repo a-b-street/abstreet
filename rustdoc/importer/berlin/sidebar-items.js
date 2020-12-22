@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["correlate_population",""],["distribute_residents",""],["input",""],["osm_to_raw",""]],"struct":[["Record",""]]});
+initSidebarItems({"fn":[["correlate_population",""],["distribute_residents",""],["import_extra_data",""]],"struct":[["Record",""]]});

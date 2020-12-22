@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["input",""],["osm_to_raw",""]]});
+initSidebarItems({"fn":[["import_extra_data",""]]});
