@@ -71,6 +71,7 @@ impl State<App> for BulkSelect {
                 "export roads to shared-row" => {
                     let path = crate::debug::shared_row::export(
                         self.selector.roads.iter().cloned().collect(),
+                        self.selector.intersections.iter().cloned().collect(),
                         &app.primary.map,
                     );
                     return Transition::Push(PopupMsg::new(

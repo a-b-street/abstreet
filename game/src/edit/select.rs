@@ -7,20 +7,28 @@ use widgetry::{Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteCo
 use crate::app::App;
 use crate::common::{intersections_from_roads, CommonState};
 
+/// A tool for selecting multiple roads.
 pub struct RoadSelector {
     pub roads: BTreeSet<RoadID>,
+    /// Intersections can't be selected directly. If all roads connected to an intersection are
+    /// selected, then the intersection will be too.
+    pub intersections: BTreeSet<IntersectionID>,
     pub preview: Option<Drawable>,
     mode: Mode,
     dragging: bool,
 }
 
 pub enum Mode {
+    /// No selecting, just normal click-and-drag controls.
     Pan,
+    /// The user is choosing two intersections, to select the route between.
     Route {
         i1: Option<IntersectionID>,
         preview_path: Option<(IntersectionID, Vec<RoadID>, Drawable)>,
     },
+    /// Click and drag to select roads
     Paint,
+    /// Click and drag to unselect roads
     Erase,
 }
 
@@ -29,6 +37,7 @@ impl RoadSelector {
         app.primary.current_selection = None;
         let mut rs = RoadSelector {
             roads,
+            intersections: BTreeSet::new(),
             preview: None,
             mode: Mode::Paint,
             dragging: false,
@@ -94,7 +103,9 @@ impl RoadSelector {
                     .get_thick_polygon(&app.primary.map),
             );
         }
+        self.intersections.clear();
         for i in intersections_from_roads(&self.roads, &app.primary.map) {
+            self.intersections.insert(i);
             batch.push(
                 Color::BLUE.alpha(0.5),
                 app.primary.map.get_i(i).polygon.clone(),

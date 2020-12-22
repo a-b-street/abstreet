@@ -1,10 +1,10 @@
 use geojson::feature::Id;
 use geojson::{Feature, FeatureCollection, GeoJson};
 
-use map_model::{Direction, Lane, LaneType, Map, RoadID};
+use map_model::{Direction, IntersectionID, Lane, LaneType, Map, RoadID};
 
 /// Exports to https://github.com/d-wasserman/shared-row/, returns the filename
-pub fn export(roads: Vec<RoadID>, map: &Map) -> String {
+pub fn export(roads: Vec<RoadID>, intersections: Vec<IntersectionID>, map: &Map) -> String {
     let path = format!(
         "shared_row_export_{}.json",
         roads
@@ -14,9 +14,13 @@ pub fn export(roads: Vec<RoadID>, map: &Map) -> String {
             .collect::<Vec<_>>()
             .join("_")
     );
+    let mut features: Vec<Feature> = roads.into_iter().map(|r| road(r, map)).collect();
+    for i in intersections {
+        features.push(intersection(i, map));
+    }
     let geojson = GeoJson::from(FeatureCollection {
         bbox: None,
-        features: roads.into_iter().map(|r| road(r, map)).collect(),
+        features,
         foreign_members: None,
     });
     abstutil::write_json(path.clone(), &geojson);
@@ -85,4 +89,22 @@ fn lane(lane: &Lane) -> Option<serde_json::Map<String, serde_json::value::Value>
     // TODO Spec says required but shouldn't be
     slice.insert("material".to_string(), "asphalt".into());
     Some(slice)
+}
+
+fn intersection(id: IntersectionID, map: &Map) -> Feature {
+    let mut properties = serde_json::Map::new();
+    properties.insert("intersection".to_string(), true.into());
+    Feature {
+        bbox: None,
+        geometry: Some(
+            map.get_i(id)
+                .polygon
+                .clone()
+                .into_ring()
+                .to_geojson(Some(map.get_gps_bounds())),
+        ),
+        id: Some(Id::Number(id.0.into())),
+        properties: Some(properties),
+        foreign_members: None,
+    }
 }
