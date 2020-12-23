@@ -60,6 +60,20 @@ different types of people (students, workers), give them a set of activities
 with durations (go to school for 7 hours, 1 hour lunch break), and then further
 pick specfic buildings to travel to using more OSM tags.
 
+### Census Based
+
+Trips are distributed based on where we believe people live. For the US, this
+information comes from the US Census. To take advantage of this model for areas
+outside the US, you'll need to add your data to the global `population_areas`
+file. This is one huge file that is shared across regions. This is more work up
+front, but makes adding individual cities relatively straight forward.
+
+#### Preparing the `population_areas` file
+
+See `popdat/scripts/build_population_areas.sh` for updating or adding to the
+existing population areas. Once rebuilt, you'll need to upload the file so that
+popdat can find it.
+
 ### Custom import
 
 If you have your own data, you can import it. The input format is JSON -- an
