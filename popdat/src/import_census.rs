@@ -76,10 +76,6 @@ impl CensusArea {
                     .first()
                     .ok_or(anyhow!("multipolygon was unexpectedly empty"))?;
                 if multi_poly.0.len() > 1 {
-                    // I haven't looked into why this is happening - but intuitively a census area
-                    // could include separate polygons - e.g. across bodies of
-                    // water. In practice they are a vast minority, so we
-                    // naively just take the first one for now.
                     warn!(
                         "dropping {} extra polygons from census area: {:?}",
                         multi_poly.0.len() - 1,
