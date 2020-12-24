@@ -284,6 +284,13 @@ pub fn traffic_signal(
             match stage.phase_type {
                 PhaseType::Fixed(d) => Line(format!("Stage {}: {}", idx + 1, d)),
                 PhaseType::Adaptive(d) => Line(format!("Stage {}: {} (adaptive)", idx + 1, d)),
+                PhaseType::Variable(min, delay, additional) => Line(format!(
+                    "Stage {}: {}, {}, {} (variable)",
+                    idx + 1,
+                    min,
+                    delay,
+                    additional
+                )),
             }
             .draw(ctx),
         );

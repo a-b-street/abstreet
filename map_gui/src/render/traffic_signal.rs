@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
-use map_model::{IntersectionID, Movement, Stage, TurnPriority, SIDEWALK_THICKNESS};
+use map_model::{IntersectionID, Movement, PhaseType, Stage, TurnPriority, SIDEWALK_THICKNESS};
 use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
 use crate::options::TrafficSignalStyle;
@@ -36,14 +36,24 @@ pub fn draw_signal_stage(
             }
 
             let (yellow_light, percent) = if let Some(t) = time_left {
-                (
-                    t <= Duration::seconds(5.0),
-                    (t / stage.phase_type.simple_duration()) as f32,
-                )
+                if stage.phase_type.simple_duration() > Duration::ZERO {
+                    (
+                        t <= Duration::seconds(5.0),
+                        (t / stage.phase_type.simple_duration()) as f32,
+                    )
+                } else {
+                    (true, 1.0)
+                }
             } else {
                 (false, 1.0)
             };
-            let yellow = Color::YELLOW;
+            // The warning color for fixed is yellow, for anything else its orange to clue the
+            // user into it possibly extending.
+            let indicator_color = if let PhaseType::Fixed(_) = stage.phase_type {
+                Color::YELLOW
+            } else {
+                Color::ORANGE
+            };
             for m in &stage.protected_movements {
                 if !m.crosswalk {
                     // TODO Maybe less if shoulders meet
@@ -62,7 +72,7 @@ pub fn draw_signal_stage(
                     if let Ok(pl) = pl.maybe_exact_slice(slice_start, pl.length() - slice_end) {
                         batch.push(
                             if yellow_light {
-                                yellow
+                                indicator_color
                             } else {
                                 app.cs().signal_protected_turn.alpha(percent)
                             },
@@ -98,7 +108,7 @@ pub fn draw_signal_stage(
                 );
                 batch.extend(
                     if yellow_light {
-                        yellow
+                        indicator_color
                     } else {
                         app.cs().signal_protected_turn.alpha(percent)
                     },
@@ -212,7 +222,8 @@ fn draw_time_left(
 ) {
     let radius = Distance::meters(2.0);
     let center = app.map().get_i(i).polygon.center();
-    let percent = time_left / stage.phase_type.simple_duration();
+    let duration = stage.phase_type.simple_duration();
+    let percent = if duration > Duration::ZERO { time_left / duration } else { 1.0 };
     batch.push(
         app.cs().signal_box,
         Circle::new(center, 1.2 * radius).to_polygon(),
