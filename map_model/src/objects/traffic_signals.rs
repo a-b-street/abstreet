@@ -62,7 +62,7 @@ impl PhaseType {
         match self {
             PhaseType::Fixed(d) | PhaseType::Adaptive(d) => *d,
             PhaseType::Variable(duration, delay, _) => {
-                if *duration > Duration::const_seconds(0.0) {
+                if *duration > Duration::ZERO {
                     *duration
                 } else {
                     *delay

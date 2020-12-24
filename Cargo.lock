@@ -3195,7 +3195,7 @@ dependencies = [
 [[package]]
 name = "seattle_traffic_signals"
 version = "0.1.0"
-source = "git+https://github.com/dabreegster/seattle_traffic_signals#0fe8cf9993d871824dda39fa077131f892c9df7a"
+source = "git+https://github.com/dabreegster/seattle_traffic_signals#8833a4cea68596170e9e81ad0c265b4e8677e151"
 dependencies = [
  "include_dir 0.5.0",
  "serde",

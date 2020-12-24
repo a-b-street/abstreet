@@ -70,9 +70,12 @@ struct State {
 
 #[derive(Clone, Serialize, Deserialize)]
 struct SignalState {
+    // The current stage of the signal, zero based
     current_stage: usize,
+    // The time when the signal is checked for advancing
     stage_ends_at: Time,
-    iteration_count: usize,
+    // The count of time an adaptive signal has been extended during the current stage.
+    extensions_count: usize,
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone, Debug)]
@@ -135,7 +138,7 @@ impl IntersectionSimState {
         }
         if self.break_turn_conflict_cycles {
             if let AgentID::Car(car) = agent {
-                //self.blocked_by.drain_filter(|(_, c)| *c == car);
+                // todo: when drain_filter() is no longer experimental, use it instead of retian_btreeset()
                 retain_btreeset(&mut self.blocked_by, |(_, c)| *c != car);
             }
         }
@@ -296,18 +299,18 @@ impl IntersectionSimState {
                 // could be short enough to keep them on the curb.
                 let delay = std::cmp::max(Duration::const_seconds(1.0), delay);
                 // Only extend for the fixed additional time
-                if signal_state.iteration_count as f64 * delay.inner_seconds()
+                if signal_state.extensions_count as f64 * delay.inner_seconds()
                     >= additional.inner_seconds()
                 {
                     self.events.push(Event::Alert(
                         AlertLocation::Intersection(id),
                         format!(
                             "exhausted a variable stage {},{},{},{}",
-                            min, delay, additional, signal_state.iteration_count
+                            min, delay, additional, signal_state.extensions_count
                         ),
                     ));
                     duration = advance(signal_state, signal);
-                    signal_state.iteration_count = 0;
+                    signal_state.extensions_count = 0;
                 } else if state.waiting.keys().all(|req| {
                     if let AgentID::Pedestrian(_) = req.agent {
                         return true;
@@ -316,16 +319,16 @@ impl IntersectionSimState {
                     // currently only the protected demand control extended.
                     old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
                 }) {
-                    signal_state.iteration_count = 0;
+                    signal_state.extensions_count = 0;
                     duration = advance(signal_state, signal);
                 } else {
-                    signal_state.iteration_count += 1;
+                    signal_state.extensions_count += 1;
                     duration = delay;
                     self.events.push(Event::Alert(
                         AlertLocation::Intersection(id),
                         format!(
                             "Extending a variable stage {},{},{},{}",
-                            min, delay, additional, signal_state.iteration_count
+                            min, delay, additional, signal_state.extensions_count
                         ),
                     ));
                 }
@@ -948,7 +951,7 @@ impl SignalState {
         let mut state = SignalState {
             current_stage: 0,
             stage_ends_at: now,
-            iteration_count: 0,
+            extensions_count: 0,
         };
 
         let signal = map.get_traffic_signal(id);

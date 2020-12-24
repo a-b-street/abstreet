@@ -32,7 +32,7 @@ impl ChangeDuration {
                 Btn::close(ctx),
             ]),
             Widget::row(vec![
-                "Seconds:".draw_text(ctx),
+                "Seconds:".draw_text(ctx).centered_vert(),
                 Spinner::new(
                     ctx,
                     (
@@ -61,27 +61,11 @@ impl ChangeDuration {
                     },
                 ),
             ]),
-            Widget::row(vec![Line("How long with no demand to end stage?")
-                .small_heading()
-                .draw(ctx)]),
-            Widget::row(vec![
-                "Seconds:".draw_text(ctx),
-                Spinner::new(
-                    ctx,
-                    (1, 300),
-                    match signal.stages[idx].phase_type {
-                        PhaseType::Fixed(_) => 0,
-                        PhaseType::Adaptive(_) => 0,
-                        PhaseType::Variable(_, delay, _) => delay.inner_seconds() as isize,
-                    },
-                )
-                .named("delay"),
-            ]),
             Widget::row(vec![Line("Additional time this stage can last?")
                 .small_heading()
                 .draw(ctx)]),
             Widget::row(vec![
-                "Seconds:".draw_text(ctx),
+                "Seconds:".draw_text(ctx).centered_vert(),
                 Spinner::new(
                     ctx,
                     (1, 300),
@@ -94,6 +78,22 @@ impl ChangeDuration {
                     },
                 )
                 .named("additional"),
+            ]),
+            Widget::row(vec![Line("How long with no demand to end stage?")
+                .small_heading()
+                .draw(ctx)]),
+            Widget::row(vec![
+                "Seconds:".draw_text(ctx).centered_vert(),
+                Spinner::new(
+                    ctx,
+                    (1, 300),
+                    match signal.stages[idx].phase_type {
+                        PhaseType::Fixed(_) => 0,
+                        PhaseType::Adaptive(_) => 0,
+                        PhaseType::Variable(_, delay, _) => delay.inner_seconds() as isize,
+                    },
+                )
+                .named("delay"),
             ]),
             Line("Minimum time is set by the time required for crosswalk")
                 .secondary()
