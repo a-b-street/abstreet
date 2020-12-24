@@ -223,7 +223,11 @@ fn draw_time_left(
     let radius = Distance::meters(2.0);
     let center = app.map().get_i(i).polygon.center();
     let duration = stage.phase_type.simple_duration();
-    let percent = if duration > Duration::ZERO { time_left / duration } else { 1.0 };
+    let percent = if duration > Duration::ZERO {
+        time_left / duration
+    } else {
+        1.0
+    };
     batch.push(
         app.cs().signal_box,
         Circle::new(center, 1.2 * radius).to_polygon(),

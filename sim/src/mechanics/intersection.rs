@@ -138,7 +138,8 @@ impl IntersectionSimState {
         }
         if self.break_turn_conflict_cycles {
             if let AgentID::Car(car) = agent {
-                // todo: when drain_filter() is no longer experimental, use it instead of retian_btreeset()
+                // todo: when drain_filter() is no longer experimental, use it instead of
+                // retian_btreeset()
                 retain_btreeset(&mut self.blocked_by, |(_, c)| *c != car);
             }
         }

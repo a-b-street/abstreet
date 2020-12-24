@@ -14,8 +14,8 @@ use crate::App;
 pub struct Isochrone {
     /// The center of the isochrone
     pub start: BuildingID,
-    /// What mode of travel we're using
-    pub constraints: PathConstraints,
+    /// The options used to generate this isochrone
+    pub options: Options,
     /// Colored polygon contours, uploaded to the GPU and ready for drawing
     pub draw: Drawable,
     /// How far away is each building from the start?
@@ -29,15 +29,26 @@ pub struct Isochrone {
     pub onstreet_parking_spots: usize,
 }
 
+/// The constraints on how we're moving.
+#[derive(Clone)]
+pub enum Options {
+    Walking(connectivity::WalkingOptions),
+    Biking,
+}
+
 impl Isochrone {
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        start: BuildingID,
-        constraints: PathConstraints,
-    ) -> Isochrone {
-        let time_to_reach_building =
-            connectivity::all_costs_from(&app.map, start, Duration::minutes(15), constraints);
+    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID, options: Options) -> Isochrone {
+        let time_to_reach_building = match options.clone() {
+            Options::Walking(opts) => {
+                connectivity::all_walking_costs_from(&app.map, start, Duration::minutes(15), opts)
+            }
+            Options::Biking => connectivity::all_vehicle_costs_from(
+                &app.map,
+                start,
+                Duration::minutes(15),
+                PathConstraints::Bike,
+            ),
+        };
         let draw = draw_isochrone(app, &time_to_reach_building).upload(ctx);
 
         let mut amenities_reachable = MultiMap::new();
@@ -72,7 +83,7 @@ impl Isochrone {
 
         Isochrone {
             start,
-            constraints,
+            options,
             draw,
             time_to_reach_building,
             amenities_reachable,
@@ -82,7 +93,15 @@ impl Isochrone {
     }
 
     pub fn path_to(&self, map: &Map, to: BuildingID) -> Option<Path> {
-        let req = PathRequest::between_buildings(map, self.start, to, self.constraints)?;
+        let req = PathRequest::between_buildings(
+            map,
+            self.start,
+            to,
+            match self.options {
+                Options::Walking(_) => PathConstraints::Pedestrian,
+                Options::Biking => PathConstraints::Bike,
+            },
+        )?;
         map.pathfind(req).ok()
     }
 }

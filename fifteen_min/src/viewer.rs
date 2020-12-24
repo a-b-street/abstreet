@@ -10,7 +10,8 @@ use map_gui::tools::{
     amenity_type, nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg,
 };
 use map_gui::{Cached, ID};
-use map_model::{Building, BuildingID, PathConstraints};
+use map_model::connectivity::WalkingOptions;
+use map_model::{Building, BuildingID};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -18,7 +19,7 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
-use crate::isochrone::Isochrone;
+use crate::isochrone::{Isochrone, Options};
 use crate::App;
 
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
@@ -39,9 +40,9 @@ impl Viewer {
     }
 
     pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
-        let constraints = PathConstraints::Pedestrian;
+        let options = Options::Walking(WalkingOptions::default());
         let start = app.map.get_b(start);
-        let isochrone = Isochrone::new(ctx, app, start.id, constraints);
+        let isochrone = Isochrone::new(ctx, app, start.id, options);
         let highlight_start = draw_star(ctx, start.polygon.center());
         let panel = build_panel(ctx, app, start, &isochrone);
 
@@ -75,7 +76,7 @@ impl State<App> for Viewer {
         if let Some((hover_id, _)) = self.hovering_on_bldg.key() {
             if ctx.normal_left_click() {
                 let start = app.map.get_b(hover_id);
-                self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.constraints);
+                self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.options.clone());
                 self.highlight_start = draw_star(ctx, start.polygon.center());
                 self.panel = build_panel(ctx, app, start, &self.isochrone);
                 // Any previous hover is from the perspective of the old `highlight_start`.
@@ -133,12 +134,8 @@ impl State<App> for Viewer {
                 }
             },
             Outcome::Changed => {
-                let constraints = if self.panel.is_checked("walking / biking") {
-                    PathConstraints::Pedestrian
-                } else {
-                    PathConstraints::Bike
-                };
-                self.isochrone = Isochrone::new(ctx, app, self.isochrone.start, constraints);
+                let options = options_from_controls(&self.panel);
+                self.isochrone = Isochrone::new(ctx, app, self.isochrone.start, options);
                 self.panel = build_panel(
                     ctx,
                     app,
@@ -163,7 +160,44 @@ impl State<App> for Viewer {
     }
 }
 
-/// Draw a star on the start building.
+fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
+    let mut rows = vec![Checkbox::toggle(
+        ctx,
+        "walking / biking",
+        "walking",
+        "biking",
+        None,
+        match opts {
+            Options::Walking(_) => true,
+            Options::Biking => false,
+        },
+    )];
+    match opts {
+        Options::Walking(ref opts) => {
+            rows.push(Checkbox::switch(
+                ctx,
+                "Allow walking on the shoulder of the road without a sidewalk",
+                None,
+                opts.allow_shoulders,
+            ));
+        }
+        Options::Biking => {}
+    }
+    Widget::col(rows)
+}
+
+fn options_from_controls(panel: &Panel) -> Options {
+    if panel.is_checked("walking / biking") {
+        Options::Walking(WalkingOptions {
+            allow_shoulders: panel
+                .maybe_is_checked("Allow walking on the shoulder of the road without a sidewalk")
+                .unwrap_or(true),
+        })
+    } else {
+        Options::Biking
+    }
+}
+
 fn draw_star(ctx: &mut EventCtx, center: Pt2D) -> Drawable {
     ctx.upload(
         GeomBatch::load_svg(ctx, "system/assets/tools/star.svg")
@@ -233,14 +267,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     // Start of toolbar
     rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
 
-    rows.push(Checkbox::toggle(
-        ctx,
-        "walking / biking",
-        "walking",
-        "biking",
-        None,
-        isochrone.constraints == PathConstraints::Pedestrian,
-    ));
+    rows.push(options_to_controls(ctx, &isochrone.options));
     rows.push(Btn::plaintext("About").build_def(ctx, None));
 
     Panel::new(Widget::col(rows))

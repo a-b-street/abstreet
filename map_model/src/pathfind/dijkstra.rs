@@ -6,7 +6,7 @@ use petgraph::graphmap::DiGraphMap;
 
 use crate::pathfind::driving::driving_cost;
 use crate::pathfind::walking::{walking_cost, WalkingNode};
-use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
+use crate::{LaneID, LaneType, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
@@ -71,12 +71,31 @@ fn calc_path(graph: DiGraphMap<LaneID, TurnID>, req: &PathRequest, map: &Map) ->
     Some(Path::new(map, steps, req.clone(), Vec::new()))
 }
 
-// TODO Not happy this works so differently
+#[derive(Clone)]
+pub struct WalkingOptions {
+    /// If true, allow walking on shoulders.
+    pub allow_shoulders: bool,
+}
 
-pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, usize> {
+impl WalkingOptions {
+    pub fn default() -> WalkingOptions {
+        WalkingOptions {
+            allow_shoulders: true,
+        }
+    }
+}
+
+pub fn build_graph_for_pedestrians(
+    map: &Map,
+    opts: WalkingOptions,
+) -> DiGraphMap<WalkingNode, usize> {
     let mut graph: DiGraphMap<WalkingNode, usize> = DiGraphMap::new();
     for l in map.all_lanes() {
         if l.is_walkable() {
+            if !opts.allow_shoulders && l.lane_type == LaneType::Shoulder {
+                continue;
+            }
+
             let cost = walking_cost(l.length());
             let n1 = WalkingNode::SidewalkEndpoint(l.id, true);
             let n2 = WalkingNode::SidewalkEndpoint(l.id, false);
@@ -99,7 +118,7 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, usize> 
 }
 
 pub fn simple_walking_path(req: &PathRequest, map: &Map) -> Option<Vec<WalkingNode>> {
-    let graph = build_graph_for_pedestrians(map);
+    let graph = build_graph_for_pedestrians(map, WalkingOptions::default());
 
     let closest_start = WalkingNode::closest(req.start, map);
     let closest_end = WalkingNode::closest(req.end, map);

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
 
 pub use self::ch::ContractionHierarchyPathfinder;
-pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles};
+pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles, WalkingOptions};
 pub use self::driving::driving_cost;
 pub use self::pathfinder::Pathfinder;
 pub use self::walking::{walking_cost, WalkingNode};
