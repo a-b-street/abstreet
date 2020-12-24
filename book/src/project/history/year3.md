@@ -22,6 +22,20 @@
   improvements
   - [Silicon Valley Bike Summit](https://bikesiliconvalley.org/2020/07/poster_dustin-carlino/),
     [Seattle PI](https://www.seattlepi.com/local/transportation/slideshow/solve-Seattles-traffic-problem-in-this-video-game-205839.php)
-- September: ...
+- September: full support for driving on the left, textured color scheme,
+  rendering isometric buildings, editing traffic signal offsets, a big round of
+  UI changes, infinite parking mode, trip purpose, alleyways
   - [SeattleMet](https://www.seattlemet.com/news-and-city-life/2020/09/a-new-game-allows-you-to-redesign-seattle-streets)
-- October: ...
+- October: unit tested turn generation, web version launched with async file
+  loading, thought bubbles showing agent goals, slow parts of a trip
+  highlighted, more UI overhauls, dedicated OSM viewer mode started, major
+  simulation performance optimizations, major progress towards live map edits,
+  automatically picking boundaries for arbitrary cities
+- November: switched from Dropbox to S3, download new maps in-game, collision
+  dataviz UI, day/night color switching, unit testing lane changing behavior,
+  starting the 15 min walkshed tool, simplified simulation spawning code,
+  recording and replaying traffic around a few intersections, refactoring to
+  split out separate tools
+- December: lane-changing fixes, blocked-by explorer in debug mode, non-Latin
+  font support on web, saving player state on web, census-based scenario
+  generation started, 15 minute Santa
