@@ -644,6 +644,13 @@ fn make_side_panel(
                     match canonical_stage.phase_type {
                         PhaseType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
                         PhaseType::Adaptive(d) => format!("Stage {}: {} (adaptive)", idx + 1, d),
+                        PhaseType::Variable(min, delay, additional) => format!(
+                            "Stage {}: {}, {}, {} (variable)",
+                            idx + 1,
+                            min,
+                            delay,
+                            additional
+                        ),
                     }
                     .draw_text(ctx),
                     Btn::svg_def("system/assets/tools/edit.svg").build(

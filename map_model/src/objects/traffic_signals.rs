@@ -7,7 +7,7 @@ use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer}
 use geom::{Distance, Duration, Speed};
 
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
-use crate::objects::traffic_signals::PhaseType::{Adaptive, Fixed};
+use crate::objects::traffic_signals::PhaseType::{Adaptive, Fixed, Variable};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
@@ -50,6 +50,10 @@ pub enum PhaseType {
     /// repeat the stage entirely.
     // TODO This is a silly policy, but a start towards variable timers.
     Adaptive(Duration),
+    /// Minimum is the minimum duration, 0 allows cycle to be skipped if no demand.
+    /// Delay is the elapsed time with no demand that ends a cycle.
+    /// Additional is the additional duration for an extended cycle.
+    Variable(Duration, Duration, Duration),
 }
 
 impl PhaseType {
@@ -57,6 +61,13 @@ impl PhaseType {
     pub fn simple_duration(&self) -> Duration {
         match self {
             PhaseType::Fixed(d) | PhaseType::Adaptive(d) => *d,
+            PhaseType::Variable(duration, delay, _) => {
+                if *duration > Duration::const_seconds(0.0) {
+                    *duration
+                } else {
+                    *delay
+                }
+            }
         }
     }
 }
@@ -315,6 +326,7 @@ impl Stage {
             self.phase_type = match self.phase_type {
                 PhaseType::Adaptive(_) => Adaptive(time),
                 PhaseType::Fixed(_) => Fixed(time),
+                PhaseType::Variable(_, delay, additional) => Variable(time, delay, additional),
             };
         }
     }
@@ -344,6 +356,13 @@ impl ControlTrafficSignal {
                         }
                         PhaseType::Adaptive(d) => {
                             seattle_traffic_signals::PhaseType::Adaptive(d.inner_seconds() as usize)
+                        }
+                        PhaseType::Variable(min, delay, additional) => {
+                            seattle_traffic_signals::PhaseType::Variable(
+                                min.inner_seconds() as usize,
+                                delay.inner_seconds() as usize,
+                                additional.inner_seconds() as usize,
+                            )
                         }
                     },
                 })
@@ -392,6 +411,13 @@ impl ControlTrafficSignal {
                         }
                         seattle_traffic_signals::PhaseType::Adaptive(d) => {
                             PhaseType::Adaptive(Duration::seconds(d as f64))
+                        }
+                        seattle_traffic_signals::PhaseType::Variable(min, delay, additional) => {
+                            PhaseType::Variable(
+                                Duration::seconds(min as f64),
+                                Duration::seconds(delay as f64),
+                                Duration::seconds(additional as f64),
+                            )
                         }
                     },
                 });

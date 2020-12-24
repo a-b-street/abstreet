@@ -57,8 +57,43 @@ impl ChangeDuration {
                     match signal.stages[idx].phase_type {
                         PhaseType::Fixed(_) => true,
                         PhaseType::Adaptive(_) => false,
+                        PhaseType::Variable(_, _, _) => false,
                     },
                 ),
+            ]),
+            Widget::row(vec![Line("How long with no demand to end stage?")
+                .small_heading()
+                .draw(ctx)]),
+            Widget::row(vec![
+                "Seconds:".draw_text(ctx),
+                Spinner::new(
+                    ctx,
+                    (1, 300),
+                    match signal.stages[idx].phase_type {
+                        PhaseType::Fixed(_) => 0,
+                        PhaseType::Adaptive(_) => 0,
+                        PhaseType::Variable(_, delay, _) => delay.inner_seconds() as isize,
+                    },
+                )
+                .named("delay"),
+            ]),
+            Widget::row(vec![Line("Additional time this stage can last?")
+                .small_heading()
+                .draw(ctx)]),
+            Widget::row(vec![
+                "Seconds:".draw_text(ctx),
+                Spinner::new(
+                    ctx,
+                    (1, 300),
+                    match signal.stages[idx].phase_type {
+                        PhaseType::Fixed(_) => 0,
+                        PhaseType::Adaptive(_) => 0,
+                        PhaseType::Variable(_, _, additional) => {
+                            additional.inner_seconds() as isize
+                        }
+                    },
+                )
+                .named("additional"),
             ]),
             Line("Minimum time is set by the time required for crosswalk")
                 .secondary()
@@ -79,7 +114,9 @@ impl SimpleState<App> for ChangeDuration {
                 let new_type = if panel.is_checked("phase type") {
                     PhaseType::Fixed(dt)
                 } else {
-                    PhaseType::Adaptive(dt)
+                    let delay = Duration::seconds(panel.spinner("delay") as f64);
+                    let additional = Duration::seconds(panel.spinner("additional") as f64);
+                    PhaseType::Variable(dt, delay, additional)
                 };
                 let idx = self.idx;
                 Transition::Multi(vec![

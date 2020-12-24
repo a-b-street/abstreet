@@ -72,6 +72,7 @@ struct State {
 struct SignalState {
     current_stage: usize,
     stage_ends_at: Time,
+    iteration_count: usize,
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone, Debug)]
@@ -134,6 +135,7 @@ impl IntersectionSimState {
         }
         if self.break_turn_conflict_cycles {
             if let AgentID::Car(car) = agent {
+                //self.blocked_by.drain_filter(|(_, c)| *c == car);
                 retain_btreeset(&mut self.blocked_by, |(_, c)| *c != car);
             }
         }
@@ -248,16 +250,24 @@ impl IntersectionSimState {
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
+        // trivial function that advances the signal stage and returns duration
+        fn advance(signal_state: &mut SignalState, signal: &ControlTrafficSignal) -> Duration {
+            signal_state.current_stage = (signal_state.current_stage + 1) % signal.stages.len();
+            signal.stages[signal_state.current_stage]
+                .phase_type
+                .simple_duration()
+        }
+
         let state = self.state.get_mut(&id).unwrap();
         let signal_state = state.signal.as_mut().unwrap();
         let signal = map.get_traffic_signal(id);
-
+        let duration: Duration;
         // Switch to a new stage?
         assert_eq!(now, signal_state.stage_ends_at);
         let old_stage = &signal.stages[signal_state.current_stage];
         match old_stage.phase_type {
             PhaseType::Fixed(_) => {
-                signal_state.current_stage += 1;
+                duration = advance(signal_state, signal);
             }
             PhaseType::Adaptive(_) => {
                 // TODO Make a better policy here. For now, if there's _anyone_ waiting to start a
@@ -269,22 +279,60 @@ impl IntersectionSimState {
                 if state.waiting.keys().all(|req| {
                     old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
                 }) {
-                    signal_state.current_stage += 1;
+                    duration = advance(signal_state, signal);
                     self.events.push(Event::Alert(
                         AlertLocation::Intersection(id),
                         "Repeating an adaptive stage".to_string(),
                     ));
+                } else {
+                    duration = signal.stages[signal_state.current_stage]
+                        .phase_type
+                        .simple_duration();
+                }
+            }
+            PhaseType::Variable(min, delay, additional) => {
+                // test if anyone is waiting in current stage, and if so, extend the signal cycle.
+                // Filter out pedestrians, as they've had their chance and the delay
+                // could be short enough to keep them on the curb.
+                let delay = std::cmp::max(Duration::const_seconds(1.0), delay);
+                // Only extend for the fixed additional time
+                if signal_state.iteration_count as f64 * delay.inner_seconds()
+                    >= additional.inner_seconds()
+                {
+                    self.events.push(Event::Alert(
+                        AlertLocation::Intersection(id),
+                        format!(
+                            "exhausted a variable stage {},{},{},{}",
+                            min, delay, additional, signal_state.iteration_count
+                        ),
+                    ));
+                    duration = advance(signal_state, signal);
+                    signal_state.iteration_count = 0;
+                } else if state.waiting.keys().all(|req| {
+                    if let AgentID::Pedestrian(_) = req.agent {
+                        return true;
+                    }
+                    // Should we only allow protected to extend or any not banned?
+                    // currently only the protected demand control extended.
+                    old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
+                }) {
+                    signal_state.iteration_count = 0;
+                    duration = advance(signal_state, signal);
+                } else {
+                    signal_state.iteration_count += 1;
+                    duration = delay;
+                    self.events.push(Event::Alert(
+                        AlertLocation::Intersection(id),
+                        format!(
+                            "Extending a variable stage {},{},{},{}",
+                            min, delay, additional, signal_state.iteration_count
+                        ),
+                    ));
                 }
             }
         }
-        if signal_state.current_stage == signal.stages.len() {
-            signal_state.current_stage = 0;
-        }
 
-        signal_state.stage_ends_at = now
-            + signal.stages[signal_state.current_stage]
-                .phase_type
-                .simple_duration();
+        signal_state.stage_ends_at = now + duration;
         scheduler.push(signal_state.stage_ends_at, Command::UpdateIntersection(id));
         self.wakeup_waiting(now, id, scheduler, map);
     }
@@ -900,6 +948,7 @@ impl SignalState {
         let mut state = SignalState {
             current_stage: 0,
             stage_ends_at: now,
+            iteration_count: 0,
         };
 
         let signal = map.get_traffic_signal(id);
