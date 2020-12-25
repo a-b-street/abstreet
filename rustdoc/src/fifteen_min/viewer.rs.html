@@ -462,6 +462,7 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
+<span id="462">462</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -470,7 +471,7 @@
 <span class="doccomment">//! See https://github.com/dabreegster/abstreet/issues/393 for more context.</span>
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{
     <span class="ident">amenity_type</span>, <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>,
 };
@@ -657,6 +658,7 @@
             <span class="ident">allow_shoulders</span>: <span class="ident">panel</span>
                 .<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Allow walking on the shoulder of the road without a sidewalk&quot;</span>)
                 .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
+            <span class="ident">walking_speed</span>: <span class="ident">Speed</span>::<span class="ident">meters_per_second</span>(<span class="number">1.34</span>),
         })
     } <span class="kw">else</span> {
         <span class="ident">Options</span>::<span class="ident">Biking</span>
