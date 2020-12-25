@@ -1,0 +1,231 @@
+//! Parse SUMO networks from XML without making any simplifications or transformations. A
+//! subset of the structures and fields defined at
+//! <https://sumo.dlr.de/docs/Networks/PlainXML.html> are produced.
+
+use std::error::Error;
+
+use abstutil::Timer;
+use serde::Deserialize;
+
+use geom::{Bounds, Distance, GPSBounds, PolyLine, Polygon, Pt2D, Ring, Speed};
+
+#[derive(Debug, Deserialize)]
+pub struct Network {
+    pub location: Location,
+    #[serde(rename = "type")]
+    pub types: Vec<Type>,
+    #[serde(rename = "edge")]
+    pub edges: Vec<Edge>,
+    #[serde(rename = "junction")]
+    pub junctions: Vec<Junction>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Location {
+    #[serde(rename = "convBoundary", deserialize_with = "parse_bounds")]
+    pub converted_boundary: Bounds,
+    #[serde(rename = "origBoundary", deserialize_with = "parse_gps_bounds")]
+    pub orig_boundary: GPSBounds,
+}
+
+impl Network {
+    pub fn parse(path: &str, timer: &mut Timer) -> Result<Network, Box<dyn Error>> {
+        timer.start(format!("read {}", path));
+        let bytes = abstutil::slurp_file(path)?;
+        let raw_string = std::str::from_utf8(&bytes)?;
+        let network = quick_xml::de::from_str(raw_string)?;
+        timer.stop(format!("read {}", path));
+        Ok(network)
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+pub struct EdgeID(pub String);
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+pub struct NodeID(String);
+#[derive(Debug, Deserialize)]
+pub struct LaneID(String);
+
+#[derive(Debug, Deserialize)]
+pub struct Type {
+    pub id: String,
+    pub priority: usize,
+    pub speed: Speed,
+    pub width: Option<Distance>,
+    #[serde(deserialize_with = "parse_list", default)]
+    pub allow: Vec<String>,
+    #[serde(deserialize_with = "parse_list", default)]
+    pub disallow: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Edge {
+    pub id: EdgeID,
+    pub name: Option<String>,
+    pub from: Option<NodeID>,
+    pub to: Option<NodeID>,
+    pub priority: Option<usize>,
+    #[serde(default)]
+    pub function: Function,
+    #[serde(rename = "lane")]
+    pub lanes: Vec<Lane>,
+    #[serde(rename = "type")]
+    pub edge_type: Option<String>,
+    #[serde(rename = "spreadType", default)]
+    pub spread_type: SpreadType,
+    #[serde(deserialize_with = "must_parse_pl", default)]
+    pub shape: Option<PolyLine>,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+pub enum Function {
+    #[serde(rename = "normal")]
+    Normal,
+    #[serde(rename = "internal")]
+    Internal,
+}
+impl std::default::Default for Function {
+    fn default() -> Function {
+        Function::Normal
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub enum SpreadType {
+    #[serde(rename = "right")]
+    Right,
+    #[serde(rename = "center")]
+    Center,
+    #[serde(rename = "roadCenter")]
+    RoadCenter,
+}
+impl std::default::Default for SpreadType {
+    fn default() -> SpreadType {
+        SpreadType::Right
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Lane {
+    pub id: LaneID,
+    pub index: usize,
+    pub speed: Speed,
+    pub length: Distance,
+    pub width: Option<Distance>,
+    #[serde(deserialize_with = "parse_pl")]
+    pub shape: Result<PolyLine, String>,
+    #[serde(deserialize_with = "parse_list", default)]
+    pub allow: Vec<String>,
+    #[serde(deserialize_with = "parse_list", default)]
+    pub disallow: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Junction {
+    pub id: NodeID,
+    #[serde(rename = "type")]
+    pub junction_type: String,
+    pub x: f64,
+    pub y: f64,
+    #[serde(rename = "incLanes", deserialize_with = "parse_list_lanes", default)]
+    pub incoming_lanes: Vec<LaneID>,
+    #[serde(rename = "intLanes", deserialize_with = "parse_list_lanes", default)]
+    pub internal_lanes: Vec<LaneID>,
+    #[serde(deserialize_with = "parse_polygon", default)]
+    pub shape: Option<Polygon>,
+}
+impl Junction {
+    pub fn pt(&self) -> Pt2D {
+        Pt2D::new(self.x, self.y)
+    }
+}
+
+fn parse_f64s<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<f64>, D::Error> {
+    let raw = <String>::deserialize(d)?;
+    let parts: Vec<&str> = raw.split(",").collect();
+    let mut result = Vec::new();
+    for x in parts {
+        result.push(x.parse::<f64>().map_err(serde::de::Error::custom)?);
+    }
+    Ok(result)
+}
+
+fn parse_bounds<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Bounds, D::Error> {
+    let nums = parse_f64s(d)?;
+    if nums.len() != 4 {
+        return Err(serde::de::Error::custom("not 4 parts".to_string()));
+    }
+    Ok(Bounds {
+        min_x: nums[0],
+        min_y: nums[1],
+        max_x: nums[2],
+        max_y: nums[3],
+    })
+}
+
+fn parse_gps_bounds<'de, D: serde::Deserializer<'de>>(d: D) -> Result<GPSBounds, D::Error> {
+    let nums = parse_f64s(d)?;
+    if nums.len() != 4 {
+        return Err(serde::de::Error::custom("not 4 parts".to_string()));
+    }
+    Ok(GPSBounds {
+        min_lon: nums[0],
+        min_lat: nums[1],
+        max_lon: nums[2],
+        max_lat: nums[3],
+    })
+}
+
+fn parse_list<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<String>, D::Error> {
+    let raw = <String>::deserialize(d)?;
+    let parts: Vec<String> = raw.split(" ").map(|x| x.to_string()).collect();
+    Ok(parts)
+}
+
+fn parse_list_lanes<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<LaneID>, D::Error> {
+    let raw = <String>::deserialize(d)?;
+    let parts: Vec<LaneID> = raw.split(" ").map(|x| LaneID(x.to_string())).collect();
+    Ok(parts)
+}
+
+fn parse_pts<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<Pt2D>, D::Error> {
+    let raw = <String>::deserialize(d)?;
+    let mut pts = Vec::new();
+    for pt in raw.split(" ") {
+        pts.push(parse_pt(&pt).map_err(serde::de::Error::custom)?);
+    }
+    Ok(pts)
+}
+
+fn parse_pl<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Result<PolyLine, String>, D::Error> {
+    let pts = parse_pts(d)?;
+    Ok(PolyLine::new(pts))
+}
+
+fn must_parse_pl<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<PolyLine>, D::Error> {
+    let pts = parse_pts(d)?;
+    Ok(Some(PolyLine::must_new(pts)))
+}
+
+fn parse_polygon<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Polygon>, D::Error> {
+    let mut pts = parse_pts(d)?;
+    pts.push(pts[0]);
+    pts.dedup();
+    Ok(Some(
+        Ring::new(pts)
+            .map_err(serde::de::Error::custom)?
+            .to_polygon(),
+    ))
+}
+
+fn parse_pt(pt: &str) -> Result<Pt2D, Box<dyn Error>> {
+    let mut parts = Vec::new();
+    for x in pt.split(",") {
+        parts.push(x.parse::<f64>()?);
+    }
+    // Ignore the Z coordinate if it's there
+    if parts.len() != 2 && parts.len() != 3 {
+        return Err("not 2 or 3 parts".into());
+    }
+    Ok(Pt2D::new(parts[0], parts[1]))
+}

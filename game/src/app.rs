@@ -672,7 +672,7 @@ impl PerMap {
                     .choose(&mut rng)
                     .and_then(|l| per_map.canonical_point(ID::Lane(l.id)))
             })
-            .expect("Can't get canonical_point of a random building or lane");
+            .unwrap_or_else(|| per_map.map.get_bounds().center());
 
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);

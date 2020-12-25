@@ -1,0 +1,12 @@
+[package]
+name = "sumo"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+abstutil = { path = "../abstutil" }
+geom = { path = "../geom" }
+map_model = { path = "../map_model" }
+quick-xml = { version = "0.20.0", features=["serialize"] }
+serde = "1.0.116"

@@ -104,7 +104,8 @@ pub struct Road {
     pub zorder: isize,
 
     /// Invariant: A road must contain at least one child
-    pub(crate) lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
+    // TODO Only public for Map::import_minimal. Can we avoid this?
+    pub lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
     /// The physical center of the road, including sidewalks, after trimming. The order implies
     /// road orientation. No edits ever change this.
