@@ -6,9 +6,12 @@ use petgraph::graphmap::DiGraphMap;
 
 use geom::{Distance, Duration, Speed};
 
-use crate::pathfind::{build_graph_for_pedestrians, build_graph_for_vehicles};
-pub use crate::pathfind::{driving_cost, WalkingNode, WalkingOptions};
+pub use self::walking::{all_walking_costs_from, WalkingOptions};
+use crate::pathfind::build_graph_for_vehicles;
+pub use crate::pathfind::{driving_cost, WalkingNode};
 use crate::{BuildingID, LaneID, Map, PathConstraints};
+
+mod walking;
 
 /// Calculate the srongy connected components (SCC) of the part of the map accessible by constraints
 /// (ie, the graph of sidewalks or driving+bike lanes). The largest component is the "main" graph;
@@ -45,35 +48,6 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
         })
         .collect();
     (largest_group, disconnected)
-}
-
-/// Starting from one building, calculate the cost to all others. If a destination isn't reachable,
-/// it won't be included in the results. Ignore results greater than the time_limit away.
-pub fn all_walking_costs_from(
-    map: &Map,
-    start: BuildingID,
-    time_limit: Duration,
-    opts: WalkingOptions,
-) -> HashMap<BuildingID, Duration> {
-    let mut results = HashMap::new();
-
-    let graph = build_graph_for_pedestrians(map, opts);
-    let start = WalkingNode::closest(map.get_b(start).sidewalk_pos, map);
-    let cost_per_node = petgraph::algo::dijkstra(&graph, start, None, |(_, _, cost)| *cost);
-
-    // Assign every building a cost based on which end of the sidewalk it's closest to
-    // TODO We could try to get a little more accurate by accounting for the distance from that
-    // end of the sidewalk to the building
-    for b in map.all_buildings() {
-        if let Some(seconds) = cost_per_node.get(&WalkingNode::closest(b.sidewalk_pos, map)) {
-            let duration = Duration::seconds(*seconds as f64);
-            if duration <= time_limit {
-                results.insert(b.id, duration);
-            }
-        }
-    }
-
-    results
 }
 
 /// Starting from one building, calculate the cost to all others. If a destination isn't reachable,

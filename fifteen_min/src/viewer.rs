@@ -5,7 +5,7 @@
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
 use abstutil::prettyprint_usize;
-use geom::{Distance, Duration, Pt2D};
+use geom::{Distance, Duration, Pt2D, Speed};
 use map_gui::tools::{
     amenity_type, nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg,
 };
@@ -192,6 +192,7 @@ fn options_from_controls(panel: &Panel) -> Options {
             allow_shoulders: panel
                 .maybe_is_checked("Allow walking on the shoulder of the road without a sidewalk")
                 .unwrap_or(true),
+            walking_speed: Speed::meters_per_second(1.34),
         })
     } else {
         Options::Biking
