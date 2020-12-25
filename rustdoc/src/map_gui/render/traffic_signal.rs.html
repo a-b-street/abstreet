@@ -271,6 +271,10 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -497,7 +501,11 @@
     <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>);
     <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
     <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
-    <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> { <span class="ident">time_left</span> <span class="op">/</span> <span class="ident">duration</span> } <span class="kw">else</span> { <span class="number">1.0</span> };
+    <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
+        <span class="ident">time_left</span> <span class="op">/</span> <span class="ident">duration</span>
+    } <span class="kw">else</span> {
+        <span class="number">1.0</span>
+    };
     <span class="ident">batch</span>.<span class="ident">push</span>(
         <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_box</span>,
         <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">center</span>, <span class="number">1.2</span> <span class="op">*</span> <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),

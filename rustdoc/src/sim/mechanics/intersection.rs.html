@@ -1007,6 +1007,7 @@
 <span id="1004">1004</span>
 <span id="1005">1005</span>
 <span id="1006">1006</span>
+<span id="1007">1007</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1148,7 +1149,8 @@
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">break_turn_conflict_cycles</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">car</span>) <span class="op">=</span> <span class="ident">agent</span> {
-                <span class="comment">// todo: when drain_filter() is no longer experimental, use it instead of retian_btreeset()</span>
+                <span class="comment">// todo: when drain_filter() is no longer experimental, use it instead of</span>
+                <span class="comment">// retian_btreeset()</span>
                 <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">blocked_by</span>, <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">!</span><span class="op">=</span> <span class="ident">car</span>);
             }
         }

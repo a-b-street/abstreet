@@ -435,6 +435,33 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -448,7 +475,8 @@
     <span class="ident">amenity_type</span>, <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>,
 };
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">Cached</span>, <span class="ident">ID</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">PathConstraints</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">connectivity</span>::<span class="ident">WalkingOptions</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
@@ -456,7 +484,7 @@
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">isochrone</span>::<span class="ident">Isochrone</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">isochrone</span>::{<span class="ident">Isochrone</span>, <span class="ident">Options</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">App</span>;
 
 <span class="doccomment">/// This is the UI state for exploring the isochrone/walkshed from a single building.</span>
@@ -477,9 +505,9 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">start</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>;
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">Options</span>::<span class="ident">Walking</span>(<span class="ident">WalkingOptions</span>::<span class="ident">default</span>());
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">start</span>);
-        <span class="kw">let</span> <span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>, <span class="ident">constraints</span>);
+        <span class="kw">let</span> <span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>, <span class="ident">options</span>);
         <span class="kw">let</span> <span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>.<span class="ident">polygon</span>.<span class="ident">center</span>());
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="ident">isochrone</span>);
 
@@ -513,7 +541,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hover_id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_bldg</span>.<span class="ident">key</span>() {
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">hover_id</span>);
-                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">constraints</span>);
+                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>.<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">options</span>.<span class="ident">clone</span>());
                 <span class="self">self</span>.<span class="ident">highlight_start</span> <span class="op">=</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">start</span>.<span class="ident">polygon</span>.<span class="ident">center</span>());
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isochrone</span>);
                 <span class="comment">// Any previous hover is from the perspective of the old `highlight_start`.</span>
@@ -571,12 +599,8 @@
                 }
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;walking / biking&quot;</span>) {
-                    <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>
-                };
-                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">start</span>, <span class="ident">constraints</span>);
+                <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">options_from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+                <span class="self">self</span>.<span class="ident">isochrone</span> <span class="op">=</span> <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">start</span>, <span class="ident">options</span>);
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">build_panel</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
@@ -601,7 +625,44 @@
     }
 }
 
-<span class="doccomment">/// Draw a star on the start building.</span>
+<span class="kw">fn</span> <span class="ident">options_to_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
+        <span class="ident">ctx</span>,
+        <span class="string">&quot;walking / biking&quot;</span>,
+        <span class="string">&quot;walking&quot;</span>,
+        <span class="string">&quot;biking&quot;</span>,
+        <span class="prelude-val">None</span>,
+        <span class="kw">match</span> <span class="ident">opts</span> {
+            <span class="ident">Options</span>::<span class="ident">Walking</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">Options</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+        },
+    )];
+    <span class="kw">match</span> <span class="ident">opts</span> {
+        <span class="ident">Options</span>::<span class="ident">Walking</span>(<span class="kw-2">ref</span> <span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Checkbox</span>::<span class="ident">switch</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;Allow walking on the shoulder of the road without a sidewalk&quot;</span>,
+                <span class="prelude-val">None</span>,
+                <span class="ident">opts</span>.<span class="ident">allow_shoulders</span>,
+            ));
+        }
+        <span class="ident">Options</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> {}
+    }
+    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">options_from_controls</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Options</span> {
+    <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;walking / biking&quot;</span>) {
+        <span class="ident">Options</span>::<span class="ident">Walking</span>(<span class="ident">WalkingOptions</span> {
+            <span class="ident">allow_shoulders</span>: <span class="ident">panel</span>
+                .<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Allow walking on the shoulder of the road without a sidewalk&quot;</span>)
+                .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
+        })
+    } <span class="kw">else</span> {
+        <span class="ident">Options</span>::<span class="ident">Biking</span>
+    }
+}
+
 <span class="kw">fn</span> <span class="ident">draw_star</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
     <span class="ident">ctx</span>.<span class="ident">upload</span>(
         <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
@@ -671,14 +732,7 @@
     <span class="comment">// Start of toolbar</span>
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>).<span class="ident">margin_above</span>(<span class="number">10</span>));
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Checkbox</span>::<span class="ident">toggle</span>(
-        <span class="ident">ctx</span>,
-        <span class="string">&quot;walking / biking&quot;</span>,
-        <span class="string">&quot;walking&quot;</span>,
-        <span class="string">&quot;biking&quot;</span>,
-        <span class="prelude-val">None</span>,
-        <span class="ident">isochrone</span>.<span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-    ));
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">options_to_controls</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">isochrone</span>.<span class="ident">options</span>));
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">plaintext</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
 
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>))
