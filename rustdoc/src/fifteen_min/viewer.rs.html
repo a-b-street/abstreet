@@ -463,6 +463,17 @@
 <span id="460">460</span>
 <span id="461">461</span>
 <span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -471,7 +482,7 @@
 <span class="doccomment">//! See https://github.com/dabreegster/abstreet/issues/393 for more context.</span>
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{
     <span class="ident">amenity_type</span>, <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>,
 };
@@ -480,7 +491,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::<span class="ident">table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
@@ -646,6 +657,15 @@
                 <span class="prelude-val">None</span>,
                 <span class="ident">opts</span>.<span class="ident">allow_shoulders</span>,
             ));
+            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;speed&quot;</span>,
+                <span class="ident">opts</span>.<span class="ident">walking_speed</span>,
+                <span class="ident">WalkingOptions</span>::<span class="ident">common_speeds</span>()
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">label</span>, <span class="ident">speed</span>)<span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">label</span>, <span class="ident">speed</span>))
+                    .<span class="ident">collect</span>(),
+            ));
         }
         <span class="ident">Options</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> {}
     }
@@ -658,7 +678,9 @@
             <span class="ident">allow_shoulders</span>: <span class="ident">panel</span>
                 .<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Allow walking on the shoulder of the road without a sidewalk&quot;</span>)
                 .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
-            <span class="ident">walking_speed</span>: <span class="ident">Speed</span>::<span class="ident">meters_per_second</span>(<span class="number">1.34</span>),
+            <span class="ident">walking_speed</span>: <span class="ident">panel</span>
+                .<span class="ident">maybe_dropdown_value</span>(<span class="string">&quot;speed&quot;</span>)
+                .<span class="ident">unwrap_or</span>(<span class="ident">WalkingOptions</span>::<span class="ident">default_speed</span>()),
         })
     } <span class="kw">else</span> {
         <span class="ident">Options</span>::<span class="ident">Biking</span>

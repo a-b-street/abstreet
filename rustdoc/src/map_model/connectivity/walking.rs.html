@@ -122,6 +122,18 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
@@ -142,8 +154,20 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WalkingOptions</span> {
         <span class="ident">WalkingOptions</span> {
             <span class="ident">allow_shoulders</span>: <span class="bool-val">true</span>,
-            <span class="ident">walking_speed</span>: <span class="ident">Speed</span>::<span class="ident">meters_per_second</span>(<span class="number">1.34</span>),
+            <span class="ident">walking_speed</span>: <span class="ident">WalkingOptions</span>::<span class="ident">default_speed</span>(),
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_speeds</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Speed</span>)<span class="op">&gt;</span> {
+        <span class="macro">vec</span><span class="macro">!</span>[
+            (<span class="string">&quot;3 mph (average for an adult)&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">3.0</span>)),
+            (<span class="string">&quot;1 mph (manual wheelchair)&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">1.0</span>)),
+            (<span class="string">&quot;5 mph (moderate jog)&quot;</span>, <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">5.0</span>)),
+        ]
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_speed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
+        <span class="ident">WalkingOptions</span>::<span class="ident">common_speeds</span>()[<span class="number">0</span>].<span class="number">1</span>
     }
 
     <span class="kw">fn</span> <span class="ident">cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
