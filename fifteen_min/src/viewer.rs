@@ -5,7 +5,7 @@
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
 use abstutil::prettyprint_usize;
-use geom::{Distance, Duration, Pt2D, Speed};
+use geom::{Distance, Duration, Pt2D};
 use map_gui::tools::{
     amenity_type, nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg,
 };
@@ -14,7 +14,7 @@ use map_model::connectivity::WalkingOptions;
 use map_model::{Building, BuildingID};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Btn, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
     VerticalAlignment, Widget,
 };
@@ -180,6 +180,15 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
                 None,
                 opts.allow_shoulders,
             ));
+            rows.push(Widget::dropdown(
+                ctx,
+                "speed",
+                opts.walking_speed,
+                WalkingOptions::common_speeds()
+                    .into_iter()
+                    .map(|(label, speed)| Choice::new(label, speed))
+                    .collect(),
+            ));
         }
         Options::Biking => {}
     }
@@ -192,7 +201,9 @@ fn options_from_controls(panel: &Panel) -> Options {
             allow_shoulders: panel
                 .maybe_is_checked("Allow walking on the shoulder of the road without a sidewalk")
                 .unwrap_or(true),
-            walking_speed: Speed::meters_per_second(1.34),
+            walking_speed: panel
+                .maybe_dropdown_value("speed")
+                .unwrap_or(WalkingOptions::default_speed()),
         })
     } else {
         Options::Biking

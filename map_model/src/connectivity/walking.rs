@@ -17,8 +17,20 @@ impl WalkingOptions {
     pub fn default() -> WalkingOptions {
         WalkingOptions {
             allow_shoulders: true,
-            walking_speed: Speed::meters_per_second(1.34),
+            walking_speed: WalkingOptions::default_speed(),
         }
+    }
+
+    pub fn common_speeds() -> Vec<(&'static str, Speed)> {
+        vec![
+            ("3 mph (average for an adult)", Speed::miles_per_hour(3.0)),
+            ("1 mph (manual wheelchair)", Speed::miles_per_hour(1.0)),
+            ("5 mph (moderate jog)", Speed::miles_per_hour(5.0)),
+        ]
+    }
+
+    pub fn default_speed() -> Speed {
+        WalkingOptions::common_speeds()[0].1
     }
 
     fn cost(&self, dist: Distance) -> Duration {
