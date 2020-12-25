@@ -93,6 +93,11 @@ impl Isochrone {
     }
 
     pub fn path_to(&self, map: &Map, to: BuildingID) -> Option<Path> {
+        // Don't draw paths to places far away
+        if !self.time_to_reach_building.contains_key(&to) {
+            return None;
+        }
+
         let req = PathRequest::between_buildings(
             map,
             self.start,
