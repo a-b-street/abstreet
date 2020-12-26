@@ -5,7 +5,7 @@
 //! See https://github.com/dabreegster/abstreet/issues/393 for more context.
 
 use abstutil::prettyprint_usize;
-use geom::{Distance, Duration, Pt2D};
+use geom::{Distance, Duration};
 use map_gui::tools::{
     amenity_type, nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg,
 };
@@ -14,7 +14,7 @@ use map_model::connectivity::WalkingOptions;
 use map_model::{Building, BuildingID};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    lctrl, Btn, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
     VerticalAlignment, Widget,
 };
@@ -43,12 +43,12 @@ impl Viewer {
         let options = Options::Walking(WalkingOptions::default());
         let start = app.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, start.id, options);
-        let highlight_start = draw_star(ctx, start.polygon.center());
+        let highlight_start = draw_star(ctx, start);
         let panel = build_panel(ctx, app, start, &isochrone);
 
         Box::new(Viewer {
             panel,
-            highlight_start: highlight_start,
+            highlight_start: ctx.upload(highlight_start),
             isochrone,
             hovering_on_bldg: Cached::new(),
         })
@@ -77,7 +77,8 @@ impl State<App> for Viewer {
             if ctx.normal_left_click() {
                 let start = app.map.get_b(hover_id);
                 self.isochrone = Isochrone::new(ctx, app, start.id, self.isochrone.options.clone());
-                self.highlight_start = draw_star(ctx, start.polygon.center());
+                let star = draw_star(ctx, start);
+                self.highlight_start = ctx.upload(star);
                 self.panel = build_panel(ctx, app, start, &self.isochrone);
                 // Any previous hover is from the perspective of the old `highlight_start`.
                 // Remove it so we don't have a dotted line to the previous isochrone's origin
@@ -210,12 +211,10 @@ fn options_from_controls(panel: &Panel) -> Options {
     }
 }
 
-fn draw_star(ctx: &mut EventCtx, center: Pt2D) -> Drawable {
-    ctx.upload(
-        GeomBatch::load_svg(ctx, "system/assets/tools/star.svg")
-            .centered_on(center)
-            .color(RewriteColor::ChangeAll(Color::BLACK)),
-    )
+fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
+    GeomBatch::load_svg(ctx, "system/assets/tools/star.svg")
+        .centered_on(b.polygon.center())
+        .color(RewriteColor::ChangeAll(Color::BLACK))
 }
 
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
@@ -346,6 +345,7 @@ struct ExploreAmenities {
     category: String,
     table: Table<App, Entry, ()>,
     panel: Panel,
+    draw: Drawable,
 }
 
 struct Entry {
@@ -363,6 +363,9 @@ impl ExploreAmenities {
         isochrone: &Isochrone,
         category: &str,
     ) -> Box<dyn State<App>> {
+        let mut batch = isochrone.draw_isochrone(app);
+        batch.append(draw_star(ctx, app.map.get_b(isochrone.start)));
+
         let mut entries = Vec::new();
         for b in isochrone.amenities_reachable.get(category) {
             let bldg = app.map.get_b(*b);
@@ -375,6 +378,8 @@ impl ExploreAmenities {
                         address: bldg.address.clone(),
                         duration_away: isochrone.time_to_reach_building[&bldg.id],
                     });
+                    // Highlight the matching buildings
+                    batch.push(Color::RED, bldg.polygon.clone());
                 }
             }
         }
@@ -410,12 +415,14 @@ impl ExploreAmenities {
             ]),
             table.render(ctx, app),
         ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
         .build(ctx);
 
         Box::new(ExploreAmenities {
             category: category.to_string(),
             table,
             panel,
+            draw: ctx.upload(batch),
         })
     }
 
@@ -429,6 +436,7 @@ impl ExploreAmenities {
             ]),
             self.table.render(ctx, app),
         ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
         .build(ctx);
         new.restore(ctx, &self.panel);
         self.panel = new;
@@ -463,11 +471,16 @@ impl State<App> for ExploreAmenities {
         Transition::Keep
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::PreviousState
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        g.redraw(&self.draw);
         self.panel.draw(g);
+        if let Some(x) = self
+            .panel
+            .currently_hovering()
+            .and_then(|x| x.split(":").next())
+            .and_then(|x| x.parse::<usize>().ok())
+        {
+            g.draw_polygon(Color::CYAN, app.map.get_b(BuildingID(x)).polygon.clone());
+        }
     }
 }
