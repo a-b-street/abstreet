@@ -42,6 +42,7 @@ pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::style::Style;
 pub use crate::text::{Line, Text, TextExt, TextSpan};
 pub use crate::tools::warper::Warper;
+pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
 pub use crate::widgets::button::{Btn, MultiButton};

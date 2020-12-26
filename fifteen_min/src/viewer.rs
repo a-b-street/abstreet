@@ -9,12 +9,12 @@ use geom::{Distance, Duration};
 use map_gui::tools::{
     amenity_type, nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg,
 };
-use map_gui::{Cached, ID};
+use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
 use map_model::{Building, BuildingID};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Btn, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
     VerticalAlignment, Widget,
 };

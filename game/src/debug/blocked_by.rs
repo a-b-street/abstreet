@@ -2,11 +2,10 @@ use std::collections::{BTreeMap, HashSet};
 
 use abstutil::Counter;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
-use map_gui::Cached;
 use sim::{AgentID, DelayCause};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
-    State, Text, VerticalAlignment, Widget,
+    Btn, Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, State, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;

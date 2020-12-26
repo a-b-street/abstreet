@@ -6,13 +6,13 @@ use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
-use map_gui::{Cached, ID};
+use map_gui::ID;
 use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
 use sim::Sim;
 use widgetry::{
-    lctrl, Btn, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, UpdateType, VerticalAlignment,
-    Widget,
+    lctrl, Btn, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, UpdateType,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowLayers, ShowObject, Transition};
