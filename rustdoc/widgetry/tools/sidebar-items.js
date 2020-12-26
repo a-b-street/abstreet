@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["screenshot",""],["warper",""]]});
+initSidebarItems({"mod":[["screenshot",""],["warper",""]],"struct":[["Cached","Store a cached key/value pair, only recalculating when the key changes."]]});
