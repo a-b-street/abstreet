@@ -685,3 +685,11 @@ changes here.
 - released the 15-minute Santa experiment!
 - trip info panels now show more continuous progress along a route
 - fixing inactive buttons stretching too much
+
+0.2.24
+
+- variable traffic signal timing, thanks to Bruce
+- 15 min explorer: more walking options (require shoulders, change speed), more organized business search
+- 15 min santa: remember upzoning choices
+- misc bugfixes and refactoring
+- 2021 roadmap drafted
