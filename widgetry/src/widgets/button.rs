@@ -201,11 +201,12 @@ impl Btn {
         let icon_container = Polygon::rectangle(20.0, 30.0);
         icon_batch.push(Color::INVISIBLE, icon_container);
 
-        let path = "system/assets/widgetry/arrow_drop_down.svg";
-        let icon = GeomBatch::load_svg(ctx, &path)
-            .color(RewriteColor::ChangeAll(ctx.style().outline_color))
-            .autocrop()
-            .centered_on(icon_batch.get_bounds().center());
+        let icon = GeomBatch::from_svg_contents(
+            include_bytes!("../../../data/system/assets/widgetry/arrow_drop_down.svg").to_vec(),
+        )
+        .color(RewriteColor::ChangeAll(ctx.style().outline_color))
+        .autocrop()
+        .centered_on(icon_batch.get_bounds().center());
 
         icon_batch.append(icon);
 
