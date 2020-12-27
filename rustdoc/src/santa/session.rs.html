@@ -159,12 +159,23 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">BuildingID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">levels</span>::<span class="ident">Level</span>;
@@ -185,6 +196,14 @@
     <span class="kw">pub</span> <span class="ident">vehicles_unlocked</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">upzones_unlocked</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">upzones_explained</span>: <span class="ident">bool</span>,
+    <span class="comment">// This was added after the main release, so keep old save files working by allowing it to be</span>
+    <span class="comment">// missing.</span>
+    <span class="attribute">#[<span class="ident">serde</span>(
+        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_multimap&quot;</span>,
+        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_multimap&quot;</span>,
+        <span class="ident">default</span>
+    )]</span>
+    <span class="kw">pub</span> <span class="ident">upzones_per_level</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
 
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">music</span>: <span class="ident">Music</span>,
@@ -246,6 +265,7 @@
             <span class="ident">vehicles_unlocked</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>()].<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">upzones_unlocked</span>: <span class="number">0</span>,
             <span class="ident">upzones_explained</span>: <span class="bool-val">false</span>,
+            <span class="ident">upzones_per_level</span>: <span class="ident">MultiMap</span>::<span class="ident">new</span>(),
 
             <span class="ident">music</span>: <span class="ident">Music</span>::<span class="ident">empty</span>(),
             <span class="ident">play_music</span>: <span class="bool-val">true</span>,
