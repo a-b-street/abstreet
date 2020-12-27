@@ -599,6 +599,7 @@
 <span id="596">596</span>
 <span id="597">597</span>
 <span id="598">598</span>
+<span id="599">599</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
@@ -803,11 +804,12 @@
         <span class="kw">let</span> <span class="ident">icon_container</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">20.0</span>, <span class="number">30.0</span>);
         <span class="ident">icon_batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">INVISIBLE</span>, <span class="ident">icon_container</span>);
 
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;system/assets/widgetry/arrow_drop_down.svg&quot;</span>;
-        <span class="kw">let</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>)
-            .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>))
-            .<span class="ident">autocrop</span>()
-            .<span class="ident">centered_on</span>(<span class="ident">icon_batch</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>());
+        <span class="kw">let</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from_svg_contents</span>(
+            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../../data/system/assets/widgetry/arrow_drop_down.svg&quot;</span>).<span class="ident">to_vec</span>(),
+        )
+        .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>))
+        .<span class="ident">autocrop</span>()
+        .<span class="ident">centered_on</span>(<span class="ident">icon_batch</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>());
 
         <span class="ident">icon_batch</span>.<span class="ident">append</span>(<span class="ident">icon</span>);
 
