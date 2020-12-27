@@ -50,6 +50,10 @@ where
         self.map.get(&key).unwrap_or(&self.empty)
     }
 
+    pub fn set(&mut self, key: K, values: BTreeSet<V>) {
+        self.map.insert(key, values);
+    }
+
     pub fn len(&self) -> usize {
         self.map.len()
     }
@@ -60,6 +64,15 @@ where
 
     pub fn consume(self) -> BTreeMap<K, BTreeSet<V>> {
         self.map
+    }
+}
+impl<K, V> std::default::Default for MultiMap<K, V>
+where
+    K: Ord + PartialEq + Clone,
+    V: Ord + PartialEq + Clone,
+{
+    fn default() -> MultiMap<K, V> {
+        MultiMap::new()
     }
 }
 

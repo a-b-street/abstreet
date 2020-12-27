@@ -7,7 +7,7 @@ use abstutil::Timer;
 use geom::{Duration, Pt2D, Time};
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use sim::{AgentID, CarID, PedestrianID, Sim};
-use widgetry::{Cached, EventCtx, GfxCtx, State};
+use widgetry::{EventCtx, GfxCtx, State};
 
 pub use self::simple_app::SimpleApp;
 use crate::render::DrawOptions;

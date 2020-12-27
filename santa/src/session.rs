@@ -2,7 +2,8 @@ use std::collections::{BTreeSet, HashMap};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::Timer;
+use abstutil::{deserialize_multimap, serialize_multimap, MultiMap, Timer};
+use map_model::BuildingID;
 use widgetry::{Color, EventCtx};
 
 use crate::levels::Level;
@@ -23,6 +24,14 @@ pub struct Session {
     pub vehicles_unlocked: BTreeSet<String>,
     pub upzones_unlocked: usize,
     pub upzones_explained: bool,
+    // This was added after the main release, so keep old save files working by allowing it to be
+    // missing.
+    #[serde(
+        serialize_with = "serialize_multimap",
+        deserialize_with = "deserialize_multimap",
+        default
+    )]
+    pub upzones_per_level: MultiMap<String, BuildingID>,
 
     #[serde(skip_serializing, skip_deserializing)]
     pub music: Music,
@@ -84,6 +93,7 @@ impl Session {
             vehicles_unlocked: vec!["bike".to_string()].into_iter().collect(),
             upzones_unlocked: 0,
             upzones_explained: false,
+            upzones_per_level: MultiMap::new(),
 
             music: Music::empty(),
             play_music: true,

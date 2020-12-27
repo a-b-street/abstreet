@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -30,7 +30,7 @@ pub struct Picker {
     upzone_panel: Panel,
     level: Level,
     bldgs: Buildings,
-    current_picks: HashSet<BuildingID>,
+    current_picks: BTreeSet<BuildingID>,
     draw_start: Drawable,
 }
 
@@ -103,13 +103,20 @@ impl Picker {
                     .color(RewriteColor::ChangeAll(Color::RED))
                     .centered_on(start);
 
+                let current_picks = app
+                    .session
+                    .upzones_per_level
+                    .get(level.title.clone())
+                    .clone();
+                let upzone_panel = make_upzone_panel(ctx, app, current_picks.len());
+
                 Transition::Replace(Box::new(Picker {
                     vehicle_panel: make_vehicle_panel(ctx, app),
-                    upzone_panel: make_upzone_panel(ctx, app, 0),
+                    upzone_panel,
                     instructions_panel,
                     level,
                     bldgs,
-                    current_picks: HashSet::new(),
+                    current_picks,
                     draw_start: ctx.upload(draw_start),
                 }))
             }),
@@ -166,16 +173,25 @@ impl State<App> for Picker {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Start game" => {
                     app.current_selection = None;
+                    app.session
+                        .upzones_per_level
+                        .set(self.level.title.clone(), self.current_picks.clone());
+                    app.session.save();
+
                     return Transition::Replace(Game::new(
                         ctx,
                         app,
                         self.level.clone(),
                         Vehicle::get(&app.session.current_vehicle),
-                        self.current_picks.clone(),
+                        self.current_picks.clone().into_iter().collect(),
                     ));
                 }
                 "Randomly choose upzones" => {
                     self.randomly_pick_upzones(app);
+                    self.upzone_panel = make_upzone_panel(ctx, app, self.current_picks.len());
+                }
+                "Clear upzones" => {
+                    self.current_picks.clear();
                     self.upzone_panel = make_upzone_panel(ctx, app, self.current_picks.len());
                 }
                 "help" => {
@@ -306,11 +322,19 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
             "Upzones chosen:".draw_text(ctx),
             make_bar(ctx, Color::PINK, num_picked, app.session.upzones_unlocked),
         ]),
-        if num_picked == app.session.upzones_unlocked {
-            Btn::text_fg("Randomly choose upzones").inactive(ctx)
-        } else {
-            Btn::text_fg("Randomly choose upzones").build_def(ctx, None)
-        },
+        Widget::row(vec![
+            if num_picked == app.session.upzones_unlocked {
+                Btn::text_fg("Randomly choose upzones").inactive(ctx)
+            } else {
+                Btn::text_fg("Randomly choose upzones").build_def(ctx, None)
+            },
+            if num_picked == 0 {
+                Btn::text_fg("Clear upzones").inactive(ctx)
+            } else {
+                Btn::text_fg("Clear upzones").build_def(ctx, None)
+            }
+            .align_right(),
+        ]),
         if num_picked == app.session.upzones_unlocked {
             Btn::text_bg2("Start game").build_def(ctx, Key::Enter)
         } else {
