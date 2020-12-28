@@ -136,9 +136,6 @@ impl PersonFactory {
             (Activity::Work, vec!["bank", "clinic"]),
         ];
 
-        // TODO Others to fill out. amenity_type in map_gui/src/tools/mod.rs might be helpful. It
-        // might also be helpful to edit the list of possible activities in lib.rs too.
-
         // Find all buildings with a matching amenity
         let mut candidates: HashMap<Activity, Vec<BuildingID>> = HashMap::new();
         for b in map.all_buildings() {

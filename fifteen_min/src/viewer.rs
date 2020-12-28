@@ -6,12 +6,10 @@
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration};
-use map_gui::tools::{
-    amenity_type, nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg,
-};
+use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
-use map_model::{Building, BuildingID};
+use map_model::{AmenityType, Building, BuildingID};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     lctrl, Btn, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -30,7 +28,7 @@ pub struct Viewer {
 
     hovering_on_bldg: Cached<HoverKey, HoverOnBuilding>,
     // TODO Can't use Cached due to a double borrow
-    hovering_on_category: Option<(String, Drawable)>,
+    hovering_on_category: Option<(AmenityType, Drawable)>,
 }
 
 impl Viewer {
@@ -79,17 +77,18 @@ impl State<App> for Viewer {
                 .currently_hovering()
                 .and_then(|x| x.strip_prefix("businesses: "));
             if let Some(category) = key {
+                let category = AmenityType::parse(category).unwrap();
                 if self
                     .hovering_on_category
                     .as_ref()
-                    .map(|(cat, _)| cat != category)
+                    .map(|(cat, _)| *cat != category)
                     .unwrap_or(true)
                 {
                     let mut batch = GeomBatch::new();
                     for b in self.isochrone.amenities_reachable.get(category) {
                         batch.push(Color::RED, app.map.get_b(*b).polygon.clone());
                     }
-                    self.hovering_on_category = Some((category.to_string(), ctx.upload(batch)));
+                    self.hovering_on_category = Some((category, ctx.upload(batch)));
                 }
             } else {
                 self.hovering_on_category = None;
@@ -155,7 +154,7 @@ impl State<App> for Viewer {
                             ctx,
                             app,
                             &self.isochrone,
-                            category,
+                            AmenityType::parse(category).unwrap(),
                         ));
                     } else {
                         unreachable!()
@@ -377,7 +376,7 @@ impl HoverOnBuilding {
 }
 
 struct ExploreAmenities {
-    category: String,
+    category: AmenityType,
     table: Table<App, Entry, ()>,
     panel: Panel,
     draw: Drawable,
@@ -386,7 +385,7 @@ struct ExploreAmenities {
 struct Entry {
     bldg: BuildingID,
     name: String,
-    category: String,
+    amenity_type: String,
     address: String,
     duration_away: Duration,
 }
@@ -396,7 +395,7 @@ impl ExploreAmenities {
         ctx: &mut EventCtx,
         app: &App,
         isochrone: &Isochrone,
-        category: &str,
+        category: AmenityType,
     ) -> Box<dyn State<App>> {
         let mut batch = isochrone.draw_isochrone(app);
         batch.append(draw_star(ctx, app.map.get_b(isochrone.start)));
@@ -405,11 +404,11 @@ impl ExploreAmenities {
         for b in isochrone.amenities_reachable.get(category) {
             let bldg = app.map.get_b(*b);
             for amenity in &bldg.amenities {
-                if amenity_type(&amenity.amenity_type) == Some(category) {
+                if AmenityType::categorize(&amenity.amenity_type) == Some(category) {
                     entries.push(Entry {
                         bldg: bldg.id,
                         name: amenity.names.get(app.opts.language.as_ref()).to_string(),
-                        category: amenity.amenity_type.clone(),
+                        amenity_type: amenity.amenity_type.clone(),
                         address: bldg.address.clone(),
                         duration_away: isochrone.time_to_reach_building[&bldg.id],
                     });
@@ -427,9 +426,11 @@ impl ExploreAmenities {
             Filter::empty(),
         );
         table.column(
-            "Category",
-            Box::new(|ctx, _, x| Text::from(Line(&x.category)).render(ctx)),
-            Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.category.clone()))),
+            "Type",
+            Box::new(|ctx, _, x| Text::from(Line(&x.amenity_type)).render(ctx)),
+            Col::Sortable(Box::new(|rows| {
+                rows.sort_by_key(|x| x.amenity_type.clone())
+            })),
         );
         table.static_col("Name", Box::new(|x| x.name.clone()));
         table.static_col("Address", Box::new(|x| x.address.clone()));
@@ -454,7 +455,7 @@ impl ExploreAmenities {
         .build(ctx);
 
         Box::new(ExploreAmenities {
-            category: category.to_string(),
+            category: category,
             table,
             panel,
             draw: ctx.upload(batch),

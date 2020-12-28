@@ -55,6 +55,7 @@ pub struct Building {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Amenity {
     pub names: NamePerLanguage,
+    /// This is the specific amenity listed in OSM, not the more general `AmenityType` category.
     pub amenity_type: String,
     /// Depending on options while importing, these might be empty, to save file space.
     pub osm_tags: Tags,
@@ -211,4 +212,164 @@ fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Posi
     )?;
     // No buffer needed
     Some((sidewalk_pos.equiv_pos(lane, map), sidewalk_pos))
+}
+
+/// Businesses are categorized into one of these types.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum AmenityType {
+    Groceries,
+    Food,
+    Bar,
+    Medical,
+    Religious,
+    Education,
+    Financial,
+    PostOffice,
+    Culture,
+    Childcare,
+    Shopping,
+}
+
+impl AmenityType {
+    fn types(self) -> Vec<&'static str> {
+        // TODO: create categories for:
+        // hairdresser beauty chemist
+        // car_repair
+        // laundry
+
+        match self {
+            AmenityType::Groceries => vec!["convenience", "supermarket"],
+            // TODO Sort
+            AmenityType::Food => vec![
+                "restaurant",
+                "cafe",
+                "fast_food",
+                "food_court",
+                "ice_cream",
+                "pastry",
+                "deli",
+                "greengrocer",
+                "bakery",
+                "butcher",
+                "confectionery",
+                "beverages",
+                "alcohol",
+            ],
+            AmenityType::Bar => vec!["bar", "lounge", "pub", "nightclub"],
+            AmenityType::Medical => vec![
+                "chiropractor",
+                "clinic",
+                "dentist",
+                "hospital",
+                "pharmacy",
+                "optician",
+            ],
+            AmenityType::Religious => vec!["place_of_worship"],
+            AmenityType::Education => vec!["college", "school", "university"],
+            AmenityType::Financial => vec!["bank"],
+            AmenityType::PostOffice => vec!["post_office"],
+            AmenityType::Culture => vec![
+                "arts_centre",
+                "art_gallery",
+                "cinema",
+                "library",
+                "museum",
+                "theatre",
+            ],
+            AmenityType::Childcare => vec!["childcare", "kindergarten"],
+            AmenityType::Shopping => vec![
+                "second_hand",
+                "clothes",
+                "furniture",
+                "shoes",
+                "department_store",
+                "car",
+                "kiosk",
+                "hardware",
+                "mobile_phone",
+                "florist",
+                "electronics",
+                "car_parts",
+                "doityourself",
+                "jewelry",
+                "variety_store",
+                "gift",
+                "bicycle",
+                "books",
+                "sports",
+                "travel_agency",
+                "stationery",
+                "pet",
+                "computer",
+                "tyres",
+                "newsagent",
+            ],
+        }
+    }
+
+    /// All types of amenities, in an arbitrary order.
+    pub fn all() -> Vec<AmenityType> {
+        vec![
+            AmenityType::Groceries,
+            AmenityType::Food,
+            AmenityType::Bar,
+            AmenityType::Medical,
+            AmenityType::Religious,
+            AmenityType::Education,
+            AmenityType::Financial,
+            AmenityType::PostOffice,
+            AmenityType::Culture,
+            AmenityType::Childcare,
+            AmenityType::Shopping,
+        ]
+    }
+
+    /// Categorize an OSM amenity tag.
+    pub fn categorize(a: &str) -> Option<AmenityType> {
+        for at in AmenityType::all() {
+            if at.types().contains(&a) {
+                return Some(at);
+            }
+        }
+        None
+    }
+
+    pub fn parse(x: &str) -> Option<AmenityType> {
+        match x {
+            "groceries" => Some(AmenityType::Groceries),
+            "food" => Some(AmenityType::Food),
+            "bar" => Some(AmenityType::Bar),
+            "medical" => Some(AmenityType::Medical),
+            "religious" => Some(AmenityType::Religious),
+            "education" => Some(AmenityType::Education),
+            "financial" => Some(AmenityType::Financial),
+            "post office" => Some(AmenityType::PostOffice),
+            "culture" => Some(AmenityType::Culture),
+            "childcare" => Some(AmenityType::Childcare),
+            "shopping" => Some(AmenityType::Shopping),
+            _ => None,
+        }
+    }
+}
+
+impl fmt::Display for AmenityType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                AmenityType::Groceries => "groceries",
+                AmenityType::Food => "food",
+                AmenityType::Bar => "bar",
+                AmenityType::Medical => "medical",
+                AmenityType::Religious => "religious",
+                AmenityType::Education => "education",
+                AmenityType::Financial => "financial",
+                AmenityType::PostOffice => "post office",
+                AmenityType::Culture => "culture",
+                AmenityType::Childcare => "childcare",
+                AmenityType::Shopping => "shopping",
+            }
+        )
+    }
 }

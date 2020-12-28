@@ -1,8 +1,8 @@
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
-use map_gui::tools::{amenity_type, ColorDiscrete, ColorLegend, ColorNetwork};
+use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
 use map_gui::ID;
-use map_model::{LaneType, PathConstraints};
+use map_model::{AmenityType, LaneType, PathConstraints};
 use sim::AgentType;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, Text, TextExt,
@@ -244,27 +244,27 @@ impl Static {
     pub fn amenities(ctx: &mut EventCtx, app: &App) -> Static {
         let mut colorer = ColorDiscrete::new(
             app,
-            // names are coming from amenity_type in another file
             vec![
-                ("groceries", Color::BLACK),
-                ("food", Color::RED),
-                ("bar", Color::BLUE),
-                ("medical", Color::PURPLE),
-                ("church / temple", Color::GREEN),
-                ("education", Color::CYAN),
-                ("bank / post office", Color::YELLOW),
-                ("culture", Color::PINK),
-                ("childcare", Color::ORANGE),
-                ("shopping", Color::WHITE),
-                ("other", Color::hex("#96322F")),
+                (AmenityType::Groceries.to_string(), Color::BLACK),
+                (AmenityType::Food.to_string(), Color::RED),
+                (AmenityType::Bar.to_string(), Color::BLUE),
+                (AmenityType::Medical.to_string(), Color::PURPLE),
+                (AmenityType::Religious.to_string(), Color::GREEN),
+                (AmenityType::Education.to_string(), Color::CYAN),
+                (AmenityType::Financial.to_string(), Color::YELLOW),
+                (AmenityType::PostOffice.to_string(), Color::YELLOW),
+                (AmenityType::Culture.to_string(), Color::PINK),
+                (AmenityType::Childcare.to_string(), Color::ORANGE),
+                (AmenityType::Shopping.to_string(), Color::WHITE),
+                ("other".to_string(), Color::hex("#96322F")),
             ],
         );
 
         for b in app.primary.map.all_buildings() {
             let mut other = false;
             for a in &b.amenities {
-                if let Some(t) = amenity_type(&a.amenity_type) {
-                    colorer.add_b(b.id, t);
+                if let Some(t) = AmenityType::categorize(&a.amenity_type) {
+                    colorer.add_b(b.id, t.to_string());
                 } else {
                     other = true;
                 }

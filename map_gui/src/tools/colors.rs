@@ -12,17 +12,22 @@ pub struct ColorDiscrete<'a> {
     unzoomed: GeomBatch,
     zoomed: GeomBatch,
     // Store both, so we can build the legend in the original order later
-    categories: Vec<(&'static str, Color)>,
-    colors: HashMap<&'static str, Color>,
+    categories: Vec<(String, Color)>,
+    colors: HashMap<String, Color>,
 }
 
 impl<'a> ColorDiscrete<'a> {
-    pub fn new(app: &'a dyn AppLike, categories: Vec<(&'static str, Color)>) -> ColorDiscrete<'a> {
+    pub fn new<I: Into<String>>(
+        app: &'a dyn AppLike,
+        categories: Vec<(I, Color)>,
+    ) -> ColorDiscrete<'a> {
         let mut unzoomed = GeomBatch::new();
         unzoomed.push(
             app.cs().fade_map_dark,
             app.map().get_boundary_polygon().clone(),
         );
+        let categories: Vec<(String, Color)> =
+            categories.into_iter().map(|(k, v)| (k.into(), v)).collect();
         ColorDiscrete {
             map: app.map(),
             unzoomed,
@@ -32,8 +37,8 @@ impl<'a> ColorDiscrete<'a> {
         }
     }
 
-    pub fn add_l(&mut self, l: LaneID, category: &'static str) {
-        let color = self.colors[category];
+    pub fn add_l<I: Into<String>>(&mut self, l: LaneID, category: I) {
+        let color = self.colors[&category.into()];
         self.unzoomed
             .push(color, self.map.get_parent(l).get_thick_polygon(self.map));
         let lane = self.map.get_l(l);
@@ -43,8 +48,8 @@ impl<'a> ColorDiscrete<'a> {
         );
     }
 
-    pub fn add_r(&mut self, r: RoadID, category: &'static str) {
-        let color = self.colors[category];
+    pub fn add_r<I: Into<String>>(&mut self, r: RoadID, category: I) {
+        let color = self.colors[&category.into()];
         self.unzoomed
             .push(color, self.map.get_r(r).get_thick_polygon(self.map));
         self.zoomed.push(
@@ -53,22 +58,22 @@ impl<'a> ColorDiscrete<'a> {
         );
     }
 
-    pub fn add_i(&mut self, i: IntersectionID, category: &'static str) {
-        let color = self.colors[category];
+    pub fn add_i<I: Into<String>>(&mut self, i: IntersectionID, category: I) {
+        let color = self.colors[&category.into()];
         self.unzoomed.push(color, self.map.get_i(i).polygon.clone());
         self.zoomed
             .push(color.alpha(0.4), self.map.get_i(i).polygon.clone());
     }
 
-    pub fn add_b(&mut self, b: BuildingID, category: &'static str) {
-        let color = self.colors[category];
+    pub fn add_b<I: Into<String>>(&mut self, b: BuildingID, category: I) {
+        let color = self.colors[&category.into()];
         self.unzoomed.push(color, self.map.get_b(b).polygon.clone());
         self.zoomed
             .push(color.alpha(0.4), self.map.get_b(b).polygon.clone());
     }
 
-    pub fn add_bs(&mut self, bs: BusStopID, category: &'static str) {
-        let color = self.colors[category];
+    pub fn add_bs<I: Into<String>>(&mut self, bs: BusStopID, category: I) {
+        let color = self.colors[&category.into()];
         let pt = self.map.get_bs(bs).sidewalk_pos.pt(self.map);
         self.zoomed.push(
             color.alpha(0.4),

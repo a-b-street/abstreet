@@ -1,7 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use map_gui::tools::amenity_type;
-use map_model::{BuildingID, BuildingType};
+use map_model::{AmenityType, BuildingID, BuildingType};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, Line, Text};
 
 use crate::App;
@@ -73,8 +72,10 @@ impl Buildings {
                     continue;
                 }
             } else if let Some(amenity) = b.amenities.iter().find(|a| {
-                if let Some(at) = amenity_type(&a.amenity_type) {
-                    at == "groceries" || at == "food" || at == "bar"
+                if let Some(at) = AmenityType::categorize(&a.amenity_type) {
+                    at == AmenityType::Groceries
+                        || at == AmenityType::Food
+                        || at == AmenityType::Bar
                 } else {
                     false
                 }

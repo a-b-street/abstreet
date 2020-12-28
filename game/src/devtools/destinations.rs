@@ -1,7 +1,7 @@
 use abstutil::Counter;
-use map_gui::tools::{amenity_type, make_heatmap, HeatmapOptions};
+use map_gui::tools::{make_heatmap, HeatmapOptions};
 use map_gui::ID;
-use map_model::BuildingID;
+use map_model::{AmenityType, BuildingID};
 use sim::{Scenario, TripEndpoint};
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
@@ -65,13 +65,13 @@ impl PopularDestinations {
         for (b, cnt) in per_bldg.borrow() {
             let mut other = true;
             for a in &map.get_b(*b).amenities {
-                if let Some(t) = amenity_type(&a.amenity_type) {
-                    by_type.add(t, *cnt);
+                if let Some(t) = AmenityType::categorize(&a.amenity_type) {
+                    by_type.add(Some(t), *cnt);
                     other = false;
                 }
             }
             if other {
-                by_type.add("other", *cnt);
+                by_type.add(None, *cnt);
             }
         }
         let mut breakdown = Text::from(Line("Breakdown by type"));
@@ -82,7 +82,9 @@ impl PopularDestinations {
         for (category, cnt) in list {
             breakdown.add(Line(format!(
                 "{}: {}%",
-                category,
+                category
+                    .map(|x| x.to_string())
+                    .unwrap_or("other".to_string()),
                 ((cnt as f64) / sum * 100.0) as usize
             )));
         }
