@@ -9,7 +9,7 @@ use geom::{Distance, Duration};
 use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
-use map_model::{AmenityType, Building, BuildingID};
+use map_model::{AmenityType, Building, BuildingID, LaneType};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     lctrl, Btn, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
@@ -29,6 +29,7 @@ pub struct Viewer {
     hovering_on_bldg: Cached<HoverKey, HoverOnBuilding>,
     // TODO Can't use Cached due to a double borrow
     hovering_on_category: Option<(AmenityType, Drawable)>,
+    draw_unwalkable_roads: Drawable,
 }
 
 impl Viewer {
@@ -45,6 +46,7 @@ impl Viewer {
         let isochrone = Isochrone::new(ctx, app, start.id, options);
         let highlight_start = draw_star(ctx, start);
         let panel = build_panel(ctx, app, start, &isochrone);
+        let draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &isochrone.options);
 
         Box::new(Viewer {
             panel,
@@ -52,6 +54,7 @@ impl Viewer {
             isochrone,
             hovering_on_bldg: Cached::new(),
             hovering_on_category: None,
+            draw_unwalkable_roads,
         })
     }
 }
@@ -163,6 +166,7 @@ impl State<App> for Viewer {
             },
             Outcome::Changed => {
                 let options = options_from_controls(&self.panel);
+                self.draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &options);
                 self.isochrone = Isochrone::new(ctx, app, self.isochrone.start, options);
                 self.panel = build_panel(
                     ctx,
@@ -180,6 +184,7 @@ impl State<App> for Viewer {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.isochrone.draw);
         g.redraw(&self.highlight_start);
+        g.redraw(&self.draw_unwalkable_roads);
         self.panel.draw(g);
         if let Some(ref hover) = self.hovering_on_bldg.value() {
             g.draw_mouse_tooltip(hover.tooltip.clone());
@@ -220,6 +225,8 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
                     .map(|(label, speed)| Choice::new(label, speed))
                     .collect(),
             ));
+
+            rows.push(ColorLegend::row(ctx, Color::BLUE, "unwalkable roads"));
         }
         Options::Biking => {}
     }
@@ -519,4 +526,28 @@ impl State<App> for ExploreAmenities {
             g.draw_polygon(Color::CYAN, app.map.get_b(BuildingID(x)).polygon.clone());
         }
     }
+}
+
+fn draw_unwalkable_roads(ctx: &mut EventCtx, app: &App, opts: &Options) -> Drawable {
+    let allow_shoulders = match opts {
+        Options::Walking(ref opts) => opts.allow_shoulders,
+        Options::Biking => {
+            return Drawable::empty(ctx);
+        }
+    };
+
+    let mut batch = GeomBatch::new();
+    'ROADS: for road in app.map.all_roads() {
+        if road.is_light_rail() {
+            continue;
+        }
+        for (_, _, lt) in road.lanes_ltr() {
+            if lt == LaneType::Sidewalk || (lt == LaneType::Shoulder && allow_shoulders) {
+                continue 'ROADS;
+            }
+        }
+        // TODO Skip highways
+        batch.push(Color::BLUE.alpha(0.5), road.get_thick_polygon(&app.map));
+    }
+    ctx.upload(batch)
 }
