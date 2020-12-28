@@ -181,14 +181,16 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">amenity_type</span>, <span class="ident">Grid</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">Grid</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">connectivity</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>,
+    <span class="ident">connectivity</span>, <span class="ident">AmenityType</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
+    <span class="ident">PathRequest</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
@@ -204,8 +206,8 @@
     <span class="kw">pub</span> <span class="ident">draw</span>: <span class="ident">Drawable</span>,
     <span class="doccomment">/// How far away is each building from the start?</span>
     <span class="kw">pub</span> <span class="ident">time_to_reach_building</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">Duration</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Per category of amenity (defined by helpers::amenity_type), what buildings have that?</span>
-    <span class="kw">pub</span> <span class="ident">amenities_reachable</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Per category of amenity, what buildings have that?</span>
+    <span class="kw">pub</span> <span class="ident">amenities_reachable</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">AmenityType</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// How many people live in the returned area, according to estimates included in the map (from</span>
     <span class="doccomment">/// city-specific parcel data, guesses from census, or a guess based on OSM tags)</span>
     <span class="kw">pub</span> <span class="ident">population</span>: <span class="ident">usize</span>,
@@ -240,7 +242,7 @@
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">time_to_reach_building</span>.<span class="ident">keys</span>() {
             <span class="kw">let</span> <span class="ident">bldg</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>);
             <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">bldg</span>.<span class="ident">amenities</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) <span class="op">=</span> <span class="ident">amenity_type</span>(<span class="kw-2">&amp;</span><span class="ident">amenity</span>.<span class="ident">amenity_type</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) <span class="op">=</span> <span class="ident">AmenityType</span>::<span class="ident">categorize</span>(<span class="kw-2">&amp;</span><span class="ident">amenity</span>.<span class="ident">amenity_type</span>) {
                     <span class="ident">amenities_reachable</span>.<span class="ident">insert</span>(<span class="ident">category</span>, <span class="ident">bldg</span>.<span class="ident">id</span>);
                 }
             }
