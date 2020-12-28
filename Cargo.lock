@@ -2902,6 +2902,7 @@ dependencies = [
  "flatgeobuf",
  "futures",
  "geo 0.16.0",
+ "geo-booleanop",
  "geojson 0.21.0",
  "geom",
  "geozero-core",

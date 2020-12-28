@@ -91,12 +91,11 @@ impl CensusArea {
                     continue;
                 }
 
-                let mut geo_polygon = geo_polygon.clone();
-                geo_polygon.map_coords_inplace(|(x, y)| {
+                let mut polygon = geo_polygon.clone();
+                polygon.map_coords_inplace(|(x, y)| {
                     let point = geom::LonLat::new(*x, *y).to_pt(bounds);
                     (point.x(), point.y())
                 });
-                let polygon = geom::Polygon::from(geo_polygon);
                 results.push(CensusArea {
                     polygon,
                     population,

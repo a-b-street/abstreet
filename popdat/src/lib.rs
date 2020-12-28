@@ -25,7 +25,6 @@ extern crate log;
 use rand_xorshift::XorShiftRng;
 
 use abstutil::Timer;
-use geom::Polygon;
 use geom::{Distance, Time};
 use map_model::{BuildingID, Map};
 use sim::Scenario;
@@ -41,7 +40,7 @@ mod make_person;
 /// have two overlapping areas.
 #[derive(Debug, PartialEq)]
 pub struct CensusArea {
-    pub polygon: Polygon,
+    pub polygon: geo::Polygon<f64>,
     pub population: usize,
     // TODO Not sure what goes here, whatever census data actually has that could be useful
 }
