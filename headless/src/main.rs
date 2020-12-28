@@ -22,7 +22,7 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{serialize_btreemap, CmdArgs, MapName, Timer};
+use abstutil::{serialize_btreemap, CmdArgs, MapName, Parallelism, Timer};
 use geom::{Distance, Duration, LonLat, Time};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
@@ -331,6 +331,23 @@ fn handle_command(
             let id = TripID(get("id")?.parse::<usize>()?);
             let duration = sim.get_trip_time_lower_bound(map, id)?;
             Ok(duration.inner_seconds().to_string())
+        }
+        "/data/all-trip-time-lower-bounds" => {
+            let results: BTreeMap<TripID, Duration> = Timer::throwaway()
+                .parallelize(
+                    "calculate all trip time lower bounds",
+                    Parallelism::Fastest,
+                    sim.all_trip_info(),
+                    |(id, _)| {
+                        sim.get_trip_time_lower_bound(map, id)
+                            .ok()
+                            .map(|dt| (id, dt))
+                    },
+                )
+                .into_iter()
+                .flatten()
+                .collect();
+            Ok(abstutil::to_json(&results))
         }
         // Controlling the map
         "/map/get-edits" => {
