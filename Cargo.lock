@@ -1037,8 +1037,9 @@ dependencies = [
 
 [[package]]
 name = "flatgeobuf"
-version = "0.3.4"
-source = "git+https://github.com/bjornharrtell/flatgeobuf#4411e90a50a9d4647cc03a30cc719a714ea7f5ca"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3bee1d16f8b1c0d3617e79167384c81b321af70ee98cceec763d9265fd8ae979"
 dependencies = [
  "async-trait",
  "byteorder",

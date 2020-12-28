@@ -38,6 +38,3 @@ opt-level = 3
 # Upstreaming at https://github.com/georust/geojson/pull/155
 geojson = { git = "https://github.com/georust/geojson", branch = "mkirk/try_from" }
 
-# Minimize bandwidth and requests
-# Waiting for release of https://github.com/bjornharrtell/flatgeobuf/pull/93)
-flatgeobuf = { git = "https://github.com/bjornharrtell/flatgeobuf" }
