@@ -266,8 +266,6 @@
 <span id="263">263</span>
 <span id="264">264</span>
 <span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -411,10 +409,8 @@
             <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
                     <span class="self">self</span>,
-                    <span class="ident">GeomBatch</span>::<span class="ident">from_svg_contents</span>(
-                        <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/assets/map/dont_walk.svg&quot;</span>).<span class="ident">to_vec</span>(),
-                    )
-                    .<span class="ident">scale</span>(<span class="number">5.0</span>),
+                    <span class="ident">GeomBatch</span>::<span class="ident">from_svg_contents</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../icons/loading.svg&quot;</span>).<span class="ident">to_vec</span>())
+                        .<span class="ident">scale</span>(<span class="number">5.0</span>),
                 )
                 .<span class="ident">container</span>()
                 .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)

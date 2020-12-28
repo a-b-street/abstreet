@@ -668,8 +668,6 @@
 <span id="665">665</span>
 <span id="666">666</span>
 <span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -863,13 +861,11 @@
                 <span class="ident">Widget</span>::<span class="ident">nothing</span>()
             },
             {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(
-                    <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-                    <span class="string">&quot;system/assets/widgetry/arrow_drop_down.svg&quot;</span>,
-                )
-                .<span class="ident">autocrop</span>()
-                .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>))
-                .<span class="ident">scale</span>(<span class="number">1.5</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon</span> <span class="op">=</span>
+                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/arrow_drop_down.svg&quot;</span>)
+                        .<span class="ident">autocrop</span>()
+                        .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>))
+                        .<span class="ident">scale</span>(<span class="number">1.5</span>);
 
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
                     <span class="ident">icon</span> <span class="op">=</span> <span class="ident">icon</span>.<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="number">180.0</span>));

@@ -805,7 +805,7 @@
         <span class="ident">icon_batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">INVISIBLE</span>, <span class="ident">icon_container</span>);
 
         <span class="kw">let</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from_svg_contents</span>(
-            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../../data/system/assets/widgetry/arrow_drop_down.svg&quot;</span>).<span class="ident">to_vec</span>(),
+            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/arrow_drop_down.svg&quot;</span>).<span class="ident">to_vec</span>(),
         )
         .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>))
         .<span class="ident">autocrop</span>()

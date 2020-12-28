@@ -154,7 +154,6 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
-<span id="154">154</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -190,31 +189,30 @@
             <span class="ident">font_to_id</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">text_opts</span>: <span class="ident">Options</span>::<span class="ident">default</span>(),
         };
-        <span class="comment">// TODO These paths are now hardcoded for WASM. This is reasonable, since the fonts</span>
-        <span class="comment">// available are currently fixed anyway. For widgetry to become a library, need to figure</span>
-        <span class="comment">// out how to override these.</span>
+        <span class="comment">// All fonts are statically bundled with the library right now, on both native and web.</span>
+        <span class="comment">// Eventually need to let people specify their own fonts dynamically at runtime.</span>
         <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>::<span class="ident">Database</span>::<span class="ident">new</span>();
-        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
-            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/BungeeInline-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>(),
-        );
         <span class="ident">a</span>.<span class="ident">text_opts</span>
             .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/Bungee-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/BungeeInline-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
         <span class="ident">a</span>.<span class="ident">text_opts</span>
             .<span class="ident">fontdb</span>
-            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/Overpass-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
-            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/OverpassMono-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>(),
-        );
-        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
-            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/Overpass-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>(),
-        );
-        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
-            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/Overpass-SemiBold.ttf&quot;</span>).<span class="ident">to_vec</span>(),
-        );
-        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(
-            <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../data/system/fonts/ZCOOLXiaoWei-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>(),
-        );
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Bungee-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">a</span>.<span class="ident">text_opts</span>
+            .<span class="ident">fontdb</span>
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">a</span>.<span class="ident">text_opts</span>
+            .<span class="ident">fontdb</span>
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/OverpassMono-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">a</span>.<span class="ident">text_opts</span>
+            .<span class="ident">fontdb</span>
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">a</span>.<span class="ident">text_opts</span>
+            .<span class="ident">fontdb</span>
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/Overpass-SemiBold.ttf&quot;</span>).<span class="ident">to_vec</span>());
+        <span class="ident">a</span>.<span class="ident">text_opts</span>
+            .<span class="ident">fontdb</span>
+            .<span class="ident">load_font_data</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../fonts/ZCOOLXiaoWei-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
         <span class="kw">for</span> <span class="ident">font</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span>,
             <span class="ident">Font</span>::<span class="ident">BungeeRegular</span>,
