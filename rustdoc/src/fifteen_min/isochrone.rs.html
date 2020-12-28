@@ -182,6 +182,16 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -222,19 +232,29 @@
     <span class="ident">Biking</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Isochrone</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">start</span>: <span class="ident">BuildingID</span>, <span class="ident">options</span>: <span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Isochrone</span> {
-        <span class="kw">let</span> <span class="ident">time_to_reach_building</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">options</span>.<span class="ident">clone</span>() {
+<span class="kw">impl</span> <span class="ident">Options</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time_to_reach_building</span>(
+        <span class="self">self</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">start</span>: <span class="ident">BuildingID</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Options</span>::<span class="ident">Walking</span>(<span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">connectivity</span>::<span class="ident">all_walking_costs_from</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">15</span>), <span class="ident">opts</span>)
+                <span class="ident">connectivity</span>::<span class="ident">all_walking_costs_from</span>(<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">15</span>), <span class="ident">opts</span>)
             }
             <span class="ident">Options</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">connectivity</span>::<span class="ident">all_vehicle_costs_from</span>(
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>,
+                <span class="ident">map</span>,
                 <span class="ident">start</span>,
                 <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">15</span>),
                 <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
             ),
-        };
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Isochrone</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">start</span>: <span class="ident">BuildingID</span>, <span class="ident">options</span>: <span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Isochrone</span> {
+        <span class="kw">let</span> <span class="ident">time_to_reach_building</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">clone</span>().<span class="ident">time_to_reach_building</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">start</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenities_reachable</span> <span class="op">=</span> <span class="ident">MultiMap</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">population</span> <span class="op">=</span> <span class="number">0</span>;

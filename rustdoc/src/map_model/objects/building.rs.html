@@ -376,6 +376,16 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -580,6 +590,16 @@
             <span class="ident">OffstreetParking</span>::<span class="ident">PublicGarage</span>(<span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>,
             <span class="ident">OffstreetParking</span>::<span class="ident">Private</span>(<span class="ident">n</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>,
         }
+    }
+
+    <span class="doccomment">/// Does this building contain any amenity matching the category?</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_amenity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">category</span>: <span class="ident">AmenityType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">amenities</span> {
+            <span class="kw">if</span> <span class="ident">AmenityType</span>::<span class="ident">categorize</span>(<span class="kw-2">&amp;</span><span class="ident">amenity</span>.<span class="ident">amenity_type</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) {
+                <span class="kw">return</span> <span class="bool-val">true</span>;
+            }
+        }
+        <span class="bool-val">false</span>
     }
 }
 
