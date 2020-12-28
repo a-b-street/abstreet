@@ -35,20 +35,16 @@ impl Checkbox {
     ) -> Widget {
         let label = label.into();
         let (off, hitbox) = Widget::row(vec![
-            GeomBatch::from_svg_contents(
-                include_bytes!("../../../data/system/assets/widgetry/toggle_off.svg").to_vec(),
-            )
-            .batch()
-            .centered_vert(),
+            GeomBatch::from_svg_contents(include_bytes!("../../icons/toggle_off.svg").to_vec())
+                .batch()
+                .centered_vert(),
             label.clone().batch_text(ctx),
         ])
         .to_geom(ctx, None);
         let (on, _) = Widget::row(vec![
-            GeomBatch::from_svg_contents(
-                include_bytes!("../../../data/system/assets/widgetry/toggle_on.svg").to_vec(),
-            )
-            .batch()
-            .centered_vert(),
+            GeomBatch::from_svg_contents(include_bytes!("../../icons/toggle_on.svg").to_vec())
+                .batch()
+                .centered_vert(),
             label.clone().batch_text(ctx),
         ])
         .to_geom(ctx, None);
@@ -122,22 +118,18 @@ impl Checkbox {
 
     pub fn colored(ctx: &EventCtx, label: &str, color: Color, enabled: bool) -> Widget {
         let (off, hitbox) = Widget::row(vec![
-            GeomBatch::from_svg_contents(
-                include_bytes!("../../../data/system/assets/widgetry/checkbox.svg").to_vec(),
-            )
-            .color(RewriteColor::ChangeAll(color.alpha(0.3)))
-            .batch()
-            .centered_vert(),
+            GeomBatch::from_svg_contents(include_bytes!("../../icons/checkbox.svg").to_vec())
+                .color(RewriteColor::ChangeAll(color.alpha(0.3)))
+                .batch()
+                .centered_vert(),
             label.batch_text(ctx),
         ])
         .to_geom(ctx, None);
         let (on, _) = Widget::row(vec![
-            GeomBatch::from_svg_contents(
-                include_bytes!("../../../data/system/assets/widgetry/checkbox.svg").to_vec(),
-            )
-            .color(RewriteColor::Change(Color::BLACK, color))
-            .batch()
-            .centered_vert(),
+            GeomBatch::from_svg_contents(include_bytes!("../../icons/checkbox.svg").to_vec())
+                .color(RewriteColor::Change(Color::BLACK, color))
+                .batch()
+                .centered_vert(),
             label.batch_text(ctx),
         ])
         .to_geom(ctx, None);
@@ -180,12 +172,10 @@ impl Checkbox {
         let left_label = left_label.into();
         let right_label = right_label.into();
         let hotkey = hotkey.into();
-        let right = GeomBatch::from_svg_contents(
-            include_bytes!("../../../data/system/assets/widgetry/toggle_right.svg").to_vec(),
-        );
-        let left = GeomBatch::from_svg_contents(
-            include_bytes!("../../../data/system/assets/widgetry/toggle_left.svg").to_vec(),
-        );
+        let right =
+            GeomBatch::from_svg_contents(include_bytes!("../../icons/toggle_right.svg").to_vec());
+        let left =
+            GeomBatch::from_svg_contents(include_bytes!("../../icons/toggle_left.svg").to_vec());
         let hitbox = right.get_bounds().get_rectangle();
 
         Widget::row(vec![

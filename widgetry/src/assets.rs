@@ -32,31 +32,30 @@ impl Assets {
             font_to_id: HashMap::new(),
             text_opts: Options::default(),
         };
-        // TODO These paths are now hardcoded for WASM. This is reasonable, since the fonts
-        // available are currently fixed anyway. For widgetry to become a library, need to figure
-        // out how to override these.
+        // All fonts are statically bundled with the library right now, on both native and web.
+        // Eventually need to let people specify their own fonts dynamically at runtime.
         a.text_opts.fontdb = fontdb::Database::new();
-        a.text_opts.fontdb.load_font_data(
-            include_bytes!("../../data/system/fonts/BungeeInline-Regular.ttf").to_vec(),
-        );
         a.text_opts
             .fontdb
-            .load_font_data(include_bytes!("../../data/system/fonts/Bungee-Regular.ttf").to_vec());
+            .load_font_data(include_bytes!("../fonts/BungeeInline-Regular.ttf").to_vec());
         a.text_opts
             .fontdb
-            .load_font_data(include_bytes!("../../data/system/fonts/Overpass-Bold.ttf").to_vec());
-        a.text_opts.fontdb.load_font_data(
-            include_bytes!("../../data/system/fonts/OverpassMono-Bold.ttf").to_vec(),
-        );
-        a.text_opts.fontdb.load_font_data(
-            include_bytes!("../../data/system/fonts/Overpass-Regular.ttf").to_vec(),
-        );
-        a.text_opts.fontdb.load_font_data(
-            include_bytes!("../../data/system/fonts/Overpass-SemiBold.ttf").to_vec(),
-        );
-        a.text_opts.fontdb.load_font_data(
-            include_bytes!("../../data/system/fonts/ZCOOLXiaoWei-Regular.ttf").to_vec(),
-        );
+            .load_font_data(include_bytes!("../fonts/Bungee-Regular.ttf").to_vec());
+        a.text_opts
+            .fontdb
+            .load_font_data(include_bytes!("../fonts/Overpass-Bold.ttf").to_vec());
+        a.text_opts
+            .fontdb
+            .load_font_data(include_bytes!("../fonts/OverpassMono-Bold.ttf").to_vec());
+        a.text_opts
+            .fontdb
+            .load_font_data(include_bytes!("../fonts/Overpass-Regular.ttf").to_vec());
+        a.text_opts
+            .fontdb
+            .load_font_data(include_bytes!("../fonts/Overpass-SemiBold.ttf").to_vec());
+        a.text_opts
+            .fontdb
+            .load_font_data(include_bytes!("../fonts/ZCOOLXiaoWei-Regular.ttf").to_vec());
         for font in vec![
             Font::BungeeInlineRegular,
             Font::BungeeRegular,

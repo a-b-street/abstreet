@@ -72,10 +72,13 @@ pub fn setup(
 
     unsafe {
         let shaders = [
-            (glow::VERTEX_SHADER, include_str!("shaders/vertex_300.glsl")),
+            (
+                glow::VERTEX_SHADER,
+                include_str!("../shaders/vertex_300.glsl"),
+            ),
             (
                 glow::FRAGMENT_SHADER,
-                include_str!("shaders/fragment_300.glsl"),
+                include_str!("../shaders/fragment_300.glsl"),
             ),
         ]
         .iter()
@@ -119,7 +122,12 @@ pub fn setup(
     }
 
     timer.start("load textures");
-    crate::backend_glow::load_textures(&gl, "system/assets/textures/spritesheet.png", 64).unwrap();
+    crate::backend_glow::load_textures(
+        &gl,
+        include_bytes!("../textures/spritesheet.png").to_vec(),
+        64,
+    )
+    .unwrap();
     timer.stop("load textures");
 
     (

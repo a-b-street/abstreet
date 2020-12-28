@@ -190,13 +190,11 @@ pub fn trips(
                 Widget::nothing()
             },
             {
-                let mut icon = GeomBatch::load_svg(
-                    ctx.prerender,
-                    "system/assets/widgetry/arrow_drop_down.svg",
-                )
-                .autocrop()
-                .color(RewriteColor::ChangeAll(Color::WHITE))
-                .scale(1.5);
+                let mut icon =
+                    GeomBatch::load_svg(ctx.prerender, "system/assets/tools/arrow_drop_down.svg")
+                        .autocrop()
+                        .color(RewriteColor::ChangeAll(Color::WHITE))
+                        .scale(1.5);
 
                 if !open_trips.contains_key(t) {
                     icon = icon.rotate(Angle::degrees(180.0));

@@ -42,8 +42,8 @@ pub fn setup(
     unsafe {
         let shaders = compile_shaders(
             &gl,
-            include_str!("shaders/vertex_140.glsl"),
-            include_str!("shaders/fragment_140.glsl"),
+            include_str!("../shaders/vertex_140.glsl"),
+            include_str!("../shaders/fragment_140.glsl"),
         )
         .or_else(|err| {
             warn!(
@@ -52,8 +52,8 @@ pub fn setup(
             );
             compile_shaders(
                 &gl,
-                include_str!("shaders/vertex_300.glsl"),
-                include_str!("shaders/fragment_300.glsl"),
+                include_str!("../shaders/vertex_300.glsl"),
+                include_str!("../shaders/fragment_300.glsl"),
             )
         })
         .unwrap_or_else(|err| {
@@ -89,7 +89,12 @@ pub fn setup(
     }
 
     timer.start("load textures");
-    crate::backend_glow::load_textures(&gl, "system/assets/textures/spritesheet.png", 64).unwrap();
+    crate::backend_glow::load_textures(
+        &gl,
+        include_bytes!("../textures/spritesheet.png").to_vec(),
+        64,
+    )
+    .unwrap();
     timer.stop("load textures");
 
     (

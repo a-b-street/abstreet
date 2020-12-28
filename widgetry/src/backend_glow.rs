@@ -389,11 +389,9 @@ impl PrerenderInnards {
 /// https://www.khronos.org/opengl/wiki/Array_Texture.
 pub fn load_textures(
     gl: &glow::Context,
-    filename: &str,
+    image_bytes: Vec<u8>,
     sprite_length: u32,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let path = abstutil::path(filename);
-    let image_bytes = abstutil::slurp_file(&path)?;
     let dynamic_img = image::load_from_memory(&image_bytes)?;
     let img = if let image::DynamicImage::ImageRgba8(img) = dynamic_img {
         img

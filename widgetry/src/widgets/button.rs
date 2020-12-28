@@ -202,7 +202,7 @@ impl Btn {
         icon_batch.push(Color::INVISIBLE, icon_container);
 
         let icon = GeomBatch::from_svg_contents(
-            include_bytes!("../../../data/system/assets/widgetry/arrow_drop_down.svg").to_vec(),
+            include_bytes!("../../icons/arrow_drop_down.svg").to_vec(),
         )
         .color(RewriteColor::ChangeAll(ctx.style().outline_color))
         .autocrop()

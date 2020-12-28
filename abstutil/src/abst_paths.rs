@@ -108,7 +108,7 @@ impl MapName {
     pub fn list_all_maps() -> Vec<MapName> {
         let mut names = Vec::new();
         for city in list_all_objects(path("system")) {
-            if city == "assets" || city == "fonts" || city == "proposals" {
+            if city == "assets" || city == "proposals" {
                 continue;
             }
             for map in list_all_objects(path(format!("system/{}/maps", city))) {

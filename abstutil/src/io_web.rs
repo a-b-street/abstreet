@@ -14,7 +14,6 @@ use crate::{path_player, to_json, Manifest, Timer};
 static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     "../data/system",
     "assets/",
-    "fonts/",
     "proposals/",
     "seattle/city.bin",
     "seattle/maps/montlake.bin",

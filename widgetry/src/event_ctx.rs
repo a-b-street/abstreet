@@ -140,10 +140,8 @@ impl<'a> EventCtx<'a> {
             Widget::custom_col(vec![
                 Widget::draw_batch(
                     self,
-                    GeomBatch::from_svg_contents(
-                        include_bytes!("../../data/system/assets/map/dont_walk.svg").to_vec(),
-                    )
-                    .scale(5.0),
+                    GeomBatch::from_svg_contents(include_bytes!("../icons/loading.svg").to_vec())
+                        .scale(5.0),
                 )
                 .container()
                 .bg(Color::BLACK)
