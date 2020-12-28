@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use geom::ArrowCap;
+use geom::{ArrowCap, Polygon};
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
@@ -38,6 +38,7 @@ impl UberTurnPicker {
             Btn::text_fg("View uber-turns").build_def(ctx, Key::Enter),
             Btn::text_fg("Edit").build_def(ctx, Key::E),
             Btn::text_fg("Detect all clusters").build_def(ctx, Key::D),
+            Btn::text_fg("Preview merged intersection").build_def(ctx, Key::P),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -79,6 +80,13 @@ impl SimpleState<App> for UberTurnPicker {
                     self.members.extend(ic.members);
                 }
                 Transition::Keep
+            }
+            "Preview merged intersection" => {
+                return Transition::Replace(MergeIntersections::new(
+                    ctx,
+                    app,
+                    self.members.clone(),
+                ));
             }
             _ => unreachable!(),
         }
@@ -257,6 +265,54 @@ impl SimpleState<App> for UberTurnViewer {
             .extend(self.ic.members.clone());
         app.draw(g, opts, &ShowEverything::new());
 
+        g.redraw(&self.draw);
+    }
+}
+
+struct MergeIntersections {
+    draw: Drawable,
+}
+
+impl MergeIntersections {
+    fn new(ctx: &mut EventCtx, app: &App, merge: BTreeSet<IntersectionID>) -> Box<dyn State<App>> {
+        let panel = Panel::new(Widget::row(vec![
+            Line("Merged intersections").small_heading().draw(ctx),
+            Btn::close(ctx),
+        ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
+        .build(ctx);
+
+        // Just take the convex hull of all the original intersection polygons
+        let mut polygons = Vec::new();
+        for i in merge {
+            polygons.push(app.primary.map.get_i(i).polygon.clone());
+        }
+        let merged = Polygon::convex_hull(polygons);
+        let batch = GeomBatch::from(vec![(Color::RED.alpha(0.8), merged)]);
+
+        SimpleState::new(
+            panel,
+            Box::new(MergeIntersections {
+                draw: ctx.upload(batch),
+            }),
+        )
+    }
+}
+
+impl SimpleState<App> for MergeIntersections {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "close" => Transition::Pop,
+            _ => unreachable!(),
+        }
+    }
+
+    fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+        ctx.canvas_movement();
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.draw);
     }
 }
