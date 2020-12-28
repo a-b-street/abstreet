@@ -678,6 +678,28 @@ impl State<App> for SandboxLoader {
                             self.stage = Some(LoadStage::GotScenario(scenario));
                             continue;
                         }
+                        gameplay::LoadScenario::Future(future) => {
+                            use map_gui::load::FutureLoader;
+                            return Transition::Push(FutureLoader::<App, Scenario>::new(
+                                ctx,
+                                Box::pin(future),
+                                "Loading Scenario",
+                                Box::new(|_, _, scenario| {
+                                    // TODO show error/retry alert?
+                                    let scenario =
+                                        scenario.expect("failed to load scenario from future");
+                                    Transition::Multi(vec![
+                                        Transition::Pop,
+                                        Transition::ModifyState(Box::new(|state, _, app| {
+                                            let loader =
+                                                state.downcast_mut::<SandboxLoader>().unwrap();
+                                            app.primary.scenario = Some(scenario.clone());
+                                            loader.stage = Some(LoadStage::GotScenario(scenario));
+                                        })),
+                                    ])
+                                }),
+                            ));
+                        }
                         gameplay::LoadScenario::Path(path) => {
                             // Reuse the cached scenario, if possible.
                             if let Some(ref scenario) = app.primary.scenario {

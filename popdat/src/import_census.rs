@@ -1,29 +1,16 @@
 use geo::algorithm::intersects::Intersects;
 
-use abstutil::Timer;
-use map_model::Map;
+use geom::{GPSBounds, Polygon};
 
 use crate::CensusArea;
 
 impl CensusArea {
-    pub fn fetch_all_for_map(map: &Map, timer: &mut Timer) -> anyhow::Result<Vec<CensusArea>> {
-        timer.start("processing population areas fgb");
-        let areas = tokio::runtime::Runtime::new()
-            .expect("Failed to create Tokio runtime")
-            .block_on(Self::fetch_all_for_map_async(map, timer))?;
-        timer.stop("processing population areas fgb");
-        Ok(areas)
-    }
-
-    async fn fetch_all_for_map_async(
-        map: &Map,
-        timer: &mut Timer<'_>,
+    pub async fn fetch_all_for_map(
+        map_area: &Polygon,
+        bounds: &GPSBounds,
     ) -> anyhow::Result<Vec<CensusArea>> {
         use flatgeobuf::HttpFgbReader;
         use geozero_core::geo_types::Geo;
-
-        let map_area = map.get_boundary_polygon();
-        let bounds = map.get_gps_bounds();
 
         use geo::algorithm::{bounding_rect::BoundingRect, map_coords::MapCoordsInplace};
         let mut geo_map_area: geo::Polygon<_> = map_area.clone().into();
@@ -32,13 +19,11 @@ impl CensusArea {
             (projected.x(), projected.y())
         });
 
-        timer.start("opening FGB reader");
         // See the import handbook for how to prepare this file.
         let mut fgb =
-            HttpFgbReader::open("https://abstreet.s3.amazonaws.com/population_areas.fgb").await?;
-        timer.stop("opening FGB reader");
+            // HttpFgbReader::open("https://abstreet.s3.amazonaws.com/population_areas.fgb").await?;
+            HttpFgbReader::open("https://s3.amazonaws.com/mjk_asdf/abs/population_areas.fgb").await?;
 
-        timer.start("selecting bounding box");
         let bounding_rect = geo_map_area
             .bounding_rect()
             .ok_or(anyhow!("missing bound rect"))?;
@@ -49,9 +34,7 @@ impl CensusArea {
             bounding_rect.max().y,
         )
         .await?;
-        timer.stop("selecting bounding box");
 
-        timer.start("processing features");
         let mut results = vec![];
         while let Some(feature) = fgb.next().await? {
             // PERF TODO: how to parse into usize directly? And avoid parsing entire props dict?
@@ -105,7 +88,6 @@ impl CensusArea {
                 continue;
             }
         }
-        timer.stop("processing features");
 
         Ok(results)
     }
