@@ -29,6 +29,8 @@ pub struct Viewer {
     isochrone: Isochrone,
 
     hovering_on_bldg: Cached<HoverKey, HoverOnBuilding>,
+    // TODO Can't use Cached due to a double borrow
+    hovering_on_category: Option<(String, Drawable)>,
 }
 
 impl Viewer {
@@ -51,6 +53,7 @@ impl Viewer {
             highlight_start: ctx.upload(highlight_start),
             isochrone,
             hovering_on_bldg: Cached::new(),
+            hovering_on_category: None,
         })
     }
 }
@@ -69,6 +72,28 @@ impl State<App> for Viewer {
             // Also update this to conveniently get an outline drawn. Note we don't want to do this
             // inside the callback above, because it doesn't run when the key becomes None.
             app.current_selection = self.hovering_on_bldg.key().map(|(b, _)| ID::Building(b));
+
+            // Update the preview of all businesses belonging to one category
+            let key = self
+                .panel
+                .currently_hovering()
+                .and_then(|x| x.strip_prefix("businesses: "));
+            if let Some(category) = key {
+                if self
+                    .hovering_on_category
+                    .as_ref()
+                    .map(|(cat, _)| cat != category)
+                    .unwrap_or(true)
+                {
+                    let mut batch = GeomBatch::new();
+                    for b in self.isochrone.amenities_reachable.get(category) {
+                        batch.push(Color::RED, app.map.get_b(*b).polygon.clone());
+                    }
+                    self.hovering_on_category = Some((category.to_string(), ctx.upload(batch)));
+                }
+            } else {
+                self.hovering_on_category = None;
+            }
         }
 
         // Don't call normal_left_click unless we're hovering on something in map-space; otherwise
@@ -124,14 +149,17 @@ impl State<App> for Viewer {
                         ],
                     ));
                 }
-                // If we reach here, we must've clicked one of the buttons for an amenity
-                category => {
-                    return Transition::Push(ExploreAmenities::new(
-                        ctx,
-                        app,
-                        &self.isochrone,
-                        category,
-                    ));
+                x => {
+                    if let Some(category) = x.strip_prefix("businesses: ") {
+                        return Transition::Push(ExploreAmenities::new(
+                            ctx,
+                            app,
+                            &self.isochrone,
+                            category,
+                        ));
+                    } else {
+                        unreachable!()
+                    }
                 }
             },
             Outcome::Changed => {
@@ -157,6 +185,9 @@ impl State<App> for Viewer {
         if let Some(ref hover) = self.hovering_on_bldg.value() {
             g.draw_mouse_tooltip(hover.tooltip.clone());
             g.redraw(&hover.drawn_route);
+        }
+        if let Some((_, ref draw)) = self.hovering_on_category {
+            g.redraw(draw);
         }
     }
 }
@@ -271,7 +302,11 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
 
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(
-            Btn::text_fg(format!("{}: {}", amenity, buildings.len())).build(ctx, *amenity, None),
+            Btn::text_fg(format!("{}: {}", amenity, buildings.len())).build(
+                ctx,
+                format!("businesses: {}", amenity),
+                None,
+            ),
         );
     }
 
