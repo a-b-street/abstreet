@@ -16,6 +16,27 @@
 # files or API's. Instead I batch-downloaded all the census blocks and their
 # populations from the very nice nhgis.org
 #
+# Specifically, at the time of writing the steps were:
+#   - create an account for nhgis.org and log in
+#   - select "Get Data"
+#   - Under "Apply Filters": 
+#     - Geographic Level: choose "Block", then "submit"
+#     - Years: "2010" (hopefully 2020 will be available before long)
+#     - Topics: choose "General: Total Population", then "submit"
+#   - Under "Select Data":
+#     - Select "Total Population"
+#   - Click "Continue" towards top right
+#   - Click "Continue" again towards top right
+#   - Source Tables:
+#     - You should see that you've selected "1 source table" 
+#       - This corresponds to a CSV file of the populations and GISJOIN id but
+#         no geometries 
+#     - Click "Geographic Extents" > "Select All" > Submit
+#       - This corresponds to shapefiles for every state + DC + Puerto Rico
+#         with a GISJOIN attribute to join to the population CSV
+#   - Enter a "Description" which is memorable to you like (2010 all US block populations)
+#   - Submit and wait for the batch to be prepared
+#
 # Input files:
 # - a csv of populations with a GISJOIN field
 # - geometry shapefiles with the area boundaries and a GISJOIN field
