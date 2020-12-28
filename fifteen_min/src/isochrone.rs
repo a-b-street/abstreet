@@ -37,19 +37,29 @@ pub enum Options {
     Biking,
 }
 
-impl Isochrone {
-    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID, options: Options) -> Isochrone {
-        let time_to_reach_building = match options.clone() {
+impl Options {
+    pub fn time_to_reach_building(
+        self,
+        map: &Map,
+        start: BuildingID,
+    ) -> HashMap<BuildingID, Duration> {
+        match self {
             Options::Walking(opts) => {
-                connectivity::all_walking_costs_from(&app.map, start, Duration::minutes(15), opts)
+                connectivity::all_walking_costs_from(map, start, Duration::minutes(15), opts)
             }
             Options::Biking => connectivity::all_vehicle_costs_from(
-                &app.map,
+                map,
                 start,
                 Duration::minutes(15),
                 PathConstraints::Bike,
             ),
-        };
+        }
+    }
+}
+
+impl Isochrone {
+    pub fn new(ctx: &mut EventCtx, app: &App, start: BuildingID, options: Options) -> Isochrone {
+        let time_to_reach_building = options.clone().time_to_reach_building(&app.map, start);
 
         let mut amenities_reachable = MultiMap::new();
         let mut population = 0;

@@ -103,6 +103,10 @@ particular order:
 - If all else fails, use the scenario modifiers to bluntly cancel some
   percentage of all trips.
 
+A quick method for "disabling" buggy short roads is to use edit mode and close
+the lanes. This forces traffic to reroute around the problematic area, which
+might create other problems, but it can be useful.
+
 ## Fixing data used in simulation
 
 Give more examples of changesets.

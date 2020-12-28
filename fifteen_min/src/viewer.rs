@@ -17,6 +17,7 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
+use crate::find_home::FindHome;
 use crate::isochrone::{Isochrone, Options};
 use crate::App;
 
@@ -150,6 +151,9 @@ impl State<App> for Viewer {
                             "We're working to improve the accuracy of the map.",
                         ],
                     ));
+                }
+                "Find your perfect home" => {
+                    return Transition::Push(FindHome::new(ctx, self.isochrone.options.clone()));
                 }
                 x => {
                     if let Some(category) = x.strip_prefix("businesses: ") {
@@ -320,6 +324,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
 
     rows.push(options_to_controls(ctx, &isochrone.options));
+    rows.push(Btn::text_bg1("Find your perfect home").build_def(ctx, None));
     rows.push(Btn::plaintext("About").build_def(ctx, None));
 
     Panel::new(Widget::col(rows))

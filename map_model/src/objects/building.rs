@@ -202,6 +202,16 @@ impl Building {
             OffstreetParking::Private(n, _) => n,
         }
     }
+
+    /// Does this building contain any amenity matching the category?
+    pub fn has_amenity(&self, category: AmenityType) -> bool {
+        for amenity in &self.amenities {
+            if AmenityType::categorize(&amenity.amenity_type) == Some(category) {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Position)> {

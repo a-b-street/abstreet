@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate log;
 
+mod find_home;
 mod isochrone;
 mod viewer;
 
