@@ -487,6 +487,41 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -519,6 +554,8 @@
     <span class="ident">isochrone</span>: <span class="ident">Isochrone</span>,
 
     <span class="ident">hovering_on_bldg</span>: <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">HoverKey</span>, <span class="ident">HoverOnBuilding</span><span class="op">&gt;</span>,
+    <span class="comment">// TODO Can&#39;t use Cached due to a double borrow</span>
+    <span class="ident">hovering_on_category</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Viewer</span> {
@@ -541,6 +578,7 @@
             <span class="ident">highlight_start</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">highlight_start</span>),
             <span class="ident">isochrone</span>,
             <span class="ident">hovering_on_bldg</span>: <span class="ident">Cached</span>::<span class="ident">new</span>(),
+            <span class="ident">hovering_on_category</span>: <span class="prelude-val">None</span>,
         })
     }
 }
@@ -559,6 +597,28 @@
             <span class="comment">// Also update this to conveniently get an outline drawn. Note we don&#39;t want to do this</span>
             <span class="comment">// inside the callback above, because it doesn&#39;t run when the key becomes None.</span>
             <span class="ident">app</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_bldg</span>.<span class="ident">key</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>));
+
+            <span class="comment">// Update the preview of all businesses belonging to one category</span>
+            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>
+                .<span class="ident">panel</span>
+                .<span class="ident">currently_hovering</span>()
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;businesses: &quot;</span>));
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) <span class="op">=</span> <span class="ident">key</span> {
+                <span class="kw">if</span> <span class="self">self</span>
+                    .<span class="ident">hovering_on_category</span>
+                    .<span class="ident">as_ref</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">cat</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">cat</span> <span class="op">!</span><span class="op">=</span> <span class="ident">category</span>)
+                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
+                {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">amenities_reachable</span>.<span class="ident">get</span>(<span class="ident">category</span>) {
+                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                    }
+                    <span class="self">self</span>.<span class="ident">hovering_on_category</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">category</span>.<span class="ident">to_string</span>(), <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
+                }
+            } <span class="kw">else</span> {
+                <span class="self">self</span>.<span class="ident">hovering_on_category</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            }
         }
 
         <span class="comment">// Don&#39;t call normal_left_click unless we&#39;re hovering on something in map-space; otherwise</span>
@@ -614,14 +674,17 @@
                         ],
                     ));
                 }
-                <span class="comment">// If we reach here, we must&#39;ve clicked one of the buttons for an amenity</span>
-                <span class="ident">category</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ExploreAmenities</span>::<span class="ident">new</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isochrone</span>,
-                        <span class="ident">category</span>,
-                    ));
+                <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;businesses: &quot;</span>) {
+                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ExploreAmenities</span>::<span class="ident">new</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isochrone</span>,
+                            <span class="ident">category</span>,
+                        ));
+                    } <span class="kw">else</span> {
+                        <span class="macro">unreachable</span><span class="macro">!</span>()
+                    }
                 }
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -647,6 +710,9 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">hover</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_bldg</span>.<span class="ident">value</span>() {
             <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">hover</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>());
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">hover</span>.<span class="ident">drawn_route</span>);
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">draw</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_category</span> {
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
         }
     }
 }
@@ -761,7 +827,11 @@
 
     <span class="kw">for</span> (<span class="ident">amenity</span>, <span class="ident">buildings</span>) <span class="kw">in</span> <span class="ident">isochrone</span>.<span class="ident">amenities_reachable</span>.<span class="ident">borrow</span>() {
         <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">amenity</span>, <span class="ident">buildings</span>.<span class="ident">len</span>())).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">amenity</span>, <span class="prelude-val">None</span>),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">amenity</span>, <span class="ident">buildings</span>.<span class="ident">len</span>())).<span class="ident">build</span>(
+                <span class="ident">ctx</span>,
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;businesses: {}&quot;</span>, <span class="ident">amenity</span>),
+                <span class="prelude-val">None</span>,
+            ),
         );
     }
 
