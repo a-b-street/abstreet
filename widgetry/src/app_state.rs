@@ -255,8 +255,9 @@ impl<A: 'static> State<A> for SimpleStateWrapper<A> {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &A) {
-        self.panel.draw(g);
         self.inner.draw(g, app);
+        // Draw last
+        self.panel.draw(g);
     }
     fn draw_baselayer(&self) -> DrawBaselayer {
         self.inner.draw_baselayer()
