@@ -140,26 +140,25 @@ fn main() {
             // Still special-cased
             if job.city == "seattle" {
                 seattle::osm_to_raw(&name, &mut timer, &config);
-                continue;
-            }
+            } else {
+                let raw = match abstutil::maybe_read_json::<generic::GenericCityImporter>(
+                    format!("importer/config/{}/cfg.json", job.city),
+                    &mut timer,
+                ) {
+                    Ok(city_cfg) => {
+                        city_cfg.osm_to_raw(MapName::new(&job.city, &name), &mut timer, &config)
+                    }
+                    Err(err) => {
+                        panic!("Can't import city {}: {}", job.city, err);
+                    }
+                };
 
-            let raw = match abstutil::maybe_read_json::<generic::GenericCityImporter>(
-                format!("importer/config/{}/cfg.json", job.city),
-                &mut timer,
-            ) {
-                Ok(city_cfg) => {
-                    city_cfg.osm_to_raw(MapName::new(&job.city, &name), &mut timer, &config)
+                match job.city.as_ref() {
+                    "berlin" => berlin::import_extra_data(&raw, &config, &mut timer),
+                    "leeds" => leeds::import_extra_data(&raw, &config, &mut timer),
+                    "london" => london::import_extra_data(&raw, &config, &mut timer),
+                    _ => {}
                 }
-                Err(err) => {
-                    panic!("Can't import city {}: {}", job.city, err);
-                }
-            };
-
-            match job.city.as_ref() {
-                "berlin" => berlin::import_extra_data(&raw, &config, &mut timer),
-                "leeds" => leeds::import_extra_data(&raw, &config, &mut timer),
-                "london" => london::import_extra_data(&raw, &config, &mut timer),
-                _ => {}
             }
         }
         let name = MapName::new(&job.city, &name);
