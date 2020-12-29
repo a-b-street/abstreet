@@ -21,6 +21,8 @@
 <span id="18">18</span>
 <span id="19">19</span>
 <span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
 
@@ -31,10 +33,12 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_short_roads</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) {
     <span class="comment">// TODO A few hardcoded cases to start.</span>
     <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;phinney&quot;</span>) {
-        <span class="comment">// Aurora &amp; 77th</span>
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="comment">// Aurora &amp; 77th</span>
             <span class="ident">OriginalRoad</span>::<span class="ident">new</span>(<span class="number">158718276</span>, (<span class="number">1424516502</span>, <span class="number">809059829</span>)),
             <span class="ident">OriginalRoad</span>::<span class="ident">new</span>(<span class="number">9025494</span>, (<span class="number">1424516502</span>, <span class="number">670081609</span>)),
+            <span class="comment">// Aurora &amp; Winoa</span>
+            <span class="ident">OriginalRoad</span>::<span class="ident">new</span>(<span class="number">331588704</span>, (<span class="number">30759900</span>, <span class="number">670081611</span>)),
         ] {
             <span class="kw">if</span> <span class="bool-val">false</span> {
                 <span class="ident">map</span>.<span class="ident">merge_short_road</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
