@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 use model::{Model, ID};
 
 use abstutil::{CmdArgs, Timer};
@@ -159,6 +162,9 @@ impl widgetry::State<App> for MainState {
                             }
                         } else if ctx.input.pressed(Key::X) {
                             app.model.clear_r_pts(r, ctx);
+                        } else if ctx.input.pressed(Key::M) {
+                            app.model.merge_r(r, ctx);
+                            app.model.world.handle_mouseover(ctx);
                         }
                     }
                     Some(ID::RoadPoint(r, idx)) => {

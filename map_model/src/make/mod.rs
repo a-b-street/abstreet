@@ -18,6 +18,7 @@ mod bridges;
 mod buildings;
 pub mod initial;
 mod medians;
+mod merge_intersections;
 mod parking_lots;
 mod remove_disconnected;
 pub mod traffic_signals;
@@ -34,6 +35,8 @@ impl Map {
     ) -> Map {
         // Better to defer this and see RawMaps with more debug info in map_editor
         remove_disconnected::remove_disconnected_roads(&mut raw, timer);
+
+        merge_intersections::merge_short_roads(&mut raw);
 
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();

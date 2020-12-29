@@ -12,5 +12,6 @@ wasm = ["widgetry/wasm-backend"]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
+log = "0.4.11"
 map_model = { path = "../map_model" }
 widgetry = { path = "../widgetry" }

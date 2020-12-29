@@ -81,6 +81,14 @@ impl OriginalRoad {
             i2: osm::NodeID(i2),
         }
     }
+
+    /// Prints the OriginalRoad in a way that can be copied to Rust code.
+    pub fn to_string_code(&self) -> String {
+        format!(
+            "OriginalRoad::new({}, ({}, {}))",
+            self.osm_way_id.0, self.i1.0, self.i2.0
+        )
+    }
 }
 
 impl RawMap {
@@ -238,6 +246,85 @@ impl RawMap {
         })
         .get(&to)
         .cloned()
+    }
+
+    /// (the surviving intersection, the deleted intersection, deleted roads, new roads)
+    pub fn merge_short_road(
+        &mut self,
+        short: OriginalRoad,
+    ) -> Result<
+        (
+            osm::NodeID,
+            osm::NodeID,
+            Vec<OriginalRoad>,
+            Vec<OriginalRoad>,
+        ),
+        String,
+    > {
+        // First a sanity check.
+        {
+            let i1 = &self.intersections[&short.i1];
+            let i2 = &self.intersections[&short.i2];
+            if i1.intersection_type == IntersectionType::Border
+                || i2.intersection_type == IntersectionType::Border
+            {
+                return Err(format!("{} touches a border", short));
+            }
+        }
+
+        // TODO Fix up turn restrictions.
+
+        let (i1, i2) = (short.i1, short.i2);
+        let i1_pt = self.intersections[&i1].point;
+
+        self.roads.remove(&short).unwrap();
+
+        // Arbitrarily keep i1 and destroy i2. If the intersection types differ, upgrade the
+        // surviving interesting.
+        {
+            // Don't use delete_intersection; we're manually fixing up connected roads
+            let i = self.intersections.remove(&i2).unwrap();
+            if i.intersection_type == IntersectionType::TrafficSignal {
+                self.intersections.get_mut(&i1).unwrap().intersection_type =
+                    IntersectionType::TrafficSignal;
+            }
+        }
+
+        // Fix up all roads connected to i2. Delete them and create a new copy; the ID changes,
+        // since one intersection changes.
+        let mut deleted = vec![short];
+        let mut created = Vec::new();
+        for r in self.roads_per_intersection(i2) {
+            deleted.push(r);
+            let mut road = self.roads.remove(&r).unwrap();
+            let mut new_id = r;
+            if r.i1 == i2 {
+                new_id.i1 = i1;
+
+                if false {
+                    // Destructive -- this often dramatically warps the angle of connecting roads
+                    road.center_points[0] = i1_pt;
+                } else {
+                    // TODO More extreme: All of the points of the short road. Except there usually
+                    // aren't many, since they're short.
+                    road.center_points.insert(0, i1_pt);
+                }
+            } else {
+                assert_eq!(r.i2, i2);
+                new_id.i2 = i1;
+
+                if false {
+                    *road.center_points.last_mut().unwrap() = i1_pt;
+                } else {
+                    road.center_points.push(i1_pt);
+                }
+            }
+
+            self.roads.insert(new_id, road);
+            created.push(new_id);
+        }
+
+        Ok((i1, i2, deleted, created))
     }
 }
 

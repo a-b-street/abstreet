@@ -11,7 +11,7 @@ use widgetry::{Color, EventCtx, Line, Text};
 
 use crate::world::{Object, ObjectID, World};
 
-const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
+const INTERSECTION_RADIUS: Distance = Distance::const_meters(2.5);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
 
 pub struct Model {
@@ -236,7 +236,7 @@ impl Model {
 
     pub fn delete_i(&mut self, id: osm::NodeID) {
         if !self.map.can_delete_intersection(id) {
-            println!("Can't delete intersection used by roads");
+            error!("Can't delete intersection used by roads");
             return;
         }
         self.map.delete_intersection(id);
@@ -262,7 +262,7 @@ impl Model {
             .keys()
             .any(|r| (r.i1 == i1 && r.i2 == i2) || (r.i1 == i2 && r.i2 == i1))
         {
-            println!("Road already exists");
+            error!("Road already exists");
             return;
         }
 
@@ -400,7 +400,7 @@ impl Model {
             pts.insert(idx, pt);
             Some(ID::RoadPoint(id, idx))
         } else {
-            println!("Couldn't figure out where to insert new point");
+            error!("Couldn't figure out where to insert new point");
             None
         };
 
@@ -427,6 +427,37 @@ impl Model {
         self.intersection_added(id.i1, ctx);
         self.intersection_added(id.i2, ctx);
         self.show_r_points(id, ctx);
+    }
+
+    // TODO Need to show_r_points of the thing we wind up selecting after this.
+    pub fn merge_r(&mut self, id: OriginalRoad, ctx: &EventCtx) {
+        self.stop_showing_pts(id);
+
+        let (retained_i, deleted_i, deleted_roads, created_roads) =
+            match self.map.merge_short_road(id) {
+                Ok((retained_i, deleted_i, deleted_roads, created_roads)) => {
+                    (retained_i, deleted_i, deleted_roads, created_roads)
+                }
+                Err(err) => {
+                    warn!("Can't merge this road: {}", err);
+                    self.show_r_points(id, ctx);
+                    return;
+                }
+            };
+
+        self.world.delete(ID::Intersection(retained_i));
+        self.intersection_added(retained_i, ctx);
+
+        self.world.delete(ID::Intersection(deleted_i));
+
+        for r in deleted_roads {
+            self.world.delete(ID::Road(r));
+        }
+        for r in created_roads {
+            self.road_added(r, ctx);
+        }
+
+        info!("Merged {}", id.to_string_code());
     }
 }
 
