@@ -4,7 +4,7 @@ use geom::{ArrowCap, Polygon};
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
-use map_model::{IntersectionCluster, IntersectionID, PathConstraints};
+use map_model::{IntersectionCluster, IntersectionID, Map, PathConstraints, RoadID};
 use widgetry::{
     Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text, TextExt, VerticalAlignment,
@@ -282,12 +282,17 @@ impl MergeIntersections {
         .aligned(HorizontalAlignment::Center, VerticalAlignment::TopInset)
         .build(ctx);
 
-        // Just take the convex hull of all the original intersection polygons
+        // Just take the concave hull of all the original intersection polygons and the interior
+        // roads
+        let map = &app.primary.map;
         let mut polygons = Vec::new();
-        for i in merge {
-            polygons.push(app.primary.map.get_i(i).polygon.clone());
+        for r in find_interior_roads(map, &merge) {
+            polygons.push(map.get_r(r).get_thick_polygon(map));
         }
-        let merged = Polygon::convex_hull(polygons);
+        for i in merge {
+            polygons.push(map.get_i(i).polygon.clone());
+        }
+        let merged = Polygon::concave_hull(polygons, 0.1);
         let batch = GeomBatch::from(vec![(Color::RED.alpha(0.8), merged)]);
 
         SimpleState::new(
@@ -315,4 +320,17 @@ impl SimpleState<App> for MergeIntersections {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.draw);
     }
+}
+
+fn find_interior_roads(map: &Map, intersections: &BTreeSet<IntersectionID>) -> BTreeSet<RoadID> {
+    let mut roads = BTreeSet::new();
+    for i in intersections {
+        for r in &map.get_i(*i).roads {
+            let road = map.get_r(*r);
+            if intersections.contains(&road.src_i) && intersections.contains(&road.dst_i) {
+                roads.insert(road.id);
+            }
+        }
+    }
+    roads
 }

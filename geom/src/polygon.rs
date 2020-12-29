@@ -2,6 +2,7 @@ use std::convert::TryFrom;
 use std::fmt;
 
 use geo::algorithm::area::Area;
+use geo::algorithm::concave_hull::ConcaveHull;
 use geo::algorithm::convex_hull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
@@ -305,6 +306,11 @@ impl Polygon {
     pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
         let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| to_geo(p.points())).collect();
         mp.convex_hull().into()
+    }
+
+    pub fn concave_hull(list: Vec<Polygon>, concavity: f64) -> Polygon {
+        let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| to_geo(p.points())).collect();
+        mp.concave_hull(concavity).into()
     }
 
     pub fn polylabel(&self) -> Pt2D {

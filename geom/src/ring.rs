@@ -202,6 +202,9 @@ impl From<Ring> for geo::LineString<f64> {
 
 impl From<geo::LineString<f64>> for Ring {
     fn from(line_string: geo::LineString<f64>) -> Self {
-        Self::must_new(line_string.0.into_iter().map(Pt2D::from).collect())
+        // Dedupe adjacent points. Only needed for results from concave hull.
+        let mut pts: Vec<Pt2D> = line_string.0.into_iter().map(Pt2D::from).collect();
+        pts.dedup();
+        Self::must_new(pts)
     }
 }
