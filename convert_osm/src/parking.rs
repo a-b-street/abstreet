@@ -110,6 +110,10 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             if !fwds && tags.is("dual_carriageway", "yes") {
                 continue;
             }
+            // And definitely no parking in the middle of an intersection
+            if tags.is("junction", "intersection") {
+                continue;
+            }
 
             if let Some(both) = tags.remove(osm::PARKING_BOTH) {
                 tags.insert(osm::PARKING_LEFT, both.clone());

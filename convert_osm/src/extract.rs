@@ -478,7 +478,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
     if !tags.contains_key(osm::SIDEWALK) && opts.map_config.inferred_sidewalks {
         tags.insert(osm::INFERRED_SIDEWALKS, "true");
         if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
-            || tags.is("junction", "roundabout")
+            || tags.is_any("junction", vec!["intersection", "roundabout"])
             || tags.is("foot", "no")
             || tags.is(osm::HIGHWAY, "service")
         {
