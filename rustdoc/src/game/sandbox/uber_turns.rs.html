@@ -263,10 +263,66 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">ArrowCap</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">BIG_ARROW_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -304,6 +360,7 @@
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;View uber-turns&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>),
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Edit&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">E</span>),
             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Detect all clusters&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
+            <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Preview merged intersection&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">P</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -345,6 +402,13 @@
                     <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">extend</span>(<span class="ident">ic</span>.<span class="ident">members</span>);
                 }
                 <span class="ident">Transition</span>::<span class="ident">Keep</span>
+            }
+            <span class="string">&quot;Preview merged intersection&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MergeIntersections</span>::<span class="ident">new</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
+                ));
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
@@ -523,6 +587,54 @@
             .<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">ic</span>.<span class="ident">members</span>.<span class="ident">clone</span>());
         <span class="ident">app</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything</span>::<span class="ident">new</span>());
 
+        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
+    }
+}
+
+<span class="kw">struct</span> <span class="ident">MergeIntersections</span> {
+    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">MergeIntersections</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">merge</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Line</span>(<span class="string">&quot;Merged intersections&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+            <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
+        ]))
+        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
+        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+
+        <span class="comment">// Just take the convex hull of all the original intersection polygons</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">merge</span> {
+            <span class="ident">polygons</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        }
+        <span class="kw">let</span> <span class="ident">merged</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">convex_hull</span>(<span class="ident">polygons</span>);
+        <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">merged</span>)]);
+
+        <span class="ident">SimpleState</span>::<span class="ident">new</span>(
+            <span class="ident">panel</span>,
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MergeIntersections</span> {
+                <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
+            }),
+        )
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MergeIntersections</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">match</span> <span class="ident">x</span> {
+            <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
+        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
     }
 }

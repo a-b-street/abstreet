@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["UberTurnPicker",""],["UberTurnViewer",""]]});
+initSidebarItems({"struct":[["MergeIntersections",""],["UberTurnPicker",""],["UberTurnViewer",""]]});
