@@ -32,9 +32,11 @@ pub fn intersection_polygon(
 
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
     // the road, if the roads were oriented to both be incoming to the intersection), both ending
-    // at the intersection, and the last segment of the center line.
+    // at the intersection
     // TODO Maybe express the two incoming PolyLines as the "right" and "left"
-    let mut lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)> = Vec::new();
+    let mut lines: Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)> = Vec::new();
+    // This is guaranteed to get set, since i.roads is non-empty
+    let mut intersection_center = Pt2D::new(0.0, 0.0);
     for id in &i.roads {
         let r = &roads[id];
 
@@ -47,14 +49,15 @@ pub fn intersection_polygon(
         };
         let pl_normal = pl.shift_right(r.half_width)?;
         let pl_reverse = pl.shift_left(r.half_width)?;
-        lines.push((*id, pl.last_line(), pl_normal, pl_reverse));
+        lines.push((*id, pl.first_pt(), pl_normal, pl_reverse));
+        intersection_center = pl.last_pt();
     }
 
-    // Sort the polylines by the angle their last segment makes to the common point.
-    let intersection_center = lines[0].1.pt2();
-    lines.sort_by_key(|(_, l, _, _)| {
-        l.pt1().angle_to(intersection_center).normalized_degrees() as i64
-    });
+    // Sort the polylines by the angle their first point makes to the common point. Use the first
+    // point (farthest away from the intersection) to have the best chance of figuring out the true
+    // "angle" of the road. Especially when we merge short roads, the points closest to the
+    // intersection become less meaningful.
+    lines.sort_by_key(|(_, pt, _, _)| pt.angle_to(intersection_center).normalized_degrees() as i64);
 
     if lines.len() == 1 {
         return deadend(roads, i.id, &lines);
@@ -76,7 +79,7 @@ pub fn intersection_polygon(
 fn generalized_trim_back(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
-    lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
+    lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
     timer: &mut Timer,
 ) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
     let mut debug = Vec::new();
@@ -286,7 +289,7 @@ fn generalized_trim_back(
 fn deadend(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
-    lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
+    lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
 ) -> Result<(Polygon, Vec<(String, Polygon)>), String> {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
@@ -363,7 +366,7 @@ struct Piece {
 fn on_off_ramp(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
-    lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
+    lines: Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
 ) -> Option<(Polygon, Vec<(String, Polygon)>)> {
     if lines.len() != 3 {
         return None;
