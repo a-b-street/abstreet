@@ -362,7 +362,16 @@
 <span id="359">359</span>
 <span id="360">360</span>
 <span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+
 <span class="kw">use</span> <span class="ident">model</span>::{<span class="ident">Model</span>, <span class="ident">ID</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
@@ -524,6 +533,9 @@
                             }
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">X</span>) {
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">clear_r_pts</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">M</span>) {
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">merge_r</span>(<span class="ident">r</span>, <span class="ident">ctx</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         }
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">RoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {

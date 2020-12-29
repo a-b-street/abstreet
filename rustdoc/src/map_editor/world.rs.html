@@ -142,9 +142,6 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
@@ -268,10 +265,7 @@
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">unioned_polygon</span>.<span class="ident">get_bounds</span>();
         <span class="comment">// This might break, it might not; the quadtree impl is a little unclear.</span>
         <span class="kw">if</span> <span class="ident">bounds</span>.<span class="ident">min_x</span> <span class="op">&lt;</span> <span class="number">0.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">bounds</span>.<span class="ident">min_y</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-            <span class="macro">println</span><span class="macro">!</span>(
-                <span class="string">&quot;WARNING: {:?} has negative coordinates {:?}&quot;</span>,
-                <span class="ident">obj</span>.<span class="ident">id</span>, <span class="ident">bounds</span>
-            );
+            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;{:?} has negative coordinates {:?}&quot;</span>, <span class="ident">obj</span>.<span class="ident">id</span>, <span class="ident">bounds</span>);
         }
         <span class="kw">let</span> <span class="ident">quadtree_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">id</span>, <span class="ident">bounds</span>.<span class="ident">as_bbox</span>());
         <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="ident">obj</span>.<span class="ident">geometry</span>));
