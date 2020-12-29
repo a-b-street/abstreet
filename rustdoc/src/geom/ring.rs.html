@@ -208,6 +208,9 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -413,7 +416,10 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo</span>::<span class="ident">LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ring</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line_string</span>: <span class="ident">geo</span>::<span class="ident">LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">must_new</span>(<span class="ident">line_string</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Pt2D</span>::<span class="ident">from</span>).<span class="ident">collect</span>())
+        <span class="comment">// Dedupe adjacent points. Only needed for results from concave hull.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line_string</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Pt2D</span>::<span class="ident">from</span>).<span class="ident">collect</span>();
+        <span class="ident">pts</span>.<span class="ident">dedup</span>();
+        <span class="self">Self</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>)
     }
 }
 </pre></div>
