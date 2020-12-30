@@ -33,6 +33,7 @@ impl ObjectDebugger {
 
                 let r = map.get_parent(id);
                 println!("Parent {} ({}) points to {}", r.id, r.orig_id, r.dst_i);
+                println!("{}", abstutil::to_json(r));
 
                 if l.lane_type.is_for_moving_vehicles() {
                     for constraint in vec![

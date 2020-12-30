@@ -278,12 +278,12 @@ impl RawMap {
         // [X] road we're deleting is the target of a simple BanTurns restriction
         // [ ] road we're deleting is the target of a simple OnlyAllowTurns restriction
         // [ ] road we're deleting is the target of a complicated restriction
-        // [x] road we're deleting is the 'via' of a complicated restriction
+        // [X] road we're deleting is the 'via' of a complicated restriction
         // [ ] road we're deleting has turn lanes that wind up orphaning something
 
         let (i1, i2) = (short.i1, short.i2);
         let i1_pt = self.intersections[&i1].point;
-        // Remember the original connections to i2 before we merge.
+        // Remember the original connections to i1 before we merge. None of these will change IDs.
         let mut connected_to_i1 = self.roads_per_intersection(i1);
         connected_to_i1.retain(|x| *x != short);
 
@@ -304,6 +304,7 @@ impl RawMap {
         // since one intersection changes.
         let mut deleted = vec![short];
         let mut created = Vec::new();
+        let mut remapped_road_ids = BTreeMap::new();
         for r in self.roads_per_intersection(i2) {
             deleted.push(r);
             let mut road = self.roads.remove(&r).unwrap();
@@ -329,6 +330,7 @@ impl RawMap {
                     road.center_points.push(i1_pt);
                 }
             }
+            remapped_road_ids.insert(r, new_id);
 
             self.roads.insert(new_id, road);
             created.push(new_id);
@@ -357,7 +359,9 @@ impl RawMap {
             let mut add = Vec::new();
             road.complicated_turn_restrictions.retain(|(via, to)| {
                 if *via == short {
-                    add.push((RestrictionType::BanTurns, *to));
+                    // Depending which intersection we're deleting, the ID of 'to' might change
+                    let to_id = remapped_road_ids.get(to).cloned().unwrap_or(*to);
+                    add.push((RestrictionType::BanTurns, to_id));
                     false
                 } else {
                     true
