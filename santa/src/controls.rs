@@ -35,16 +35,16 @@ impl InstantController {
 pub fn angle_from_arrow_keys(ctx: &EventCtx) -> Option<Angle> {
     let mut x: f64 = 0.0;
     let mut y: f64 = 0.0;
-    if ctx.is_key_down(Key::LeftArrow) {
+    if ctx.is_key_down(Key::LeftArrow) || ctx.is_key_down(Key::A) {
         x -= 1.0;
     }
-    if ctx.is_key_down(Key::RightArrow) {
+    if ctx.is_key_down(Key::RightArrow) || ctx.is_key_down(Key::D) {
         x += 1.0;
     }
-    if ctx.is_key_down(Key::UpArrow) {
+    if ctx.is_key_down(Key::UpArrow) || ctx.is_key_down(Key::W) {
         y -= 1.0;
     }
-    if ctx.is_key_down(Key::DownArrow) {
+    if ctx.is_key_down(Key::DownArrow) || ctx.is_key_down(Key::S) {
         y += 1.0;
     }
 

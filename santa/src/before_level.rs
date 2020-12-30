@@ -77,7 +77,9 @@ impl Picker {
                         Widget::draw_svg(ctx, "system/assets/tools/arrow_keys.svg"),
                         Text::from_all(vec![
                             Line("arrow keys").fg(ctx.style().hotkey_color),
-                            Line(" to move"),
+                            Line(" to move (or "),
+                            Line("WASD").fg(ctx.style().hotkey_color),
+                            Line(")"),
                         ])
                         .draw(ctx),
                     ]),
