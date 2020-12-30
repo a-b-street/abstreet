@@ -93,33 +93,37 @@ pub fn draw_signal_stage(
             for m in &stage.yield_movements {
                 assert!(!m.crosswalk);
                 let pl = &signal.movements[m].geom;
-                batch.extend(
-                    Color::BLACK,
-                    pl.exact_slice(
-                        SIDEWALK_THICKNESS - Distance::meters(0.1),
-                        pl.length() - SIDEWALK_THICKNESS + Distance::meters(0.1),
-                    )
-                    .dashed_arrow(
-                        BIG_ARROW_THICKNESS,
-                        Distance::meters(1.2),
-                        Distance::meters(0.3),
-                        ArrowCap::Triangle,
-                    ),
-                );
-                batch.extend(
-                    if yellow_light {
-                        indicator_color
-                    } else {
-                        app.cs().signal_protected_turn.alpha(percent)
-                    },
-                    pl.exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
-                        .dashed_arrow(
+                if let Ok(slice) = pl.maybe_exact_slice(
+                    SIDEWALK_THICKNESS - Distance::meters(0.1),
+                    pl.length() - SIDEWALK_THICKNESS + Distance::meters(0.1),
+                ) {
+                    batch.extend(
+                        Color::BLACK,
+                        slice.dashed_arrow(
+                            BIG_ARROW_THICKNESS,
+                            Distance::meters(1.2),
+                            Distance::meters(0.3),
+                            ArrowCap::Triangle,
+                        ),
+                    );
+                }
+                if let Ok(slice) =
+                    pl.maybe_exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
+                {
+                    batch.extend(
+                        if yellow_light {
+                            indicator_color
+                        } else {
+                            app.cs().signal_protected_turn.alpha(percent)
+                        },
+                        slice.dashed_arrow(
                             BIG_ARROW_THICKNESS / 2.0,
                             Distance::meters(1.0),
                             Distance::meters(0.5),
                             ArrowCap::Triangle,
                         ),
-                );
+                    );
+                }
             }
             draw_stage_number(app, prerender, i, idx, batch);
         }

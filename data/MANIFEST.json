@@ -81,9 +81,9 @@
       "compressed_size_bytes": 3719946
     },
     "data/input/krakow/screenshots/center.zip": {
-      "checksum": "ccf3e574eefce83cb3dc05eda875bbb4",
-      "uncompressed_size_bytes": 14350289,
-      "compressed_size_bytes": 14323305
+      "checksum": "eea3d054bf64edab34deafa2268b6d3c",
+      "uncompressed_size_bytes": 14344391,
+      "compressed_size_bytes": 14317330
     },
     "data/input/krakow/service_roads.bin": {
       "checksum": "13e14676cf8538325c7f7898de0ca75b",
@@ -156,9 +156,9 @@
       "compressed_size_bytes": 772801
     },
     "data/input/london/screenshots/southbank.zip": {
-      "checksum": "88315fddfcf58ae8ed5cedd1b9120851",
-      "uncompressed_size_bytes": 3943394,
-      "compressed_size_bytes": 3942370
+      "checksum": "c0f0b0cefd780655f7c2b4c86e2bbaf8",
+      "uncompressed_size_bytes": 3944957,
+      "compressed_size_bytes": 3943894
     },
     "data/input/london/service_roads.bin": {
       "checksum": "4f651a450d9d6b73618db015c34a03ad",
@@ -591,9 +591,9 @@
       "compressed_size_bytes": 6030275
     },
     "data/input/seattle/screenshots/downtown.zip": {
-      "checksum": "b6da82c3af55bc5a354e1c2fd29931e9",
-      "uncompressed_size_bytes": 14870539,
-      "compressed_size_bytes": 14823261
+      "checksum": "ed7e98796784139dd70a9c6ce545c1e5",
+      "uncompressed_size_bytes": 14883429,
+      "compressed_size_bytes": 14836130
     },
     "data/input/seattle/screenshots/lakeslice.zip": {
       "checksum": "832813fd81d64f3628f889bc6c1b6a90",
@@ -601,14 +601,14 @@
       "compressed_size_bytes": 13613206
     },
     "data/input/seattle/screenshots/montlake.zip": {
-      "checksum": "0d3243453330de23b587c9fef8ec92f1",
-      "uncompressed_size_bytes": 2626367,
-      "compressed_size_bytes": 2625734
+      "checksum": "5af2a61366882c679de33a5a2cbdba32",
+      "uncompressed_size_bytes": 2626137,
+      "compressed_size_bytes": 2625499
     },
     "data/input/seattle/screenshots/udistrict.zip": {
-      "checksum": "c5514f26f733c6f8638aefc6d40630a5",
-      "uncompressed_size_bytes": 6831484,
-      "compressed_size_bytes": 6822945
+      "checksum": "1c01f94b990ef1a89583e30938553697",
+      "uncompressed_size_bytes": 6834429,
+      "compressed_size_bytes": 6825879
     },
     "data/input/seattle/service_roads.bin": {
       "checksum": "87362c2566507e58ab9e4d55005d27d2",
@@ -681,29 +681,29 @@
       "compressed_size_bytes": 94119
     },
     "data/system/bellevue/maps/huge.bin": {
-      "checksum": "cce956e3957e7b2a6e6636aab73d0f5c",
-      "uncompressed_size_bytes": 37324408,
-      "compressed_size_bytes": 12952589
+      "checksum": "53c6c68c1fabf6849b9a22195baf4fac",
+      "uncompressed_size_bytes": 37322868,
+      "compressed_size_bytes": 12952596
     },
     "data/system/berlin/maps/center.bin": {
-      "checksum": "7801c8d78c9c92ee6867df5e3b21088d",
-      "uncompressed_size_bytes": 25607549,
-      "compressed_size_bytes": 8005675
+      "checksum": "30bed67327d80399b5b12151190ad08b",
+      "uncompressed_size_bytes": 25606072,
+      "compressed_size_bytes": 8005261
     },
     "data/system/krakow/maps/center.bin": {
-      "checksum": "6653340ad3db52bb389e906d18563931",
-      "uncompressed_size_bytes": 36071387,
-      "compressed_size_bytes": 11676153
+      "checksum": "e621cd0cf13daee0141fdf59cad828bc",
+      "uncompressed_size_bytes": 36070302,
+      "compressed_size_bytes": 11675944
     },
     "data/system/leeds/maps/center.bin": {
-      "checksum": "513722432758edd1696af75112877033",
-      "uncompressed_size_bytes": 123082958,
-      "compressed_size_bytes": 42273376
+      "checksum": "cb662caaf67cf0897b810b85e49ec13d",
+      "uncompressed_size_bytes": 123082321,
+      "compressed_size_bytes": 42273484
     },
     "data/system/london/maps/southbank.bin": {
-      "checksum": "eb632cea03149c395befbe343a2a75bb",
-      "uncompressed_size_bytes": 8522642,
-      "compressed_size_bytes": 2826589
+      "checksum": "017d04e8eec2f02009e2061421ef34f9",
+      "uncompressed_size_bytes": 8522005,
+      "compressed_size_bytes": 2826536
     },
     "data/system/nyc/city.bin": {
       "checksum": "aae1b9807f852aa74b9d7d6e66db1810",
@@ -711,14 +711,14 @@
       "compressed_size_bytes": 204305
     },
     "data/system/nyc/maps/lower_manhattan.bin": {
-      "checksum": "0d526e3ae882421430895ba2059593aa",
-      "uncompressed_size_bytes": 18440918,
-      "compressed_size_bytes": 6212151
+      "checksum": "9b9aeb28e140f5c977daec7f5f8006ba",
+      "uncompressed_size_bytes": 18438146,
+      "compressed_size_bytes": 6212127
     },
     "data/system/nyc/maps/midtown_manhattan.bin": {
-      "checksum": "fd57df514bf78b093f29f1542ecc37da",
-      "uncompressed_size_bytes": 17297153,
-      "compressed_size_bytes": 5686693
+      "checksum": "1cffa272f497bfc80d092a0621e4e241",
+      "uncompressed_size_bytes": 17292617,
+      "compressed_size_bytes": 5686281
     },
     "data/system/paris/city.bin": {
       "checksum": "0fd1914ef16ad3797ccfaf14c36c3a17",
@@ -726,29 +726,29 @@
       "compressed_size_bytes": 1125416
     },
     "data/system/paris/maps/center.bin": {
-      "checksum": "62ee6448a6d3d941593166be6a0803b2",
-      "uncompressed_size_bytes": 38131307,
-      "compressed_size_bytes": 13158307
+      "checksum": "21308b9f4a2e1b7de2842b0ff310b2d3",
+      "uncompressed_size_bytes": 38126365,
+      "compressed_size_bytes": 13157874
     },
     "data/system/paris/maps/east.bin": {
-      "checksum": "f87ee8cfbb1a97480b6bc992d44aa93c",
-      "uncompressed_size_bytes": 33190839,
-      "compressed_size_bytes": 11943345
+      "checksum": "dc9aeb2a4dd23ce5bf49658c453bfda9",
+      "uncompressed_size_bytes": 33190587,
+      "compressed_size_bytes": 11943365
     },
     "data/system/paris/maps/north.bin": {
-      "checksum": "a25177876b4cda441cab855d170e9352",
-      "uncompressed_size_bytes": 40972781,
-      "compressed_size_bytes": 14613118
+      "checksum": "f9d615b765b60ff56dc92acb0350a418",
+      "uncompressed_size_bytes": 40970996,
+      "compressed_size_bytes": 14613415
     },
     "data/system/paris/maps/south.bin": {
-      "checksum": "f61270178be6dae60ba8410e780adfee",
-      "uncompressed_size_bytes": 32098406,
-      "compressed_size_bytes": 11440516
+      "checksum": "3a3af0fb4ddbcb879d01d6f30c15633c",
+      "uncompressed_size_bytes": 32097118,
+      "compressed_size_bytes": 11440141
     },
     "data/system/paris/maps/west.bin": {
-      "checksum": "681e5e6acdc68e6ce6c88422305620b6",
-      "uncompressed_size_bytes": 45076028,
-      "compressed_size_bytes": 15894895
+      "checksum": "740a7cf5da1351db11caf2c66260ce9c",
+      "uncompressed_size_bytes": 45074390,
+      "compressed_size_bytes": 15894632
     },
     "data/system/salzburg/city.bin": {
       "checksum": "b6391bf5249fdaa7d506f7209561684c",
@@ -756,24 +756,24 @@
       "compressed_size_bytes": 416065
     },
     "data/system/salzburg/maps/east.bin": {
-      "checksum": "d2a7fe2eb1fa30b9f956e6ebb233cf99",
-      "uncompressed_size_bytes": 3559916,
-      "compressed_size_bytes": 1235948
+      "checksum": "f8db650cbf2b6a836fdd4ab423576ffb",
+      "uncompressed_size_bytes": 3559902,
+      "compressed_size_bytes": 1235891
     },
     "data/system/salzburg/maps/north.bin": {
-      "checksum": "73ac008d4a4f30226146c3780bb2b56c",
-      "uncompressed_size_bytes": 8501659,
-      "compressed_size_bytes": 2924051
+      "checksum": "b20860ce4fecdcf4883c1a9c7bffd6a4",
+      "uncompressed_size_bytes": 8501687,
+      "compressed_size_bytes": 2924084
     },
     "data/system/salzburg/maps/south.bin": {
-      "checksum": "c84b6838d6f4efe42d640f37bd972ff1",
-      "uncompressed_size_bytes": 7596990,
-      "compressed_size_bytes": 2711050
+      "checksum": "b4779a7b3a5994c520c06fb01a3d6ca0",
+      "uncompressed_size_bytes": 7596857,
+      "compressed_size_bytes": 2711046
     },
     "data/system/salzburg/maps/west.bin": {
-      "checksum": "9b0ef65d42c990884ff4b8cfa4786103",
-      "uncompressed_size_bytes": 20730381,
-      "compressed_size_bytes": 7456165
+      "checksum": "f032d6b55cfb67731ac177505a1c0e05",
+      "uncompressed_size_bytes": 20730304,
+      "compressed_size_bytes": 7456232
     },
     "data/system/seattle/city.bin": {
       "checksum": "bda232eac66ea230257b1058e96c4a6e",
@@ -781,39 +781,39 @@
       "compressed_size_bytes": 725951
     },
     "data/system/seattle/maps/ballard.bin": {
-      "checksum": "9c5728c29ae96de482ac5c806df17d73",
-      "uncompressed_size_bytes": 51550577,
-      "compressed_size_bytes": 18236020
+      "checksum": "34bf01eb8370b0b6bc3c8143a59315a1",
+      "uncompressed_size_bytes": 51550591,
+      "compressed_size_bytes": 18235769
     },
     "data/system/seattle/maps/downtown.bin": {
-      "checksum": "12d238c1e1786f403d0c5d7a8b6f6085",
-      "uncompressed_size_bytes": 28990604,
-      "compressed_size_bytes": 9962033
+      "checksum": "8c79fd6964828749a95453eb831b7e73",
+      "uncompressed_size_bytes": 28989932,
+      "compressed_size_bytes": 9983211
     },
     "data/system/seattle/maps/huge_seattle.bin": {
-      "checksum": "d40678d0ff0b8199685495a9dea72ea2",
-      "uncompressed_size_bytes": 312400745,
-      "compressed_size_bytes": 112565306
+      "checksum": "e4b93f7258ec3b07cbc2d1addbf24699",
+      "uncompressed_size_bytes": 312398855,
+      "compressed_size_bytes": 112617851
     },
     "data/system/seattle/maps/lakeslice.bin": {
-      "checksum": "58f37afeae3345f649656b995253d952",
+      "checksum": "32b9d155b24820c6755d9c501ac4c043",
       "uncompressed_size_bytes": 24517665,
-      "compressed_size_bytes": 8641223
+      "compressed_size_bytes": 8644944
     },
     "data/system/seattle/maps/montlake.bin": {
-      "checksum": "3fc27268a7a0ef3a9d1f70574c8ec173",
-      "uncompressed_size_bytes": 4174515,
-      "compressed_size_bytes": 1420179
+      "checksum": "33b8f9e8b686d9df099d18dc8ebe0795",
+      "uncompressed_size_bytes": 4174564,
+      "compressed_size_bytes": 1420196
     },
     "data/system/seattle/maps/north_seattle.bin": {
-      "checksum": "bf8c45394b50c9af47f711af78e389da",
-      "uncompressed_size_bytes": 63802341,
-      "compressed_size_bytes": 22605152
+      "checksum": "419a6fa293f0cee3fdc4f862b4ea3683",
+      "uncompressed_size_bytes": 63802005,
+      "compressed_size_bytes": 22605111
     },
     "data/system/seattle/maps/phinney.bin": {
-      "checksum": "3f35de75e8d608dfc19312f7fd49d6c0",
-      "uncompressed_size_bytes": 10020501,
-      "compressed_size_bytes": 3413020
+      "checksum": "a97cb95a37c62df64d0fa79777986484",
+      "uncompressed_size_bytes": 10020620,
+      "compressed_size_bytes": 3413159
     },
     "data/system/seattle/maps/qa.bin": {
       "checksum": "4b306027ceccf6b875101e817f8f9f01",
@@ -821,34 +821,34 @@
       "compressed_size_bytes": 1285284
     },
     "data/system/seattle/maps/slu.bin": {
-      "checksum": "806c4eb603e8836661029528c33d99b9",
-      "uncompressed_size_bytes": 2852805,
-      "compressed_size_bytes": 906087
+      "checksum": "4d1ee0c369b3411121ea275a873ae5a7",
+      "uncompressed_size_bytes": 2852973,
+      "compressed_size_bytes": 906130
     },
     "data/system/seattle/maps/south_seattle.bin": {
-      "checksum": "a7af63886a7e884fa0eb681b4fca9fce",
-      "uncompressed_size_bytes": 62736542,
-      "compressed_size_bytes": 22149886
+      "checksum": "202abfd44897913fa1b283676d69982d",
+      "uncompressed_size_bytes": 62735793,
+      "compressed_size_bytes": 22150149
     },
     "data/system/seattle/maps/udistrict.bin": {
-      "checksum": "505b0695ac11077fd6f2ec00b0cb7d3f",
-      "uncompressed_size_bytes": 11102095,
-      "compressed_size_bytes": 3810858
+      "checksum": "8aee42712b26bb24f0b2b5387148fd27",
+      "uncompressed_size_bytes": 11101941,
+      "compressed_size_bytes": 3810935
     },
     "data/system/seattle/maps/udistrict_ravenna.bin": {
-      "checksum": "1a9b0071198476861217f004b2d79154",
-      "uncompressed_size_bytes": 4740867,
-      "compressed_size_bytes": 1580353
+      "checksum": "95d97f68e0a23b4f14363c499a0403ad",
+      "uncompressed_size_bytes": 4740860,
+      "compressed_size_bytes": 1580317
     },
     "data/system/seattle/maps/wallingford.bin": {
-      "checksum": "795726592ec1c902c7fd1ba301b9f4cb",
-      "uncompressed_size_bytes": 7324388,
-      "compressed_size_bytes": 2490704
+      "checksum": "61449de0ebcf6c3135590bf7a6f94da0",
+      "uncompressed_size_bytes": 7324402,
+      "compressed_size_bytes": 2490873
     },
     "data/system/seattle/maps/west_seattle.bin": {
-      "checksum": "909931b3448c79f330d6cc267ececbbe",
-      "uncompressed_size_bytes": 59175731,
-      "compressed_size_bytes": 20935197
+      "checksum": "477767dd63509fb479f2c4865dcdabb7",
+      "uncompressed_size_bytes": 59175339,
+      "compressed_size_bytes": 20935204
     },
     "data/system/seattle/prebaked_results/lakeslice/weekday.bin": {
       "checksum": "dacbcbeece66f922b005b7ed9e5c701e",
@@ -861,9 +861,9 @@
       "compressed_size_bytes": 1838
     },
     "data/system/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "2dadec22badfd467c7fd09a1128e1079",
-      "uncompressed_size_bytes": 8638701,
-      "compressed_size_bytes": 2935729
+      "checksum": "9cfc9d1fddda64593b896fe2b936efae",
+      "uncompressed_size_bytes": 8638041,
+      "compressed_size_bytes": 2938329
     },
     "data/system/seattle/scenarios/ballard/weekday.bin": {
       "checksum": "e271afd76e53823ac94b2e8ecdffc8bf",
@@ -936,14 +936,14 @@
       "compressed_size_bytes": 4497598
     },
     "data/system/tel_aviv/maps/center.bin": {
-      "checksum": "b5318bb13fc38e3af0a19f0bd78a599d",
-      "uncompressed_size_bytes": 47282305,
-      "compressed_size_bytes": 15629800
+      "checksum": "744689f8cdc24a38e89ca85c588ade8d",
+      "uncompressed_size_bytes": 47275998,
+      "compressed_size_bytes": 15629238
     },
     "data/system/xian/maps/center.bin": {
-      "checksum": "d4f71f9e8aeb79e22aa10b928396a903",
-      "uncompressed_size_bytes": 82773760,
-      "compressed_size_bytes": 28116573
+      "checksum": "816849f45c4d51e1db4726bab60d60aa",
+      "uncompressed_size_bytes": 82773711,
+      "compressed_size_bytes": 28116642
     }
   }
 }

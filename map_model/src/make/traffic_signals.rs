@@ -57,9 +57,6 @@ pub fn get_possible_policies(
     if let Some(ts) = degenerate(map, id) {
         results.push(("degenerate (2 roads)".to_string(), ts));
     }
-    if let Some(ts) = four_oneways(map, id) {
-        results.push(("two-stage for 4 one-ways".to_string(), ts));
-    }
     results.push(("stage per road".to_string(), stage_per_road(map, id)));
     results.push((
         "arbitrary assignment".to_string(),
@@ -131,13 +128,11 @@ fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
 }
 
 fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    if map.get_i(i).roads.len() != 2 {
+    let roads = get_sorted_incoming_roads(i, map);
+    if roads.len() != 2 {
         return None;
     }
-
-    let mut roads = map.get_i(i).roads.iter();
-    let r1 = *roads.next().unwrap();
-    let r2 = *roads.next().unwrap();
+    let (r1, r2) = (roads[0], roads[1]);
 
     let mut ts = new(i, map);
     make_stages(
@@ -170,7 +165,8 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
 }
 
 fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    if map.get_i(i).roads.len() != 3 {
+    let roads = get_sorted_incoming_roads(i, map);
+    if roads.len() != 3 {
         return None;
     }
     let mut ts = new(i, map);
@@ -181,10 +177,10 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         .values()
         .find(|g| g.turn_type == TurnType::Straight)?;
     let (north, south) = (straight.id.from.id, straight.id.to.id);
-    let mut roads = map.get_i(i).roads.clone();
-    roads.remove(&north);
-    roads.remove(&south);
-    let east = roads.into_iter().next().unwrap();
+    let east = roads
+        .into_iter()
+        .find(|r| *r != north && *r != south)
+        .unwrap();
 
     // Two-stage with no protected lefts, right turn on red, turning cars yield to peds
     make_stages(
@@ -209,14 +205,12 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
 }
 
 fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    if map.get_i(i).roads.len() != 4 {
+    let roads = get_sorted_incoming_roads(i, map);
+    if roads.len() != 4 {
         return None;
     }
 
     // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
-    let roads = map
-        .get_i(i)
-        .get_roads_sorted_by_incoming_angle(map.all_roads());
     let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
     // Four-stage with protected lefts, right turn on red (except for the protected lefts),
@@ -243,14 +237,12 @@ fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
 }
 
 fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    if map.get_i(i).roads.len() != 4 {
+    let roads = get_sorted_incoming_roads(i, map);
+    if roads.len() != 4 {
         return None;
     }
 
     // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
-    let roads = map
-        .get_i(i)
-        .get_roads_sorted_by_incoming_angle(map.all_roads());
     let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
     // Two-stage with no protected lefts, right turn on red, turning cars yielding to peds
@@ -269,50 +261,6 @@ fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSign
                 (vec![east, west], TurnType::Right, YIELD),
                 (vec![east, west], TurnType::Left, YIELD),
                 (vec![north, south], TurnType::Right, YIELD),
-            ],
-        ],
-    );
-    Some(ts)
-}
-
-fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    if map.get_i(i).roads.len() != 4 {
-        return None;
-    }
-
-    let mut incomings = Vec::new();
-    for r in &map.get_i(i).roads {
-        if !map.get_r(*r).incoming_lanes(i).is_empty() {
-            incomings.push(*r);
-        }
-    }
-    if incomings.len() != 2 {
-        return None;
-    }
-    let r1 = incomings[0];
-    let r2 = incomings[1];
-
-    // TODO This may not generalize...
-    let mut ts = new(i, map);
-    make_stages(
-        &mut ts,
-        vec![
-            vec![
-                (vec![r1], TurnType::Straight, PROTECTED),
-                // TODO Technically, upgrade to protected if there's no opposing crosswalk --
-                // even though it doesn't matter much.
-                (vec![r1], TurnType::Right, YIELD),
-                (vec![r1], TurnType::Left, YIELD),
-                (vec![r1], TurnType::Right, YIELD),
-                // TODO Refactor
-            ],
-            vec![
-                (vec![r2], TurnType::Straight, PROTECTED),
-                // TODO Technically, upgrade to protected if there's no opposing crosswalk --
-                // even though it doesn't matter much.
-                (vec![r2], TurnType::Right, YIELD),
-                (vec![r2], TurnType::Left, YIELD),
-                (vec![r2], TurnType::Right, YIELD),
             ],
         ],
     );
@@ -574,4 +522,21 @@ pub fn synchronize(map: &mut Map) {
             map.traffic_signals.get_mut(&i1).unwrap().stages.swap(0, 1);
         }
     }
+}
+
+/// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads
+/// outbound from the intersection, since no turns originate from those anyway. This allows
+/// heuristics for a 3-way intersection to not care if one of the roads happens to be a dual
+/// carriageway (split into two one-ways).
+fn get_sorted_incoming_roads(i: IntersectionID, map: &Map) -> Vec<RoadID> {
+    let mut roads = Vec::new();
+    for r in map
+        .get_i(i)
+        .get_roads_sorted_by_incoming_angle(map.all_roads())
+    {
+        if !map.get_r(r).incoming_lanes(i).is_empty() {
+            roads.push(r);
+        }
+    }
+    roads
 }
