@@ -401,20 +401,23 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
                 .screen_to_map(ScreenPt::new(g.canvas.window_width, g.canvas.window_height));
             (pt.x(), pt.y())
         };
-        let rect = Ring::must_new(vec![
+        // On some platforms, minimized windows wind up with 0 width/height and this rectangle
+        // collapses
+        if let Ok(rect) = Ring::new(vec![
             Pt2D::new(x1, y1),
             Pt2D::new(x2, y1),
             Pt2D::new(x2, y2),
             Pt2D::new(x1, y2),
             Pt2D::new(x1, y1),
-        ]);
-        if let Some(color) = app.cs().minimap_cursor_bg {
-            g.draw_polygon(color, rect.clone().to_polygon());
+        ]) {
+            if let Some(color) = app.cs().minimap_cursor_bg {
+                g.draw_polygon(color, rect.clone().to_polygon());
+            }
+            g.draw_polygon(
+                app.cs().minimap_cursor_border,
+                rect.to_outline(Distance::meters(10.0)),
+            );
         }
-        g.draw_polygon(
-            app.cs().minimap_cursor_border,
-            rect.to_outline(Distance::meters(10.0)),
-        );
         g.disable_clipping();
         g.unfork();
     }
