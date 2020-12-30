@@ -107,6 +107,7 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
+<span id="107">107</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">PathConstraints</span>};
@@ -143,6 +144,7 @@
 
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">id</span>);
                 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Parent {} ({}) points to {}&quot;</span>, <span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>, <span class="ident">r</span>.<span class="ident">dst_i</span>);
+                <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="ident">r</span>));
 
                 <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
                     <span class="kw">for</span> <span class="ident">constraint</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
