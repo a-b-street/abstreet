@@ -278,7 +278,7 @@ impl RawMap {
         // [X] road we're deleting is the target of a simple BanTurns restriction
         // [ ] road we're deleting is the target of a simple OnlyAllowTurns restriction
         // [ ] road we're deleting is the target of a complicated restriction
-        // [ ] road we're deleting is the 'via' of a complicated restriction
+        // [x] road we're deleting is the 'via' of a complicated restriction
         // [ ] road we're deleting has turn lanes that wind up orphaning something
 
         let (i1, i2) = (short.i1, short.i2);
@@ -349,6 +349,21 @@ impl RawMap {
                 }
             }
             road.turn_restrictions = fix_trs;
+        }
+
+        // If we're deleting the 'via' of a complicated restriction somewhere, change it to a
+        // simple restriction.
+        for road in self.roads.values_mut() {
+            let mut add = Vec::new();
+            road.complicated_turn_restrictions.retain(|(via, to)| {
+                if *via == short {
+                    add.push((RestrictionType::BanTurns, *to));
+                    false
+                } else {
+                    true
+                }
+            });
+            road.turn_restrictions.extend(add);
         }
 
         Ok((i1, i2, deleted, created))
