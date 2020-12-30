@@ -163,6 +163,9 @@
 <span id="160">160</span>
 <span id="161">161</span>
 <span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -220,6 +223,9 @@
 
     <span class="comment">// TODO Maybe DirectedRoadIDs</span>
     <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+
+    <span class="doccomment">/// Was a short road adjacent to this intersection merged?</span>
+    <span class="kw">pub</span> <span class="ident">merged</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Intersection</span> {
