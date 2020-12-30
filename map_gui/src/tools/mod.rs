@@ -67,6 +67,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("seattle", "udistrict_ravenna") => "University District / Ravenna",
         ("seattle", "wallingford") => "Wallingford",
         ("seattle", "west_seattle") => "West Seattle",
+        ("bellevue", "huge") => "Bellevue",
         ("berlin", "center") => "Berlin (city center)",
         ("krakow", "center") => "Kraków (city center)",
         ("leeds", "center") => "Leeds (city center)",

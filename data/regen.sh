@@ -5,6 +5,7 @@ set -e
 rm -fv data/system/seattle/maps/huge_seattle.bin data/input/raw_maps/huge_seattle.bin data/input/seattle/popdat.bin
 
 ./import.sh --raw --map --scenario
+./import.sh --raw --map --city=bellevue
 ./import.sh --raw --map --city=berlin
 ./import.sh --raw --map --city=krakow
 ./import.sh --raw --map --city=leeds
