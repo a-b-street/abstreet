@@ -430,6 +430,9 @@
 <span id="427">427</span>
 <span id="428">428</span>
 <span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
@@ -834,20 +837,23 @@
                 .<span class="ident">screen_to_map</span>(<span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>));
             (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
         };
-        <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="comment">// On some platforms, minimized windows wind up with 0 width/height and this rectangle</span>
+        <span class="comment">// collapses</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">rect</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x1</span>, <span class="ident">y1</span>),
             <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x2</span>, <span class="ident">y1</span>),
             <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x2</span>, <span class="ident">y2</span>),
             <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x1</span>, <span class="ident">y2</span>),
             <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x1</span>, <span class="ident">y1</span>),
-        ]);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_cursor_bg</span> {
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>().<span class="ident">to_polygon</span>());
+        ]) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_cursor_bg</span> {
+                <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>().<span class="ident">to_polygon</span>());
+            }
+            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
+                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_cursor_border</span>,
+                <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>)),
+            );
         }
-        <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_cursor_border</span>,
-            <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>)),
-        );
         <span class="ident">g</span>.<span class="ident">disable_clipping</span>();
         <span class="ident">g</span>.<span class="ident">unfork</span>();
     }

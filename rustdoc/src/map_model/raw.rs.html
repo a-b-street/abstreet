@@ -505,6 +505,21 @@
 <span id="502">502</span>
 <span id="503">503</span>
 <span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -786,7 +801,7 @@
         <span class="comment">// [X] road we&#39;re deleting is the target of a simple BanTurns restriction</span>
         <span class="comment">// [ ] road we&#39;re deleting is the target of a simple OnlyAllowTurns restriction</span>
         <span class="comment">// [ ] road we&#39;re deleting is the target of a complicated restriction</span>
-        <span class="comment">// [ ] road we&#39;re deleting is the &#39;via&#39; of a complicated restriction</span>
+        <span class="comment">// [x] road we&#39;re deleting is the &#39;via&#39; of a complicated restriction</span>
         <span class="comment">// [ ] road we&#39;re deleting has turn lanes that wind up orphaning something</span>
 
         <span class="kw">let</span> (<span class="ident">i1</span>, <span class="ident">i2</span>) <span class="op">=</span> (<span class="ident">short</span>.<span class="ident">i1</span>, <span class="ident">short</span>.<span class="ident">i2</span>);
@@ -857,6 +872,21 @@
                 }
             }
             <span class="ident">road</span>.<span class="ident">turn_restrictions</span> <span class="op">=</span> <span class="ident">fix_trs</span>;
+        }
+
+        <span class="comment">// If we&#39;re deleting the &#39;via&#39; of a complicated restriction somewhere, change it to a</span>
+        <span class="comment">// simple restriction.</span>
+        <span class="kw">for</span> <span class="ident">road</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">values_mut</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="ident">road</span>.<span class="ident">complicated_turn_restrictions</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">via</span>, <span class="ident">to</span>)<span class="op">|</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">via</span> <span class="op">=</span><span class="op">=</span> <span class="ident">short</span> {
+                    <span class="ident">add</span>.<span class="ident">push</span>((<span class="ident">RestrictionType</span>::<span class="ident">BanTurns</span>, <span class="kw-2">*</span><span class="ident">to</span>));
+                    <span class="bool-val">false</span>
+                } <span class="kw">else</span> {
+                    <span class="bool-val">true</span>
+                }
+            });
+            <span class="ident">road</span>.<span class="ident">turn_restrictions</span>.<span class="ident">extend</span>(<span class="ident">add</span>);
         }
 
         <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">i2</span>, <span class="ident">deleted</span>, <span class="ident">created</span>))
