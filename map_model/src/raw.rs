@@ -272,10 +272,20 @@ impl RawMap {
             }
         }
 
-        // TODO Fix up turn restrictions.
+        // TODO Fix up turn restrictions. Many cases:
+        // [ ] road we're deleting has simple restrictions
+        // [ ] road we're deleting has complicated restrictions
+        // [X] road we're deleting is the target of a simple BanTurns restriction
+        // [ ] road we're deleting is the target of a simple OnlyAllowTurns restriction
+        // [ ] road we're deleting is the target of a complicated restriction
+        // [ ] road we're deleting is the 'via' of a complicated restriction
+        // [ ] road we're deleting has turn lanes that wind up orphaning something
 
         let (i1, i2) = (short.i1, short.i2);
         let i1_pt = self.intersections[&i1].point;
+        // Remember the original connections to i2 before we merge.
+        let mut connected_to_i1 = self.roads_per_intersection(i1);
+        connected_to_i1.retain(|x| *x != short);
 
         self.roads.remove(&short).unwrap();
 
@@ -322,6 +332,23 @@ impl RawMap {
 
             self.roads.insert(new_id, road);
             created.push(new_id);
+        }
+
+        // If we're deleting the target of a simple restriction somewhere, update it.
+        for road in self.roads.values_mut() {
+            let mut fix_trs = Vec::new();
+            for (rt, to) in road.turn_restrictions.drain(..) {
+                if to == short && rt == RestrictionType::BanTurns {
+                    // Remove this restriction, replace it with a new one to each of the successors
+                    // of the deleted road
+                    for x in &connected_to_i1 {
+                        fix_trs.push((rt, *x));
+                    }
+                } else {
+                    fix_trs.push((rt, to));
+                }
+            }
+            road.turn_restrictions = fix_trs;
         }
 
         Ok((i1, i2, deleted, created))

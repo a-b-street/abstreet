@@ -1,4 +1,4 @@
-use crate::raw::RawMap;
+use crate::raw::{OriginalRoad, RawMap};
 
 /// Experimentally try to merge tiny "roads" that're actually just part of a complicated
 /// intersection.
@@ -11,7 +11,11 @@ pub fn merge_short_roads(map: &mut RawMap) {
         let mut changes = false;
         for (id, road) in &map.roads {
             // See https://wiki.openstreetmap.org/wiki/Proposed_features/junction%3Dintersection
-            if road.osm_tags.is("junction", "intersection") {
+            // Hardcoding some Montlake intersections to test
+            if road.osm_tags.is("junction", "intersection")
+                || *id == OriginalRoad::new(459084309, (4550007325, 4550007326))
+                || *id == OriginalRoad::new(332060258, (3391701875, 1635790583))
+            {
                 let id = *id;
                 map.merge_short_road(id).unwrap();
                 changes = true;
