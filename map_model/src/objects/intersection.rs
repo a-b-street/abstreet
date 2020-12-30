@@ -54,6 +54,9 @@ pub struct Intersection {
 
     // TODO Maybe DirectedRoadIDs
     pub roads: BTreeSet<RoadID>,
+
+    /// Was a short road adjacent to this intersection merged?
+    pub merged: bool,
 }
 
 impl Intersection {

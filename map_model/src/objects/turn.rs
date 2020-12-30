@@ -33,6 +33,7 @@ pub enum TurnType {
     Straight,
     Right,
     Left,
+    UTurn,
 }
 
 // TODO This concept may be dated, now that Movements exist. Within a movement, the lane-changing

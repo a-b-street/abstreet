@@ -110,7 +110,7 @@ impl DrawCar {
 
             if let Some(t) = input.waiting_for_turn {
                 match map.get_t(t).turn_type {
-                    TurnType::Left => {
+                    TurnType::Left | TurnType::UTurn => {
                         let (pos, angle) = input
                             .body
                             .must_dist_along(input.body.length() - Distance::meters(2.5));

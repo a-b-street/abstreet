@@ -162,6 +162,11 @@ impl TurnExplorer {
                     TurnExplorer::color_turn_type(TurnType::Left),
                     "left turn",
                 ));
+                col.push(ColorLegend::row(
+                    ctx,
+                    TurnExplorer::color_turn_type(TurnType::UTurn),
+                    "U-turn",
+                ));
             }
         } else {
             let (lt, lc, slow_lane) = turns[idx - 1].penalty(app.map());
@@ -194,6 +199,7 @@ impl TurnExplorer {
             TurnType::Straight => Color::BLUE,
             TurnType::Right => Color::GREEN,
             TurnType::Left => Color::RED,
+            TurnType::UTurn => Color::PURPLE,
         }
     }
 }

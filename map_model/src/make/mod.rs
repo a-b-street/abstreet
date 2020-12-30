@@ -36,7 +36,7 @@ impl Map {
         // Better to defer this and see RawMaps with more debug info in map_editor
         remove_disconnected::remove_disconnected_roads(&mut raw, timer);
 
-        merge_intersections::merge_short_roads(&mut raw);
+        let merged_intersections = merge_intersections::merge_short_roads(&mut raw);
 
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
@@ -88,6 +88,7 @@ impl Map {
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
+                merged: merged_intersections.contains(&i.id),
             });
             intersection_id_mapping.insert(i.id, id);
         }

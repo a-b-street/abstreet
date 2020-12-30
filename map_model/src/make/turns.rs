@@ -93,6 +93,20 @@ pub fn make_all_turns(map: &Map, i: &Intersection, timer: &mut Timer) -> Vec<Tur
     final_turns = remove_merging_turns(map, final_turns, TurnType::Right);
     final_turns = remove_merging_turns(map, final_turns, TurnType::Left);
 
+    if i.merged {
+        final_turns.retain(|turn| {
+            if turn.turn_type == TurnType::UTurn {
+                timer.warn(format!(
+                    "Removing u-turn from merged intersection: {}",
+                    turn.id
+                ));
+                false
+            } else {
+                true
+            }
+        });
+    }
+
     let mut outgoing_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.outgoing_lanes {
         if map.get_l(*l).lane_type.supports_any_movement() {
@@ -373,6 +387,8 @@ fn turn_type_from_angles(from: Angle, to: Angle) -> TurnType {
     // some observed cases.
     if diff.abs() < 30.0 {
         TurnType::Straight
+    } else if diff.abs() > 135.0 {
+        TurnType::UTurn
     } else if diff < 0.0 {
         // Clockwise rotation
         TurnType::Right
