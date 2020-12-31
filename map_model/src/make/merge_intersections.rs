@@ -14,13 +14,19 @@ pub fn merge_short_roads(map: &mut RawMap) -> BTreeSet<NodeID> {
     // be hard to make a single pass.
     loop {
         let mut changes = false;
-        for (id, road) in &map.roads {
+        for (id, road) in map.roads.clone() {
             // See https://wiki.openstreetmap.org/wiki/Proposed_features/junction%3Dintersection
             if road.osm_tags.is("junction", "intersection") {
-                let id = *id;
-                merged.insert(map.merge_short_road(id).unwrap().0);
-                changes = true;
-                break;
+                match map.merge_short_road(id) {
+                    Ok((i, _, _, _)) => {
+                        merged.insert(i);
+                        changes = true;
+                        break;
+                    }
+                    Err(err) => {
+                        warn!("Ignoring junction=intersection: {}", err);
+                    }
+                }
             }
         }
         if !changes {

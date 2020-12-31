@@ -282,6 +282,9 @@ impl RawMap {
         // [ ] road we're deleting has turn lanes that wind up orphaning something
 
         let (i1, i2) = (short.i1, short.i2);
+        if i1 == i2 {
+            return Err(format!("Can't merge {} -- it's a loop on {}", short, i1));
+        }
         let i1_pt = self.intersections[&i1].point;
 
         self.roads.remove(&short).unwrap();
