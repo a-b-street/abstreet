@@ -21,8 +21,7 @@ impl CensusArea {
 
         // See the import handbook for how to prepare this file.
         let mut fgb =
-            // HttpFgbReader::open("https://abstreet.s3.amazonaws.com/population_areas.fgb").await?;
-            HttpFgbReader::open("https://s3.amazonaws.com/mjk_asdf/abs/population_areas.fgb").await?;
+            HttpFgbReader::open("https://abstreet.s3.amazonaws.com/population_areas.fgb").await?;
 
         let bounding_rect = geo_map_area
             .bounding_rect()
