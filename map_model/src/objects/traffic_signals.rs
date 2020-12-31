@@ -333,13 +333,13 @@ impl Stage {
 }
 
 impl ControlTrafficSignal {
-    pub fn export(&self, map: &Map) -> seattle_traffic_signals::TrafficSignal {
-        seattle_traffic_signals::TrafficSignal {
+    pub fn export(&self, map: &Map) -> traffic_signal_data::TrafficSignal {
+        traffic_signal_data::TrafficSignal {
             intersection_osm_node_id: map.get_i(self.id).orig_id.0,
             phases: self
                 .stages
                 .iter()
-                .map(|s| seattle_traffic_signals::Phase {
+                .map(|s| traffic_signal_data::Phase {
                     protected_turns: s
                         .protected_movements
                         .iter()
@@ -352,13 +352,13 @@ impl ControlTrafficSignal {
                         .collect(),
                     phase_type: match s.phase_type {
                         PhaseType::Fixed(d) => {
-                            seattle_traffic_signals::PhaseType::Fixed(d.inner_seconds() as usize)
+                            traffic_signal_data::PhaseType::Fixed(d.inner_seconds() as usize)
                         }
                         PhaseType::Adaptive(d) => {
-                            seattle_traffic_signals::PhaseType::Adaptive(d.inner_seconds() as usize)
+                            traffic_signal_data::PhaseType::Adaptive(d.inner_seconds() as usize)
                         }
                         PhaseType::Variable(min, delay, additional) => {
-                            seattle_traffic_signals::PhaseType::Variable(
+                            traffic_signal_data::PhaseType::Variable(
                                 min.inner_seconds() as usize,
                                 delay.inner_seconds() as usize,
                                 additional.inner_seconds() as usize,
@@ -372,7 +372,7 @@ impl ControlTrafficSignal {
     }
 
     pub(crate) fn import(
-        raw: seattle_traffic_signals::TrafficSignal,
+        raw: traffic_signal_data::TrafficSignal,
         id: IntersectionID,
         map: &Map,
     ) -> Result<ControlTrafficSignal, String> {
@@ -406,13 +406,13 @@ impl ControlTrafficSignal {
                     protected_movements,
                     yield_movements: permitted_movements,
                     phase_type: match s.phase_type {
-                        seattle_traffic_signals::PhaseType::Fixed(d) => {
+                        traffic_signal_data::PhaseType::Fixed(d) => {
                             PhaseType::Fixed(Duration::seconds(d as f64))
                         }
-                        seattle_traffic_signals::PhaseType::Adaptive(d) => {
+                        traffic_signal_data::PhaseType::Adaptive(d) => {
                             PhaseType::Adaptive(Duration::seconds(d as f64))
                         }
-                        seattle_traffic_signals::PhaseType::Variable(min, delay, additional) => {
+                        traffic_signal_data::PhaseType::Variable(min, delay, additional) => {
                             PhaseType::Variable(
                                 Duration::seconds(min as f64),
                                 Duration::seconds(delay as f64),
@@ -436,18 +436,18 @@ impl ControlTrafficSignal {
     }
 }
 
-fn export_movement(id: &MovementID, map: &Map) -> seattle_traffic_signals::Turn {
+fn export_movement(id: &MovementID, map: &Map) -> traffic_signal_data::Turn {
     let from = map.get_r(id.from.id).orig_id;
     let to = map.get_r(id.to.id).orig_id;
 
-    seattle_traffic_signals::Turn {
-        from: seattle_traffic_signals::DirectedRoad {
+    traffic_signal_data::Turn {
+        from: traffic_signal_data::DirectedRoad {
             osm_way_id: from.osm_way_id.0,
             osm_node1: from.i1.0,
             osm_node2: from.i2.0,
             is_forwards: id.from.dir == Direction::Fwd,
         },
-        to: seattle_traffic_signals::DirectedRoad {
+        to: traffic_signal_data::DirectedRoad {
             osm_way_id: to.osm_way_id.0,
             osm_node1: to.i1.0,
             osm_node2: to.i2.0,
@@ -458,7 +458,7 @@ fn export_movement(id: &MovementID, map: &Map) -> seattle_traffic_signals::Turn 
     }
 }
 
-fn import_movement(id: seattle_traffic_signals::Turn, map: &Map) -> Result<MovementID, String> {
+fn import_movement(id: traffic_signal_data::Turn, map: &Map) -> Result<MovementID, String> {
     Ok(MovementID {
         from: find_r(id.from, map)?,
         to: find_r(id.to, map)?,
@@ -467,7 +467,7 @@ fn import_movement(id: seattle_traffic_signals::Turn, map: &Map) -> Result<Movem
     })
 }
 
-fn find_r(id: seattle_traffic_signals::DirectedRoad, map: &Map) -> Result<DirectedRoadID, String> {
+fn find_r(id: traffic_signal_data::DirectedRoad, map: &Map) -> Result<DirectedRoadID, String> {
     Ok(DirectedRoadID {
         id: map.find_r_by_osm_id(OriginalRoad::new(
             id.osm_way_id,

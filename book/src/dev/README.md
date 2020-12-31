@@ -150,6 +150,7 @@ Other:
 - `osm_viewer`: a standalone tool to render OSM in detail
 - `fifteen_min`: a standalone tool to explore 15-minute neighborhoods
 - `popdat`: use census data to produce traffic simulation input
+- `traffic_signal_data`: manual timing overrides for some traffic signals
 
 ## Code conventions
 

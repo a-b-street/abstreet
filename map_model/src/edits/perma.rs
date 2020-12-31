@@ -38,7 +38,7 @@ pub enum PermanentEditIntersection {
         )]
         must_stop: BTreeMap<OriginalRoad, bool>,
     },
-    TrafficSignal(seattle_traffic_signals::TrafficSignal),
+    TrafficSignal(traffic_signal_data::TrafficSignal),
     Closed,
 }
 

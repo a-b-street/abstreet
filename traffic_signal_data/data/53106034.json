@@ -1,0 +1,384 @@
+{
+  "intersection_osm_node_id": 53106034,
+  "phases": [
+    {
+      "protected_turns": [
+        {
+          "from": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        }
+      ],
+      "permitted_turns": [],
+      "phase_type": {
+        "Fixed": 15
+      }
+    },
+    {
+      "protected_turns": [
+        {
+          "from": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": true
+        },
+        {
+          "from": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": true
+        },
+        {
+          "from": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": true
+        },
+        {
+          "from": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": true
+        },
+        {
+          "from": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        }
+      ],
+      "permitted_turns": [
+        {
+          "from": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        }
+      ],
+      "phase_type": {
+        "Fixed": 114
+      }
+    },
+    {
+      "protected_turns": [
+        {
+          "from": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": true
+        },
+        {
+          "from": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": true
+        },
+        {
+          "from": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": true
+        },
+        {
+          "from": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": true
+        }
+      ],
+      "permitted_turns": [
+        {
+          "from": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 28714232,
+            "osm_node1": 53106032,
+            "osm_node2": 53106034,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 428098168,
+            "osm_node1": 4272380972,
+            "osm_node2": 53106034,
+            "is_forwards": false
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        },
+        {
+          "from": {
+            "osm_way_id": 125539296,
+            "osm_node1": 53106034,
+            "osm_node2": 53106036,
+            "is_forwards": false
+          },
+          "to": {
+            "osm_way_id": 428098169,
+            "osm_node1": 53106034,
+            "osm_node2": 4272380971,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 53106034,
+          "is_crosswalk": false
+        }
+      ],
+      "phase_type": {
+        "Fixed": 30
+      }
+    }
+  ],
+  "offset_seconds": 0
+}

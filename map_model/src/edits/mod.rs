@@ -49,7 +49,7 @@ pub enum EditIntersection {
     StopSign(ControlStopSign),
     // Don't keep ControlTrafficSignal here, because it contains movements that should be
     // generated after all lane edits are applied.
-    TrafficSignal(seattle_traffic_signals::TrafficSignal),
+    TrafficSignal(traffic_signal_data::TrafficSignal),
     Closed,
 }
 

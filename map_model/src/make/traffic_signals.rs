@@ -20,7 +20,7 @@ pub fn get_possible_policies(
 
     // TODO Cache with lazy_static. Don't serialize in Map; the repo of signal data may evolve
     // independently.
-    if let Some(raw) = seattle_traffic_signals::load_all_data()
+    if let Some(raw) = traffic_signal_data::load_all_data()
         .unwrap()
         .remove(&map.get_i(id).orig_id.0)
     {
@@ -31,7 +31,7 @@ pub fn get_possible_policies(
             Err(err) => {
                 let i = map.get_i(id);
                 timer.error(format!(
-                    "seattle_traffic_signals data for {} ({}) out of date, go update it: {}",
+                    "traffic_signal_data data for {} ({}) out of date, go update it: {}",
                     i.orig_id,
                     i.name(None, map),
                     err
@@ -479,7 +479,7 @@ fn helper(items: &[usize], max_size: usize) -> Vec<Partition> {
 pub fn synchronize(map: &mut Map) {
     let mut seen = HashSet::new();
     let mut pairs = Vec::new();
-    let handmapped = seattle_traffic_signals::load_all_data().unwrap();
+    let handmapped = traffic_signal_data::load_all_data().unwrap();
     for i in map.all_intersections() {
         if !i.is_traffic_signal() || seen.contains(&i.id) || handmapped.contains_key(&i.orig_id.0) {
             continue;

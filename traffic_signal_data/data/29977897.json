@@ -1,0 +1,88 @@
+{
+  "intersection_osm_node_id": 29977897,
+  "phases": [
+    {
+      "protected_turns": [
+        {
+          "from": {
+            "osm_way_id": 4869363,
+            "osm_node1": 31430540,
+            "osm_node2": 29977897,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 332060264,
+            "osm_node1": 29977897,
+            "osm_node2": 799291203,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 29977897,
+          "is_crosswalk": true
+        }
+      ],
+      "permitted_turns": [
+        {
+          "from": {
+            "osm_way_id": 332060267,
+            "osm_node1": 3391705317,
+            "osm_node2": 29977897,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 332060264,
+            "osm_node1": 29977897,
+            "osm_node2": 799291203,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 29977897,
+          "is_crosswalk": false
+        }
+      ],
+      "phase_type": {
+        "Fixed": 30
+      }
+    },
+    {
+      "protected_turns": [
+        {
+          "from": {
+            "osm_way_id": 332060264,
+            "osm_node1": 29977897,
+            "osm_node2": 799291203,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 4869363,
+            "osm_node1": 31430540,
+            "osm_node2": 29977897,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 29977897,
+          "is_crosswalk": true
+        }
+      ],
+      "permitted_turns": [
+        {
+          "from": {
+            "osm_way_id": 4869363,
+            "osm_node1": 31430540,
+            "osm_node2": 29977897,
+            "is_forwards": true
+          },
+          "to": {
+            "osm_way_id": 332060215,
+            "osm_node1": 29977897,
+            "osm_node2": 3391705319,
+            "is_forwards": true
+          },
+          "intersection_osm_node_id": 29977897,
+          "is_crosswalk": false
+        }
+      ],
+      "phase_type": {
+        "Fixed": 20
+      }
+    }
+  ],
+  "offset_seconds": 0
+}

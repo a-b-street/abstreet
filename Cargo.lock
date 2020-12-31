@@ -2123,10 +2123,10 @@ dependencies = [
  "petgraph",
  "rand",
  "rand_xorshift",
- "seattle_traffic_signals",
  "serde",
  "serde_json",
  "thread_local",
+ "traffic_signal_data",
 ]
 
 [[package]]
@@ -3194,17 +3194,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "seattle_traffic_signals"
-version = "0.1.0"
-source = "git+https://github.com/dabreegster/seattle_traffic_signals#9265d69213f989204162c3413bd7b18bfe0b0056"
-dependencies = [
- "include_dir 0.5.0",
- "serde",
- "serde_derive",
- "serde_json",
-]
-
-[[package]]
 name = "semver"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3715,6 +3704,16 @@ dependencies = [
  "rand",
  "rand_xorshift",
  "sim",
+]
+
+[[package]]
+name = "traffic_signal_data"
+version = "0.1.0"
+dependencies = [
+ "include_dir 0.5.0",
+ "serde",
+ "serde_derive",
+ "serde_json",
 ]
 
 [[package]]
