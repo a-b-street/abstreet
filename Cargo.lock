@@ -561,7 +561,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "059e75b593068b026cb434c0140dd6a4557c1824ee029d5d3414fc77ecbe8494"
 dependencies = [
- "geojson 0.21.0",
+ "geojson",
  "lazy_static",
  "rustc-hash",
  "serde_json",
@@ -987,7 +987,7 @@ version = "0.1.0"
 dependencies = [
  "abstutil",
  "contour",
- "geojson 0.21.0",
+ "geojson",
  "geom",
  "log",
  "map_gui",
@@ -1232,7 +1232,7 @@ dependencies = [
  "contour",
  "downcast-rs",
  "enumset",
- "geojson 0.21.0",
+ "geojson",
  "geom",
  "instant",
  "kml",
@@ -1386,19 +1386,8 @@ dependencies = [
 
 [[package]]
 name = "geojson"
-version = "0.18.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2b6970b36b77807a4ea232fcbc13b29026eab7c7e906500446c1e03d16f43af"
-dependencies = [
- "num-traits 0.2.14",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "geojson"
 version = "0.21.0"
-source = "git+https://github.com/georust/geojson?branch=mkirk/try_from#ac0429218756af96c379a8701383ef4d36d78779"
+source = "git+https://github.com/georust/geojson#7f1de484ae0e3a640a9539f6adec14b17f8f6fc1"
 dependencies = [
  "geo-types 0.6.2",
  "num-traits 0.2.14",
@@ -1416,7 +1405,7 @@ dependencies = [
  "earcutr",
  "geo 0.15.0",
  "geo-booleanop",
- "geojson 0.21.0",
+ "geojson",
  "histogram",
  "instant",
  "ordered-float",
@@ -1437,13 +1426,13 @@ dependencies = [
 
 [[package]]
 name = "geozero-core"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a014cc8c23c30539692ca943bd00ccdef79a5447a7fb6e58920083782192d3b"
+checksum = "33413ff58db476c26e398142bcfc861fa285b78a0d0d7a03192b7e385797cd35"
 dependencies = [
  "bytes",
  "geo-types 0.6.2",
- "geojson 0.18.0",
+ "geojson",
  "geozero",
  "scroll",
 ]
@@ -1609,7 +1598,7 @@ name = "headless"
 version = "0.1.0"
 dependencies = [
  "abstutil",
- "geojson 0.21.0",
+ "geojson",
  "geom",
  "hyper",
  "lazy_static",
@@ -1802,7 +1791,7 @@ dependencies = [
  "convert_osm",
  "csv",
  "gdal",
- "geojson 0.21.0",
+ "geojson",
  "geom",
  "kml",
  "map_model",
@@ -2179,7 +2168,7 @@ dependencies = [
  "flate2",
  "futures",
  "futures-channel",
- "geojson 0.21.0",
+ "geojson",
  "geom",
  "instant",
  "js-sys",
@@ -2907,7 +2896,7 @@ dependencies = [
  "futures",
  "geo 0.16.0",
  "geo-booleanop",
- "geojson 0.21.0",
+ "geojson",
  "geom",
  "geozero-core",
  "log",
