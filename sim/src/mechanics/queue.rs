@@ -240,6 +240,11 @@ impl Queue {
     /// If true, there's room and the car must actually start the turn (because the space is
     /// reserved).
     pub fn try_to_reserve_entry(&mut self, car: &Car, force_entry: bool) -> bool {
+        // If lane is already filled, then always return false, even if forced.
+        if self.reserved_length >= self.geom_len {
+            return false;
+        }
+
         // Sometimes a car + FOLLOWING_DISTANCE might be longer than the geom_len entirely. In that
         // case, it just means the car won't totally fit on the queue at once, which is fine.
         // Reserve the normal amount of space; the next car trying to enter will get rejected.
