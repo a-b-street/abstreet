@@ -283,9 +283,6 @@ impl RawMap {
 
         let (i1, i2) = (short.i1, short.i2);
         let i1_pt = self.intersections[&i1].point;
-        // Remember the original connections to i1 before we merge. None of these will change IDs.
-        let mut connected_to_i1 = self.roads_per_intersection(i1);
-        connected_to_i1.retain(|x| *x != short);
 
         self.roads.remove(&short).unwrap();
 
@@ -343,7 +340,7 @@ impl RawMap {
                 if to == short && rt == RestrictionType::BanTurns {
                     // Remove this restriction, replace it with a new one to each of the successors
                     // of the deleted road
-                    for x in &connected_to_i1 {
+                    for x in &created {
                         fix_trs.push((rt, *x));
                     }
                 } else {
