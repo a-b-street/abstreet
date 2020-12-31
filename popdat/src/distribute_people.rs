@@ -1,8 +1,8 @@
+use geo::algorithm::{area::Area, contains::Contains};
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
 use abstutil::prettyprint_usize;
-use geo::algorithm::{area::Area, contains::Contains};
 use map_model::Map;
 
 use crate::{CensusArea, CensusPerson, Config};
