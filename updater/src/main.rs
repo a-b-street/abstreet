@@ -231,6 +231,12 @@ fn rm(path: &str) {
 }
 
 async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>, Box<dyn Error>> {
+    // Manually enable to "download" from my local copy
+    if false {
+        let path = format!("/home/dabreegster/s3_abst_data/{}/{}.gz", version, path);
+        return abstutil::slurp_file(&path).map_err(|err| err.into());
+    }
+
     let src = format!(
         "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
         version, path
