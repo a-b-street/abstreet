@@ -25,6 +25,7 @@ sourcesIndex["santa"] = {"name":"","files":["after_level.rs","animation.rs","bef
 sourcesIndex["sim"] = {"name":"","dirs":[{"name":"make","files":["activity_model.rs","external.rs","generator.rs","load.rs","mod.rs","modifier.rs","scenario.rs","spawner.rs"]},{"name":"mechanics","files":["car.rs","driving.rs","intersection.rs","mod.rs","parking.rs","queue.rs","walking.rs"]},{"name":"pandemic","files":["mod.rs","pandemic.rs"]},{"name":"sim","files":["mod.rs","queries.rs"]}],"files":["analytics.rs","cap.rs","events.rs","lib.rs","recorder.rs","render.rs","router.rs","scheduler.rs","transit.rs","trips.rs"]};
 sourcesIndex["tests"] = {"name":"","files":["main.rs"]};
 sourcesIndex["traffic_seitan"] = {"name":"","files":["main.rs"]};
+sourcesIndex["traffic_signal_data"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["updater"] = {"name":"","files":["main.rs"]};
 sourcesIndex["widgetry"] = {"name":"","dirs":[{"name":"tools","files":["mod.rs","screenshot.rs","warper.rs"]},{"name":"widgets","files":["autocomplete.rs","button.rs","checkbox.rs","compare_times.rs","containers.rs","dropdown.rs","fan_chart.rs","filler.rs","just_draw.rs","line_plot.rs","menu.rs","mod.rs","panel.rs","persistent_split.rs","scatter_plot.rs","slider.rs","spinner.rs","table.rs","text_box.rs"]}],"files":["app_state.rs","assets.rs","backend_glow.rs","backend_glow_native.rs","canvas.rs","color.rs","drawing.rs","event.rs","event_ctx.rs","geom.rs","input.rs","lib.rs","runner.rs","screen_geom.rs","style.rs","svg.rs","text.rs"]};
 sourcesIndex["widgetry_demo"] = {"name":"","files":["lib.rs"]};
