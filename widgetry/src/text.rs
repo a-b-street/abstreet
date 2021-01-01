@@ -5,9 +5,7 @@ use std::hash::Hasher;
 use geom::{PolyLine, Polygon};
 
 use crate::assets::Assets;
-use crate::{
-    svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, Prerender, ScreenDims, Widget,
-};
+use crate::{svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, ScreenDims, Widget};
 
 // Same as body()
 pub const DEFAULT_FONT: Font = Font::OverpassRegular;
@@ -492,8 +490,13 @@ impl TextExt for String {
 
 impl TextSpan {
     // TODO Copies from render_line a fair amount
-    pub fn render_curvey(self, prerender: &Prerender, path: &PolyLine, scale: f64) -> GeomBatch {
-        let assets = &prerender.assets;
+    pub fn render_curvey<A: AsRef<Assets>>(
+        self,
+        assets: &A,
+        path: &PolyLine,
+        scale: f64,
+    ) -> GeomBatch {
+        let assets = assets.as_ref();
         let tolerance = svg::HIGH_QUALITY;
 
         // Just set a sufficiently large view box

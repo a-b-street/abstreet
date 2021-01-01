@@ -406,7 +406,9 @@ impl DrawMap {
             batch.append(DrawLane::new(l, map).render(ctx, app));
         }
 
-        // TODO Road centers
+        for r in map.all_roads() {
+            batch.append(DrawRoad::new(r).render(ctx, app));
+        }
 
         for i in map.all_intersections() {
             batch.append(DrawIntersection::new(i, map).render(ctx, app));
