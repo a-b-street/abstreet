@@ -437,6 +437,8 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -846,7 +848,9 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawLane</span>::<span class="ident">new</span>(<span class="ident">l</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
         }
 
-        <span class="comment">// TODO Road centers</span>
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawRoad</span>::<span class="ident">new</span>(<span class="ident">r</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+        }
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawIntersection</span>::<span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));

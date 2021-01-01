@@ -141,16 +141,12 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Prerender</span>, <span class="ident">Text</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
@@ -159,8 +155,7 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">RoadID</span>,
     <span class="ident">zorder</span>: <span class="ident">isize</span>,
 
-    <span class="ident">draw_center_line</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">label</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">draw</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DrawRoad</span> {
@@ -168,14 +163,96 @@
         <span class="ident">DrawRoad</span> {
             <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
             <span class="ident">zorder</span>: <span class="ident">r</span>.<span class="ident">zorder</span>,
-            <span class="ident">draw_center_line</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
-            <span class="ident">label</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
+            <span class="ident">draw</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">AppLike</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="kw">let</span> <span class="ident">prerender</span> <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">as_ref</span>();
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>);
+        <span class="comment">// TODO Need to detangle how road_center_line is used.</span>
+        <span class="kw">let</span> <span class="ident">center_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">solid_road_center</span>() {
+            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>())
+        } <span class="kw">else</span> {
+            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>())
+        };
+        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
+            <span class="ident">center_color</span>.<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">center_color</span>
+        };
+
+        <span class="comment">// Draw a center line every time two driving/bike/bus lanes of opposite direction are</span>
+        <span class="comment">// adjacent.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
+        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
+            <span class="kw">let</span> ((<span class="ident">l1</span>, <span class="ident">dir1</span>, <span class="ident">lt1</span>), (<span class="kw">_</span>, <span class="ident">dir2</span>, <span class="ident">lt2</span>)) <span class="op">=</span> (<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]);
+            <span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_l</span>(<span class="ident">l1</span>).<span class="ident">width</span>;
+            <span class="kw">if</span> <span class="ident">dir1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">dir2</span> <span class="op">&amp;&amp;</span> <span class="ident">lt1</span>.<span class="ident">is_for_moving_vehicles</span>() <span class="op">&amp;&amp;</span> <span class="ident">lt2</span>.<span class="ident">is_for_moving_vehicles</span>() {
+                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_left_side</span>(<span class="ident">app</span>.<span class="ident">map</span>()).<span class="ident">must_shift_right</span>(<span class="ident">width</span>);
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">solid_road_center</span>() {
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>)));
+                } <span class="kw">else</span> {
+                    <span class="ident">batch</span>.<span class="ident">extend</span>(
+                        <span class="ident">color</span>,
+                        <span class="ident">pl</span>.<span class="ident">dashed_lines</span>(
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>),
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>),
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>),
+                        ),
+                    );
+                }
+            }
+        }
+
+        <span class="comment">// Draw the label</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
+            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>());
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">30.0</span>) <span class="op">&amp;&amp;</span> <span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;???&quot;</span> {
+                <span class="comment">// TODO If it&#39;s definitely straddling bus/bike lanes, change the color? Or</span>
+                <span class="comment">// even easier, just skip the center lines?</span>
+                <span class="kw">let</span> <span class="ident">center_color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>());
+                <span class="kw">let</span> <span class="ident">fg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
+                    <span class="ident">center_color</span>.<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">center_color</span>
+                };
+                <span class="kw">let</span> <span class="ident">bg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
+                    <span class="ident">app</span>.<span class="ident">cs</span>()
+                        .<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>, <span class="ident">r</span>.<span class="ident">get_rank</span>())
+                        .<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">app</span>.<span class="ident">cs</span>()
+                        .<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>, <span class="ident">r</span>.<span class="ident">get_rank</span>())
+                };
+
+                <span class="kw">if</span> <span class="bool-val">false</span> {
+                    <span class="comment">// TODO Not ready yet</span>
+                    <span class="ident">batch</span>.<span class="ident">append</span>(
+                        <span class="ident">Line</span>(<span class="ident">name</span>)
+                            .<span class="ident">fg</span>(<span class="ident">fg</span>)
+                            .<span class="ident">render_curvey</span>(<span class="ident">prerender</span>, <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">center_pts</span>, <span class="number">0.1</span>),
+                    );
+                } <span class="kw">else</span> {
+                    <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">name</span>).<span class="ident">fg</span>(<span class="ident">fg</span>)).<span class="ident">bg</span>(<span class="ident">bg</span>);
+                    <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>);
+                    <span class="ident">batch</span>.<span class="ident">append</span>(
+                        <span class="ident">txt</span>.<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>)
+                            .<span class="ident">scale</span>(<span class="number">0.1</span>)
+                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
+                            .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">reorient</span>()),
+                    );
+                }
+            }
+        }
+
+        <span class="ident">batch</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_rendering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">draw_center_line</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">label</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 }
 
@@ -185,96 +262,11 @@
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">AppLike</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">DrawOptions</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_center_line</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw_center_line</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">if</span> <span class="ident">draw_center_line</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>);
-            <span class="comment">// TODO Need to detangle how road_center_line is used.</span>
-            <span class="kw">let</span> <span class="ident">center_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">solid_road_center</span>() {
-                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>())
-            } <span class="kw">else</span> {
-                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>())
-            };
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
-                <span class="ident">center_color</span>.<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">center_color</span>
-            };
-
-            <span class="comment">// Draw a center line every time two driving/bike/bus lanes of opposite direction are</span>
-            <span class="comment">// adjacent.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
-            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">let</span> ((<span class="ident">l1</span>, <span class="ident">dir1</span>, <span class="ident">lt1</span>), (<span class="kw">_</span>, <span class="ident">dir2</span>, <span class="ident">lt2</span>)) <span class="op">=</span> (<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]);
-                <span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_l</span>(<span class="ident">l1</span>).<span class="ident">width</span>;
-                <span class="kw">if</span> <span class="ident">dir1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">dir2</span> <span class="op">&amp;&amp;</span> <span class="ident">lt1</span>.<span class="ident">is_for_moving_vehicles</span>() <span class="op">&amp;&amp;</span> <span class="ident">lt2</span>.<span class="ident">is_for_moving_vehicles</span>() {
-                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_left_side</span>(<span class="ident">app</span>.<span class="ident">map</span>()).<span class="ident">must_shift_right</span>(<span class="ident">width</span>);
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">solid_road_center</span>() {
-                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>)));
-                    } <span class="kw">else</span> {
-                        <span class="ident">batch</span>.<span class="ident">extend</span>(
-                            <span class="ident">color</span>,
-                            <span class="ident">pl</span>.<span class="ident">dashed_lines</span>(
-                                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>),
-                                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>),
-                                <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>),
-                            ),
-                        );
-                    }
-                }
-            }
-            <span class="kw-2">*</span><span class="ident">draw_center_line</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">borrow_mut</span>();
+        <span class="kw">if</span> <span class="ident">draw</span>.<span class="ident">is_none</span>() {
+            <span class="kw-2">*</span><span class="ident">draw</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">upload</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">g</span>, <span class="ident">app</span>)));
         }
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw_center_line</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
-
-        <span class="comment">// Lazily calculate</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">if</span> <span class="ident">label</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>());
-                <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">30.0</span>) <span class="op">&amp;&amp;</span> <span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;???&quot;</span> {
-                    <span class="comment">// TODO If it&#39;s definitely straddling bus/bike lanes, change the color? Or</span>
-                    <span class="comment">// even easier, just skip the center lines?</span>
-                    <span class="kw">let</span> <span class="ident">center_color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>());
-                    <span class="kw">let</span> <span class="ident">fg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
-                        <span class="ident">center_color</span>.<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">center_color</span>
-                    };
-                    <span class="kw">let</span> <span class="ident">bg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
-                        <span class="ident">app</span>.<span class="ident">cs</span>()
-                            .<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>, <span class="ident">r</span>.<span class="ident">get_rank</span>())
-                            .<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">app</span>.<span class="ident">cs</span>()
-                            .<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>, <span class="ident">r</span>.<span class="ident">get_rank</span>())
-                    };
-
-                    <span class="kw">if</span> <span class="bool-val">false</span> {
-                        <span class="comment">// TODO Not ready yet</span>
-                        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">name</span>).<span class="ident">fg</span>(<span class="ident">fg</span>).<span class="ident">render_curvey</span>(
-                            <span class="ident">g</span>.<span class="ident">prerender</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">center_pts</span>,
-                            <span class="number">0.1</span>,
-                        ));
-                    } <span class="kw">else</span> {
-                        <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">name</span>).<span class="ident">fg</span>(<span class="ident">fg</span>)).<span class="ident">bg</span>(<span class="ident">bg</span>);
-                        <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>);
-                        <span class="ident">batch</span>.<span class="ident">append</span>(
-                            <span class="ident">txt</span>.<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
-                                .<span class="ident">scale</span>(<span class="number">0.1</span>)
-                                .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
-                                .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">reorient</span>()),
-                        );
-                    }
-                }
-            }
-            <span class="kw-2">*</span><span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
-        }
-        <span class="comment">// TODO Covered up sometimes. We could fork and force a different z value...</span>
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">label</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
+        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
     }
 
     <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
