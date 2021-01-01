@@ -197,6 +197,16 @@ spearheaded by Mateusz. Some of the ideas for next steps are to generate
 different types of people (students, workers), give them a set of activities
 with durations (go to school for 7 hours, 1 hour lunch break), and then further
 pick specfic buildings to travel to using more OSM tags.</p>
+<h3><a class="header" href="#census-based" id="census-based">Census Based</a></h3>
+<p>Trips are distributed based on where we believe people live. For the US, this
+information comes from the US Census. To take advantage of this model for areas
+outside the US, you'll need to add your data to the global <code>population_areas</code>
+file. This is one huge file that is shared across regions. This is more work up
+front, but makes adding individual cities relatively straight forward.</p>
+<h4><a class="header" href="#preparing-the-population_areas-file" id="preparing-the-population_areas-file">Preparing the <code>population_areas</code> file</a></h4>
+<p>See <code>popdat/scripts/build_population_areas.sh</code> for updating or adding to the
+existing population areas. Once rebuilt, you'll need to upload the file so that
+popdat can find it.</p>
 <h3><a class="header" href="#custom-import" id="custom-import">Custom import</a></h3>
 <p>If you have your own data, you can import it. The input format is JSON -- an
 example:</p>

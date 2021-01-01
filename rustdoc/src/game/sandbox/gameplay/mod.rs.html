@@ -338,7 +338,42 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
+
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Timer</span>};
@@ -422,6 +457,19 @@
     <span class="ident">Nothing</span>,
     <span class="ident">Path</span>(<span class="ident">String</span>),
     <span class="ident">Scenario</span>(<span class="ident">Scenario</span>),
+    <span class="comment">// wasm futures are not `Send`, since they all ultimately run on the browser&#39;s single threaded</span>
+    <span class="comment">// runloop</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+    <span class="ident">Future</span>(<span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+    <span class="ident">Future</span>(
+        <span class="ident">Pin</span><span class="op">&lt;</span>
+            <span class="ident">Box</span><span class="op">&lt;</span>
+                <span class="ident">dyn</span> <span class="ident">Send</span>
+                    <span class="op">+</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+            <span class="op">&gt;</span>,
+        <span class="op">&gt;</span>,
+    ),
 }
 
 <span class="kw">impl</span> <span class="ident">GameplayMode</span> {
@@ -459,11 +507,27 @@
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;home_to_work&quot;</span> {
             <span class="ident">LoadScenario</span>::<span class="ident">Scenario</span>(<span class="ident">ScenarioGenerator</span>::<span class="ident">proletariat_robot</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>))
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;census&quot;</span> {
-            <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">popdat</span>::<span class="ident">Config</span>::<span class="ident">default</span>();
-            <span class="ident">LoadScenario</span>::<span class="ident">Scenario</span>(
-                <span class="ident">popdat</span>::<span class="ident">generate_scenario</span>(<span class="string">&quot;typical monday&quot;</span>, <span class="ident">config</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>)
-                    .<span class="ident">expect</span>(<span class="string">&quot;unable to build census scenario&quot;</span>),
-            )
+            <span class="kw">let</span> <span class="ident">map_area</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">sim</span>::<span class="ident">fork_rng</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+
+            <span class="ident">LoadScenario</span>::<span class="ident">Future</span>(<span class="ident">Box</span>::<span class="ident">pin</span>(<span class="ident">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="ident">areas</span> <span class="op">=</span> <span class="ident">popdat</span>::<span class="ident">CensusArea</span>::<span class="ident">fetch_all_for_map</span>(<span class="kw-2">&amp;</span><span class="ident">map_area</span>, <span class="kw-2">&amp;</span><span class="ident">map_bounds</span>).<span class="ident">await</span><span class="question-mark">?</span>;
+
+                <span class="kw">let</span> <span class="ident">scenario_from_app</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span><span class="op">&gt;</span> <span class="op">=</span>
+                    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">popdat</span>::<span class="ident">Config</span>::<span class="ident">default</span>();
+                        <span class="ident">popdat</span>::<span class="ident">generate_scenario</span>(
+                            <span class="string">&quot;typical monday&quot;</span>,
+                            <span class="ident">areas</span>,
+                            <span class="ident">config</span>,
+                            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
+                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>,
+                        )
+                    });
+
+                <span class="prelude-val">Ok</span>(<span class="ident">scenario_from_app</span>)
+            }))
         } <span class="kw">else</span> {
             <span class="ident">LoadScenario</span>::<span class="ident">Path</span>(<span class="ident">abstutil</span>::<span class="ident">path_scenario</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">name</span>))
         }
