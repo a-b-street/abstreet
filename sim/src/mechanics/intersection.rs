@@ -259,17 +259,46 @@ impl IntersectionSimState {
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
+        // trivial function that returns true if the stage is just crosswalks
+        // todo bb: consider moving to Stage impl
+        fn is_all_walk(stage: &Stage) -> bool {
+            for m in &stage.protected_movements {
+                if !m.crosswalk {
+                    return false;
+                }
+            }
+            stage.yield_movements.is_empty()
+        }
         // trivial function that advances the signal stage and returns duration
-        fn advance(signal_state: &mut SignalState, signal: &ControlTrafficSignal) -> Duration {
+        fn advance(
+            signal_state: &mut SignalState,
+            signal: &ControlTrafficSignal,
+            allow_crosswalk_skip: bool,
+        ) -> Duration {
             signal_state.current_stage = (signal_state.current_stage + 1) % signal.stages.len();
+            let stage = &signal.stages[signal_state.current_stage];
+            // only skip for variable all-walk crosswalk
+            if let PhaseType::Variable(_, _, _) = stage.phase_type {
+                if allow_crosswalk_skip && is_all_walk(stage) {
+                    // we can skip this stage, as its all walk and we're allowed to skip (no
+                    // pedestrian waiting).
+                    signal_state.current_stage =
+                        (signal_state.current_stage + 1) % signal.stages.len();
+                }
+            }
             signal.stages[signal_state.current_stage]
                 .stage_type
                 .simple_duration()
         }
-
         let state = self.state.get_mut(&id).unwrap();
         let signal_state = state.signal.as_mut().unwrap();
         let signal = map.get_traffic_signal(id);
+        let ped_waiting = state.waiting.keys().any(|req| {
+            if let AgentID::Pedestrian(_) = req.agent {
+                return true;
+            }
+            false
+        });
         let duration: Duration;
         // Switch to a new stage?
         assert_eq!(now, signal_state.stage_ends_at);
@@ -294,7 +323,7 @@ impl IntersectionSimState {
                             min, delay, additional, signal_state.extensions_count
                         ),
                     ));
-                    duration = advance(signal_state, signal);
+                    duration = advance(signal_state, signal, !ped_waiting);
                     signal_state.extensions_count = 0;
                 } else if state.waiting.keys().all(|req| {
                     if let AgentID::Pedestrian(_) = req.agent {
@@ -305,7 +334,7 @@ impl IntersectionSimState {
                     old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
                 }) {
                     signal_state.extensions_count = 0;
-                    duration = advance(signal_state, signal);
+                    duration = advance(signal_state, signal, !ped_waiting);
                 } else {
                     signal_state.extensions_count += 1;
                     duration = delay;
