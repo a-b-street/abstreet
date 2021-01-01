@@ -289,10 +289,8 @@
 <span id="286">286</span>
 <span id="287">287</span>
 <span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">BtnBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -522,15 +520,13 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Fill</span>::<span class="ident">Color</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">fill</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">properties</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">Map</span>::<span class="ident">new</span>();
                 <span class="ident">properties</span>.<span class="ident">insert</span>(<span class="string">&quot;color&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">color</span>.<span class="ident">to_hex</span>().<span class="ident">into</span>());
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">polygon</span>.<span class="ident">into_points</span>()) {
-                    <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">geojson</span>::<span class="ident">Feature</span> {
-                        <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">ring</span>.<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>)),
-                        <span class="ident">id</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">properties</span>),
-                        <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
-                    });
-                }
+                <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">geojson</span>::<span class="ident">Feature</span> {
+                    <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">polygon</span>.<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>)),
+                    <span class="ident">id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">properties</span>),
+                    <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+                });
             }
         }
         <span class="ident">features</span>
