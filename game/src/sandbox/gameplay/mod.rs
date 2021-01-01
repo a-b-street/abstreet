@@ -1,3 +1,6 @@
+use core::future::Future;
+use core::pin::Pin;
+
 use rand_xorshift::XorShiftRng;
 
 use abstutil::{MapName, Timer};
@@ -81,6 +84,19 @@ pub enum LoadScenario {
     Nothing,
     Path(String),
     Scenario(Scenario),
+    // wasm futures are not `Send`, since they all ultimately run on the browser's single threaded
+    // runloop
+    #[cfg(target_arch = "wasm32")]
+    Future(Pin<Box<dyn Future<Output = anyhow::Result<Box<dyn Send + FnOnce(&App) -> Scenario>>>>>),
+    #[cfg(not(target_arch = "wasm32"))]
+    Future(
+        Pin<
+            Box<
+                dyn Send
+                    + Future<Output = anyhow::Result<Box<dyn Send + FnOnce(&App) -> Scenario>>>,
+            >,
+        >,
+    ),
 }
 
 impl GameplayMode {
@@ -118,11 +134,27 @@ impl GameplayMode {
         } else if name == "home_to_work" {
             LoadScenario::Scenario(ScenarioGenerator::proletariat_robot(map, &mut rng, timer))
         } else if name == "census" {
-            let config = popdat::Config::default();
-            LoadScenario::Scenario(
-                popdat::generate_scenario("typical monday", config, map, &mut rng)
-                    .expect("unable to build census scenario"),
-            )
+            let map_area = map.get_boundary_polygon().clone();
+            let map_bounds = map.get_gps_bounds().clone();
+            let mut rng = sim::fork_rng(&mut rng);
+
+            LoadScenario::Future(Box::pin(async move {
+                let areas = popdat::CensusArea::fetch_all_for_map(&map_area, &map_bounds).await?;
+
+                let scenario_from_app: Box<dyn Send + FnOnce(&App) -> Scenario> =
+                    Box::new(move |app: &App| {
+                        let config = popdat::Config::default();
+                        popdat::generate_scenario(
+                            "typical monday",
+                            areas,
+                            config,
+                            &app.primary.map,
+                            &mut rng,
+                        )
+                    });
+
+                Ok(scenario_from_app)
+            }))
         } else {
             LoadScenario::Path(abstutil::path_scenario(map.get_name(), &name))
         }

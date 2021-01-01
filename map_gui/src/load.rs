@@ -1,10 +1,18 @@
 //! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies
 //! on native and web. Both cases are wrapped up as a State that runs a callback when done.
 
+use std::future::Future;
+use std::pin::Pin;
+
+use futures_channel::oneshot;
+use instant::Instant;
 use serde::de::DeserializeOwned;
+#[cfg(not(target_arch = "wasm32"))]
+use tokio::runtime::Runtime;
 
 use abstutil::{MapName, Timer};
-use widgetry::{Color, EventCtx, GfxCtx, State, Transition};
+use geom::Duration;
+use widgetry::{Color, EventCtx, GfxCtx, Line, Panel, State, Text, Transition, UpdateType};
 
 use crate::tools::PopupMsg;
 use crate::AppLike;
@@ -242,5 +250,120 @@ mod wasm_loader {
             g.clear(Color::BLACK);
             self.panel.draw(g);
         }
+    }
+}
+
+pub struct FutureLoader<A, T>
+where
+    A: AppLike,
+{
+    loading_title: String,
+    started: Instant,
+    panel: Panel,
+    receiver: oneshot::Receiver<anyhow::Result<Box<dyn Send + FnOnce(&A) -> T>>>,
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, anyhow::Result<T>) -> Transition<A>>>,
+
+    // If Runtime is dropped, any active tasks will be canceled, so we retain it here even
+    // though we never access it. It might make more sense for Runtime to live on App if we're
+    // going to be doing more background spawning.
+    #[cfg(not(target_arch = "wasm32"))]
+    #[allow(dead_code)]
+    runtime: Runtime,
+}
+
+impl<A, T> FutureLoader<A, T>
+where
+    A: 'static + AppLike,
+    T: 'static,
+{
+    #[cfg(target_arch = "wasm32")]
+    pub fn new(
+        ctx: &mut EventCtx,
+        future: Pin<Box<dyn Future<Output = anyhow::Result<Box<dyn Send + FnOnce(&A) -> T>>>>>,
+        loading_title: &str,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, anyhow::Result<T>) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
+        let (tx, receiver) = oneshot::channel();
+        wasm_bindgen_futures::spawn_local(async move {
+            tx.send(future.await).ok().unwrap();
+        });
+        Box::new(FutureLoader {
+            loading_title: loading_title.to_string(),
+            started: Instant::now(),
+            panel: ctx.make_loading_screen(Text::from(Line(loading_title))),
+            receiver,
+            on_load: Some(on_load),
+        })
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn new(
+        ctx: &mut EventCtx,
+        future: Pin<
+            Box<dyn Send + Future<Output = anyhow::Result<Box<dyn Send + FnOnce(&A) -> T>>>>,
+        >,
+        loading_title: &str,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, anyhow::Result<T>) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
+        let runtime = Runtime::new().unwrap();
+        let (tx, receiver) = oneshot::channel();
+        runtime.spawn(async move {
+            tx.send(future.await).ok().unwrap();
+        });
+
+        Box::new(FutureLoader {
+            loading_title: loading_title.to_string(),
+            started: Instant::now(),
+            panel: ctx.make_loading_screen(Text::from(Line(loading_title))),
+            receiver,
+            on_load: Some(on_load),
+            runtime,
+        })
+    }
+}
+
+impl<A, T> State<A> for FutureLoader<A, T>
+where
+    A: 'static + AppLike,
+    T: 'static,
+{
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        match self.receiver.try_recv() {
+            Err(e) => {
+                error!("channel failed: {:?}", e);
+                let on_load = self.on_load.take().unwrap();
+                return on_load(ctx, app, Err(anyhow::anyhow!("channel canceled")));
+            }
+            Ok(None) => {
+                self.panel = ctx.make_loading_screen(Text::from_multiline(vec![
+                    Line(&self.loading_title),
+                    Line(format!(
+                        "Time spent: {}",
+                        Duration::realtime_elapsed(self.started)
+                    )),
+                ]));
+
+                // Until the response is received, just ask winit to regularly call event(), so we
+                // can keep polling the channel.
+                ctx.request_update(UpdateType::Game);
+                return Transition::Keep;
+            }
+            Ok(Some(Err(e))) => {
+                error!("error in fetching data");
+                let on_load = self.on_load.take().unwrap();
+                return on_load(ctx, app, Err(e));
+            }
+            Ok(Some(Ok(builder))) => {
+                debug!("future complete");
+                let t = builder(app);
+                let on_load = self.on_load.take().unwrap();
+                return on_load(ctx, app, Ok(t));
+            }
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &A) {
+        g.clear(Color::BLACK);
+        self.panel.draw(g);
     }
 }

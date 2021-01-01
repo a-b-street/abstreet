@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Angle, Bounds, Distance, HashablePt2D, PolyLine, Pt2D, Ring};
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
     points: Vec<Pt2D>,
     /// Groups of three indices make up the triangles

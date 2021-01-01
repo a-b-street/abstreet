@@ -128,3 +128,4 @@ Data:
 - [King County GIS](https://www.kingcounty.gov/services/gis.aspx)
 - [Seattle Open Data](https://data.seattle.gov/)
 - [Puget Sound Regional Council](https://www.psrc.org/)
+- [IPUMS NHGIS, University of Minnesota](https://www.nhgis.org)
