@@ -1,4 +1,4 @@
-use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D, Ring};
+use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
 
 use crate::widgets::button::BtnBuilder;
 use crate::{
@@ -228,15 +228,13 @@ impl GeomBatch {
             if let Fill::Color(color) = fill {
                 let mut properties = serde_json::Map::new();
                 properties.insert("color".to_string(), color.to_hex().into());
-                if let Ok(ring) = Ring::new(polygon.into_points()) {
-                    features.push(geojson::Feature {
-                        bbox: None,
-                        geometry: Some(ring.to_geojson(gps_bounds)),
-                        id: None,
-                        properties: Some(properties),
-                        foreign_members: None,
-                    });
-                }
+                features.push(geojson::Feature {
+                    bbox: None,
+                    geometry: Some(polygon.to_geojson(gps_bounds)),
+                    id: None,
+                    properties: Some(properties),
+                    foreign_members: None,
+                });
             }
         }
         features

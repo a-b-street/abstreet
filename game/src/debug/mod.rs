@@ -259,14 +259,20 @@ impl State<App> for DebugMode {
                     return Transition::Push(blocked_by::Viewer::new(ctx, app));
                 }
                 "render to GeoJSON" => {
-                    let batch = DrawMap::zoomed_batch(ctx, app);
-                    let features = batch.to_geojson(Some(app.primary.map.get_gps_bounds()));
-                    let geojson = geojson::GeoJson::from(geojson::FeatureCollection {
-                        bbox: None,
-                        features,
-                        foreign_members: None,
+                    // TODO Loading screen doesn't actually display anything because of the rules
+                    // around hiding the first few draws
+                    ctx.loading_screen("render to GeoJSON", |ctx, timer| {
+                        timer.start("render");
+                        let batch = DrawMap::zoomed_batch(ctx, app);
+                        let features = batch.to_geojson(Some(app.primary.map.get_gps_bounds()));
+                        let geojson = geojson::GeoJson::from(geojson::FeatureCollection {
+                            bbox: None,
+                            features,
+                            foreign_members: None,
+                        });
+                        abstutil::write_json("rendered_map.json".to_string(), &geojson);
+                        timer.stop("render");
                     });
-                    abstutil::write_json("rendered_map.json".to_string(), &geojson);
                 }
                 _ => unreachable!(),
             },

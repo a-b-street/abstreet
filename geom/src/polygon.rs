@@ -7,7 +7,7 @@ use geo::algorithm::convex_hull::ConvexHull;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
 
-use crate::{Angle, Bounds, Distance, HashablePt2D, PolyLine, Pt2D, Ring};
+use crate::{Angle, Bounds, Distance, GPSBounds, HashablePt2D, PolyLine, Pt2D, Ring};
 
 #[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
@@ -409,6 +409,33 @@ impl Polygon {
         }
 
         None
+    }
+
+    /// If the polygon is just a single outer ring, produces a GeoJSON polygon. Otherwise, produces
+    /// a GeoJSON multipolygon consisting of individual triangles. Optionally map the world-space
+    /// points back to GPS.
+    pub fn to_geojson(&self, gps: Option<&GPSBounds>) -> geojson::Geometry {
+        if let Ok(ring) = Ring::new(self.points.clone()) {
+            return ring.to_geojson(gps);
+        }
+
+        let mut polygons = Vec::new();
+        for triangle in self.triangles() {
+            let raw_pts = vec![triangle.pt1, triangle.pt2, triangle.pt3, triangle.pt1];
+            let mut pts = Vec::new();
+            if let Some(ref gps) = gps {
+                for pt in gps.convert_back(&raw_pts) {
+                    pts.push(vec![pt.x(), pt.y()]);
+                }
+            } else {
+                for pt in raw_pts {
+                    pts.push(vec![pt.x(), pt.y()]);
+                }
+            }
+            polygons.push(vec![pts]);
+        }
+
+        geojson::Geometry::new(geojson::Value::MultiPolygon(polygons))
     }
 }
 
