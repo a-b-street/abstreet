@@ -123,6 +123,10 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
@@ -167,6 +171,57 @@
             <span class="ident">draw</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
         }
     }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">AppLike</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="kw">let</span> <span class="ident">lot</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_pl</span>(<span class="self">self</span>.<span class="ident">id</span>);
+
+        <span class="comment">// Trim the front path line away from the sidewalk&#39;s center line, so that it doesn&#39;t</span>
+        <span class="comment">// overlap. For now, this cleanup is visual; it doesn&#39;t belong in the map_model layer.</span>
+        <span class="kw">let</span> <span class="ident">orig_line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lot</span>.<span class="ident">sidewalk_line</span>;
+        <span class="kw">let</span> <span class="ident">front_path_line</span> <span class="op">=</span> <span class="ident">orig_line</span>
+            .<span class="ident">slice</span>(
+                <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
+                <span class="ident">orig_line</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_l</span>(<span class="ident">lot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()).<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>,
+            )
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">orig_line</span>.<span class="ident">clone</span>());
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="comment">// TODO This isn&#39;t getting clipped to the parking lot boundary properly, so just stick</span>
+        <span class="comment">// this on the lowest order for now.</span>
+        <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_parent</span>(<span class="ident">lot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()).<span class="ident">get_rank</span>();
+        <span class="ident">batch</span>.<span class="ident">push</span>(
+            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>, <span class="ident">rank</span>),
+            <span class="ident">front_path_line</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>),
+        );
+        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">parking_lot</span>, <span class="ident">lot</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="kw">for</span> <span class="ident">aisle</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lot</span>.<span class="ident">aisles</span> {
+            <span class="kw">let</span> <span class="ident">aisle_thickness</span> <span class="op">=</span> <span class="ident">NORMAL_LANE_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>;
+            <span class="ident">batch</span>.<span class="ident">push</span>(
+                <span class="ident">app</span>.<span class="ident">cs</span>()
+                    .<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>, <span class="ident">osm</span>::<span class="ident">RoadRank</span>::<span class="ident">Local</span>),
+                <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="ident">aisle</span>.<span class="ident">clone</span>()).<span class="ident">make_polygons</span>(<span class="ident">aisle_thickness</span>),
+            );
+        }
+        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">NORMAL_LANE_THICKNESS</span>;
+        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">PARKING_LOT_SPOT_LENGTH</span>;
+        <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lot</span>.<span class="ident">spots</span> {
+            <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>));
+            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>));
+
+            <span class="ident">batch</span>.<span class="ident">push</span>(
+                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">rank</span>),
+                <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">left</span>.<span class="ident">project_away</span>(<span class="ident">height</span>, <span class="kw-2">*</span><span class="ident">angle</span>),
+                    <span class="ident">left</span>,
+                    <span class="ident">right</span>,
+                    <span class="ident">right</span>.<span class="ident">project_away</span>(<span class="ident">height</span>, <span class="kw-2">*</span><span class="ident">angle</span>),
+                ])
+                .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>)),
+            );
+        }
+
+        <span class="ident">batch</span>
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">Renderable</span> <span class="kw">for</span> <span class="ident">DrawParkingLot</span> {
@@ -177,54 +232,7 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">AppLike</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">DrawOptions</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">borrow_mut</span>();
         <span class="kw">if</span> <span class="ident">draw</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="ident">lot</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_pl</span>(<span class="self">self</span>.<span class="ident">id</span>);
-
-            <span class="comment">// Trim the front path line away from the sidewalk&#39;s center line, so that it doesn&#39;t</span>
-            <span class="comment">// overlap. For now, this cleanup is visual; it doesn&#39;t belong in the map_model layer.</span>
-            <span class="kw">let</span> <span class="ident">orig_line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lot</span>.<span class="ident">sidewalk_line</span>;
-            <span class="kw">let</span> <span class="ident">front_path_line</span> <span class="op">=</span> <span class="ident">orig_line</span>
-                .<span class="ident">slice</span>(
-                    <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
-                    <span class="ident">orig_line</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_l</span>(<span class="ident">lot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()).<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>,
-                )
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">orig_line</span>.<span class="ident">clone</span>());
-
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-            <span class="comment">// TODO This isn&#39;t getting clipped to the parking lot boundary properly, so just stick</span>
-            <span class="comment">// this on the lowest order for now.</span>
-            <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_parent</span>(<span class="ident">lot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()).<span class="ident">get_rank</span>();
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>, <span class="ident">rank</span>),
-                <span class="ident">front_path_line</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>),
-            );
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">parking_lot</span>, <span class="ident">lot</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-            <span class="kw">for</span> <span class="ident">aisle</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lot</span>.<span class="ident">aisles</span> {
-                <span class="kw">let</span> <span class="ident">aisle_thickness</span> <span class="op">=</span> <span class="ident">NORMAL_LANE_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>;
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>()
-                        .<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType</span>::<span class="ident">Driving</span>, <span class="ident">osm</span>::<span class="ident">RoadRank</span>::<span class="ident">Local</span>),
-                    <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="ident">aisle</span>.<span class="ident">clone</span>()).<span class="ident">make_polygons</span>(<span class="ident">aisle_thickness</span>),
-                );
-            }
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">NORMAL_LANE_THICKNESS</span>;
-            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">PARKING_LOT_SPOT_LENGTH</span>;
-            <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lot</span>.<span class="ident">spots</span> {
-                <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>));
-                <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>));
-
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">rank</span>),
-                    <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">left</span>.<span class="ident">project_away</span>(<span class="ident">height</span>, <span class="kw-2">*</span><span class="ident">angle</span>),
-                        <span class="ident">left</span>,
-                        <span class="ident">right</span>,
-                        <span class="ident">right</span>.<span class="ident">project_away</span>(<span class="ident">height</span>, <span class="kw-2">*</span><span class="ident">angle</span>),
-                    ])
-                    .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.25</span>)),
-                );
-            }
-
-            <span class="kw-2">*</span><span class="ident">draw</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
+            <span class="kw-2">*</span><span class="ident">draw</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">upload</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">app</span>)));
         }
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
     }

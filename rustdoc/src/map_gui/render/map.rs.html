@@ -383,6 +383,60 @@
 <span id="380">380</span>
 <span id="381">381</span>
 <span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -764,6 +818,60 @@
         <span class="ident">borrows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">get_zorder</span>());
 
         <span class="ident">borrows</span>
+    }
+
+    <span class="doccomment">/// Build a single gigantic `GeomBatch` to render the entire map when zoomed in. Likely messes</span>
+    <span class="doccomment">/// up Z-ordering.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoomed_batch</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">AppLike</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+        <span class="comment">// TODO This repeats code. There are other approaches, like making EventCtx intercept</span>
+        <span class="comment">// &quot;uploads&quot; and instead save the batches.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
+        <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>();
+
+        <span class="ident">batch</span>.<span class="ident">push</span>(
+            <span class="ident">cs</span>.<span class="ident">map_background</span>.<span class="ident">clone</span>(),
+            <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
+        );
+
+        <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_areas</span>() {
+            <span class="ident">DrawArea</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">a</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
+        }
+
+        <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawParkingLot</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">pl</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">render</span>(<span class="ident">app</span>));
+        }
+
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawLane</span>::<span class="ident">new</span>(<span class="ident">l</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+        }
+
+        <span class="comment">// TODO Road centers</span>
+
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawIntersection</span>::<span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bldgs_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
+            <span class="ident">DrawBuilding</span>::<span class="ident">new</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">b</span>,
+                <span class="ident">map</span>,
+                <span class="ident">cs</span>,
+                <span class="ident">app</span>.<span class="ident">opts</span>(),
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bldgs_batch</span>,
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">paths_batch</span>,
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">outlines_batch</span>,
+            );
+        }
+        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">paths_batch</span>);
+        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">bldgs_batch</span>);
+        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">outlines_batch</span>);
+
+        <span class="ident">batch</span>
     }
 }
 </pre></div>
