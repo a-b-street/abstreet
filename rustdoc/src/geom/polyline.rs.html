@@ -878,6 +878,8 @@
 <span id="875">875</span>
 <span id="876">876</span>
 <span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1326,13 +1328,15 @@
         <span class="ident">result</span>
     }
 
-    <span class="doccomment">/// The resulting polygon is manually triangulated and doesn&#39;t have a valid outer Ring.</span>
+    <span class="doccomment">/// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it</span>
+    <span class="doccomment">/// usually does).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="comment">// TODO How to tune this?</span>
         <span class="self">self</span>.<span class="ident">make_polygons_with_miter_threshold</span>(<span class="ident">width</span>, <span class="ident">MITER_THRESHOLD</span>)
     }
 
-    <span class="doccomment">/// The resulting polygon is manually triangulated and doesn&#39;t have a valid outer Ring.</span>
+    <span class="doccomment">/// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it</span>
+    <span class="doccomment">/// usually does).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons_with_miter_threshold</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">width</span>: <span class="ident">Distance</span>,
@@ -1340,22 +1344,22 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="comment">// TODO Don&#39;t use the angle corrections yet -- they seem to do weird things.</span>
         <span class="kw">let</span> <span class="ident">side1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">miter_threshold</span>);
-        <span class="kw">let</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">miter_threshold</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">miter_threshold</span>);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">side1</span>.<span class="ident">len</span>(), <span class="ident">side2</span>.<span class="ident">len</span>());
 
-        <span class="kw">let</span> <span class="ident">side2_offset</span> <span class="op">=</span> <span class="ident">side1</span>.<span class="ident">len</span>();
+        <span class="comment">// Order the points so that they form a ring. No deduplication yet, though.</span>
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">side1</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">side1</span>;
+        <span class="ident">side2</span>.<span class="ident">reverse</span>();
         <span class="ident">points</span>.<span class="ident">extend</span>(<span class="ident">side2</span>);
+        <span class="ident">points</span>.<span class="ident">push</span>(<span class="ident">points</span>[<span class="number">0</span>]);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
+        <span class="comment">// Walk along the first side, making two triangles each step. This is easy to understand</span>
+        <span class="comment">// with a simple diagram, which I should eventually draw in ASCII art here.</span>
         <span class="kw">for</span> <span class="ident">high_idx</span> <span class="kw">in</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() {
-            <span class="comment">// Duplicate first point, since that&#39;s what graphics layer expects</span>
-            <span class="ident">indices</span>.<span class="ident">extend</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">high_idx</span>, <span class="ident">high_idx</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">side2_offset</span> <span class="op">+</span> <span class="ident">high_idx</span> <span class="op">-</span> <span class="number">1</span>]);
-            <span class="ident">indices</span>.<span class="ident">extend</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">side2_offset</span> <span class="op">+</span> <span class="ident">high_idx</span>,
-                <span class="ident">side2_offset</span> <span class="op">+</span> <span class="ident">high_idx</span> <span class="op">-</span> <span class="number">1</span>,
-                <span class="ident">high_idx</span>,
-            ]);
+            <span class="ident">indices</span>.<span class="ident">extend</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">high_idx</span>, <span class="ident">high_idx</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">len</span> <span class="op">-</span> <span class="ident">high_idx</span>]);
+            <span class="ident">indices</span>.<span class="ident">extend</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">len</span> <span class="op">-</span> <span class="ident">high_idx</span>, <span class="ident">len</span> <span class="op">-</span> <span class="ident">high_idx</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">high_idx</span>]);
         }
         <span class="ident">Polygon</span>::<span class="ident">precomputed</span>(<span class="ident">points</span>, <span class="ident">indices</span>)
     }

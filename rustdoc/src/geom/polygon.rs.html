@@ -625,8 +625,8 @@
         }
     }
 
-    <span class="comment">// TODO No guarantee points forms a ring. In fact, the main caller is PolyLine, and it&#39;s NOT</span>
-    <span class="comment">// true there yet.</span>
+    <span class="comment">// TODO No guarantee points forms a ring. In fact, the main caller is from SVG-&gt;lyon parsing,</span>
+    <span class="comment">// and it&#39;s NOT true there yet.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">precomputed</span>(<span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">indices</span>.<span class="ident">len</span>() <span class="op">%</span> <span class="number">3</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
         <span class="ident">Polygon</span> {
