@@ -5,7 +5,7 @@ use map_model::{
     Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, LaneType, Map, Road,
     RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
-use widgetry::{Color, Drawable, GeomBatch, GfxCtx, RewriteColor};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 
 use crate::colors::ColorScheme;
 use crate::render::{
@@ -36,7 +36,7 @@ impl DrawIntersection {
         *self.draw_traffic_signal.borrow_mut() = None;
     }
 
-    fn render(&self, g: &mut GfxCtx, app: &dyn AppLike) -> Drawable {
+    pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
         let map = app.map();
         let i = map.get_i(self.id);
 
@@ -94,7 +94,7 @@ impl DrawIntersection {
             IntersectionType::Construction => {
                 // TODO Centering seems weird
                 default_geom.append(
-                    GeomBatch::load_svg(g, "system/assets/map/under_construction.svg")
+                    GeomBatch::load_svg(prerender, "system/assets/map/under_construction.svg")
                         .scale(0.08)
                         .centered_on(i.polygon.center()),
                 );
@@ -107,7 +107,7 @@ impl DrawIntersection {
             default_geom = default_geom.color(RewriteColor::ChangeAlpha(0.5));
         }
 
-        g.upload(default_geom)
+        default_geom
     }
 
     // Returns the (octagon, pole) if there's room to draw it.
@@ -154,7 +154,7 @@ impl Renderable for DrawIntersection {
         // exhaustively see every intersection during a single session
         let mut draw = self.draw_default.borrow_mut();
         if draw.is_none() {
-            *draw = Some(self.render(g, app));
+            *draw = Some(g.upload(self.render(g, app)));
         }
         g.redraw(draw.as_ref().unwrap());
 

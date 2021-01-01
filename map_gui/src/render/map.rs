@@ -379,4 +379,58 @@ impl DrawMap {
 
         borrows
     }
+
+    /// Build a single gigantic `GeomBatch` to render the entire map when zoomed in. Likely messes
+    /// up Z-ordering.
+    pub fn zoomed_batch(ctx: &EventCtx, app: &dyn AppLike) -> GeomBatch {
+        // TODO This repeats code. There are other approaches, like making EventCtx intercept
+        // "uploads" and instead save the batches.
+        let mut batch = GeomBatch::new();
+        let map = app.map();
+        let cs = app.cs();
+
+        batch.push(
+            cs.map_background.clone(),
+            map.get_boundary_polygon().clone(),
+        );
+
+        for a in map.all_areas() {
+            DrawArea::new(ctx, a, cs, &mut batch);
+        }
+
+        for pl in map.all_parking_lots() {
+            batch.append(DrawParkingLot::new(ctx, pl, cs, &mut GeomBatch::new()).render(app));
+        }
+
+        for l in map.all_lanes() {
+            batch.append(DrawLane::new(l, map).render(ctx, app));
+        }
+
+        // TODO Road centers
+
+        for i in map.all_intersections() {
+            batch.append(DrawIntersection::new(i, map).render(ctx, app));
+        }
+
+        let mut bldgs_batch = GeomBatch::new();
+        let mut paths_batch = GeomBatch::new();
+        let mut outlines_batch = GeomBatch::new();
+        for b in map.all_buildings() {
+            DrawBuilding::new(
+                ctx,
+                b,
+                map,
+                cs,
+                app.opts(),
+                &mut bldgs_batch,
+                &mut paths_batch,
+                &mut outlines_batch,
+            );
+        }
+        batch.append(paths_batch);
+        batch.append(bldgs_batch);
+        batch.append(outlines_batch);
+
+        batch
+    }
 }

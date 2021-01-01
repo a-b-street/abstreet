@@ -12,6 +12,7 @@ wasm-backend = ["glow/web-sys", "instant/wasm-bindgen", "usvg/text", "wasm-bindg
 abstutil = { path = "../abstutil" }
 # backtrace = "0.3.40"
 downcast-rs = "1.2.0"
+geojson = "0.21.0"
 geom = { path = "../geom" }
 glow = { version = "0.6.0", optional = true, default-features=false }
 glutin = { version = "0.26.0", optional = true }
@@ -22,6 +23,7 @@ log = "0.4.11"
 lru = "0.6.1"
 lyon = "0.16.2"
 serde = "1.0.116"
+serde_json = "1.0.57"
 stretch = "0.3.2"
 ttf-parser = "0.8.2"
 usvg = { git = "https://github.com/RazrFalcon/resvg", default-features=false }

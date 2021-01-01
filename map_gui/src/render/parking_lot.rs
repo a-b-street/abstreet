@@ -41,6 +41,57 @@ impl DrawParkingLot {
             draw: RefCell::new(None),
         }
     }
+
+    pub fn render(&self, app: &dyn AppLike) -> GeomBatch {
+        let lot = app.map().get_pl(self.id);
+
+        // Trim the front path line away from the sidewalk's center line, so that it doesn't
+        // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
+        let orig_line = &lot.sidewalk_line;
+        let front_path_line = orig_line
+            .slice(
+                Distance::ZERO,
+                orig_line.length() - app.map().get_l(lot.sidewalk_pos.lane()).width / 2.0,
+            )
+            .unwrap_or_else(|| orig_line.clone());
+
+        let mut batch = GeomBatch::new();
+        // TODO This isn't getting clipped to the parking lot boundary properly, so just stick
+        // this on the lowest order for now.
+        let rank = app.map().get_parent(lot.sidewalk_pos.lane()).get_rank();
+        batch.push(
+            app.cs().zoomed_road_surface(LaneType::Sidewalk, rank),
+            front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
+        );
+        batch.push(app.cs().parking_lot, lot.polygon.clone());
+        for aisle in &lot.aisles {
+            let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
+            batch.push(
+                app.cs()
+                    .zoomed_road_surface(LaneType::Driving, osm::RoadRank::Local),
+                PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
+            );
+        }
+        let width = NORMAL_LANE_THICKNESS;
+        let height = PARKING_LOT_SPOT_LENGTH;
+        for (pt, angle) in &lot.spots {
+            let left = pt.project_away(width / 2.0, angle.rotate_degs(90.0));
+            let right = pt.project_away(width / 2.0, angle.rotate_degs(-90.0));
+
+            batch.push(
+                app.cs().general_road_marking(rank),
+                PolyLine::must_new(vec![
+                    left.project_away(height, *angle),
+                    left,
+                    right,
+                    right.project_away(height, *angle),
+                ])
+                .make_polygons(Distance::meters(0.25)),
+            );
+        }
+
+        batch
+    }
 }
 
 impl Renderable for DrawParkingLot {
@@ -51,54 +102,7 @@ impl Renderable for DrawParkingLot {
     fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike, _: &DrawOptions) {
         let mut draw = self.draw.borrow_mut();
         if draw.is_none() {
-            let lot = app.map().get_pl(self.id);
-
-            // Trim the front path line away from the sidewalk's center line, so that it doesn't
-            // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
-            let orig_line = &lot.sidewalk_line;
-            let front_path_line = orig_line
-                .slice(
-                    Distance::ZERO,
-                    orig_line.length() - app.map().get_l(lot.sidewalk_pos.lane()).width / 2.0,
-                )
-                .unwrap_or_else(|| orig_line.clone());
-
-            let mut batch = GeomBatch::new();
-            // TODO This isn't getting clipped to the parking lot boundary properly, so just stick
-            // this on the lowest order for now.
-            let rank = app.map().get_parent(lot.sidewalk_pos.lane()).get_rank();
-            batch.push(
-                app.cs().zoomed_road_surface(LaneType::Sidewalk, rank),
-                front_path_line.make_polygons(NORMAL_LANE_THICKNESS),
-            );
-            batch.push(app.cs().parking_lot, lot.polygon.clone());
-            for aisle in &lot.aisles {
-                let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
-                batch.push(
-                    app.cs()
-                        .zoomed_road_surface(LaneType::Driving, osm::RoadRank::Local),
-                    PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
-                );
-            }
-            let width = NORMAL_LANE_THICKNESS;
-            let height = PARKING_LOT_SPOT_LENGTH;
-            for (pt, angle) in &lot.spots {
-                let left = pt.project_away(width / 2.0, angle.rotate_degs(90.0));
-                let right = pt.project_away(width / 2.0, angle.rotate_degs(-90.0));
-
-                batch.push(
-                    app.cs().general_road_marking(rank),
-                    PolyLine::must_new(vec![
-                        left.project_away(height, *angle),
-                        left,
-                        right,
-                        right.project_away(height, *angle),
-                    ])
-                    .make_polygons(Distance::meters(0.25)),
-                );
-            }
-
-            *draw = Some(g.upload(batch));
+            *draw = Some(g.upload(self.render(app)));
         }
         g.redraw(draw.as_ref().unwrap());
     }

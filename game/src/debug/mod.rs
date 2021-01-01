@@ -4,7 +4,7 @@ use abstutil::{MapName, Parallelism, Tags, Timer};
 use geom::{Distance, Pt2D};
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
-use map_gui::render::{calculate_corners, DrawOptions};
+use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_gui::ID;
 use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS};
@@ -71,6 +71,7 @@ impl DebugMode {
                     Btn::text_fg("find large intersections").build_def(ctx, None),
                     Btn::text_fg("sim internal stats").build_def(ctx, None),
                     Btn::text_fg("blocked-by graph").build_def(ctx, Key::B),
+                    Btn::text_fg("render to GeoJSON").build_def(ctx, Key::G),
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
@@ -256,6 +257,16 @@ impl State<App> for DebugMode {
                 }
                 "blocked-by graph" => {
                     return Transition::Push(blocked_by::Viewer::new(ctx, app));
+                }
+                "render to GeoJSON" => {
+                    let batch = DrawMap::zoomed_batch(ctx, app);
+                    let features = batch.to_geojson(Some(app.primary.map.get_gps_bounds()));
+                    let geojson = geojson::GeoJson::from(geojson::FeatureCollection {
+                        bbox: None,
+                        features,
+                        foreign_members: None,
+                    });
+                    abstutil::write_json("rendered_map.json".to_string(), &geojson);
                 }
                 _ => unreachable!(),
             },

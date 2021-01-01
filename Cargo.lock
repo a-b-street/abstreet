@@ -4390,6 +4390,7 @@ version = "0.1.0"
 dependencies = [
  "abstutil",
  "downcast-rs",
+ "geojson",
  "geom",
  "glow",
  "glutin",
@@ -4400,6 +4401,7 @@ dependencies = [
  "lru",
  "lyon",
  "serde",
+ "serde_json",
  "stretch",
  "ttf-parser 0.8.3",
  "usvg",

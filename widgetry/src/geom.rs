@@ -1,4 +1,4 @@
-use geom::{Angle, Bounds, Polygon, Pt2D};
+use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D, Ring};
 
 use crate::widgets::button::BtnBuilder;
 use crate::{
@@ -217,6 +217,29 @@ impl GeomBatch {
             *z = offset;
         }
         self
+    }
+
+    /// Exports the batch to a list of GeoJSON features, labeling each colored polygon. Z-values,
+    /// alpha values from the color, and non-RGB fill patterns are lost. If the polygon isn't a
+    /// ring, it's skipped. The world-space coordinates are optionally translated back to GPS.
+    pub fn to_geojson(self, gps_bounds: Option<&GPSBounds>) -> Vec<geojson::Feature> {
+        let mut features = Vec::new();
+        for (fill, polygon, _) in self.list {
+            if let Fill::Color(color) = fill {
+                let mut properties = serde_json::Map::new();
+                properties.insert("color".to_string(), color.to_hex().into());
+                if let Ok(ring) = Ring::new(polygon.into_points()) {
+                    features.push(geojson::Feature {
+                        bbox: None,
+                        geometry: Some(ring.to_geojson(gps_bounds)),
+                        id: None,
+                        properties: Some(properties),
+                        foreign_members: None,
+                    });
+                }
+            }
+        }
+        features
     }
 }
 
