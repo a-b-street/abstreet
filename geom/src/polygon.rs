@@ -79,8 +79,8 @@ impl Polygon {
         }
     }
 
-    // TODO No guarantee points forms a ring. In fact, the main caller is PolyLine, and it's NOT
-    // true there yet.
+    // TODO No guarantee points forms a ring. In fact, the main caller is from SVG->lyon parsing,
+    // and it's NOT true there yet.
     pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Polygon {
         assert!(indices.len() % 3 == 0);
         Polygon {

@@ -445,13 +445,15 @@ impl PolyLine {
         result
     }
 
-    /// The resulting polygon is manually triangulated and doesn't have a valid outer Ring.
+    /// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it
+    /// usually does).
     pub fn make_polygons(&self, width: Distance) -> Polygon {
         // TODO How to tune this?
         self.make_polygons_with_miter_threshold(width, MITER_THRESHOLD)
     }
 
-    /// The resulting polygon is manually triangulated and doesn't have a valid outer Ring.
+    /// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it
+    /// usually does).
     pub fn make_polygons_with_miter_threshold(
         &self,
         width: Distance,
@@ -459,22 +461,22 @@ impl PolyLine {
     ) -> Polygon {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
         let side1 = self.shift_with_sharp_angles(width / 2.0, miter_threshold);
-        let side2 = self.shift_with_sharp_angles(-width / 2.0, miter_threshold);
+        let mut side2 = self.shift_with_sharp_angles(-width / 2.0, miter_threshold);
         assert_eq!(side1.len(), side2.len());
 
-        let side2_offset = side1.len();
+        // Order the points so that they form a ring. No deduplication yet, though.
+        let len = 2 * side1.len();
         let mut points = side1;
+        side2.reverse();
         points.extend(side2);
+        points.push(points[0]);
         let mut indices = Vec::new();
 
+        // Walk along the first side, making two triangles each step. This is easy to understand
+        // with a simple diagram, which I should eventually draw in ASCII art here.
         for high_idx in 1..self.pts.len() {
-            // Duplicate first point, since that's what graphics layer expects
-            indices.extend(vec![high_idx, high_idx - 1, side2_offset + high_idx - 1]);
-            indices.extend(vec![
-                side2_offset + high_idx,
-                side2_offset + high_idx - 1,
-                high_idx,
-            ]);
+            indices.extend(vec![high_idx, high_idx - 1, len - high_idx]);
+            indices.extend(vec![len - high_idx, len - high_idx - 1, high_idx]);
         }
         Polygon::precomputed(points, indices)
     }
