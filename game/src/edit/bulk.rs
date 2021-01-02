@@ -103,7 +103,7 @@ impl State<App> for BulkSelect {
                     for r in &self.selector.roads {
                         osm_ids.insert(app.primary.map.get_r(*r).orig_id.osm_way_id);
                     }
-                    abstutil::write_json("osm_ways.json".to_string(), &osm_ids);
+                    abstio::write_json("osm_ways.json".to_string(), &osm_ids);
                     return Transition::Push(PopupMsg::new(
                         ctx,
                         "List of roads exported",

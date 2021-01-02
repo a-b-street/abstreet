@@ -28,7 +28,8 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap, MapName};
+use abstio::MapName;
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Bounds, Distance, GPSBounds, Polygon};
 
 pub use crate::city::City;

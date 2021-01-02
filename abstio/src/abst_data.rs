@@ -25,13 +25,16 @@ pub struct Entry {
 impl Manifest {
     #[cfg(not(target_arch = "wasm32"))]
     pub fn load() -> Manifest {
-        crate::maybe_read_json(crate::path("MANIFEST.json"), &mut crate::Timer::throwaway())
-            .unwrap()
+        crate::maybe_read_json(
+            crate::path("MANIFEST.json"),
+            &mut abstutil::Timer::throwaway(),
+        )
+        .unwrap()
     }
 
     #[cfg(target_arch = "wasm32")]
     pub fn load() -> Manifest {
-        crate::from_json(&include_bytes!("../../data/MANIFEST.json").to_vec()).unwrap()
+        abstutil::from_json(&include_bytes!("../../data/MANIFEST.json").to_vec()).unwrap()
     }
 
     /// Removes entries from the Manifest to match the DataPacks that should exist locally.
@@ -82,7 +85,7 @@ impl DataPacks {
     #[cfg(not(target_arch = "wasm32"))]
     pub fn load_or_create() -> DataPacks {
         let path = crate::path("player/data.json");
-        match crate::maybe_read_json::<DataPacks>(path.clone(), &mut crate::Timer::throwaway()) {
+        match crate::maybe_read_json::<DataPacks>(path.clone(), &mut abstutil::Timer::throwaway()) {
             Ok(mut cfg) => {
                 // The game breaks without this required data pack.
                 cfg.runtime.insert("seattle".to_string());

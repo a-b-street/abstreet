@@ -2,7 +2,8 @@ use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs::File;
 
-use abstutil::{DataPacks, Manifest, Timer};
+use abstio::{DataPacks, Manifest};
+use abstutil::Timer;
 use widgetry::{
     Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Transition, Widget,
 };
@@ -71,7 +72,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                             data_packs.runtime.insert(city);
                         }
                     }
-                    abstutil::write_json(abstutil::path("player/data.json"), &data_packs);
+                    abstio::write_json(abstio::path("player/data.json"), &data_packs);
 
                     let messages = ctx.loading_screen("sync files", |_, timer| sync(timer));
                     return Transition::Multi(vec![
@@ -143,8 +144,8 @@ fn sync(timer: &mut Timer) -> Vec<String> {
     timer.start_iter("sync files", truth.entries.len());
     for (path, entry) in truth.entries {
         timer.next();
-        let local_path = abstutil::path(path.strip_prefix("data/").unwrap());
-        if abstutil::file_exists(&local_path) {
+        let local_path = abstio::path(path.strip_prefix("data/").unwrap());
+        if abstio::file_exists(&local_path) {
             continue;
         }
         let url = format!(

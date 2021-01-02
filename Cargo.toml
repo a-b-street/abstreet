@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+  "abstio",
   "abstutil",
   "collisions",
   "convert_osm",
@@ -37,4 +38,3 @@ opt-level = 3
 # Some niceties for parsing geojson feature properties.
 # Upstreaming at https://github.com/georust/geojson/pull/155
 geojson = { git = "https://github.com/georust/geojson" }
-

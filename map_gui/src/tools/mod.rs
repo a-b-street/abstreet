@@ -1,6 +1,6 @@
 //! Assorted tools and UI states that're useful for applications built to display maps.
 
-use abstutil::MapName;
+use abstio::MapName;
 use geom::Polygon;
 use widgetry::{GfxCtx, Line, Text};
 

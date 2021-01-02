@@ -42,7 +42,7 @@ pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &m
 
 // Modify the filtered KML of planning areas with the number of residents from a different dataset.
 fn correlate_population(kml_path: &str, csv_path: &str, timer: &mut Timer) {
-    let mut shapes = abstutil::read_binary::<ExtraShapes>(kml_path.to_string(), timer);
+    let mut shapes = abstio::read_binary::<ExtraShapes>(kml_path.to_string(), timer);
     for rec in csv::ReaderBuilder::new()
         .delimiter(b';')
         .from_reader(File::open(csv_path).unwrap())
@@ -58,7 +58,7 @@ fn correlate_population(kml_path: &str, csv_path: &str, timer: &mut Timer) {
             }
         }
     }
-    abstutil::write_binary(kml_path.to_string(), &shapes);
+    abstio::write_binary(kml_path.to_string(), &shapes);
 }
 
 #[derive(Debug, Deserialize)]
@@ -72,7 +72,7 @@ struct Record {
 }
 
 pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
-    for shape in abstutil::read_binary::<ExtraShapes>(
+    for shape in abstio::read_binary::<ExtraShapes>(
         "data/input/berlin/planning_areas.bin".to_string(),
         timer,
     )

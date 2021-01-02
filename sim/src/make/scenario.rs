@@ -6,7 +6,8 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, Counter, MapName, Parallelism, Timer};
+use abstio::MapName;
+use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
 use geom::{Distance, Speed, Time};
 use map_model::{BuildingID, Map, OffstreetParking, RoadID};
 
@@ -212,8 +213,8 @@ impl Scenario {
     }
 
     pub fn save(&self) {
-        abstutil::write_binary(
-            abstutil::path_scenario(&self.map_name, &self.scenario_name),
+        abstio::write_binary(
+            abstio::path_scenario(&self.map_name, &self.scenario_name),
             self,
         );
     }

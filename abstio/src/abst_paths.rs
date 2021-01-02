@@ -2,7 +2,9 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{basename, file_exists, list_all_objects};
+use abstutil::basename;
+
+use crate::{file_exists, list_all_objects};
 
 lazy_static::lazy_static! {
     static ref ROOT_DIR: String = {

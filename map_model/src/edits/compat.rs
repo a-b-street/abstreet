@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use serde::Deserialize;
 use serde_json::Value;
 
-use abstutil::MapName;
+use abstio::MapName;
 use geom::Speed;
 
 use crate::raw::OriginalRoad;

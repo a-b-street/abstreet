@@ -9,9 +9,10 @@ use instant::Instant;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
+use abstutil::time::{clear_current_line, prettyprint_time};
+use abstutil::{elapsed_seconds, prettyprint_usize, to_json, Timer, PROGRESS_FREQUENCY_SECONDS};
+
 pub use crate::io::*;
-use crate::time::{clear_current_line, prettyprint_time};
-use crate::{elapsed_seconds, prettyprint_usize, to_json, Timer, PROGRESS_FREQUENCY_SECONDS};
 
 pub fn file_exists<I: Into<String>>(path: I) -> bool {
     Path::new(&path.into()).exists()

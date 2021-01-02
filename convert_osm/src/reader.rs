@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 use std::error::Error;
 
-use abstutil::{prettyprint_usize, slurp_file, Tags, Timer};
+use abstio::slurp_file;
+use abstutil::{prettyprint_usize, Tags, Timer};
 use geom::{GPSBounds, LonLat, Pt2D};
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
 

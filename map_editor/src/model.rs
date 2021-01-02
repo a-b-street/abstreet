@@ -1,7 +1,8 @@
 use std::collections::{BTreeMap, HashMap};
 use std::io::Write;
 
-use abstutil::{MapName, Tags, Timer};
+use abstio::MapName;
+use abstutil::{Tags, Timer};
 use geom::{
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
@@ -50,7 +51,7 @@ impl Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
-        model.map = abstutil::read_binary(path, &mut timer);
+        model.map = abstio::read_binary(path, &mut timer);
         model.intersection_geom = intersection_geom;
 
         if model.include_bldgs {

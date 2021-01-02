@@ -2,7 +2,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap, MapName};
+use abstio::MapName;
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
 
 use crate::edits::{EditCmd, EditIntersection, EditRoad, MapEdits};

@@ -10,7 +10,8 @@ use serde::de::DeserializeOwned;
 #[cfg(not(target_arch = "wasm32"))]
 use tokio::runtime::Runtime;
 
-use abstutil::{MapName, Timer};
+use abstio::MapName;
+use abstutil::Timer;
 use geom::Duration;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Panel, State, Text, Transition, UpdateType};
 
@@ -105,7 +106,7 @@ mod native_loader {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
             debug!("Loading {}", self.path);
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
-                let file = abstutil::read_object(self.path.clone(), timer);
+                let file = abstio::read_object(self.path.clone(), timer);
                 (self.on_load.take().unwrap())(ctx, app, timer, file)
             })
         }
@@ -157,12 +158,12 @@ mod wasm_loader {
                 // re-deployed too
                 format!(
                     "http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/{}.gz",
-                    path.strip_prefix(&abstutil::path("")).unwrap()
+                    path.strip_prefix(&abstio::path("")).unwrap()
                 )
             } else {
                 format!(
                     "http://0.0.0.0:8000/{}",
-                    path.strip_prefix(&abstutil::path("")).unwrap()
+                    path.strip_prefix(&abstio::path("")).unwrap()
                 )
             };
 

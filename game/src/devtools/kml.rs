@@ -143,7 +143,7 @@ impl State<App> for ViewKML {
                         ctx,
                         "Load file",
                         Choice::strings(
-                            abstutil::list_dir(abstutil::path(format!(
+                            abstio::list_dir(abstio::path(format!(
                                 "input/{}/",
                                 app.primary.map.get_city_name()
                             )))
@@ -222,17 +222,17 @@ fn load_objects(
             // Assuming this is some huge file, conveniently convert the extract to .bin.
             // The new file will show up as untracked in git, so it'll be obvious this
             // happened.
-            abstutil::write_binary(path.replace(".kml", ".bin"), &shapes);
+            abstio::write_binary(path.replace(".kml", ".bin"), &shapes);
             shapes
         } else if path.ends_with(".csv") {
             let shapes = ExtraShapes::load_csv(&path, bounds, timer).unwrap();
             // Assuming this is some huge file, conveniently convert the extract to .bin.
             // The new file will show up as untracked in git, so it'll be obvious this
             // happened.
-            abstutil::write_binary(path.replace(".csv", ".bin"), &shapes);
+            abstio::write_binary(path.replace(".csv", ".bin"), &shapes);
             shapes
         } else {
-            abstutil::read_binary::<ExtraShapes>(path.to_string(), timer)
+            abstio::read_binary::<ExtraShapes>(path.to_string(), timer)
         }
     } else {
         ExtraShapes { shapes: Vec::new() }
@@ -283,7 +283,7 @@ fn load_objects(
         clipped_shapes.push(shape);
     }
     if path.is_some() && dump_clipped_shapes {
-        abstutil::write_binary(
+        abstio::write_binary(
             format!("{}_clipped_for_{}.bin", dataset_name, map.get_name().map),
             &clipped_shapes,
         );

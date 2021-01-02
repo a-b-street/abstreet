@@ -38,7 +38,7 @@ pub fn main() {
         opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
     }
     let mut settings = widgetry::Settings::new("A/B Street");
-    settings.window_icon(abstutil::path("system/assets/pregame/icon.png"));
+    settings.window_icon(abstio::path("system/assets/pregame/icon.png"));
     if args.enabled("--dump_raw_events") {
         settings.dump_raw_events();
     }
@@ -78,7 +78,7 @@ pub fn main() {
     let modifiers = flags.sim_flags.modifiers.drain(..).collect();
 
     if mode.is_none() && flags.sim_flags.load.contains("scenarios/") {
-        let (map_name, scenario) = abstutil::parse_scenario_path(&flags.sim_flags.load);
+        let (map_name, scenario) = abstio::parse_scenario_path(&flags.sim_flags.load);
         flags.sim_flags.load = map_name.path();
         mode = Some(sandbox::GameplayMode::PlayScenario(
             map_name, scenario, modifiers,
@@ -135,7 +135,7 @@ fn setup_app(
         let mut timer = abstutil::Timer::new("apply initial edits");
         let edits = map_model::MapEdits::load(
             &app.primary.map,
-            abstutil::path_edits(app.primary.map.get_name(), &edits_name),
+            abstio::path_edits(app.primary.map.get_name(), &edits_name),
             &mut timer,
         )
         .unwrap();

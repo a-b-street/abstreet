@@ -136,7 +136,8 @@ Graphics:
 
 Common utilities:
 
-- `abstutil`: a grab-bag of IO helpers, timing and logging utilities, etc
+- `abstutil`: a grab-bag timing and logging utilities
+- `abstio`: Reading/writing files on native/web
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
 

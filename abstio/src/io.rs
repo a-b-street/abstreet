@@ -2,7 +2,9 @@ use std::collections::BTreeMap;
 
 use serde::de::DeserializeOwned;
 
-use crate::{basename, list_dir, maybe_read_binary, parent_path, slurp_file, Timer};
+use abstutil::{basename, parent_path, Timer};
+
+use crate::{list_dir, maybe_read_binary, slurp_file};
 
 pub fn maybe_read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, String> {
     if !path.ends_with(".json") && !path.ends_with(".geojson") {

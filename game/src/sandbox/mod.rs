@@ -765,7 +765,7 @@ impl State<App> for SandboxLoader {
 
                     return Transition::Push(FileLoader::<App, Analytics>::new(
                         ctx,
-                        abstutil::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
+                        abstio::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
                         Box::new(move |_, _, _, prebaked| {
                             Transition::Multi(vec![
                                 Transition::Pop,

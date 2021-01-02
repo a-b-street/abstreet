@@ -3,7 +3,8 @@ use std::collections::HashSet;
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{MapName, Timer};
+use abstio::MapName;
+use abstutil::Timer;
 use geom::{Bounds, Pt2D};
 
 use crate::{Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
@@ -294,13 +295,13 @@ impl Canvas {
             cam_y: self.cam_y,
             cam_zoom: self.cam_zoom,
         };
-        abstutil::write_json(abstutil::path_camera_state(name), &state);
+        abstio::write_json(abstio::path_camera_state(name), &state);
     }
 
     // True if this succeeds
     pub fn load_camera_state(&mut self, name: &MapName) -> bool {
-        match abstutil::maybe_read_json::<CameraState>(
-            abstutil::path_camera_state(name),
+        match abstio::maybe_read_json::<CameraState>(
+            abstio::path_camera_state(name),
             &mut Timer::throwaway(),
         ) {
             Ok(ref loaded) => {

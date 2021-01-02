@@ -22,7 +22,8 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{serialize_btreemap, CmdArgs, MapName, Parallelism, Timer};
+use abstio::MapName;
+use abstutil::{serialize_btreemap, CmdArgs, Parallelism, Timer};
 use geom::{Distance, Duration, LonLat, Time};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
@@ -38,7 +39,7 @@ lazy_static::lazy_static! {
     static ref SIM: RwLock<Sim> = RwLock::new(Sim::new(&Map::blank(), SimOptions::new("tmp"), &mut Timer::throwaway()));
     static ref LOAD: RwLock<LoadSim> = RwLock::new({
         LoadSim {
-            scenario: abstutil::path_scenario(&MapName::seattle("montlake"), "weekday"),
+            scenario: abstio::path_scenario(&MapName::seattle("montlake"), "weekday"),
             modifiers: Vec::new(),
             edits: None,
             rng_seed: SimFlags::RNG_SEED,
@@ -460,7 +461,7 @@ struct LoadSim {
 
 impl LoadSim {
     fn setup(&self, timer: &mut Timer) -> (Map, Sim) {
-        let mut scenario: Scenario = abstutil::must_read_object(self.scenario.clone(), timer);
+        let mut scenario: Scenario = abstio::must_read_object(self.scenario.clone(), timer);
 
         let mut map = Map::new(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {

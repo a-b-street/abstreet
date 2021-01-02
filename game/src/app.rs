@@ -4,7 +4,8 @@ use std::collections::BTreeMap;
 use maplit::btreemap;
 use rand::seq::SliceRandom;
 
-use abstutil::{MapName, Timer};
+use abstio::MapName;
+use abstutil::Timer;
 use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
@@ -831,7 +832,7 @@ impl SharedAppState for App {
         if self.primary.map.get_edits().commands.is_empty() {
             println!("No edits");
         } else {
-            abstutil::write_json(
+            abstio::write_json(
                 "edits_during_crash.json".to_string(),
                 &self.primary.map.get_edits().to_permanent(&self.primary.map),
             );

@@ -172,7 +172,7 @@ impl<'a> Timer<'a> {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            debug!("{}", line);
+            log::debug!("{}", line);
         }
         if let Some(ref mut sink) = maybe_sink {
             sink.println(line);
@@ -324,7 +324,7 @@ impl<'a> Timer<'a> {
         self.add_result(elapsed, format!("cancelled early"));
     }
 
-    pub(crate) fn add_result(&mut self, elapsed: f64, line: String) {
+    pub fn add_result(&mut self, elapsed: f64, line: String) {
         let padding = "  ".repeat(self.stack.len());
         match self.stack.last_mut() {
             Some(StackEntry::TimerSpan(ref mut s)) => {
@@ -400,7 +400,7 @@ impl<'a> Timer<'a> {
     }
 
     /// Then the caller passes this in as a reader
-    pub(crate) fn read_file(&mut self, path: &str) -> Result<(), String> {
+    pub fn read_file(&mut self, path: &str) -> Result<(), String> {
         self.stack.push(StackEntry::File(
             TimedFileReader::new(path).map_err(|err| err.to_string())?,
         ));

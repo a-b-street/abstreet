@@ -36,7 +36,7 @@ pub fn load(
     timer: &mut Timer,
 ) -> Result<ExtraShapes, Box<dyn Error>> {
     timer.start(format!("read {}", path));
-    let bytes = abstutil::slurp_file(path)?;
+    let bytes = abstio::slurp_file(path)?;
     let raw_string = std::str::from_utf8(&bytes)?;
     let tree = roxmltree::Document::parse(raw_string)?;
     timer.stop(format!("read {}", path));

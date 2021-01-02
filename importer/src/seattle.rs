@@ -4,7 +4,8 @@ use std::fs::File;
 use aabb_quadtree::QuadTree;
 use serde::Deserialize;
 
-use abstutil::{MapName, MultiMap, Timer};
+use abstio::MapName;
+use abstutil::{MultiMap, Timer};
 use geom::{Duration, Polygon, Ring, Time};
 use kml::ExtraShapes;
 use map_model::{BuildingID, BuildingType, BusRouteID, Map};
@@ -66,12 +67,12 @@ fn input(config: &ImporterConfiguration, timer: &mut Timer) {
     );
 
     // This is a little expensive, so delete data/input/seattle/collisions.bin to regenerate this.
-    if !abstutil::file_exists("data/input/seattle/collisions.bin") {
+    if !abstio::file_exists("data/input/seattle/collisions.bin") {
         let shapes = kml::load("data/input/seattle/collisions.kml", &bounds, true, timer).unwrap();
         let collisions = collisions::import_seattle(
             shapes,
             "https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0");
-        abstutil::write_binary("data/input/seattle/collisions.bin".to_string(), &collisions);
+        abstio::write_binary("data/input/seattle/collisions.bin".to_string(), &collisions);
     }
 
     // From https://data-seattlecitygis.opendata.arcgis.com/datasets/parcels-1
@@ -105,7 +106,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
 
     let map = convert_osm::convert(
         convert_osm::Options {
-            osm_input: abstutil::path(format!("input/seattle/osm/{}.osm", name)),
+            osm_input: abstio::path(format!("input/seattle/osm/{}.osm", name)),
             name: MapName::seattle(name),
 
             clip: Some(format!("importer/config/seattle/{}.poly", name)),
@@ -115,10 +116,10 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                 inferred_sidewalks: true,
             },
 
-            onstreet_parking: convert_osm::OnstreetParking::Blockface(abstutil::path(
+            onstreet_parking: convert_osm::OnstreetParking::Blockface(abstio::path(
                 "input/seattle/blockface.bin",
             )),
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::GIS(abstutil::path(
+            public_offstreet_parking: convert_osm::PublicOffstreetParking::GIS(abstio::path(
                 "input/seattle/offstreet_parking.bin",
             )),
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
@@ -131,7 +132,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                     _ => 1,
                 },
             ),
-            elevation: Some(abstutil::path("input/seattle/N47W122.hgt")),
+            elevation: Some(abstio::path("input/seattle/N47W122.hgt")),
             // They mess up 16th and E Marginal badly enough to cause gridlock.
             include_railroads: false,
         },
@@ -148,18 +149,18 @@ pub fn ensure_popdat_exists(
 ) -> (crate::soundcast::PopDat, map_model::Map) {
     let huge_name = MapName::seattle("huge_seattle");
 
-    if abstutil::file_exists(abstutil::path_popdat()) {
-        println!("- {} exists, not regenerating it", abstutil::path_popdat());
+    if abstio::file_exists(abstio::path_popdat()) {
+        println!("- {} exists, not regenerating it", abstio::path_popdat());
         return (
-            abstutil::read_binary(abstutil::path_popdat(), timer),
+            abstio::read_binary(abstio::path_popdat(), timer),
             map_model::Map::new(huge_name.path(), timer),
         );
     }
 
-    if !abstutil::file_exists(abstutil::path_raw_map(&huge_name)) {
+    if !abstio::file_exists(abstio::path_raw_map(&huge_name)) {
         osm_to_raw("huge_seattle", timer, config);
     }
-    let huge_map = if abstutil::file_exists(huge_name.path()) {
+    let huge_map = if abstio::file_exists(huge_name.path()) {
         map_model::Map::new(huge_name.path(), timer)
     } else {
         crate::utils::raw_to_map(&huge_name, true, false, timer)
@@ -255,7 +256,7 @@ struct StopTimeRecord {
 // TODO It's expensive to load the huge zoning_parcels.bin file for every map.
 pub fn match_parcels_to_buildings(map: &mut Map, timer: &mut Timer) {
     let shapes: ExtraShapes =
-        abstutil::read_binary("data/input/seattle/zoning_parcels.bin".to_string(), timer);
+        abstio::read_binary("data/input/seattle/zoning_parcels.bin".to_string(), timer);
     let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();
     // TODO We should refactor something like FindClosest, but for polygon containment
     // The quadtree's ID is just an index into parcels_with_housing.

@@ -8,7 +8,8 @@ use std::fmt;
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap, MapName, Tags, Timer};
+use abstio::MapName;
+use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
@@ -185,7 +186,7 @@ impl RawMap {
     }
 
     pub fn save(&self) {
-        abstutil::write_binary(abstutil::path_raw_map(&self.name), self)
+        abstio::write_binary(abstio::path_raw_map(&self.name), self)
     }
 }
 

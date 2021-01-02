@@ -16,23 +16,35 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9fe5e32de01730eb1f6b7f5b51c17e03e2325bf40a74f754f04f130043affff"
 
 [[package]]
+name = "abstio"
+version = "0.1.0"
+dependencies = [
+ "abstutil",
+ "bincode",
+ "include_dir 0.6.1-alpha.0",
+ "instant",
+ "lazy_static",
+ "log",
+ "serde",
+ "serde_json",
+ "web-sys",
+]
+
+[[package]]
 name = "abstutil"
 version = "0.1.0"
 dependencies = [
  "bincode",
  "console_log",
  "env_logger",
- "include_dir 0.6.1-alpha.0",
  "instant",
  "itertools",
- "lazy_static",
  "log",
  "num_cpus",
  "scoped_threadpool",
  "serde",
  "serde_json",
  "termion",
- "web-sys",
 ]
 
 [[package]]
@@ -572,6 +584,7 @@ dependencies = [
 name = "convert_osm"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "byteorder",
  "geom",
@@ -1223,6 +1236,7 @@ name = "game"
 version = "0.1.0"
 dependencies = [
  "aabb-quadtree",
+ "abstio",
  "abstutil",
  "anyhow",
  "built",
@@ -1597,6 +1611,7 @@ dependencies = [
 name = "headless"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "geojson",
  "geom",
@@ -1786,6 +1801,7 @@ name = "importer"
 version = "0.1.0"
 dependencies = [
  "aabb-quadtree",
+ "abstio",
  "abstutil",
  "collisions",
  "convert_osm",
@@ -1963,6 +1979,7 @@ checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 name = "kml"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "csv",
  "geom",
@@ -2149,6 +2166,7 @@ name = "map_editor"
 version = "0.1.0"
 dependencies = [
  "aabb-quadtree",
+ "abstio",
  "abstutil",
  "geom",
  "log",
@@ -2161,6 +2179,7 @@ name = "map_gui"
 version = "0.1.0"
 dependencies = [
  "aabb-quadtree",
+ "abstio",
  "abstutil",
  "anyhow",
  "colorous",
@@ -2189,6 +2208,7 @@ dependencies = [
 name = "map_model"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "enumset",
  "fast_paths",
@@ -3284,6 +3304,7 @@ dependencies = [
 name = "santa"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "geom",
  "kml",
@@ -3468,6 +3489,7 @@ dependencies = [
 name = "sim"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "ctrlc",
  "downcast-rs",
@@ -3687,6 +3709,7 @@ dependencies = [
 name = "tests"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "convert_osm",
  "geom",
@@ -4022,6 +4045,7 @@ checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
 name = "updater"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "flate2",
  "geom",
@@ -4388,6 +4412,7 @@ checksum = "c168940144dd21fd8046987c16a46a33d5fc84eec29ef9dcddc2ac9e31526b7c"
 name = "widgetry"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "downcast-rs",
  "geojson",

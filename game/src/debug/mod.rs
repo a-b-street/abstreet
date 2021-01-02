@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
-use abstutil::{MapName, Parallelism, Tags, Timer};
+use abstio::MapName;
+use abstutil::{Parallelism, Tags, Timer};
 use geom::{Distance, Pt2D};
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
@@ -191,7 +192,7 @@ impl State<App> for DebugMode {
                     return Transition::Push(ChooseSomething::new(
                         ctx,
                         "Load which savestate?",
-                        Choice::strings(abstutil::list_all_objects(app.primary.sim.save_dir())),
+                        Choice::strings(abstio::list_all_objects(app.primary.sim.save_dir())),
                         Box::new(|ss, ctx, app| {
                             // TODO Oh no, we have to do path construction here :(
                             let ss_path = format!("{}/{}.bin", app.primary.sim.save_dir(), ss);
@@ -270,7 +271,7 @@ impl State<App> for DebugMode {
                             features,
                             foreign_members: None,
                         });
-                        abstutil::write_json("rendered_map.json".to_string(), &geojson);
+                        abstio::write_json("rendered_map.json".to_string(), &geojson);
                         timer.stop("render");
                     });
                 }

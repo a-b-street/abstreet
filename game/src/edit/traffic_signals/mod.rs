@@ -331,7 +331,7 @@ impl State<App> for TrafficSignalEditor {
                 "Export" => {
                     for signal in BundleEdits::get_current(app, &self.members).signals {
                         let ts = signal.export(&app.primary.map);
-                        abstutil::write_json(
+                        abstio::write_json(
                             format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
                             &ts,
                         );

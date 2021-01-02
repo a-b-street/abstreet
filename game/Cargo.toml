@@ -16,6 +16,7 @@ wasm = ["map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.37"
 built = { version = "0.4.3", optional = true, features=["chrono"] }

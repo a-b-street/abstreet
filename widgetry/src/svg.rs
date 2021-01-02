@@ -19,8 +19,8 @@ pub fn load_svg(prerender: &Prerender, filename: &str) -> (GeomBatch, Bounds) {
         return pair;
     }
 
-    let path = abstutil::path(filename);
-    let raw = if let Ok(raw) = abstutil::slurp_file(&path) {
+    let path = abstio::path(filename);
+    let raw = if let Ok(raw) = abstio::slurp_file(&path) {
         raw
     } else {
         panic!("Can't read {}", path);

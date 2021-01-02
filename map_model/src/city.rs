@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use abstutil::{MapName, Timer};
+use abstio::MapName;
+use abstutil::Timer;
 use geom::{GPSBounds, LonLat, Polygon, Ring};
 
 use crate::{AreaType, Map};
@@ -21,7 +22,7 @@ impl City {
     /// If there's a single map covering all the smaller maps, use this.
     pub fn from_huge_map(huge_map: &Map) -> City {
         let city_name = huge_map.get_city_name().clone();
-        let mut regions = abstutil::list_dir(format!("importer/config/{}", city_name))
+        let mut regions = abstio::list_dir(format!("importer/config/{}", city_name))
             .into_iter()
             .filter(|path| path.ends_with(".poly"))
             .map(|path| {
@@ -52,7 +53,7 @@ impl City {
     /// may overlap and may have gaps between them.
     pub fn from_individual_maps(city_name: &str, timer: &mut Timer) -> City {
         let boundary_per_region: Vec<(MapName, Vec<LonLat>)> =
-            abstutil::list_dir(format!("importer/config/{}", city_name))
+            abstio::list_dir(format!("importer/config/{}", city_name))
                 .into_iter()
                 .filter(|path| path.ends_with(".poly"))
                 .map(|path| {
@@ -78,7 +79,7 @@ impl City {
 
         // Add areas from every map. It's fine if they partly overlap.
         let mut areas = Vec::new();
-        for path in abstutil::list_dir(abstutil::path(format!("system/{}/maps", city_name))) {
+        for path in abstio::list_dir(abstio::path(format!("system/{}/maps", city_name))) {
             let map = Map::new(path, timer);
             for area in map.all_areas() {
                 let pts = map.gps_bounds.convert_back(area.polygon.points());

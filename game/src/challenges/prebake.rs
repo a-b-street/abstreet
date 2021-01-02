@@ -1,4 +1,5 @@
-use abstutil::{prettyprint_usize, MapName, Timer};
+use abstio::MapName;
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, Time};
 use map_model::Map;
 use sim::{AlertHandler, Scenario, Sim, SimFlags, SimOptions};
@@ -12,10 +13,8 @@ pub fn prebake_all() {
 
     {
         let map = map_model::Map::new(MapName::seattle("montlake").path(), &mut timer);
-        let scenario: Scenario = abstutil::read_binary(
-            abstutil::path_scenario(map.get_name(), "weekday"),
-            &mut timer,
-        );
+        let scenario: Scenario =
+            abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
         prebake(&map, scenario, None, &mut timer);
 
         for generator in TutorialState::scenarios_to_prebake(&map) {
@@ -30,10 +29,8 @@ pub fn prebake_all() {
 
     for name in vec![MapName::seattle("lakeslice")] {
         let map = map_model::Map::new(name.path(), &mut timer);
-        let scenario: Scenario = abstutil::read_binary(
-            abstutil::path_scenario(map.get_name(), "weekday"),
-            &mut timer,
-        );
+        let scenario: Scenario =
+            abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
         prebake(&map, scenario, None, &mut timer);
     }
 }
@@ -62,8 +59,8 @@ fn prebake(map: &Map, scenario: Scenario, time_limit: Option<Duration>, timer: &
         );
     }
 
-    abstutil::write_binary(
-        abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
+    abstio::write_binary(
+        abstio::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
         sim.get_analytics(),
     );
     let agents_left = sim.num_agents().sum();

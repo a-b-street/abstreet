@@ -5,6 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 flate2 = "1.0.19"
 geom = { path = "../geom" }

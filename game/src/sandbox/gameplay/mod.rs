@@ -3,7 +3,8 @@ use core::pin::Pin;
 
 use rand_xorshift::XorShiftRng;
 
-use abstutil::{MapName, Timer};
+use abstio::MapName;
+use abstutil::Timer;
 use geom::Duration;
 use map_model::{EditCmd, EditIntersection, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
@@ -156,7 +157,7 @@ impl GameplayMode {
                 Ok(scenario_from_app)
             }))
         } else {
-            LoadScenario::Path(abstutil::path_scenario(map.get_name(), &name))
+            LoadScenario::Path(abstio::path_scenario(map.get_name(), &name))
         }
     }
 

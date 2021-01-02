@@ -174,7 +174,7 @@ impl State<App> for MainMenu {
                     return Tutorial::start(ctx, app);
                 }
                 "Sandbox mode" => {
-                    let scenario = if abstutil::file_exists(abstutil::path_scenario(
+                    let scenario = if abstio::file_exists(abstio::path_scenario(
                         app.primary.map.get_name(),
                         "weekday",
                     )) {
@@ -320,7 +320,7 @@ impl Proposals {
         // are under version control, much more likely to notice when they break (or we could add a
         // step to data/regen.sh).
         for (name, edits) in
-            abstutil::load_all_objects::<PermanentMapEdits>(abstutil::path("system/proposals"))
+            abstio::load_all_objects::<PermanentMapEdits>(abstio::path("system/proposals"))
         {
             if current == Some(name.clone()) {
                 let mut txt = Text::new();

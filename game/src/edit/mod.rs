@@ -208,7 +208,7 @@ impl State<App> for EditMode {
                                     false,
                                     Some(Transition::Pop),
                                     Box::new(move |_, app| {
-                                        abstutil::delete_file(abstutil::path_edits(
+                                        abstio::delete_file(abstio::path_edits(
                                             app.primary.map.get_name(),
                                             &old_name,
                                         ));
@@ -261,7 +261,7 @@ impl State<App> for EditMode {
                                 Box::new(|_, _| {}),
                             )),
                             "delete this proposal and remove all edits" => {
-                                abstutil::delete_file(abstutil::path_edits(
+                                abstio::delete_file(abstio::path_edits(
                                     app.primary.map.get_name(),
                                     &app.primary.map.get_edits().edits_name,
                                 ));
@@ -432,7 +432,7 @@ impl SaveEdits {
             self.panel
                 .replace(ctx, "Save", Btn::text_bg2("Save").inactive(ctx));
             self.panel.replace(ctx, "warning", Text::new().draw(ctx));
-        } else if abstutil::file_exists(abstutil::path_edits(
+        } else if abstio::file_exists(abstio::path_edits(
             app.primary.map.get_name(),
             &self.current_name,
         )) {
@@ -511,7 +511,7 @@ impl LoadEdits {
             Line("Your proposals").small_heading().draw(ctx),
             Menu::new(
                 ctx,
-                abstutil::list_all_objects(abstutil::path_all_edits(app.primary.map.get_name()))
+                abstio::list_all_objects(abstio::path_all_edits(app.primary.map.get_name()))
                     .into_iter()
                     .map(|name| Choice::new(name.clone(), ()).active(&name != current_edits_name))
                     .collect(),
@@ -521,8 +521,8 @@ impl LoadEdits {
         // common use case.
         let mut proposals = vec![Line("Community proposals").small_heading().draw(ctx)];
         // Up-front filter out proposals that definitely don't fit the current map
-        for name in abstutil::list_all_objects(abstutil::path("system/proposals")) {
-            let path = abstutil::path(format!("system/proposals/{}.json", name));
+        for name in abstio::list_all_objects(abstio::path("system/proposals")) {
+            let path = abstio::path(format!("system/proposals/{}.json", name));
             if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
                 proposals.push(Btn::text_fg(&name).build(ctx, path, None));
             }
@@ -560,7 +560,7 @@ impl State<App> for LoadEdits {
                         let path = if path.ends_with(".json") {
                             path.to_string()
                         } else {
-                            abstutil::path_edits(app.primary.map.get_name(), path)
+                            abstio::path_edits(app.primary.map.get_name(), path)
                         };
 
                         match MapEdits::load(

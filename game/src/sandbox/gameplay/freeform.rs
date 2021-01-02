@@ -71,7 +71,7 @@ impl GameplayState for Freeform {
                     ctx,
                     "Name this scenario",
                     Box::new(|name, ctx, app| {
-                        if abstutil::file_exists(abstutil::path_scenario(
+                        if abstio::file_exists(abstio::path_scenario(
                             app.primary.map.get_name(),
                             &name,
                         )) {
@@ -149,8 +149,7 @@ pub fn make_change_traffic(
     current: String,
 ) -> Box<dyn State<App>> {
     let mut choices = Vec::new();
-    for name in abstutil::list_all_objects(abstutil::path_all_scenarios(app.primary.map.get_name()))
-    {
+    for name in abstio::list_all_objects(abstio::path_all_scenarios(app.primary.map.get_name())) {
         if name == "weekday" {
             choices.push(Choice::new("realistic weekday traffic", name).tooltip(
                 "Trips will begin throughout the entire day. Midnight is usually quiet, so you \

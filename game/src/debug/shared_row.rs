@@ -23,7 +23,7 @@ pub fn export(roads: Vec<RoadID>, intersections: Vec<IntersectionID>, map: &Map)
         features,
         foreign_members: None,
     });
-    abstutil::write_json(path.clone(), &geojson);
+    abstio::write_json(path.clone(), &geojson);
     path
 }
 

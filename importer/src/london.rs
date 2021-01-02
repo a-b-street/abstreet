@@ -20,5 +20,5 @@ pub fn import_extra_data(map: &RawMap, config: &ImporterConfiguration, timer: &m
     let collisions = collisions::import_stats19(
         shapes,
         "http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip");
-    abstutil::write_binary("data/input/london/collisions.bin".to_string(), &collisions);
+    abstio::write_binary("data/input/london/collisions.bin".to_string(), &collisions);
 }

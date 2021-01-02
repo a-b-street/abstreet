@@ -30,7 +30,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     // Use this to quickly test overrides to some ways before upstreaming in OSM.
     if false {
-        let ways: BTreeSet<WayID> = abstutil::read_json("osm_ways.json".to_string(), timer);
+        let ways: BTreeSet<WayID> = abstio::read_json("osm_ways.json".to_string(), timer);
         for id in ways {
             doc.ways
                 .get_mut(&id)
@@ -164,12 +164,12 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         && ((map.name.city == "seattle" && map.name.map == "huge_seattle")
             || map.name.city != "seattle")
     {
-        abstutil::write_binary(
-            abstutil::path(format!("input/{}/footways.bin", map.name.city)),
+        abstio::write_binary(
+            abstio::path(format!("input/{}/footways.bin", map.name.city)),
             &extra_footways,
         );
-        abstutil::write_binary(
-            abstutil::path(format!("input/{}/service_roads.bin", map.name.city)),
+        abstio::write_binary(
+            abstio::path(format!("input/{}/service_roads.bin", map.name.city)),
             &extra_service_roads,
         );
     }

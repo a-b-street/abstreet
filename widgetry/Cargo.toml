@@ -9,6 +9,7 @@ native-backend = ["glow", "glutin", "usvg/system-fonts", "usvg/text"]
 wasm-backend = ["glow/web-sys", "instant/wasm-bindgen", "usvg/text", "wasm-bindgen", "web-sys", "winit/web-sys"]
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 # backtrace = "0.3.40"
 downcast-rs = "1.2.0"

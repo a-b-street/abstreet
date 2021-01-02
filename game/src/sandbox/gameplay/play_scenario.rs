@@ -57,7 +57,7 @@ impl GameplayState for PlayScenario {
                         app,
                         Box::new(move |ctx, app| {
                             // Try to load a scenario with the same name exists
-                            let mode = if abstutil::file_exists(abstutil::path_scenario(
+                            let mode = if abstio::file_exists(abstio::path_scenario(
                                 app.primary.map.get_name(),
                                 &scenario,
                             )) {
@@ -255,7 +255,7 @@ impl State<App> for EditScenarioModifiers {
                         ctx,
                         "Which trips do you want to add in?",
                         // TODO Exclude weekday?
-                        Choice::strings(abstutil::list_all_objects(abstutil::path_all_scenarios(
+                        Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
                             app.primary.map.get_name(),
                         ))),
                         Box::new(|name, _, _| {

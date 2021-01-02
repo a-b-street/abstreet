@@ -38,7 +38,7 @@ impl<T> SimpleApp<T> {
             opts.update_from_args(&mut args);
             let map_path = args
                 .optional_free()
-                .unwrap_or(abstutil::MapName::seattle("montlake").path());
+                .unwrap_or(abstio::MapName::seattle("montlake").path());
             args.done();
 
             let cs = ColorScheme::new(ctx, opts.color_scheme);

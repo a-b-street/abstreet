@@ -208,9 +208,9 @@ impl State<App> for StoryMapEditor {
                 "load" => {
                     // TODO autosave
                     let mut choices = Vec::new();
-                    for (name, story) in abstutil::load_all_objects::<RecordedStoryMap>(
-                        abstutil::path("player/stories"),
-                    ) {
+                    for (name, story) in
+                        abstio::load_all_objects::<RecordedStoryMap>(abstio::path("player/stories"))
+                    {
                         if story.name == self.story.name {
                             continue;
                         }
@@ -414,8 +414,8 @@ impl StoryMap {
                 })
                 .collect(),
         };
-        abstutil::write_json(
-            abstutil::path(format!("player/stories/{}.json", story.name)),
+        abstio::write_json(
+            abstio::path(format!("player/stories/{}.json", story.name)),
             &story,
         );
     }

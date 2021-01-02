@@ -6,7 +6,8 @@ use std::process::Command;
 
 use walkdir::WalkDir;
 
-use abstutil::{prettyprint_usize, CmdArgs, DataPacks, Entry, Manifest, Timer};
+use abstio::{DataPacks, Entry, Manifest};
+use abstutil::{prettyprint_usize, CmdArgs, Timer};
 use geom::Percent;
 
 const MD5_BUF_READ_SIZE: usize = 4096;
@@ -97,7 +98,7 @@ fn upload(version: String) {
     let remote_base = format!("/home/dabreegster/s3_abst_data/{}", version);
 
     let mut local = generate_manifest();
-    let remote: Manifest = abstutil::maybe_read_json(
+    let remote: Manifest = abstio::maybe_read_json(
         format!("{}/MANIFEST.json", remote_base),
         &mut Timer::throwaway(),
     )
@@ -132,8 +133,8 @@ fn upload(version: String) {
         entry.compressed_size_bytes = std::fs::metadata(&remote_path).unwrap().len() as usize;
     }
 
-    abstutil::write_json(format!("{}/MANIFEST.json", remote_base), &local);
-    abstutil::write_json("data/MANIFEST.json".to_string(), &local);
+    abstio::write_json(format!("{}/MANIFEST.json", remote_base), &local);
+    abstio::write_json("data/MANIFEST.json".to_string(), &local);
 
     must_run_cmd(
         Command::new("aws")
@@ -234,7 +235,7 @@ async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>, Box<dyn
     // Manually enable to "download" from my local copy
     if false {
         let path = format!("/home/dabreegster/s3_abst_data/{}/{}.gz", version, path);
-        return abstutil::slurp_file(&path).map_err(|err| err.into());
+        return abstio::slurp_file(&path).map_err(|err| err.into());
     }
 
     let src = format!(

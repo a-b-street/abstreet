@@ -21,8 +21,8 @@ impl CollisionsViewer {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let map = &app.primary.map;
         let data = ctx.loading_screen("load collision data", |_, mut timer| {
-            let mut all: CollisionDataset = abstutil::read_binary(
-                abstutil::path(format!("input/{}/collisions.bin", map.get_city_name())),
+            let mut all: CollisionDataset = abstio::read_binary(
+                abstio::path(format!("input/{}/collisions.bin", map.get_city_name())),
                 &mut timer,
             );
             all.collisions.retain(|c| {

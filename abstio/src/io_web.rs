@@ -6,8 +6,10 @@ use std::collections::BTreeSet;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
+use abstutil::{to_json, Timer};
+
 pub use crate::io::*;
-use crate::{path_player, to_json, Manifest, Timer};
+use crate::{path_player, Manifest};
 
 // Bring in everything from data/system/ matching one of the prefixes -- aka, no scenarios, and
 // only the smallest map. Everything else has to be dynamically loaded over HTTP.

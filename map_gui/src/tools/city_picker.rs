@@ -1,4 +1,5 @@
-use abstutil::{prettyprint_usize, MapName};
+use abstio::MapName;
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
@@ -30,9 +31,9 @@ impl<A: AppLike + 'static> CityPicker<A> {
         let mut batch = GeomBatch::new();
         let mut regions = Vec::new();
 
-        if let Ok(city) = abstutil::maybe_read_binary::<City>(
-            abstutil::path(format!("system/{}/city.bin", app.map().get_city_name())),
-            &mut abstutil::Timer::throwaway(),
+        if let Ok(city) = abstio::maybe_read_binary::<City>(
+            abstio::path(format!("system/{}/city.bin", app.map().get_city_name())),
+            &mut Timer::throwaway(),
         ) {
             let bounds = city.boundary.get_bounds();
 

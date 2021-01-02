@@ -1,7 +1,8 @@
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
-use abstutil::{CmdArgs, MapName};
+use abstio::MapName;
+use abstutil::CmdArgs;
 use map_model::{Map, MapEdits};
 
 use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
@@ -60,15 +61,15 @@ impl SimFlags {
 
         let mut opts = self.opts.clone();
 
-        if self.load.starts_with(&abstutil::path("player/saves/")) {
+        if self.load.starts_with(&abstio::path("player/saves/")) {
             timer.note(format!("Resuming from {}", self.load));
 
-            let sim: Sim = abstutil::must_read_object(self.load.clone(), timer);
+            let sim: Sim = abstio::must_read_object(self.load.clone(), timer);
 
             let mut map = Map::new(sim.map_name.path(), timer);
             match MapEdits::load(
                 &map,
-                abstutil::path_edits(map.get_name(), &sim.edits_name),
+                abstio::path_edits(map.get_name(), &sim.edits_name),
                 timer,
             ) {
                 Ok(edits) => {
@@ -87,7 +88,7 @@ impl SimFlags {
                 self.load
             ));
 
-            let mut scenario: Scenario = abstutil::must_read_object(self.load.clone(), timer);
+            let mut scenario: Scenario = abstio::must_read_object(self.load.clone(), timer);
 
             let map = Map::new(scenario.map_name.path(), timer);
 

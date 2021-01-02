@@ -5,6 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 enumset = { version = "1.0.1", features=["serde"] }
 fast_paths = { git = "https://github.com/easbar/fast_paths" }

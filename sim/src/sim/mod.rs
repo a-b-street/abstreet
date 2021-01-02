@@ -8,7 +8,8 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, MapName, Timer};
+use abstio::MapName;
+use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRoute, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints,
@@ -750,13 +751,13 @@ impl Sim {
 // Savestating
 impl Sim {
     pub fn save_dir(&self) -> String {
-        abstutil::path_all_saves(&self.map_name, &self.edits_name, &self.run_name)
+        abstio::path_all_saves(&self.map_name, &self.edits_name, &self.run_name)
     }
 
     fn save_path(&self, base_time: Time) -> String {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
-        abstutil::path_save(
+        abstio::path_save(
             &self.map_name,
             &self.edits_name,
             &self.run_name,
@@ -802,21 +803,21 @@ impl Sim {
         }
 
         let path = self.save_path(self.time);
-        abstutil::write_binary(path.clone(), self);
+        abstio::write_binary(path.clone(), self);
 
         path
     }
 
     pub fn find_previous_savestate(&self, base_time: Time) -> Option<String> {
-        abstutil::find_prev_file(self.save_path(base_time))
+        abstio::find_prev_file(self.save_path(base_time))
     }
 
     pub fn find_next_savestate(&self, base_time: Time) -> Option<String> {
-        abstutil::find_next_file(self.save_path(base_time))
+        abstio::find_next_file(self.save_path(base_time))
     }
 
     pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim, String> {
-        abstutil::maybe_read_binary(path, timer)
+        abstio::maybe_read_binary(path, timer)
     }
 }
 

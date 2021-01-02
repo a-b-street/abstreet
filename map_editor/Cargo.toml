@@ -10,6 +10,7 @@ wasm = ["widgetry/wasm-backend"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 log = "0.4.11"
