@@ -152,18 +152,20 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">Command</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">must_run_cmd</span>, <span class="ident">MapName</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">must_run_cmd</span>, <span class="ident">Timer</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
 
 <span class="comment">// If the output file doesn&#39;t already exist, downloads the URL into that location. Automatically</span>
 <span class="comment">// uncompresses .zip and .gz files.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">output</span>);
+    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="ident">output</span>);
     <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">exists</span>() {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {} already exists&quot;</span>, <span class="ident">output</span>);
         <span class="kw">return</span>;
@@ -217,7 +219,7 @@
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) {
     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.kml&quot;</span>));
-    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">output</span>);
+    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="ident">output</span>);
     <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">exists</span>() {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {} already exists&quot;</span>, <span class="ident">output</span>);
         <span class="kw">return</span>;
@@ -244,7 +246,7 @@
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- Extracting KML data&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">kml</span>::<span class="ident">load</span>(<span class="ident">tmp</span>, <span class="ident">bounds</span>, <span class="ident">require_all_pts_in_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
-    <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="ident">output</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
+    <span class="ident">abstio</span>::<span class="ident">write_binary</span>(<span class="ident">output</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
     <span class="comment">// Keep the intermediate file; otherwise we inadvertently grab new upstream data when</span>
     <span class="comment">// changing some binary formats</span>
     <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">rename</span>(<span class="ident">tmp</span>, <span class="ident">output</span>.<span class="ident">replace</span>(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>)).<span class="ident">unwrap</span>();
@@ -258,9 +260,9 @@
     <span class="ident">output</span>: <span class="ident">String</span>,
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
 ) {
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">input</span>);
+    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="ident">input</span>);
     <span class="kw">let</span> <span class="ident">clipping_polygon</span> <span class="op">=</span> <span class="ident">clipping_polygon</span>;
-    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="ident">output</span>);
+    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="ident">output</span>);
 
     <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">exists</span>() {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {} already exists&quot;</span>, <span class="ident">output</span>);
@@ -285,7 +287,7 @@
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">map_model</span>::<span class="ident">Map</span> {
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Raw-&gt;Map for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-    <span class="kw">let</span> <span class="ident">raw</span>: <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_binary</span>(<span class="ident">abstutil</span>::<span class="ident">path_raw_map</span>(<span class="ident">name</span>), <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="ident">raw</span>: <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>(<span class="ident">abstio</span>::<span class="ident">path_raw_map</span>(<span class="ident">name</span>), <span class="ident">timer</span>);
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="ident">build_ch</span>, <span class="ident">keep_bldg_tags</span>, <span class="ident">timer</span>);
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;save map&quot;</span>);
     <span class="ident">map</span>.<span class="ident">save</span>();
@@ -295,8 +297,8 @@
     <span class="comment">// TODO Just sticking this here for now</span>
     <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;huge_seattle&quot;</span> {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;generating city manifest&quot;</span>);
-        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(
-            <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/city.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">get_city_name</span>())),
+        <span class="ident">abstio</span>::<span class="ident">write_binary</span>(
+            <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/city.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">get_city_name</span>())),
             <span class="kw-2">&amp;</span><span class="ident">map_model</span>::<span class="ident">City</span>::<span class="ident">from_huge_map</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>),
         );
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;generating city manifest&quot;</span>);

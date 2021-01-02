@@ -88,7 +88,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
@@ -153,7 +153,7 @@
 
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
             <span class="ident">convert_osm</span>::<span class="ident">Options</span> {
-                <span class="ident">osm_input</span>: <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/osm/{}.osm&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>)),
+                <span class="ident">osm_input</span>: <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/osm/{}.osm&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>)),
                 <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">clone</span>(),
 
                 <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;importer/config/{}/{}.poly&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>)),

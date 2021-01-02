@@ -245,12 +245,14 @@
 <span id="242">242</span>
 <span id="243">243</span>
 <span id="244">244</span>
+<span id="245">245</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">MapName</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Time</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edits</span>::{<span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">EditRoad</span>, <span class="ident">MapEdits</span>};

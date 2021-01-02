@@ -589,7 +589,7 @@
 
     <span class="comment">// Use this to quickly test overrides to some ways before upstreaming in OSM.</span>
     <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">let</span> <span class="ident">ways</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">WayID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_json</span>(<span class="string">&quot;osm_ways.json&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">timer</span>);
+        <span class="kw">let</span> <span class="ident">ways</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">WayID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_json</span>(<span class="string">&quot;osm_ways.json&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">timer</span>);
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">ways</span> {
             <span class="ident">doc</span>.<span class="ident">ways</span>
                 .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
@@ -723,12 +723,12 @@
         <span class="op">&amp;&amp;</span> ((<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;seattle&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;huge_seattle&quot;</span>)
             <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;seattle&quot;</span>)
     {
-        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(
-            <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/footways.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>)),
+        <span class="ident">abstio</span>::<span class="ident">write_binary</span>(
+            <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/footways.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>)),
             <span class="kw-2">&amp;</span><span class="ident">extra_footways</span>,
         );
-        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(
-            <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/service_roads.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>)),
+        <span class="ident">abstio</span>::<span class="ident">write_binary</span>(
+            <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/service_roads.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>)),
             <span class="kw-2">&amp;</span><span class="ident">extra_service_roads</span>,
         );
     }

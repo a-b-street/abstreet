@@ -118,6 +118,7 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens</span>
 <span class="doccomment">//! in `convert_osm` and here.</span>
@@ -149,7 +150,8 @@
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">MapName</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">city</span>::<span class="ident">City</span>;

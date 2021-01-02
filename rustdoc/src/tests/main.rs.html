@@ -234,6 +234,7 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
+<span id="234">234</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Integration tests</span>
 
@@ -242,13 +243,14 @@
 
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 
 <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">test_lane_changing</span>(<span class="kw-2">&amp;</span><span class="ident">import_map</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(
+    <span class="ident">test_lane_changing</span>(<span class="kw-2">&amp;</span><span class="ident">import_map</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(
         <span class="string">&quot;../tests/input/lane_selection.osm&quot;</span>,
     )))<span class="question-mark">?</span>;
     <span class="ident">test_map_importer</span>()<span class="question-mark">?</span>;
@@ -268,7 +270,7 @@
         <span class="string">&quot;multiple_left_turn_lanes&quot;</span>,
     ] {
         <span class="comment">// TODO It&#39;s kind of a hack to reference the crate&#39;s directory relative to the data dir.</span>
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">import_map</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;../tests/input/{}.osm&quot;</span>, <span class="ident">name</span>)));
+        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">import_map</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;../tests/input/{}.osm&quot;</span>, <span class="ident">name</span>)));
         <span class="comment">// Enable to debug the result wih the normal GUI</span>
         <span class="kw">if</span> <span class="bool-val">false</span> {
             <span class="ident">map</span>.<span class="ident">save</span>();
@@ -281,7 +283,7 @@
 
 <span class="doccomment">/// Run the contents of a .osm through the full map importer with default options.</span>
 <span class="kw">fn</span> <span class="ident">import_map</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;convert synthetic map&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;convert synthetic map&quot;</span>);
     <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
         <span class="ident">convert_osm</span>::<span class="ident">Options</span> {
             <span class="ident">name</span>: <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;oneshot&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)),
@@ -306,7 +308,7 @@
 
 <span class="doccomment">/// Verify what turns are generated by writing (from lane, to lane, turn type).</span>
 <span class="kw">fn</span> <span class="ident">dump_turn_goldenfile</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;../tests/goldenfiles/{}.txt&quot;</span>, <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span>));
+    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;../tests/goldenfiles/{}.txt&quot;</span>, <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span>));
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
     <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_turns</span>() {
         <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{} is a {:?}&quot;</span>, <span class="ident">t</span>.<span class="ident">id</span>, <span class="ident">t</span>.<span class="ident">turn_type</span>)<span class="question-mark">?</span>;
@@ -320,7 +322,7 @@
     <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">MapName</span>::<span class="ident">list_all_maps</span>() {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
         <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_city_name</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;seattle&quot;</span> {
-            <span class="ident">abstutil</span>::<span class="ident">read_binary</span>(<span class="ident">abstutil</span>::<span class="ident">path_scenario</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="string">&quot;weekday&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+            <span class="ident">abstio</span>::<span class="ident">read_binary</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="string">&quot;weekday&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">sim</span>::<span class="ident">SimFlags</span>::<span class="ident">for_test</span>(<span class="string">&quot;smoke_test&quot;</span>).<span class="ident">make_rng</span>();
             <span class="ident">sim</span>::<span class="ident">ScenarioGenerator</span>::<span class="ident">proletariat_robot</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
@@ -346,7 +348,7 @@
 
 <span class="doccomment">/// Describe all public transit routes and keep under version control to spot diffs easily.</span>
 <span class="kw">fn</span> <span class="ident">dump_route_goldenfile</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">map_model</span>::<span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
         <span class="string">&quot;route_goldenfiles/{}.txt&quot;</span>,
         <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">as_filename</span>()
     ));
@@ -372,15 +374,15 @@
 <span class="doccomment">/// Verify all edits under version control can be correctly apply to their map.</span>
 <span class="kw">fn</span> <span class="ident">check_proposals</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;check all proposals&quot;</span>);
-    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;system/proposals&quot;</span>)) {
-        <span class="kw">match</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>(
-            <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/proposals/{}.json&quot;</span>, <span class="ident">name</span>)),
+    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">abstio</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;system/proposals&quot;</span>)) {
+        <span class="kw">match</span> <span class="ident">abstio</span>::<span class="ident">maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>(
+            <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/proposals/{}.json&quot;</span>, <span class="ident">name</span>)),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
         ) {
             <span class="prelude-val">Ok</span>(<span class="ident">perma</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">perma</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">perma</span>.<span class="ident">clone</span>().<span class="ident">to_edits</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>) {
-                    <span class="ident">abstutil</span>::<span class="ident">write_json</span>(
+                    <span class="ident">abstio</span>::<span class="ident">write_json</span>(
                         <span class="string">&quot;repair_attempt.json&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="kw-2">&amp;</span><span class="ident">perma</span>.<span class="ident">to_edits_permissive</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>).<span class="ident">to_permanent</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>),
                     );

@@ -351,7 +351,7 @@
             <span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
             <span class="kw">let</span> <span class="ident">map_path</span> <span class="op">=</span> <span class="ident">args</span>
                 .<span class="ident">optional_free</span>()
-                .<span class="ident">unwrap_or</span>(<span class="ident">abstutil</span>::<span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>());
+                .<span class="ident">unwrap_or</span>(<span class="ident">abstio</span>::<span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>());
             <span class="ident">args</span>.<span class="ident">done</span>();
 
             <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>.<span class="ident">color_scheme</span>);

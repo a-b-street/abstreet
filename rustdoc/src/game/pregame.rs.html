@@ -724,7 +724,7 @@
                     <span class="kw">return</span> <span class="ident">Tutorial</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;Sandbox mode&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_scenario</span>(
+                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
                         <span class="string">&quot;weekday&quot;</span>,
                     )) {
@@ -870,7 +870,7 @@
         <span class="comment">// are under version control, much more likely to notice when they break (or we could add a</span>
         <span class="comment">// step to data/regen.sh).</span>
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">edits</span>) <span class="kw">in</span>
-            <span class="ident">abstutil</span>::<span class="ident">load_all_objects</span>::<span class="op">&lt;</span><span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;system/proposals&quot;</span>))
+            <span class="ident">abstio</span>::<span class="ident">load_all_objects</span>::<span class="op">&lt;</span><span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;system/proposals&quot;</span>))
         {
             <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">clone</span>()) {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();

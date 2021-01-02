@@ -856,6 +856,7 @@
 <span id="853">853</span>
 <span id="854">854</span>
 <span id="855">855</span>
+<span id="856">856</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -863,7 +864,8 @@
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreemap</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
@@ -1690,7 +1692,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
             <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;No edits&quot;</span>);
         } <span class="kw">else</span> {
-            <span class="ident">abstutil</span>::<span class="ident">write_json</span>(
+            <span class="ident">abstio</span>::<span class="ident">write_json</span>(
                 <span class="string">&quot;edits_during_crash.json&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">to_permanent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
             );

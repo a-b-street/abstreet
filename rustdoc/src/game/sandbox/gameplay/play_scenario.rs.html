@@ -496,7 +496,7 @@
                         <span class="ident">app</span>,
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                             <span class="comment">// Try to load a scenario with the same name exists</span>
-                            <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_scenario</span>(
+                            <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(
                                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
                                 <span class="kw-2">&amp;</span><span class="ident">scenario</span>,
                             )) {
@@ -694,7 +694,7 @@
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Which trips do you want to add in?&quot;</span>,
                         <span class="comment">// TODO Exclude weekday?</span>
-                        <span class="ident">Choice</span>::<span class="ident">strings</span>(<span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path_all_scenarios</span>(
+                        <span class="ident">Choice</span>::<span class="ident">strings</span>(<span class="ident">abstio</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstio</span>::<span class="ident">path_all_scenarios</span>(
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
                         ))),
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {

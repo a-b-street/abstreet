@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["abstutil"] = [{"text":"impl Ord for MapName","synthetic":false,"types":[]}];
+implementors["abstio"] = [{"text":"impl Ord for MapName","synthetic":false,"types":[]}];
 implementors["game"] = [{"text":"impl Ord for Loc","synthetic":false,"types":[]},{"text":"impl Ord for TutorialPointer","synthetic":false,"types":[]},{"text":"impl Ord for GameplayMode","synthetic":false,"types":[]}];
 implementors["geom"] = [{"text":"impl Ord for Distance","synthetic":false,"types":[]},{"text":"impl Ord for Duration","synthetic":false,"types":[]},{"text":"impl Ord for LonLat","synthetic":false,"types":[]},{"text":"impl Ord for HashablePt2D","synthetic":false,"types":[]},{"text":"impl Ord for Statistic","synthetic":false,"types":[]},{"text":"impl Ord for Time","synthetic":false,"types":[]}];
 implementors["map_gui"] = [{"text":"impl Ord for ID","synthetic":false,"types":[]}];

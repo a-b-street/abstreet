@@ -24,49 +24,14 @@
 <span id="21">21</span>
 <span id="22">22</span>
 <span id="23">23</span>
-<span id="24">24</span>
-<span id="25">25</span>
-<span id="26">26</span>
-<span id="27">27</span>
-<span id="28">28</span>
-<span id="29">29</span>
-<span id="30">30</span>
-<span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The contents of this crate need to be organized better:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! - Timer (a mix of logging, profiling, and even parallel execution)</span>
-<span class="doccomment">//! - IO utilities, some of which have web equivalents using include_dir</span>
-<span class="doccomment">//! - Utilities to find A/B Street-specific data</span>
 <span class="doccomment">//! - true utility functions (collections, prettyprinting, CLI parsing</span>
-
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">io_native</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">io_native</span>::<span class="kw-2">*</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">io_web</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">io_web</span>::<span class="kw-2">*</span>;
 
 <span class="comment">// I&#39;m not generally a fan of wildcard exports, but they&#39;re more maintable here.</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">serde</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">abst_data</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">abst_paths</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">cli</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">collections</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">logger</span>::<span class="kw-2">*</span>;
@@ -74,17 +39,14 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utils</span>::<span class="kw-2">*</span>;
 
-<span class="kw">mod</span> <span class="ident">abst_data</span>;
-<span class="kw">mod</span> <span class="ident">abst_paths</span>;
 <span class="kw">mod</span> <span class="ident">cli</span>;
 <span class="kw">mod</span> <span class="ident">collections</span>;
-<span class="kw">mod</span> <span class="ident">io</span>;
 <span class="kw">mod</span> <span class="ident">logger</span>;
 <span class="kw">mod</span> <span class="ident">process</span>;
 <span class="kw">mod</span> <span class="ident">serde</span>;
-<span class="kw">mod</span> <span class="ident">time</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">time</span>;
 <span class="kw">mod</span> <span class="ident">utils</span>;
 
-<span class="kw">const</span> <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.2</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.2</span>;
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "abstutil";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

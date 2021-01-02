@@ -275,6 +275,7 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -284,7 +285,8 @@
 
 <span class="kw">use</span> <span class="ident">walkdir</span>::<span class="ident">WalkDir</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">CmdArgs</span>, <span class="ident">DataPacks</span>, <span class="ident">Entry</span>, <span class="ident">Manifest</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">DataPacks</span>, <span class="ident">Entry</span>, <span class="ident">Manifest</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Percent</span>;
 
 <span class="kw">const</span> <span class="ident">MD5_BUF_READ_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">4096</span>;
@@ -375,7 +377,7 @@
     <span class="kw">let</span> <span class="ident">remote_base</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/home/dabreegster/s3_abst_data/{}&quot;</span>, <span class="ident">version</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">generate_manifest</span>();
-    <span class="kw">let</span> <span class="ident">remote</span>: <span class="ident">Manifest</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_json</span>(
+    <span class="kw">let</span> <span class="ident">remote</span>: <span class="ident">Manifest</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">maybe_read_json</span>(
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/MANIFEST.json&quot;</span>, <span class="ident">remote_base</span>),
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
     )
@@ -410,8 +412,8 @@
         <span class="ident">entry</span>.<span class="ident">compressed_size_bytes</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">metadata</span>(<span class="kw-2">&amp;</span><span class="ident">remote_path</span>).<span class="ident">unwrap</span>().<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">usize</span>;
     }
 
-    <span class="ident">abstutil</span>::<span class="ident">write_json</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/MANIFEST.json&quot;</span>, <span class="ident">remote_base</span>), <span class="kw-2">&amp;</span><span class="ident">local</span>);
-    <span class="ident">abstutil</span>::<span class="ident">write_json</span>(<span class="string">&quot;data/MANIFEST.json&quot;</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">local</span>);
+    <span class="ident">abstio</span>::<span class="ident">write_json</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/MANIFEST.json&quot;</span>, <span class="ident">remote_base</span>), <span class="kw-2">&amp;</span><span class="ident">local</span>);
+    <span class="ident">abstio</span>::<span class="ident">write_json</span>(<span class="string">&quot;data/MANIFEST.json&quot;</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">local</span>);
 
     <span class="ident">must_run_cmd</span>(
         <span class="ident">Command</span>::<span class="ident">new</span>(<span class="string">&quot;aws&quot;</span>)
@@ -512,7 +514,7 @@
     <span class="comment">// Manually enable to &quot;download&quot; from my local copy</span>
     <span class="kw">if</span> <span class="bool-val">false</span> {
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/home/dabreegster/s3_abst_data/{}/{}.gz&quot;</span>, <span class="ident">version</span>, <span class="ident">path</span>);
-        <span class="kw">return</span> <span class="ident">abstutil</span>::<span class="ident">slurp_file</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>());
+        <span class="kw">return</span> <span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>());
     }
 
     <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(

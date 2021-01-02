@@ -207,7 +207,7 @@
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;load scenario&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">W</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;view KML&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">K</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;story maps&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
-                    <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;input/{}/collisions.bin&quot;</span>,
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>()
                     ))) {
@@ -236,9 +236,9 @@
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Choose a polygon&quot;</span>,
                         <span class="comment">// This directory won&#39;t exist on the web or for binary releases, only for</span>
-                        <span class="comment">// people building from source. Also, abstutil::path is abused to find the</span>
+                        <span class="comment">// people building from source. Also, abstio::path is abused to find the</span>
                         <span class="comment">// importer/ directory.</span>
-                        <span class="ident">abstutil</span>::<span class="ident">list_dir</span>(<span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="ident">abstio</span>::<span class="ident">list_dir</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
                             <span class="string">&quot;../importer/config/{}&quot;</span>,
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_city_name</span>()
                         )))
@@ -270,12 +270,12 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Choose a scenario&quot;</span>,
-                        <span class="ident">Choice</span>::<span class="ident">strings</span>(<span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path_all_scenarios</span>(
+                        <span class="ident">Choice</span>::<span class="ident">strings</span>(<span class="ident">abstio</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstio</span>::<span class="ident">path_all_scenarios</span>(
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
                         ))),
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">s</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_binary</span>(
-                                <span class="ident">abstutil</span>::<span class="ident">path_scenario</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">s</span>),
+                            <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>(
+                                <span class="ident">abstio</span>::<span class="ident">path_scenario</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">s</span>),
                                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
                             );
                             <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">scenario</span>::<span class="ident">ScenarioManager</span>::<span class="ident">new</span>(<span class="ident">scenario</span>, <span class="ident">ctx</span>, <span class="ident">app</span>))

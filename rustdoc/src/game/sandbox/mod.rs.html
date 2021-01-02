@@ -1686,7 +1686,7 @@
 
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Analytics</span><span class="op">&gt;</span>::<span class="ident">new</span>(
                         <span class="ident">ctx</span>,
-                        <span class="ident">abstutil</span>::<span class="ident">path_prebaked_results</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">scenario_name</span>),
+                        <span class="ident">abstio</span>::<span class="ident">path_prebaked_results</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">scenario_name</span>),
                         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">prebaked</span><span class="op">|</span> {
                             <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                                 <span class="ident">Transition</span>::<span class="ident">Pop</span>,

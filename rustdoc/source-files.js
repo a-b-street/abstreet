@@ -1,5 +1,6 @@
 var N = null;var sourcesIndex = {};
-sourcesIndex["abstutil"] = {"name":"","files":["abst_data.rs","abst_paths.rs","cli.rs","collections.rs","io.rs","io_native.rs","lib.rs","logger.rs","process.rs","serde.rs","time.rs","utils.rs"]};
+sourcesIndex["abstio"] = {"name":"","files":["abst_data.rs","abst_paths.rs","io.rs","io_native.rs","lib.rs"]};
+sourcesIndex["abstutil"] = {"name":"","files":["cli.rs","collections.rs","lib.rs","logger.rs","process.rs","serde.rs","time.rs","utils.rs"]};
 sourcesIndex["collisions"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["convert_osm"] = {"name":"","files":["clip.rs","extract.rs","lib.rs","osm_geom.rs","parking.rs","reader.rs","snappy.rs","split_ways.rs","srtm.rs","transit.rs"]};
 sourcesIndex["dump_map"] = {"name":"","files":["dump_map.rs"]};

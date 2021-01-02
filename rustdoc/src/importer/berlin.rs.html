@@ -190,7 +190,7 @@
 
 <span class="comment">// Modify the filtered KML of planning areas with the number of residents from a different dataset.</span>
 <span class="kw">fn</span> <span class="ident">correlate_population</span>(<span class="ident">kml_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">csv_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(<span class="ident">kml_path</span>.<span class="ident">to_string</span>(), <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(<span class="ident">kml_path</span>.<span class="ident">to_string</span>(), <span class="ident">timer</span>);
     <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv</span>::<span class="ident">ReaderBuilder</span>::<span class="ident">new</span>()
         .<span class="ident">delimiter</span>(<span class="string">b&#39;;&#39;</span>)
         .<span class="ident">from_reader</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">csv_path</span>).<span class="ident">unwrap</span>())
@@ -206,7 +206,7 @@
             }
         }
     }
-    <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="ident">kml_path</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
+    <span class="ident">abstio</span>::<span class="ident">write_binary</span>(<span class="ident">kml_path</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
@@ -220,7 +220,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distribute_residents</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map_model</span>::<span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="ident">abstutil</span>::<span class="ident">read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(
+    <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(
         <span class="string">&quot;data/input/berlin/planning_areas.bin&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">timer</span>,
     )

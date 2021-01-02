@@ -686,6 +686,7 @@
 <span id="683">683</span>
 <span id="684">684</span>
 <span id="685">685</span>
+<span id="686">686</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -694,7 +695,8 @@
 <span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">UnGraphMap</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
@@ -726,7 +728,7 @@
 <span class="kw">impl</span> <span class="ident">Map</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
         <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
-            <span class="kw">match</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
+            <span class="kw">match</span> <span class="ident">abstio</span>::<span class="ident">maybe_read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">map</span>;
                     <span class="ident">map</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">new_edits</span>();
@@ -811,7 +813,7 @@
             }
         }
 
-        <span class="kw">let</span> <span class="ident">raw</span>: <span class="ident">RawMap</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>);
+        <span class="kw">let</span> <span class="ident">raw</span>: <span class="ident">RawMap</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>);
         <span class="ident">Map</span>::<span class="ident">create_from_raw</span>(<span class="ident">raw</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="ident">timer</span>)
     }
 
@@ -1162,7 +1164,7 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Untitled Proposal&quot;</span>));
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>());
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
-        <span class="ident">abstutil</span>::<span class="ident">write_binary</span>(<span class="self">self</span>.<span class="ident">name</span>.<span class="ident">path</span>(), <span class="self">self</span>);
+        <span class="ident">abstio</span>::<span class="ident">write_binary</span>(<span class="self">self</span>.<span class="ident">name</span>.<span class="ident">path</span>(), <span class="self">self</span>);
     }
 
     <span class="doccomment">/// Cars trying to park near this building should head for the driving lane returned here, then</span>

@@ -793,9 +793,9 @@
                 <span class="string">&quot;load&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// TODO autosave</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">story</span>) <span class="kw">in</span> <span class="ident">abstutil</span>::<span class="ident">load_all_objects</span>::<span class="op">&lt;</span><span class="ident">RecordedStoryMap</span><span class="op">&gt;</span>(
-                        <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="string">&quot;player/stories&quot;</span>),
-                    ) {
+                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">story</span>) <span class="kw">in</span>
+                        <span class="ident">abstio</span>::<span class="ident">load_all_objects</span>::<span class="op">&lt;</span><span class="ident">RecordedStoryMap</span><span class="op">&gt;</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;player/stories&quot;</span>))
+                    {
                         <span class="kw">if</span> <span class="ident">story</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">name</span> {
                             <span class="kw">continue</span>;
                         }
@@ -999,8 +999,8 @@
                 })
                 .<span class="ident">collect</span>(),
         };
-        <span class="ident">abstutil</span>::<span class="ident">write_json</span>(
-            <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;player/stories/{}.json&quot;</span>, <span class="ident">story</span>.<span class="ident">name</span>)),
+        <span class="ident">abstio</span>::<span class="ident">write_json</span>(
+            <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;player/stories/{}.json&quot;</span>, <span class="ident">story</span>.<span class="ident">name</span>)),
             <span class="kw-2">&amp;</span><span class="ident">story</span>,
         );
     }

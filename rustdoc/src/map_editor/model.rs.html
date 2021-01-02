@@ -594,11 +594,13 @@
 <span id="591">591</span>
 <span id="592">592</span>
 <span id="593">593</span>
+<span id="594">594</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MapName</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{
     <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>,
 };
@@ -647,7 +649,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;import map&quot;</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">model</span> <span class="op">=</span> <span class="ident">Model</span>::<span class="ident">blank</span>();
         <span class="ident">model</span>.<span class="ident">include_bldgs</span> <span class="op">=</span> <span class="ident">include_bldgs</span>;
-        <span class="ident">model</span>.<span class="ident">map</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">read_binary</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+        <span class="ident">model</span>.<span class="ident">map</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
         <span class="ident">model</span>.<span class="ident">intersection_geom</span> <span class="op">=</span> <span class="ident">intersection_geom</span>;
 
         <span class="kw">if</span> <span class="ident">model</span>.<span class="ident">include_bldgs</span> {

@@ -326,8 +326,10 @@
 <span id="323">323</span>
 <span id="324">324</span>
 <span id="325">325</span>
+<span id="326">326</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MapName</span>};
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -359,9 +361,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">regions</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">city</span>) <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">City</span><span class="op">&gt;</span>(
-            <span class="ident">abstutil</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/city.bin&quot;</span>, <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_city_name</span>())),
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">city</span>) <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">City</span><span class="op">&gt;</span>(
+            <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/{}/city.bin&quot;</span>, <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_city_name</span>())),
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
         ) {
             <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">boundary</span>.<span class="ident">get_bounds</span>();
 

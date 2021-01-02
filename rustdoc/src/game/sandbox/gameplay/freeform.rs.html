@@ -535,7 +535,6 @@
 <span id="532">532</span>
 <span id="533">533</span>
 <span id="534">534</span>
-<span id="535">535</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -610,7 +609,7 @@
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;Name this scenario&quot;</span>,
                     <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="kw">if</span> <span class="ident">abstutil</span>::<span class="ident">file_exists</span>(<span class="ident">abstutil</span>::<span class="ident">path_scenario</span>(
+                        <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
                             <span class="kw-2">&amp;</span><span class="ident">name</span>,
                         )) {
@@ -688,8 +687,7 @@
     <span class="ident">current</span>: <span class="ident">String</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">abstutil</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstutil</span>::<span class="ident">path_all_scenarios</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
-    {
+    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">abstio</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstio</span>::<span class="ident">path_all_scenarios</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>())) {
         <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;weekday&quot;</span> {
             <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;realistic weekday traffic&quot;</span>, <span class="ident">name</span>).<span class="ident">tooltip</span>(
                 <span class="string">&quot;Trips will begin throughout the entire day. Midnight is usually quiet, so you \
