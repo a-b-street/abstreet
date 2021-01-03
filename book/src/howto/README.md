@@ -9,10 +9,10 @@ hit problems.
 Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
-- [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.24/abstreet_windows_v0_2_24.zip)
+- [Windows](https://github.com/dabreegster/abstreet/releases/download/v0.2.25/abstreet_windows_v0_2_25.zip)
   - Unzip the folder, then run `play_abstreet.bat`. You'll probably getting a
     warning about running software from an unknown publisher.
-- [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.24/abstreet_mac_v0_2_24.zip)
+- [Mac](https://github.com/dabreegster/abstreet/releases/download/v0.2.25/abstreet_mac_v0_2_25.zip)
   - Unzip the directory, then run `play_abstreet.sh`.
   - If you get an error about the developer unverified,
     [follow this](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac).
@@ -23,7 +23,7 @@ Grab a pre-built binary release -- updated every Sunday, announced at
     `cd game; RUST_BACKTRACE=1 ./game 1> ../output.txt 2>&1`
   - [Help needed](https://github.com/dabreegster/abstreet/issues/77) to package
     this as a Mac .app, to make this process simpler
-- [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.24/abstreet_linux_v0_2_24.zip)
+- [Linux](https://github.com/dabreegster/abstreet/releases/download/v0.2.25/abstreet_linux_v0_2_25.zip)
   - Unzip the directory, then run `play_abstreet.sh`.
 - [FreeBSD](https://www.freshports.org/games/abstreet/), thanks to
   [Yuri](https://github.com/yurivict)
