@@ -693,3 +693,12 @@ changes here.
 - 15 min santa: remember upzoning choices
 - misc bugfixes and refactoring
 - 2021 roadmap drafted
+
+0.2.25
+
+- huge breakthrough on merging intersections to handle short roads. applied to just a few places so far
+- support one-way roads with default traffic signal heuristics
+- 15 min explorer: find residences close to user-specified businesses, see unwalkable roads
+- bugfix from Bruce to prevent sim from crashing when a short road is over capacity
+- automatically fetch census data for any US map and use for scenario generation, from Michael
+- some initial experiments to bring A/B Street's lane rendering to the web using Leaflet
