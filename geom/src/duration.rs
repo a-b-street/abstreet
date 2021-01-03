@@ -261,8 +261,7 @@ impl ops::Sub for Duration {
     type Output = Duration;
 
     fn sub(self, other: Duration) -> Duration {
-        let diff = f64::abs(self.0 - other.0);
-        Duration::seconds(diff)
+        Duration::seconds(self.0 - other.0)
     }
 }
 
