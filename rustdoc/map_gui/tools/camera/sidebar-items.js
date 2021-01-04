@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CameraState","Represents the state of a widgetry Canvas."]]});

@@ -95,6 +95,8 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -102,6 +104,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Polygon</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">camera</span>::<span class="ident">CameraState</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">city_picker</span>::<span class="ident">CityPicker</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">colors</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">heatmap</span>::{<span class="ident">make_heatmap</span>, <span class="ident">Grid</span>, <span class="ident">HeatmapOptions</span>};
@@ -111,6 +114,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ui</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AppLike</span>;
 
+<span class="kw">mod</span> <span class="ident">camera</span>;
 <span class="kw">mod</span> <span class="ident">city_picker</span>;
 <span class="kw">mod</span> <span class="ident">colors</span>;
 <span class="kw">mod</span> <span class="ident">heatmap</span>;
