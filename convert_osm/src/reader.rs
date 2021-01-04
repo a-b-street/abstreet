@@ -48,7 +48,7 @@ pub fn read(
     timer.start(format!("read {}", path));
     let bytes = slurp_file(path)?;
     let raw_string = std::str::from_utf8(&bytes)?;
-    let tree = roxmltree::Document::parse(raw_string)?;
+    let tree = roxmltree::Document::parse(raw_string).map_err(|err| err.to_string())?;
     timer.stop(format!("read {}", path));
 
     let mut doc = Document {

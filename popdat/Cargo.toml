@@ -18,5 +18,5 @@ map_model = { path = "../map_model" }
 rand = "0.8.0"
 rand_xorshift = "0.3.0"
 geo-booleanop = "0.3.2"
-serde_json = "1.0.60"
+serde_json = "1.0.61"
 sim = { path = "../sim" }
