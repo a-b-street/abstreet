@@ -2138,6 +2138,7 @@ dependencies = [
  "abstutil",
  "geom",
  "log",
+ "map_gui",
  "map_model",
  "widgetry",
 ]
@@ -4422,7 +4423,6 @@ checksum = "c168940144dd21fd8046987c16a46a33d5fc84eec29ef9dcddc2ac9e31526b7c"
 name = "widgetry"
 version = "0.1.0"
 dependencies = [
- "abstio",
  "abstutil",
  "downcast-rs",
  "geojson",

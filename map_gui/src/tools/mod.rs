@@ -4,6 +4,7 @@ use abstio::MapName;
 use geom::Polygon;
 use widgetry::{GfxCtx, Line, Text};
 
+pub use self::camera::CameraState;
 pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 pub use self::heatmap::{make_heatmap, Grid, HeatmapOptions};
@@ -13,6 +14,7 @@ pub use self::turn_explorer::TurnExplorer;
 pub use self::ui::{ChooseSomething, PopupMsg, PromptInput};
 use crate::AppLike;
 
+mod camera;
 mod city_picker;
 mod colors;
 mod heatmap;

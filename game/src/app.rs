@@ -10,6 +10,7 @@ use geom::{Bounds, Circle, Distance, Duration, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
+use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::{IntersectionID, LaneID, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags};
@@ -507,7 +508,7 @@ impl map_gui::AppLike for App {
             timer,
         );
 
-        ctx.canvas.save_camera_state(self.primary.map.get_name());
+        CameraState::save(ctx.canvas, self.primary.map.get_name());
         self.primary = PerMap::map_loaded(
             map,
             sim,
@@ -676,8 +677,8 @@ impl PerMap {
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);
         } else {
-            if !ctx.canvas.load_camera_state(per_map.map.get_name()) {
-                println!("Couldn't load camera state, just focusing on an arbitrary building");
+            if !CameraState::load(ctx, per_map.map.get_name()) {
+                info!("Couldn't load camera state, just focusing on an arbitrary building");
                 ctx.canvas.center_on_map_pt(rand_focus_pt);
             }
         }
@@ -812,7 +813,7 @@ impl SharedAppState for App {
         println!(
             "********************************************************************************"
         );
-        canvas.save_camera_state(self.primary.map.get_name());
+        CameraState::save(canvas, self.primary.map.get_name());
         println!(
             "Crash! Please report to https://github.com/dabreegster/abstreet/issues/ and include \
              all output.txt; at least everything starting from the stack trace above!"
@@ -851,6 +852,6 @@ impl SharedAppState for App {
     }
 
     fn before_quit(&self, canvas: &Canvas) {
-        canvas.save_camera_state(self.primary.map.get_name());
+        CameraState::save(canvas, self.primary.map.get_name());
     }
 }

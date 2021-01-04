@@ -8,6 +8,7 @@ use crate::colors::ColorScheme;
 use crate::options::Options;
 use crate::render::DrawMap;
 use crate::render::{DrawOptions, Renderable};
+use crate::tools::CameraState;
 use crate::{AppLike, ID};
 
 /// Simple app state that just renders a static map, without any dynamic agents on the map.
@@ -44,7 +45,7 @@ impl<T> SimpleApp<T> {
             let cs = ColorScheme::new(ctx, opts.color_scheme);
             let map = Map::new(map_path, &mut timer);
             let draw_map = DrawMap::new(ctx, &map, &opts, &cs, timer);
-            ctx.canvas.load_camera_state(map.get_name());
+            CameraState::load(ctx, map.get_name());
             SimpleApp {
                 map,
                 draw_map,
@@ -235,10 +236,10 @@ impl<T> AppLike for SimpleApp<T> {
     }
 
     fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer) {
-        ctx.canvas.save_camera_state(self.map().get_name());
+        CameraState::save(ctx.canvas, self.map.get_name());
         self.map = map;
         self.draw_map = DrawMap::new(ctx, &self.map, &self.opts, &self.cs, timer);
-        ctx.canvas.load_camera_state(self.map.get_name());
+        CameraState::load(ctx, self.map.get_name());
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {
@@ -284,11 +285,11 @@ impl<T> SharedAppState for SimpleApp<T> {
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
-        canvas.save_camera_state(&self.map.get_name());
+        CameraState::save(canvas, self.map.get_name());
     }
 
     fn before_quit(&self, canvas: &Canvas) {
-        canvas.save_camera_state(&self.map.get_name());
+        CameraState::save(canvas, self.map.get_name());
     }
 }
 
