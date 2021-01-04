@@ -20,7 +20,7 @@ geom = { path = "../geom" }
 gdal = { version = "0.7.0", optional = true }
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }
-rand = "0.8.0"
+rand = "0.8.1"
 rand_xorshift = "0.3.0"
 serde = "1.0.116"
 serde_json = "1.0.61"

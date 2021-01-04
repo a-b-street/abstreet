@@ -1054,9 +1054,9 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
 name = "fontdb"
-version = "0.4.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70830a5ff450f047a9271634a0ab8b4655733315996cee15b5342bcd98283c2c"
+checksum = "428948a0f39fb83fe55991d4423e35a793cdbb0322ebe23853f6024124a330d7"
 dependencies = [
  "log",
  "memmap2",
@@ -1225,7 +1225,7 @@ dependencies = [
  "maplit",
  "petname",
  "popdat",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_xorshift",
  "serde",
  "serde_json",
@@ -1577,7 +1577,7 @@ dependencies = [
  "lazy_static",
  "log",
  "map_model",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_xorshift",
  "serde",
  "serde_json",
@@ -1769,7 +1769,7 @@ dependencies = [
  "geom",
  "kml",
  "map_model",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_xorshift",
  "serde",
  "serde_json",
@@ -2183,7 +2183,7 @@ dependencies = [
  "log",
  "nbez",
  "petgraph",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_xorshift",
  "serde",
  "serde_json",
@@ -2784,7 +2784,7 @@ checksum = "f2ce8ffae5045b0317e5cf328c29869ef4b7f1012a092e37b6e05f0232904c41"
 dependencies = [
  "clap",
  "itertools 0.9.0",
- "rand 0.8.0",
+ "rand 0.8.1",
 ]
 
 [[package]]
@@ -2897,7 +2897,7 @@ dependencies = [
  "geozero-core",
  "log",
  "map_model",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_xorshift",
  "serde_json",
  "sim",
@@ -2982,9 +2982,9 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a76330fb486679b4ace3670f117bbc9e16204005c4bde9c4bd372f45bed34f12"
+checksum = "c24fcd450d3fa2b592732565aa4f17a27a61c65ece4726353e000939b0edee34"
 dependencies = [
  "libc",
  "rand_chacha 0.3.0",
@@ -3037,7 +3037,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da9e8f32ad24fb80d07d2323a9a2ce8b30d68a62b8cb4df88119ff49a698f038"
 dependencies = [
  "num-traits 0.2.14",
- "rand 0.8.0",
+ "rand 0.8.1",
 ]
 
 [[package]]
@@ -3335,7 +3335,7 @@ dependencies = [
  "log",
  "map_gui",
  "map_model",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_xorshift",
  "rodio",
  "serde",
@@ -3541,7 +3541,7 @@ dependencies = [
  "libm 0.2.1",
  "log",
  "map_model",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_distr",
  "rand_xorshift",
  "serde",
@@ -3658,7 +3658,7 @@ version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "041a2fb33d3e573e9420a45b65275ae3e08caa60865c1cd3202509c5c6be222f"
 dependencies = [
- "rand 0.8.0",
+ "rand 0.8.1",
 ]
 
 [[package]]
@@ -3744,7 +3744,7 @@ dependencies = [
  "convert_osm",
  "geom",
  "map_model",
- "rand 0.8.0",
+ "rand 0.8.1",
  "sim",
 ]
 
@@ -3942,7 +3942,7 @@ dependencies = [
  "abstutil",
  "geom",
  "map_model",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_xorshift",
  "sim",
 ]
@@ -4127,8 +4127,9 @@ dependencies = [
 
 [[package]]
 name = "usvg"
-version = "0.12.0"
-source = "git+https://github.com/RazrFalcon/resvg#24778957ddb4b84ba34985e435b64d16a416aa16"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2f20237d0e6e190b1179fe6d859a6f98c4160f4efdd0a2e577b9cd2b24c5ae2"
 dependencies = [
  "base64 0.13.0",
  "data-url",
@@ -4448,7 +4449,7 @@ dependencies = [
  "abstutil",
  "geom",
  "log",
- "rand 0.8.0",
+ "rand 0.8.1",
  "rand_xorshift",
  "svg_face",
  "wasm-bindgen",
