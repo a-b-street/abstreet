@@ -360,8 +360,11 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> Drawable {
 }
 
 fn main() {
-    widgetry::run(widgetry::Settings::new("RawMap editor"), |ctx| {
-        let (app, state) = MainState::new(ctx);
-        (app, vec![Box::new(state)])
-    });
+    widgetry::run(
+        widgetry::Settings::new("RawMap editor").read_svg(Box::new(abstio::slurp_bytes)),
+        |ctx| {
+            let (app, state) = MainState::new(ctx);
+            (app, vec![Box::new(state)])
+        },
+    );
 }

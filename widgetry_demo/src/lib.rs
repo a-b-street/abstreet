@@ -17,9 +17,13 @@ pub fn main() {
 
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
-    widgetry::run(widgetry::Settings::new("widgetry demo"), |ctx| {
-        (App {}, vec![Box::new(Demo::new(ctx))])
-    });
+    //
+    // TODO The demo loads a .svg file, so to make it work on both native and web, for now we use
+    // read_svg. But we should have a more minimal example of how to do that here.
+    widgetry::run(
+        widgetry::Settings::new("widgetry demo").read_svg(Box::new(abstio::slurp_bytes)),
+        |ctx| (App {}, vec![Box::new(Demo::new(ctx))]),
+    );
 }
 
 struct App {}

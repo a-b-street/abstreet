@@ -8,6 +8,7 @@ edition = "2018"
 default = ["map_gui/native", "reqwest", "widgetry/native-backend"]
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 map_gui = { path = "../map_gui" }

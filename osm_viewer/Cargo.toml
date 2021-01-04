@@ -12,6 +12,7 @@ default = ["map_gui/native", "widgetry/native-backend"]
 wasm = ["map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 map_gui = { path = "../map_gui" }

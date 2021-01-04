@@ -12,6 +12,7 @@ default = ["widgetry/native-backend"]
 wasm = ["wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
+abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 log = "0.4.11"

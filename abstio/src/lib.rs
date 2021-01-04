@@ -20,3 +20,10 @@ pub use abst_paths::*;
 mod abst_data;
 mod abst_paths;
 mod io;
+
+/// An adapter for widgetry::Settings::read_svg to read SVGs using this crate's methods for finding
+/// and reading files in different environments.
+pub fn slurp_bytes(filename: &str) -> Vec<u8> {
+    let path = path(filename);
+    slurp_file(&path).expect(&format!("Can't read {}", path))
+}

@@ -966,6 +966,7 @@ dependencies = [
 name = "fifteen_min"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "contour",
  "geojson",
@@ -2669,6 +2670,7 @@ dependencies = [
 name = "osm_viewer"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "geom",
  "map_gui",
@@ -2724,6 +2726,7 @@ dependencies = [
 name = "parking_mapper"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "geom",
  "map_gui",
@@ -4446,6 +4449,7 @@ dependencies = [
 name = "widgetry_demo"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "geom",
  "log",
