@@ -481,9 +481,9 @@
         <span class="string">&quot;building&quot;</span>,
         <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;house&quot;</span>, <span class="string">&quot;detached&quot;</span>, <span class="string">&quot;semidetached_house&quot;</span>, <span class="string">&quot;farm&quot;</span>],
     ) {
-        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">3</span>);
+        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>..<span class="number">3</span>);
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;building&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;hut&quot;</span>, <span class="string">&quot;static_caravan&quot;</span>, <span class="string">&quot;cabin&quot;</span>]) {
-        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">2</span>);
+        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>..<span class="number">2</span>);
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;building&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;apartments&quot;</span>, <span class="string">&quot;terrace&quot;</span>, <span class="string">&quot;residential&quot;</span>]) {
         <span class="comment">// 1 person per 10 square meters</span>
         <span class="comment">// TODO: Hone in this parameter. Space per person varies with (among other things):</span>
@@ -491,7 +491,7 @@
         <span class="comment">//  - regional/cultural norms</span>
         <span class="ident">residents</span> <span class="op">=</span> (<span class="ident">area_sq_meters</span> <span class="op">/</span> <span class="number">10.0</span>) <span class="kw">as</span> <span class="ident">usize</span>;
     } <span class="kw">else</span> {
-        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="number">2</span>);
+        <span class="ident">residents</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>..<span class="number">2</span>);
     }
 
     <span class="kw">if</span> <span class="ident">commercial</span> <span class="op">&amp;&amp;</span> <span class="ident">workers</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {

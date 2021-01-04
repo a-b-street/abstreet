@@ -418,8 +418,8 @@
         <span class="comment">// TODO Amp back up after fixing slow performance in debug mode</span>
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">20</span> {
             <span class="kw">let</span> <span class="ident">initial_pos</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(
-                <span class="ident">snow</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>),
-                <span class="ident">snow</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
+                <span class="ident">snow</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>),
+                <span class="ident">snow</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
             );
             <span class="kw">let</span> <span class="ident">flake</span> <span class="op">=</span> <span class="ident">snow</span>.<span class="ident">spawn_new</span>(<span class="ident">now</span>, <span class="ident">initial_pos</span>);
             <span class="ident">snow</span>.<span class="ident">flakes</span>.<span class="ident">push</span>(<span class="ident">flake</span>);
@@ -435,10 +435,10 @@
             <span class="ident">initial_pos</span>,
             <span class="comment">// Pixels per second</span>
             <span class="comment">// TODO It&#39;d be neat to speed this up as time runs out</span>
-            <span class="ident">fall_speed</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">150.0</span>, <span class="number">300.0</span>),
-            <span class="ident">swoop_period</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">1.0</span>, <span class="number">5.0</span>),
+            <span class="ident">fall_speed</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">150.0</span>..<span class="number">300.0</span>),
+            <span class="ident">swoop_period</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">1.0</span>..<span class="number">5.0</span>),
             <span class="comment">// Pixels</span>
-            <span class="ident">max_swoop</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>, <span class="number">50.0</span>),
+            <span class="ident">max_swoop</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="number">50.0</span>),
         }
     }
 
@@ -451,7 +451,7 @@
         <span class="kw">for</span> <span class="ident">flake</span> <span class="kw">in</span> <span class="ident">prev_flakes</span> {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">flake</span>.<span class="ident">pos</span>(<span class="ident">now</span>);
             <span class="kw">if</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&gt;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> {
-                <span class="kw">let</span> <span class="ident">initial_pos</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>), <span class="number">0.0</span>);
+                <span class="kw">let</span> <span class="ident">initial_pos</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>), <span class="number">0.0</span>);
                 <span class="ident">new_flakes</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">spawn_new</span>(<span class="ident">now</span>, <span class="ident">initial_pos</span>));
             } <span class="kw">else</span> {
                 <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">shape</span>.<span class="ident">clone</span>().<span class="ident">translate</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()));

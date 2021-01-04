@@ -176,7 +176,7 @@
 
 <span class="kw">fn</span> <span class="ident">rand_duration</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Duration</span>, <span class="ident">high</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
-    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>(), <span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
+    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>()..<span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
 }
 
 <span class="kw">fn</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Duration</span>, <span class="ident">high</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {

@@ -274,7 +274,7 @@
             <span class="kw">let</span> <span class="ident">bldg_dist</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>();
             <span class="kw">let</span> <span class="ident">distance_from_closest_node</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">sidewalk_len</span> <span class="op">-</span> <span class="ident">bldg_dist</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">bldg_dist</span> {
                 <span class="ident">bldg_dist</span>
-            }<span class="kw">else</span>{
+            } <span class="kw">else</span> {
                 <span class="ident">sidewalk_len</span> <span class="op">-</span> <span class="ident">bldg_dist</span>
             };
             <span class="kw">let</span> <span class="ident">total_cost</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">cost</span> <span class="op">+</span> <span class="ident">distance_from_closest_node</span> <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">walking_speed</span>;
