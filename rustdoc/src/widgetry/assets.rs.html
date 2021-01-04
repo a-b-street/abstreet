@@ -154,6 +154,8 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -177,10 +179,11 @@
     <span class="ident">svg_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">font_to_id</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Font</span>, <span class="ident">fontdb</span>::<span class="ident">ID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">text_opts</span>: <span class="ident">Options</span>,
+    <span class="kw">pub</span> <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Assets</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Assets</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Assets</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">Assets</span> {
             <span class="ident">default_line_height</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="number">0.0</span>),
             <span class="ident">text_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">LruCache</span>::<span class="ident">new</span>(<span class="number">500</span>)),
@@ -188,6 +191,7 @@
             <span class="ident">svg_cache</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">HashMap</span>::<span class="ident">new</span>()),
             <span class="ident">font_to_id</span>: <span class="ident">HashMap</span>::<span class="ident">new</span>(),
             <span class="ident">text_opts</span>: <span class="ident">Options</span>::<span class="ident">default</span>(),
+            <span class="ident">read_svg</span>,
         };
         <span class="comment">// All fonts are statically bundled with the library right now, on both native and web.</span>
         <span class="comment">// Eventually need to let people specify their own fonts dynamically at runtime.</span>

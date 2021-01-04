@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["DEBUG_PERFORMANCE",""],["UPDATE_FREQUENCY",""]],"fn":[["run",""]],"struct":[["Settings",""],["State",""]]});
+initSidebarItems({"constant":[["DEBUG_PERFORMANCE",""],["UPDATE_FREQUENCY",""]],"fn":[["run",""]],"struct":[["Settings","Customize how widgetry works. These settings can't be changed after starting."],["State",""]]});

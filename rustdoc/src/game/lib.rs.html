@@ -177,6 +177,7 @@
 <span id="174">174</span>
 <span id="175">175</span>
 <span id="176">176</span>
+<span id="177">177</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
@@ -217,15 +218,16 @@
         <span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>::<span class="ident">NightMode</span>;
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;A/B Street&quot;</span>);
-    <span class="ident">settings</span>.<span class="ident">window_icon</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;A/B Street&quot;</span>)
+        .<span class="ident">read_svg</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">abstio</span>::<span class="ident">slurp_bytes</span>))
+        .<span class="ident">window_icon</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>))
+        .<span class="ident">loading_tips</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">loading_tips</span>());
     <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--dump_raw_events&quot;</span>) {
-        <span class="ident">settings</span>.<span class="ident">dump_raw_events</span>();
+        <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">dump_raw_events</span>();
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_parse</span>(<span class="string">&quot;--scale_factor&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()) {
-        <span class="ident">settings</span>.<span class="ident">scale_factor</span>(<span class="ident">s</span>);
+        <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">scale_factor</span>(<span class="ident">s</span>);
     }
-    <span class="ident">settings</span>.<span class="ident">loading_tips</span>(<span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">loading_tips</span>());
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">initialize_tutorial</span> <span class="op">=</span> <span class="bool-val">false</span>;
