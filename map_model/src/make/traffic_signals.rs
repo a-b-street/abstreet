@@ -4,8 +4,8 @@ use abstutil::Timer;
 use geom::Duration;
 
 use crate::{
-    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID,
-    PhaseType, RoadID, Stage, TurnPriority, TurnType,
+    ControlTrafficSignal, IntersectionCluster, IntersectionID, Map, Movement, MovementID, RoadID,
+    Stage, StageType, TurnPriority, TurnType,
 };
 
 /// Applies a bunch of heuristics to a single intersection, returning the valid results in
@@ -157,8 +157,8 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
             vehicle_stage.edit_movement(movement, TurnPriority::Protected);
         }
     }
-    vehicle_stage.phase_type = PhaseType::Fixed(Duration::minutes(1));
-    ped_stage.phase_type = PhaseType::Fixed(Duration::seconds(10.0));
+    vehicle_stage.stage_type = StageType::Fixed(Duration::minutes(1));
+    ped_stage.stage_type = StageType::Fixed(Duration::seconds(10.0));
 
     ts.stages = vec![vehicle_stage, ped_stage];
     Some(ts)

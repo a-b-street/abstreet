@@ -60,6 +60,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits, String>
             .unwrap()
             .insert("version".to_string(), Value::Number(4.into()));
     }
+    if value["version"] == Value::Number(4.into()) {
+        fix_phase_to_stage(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(5.into()));
+    }
 
     abstutil::from_json(&value.to_string().into_bytes())
 }
@@ -230,6 +237,19 @@ fn fix_map_name(value: &mut Value) {
             serde_json::to_value(MapName::seattle(name)).unwrap(),
         );
     }
+}
+
+// 03fe9400c2ab98b8870e09562b1f35b91036f3cf renamed "phase" to "stage"
+fn fix_phase_to_stage(value: &mut Value) {
+    walk(value, &|map| {
+        if let Some(list) = map.remove("phases") {
+            map.insert("stages".to_string(), list);
+        }
+        if let Some(obj) = map.remove("phase_type") {
+            map.insert("stage_type".to_string(), obj);
+        }
+        false
+    });
 }
 
 // These're old structs used in fix_old_lane_cmds.

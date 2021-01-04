@@ -675,7 +675,7 @@ fn find_bad_signals(app: &App) {
                 &mut Timer::throwaway(),
             )[0]
             .0;
-            if first == "phase per road" || first == "arbitrary assignment" {
+            if first == "stage per road" || first == "arbitrary assignment" {
                 println!("- {}", i.id);
                 ControlTrafficSignal::brute_force(&app.primary.map, i.id);
             }

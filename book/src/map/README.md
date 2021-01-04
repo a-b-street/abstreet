@@ -84,9 +84,9 @@ which have right-of-way.
 ### Traffic signals
 
 OSM has no way to describe how traffic signals are configured. A/B Street models
-fixed-timer signals, automatically inferring the number of phases, their
+fixed-timer signals, automatically inferring the number of stages, their
 duration, and the movements that are prioritized and permitted during each
-phase.
+stage.
 
 ### Pathfinding
 

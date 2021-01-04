@@ -4,7 +4,7 @@ use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
 use map_gui::options::TrafficSignalStyle;
 use map_gui::render::traffic_signal::draw_signal_stage;
-use map_model::{IntersectionID, IntersectionType, PhaseType};
+use map_model::{IntersectionID, IntersectionType, StageType};
 use sim::AgentType;
 use widgetry::{
     Btn, Checkbox, Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions,
@@ -271,7 +271,7 @@ pub fn traffic_signal(
         {
             let mut total = Duration::ZERO;
             for s in &signal.stages {
-                total += s.phase_type.simple_duration();
+                total += s.stage_type.simple_duration();
             }
             // TODO Say "normally" or something?
             txt.add(Line(format!("One cycle lasts {}", total)));
@@ -281,10 +281,10 @@ pub fn traffic_signal(
 
     for (idx, stage) in signal.stages.iter().enumerate() {
         rows.push(
-            match stage.phase_type {
-                PhaseType::Fixed(d) => Line(format!("Stage {}: {}", idx + 1, d)),
-                PhaseType::Adaptive(d) => Line(format!("Stage {}: {} (adaptive)", idx + 1, d)),
-                PhaseType::Variable(min, delay, additional) => Line(format!(
+            match stage.stage_type {
+                StageType::Fixed(d) => Line(format!("Stage {}: {}", idx + 1, d)),
+                StageType::Adaptive(d) => Line(format!("Stage {}: {} (adaptive)", idx + 1, d)),
+                StageType::Variable(min, delay, additional) => Line(format!(
                     "Stage {}: {}, {}, {} (variable)",
                     idx + 1,
                     min,

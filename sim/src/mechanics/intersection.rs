@@ -7,7 +7,7 @@ use abstutil::{
 };
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, PhaseType,
+    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, StageType,
     Traversable, TurnID, TurnPriority, TurnType, UberTurn,
 };
 
@@ -258,7 +258,7 @@ impl IntersectionSimState {
         fn advance(signal_state: &mut SignalState, signal: &ControlTrafficSignal) -> Duration {
             signal_state.current_stage = (signal_state.current_stage + 1) % signal.stages.len();
             signal.stages[signal_state.current_stage]
-                .phase_type
+                .stage_type
                 .simple_duration()
         }
 
@@ -269,11 +269,11 @@ impl IntersectionSimState {
         // Switch to a new stage?
         assert_eq!(now, signal_state.stage_ends_at);
         let old_stage = &signal.stages[signal_state.current_stage];
-        match old_stage.phase_type {
-            PhaseType::Fixed(_) => {
+        match old_stage.stage_type {
+            StageType::Fixed(_) => {
                 duration = advance(signal_state, signal);
             }
-            PhaseType::Adaptive(_) => {
+            StageType::Adaptive(_) => {
                 // TODO Make a better policy here. For now, if there's _anyone_ waiting to start a
                 // protected turn, repeat this stage for the full duration. Note that "waiting" is
                 // only defined as "at the end of the lane, ready to start the turn." If a
@@ -290,11 +290,11 @@ impl IntersectionSimState {
                     ));
                 } else {
                     duration = signal.stages[signal_state.current_stage]
-                        .phase_type
+                        .stage_type
                         .simple_duration();
                 }
             }
-            PhaseType::Variable(min, delay, additional) => {
+            StageType::Variable(min, delay, additional) => {
                 // test if anyone is waiting in current stage, and if so, extend the signal cycle.
                 // Filter out pedestrians, as they've had their chance and the delay
                 // could be short enough to keep them on the curb.
@@ -797,7 +797,7 @@ impl IntersectionSimState {
         let state = &self.state[&req.turn.parent];
         let signal_state = state.signal.as_ref().unwrap();
         let stage = &signal.stages[signal_state.current_stage];
-        let full_stage_duration = stage.phase_type.simple_duration();
+        let full_stage_duration = stage.stage_type.simple_duration();
         let remaining_stage_time = signal_state.stage_ends_at - now;
         let our_time = state.waiting[req];
 
@@ -960,7 +960,7 @@ impl SignalState {
         let mut offset = (now - Time::START_OF_DAY) + signal.offset;
         loop {
             let dt = signal.stages[state.current_stage]
-                .phase_type
+                .stage_type
                 .simple_duration();
             if offset >= dt {
                 offset -= dt;

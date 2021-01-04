@@ -6,7 +6,7 @@ use map_gui::options::TrafficSignalStyle;
 use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
 use map_gui::tools::PopupMsg;
 use map_model::{
-    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, PhaseType, Stage,
+    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, Stage, StageType,
     TurnPriority,
 };
 use widgetry::{
@@ -641,10 +641,10 @@ fn make_side_panel(
             .centered_vert(),
             Widget::col(vec![
                 Widget::row(vec![
-                    match canonical_stage.phase_type {
-                        PhaseType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
-                        PhaseType::Adaptive(d) => format!("Stage {}: {} (adaptive)", idx + 1, d),
-                        PhaseType::Variable(min, delay, additional) => format!(
+                    match canonical_stage.stage_type {
+                        StageType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
+                        StageType::Adaptive(d) => format!("Stage {}: {} (adaptive)", idx + 1, d),
+                        StageType::Variable(min, delay, additional) => format!(
                             "Stage {}: {}, {}, {} (variable)",
                             idx + 1,
                             min,
@@ -742,7 +742,7 @@ impl BundleEdits {
                 if signal.stages.len() == idx {
                     signal.stages.push(Stage::new());
                 }
-                signal.stages[idx].phase_type = canonical_stage.phase_type.clone();
+                signal.stages[idx].stage_type = canonical_stage.stage_type.clone();
             }
             signals.push(signal);
         }

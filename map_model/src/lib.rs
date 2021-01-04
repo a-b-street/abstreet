@@ -49,7 +49,7 @@ pub use crate::objects::lane::{
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
 pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
-pub use crate::objects::traffic_signals::{ControlTrafficSignal, PhaseType, Stage};
+pub use crate::objects::traffic_signals::{ControlTrafficSignal, Stage, StageType};
 pub use crate::objects::turn::{
     CompressedMovementID, Movement, MovementID, Turn, TurnID, TurnPriority, TurnType,
 };

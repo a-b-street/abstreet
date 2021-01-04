@@ -9,35 +9,35 @@ pub struct TrafficSignal {
     /// The ID of the OSM node representing the intersection with the traffic signal. This node
     /// should be tagged `highway = traffic_signals` in OSM.
     pub intersection_osm_node_id: i64,
-    /// The traffic signal repeatedly cycles through these phases. During each phase, only some
+    /// The traffic signal repeatedly cycles through these stages. During each stage, only some
     /// turns are protected and permitted through the intersection.
-    pub phases: Vec<Phase>,
-    /// Relative to a central clock, delay the first phase by this many seconds.
+    pub stages: Vec<Stage>,
+    /// Relative to a central clock, delay the first stage by this many seconds.
     pub offset_seconds: usize,
 }
 
-/// A traffic signal is in one phase at any time. The phase describes what movements are possible.
+/// A traffic signal is in one stage at any time. The stage describes what movements are possible.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub struct Phase {
-    /// During this phase, these turns can be performed with the highest priority, protected by a
-    /// green light. No two protected turns in the same phase should cross; that would be a
+pub struct Stage {
+    /// During this stage, these turns can be performed with the highest priority, protected by a
+    /// green light. No two protected turns in the same stage should cross; that would be a
     /// conflict.
     pub protected_turns: BTreeSet<Turn>,
-    /// During this phase, these turns can be performed after yielding. For example, an unprotected
+    /// During this stage, these turns can be performed after yielding. For example, an unprotected
     /// left turn after yielding to oncoming traffic, or a right turn on red after yielding to
     /// oncoming traffic and crosswalks.
     pub permitted_turns: BTreeSet<Turn>,
-    /// The phase lasts this long before moving to the next one.
-    pub phase_type: PhaseType,
+    /// The stage lasts this long before moving to the next one.
+    pub stage_type: StageType,
 }
 
-/// How long a phase lasts before moving to the next one.
+/// How long a stage lasts before moving to the next one.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub enum PhaseType {
+pub enum StageType {
     /// A fixed number of seconds.
     Fixed(usize),
-    /// Some multiple of a fixed number of seconds. At the end of this phase, based on incoming
-    /// demand, this phase may repeat.
+    /// Some multiple of a fixed number of seconds. At the end of this stage, based on incoming
+    /// demand, this stage may repeat.
     Adaptive(usize),
     /// Minimum, Delay, Additional
     /// Minimum is the minimum cycle duration, 0 allows it to be skipped if no demand.

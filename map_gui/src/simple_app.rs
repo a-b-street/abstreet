@@ -270,10 +270,10 @@ impl<T> AppLike for SimpleApp<T> {
         let signal = self.map.get_traffic_signal(id);
         let mut time_left = (self.time - Time::START_OF_DAY) % signal.simple_cycle_duration();
         for (idx, stage) in signal.stages.iter().enumerate() {
-            if time_left < stage.phase_type.simple_duration() {
+            if time_left < stage.stage_type.simple_duration() {
                 return (idx, time_left);
             }
-            time_left -= stage.phase_type.simple_duration();
+            time_left -= stage.stage_type.simple_duration();
         }
         unreachable!()
     }

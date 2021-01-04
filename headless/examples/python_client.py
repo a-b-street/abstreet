@@ -38,7 +38,7 @@ def main():
     # Modify one traffic signal, doubling the duration of its second stage
     print('Modify a traffic signal')
     ts = requests.get(api + '/traffic-signals/get', params={'id': 67}).json()
-    ts['stages'][1]['phase_type']['Fixed'] *= 2
+    ts['stages'][1]['stage_type']['Fixed'] *= 2
     # Also start a new person, just to demonstrate the API
     if False:
         person = {

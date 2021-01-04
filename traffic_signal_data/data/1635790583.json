@@ -1,6 +1,6 @@
 {
   "intersection_osm_node_id": 1635790583,
-  "phases": [
+  "stages": [
     {
       "protected_turns": [
         {
@@ -70,7 +70,7 @@
           "is_crosswalk": false
         }
       ],
-      "phase_type": {
+      "stage_type": {
         "Fixed": 40
       }
     },
@@ -126,7 +126,7 @@
         }
       ],
       "permitted_turns": [],
-      "phase_type": {
+      "stage_type": {
         "Fixed": 10
       }
     }

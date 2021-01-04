@@ -2,7 +2,7 @@ use abstutil::Timer;
 use geom::Duration;
 use map_gui::tools::ChooseSomething;
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, PhaseType,
+    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
 use widgetry::{
     Btn, Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State,
@@ -40,7 +40,7 @@ impl ChangeDuration {
                         300,
                     ),
                     signal.stages[idx]
-                        .phase_type
+                        .stage_type
                         .simple_duration()
                         .inner_seconds() as isize,
                 )
@@ -50,14 +50,14 @@ impl ChangeDuration {
                 "Type:".draw_text(ctx),
                 Checkbox::toggle(
                     ctx,
-                    "phase type",
+                    "stage type",
                     "fixed",
                     "adaptive",
                     None,
-                    match signal.stages[idx].phase_type {
-                        PhaseType::Fixed(_) => true,
-                        PhaseType::Adaptive(_) => false,
-                        PhaseType::Variable(_, _, _) => false,
+                    match signal.stages[idx].stage_type {
+                        StageType::Fixed(_) => true,
+                        StageType::Adaptive(_) => false,
+                        StageType::Variable(_, _, _) => false,
                     },
                 ),
             ]),
@@ -69,10 +69,10 @@ impl ChangeDuration {
                 Spinner::new(
                     ctx,
                     (1, 300),
-                    match signal.stages[idx].phase_type {
-                        PhaseType::Fixed(_) => 0,
-                        PhaseType::Adaptive(_) => 0,
-                        PhaseType::Variable(_, _, additional) => {
+                    match signal.stages[idx].stage_type {
+                        StageType::Fixed(_) => 0,
+                        StageType::Adaptive(_) => 0,
+                        StageType::Variable(_, _, additional) => {
                             additional.inner_seconds() as isize
                         }
                     },
@@ -87,10 +87,10 @@ impl ChangeDuration {
                 Spinner::new(
                     ctx,
                     (1, 300),
-                    match signal.stages[idx].phase_type {
-                        PhaseType::Fixed(_) => 0,
-                        PhaseType::Adaptive(_) => 0,
-                        PhaseType::Variable(_, delay, _) => delay.inner_seconds() as isize,
+                    match signal.stages[idx].stage_type {
+                        StageType::Fixed(_) => 0,
+                        StageType::Adaptive(_) => 0,
+                        StageType::Variable(_, delay, _) => delay.inner_seconds() as isize,
                     },
                 )
                 .named("delay"),
@@ -111,12 +111,12 @@ impl SimpleState<App> for ChangeDuration {
             "close" => Transition::Pop,
             "Apply" => {
                 let dt = Duration::seconds(panel.spinner("duration") as f64);
-                let new_type = if panel.is_checked("phase type") {
-                    PhaseType::Fixed(dt)
+                let new_type = if panel.is_checked("stage type") {
+                    StageType::Fixed(dt)
                 } else {
                     let delay = Duration::seconds(panel.spinner("delay") as f64);
                     let additional = Duration::seconds(panel.spinner("additional") as f64);
-                    PhaseType::Variable(dt, delay, additional)
+                    StageType::Variable(dt, delay, additional)
                 };
                 let idx = self.idx;
                 Transition::Multi(vec![
@@ -124,7 +124,7 @@ impl SimpleState<App> for ChangeDuration {
                     Transition::ModifyState(Box::new(move |state, ctx, app| {
                         let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                         editor.add_new_edit(ctx, app, idx, |ts| {
-                            ts.stages[idx].phase_type = new_type.clone();
+                            ts.stages[idx].stage_type = new_type.clone();
                         });
                     })),
                 ])
