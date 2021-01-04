@@ -1018,7 +1018,7 @@
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PhaseType</span>,
+    <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">StageType</span>,
     <span class="ident">Traversable</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>, <span class="ident">UberTurn</span>,
 };
 
@@ -1269,7 +1269,7 @@
         <span class="kw">fn</span> <span class="ident">advance</span>(<span class="ident">signal_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SignalState</span>, <span class="ident">signal</span>: <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
             <span class="ident">signal_state</span>.<span class="ident">current_stage</span> <span class="op">=</span> (<span class="ident">signal_state</span>.<span class="ident">current_stage</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">%</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>();
             <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">signal_state</span>.<span class="ident">current_stage</span>]
-                .<span class="ident">phase_type</span>
+                .<span class="ident">stage_type</span>
                 .<span class="ident">simple_duration</span>()
         }
 
@@ -1280,11 +1280,11 @@
         <span class="comment">// Switch to a new stage?</span>
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">now</span>, <span class="ident">signal_state</span>.<span class="ident">stage_ends_at</span>);
         <span class="kw">let</span> <span class="ident">old_stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">signal_state</span>.<span class="ident">current_stage</span>];
-        <span class="kw">match</span> <span class="ident">old_stage</span>.<span class="ident">phase_type</span> {
-            <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">old_stage</span>.<span class="ident">stage_type</span> {
+            <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">duration</span> <span class="op">=</span> <span class="ident">advance</span>(<span class="ident">signal_state</span>, <span class="ident">signal</span>);
             }
-            <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO Make a better policy here. For now, if there&#39;s _anyone_ waiting to start a</span>
                 <span class="comment">// protected turn, repeat this stage for the full duration. Note that &quot;waiting&quot; is</span>
                 <span class="comment">// only defined as &quot;at the end of the lane, ready to start the turn.&quot; If a</span>
@@ -1301,11 +1301,11 @@
                     ));
                 } <span class="kw">else</span> {
                     <span class="ident">duration</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">signal_state</span>.<span class="ident">current_stage</span>]
-                        .<span class="ident">phase_type</span>
+                        .<span class="ident">stage_type</span>
                         .<span class="ident">simple_duration</span>();
                 }
             }
-            <span class="ident">PhaseType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// test if anyone is waiting in current stage, and if so, extend the signal cycle.</span>
                 <span class="comment">// Filter out pedestrians, as they&#39;ve had their chance and the delay</span>
                 <span class="comment">// could be short enough to keep them on the curb.</span>
@@ -1808,7 +1808,7 @@
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">turn</span>.<span class="ident">parent</span>];
         <span class="kw">let</span> <span class="ident">signal_state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">signal</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">signal_state</span>.<span class="ident">current_stage</span>];
-        <span class="kw">let</span> <span class="ident">full_stage_duration</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
+        <span class="kw">let</span> <span class="ident">full_stage_duration</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>();
         <span class="kw">let</span> <span class="ident">remaining_stage_time</span> <span class="op">=</span> <span class="ident">signal_state</span>.<span class="ident">stage_ends_at</span> <span class="op">-</span> <span class="ident">now</span>;
         <span class="kw">let</span> <span class="ident">our_time</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">waiting</span>[<span class="ident">req</span>];
 
@@ -1971,7 +1971,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span> <span class="op">=</span> (<span class="ident">now</span> <span class="op">-</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>) <span class="op">+</span> <span class="ident">signal</span>.<span class="ident">offset</span>;
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">state</span>.<span class="ident">current_stage</span>]
-                .<span class="ident">phase_type</span>
+                .<span class="ident">stage_type</span>
                 .<span class="ident">simple_duration</span>();
             <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">dt</span> {
                 <span class="ident">offset</span> <span class="op">-</span><span class="op">=</span> <span class="ident">dt</span>;

@@ -550,8 +550,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>,
-    <span class="ident">PhaseType</span>, <span class="ident">RoadID</span>, <span class="ident">Stage</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+    <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">RoadID</span>,
+    <span class="ident">Stage</span>, <span class="ident">StageType</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="doccomment">/// Applies a bunch of heuristics to a single intersection, returning the valid results in</span>
@@ -703,8 +703,8 @@
             <span class="ident">vehicle_stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority</span>::<span class="ident">Protected</span>);
         }
     }
-    <span class="ident">vehicle_stage</span>.<span class="ident">phase_type</span> <span class="op">=</span> <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">1</span>));
-    <span class="ident">ped_stage</span>.<span class="ident">phase_type</span> <span class="op">=</span> <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>));
+    <span class="ident">vehicle_stage</span>.<span class="ident">stage_type</span> <span class="op">=</span> <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">1</span>));
+    <span class="ident">ped_stage</span>.<span class="ident">stage_type</span> <span class="op">=</span> <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>));
 
     <span class="ident">ts</span>.<span class="ident">stages</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">vehicle_stage</span>, <span class="ident">ped_stage</span>];
     <span class="prelude-val">Some</span>(<span class="ident">ts</span>)

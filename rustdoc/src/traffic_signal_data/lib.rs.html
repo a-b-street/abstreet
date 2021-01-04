@@ -107,35 +107,35 @@
     <span class="doccomment">/// The ID of the OSM node representing the intersection with the traffic signal. This node</span>
     <span class="doccomment">/// should be tagged `highway = traffic_signals` in OSM.</span>
     <span class="kw">pub</span> <span class="ident">intersection_osm_node_id</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// The traffic signal repeatedly cycles through these phases. During each phase, only some</span>
+    <span class="doccomment">/// The traffic signal repeatedly cycles through these stages. During each stage, only some</span>
     <span class="doccomment">/// turns are protected and permitted through the intersection.</span>
-    <span class="kw">pub</span> <span class="ident">phases</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Phase</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Relative to a central clock, delay the first phase by this many seconds.</span>
+    <span class="kw">pub</span> <span class="ident">stages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Stage</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Relative to a central clock, delay the first stage by this many seconds.</span>
     <span class="kw">pub</span> <span class="ident">offset_seconds</span>: <span class="ident">usize</span>,
 }
 
-<span class="doccomment">/// A traffic signal is in one phase at any time. The phase describes what movements are possible.</span>
+<span class="doccomment">/// A traffic signal is in one stage at any time. The stage describes what movements are possible.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Phase</span> {
-    <span class="doccomment">/// During this phase, these turns can be performed with the highest priority, protected by a</span>
-    <span class="doccomment">/// green light. No two protected turns in the same phase should cross; that would be a</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stage</span> {
+    <span class="doccomment">/// During this stage, these turns can be performed with the highest priority, protected by a</span>
+    <span class="doccomment">/// green light. No two protected turns in the same stage should cross; that would be a</span>
     <span class="doccomment">/// conflict.</span>
     <span class="kw">pub</span> <span class="ident">protected_turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// During this phase, these turns can be performed after yielding. For example, an unprotected</span>
+    <span class="doccomment">/// During this stage, these turns can be performed after yielding. For example, an unprotected</span>
     <span class="doccomment">/// left turn after yielding to oncoming traffic, or a right turn on red after yielding to</span>
     <span class="doccomment">/// oncoming traffic and crosswalks.</span>
     <span class="kw">pub</span> <span class="ident">permitted_turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The phase lasts this long before moving to the next one.</span>
-    <span class="kw">pub</span> <span class="ident">phase_type</span>: <span class="ident">PhaseType</span>,
+    <span class="doccomment">/// The stage lasts this long before moving to the next one.</span>
+    <span class="kw">pub</span> <span class="ident">stage_type</span>: <span class="ident">StageType</span>,
 }
 
-<span class="doccomment">/// How long a phase lasts before moving to the next one.</span>
+<span class="doccomment">/// How long a stage lasts before moving to the next one.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PhaseType</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StageType</span> {
     <span class="doccomment">/// A fixed number of seconds.</span>
     <span class="ident">Fixed</span>(<span class="ident">usize</span>),
-    <span class="doccomment">/// Some multiple of a fixed number of seconds. At the end of this phase, based on incoming</span>
-    <span class="doccomment">/// demand, this phase may repeat.</span>
+    <span class="doccomment">/// Some multiple of a fixed number of seconds. At the end of this stage, based on incoming</span>
+    <span class="doccomment">/// demand, this stage may repeat.</span>
     <span class="ident">Adaptive</span>(<span class="ident">usize</span>),
     <span class="doccomment">/// Minimum, Delay, Additional</span>
     <span class="doccomment">/// Minimum is the minimum cycle duration, 0 allows it to be skipped if no demand.</span>

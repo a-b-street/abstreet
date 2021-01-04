@@ -292,6 +292,26 @@
 <span id="289">289</span>
 <span id="290">290</span>
 <span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -354,6 +374,13 @@
             .<span class="ident">as_object_mut</span>()
             .<span class="ident">unwrap</span>()
             .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value</span>::<span class="ident">Number</span>(<span class="number">4</span>.<span class="ident">into</span>()));
+    }
+    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">Value</span>::<span class="ident">Number</span>(<span class="number">4</span>.<span class="ident">into</span>()) {
+        <span class="ident">fix_phase_to_stage</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>);
+        <span class="ident">value</span>
+            .<span class="ident">as_object_mut</span>()
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value</span>::<span class="ident">Number</span>(<span class="number">5</span>.<span class="ident">into</span>()));
     }
 
     <span class="ident">abstutil</span>::<span class="ident">from_json</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>())
@@ -525,6 +552,19 @@
             <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="ident">name</span>)).<span class="ident">unwrap</span>(),
         );
     }
+}
+
+<span class="comment">// 03fe9400c2ab98b8870e09562b1f35b91036f3cf renamed &quot;phase&quot; to &quot;stage&quot;</span>
+<span class="kw">fn</span> <span class="ident">fix_phase_to_stage</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Value</span>) {
+    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">remove</span>(<span class="string">&quot;phases&quot;</span>) {
+            <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;stages&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">list</span>);
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">remove</span>(<span class="string">&quot;phase_type&quot;</span>) {
+            <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;stage_type&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">obj</span>);
+        }
+        <span class="bool-val">false</span>
+    });
 }
 
 <span class="comment">// These&#39;re old structs used in fix_old_lane_cmds.</span>

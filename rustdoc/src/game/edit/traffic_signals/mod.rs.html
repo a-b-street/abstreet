@@ -914,7 +914,7 @@
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">traffic_signal</span>, <span class="ident">DrawMovement</span>, <span class="ident">DrawOptions</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">MovementID</span>, <span class="ident">PhaseType</span>, <span class="ident">Stage</span>,
+    <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">MovementID</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>,
     <span class="ident">TurnPriority</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -1549,10 +1549,10 @@
             .<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="kw">match</span> <span class="ident">canonical_stage</span>.<span class="ident">phase_type</span> {
-                        <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
-                        <span class="ident">PhaseType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
-                        <span class="ident">PhaseType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(
+                    <span class="kw">match</span> <span class="ident">canonical_stage</span>.<span class="ident">stage_type</span> {
+                        <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
+                        <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
+                        <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(
                             <span class="string">&quot;Stage {}: {}, {}, {} (variable)&quot;</span>,
                             <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>,
                             <span class="ident">min</span>,
@@ -1650,7 +1650,7 @@
                 <span class="kw">if</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
                     <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">Stage</span>::<span class="ident">new</span>());
                 }
-                <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">phase_type</span> <span class="op">=</span> <span class="ident">canonical_stage</span>.<span class="ident">phase_type</span>.<span class="ident">clone</span>();
+                <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> <span class="op">=</span> <span class="ident">canonical_stage</span>.<span class="ident">stage_type</span>.<span class="ident">clone</span>();
             }
             <span class="ident">signals</span>.<span class="ident">push</span>(<span class="ident">signal</span>);
         }

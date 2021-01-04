@@ -283,7 +283,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Movement</span>, <span class="ident">PhaseType</span>, <span class="ident">Stage</span>, <span class="ident">TurnPriority</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Movement</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>, <span class="ident">TurnPriority</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">TrafficSignalStyle</span>;
@@ -318,10 +318,10 @@
             }
 
             <span class="kw">let</span> (<span class="ident">yellow_light</span>, <span class="ident">percent</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">time_left</span> {
-                <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>() <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
+                <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>() <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
                     (
                         <span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">5.0</span>),
-                        (<span class="ident">t</span> <span class="op">/</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>()) <span class="kw">as</span> <span class="ident">f32</span>,
+                        (<span class="ident">t</span> <span class="op">/</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>()) <span class="kw">as</span> <span class="ident">f32</span>,
                     )
                 } <span class="kw">else</span> {
                     (<span class="bool-val">true</span>, <span class="number">1.0</span>)
@@ -331,7 +331,7 @@
             };
             <span class="comment">// The warning color for fixed is yellow, for anything else its orange to clue the</span>
             <span class="comment">// user into it possibly extending.</span>
-            <span class="kw">let</span> <span class="ident">indicator_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PhaseType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">phase_type</span> {
+            <span class="kw">let</span> <span class="ident">indicator_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">stage_type</span> {
                 <span class="ident">Color</span>::<span class="ident">YELLOW</span>
             } <span class="kw">else</span> {
                 <span class="ident">Color</span>::<span class="ident">ORANGE</span>
@@ -508,7 +508,7 @@
 ) {
     <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>);
     <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
-    <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">phase_type</span>.<span class="ident">simple_duration</span>();
+    <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>();
     <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
         <span class="ident">time_left</span> <span class="op">/</span> <span class="ident">duration</span>
     } <span class="kw">else</span> {
