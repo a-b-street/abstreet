@@ -477,8 +477,8 @@ impl Screensaver {
         let bounds = app.primary.map.get_bounds();
         let line = loop {
             let goto = Pt2D::new(
-                rng.gen_range(0.0, bounds.max_x),
-                rng.gen_range(0.0, bounds.max_y),
+                rng.gen_range(0.0..bounds.max_x),
+                rng.gen_range(0.0..bounds.max_y),
             );
             if let Some(l) = Line::new(at, goto) {
                 break l;

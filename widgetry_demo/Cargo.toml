@@ -15,8 +15,8 @@ wasm = ["wasm-bindgen", "widgetry/wasm-backend"]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 log = "0.4.11"
-rand = "0.7.0"
-rand_xorshift = "0.2.0"
-svg_face = "0.1.2"
+rand = "0.8.0"
+rand_xorshift = "0.3.0"
+svg_face = "0.1.3"
 wasm-bindgen = { version = "0.2.68", optional = true }
 widgetry = { path = "../widgetry" }

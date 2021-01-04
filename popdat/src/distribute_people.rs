@@ -48,7 +48,7 @@ pub fn assign_people_to_houses(
         // - This is not a uniform distribution, per stackoverflow
         // - Larger buildings should get more people
 
-        let mut rand_nums: Vec<f64> = (0..bldgs.len()).map(|_| rng.gen_range(0.0, 1.0)).collect();
+        let mut rand_nums: Vec<f64> = (0..bldgs.len()).map(|_| rng.gen_range(0.0..1.0)).collect();
         let sum: f64 = rand_nums.iter().sum();
         for b in bldgs {
             let n = (rand_nums.pop().unwrap() / sum * (num_residents as f64)) as usize;
@@ -59,7 +59,7 @@ pub fn assign_people_to_houses(
                     // TODO Making this up for now. We can either move this to Config or see if we
                     // can extract it from the census. Also, not even sure which of these
                     // attributes are useful later in the pipeline.
-                    age: rng.gen_range(5, 95),
+                    age: rng.gen_range(5..95),
                     employed: rng.gen_bool(0.7),
                     owns_car: rng.gen_bool(0.5),
                 });

@@ -2,7 +2,8 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{prettyprint_usize, Counter, FileWithProgress, Timer};
+use abstio::FileWithProgress;
+use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Time};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::{osm, Map};

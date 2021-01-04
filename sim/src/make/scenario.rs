@@ -255,15 +255,14 @@ impl Scenario {
 
     pub fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
         assert!(high > low);
-        Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
+        Distance::meters(rng.gen_range(low.inner_meters()..high.inner_meters()))
     }
 
     fn rand_speed(rng: &mut XorShiftRng, low: Speed, high: Speed) -> Speed {
         assert!(high > low);
-        Speed::meters_per_second(rng.gen_range(
-            low.inner_meters_per_second(),
-            high.inner_meters_per_second(),
-        ))
+        Speed::meters_per_second(
+            rng.gen_range(low.inner_meters_per_second()..high.inner_meters_per_second()),
+        )
     }
 
     pub fn rand_ped_speed(rng: &mut XorShiftRng) -> Speed {

@@ -120,7 +120,7 @@ pub fn distribute_residents(map: &mut map_model::Map, timer: &mut Timer) {
         // - This is not a uniform distribution, per stackoverflow
         // - Larger buildings should get more people
 
-        let mut rand_nums: Vec<f64> = (0..bldgs.len()).map(|_| rng.gen_range(0.0, 1.0)).collect();
+        let mut rand_nums: Vec<f64> = (0..bldgs.len()).map(|_| rng.gen_range(0.0..1.0)).collect();
         let sum: f64 = rand_nums.iter().sum();
         for b in bldgs {
             let n = (rand_nums.pop().unwrap() / sum * (num_residents as f64)) as usize;

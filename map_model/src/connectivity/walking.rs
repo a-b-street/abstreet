@@ -129,7 +129,7 @@ pub fn all_walking_costs_from(
             let bldg_dist = b.sidewalk_pos.dist_along();
             let distance_from_closest_node = if sidewalk_len - bldg_dist <= bldg_dist {
                 bldg_dist
-            }else{
+            } else {
                 sidewalk_len - bldg_dist
             };
             let total_cost = *cost + distance_from_closest_node / opts.walking_speed;

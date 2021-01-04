@@ -15,9 +15,9 @@ instant = "0.1.7"
 libm = "0.2.1"
 log = "0.4.11"
 map_model = { path = "../map_model" }
-rand = "0.7.0"
-rand_distr = "0.3.0"
-rand_xorshift = "0.2.0"
+rand = "0.8.0"
+rand_distr = "0.4.0"
+rand_xorshift = "0.3.0"
 serde = "1.0.116"
 
 [[bin]]

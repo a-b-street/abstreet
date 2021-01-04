@@ -78,7 +78,7 @@ impl CensusPerson {
 
 fn rand_duration(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Duration {
     assert!(high > low);
-    Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
+    Duration::seconds(rng.gen_range(low.inner_seconds()..high.inner_seconds()))
 }
 
 fn rand_time(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Time {

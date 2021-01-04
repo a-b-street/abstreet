@@ -277,7 +277,7 @@ pub fn bio(
     rows.push(Widget::draw_batch(ctx, batch).centered_horiz());
 
     let nickname = petname::Petnames::default().generate(&mut rng, 2, " ");
-    let age = rng.gen_range(5, 100);
+    let age = rng.gen_range(5..100);
 
     let mut table = vec![("Nickname", nickname), ("Age", age.to_string())];
     if app.opts.dev {
