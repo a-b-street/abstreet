@@ -453,6 +453,7 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -560,7 +561,8 @@
     <span class="kw">pub</span> <span class="ident">zorder</span>: <span class="ident">isize</span>,
 
     <span class="doccomment">/// Invariant: A road must contain at least one child</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">lanes_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>,
+    <span class="comment">// TODO Only public for Map::import_minimal. Can we avoid this?</span>
+    <span class="kw">pub</span> <span class="ident">lanes_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>,
 
     <span class="doccomment">/// The physical center of the road, including sidewalks, after trimming. The order implies</span>
     <span class="doccomment">/// road orientation. No edits ever change this.</span>

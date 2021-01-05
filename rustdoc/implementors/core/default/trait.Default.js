@@ -5,4 +5,5 @@ implementors["importer"] = [{"text":"impl Default for ImporterConfiguration","sy
 implementors["map_model"] = [{"text":"impl Default for MapEdits","synthetic":false,"types":[]}];
 implementors["santa"] = [{"text":"impl Default for Music","synthetic":false,"types":[]}];
 implementors["sim"] = [{"text":"impl Default for Analytics","synthetic":false,"types":[]},{"text":"impl Default for SimOptions","synthetic":false,"types":[]},{"text":"impl Default for AlertHandler","synthetic":false,"types":[]}];
+implementors["sumo"] = [{"text":"impl Default for Function","synthetic":false,"types":[]},{"text":"impl Default for SpreadType","synthetic":false,"types":[]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

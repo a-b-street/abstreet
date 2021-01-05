@@ -875,6 +875,10 @@
 <span id="872">872</span>
 <span id="873">873</span>
 <span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -975,7 +979,11 @@
         <span class="kw">if</span> <span class="ident">self_width</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">boundary_width</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">length</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">boundary_width</span> <span class="op">+</span> <span class="ident">EPSILON_DIST</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">boundary_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">boundary_width</span> <span class="op">/</span> <span class="number">2.0</span>);
+        <span class="comment">// TODO exact_slice() used to work fine here, but the SUMO montlake map triggers a problem</span>
+        <span class="comment">// there</span>
+        <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">maybe_exact_slice</span>(<span class="ident">boundary_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">boundary_width</span> <span class="op">/</span> <span class="number">2.0</span>)
+            .<span class="ident">ok</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(
             <span class="ident">slice</span>
                 .<span class="ident">to_thick_ring</span>(<span class="ident">self_width</span> <span class="op">-</span> <span class="ident">boundary_width</span>)
