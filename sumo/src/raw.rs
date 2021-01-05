@@ -9,7 +9,7 @@ use serde::Deserialize;
 
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Polygon, Pt2D, Ring, Speed};
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Network {
     pub location: Location,
     #[serde(rename = "type")]
@@ -18,9 +18,11 @@ pub struct Network {
     pub edges: Vec<Edge>,
     #[serde(rename = "junction")]
     pub junctions: Vec<Junction>,
+    #[serde(rename = "connection")]
+    pub connections: Vec<Connection>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Location {
     #[serde(rename = "convBoundary", deserialize_with = "parse_bounds")]
     pub converted_boundary: Bounds,
@@ -39,14 +41,14 @@ impl Network {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 pub struct EdgeID(pub String);
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 pub struct NodeID(String);
-#[derive(Debug, Deserialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 pub struct LaneID(String);
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Type {
     pub id: String,
     pub priority: usize,
@@ -58,7 +60,7 @@ pub struct Type {
     pub disallow: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Edge {
     pub id: EdgeID,
     pub name: Option<String>,
@@ -77,7 +79,7 @@ pub struct Edge {
     pub shape: Option<PolyLine>,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(PartialEq, Deserialize)]
 pub enum Function {
     #[serde(rename = "normal")]
     Normal,
@@ -90,7 +92,7 @@ impl std::default::Default for Function {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub enum SpreadType {
     #[serde(rename = "right")]
     Right,
@@ -105,7 +107,7 @@ impl std::default::Default for SpreadType {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Lane {
     pub id: LaneID,
     pub index: usize,
@@ -120,7 +122,7 @@ pub struct Lane {
     pub disallow: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Junction {
     pub id: NodeID,
     #[serde(rename = "type")]
@@ -138,6 +140,45 @@ impl Junction {
     pub fn pt(&self) -> Pt2D {
         Pt2D::new(self.x, self.y)
     }
+}
+
+#[derive(Deserialize)]
+pub struct Connection {
+    pub from: EdgeID,
+    #[serde(rename = "fromLane")]
+    pub from_lane: usize,
+    pub to: EdgeID,
+    #[serde(rename = "toLane")]
+    pub to_lane: usize,
+    pub via: Option<LaneID>,
+    pub dir: Direction,
+}
+impl Connection {
+    pub fn from_lane(&self) -> LaneID {
+        LaneID(format!("{}_{}", self.from.0, self.from_lane))
+    }
+
+    pub fn to_lane(&self) -> LaneID {
+        LaneID(format!("{}_{}", self.to.0, self.to_lane))
+    }
+}
+
+#[derive(Deserialize)]
+pub enum Direction {
+    #[serde(rename = "s")]
+    Straight,
+    #[serde(rename = "t")]
+    Turn,
+    #[serde(rename = "l")]
+    Left,
+    #[serde(rename = "r")]
+    Right,
+    #[serde(rename = "L")]
+    PartiallyLeft,
+    #[serde(rename = "R")]
+    PartiallyRight,
+    #[serde(rename = "invalid")]
+    Invalid,
 }
 
 fn parse_f64s<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<f64>, D::Error> {

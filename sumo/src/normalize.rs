@@ -6,7 +6,7 @@ use std::error::Error;
 use abstutil::Timer;
 use geom::{Distance, PolyLine, Pt2D, Ring};
 
-use crate::{raw, Edge, Junction, Lane, Network};
+use crate::{raw, Edge, InternalEdge, InternalLane, Junction, Lane, Network};
 
 impl Network {
     /// Reads a .net.xml file and return the normalized SUMO network.
@@ -21,8 +21,10 @@ impl Network {
     fn from_raw(raw: raw::Network) -> Network {
         let mut network = Network {
             location: raw.location,
-            edges: BTreeMap::new(),
+            normal_edges: BTreeMap::new(),
+            internal_edges: BTreeMap::new(),
             junctions: BTreeMap::new(),
+            connections: raw.connections,
         };
 
         let types: BTreeMap<String, raw::Type> =
@@ -47,14 +49,25 @@ impl Network {
 
         for edge in raw.edges {
             if edge.function == raw::Function::Internal {
+                let mut lanes = Vec::new();
+                for lane in edge.lanes {
+                    lanes.push(InternalLane {
+                        id: lane.id,
+                        index: lane.index,
+                        speed: lane.speed,
+                        length: lane.length,
+                        center_line: lane.shape.ok(),
+                        allow: lane.allow,
+                    });
+                }
+                network
+                    .internal_edges
+                    .insert(edge.id.clone(), InternalEdge { id: edge.id, lanes });
                 continue;
             }
-            let (from, to) = match (edge.from, edge.to) {
-                (Some(from), Some(to)) => (from, to),
-                _ => {
-                    continue;
-                }
-            };
+
+            let from = edge.from.unwrap();
+            let to = edge.to.unwrap();
             let template = &types[edge.edge_type.as_ref().unwrap()];
 
             let raw_center_line = match edge.shape {
@@ -85,7 +98,7 @@ impl Network {
                 });
             }
 
-            network.edges.insert(
+            network.normal_edges.insert(
                 edge.id.clone(),
                 Edge {
                     id: edge.id,
@@ -116,12 +129,20 @@ impl Network {
             junction.shape =
                 Ring::must_new(junction.shape.points().iter().map(fix).collect()).to_polygon();
         }
-        for edge in self.edges.values_mut() {
+        for edge in self.normal_edges.values_mut() {
             edge.center_line =
                 PolyLine::must_new(edge.center_line.points().iter().map(fix).collect());
             for lane in &mut edge.lanes {
                 lane.center_line =
                     PolyLine::must_new(lane.center_line.points().iter().map(fix).collect());
+            }
+        }
+        for edge in self.internal_edges.values_mut() {
+            for lane in &mut edge.lanes {
+                if let Some(pl) = lane.center_line.take() {
+                    lane.center_line =
+                        Some(PolyLine::must_new(pl.points().iter().map(fix).collect()));
+                }
             }
         }
     }
