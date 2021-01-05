@@ -1,10 +1,13 @@
 //! This crate provides a Rust interface to different parts of the [SUMO](https://www.eclipse.org/sumo/) traffic simulator.
 
+#[macro_use]
+extern crate anyhow;
+
 use std::collections::BTreeMap;
 
 use geom::{Distance, PolyLine, Polygon, Pt2D, Speed};
 
-pub use self::raw::{Connection, Direction, EdgeID, LaneID, NodeID};
+pub use self::raw::{Connection, Direction, EdgeID, InternalLaneID, LaneID, NodeID};
 
 mod normalize;
 mod raw;
@@ -44,21 +47,22 @@ pub struct Lane {
     pub length: Distance,
     pub width: Distance,
     pub center_line: PolyLine,
-    pub allow: Vec<String>,
+    pub allow: Vec<VehicleClass>,
 }
 
+/// See https://sumo.dlr.de/docs/Networks/SUMO_Road_Networks.html#internal_edges
 pub struct InternalEdge {
     pub id: EdgeID,
     pub lanes: Vec<InternalLane>,
 }
 
 pub struct InternalLane {
-    pub id: LaneID,
+    pub id: InternalLaneID,
     pub index: usize,
     pub speed: Speed,
     pub length: Distance,
     pub center_line: Option<PolyLine>,
-    pub allow: Vec<String>,
+    pub allow: Vec<VehicleClass>,
 }
 
 pub struct Junction {
@@ -66,6 +70,16 @@ pub struct Junction {
     pub junction_type: String,
     pub pt: Pt2D,
     pub incoming_lanes: Vec<LaneID>,
-    pub internal_lanes: Vec<LaneID>,
+    pub internal_lanes: Vec<InternalLaneID>,
     pub shape: Polygon,
+}
+
+#[derive(PartialEq)]
+pub enum VehicleClass {
+    Pedestrian,
+    Bicycle,
+    RailUrban,
+    // TODO Use all values from
+    // https://sumo.dlr.de/docs/Definition_of_Vehicles,_Vehicle_Types,_and_Routes.html#abstract_vehicle_class
+    Other(String),
 }

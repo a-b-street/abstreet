@@ -3,7 +3,8 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
-use abstutil::{MapName, Parallelism, Tags, Timer};
+use abstio::MapName;
+use abstutil::{Parallelism, Tags, Timer};
 use geom::{Bounds, Distance, FindClosest, GPSBounds, HashablePt2D, Speed, EPSILON_DIST};
 
 use crate::pathfind::Pathfinder;

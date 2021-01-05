@@ -2,12 +2,12 @@
 //! subset of the structures and fields defined at
 //! <https://sumo.dlr.de/docs/Networks/PlainXML.html> are produced.
 
-use std::error::Error;
-
 use abstutil::Timer;
 use serde::Deserialize;
 
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Polygon, Pt2D, Ring, Speed};
+
+use crate::VehicleClass;
 
 #[derive(Deserialize)]
 pub struct Network {
@@ -31,9 +31,9 @@ pub struct Location {
 }
 
 impl Network {
-    pub fn parse(path: &str, timer: &mut Timer) -> Result<Network, Box<dyn Error>> {
+    pub fn parse(path: &str, timer: &mut Timer) -> anyhow::Result<Network> {
         timer.start(format!("read {}", path));
-        let bytes = abstutil::slurp_file(path)?;
+        let bytes = abstio::slurp_file(path)?;
         let raw_string = std::str::from_utf8(&bytes)?;
         let network = quick_xml::de::from_str(raw_string)?;
         timer.stop(format!("read {}", path));
@@ -46,7 +46,9 @@ pub struct EdgeID(pub String);
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 pub struct NodeID(String);
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
-pub struct LaneID(String);
+pub struct LaneID(pub String);
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
+pub struct InternalLaneID(pub String);
 
 #[derive(Deserialize)]
 pub struct Type {
@@ -54,10 +56,10 @@ pub struct Type {
     pub priority: usize,
     pub speed: Speed,
     pub width: Option<Distance>,
-    #[serde(deserialize_with = "parse_list", default)]
-    pub allow: Vec<String>,
-    #[serde(deserialize_with = "parse_list", default)]
-    pub disallow: Vec<String>,
+    #[serde(deserialize_with = "parse_list_vehicles", default)]
+    pub allow: Vec<VehicleClass>,
+    #[serde(deserialize_with = "parse_list_vehicles", default)]
+    pub disallow: Vec<VehicleClass>,
 }
 
 #[derive(Deserialize)]
@@ -109,17 +111,18 @@ impl std::default::Default for SpreadType {
 
 #[derive(Deserialize)]
 pub struct Lane {
-    pub id: LaneID,
+    /// This could be a LaneID or an InternalLaneID. It'll be distinguished during normalization.
+    pub id: String,
     pub index: usize,
     pub speed: Speed,
     pub length: Distance,
     pub width: Option<Distance>,
     #[serde(deserialize_with = "parse_pl")]
-    pub shape: Result<PolyLine, String>,
-    #[serde(deserialize_with = "parse_list", default)]
-    pub allow: Vec<String>,
-    #[serde(deserialize_with = "parse_list", default)]
-    pub disallow: Vec<String>,
+    pub shape: anyhow::Result<PolyLine>,
+    #[serde(deserialize_with = "parse_list_vehicles", default)]
+    pub allow: Vec<VehicleClass>,
+    #[serde(deserialize_with = "parse_list_vehicles", default)]
+    pub disallow: Vec<VehicleClass>,
 }
 
 #[derive(Deserialize)]
@@ -131,8 +134,12 @@ pub struct Junction {
     pub y: f64,
     #[serde(rename = "incLanes", deserialize_with = "parse_list_lanes", default)]
     pub incoming_lanes: Vec<LaneID>,
-    #[serde(rename = "intLanes", deserialize_with = "parse_list_lanes", default)]
-    pub internal_lanes: Vec<LaneID>,
+    #[serde(
+        rename = "intLanes",
+        deserialize_with = "parse_list_internal_lanes",
+        default
+    )]
+    pub internal_lanes: Vec<InternalLaneID>,
     #[serde(deserialize_with = "parse_polygon", default)]
     pub shape: Option<Polygon>,
 }
@@ -150,7 +157,7 @@ pub struct Connection {
     pub to: EdgeID,
     #[serde(rename = "toLane")]
     pub to_lane: usize,
-    pub via: Option<LaneID>,
+    pub via: Option<InternalLaneID>,
     pub dir: Direction,
 }
 impl Connection {
@@ -217,15 +224,36 @@ fn parse_gps_bounds<'de, D: serde::Deserializer<'de>>(d: D) -> Result<GPSBounds,
     })
 }
 
-fn parse_list<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<String>, D::Error> {
+fn parse_list_vehicles<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Vec<VehicleClass>, D::Error> {
     let raw = <String>::deserialize(d)?;
-    let parts: Vec<String> = raw.split(" ").map(|x| x.to_string()).collect();
-    Ok(parts)
+    let mut vehicles = Vec::new();
+    for x in raw.split(" ") {
+        vehicles.push(match x {
+            "pedestrian" => VehicleClass::Pedestrian,
+            "bicycle" => VehicleClass::Bicycle,
+            "rail_urban" => VehicleClass::RailUrban,
+            other => VehicleClass::Other(other.to_string()),
+        });
+    }
+    Ok(vehicles)
 }
 
 fn parse_list_lanes<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<LaneID>, D::Error> {
     let raw = <String>::deserialize(d)?;
     let parts: Vec<LaneID> = raw.split(" ").map(|x| LaneID(x.to_string())).collect();
+    Ok(parts)
+}
+
+fn parse_list_internal_lanes<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Vec<InternalLaneID>, D::Error> {
+    let raw = <String>::deserialize(d)?;
+    let parts: Vec<InternalLaneID> = raw
+        .split(" ")
+        .map(|x| InternalLaneID(x.to_string()))
+        .collect();
     Ok(parts)
 }
 
@@ -238,7 +266,7 @@ fn parse_pts<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<Pt2D>, D::Err
     Ok(pts)
 }
 
-fn parse_pl<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Result<PolyLine, String>, D::Error> {
+fn parse_pl<'de, D: serde::Deserializer<'de>>(d: D) -> Result<anyhow::Result<PolyLine>, D::Error> {
     let pts = parse_pts(d)?;
     Ok(PolyLine::new(pts))
 }
@@ -259,14 +287,14 @@ fn parse_polygon<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Polygo
     ))
 }
 
-fn parse_pt(pt: &str) -> Result<Pt2D, Box<dyn Error>> {
+fn parse_pt(pt: &str) -> anyhow::Result<Pt2D> {
     let mut parts = Vec::new();
     for x in pt.split(",") {
         parts.push(x.parse::<f64>()?);
     }
     // Ignore the Z coordinate if it's there
     if parts.len() != 2 && parts.len() != 3 {
-        return Err("not 2 or 3 parts".into());
+        bail!("not 2 or 3 parts");
     }
     Ok(Pt2D::new(parts[0], parts[1]))
 }
