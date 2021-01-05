@@ -3,13 +3,13 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use abstutil::{CmdArgs, MapName, Tags, Timer};
-use geom::Distance;
+use geom::{Distance, PolyLine};
 use map_model::{
-    osm, raw, AccessRestrictions, Direction, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, LaneType, Map, Road, RoadID,
+    osm, raw, AccessRestrictions, Intersection, IntersectionID, IntersectionType, Lane, LaneID,
+    LaneType, Map, Road, RoadID, Turn, TurnID, TurnType,
 };
 
-use sumo::{Network, NodeID};
+use sumo::{Direction, Network, NodeID};
 
 fn main() {
     let mut timer = Timer::new("convert SUMO network");
@@ -42,21 +42,23 @@ fn convert(orig_path: &str, network: Network) -> Map {
     }
     let mut roads: Vec<Road> = Vec::new();
     let mut lanes = Vec::new();
-    for (_, edge) in network.edges {
+    let mut ids_lanes: BTreeMap<sumo::LaneID, LaneID> = BTreeMap::new();
+    for (_, edge) in network.normal_edges {
         let src_i = ids_intersections[&edge.from];
         let dst_i = ids_intersections[&edge.to];
         // SUMO has one edge in each direction, but ABST has bidirectional roads. Detect if this
         // edge is the reverse of one we've already handled.
         let (road_id, direction) =
             if let Some(r) = roads.iter().find(|r| r.dst_i == src_i && r.src_i == dst_i) {
-                (r.id, Direction::Back)
+                (r.id, map_model::Direction::Back)
             } else {
-                (RoadID(roads.len()), Direction::Fwd)
+                (RoadID(roads.len()), map_model::Direction::Fwd)
             };
 
-        let mut lanes_rtl: Vec<(LaneID, Direction, LaneType)> = Vec::new();
+        let mut lanes_rtl: Vec<(LaneID, map_model::Direction, LaneType)> = Vec::new();
         for lane in &edge.lanes {
             let lane_id = LaneID(lanes.len());
+            ids_lanes.insert(lane.id.clone(), lane_id);
             let lane_type = if lane.allow == vec!["pedestrian".to_string()] {
                 LaneType::Sidewalk
             } else if lane.allow == vec!["bicycle".to_string()] {
@@ -85,7 +87,7 @@ fn convert(orig_path: &str, network: Network) -> Map {
             lanes_rtl.push((lane_id, direction, lane_type));
         }
 
-        if direction == Direction::Fwd {
+        if direction == map_model::Direction::Fwd {
             // Make a new road
             intersections[src_i.0].roads.insert(road_id);
             intersections[dst_i.0].roads.insert(road_id);
@@ -129,6 +131,55 @@ fn convert(orig_path: &str, network: Network) -> Map {
         }
     }
 
+    let mut internal_lane_geometry: BTreeMap<sumo::LaneID, PolyLine> = BTreeMap::new();
+    for (_, edge) in network.internal_edges {
+        for lane in edge.lanes {
+            if let Some(pl) = lane.center_line {
+                internal_lane_geometry.insert(lane.id, pl);
+            }
+        }
+    }
+
+    let mut turns = Vec::new();
+    for connection in network.connections {
+        match (
+            ids_lanes.get(&connection.from_lane()),
+            ids_lanes.get(&connection.to_lane()),
+            connection.via,
+        ) {
+            (Some(from), Some(to), Some(via)) => {
+                let id = TurnID {
+                    parent: lanes[from.0].dst_i,
+                    src: *from,
+                    dst: *to,
+                };
+                if let Some(geom) = internal_lane_geometry.remove(&via).or_else(|| {
+                    PolyLine::new(vec![
+                        lanes[from.0].lane_center_pts.last_pt(),
+                        lanes[to.0].lane_center_pts.first_pt(),
+                    ])
+                    .ok()
+                }) {
+                    turns.push(Turn {
+                        id,
+                        // TODO Crosswalks and sidewalk corners
+                        turn_type: match connection.dir {
+                            Direction::Straight => TurnType::Straight,
+                            Direction::Left | Direction::PartiallyLeft => TurnType::Left,
+                            Direction::Right | Direction::PartiallyRight => TurnType::Right,
+                            // Not sure
+                            _ => TurnType::Straight,
+                        },
+                        geom,
+                        other_crosswalk_ids: BTreeSet::new(),
+                    });
+                    intersections[id.parent.0].turns.insert(id);
+                }
+            }
+            _ => {}
+        }
+    }
+
     Map::import_minimal(
         // Double basename because "foo.net.xml" just becomes "foo.net"
         MapName::new("sumo", &abstutil::basename(abstutil::basename(orig_path))),
@@ -137,5 +188,6 @@ fn convert(orig_path: &str, network: Network) -> Map {
         intersections,
         roads,
         lanes,
+        turns,
     )
 }

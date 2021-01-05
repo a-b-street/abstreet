@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 
 use geom::{Distance, PolyLine, Polygon, Pt2D, Speed};
 
-pub use self::raw::{EdgeID, LaneID, NodeID};
+pub use self::raw::{Connection, Direction, EdgeID, LaneID, NodeID};
 
 mod normalize;
 mod raw;
@@ -14,13 +14,15 @@ mod raw;
 /// transformations:
 ///
 /// - Any unspecified edge and lane attributes are inherited from `types` or set to defaults
-/// - Edges without a `from` or `to` are filtered out
-/// - Internal edges and junctions are filtered out
+/// - Internal edges are represented separately
+/// - Internal junctions are filtered out
 /// - The Y coordinate is inverted, so that Y decreases northbound
 pub struct Network {
     pub location: raw::Location,
-    pub edges: BTreeMap<EdgeID, Edge>,
+    pub normal_edges: BTreeMap<EdgeID, Edge>,
+    pub internal_edges: BTreeMap<EdgeID, InternalEdge>,
     pub junctions: BTreeMap<NodeID, Junction>,
+    pub connections: Vec<Connection>,
 }
 
 pub struct Edge {
@@ -42,6 +44,20 @@ pub struct Lane {
     pub length: Distance,
     pub width: Distance,
     pub center_line: PolyLine,
+    pub allow: Vec<String>,
+}
+
+pub struct InternalEdge {
+    pub id: EdgeID,
+    pub lanes: Vec<InternalLane>,
+}
+
+pub struct InternalLane {
+    pub id: LaneID,
+    pub index: usize,
+    pub speed: Speed,
+    pub length: Distance,
+    pub center_line: Option<PolyLine>,
     pub allow: Vec<String>,
 }
 
