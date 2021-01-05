@@ -45,7 +45,7 @@ pub fn read(path: &str, input_gps_bounds: &GPSBounds, timer: &mut Timer) -> Resu
     timer.start(format!("read {}", path));
     let bytes = slurp_file(path)?;
     let raw_string = std::str::from_utf8(&bytes)?;
-    let tree = roxmltree::Document::parse(raw_string).map_err(|err| anyhow!("{}", err))?;
+    let tree = roxmltree::Document::parse(raw_string)?;
     timer.stop(format!("read {}", path));
 
     let mut doc = Document {
