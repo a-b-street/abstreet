@@ -427,7 +427,6 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
-<span id="427">427</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -714,7 +713,6 @@
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">stage_type</span> {
                 <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
-                <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
                 <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;Stage {}: {}, {}, {} (variable)&quot;</span>,
                     <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>,

@@ -904,7 +904,6 @@
 <span id="901">901</span>
 <span id="902">902</span>
 <span id="903">903</span>
-<span id="904">904</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1508,7 +1507,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>)];
     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>));
 
-    <span class="comment">// TODO Say &quot;normally&quot; to account for adaptive stages?</span>
+    <span class="comment">// TODO Say &quot;normally&quot; to account for variable stages?</span>
     <span class="ident">col</span>.<span class="ident">push</span>(
         <span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;One full cycle lasts {}&quot;</span>,
@@ -1551,7 +1550,6 @@
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="kw">match</span> <span class="ident">canonical_stage</span>.<span class="ident">stage_type</span> {
                         <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
-                        <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {} (adaptive)&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>),
                         <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(
                             <span class="string">&quot;Stage {}: {}, {}, {} (variable)&quot;</span>,
                             <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>,

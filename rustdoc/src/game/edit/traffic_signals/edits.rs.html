@@ -266,9 +266,6 @@
 <span id="263">263</span>
 <span id="264">264</span>
 <span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
@@ -324,11 +321,10 @@
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;stage type&quot;</span>,
                     <span class="string">&quot;fixed&quot;</span>,
-                    <span class="string">&quot;adaptive&quot;</span>,
+                    <span class="string">&quot;variable&quot;</span>,
                     <span class="prelude-val">None</span>,
                     <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
                         <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                        <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
                         <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
                     },
                 ),
@@ -343,7 +339,6 @@
                     (<span class="number">1</span>, <span class="number">300</span>),
                     <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
                         <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                        <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
                         <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">additional</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>
                         }
@@ -361,7 +356,6 @@
                     (<span class="number">1</span>, <span class="number">300</span>),
                     <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
                         <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                        <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
                         <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="ident">delay</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">delay</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">isize</span>,
                     },
                 )

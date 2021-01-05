@@ -475,16 +475,6 @@
 <span id="472">472</span>
 <span id="473">473</span>
 <span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
@@ -496,7 +486,6 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">traffic_signals</span>::{<span class="ident">brute_force</span>, <span class="ident">get_possible_policies</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">traffic_signals</span>::<span class="ident">StageType</span>::{<span class="ident">Adaptive</span>, <span class="ident">Fixed</span>, <span class="ident">Variable</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>,
@@ -535,10 +524,6 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StageType</span> {
     <span class="ident">Fixed</span>(<span class="ident">Duration</span>),
-    <span class="doccomment">/// Same as fixed, but when this stage would normally end, if there&#39;s still incoming demand,</span>
-    <span class="doccomment">/// repeat the stage entirely.</span>
-    <span class="comment">// TODO This is a silly policy, but a start towards variable timers.</span>
-    <span class="ident">Adaptive</span>(<span class="ident">Duration</span>),
     <span class="doccomment">/// Minimum is the minimum duration, 0 allows cycle to be skipped if no demand.</span>
     <span class="doccomment">/// Delay is the elapsed time with no demand that ends a cycle.</span>
     <span class="doccomment">/// Additional is the additional duration for an extended cycle.</span>
@@ -549,7 +534,7 @@
     <span class="comment">// TODO Maybe don&#39;t have this; force callers to acknowledge different policies</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_duration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">|</span> <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">d</span>,
+            <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">d</span>,
             <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">duration</span>, <span class="ident">delay</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span> {
                     <span class="kw-2">*</span><span class="ident">duration</span>
@@ -814,9 +799,10 @@
         );
         <span class="kw">if</span> <span class="ident">time</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>() {
             <span class="self">self</span>.<span class="ident">stage_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stage_type</span> {
-                <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Adaptive</span>(<span class="ident">time</span>),
-                <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Fixed</span>(<span class="ident">time</span>),
-                <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Variable</span>(<span class="ident">time</span>, <span class="ident">delay</span>, <span class="ident">additional</span>),
+                <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">time</span>),
+                <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="kw">_</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">time</span>, <span class="ident">delay</span>, <span class="ident">additional</span>)
+                }
             };
         }
     }
@@ -843,9 +829,6 @@
                     <span class="ident">stage_type</span>: <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">stage_type</span> {
                         <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">traffic_signal_data</span>::<span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">usize</span>)
-                        }
-                        <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">traffic_signal_data</span>::<span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">usize</span>)
                         }
                         <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">traffic_signal_data</span>::<span class="ident">StageType</span>::<span class="ident">Variable</span>(
@@ -898,9 +881,6 @@
                     <span class="ident">stage_type</span>: <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">stage_type</span> {
                         <span class="ident">traffic_signal_data</span>::<span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">d</span> <span class="kw">as</span> <span class="ident">f64</span>))
-                        }
-                        <span class="ident">traffic_signal_data</span>::<span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">StageType</span>::<span class="ident">Adaptive</span>(<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">d</span> <span class="kw">as</span> <span class="ident">f64</span>))
                         }
                         <span class="ident">traffic_signal_data</span>::<span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">StageType</span>::<span class="ident">Variable</span>(
