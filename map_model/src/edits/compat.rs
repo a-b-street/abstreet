@@ -68,6 +68,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
             .unwrap()
             .insert("version".to_string(), Value::Number(5.into()));
     }
+    if value["version"] == Value::Number(5.into()) {
+        fix_adaptive_stages(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(6.into()));
+    }
 
     abstutil::from_json(&value.to_string().into_bytes())
 }
@@ -248,6 +255,26 @@ fn fix_phase_to_stage(value: &mut Value) {
         }
         if let Some(obj) = map.remove("phase_type") {
             map.insert("stage_type".to_string(), obj);
+        }
+        false
+    });
+}
+
+// 34e8b0536a4517c68b0e16e5d55cb5e22dae37d8 remove adaptive signal stages.
+fn fix_adaptive_stages(value: &mut Value) {
+    walk(value, &|map| {
+        if let Some(seconds) = map.remove("Adaptive") {
+            // The old adaptive policy would repeat the entire stage if there was any demand at
+            // all, so this isn't quite equivalent, since it only doubles the original time at
+            // most. This adaptive policy never made any sense, so capturing its behavior more
+            // clearly here isn't really worth it.
+            let minimum = seconds.clone();
+            let delay = Value::Number(1.into());
+            let additional = seconds;
+            map.insert(
+                "Variable".to_string(),
+                Value::Array(vec![minimum, delay, additional]),
+            );
         }
         false
     });

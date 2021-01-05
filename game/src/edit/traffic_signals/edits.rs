@@ -52,11 +52,10 @@ impl ChangeDuration {
                     ctx,
                     "stage type",
                     "fixed",
-                    "adaptive",
+                    "variable",
                     None,
                     match signal.stages[idx].stage_type {
                         StageType::Fixed(_) => true,
-                        StageType::Adaptive(_) => false,
                         StageType::Variable(_, _, _) => false,
                     },
                 ),
@@ -71,7 +70,6 @@ impl ChangeDuration {
                     (1, 300),
                     match signal.stages[idx].stage_type {
                         StageType::Fixed(_) => 0,
-                        StageType::Adaptive(_) => 0,
                         StageType::Variable(_, _, additional) => {
                             additional.inner_seconds() as isize
                         }
@@ -89,7 +87,6 @@ impl ChangeDuration {
                     (1, 300),
                     match signal.stages[idx].stage_type {
                         StageType::Fixed(_) => 0,
-                        StageType::Adaptive(_) => 0,
                         StageType::Variable(_, delay, _) => delay.inner_seconds() as isize,
                     },
                 )

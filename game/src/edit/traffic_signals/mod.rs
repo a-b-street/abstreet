@@ -600,7 +600,7 @@ fn make_side_panel(
     let mut col = vec![txt.draw(ctx)];
     col.push(Widget::horiz_separator(ctx, 0.2));
 
-    // TODO Say "normally" to account for adaptive stages?
+    // TODO Say "normally" to account for variable stages?
     col.push(
         format!(
             "One full cycle lasts {}",
@@ -643,7 +643,6 @@ fn make_side_panel(
                 Widget::row(vec![
                     match canonical_stage.stage_type {
                         StageType::Fixed(d) => format!("Stage {}: {}", idx + 1, d),
-                        StageType::Adaptive(d) => format!("Stage {}: {} (adaptive)", idx + 1, d),
                         StageType::Variable(min, delay, additional) => format!(
                             "Stage {}: {}, {}, {} (variable)",
                             idx + 1,

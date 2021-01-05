@@ -283,7 +283,6 @@ pub fn traffic_signal(
         rows.push(
             match stage.stage_type {
                 StageType::Fixed(d) => Line(format!("Stage {}: {}", idx + 1, d)),
-                StageType::Adaptive(d) => Line(format!("Stage {}: {} (adaptive)", idx + 1, d)),
                 StageType::Variable(min, delay, additional) => Line(format!(
                     "Stage {}: {}, {}, {} (variable)",
                     idx + 1,

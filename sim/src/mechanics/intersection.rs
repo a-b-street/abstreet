@@ -74,7 +74,7 @@ struct SignalState {
     current_stage: usize,
     // The time when the signal is checked for advancing
     stage_ends_at: Time,
-    // The count of time an adaptive signal has been extended during the current stage.
+    // The number of times a variable signal has been extended during the current stage.
     extensions_count: usize,
 }
 
@@ -272,27 +272,6 @@ impl IntersectionSimState {
         match old_stage.stage_type {
             StageType::Fixed(_) => {
                 duration = advance(signal_state, signal);
-            }
-            StageType::Adaptive(_) => {
-                // TODO Make a better policy here. For now, if there's _anyone_ waiting to start a
-                // protected turn, repeat this stage for the full duration. Note that "waiting" is
-                // only defined as "at the end of the lane, ready to start the turn." If a
-                // vehicle/ped is a second away from the intersection, this won't detect that. We
-                // could pass in all of the Queues here and use that to count all incoming agents,
-                // even ones a little farther away.
-                if state.waiting.keys().all(|req| {
-                    old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
-                }) {
-                    duration = advance(signal_state, signal);
-                    self.events.push(Event::Alert(
-                        AlertLocation::Intersection(id),
-                        "Repeating an adaptive stage".to_string(),
-                    ));
-                } else {
-                    duration = signal.stages[signal_state.current_stage]
-                        .stage_type
-                        .simple_duration();
-                }
             }
             StageType::Variable(min, delay, additional) => {
                 // test if anyone is waiting in current stage, and if so, extend the signal cycle.

@@ -36,9 +36,6 @@ pub struct Stage {
 pub enum StageType {
     /// A fixed number of seconds.
     Fixed(usize),
-    /// Some multiple of a fixed number of seconds. At the end of this stage, based on incoming
-    /// demand, this stage may repeat.
-    Adaptive(usize),
     /// Minimum, Delay, Additional
     /// Minimum is the minimum cycle duration, 0 allows it to be skipped if no demand.
     /// Delay is the duration with no demand needed to end a cycle, 0 ends as soon as there is no

@@ -94,7 +94,7 @@ pub fn make_previewer(
                         // Start at the current stage
                         let signal = app.primary.map.get_traffic_signal(*i);
                         // TODO Use the offset correctly
-                        // TODO If there are adaptive stages, this could land anywhere
+                        // TODO If there are variable stages, this could land anywhere
                         let mut step = Duration::ZERO;
                         for idx in 0..stage {
                             step += signal.stages[idx].stage_type.simple_duration();

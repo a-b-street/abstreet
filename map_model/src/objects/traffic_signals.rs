@@ -8,7 +8,6 @@ use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer}
 use geom::{Distance, Duration, Speed};
 
 use crate::make::traffic_signals::{brute_force, get_possible_policies};
-use crate::objects::traffic_signals::StageType::{Adaptive, Fixed, Variable};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
@@ -47,10 +46,6 @@ pub struct Stage {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum StageType {
     Fixed(Duration),
-    /// Same as fixed, but when this stage would normally end, if there's still incoming demand,
-    /// repeat the stage entirely.
-    // TODO This is a silly policy, but a start towards variable timers.
-    Adaptive(Duration),
     /// Minimum is the minimum duration, 0 allows cycle to be skipped if no demand.
     /// Delay is the elapsed time with no demand that ends a cycle.
     /// Additional is the additional duration for an extended cycle.
@@ -61,7 +56,7 @@ impl StageType {
     // TODO Maybe don't have this; force callers to acknowledge different policies
     pub fn simple_duration(&self) -> Duration {
         match self {
-            StageType::Fixed(d) | StageType::Adaptive(d) => *d,
+            StageType::Fixed(d) => *d,
             StageType::Variable(duration, delay, _) => {
                 if *duration > Duration::ZERO {
                     *duration
@@ -326,9 +321,10 @@ impl Stage {
         );
         if time > self.stage_type.simple_duration() {
             self.stage_type = match self.stage_type {
-                StageType::Adaptive(_) => Adaptive(time),
-                StageType::Fixed(_) => Fixed(time),
-                StageType::Variable(_, delay, additional) => Variable(time, delay, additional),
+                StageType::Fixed(_) => StageType::Fixed(time),
+                StageType::Variable(_, delay, additional) => {
+                    StageType::Variable(time, delay, additional)
+                }
             };
         }
     }
@@ -355,9 +351,6 @@ impl ControlTrafficSignal {
                     stage_type: match s.stage_type {
                         StageType::Fixed(d) => {
                             traffic_signal_data::StageType::Fixed(d.inner_seconds() as usize)
-                        }
-                        StageType::Adaptive(d) => {
-                            traffic_signal_data::StageType::Adaptive(d.inner_seconds() as usize)
                         }
                         StageType::Variable(min, delay, additional) => {
                             traffic_signal_data::StageType::Variable(
@@ -410,9 +403,6 @@ impl ControlTrafficSignal {
                     stage_type: match s.stage_type {
                         traffic_signal_data::StageType::Fixed(d) => {
                             StageType::Fixed(Duration::seconds(d as f64))
-                        }
-                        traffic_signal_data::StageType::Adaptive(d) => {
-                            StageType::Adaptive(Duration::seconds(d as f64))
                         }
                         traffic_signal_data::StageType::Variable(min, delay, additional) => {
                             StageType::Variable(
