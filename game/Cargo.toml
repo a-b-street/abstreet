@@ -12,7 +12,7 @@ crate-type = ["cdylib", "lib"]
 
 [features]
 default = ["built", "map_gui/native", "widgetry/native-backend"]
-wasm = ["map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
+wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
@@ -28,6 +28,7 @@ downcast-rs = "1.2.0"
 enumset = "1.0.1"
 geojson = "0.21.0"
 geom = { path = "../geom" }
+getrandom = { version = "0.2.0", optional = true }
 instant = "0.1.7"
 kml = { path = "../kml" }
 log = "0.4.11"
