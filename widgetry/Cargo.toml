@@ -10,6 +10,7 @@ wasm-backend = ["glow/web-sys", "instant/wasm-bindgen", "usvg/text", "wasm-bindg
 
 [dependencies]
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 # backtrace = "0.3.40"
 downcast-rs = "1.2.0"
 geojson = "0.21.0"
@@ -17,7 +18,7 @@ geom = { path = "../geom" }
 glow = { version = "0.7.1", optional = true, default-features=false }
 glutin = { version = "0.26.0", optional = true }
 htmlescape = "0.3.1"
-image = { version = "0.23.9", default-features = false, features=["png"] }
+image = { version = "0.23.12", default-features = false, features=["png"] }
 instant = "0.1.7"
 log = "0.4.11"
 lru = "0.6.3"

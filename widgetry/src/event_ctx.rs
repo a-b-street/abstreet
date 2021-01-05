@@ -15,12 +15,7 @@ pub enum UpdateType {
     InputOnly,
     Game,
     Pan,
-    ScreenCaptureEverything {
-        dir: String,
-        zoom: f64,
-        max_x: f64,
-        max_y: f64,
-    },
+    ScreenCaptureEverything { dir: String, zoom: f64 },
 }
 
 pub struct EventCtx<'a> {

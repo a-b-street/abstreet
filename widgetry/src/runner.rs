@@ -358,13 +358,10 @@ pub fn run<
                     running = true;
                 }
                 UpdateType::Pan => {}
-                UpdateType::ScreenCaptureEverything {
-                    dir,
-                    zoom,
-                    max_x,
-                    max_y,
-                } => {
-                    screenshot_everything(&mut state, &dir, &prerender, zoom, max_x, max_y);
+                UpdateType::ScreenCaptureEverything { dir, zoom } => {
+                    if let Err(err) = screenshot_everything(&mut state, &dir, &prerender, zoom) {
+                        error!("Couldn't screenshot everything: {}", err);
+                    }
                 }
             }
         }

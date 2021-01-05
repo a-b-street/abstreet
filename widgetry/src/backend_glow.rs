@@ -362,6 +362,36 @@ impl PrerenderInnards {
     pub fn draw_finished(&self, gfc_ctx_innards: GfxCtxInnards) {
         self.window_adapter.draw_finished(gfc_ctx_innards)
     }
+
+    pub(crate) fn screencap(&self, canvas: &Canvas, filename: String) -> anyhow::Result<()> {
+        let width = canvas.window_width as u32;
+        let height = canvas.window_height as u32;
+
+        let mut img = image::DynamicImage::new_rgba8(width, height);
+        let pixels = img.as_mut_rgba8().unwrap();
+
+        unsafe {
+            self.gl.pixel_store_i32(glow::PACK_ALIGNMENT, 1);
+            self.gl.read_pixels(
+                0,
+                0,
+                width as i32,
+                height as i32,
+                glow::RGBA,
+                glow::UNSIGNED_BYTE,
+                glow::PixelPackData::Slice(pixels),
+            );
+        }
+
+        image::save_buffer(
+            &filename,
+            &image::imageops::flip_vertical(&img),
+            width,
+            height,
+            image::ColorType::Rgba8,
+        )?;
+        Ok(())
+    }
 }
 
 /// Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and

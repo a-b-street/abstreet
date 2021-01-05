@@ -4542,6 +4542,7 @@ name = "widgetry"
 version = "0.1.0"
 dependencies = [
  "abstutil",
+ "anyhow",
  "downcast-rs",
  "geojson",
  "geom",
