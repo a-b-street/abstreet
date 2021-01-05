@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 earcutr = { git = "https://github.com/donbright/earcutr" }
 geo = "0.16.0"
 geo-booleanop = "= 0.3.2"

@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use anyhow::Result;
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -18,7 +19,7 @@ use crate::{
 /// usually winds up with permanent legacy fields, unless the changes are purely additive. For
 /// example, protobufs wouldn't have helped with the fix_intersection_ids problem. Explicit
 /// transformation is easier!
-pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits, String> {
+pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
     // c46a74f10f4f1976a48aa8642ac11717d74b262c added an explicit version field. There are a few
     // changes before that.
     if value.get("version").is_none() {
@@ -152,7 +153,7 @@ fn fix_road_direction(value: &mut Value) {
 
 // b6ab06d51a3b22702b66db296ed4dfd27e8403a0 (and adjacent commits) removed some commands that
 // target a single lane in favor of a consolidated ChangeRoad.
-fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<(), String> {
+fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<()> {
     // TODO Can we assume map is in its original state? I don't think so... it may have edits
     // applied, right?
 
@@ -169,7 +170,7 @@ fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<(), String> {
             let (r, idx) = obj.id.lookup(map)?;
             let road = modified.entry(r).or_insert_with(|| map.get_r_edit(r));
             if road.lanes_ltr[idx].0 != obj.orig_lt {
-                return Err(format!("{:?} lane type has changed", obj));
+                bail!("{:?} lane type has changed", obj);
             }
             road.lanes_ltr[idx].0 = obj.lt;
         } else if let Some(obj) = cmd.remove("ReverseLane") {
@@ -182,10 +183,10 @@ fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<(), String> {
             } else if dst_i == map.get_r(r).src_i {
                 Direction::Back
             } else {
-                return Err(format!("{:?}'s road doesn't point to dst_i at all", obj));
+                bail!("{:?}'s road doesn't point to dst_i at all", obj);
             };
             if road.lanes_ltr[idx].1 == edits_dir {
-                return Err(format!("{:?}'s road already points to dst_i", obj));
+                bail!("{:?}'s road already points to dst_i", obj);
             }
             road.lanes_ltr[idx].1 = edits_dir;
         } else if let Some(obj) = cmd.remove("ChangeSpeedLimit") {
@@ -193,7 +194,7 @@ fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<(), String> {
             let r = map.find_r_by_osm_id(obj.id)?;
             let road = modified.entry(r).or_insert_with(|| map.get_r_edit(r));
             if road.speed_limit != obj.old {
-                return Err(format!("{:?} speed limit has changed", obj));
+                bail!("{:?} speed limit has changed", obj);
             }
             road.speed_limit = obj.new;
         } else if let Some(obj) = cmd.remove("ChangeAccessRestrictions") {
@@ -201,7 +202,7 @@ fn fix_old_lane_cmds(value: &mut Value, map: &Map) -> Result<(), String> {
             let r = map.find_r_by_osm_id(obj.id)?;
             let road = modified.entry(r).or_insert_with(|| map.get_r_edit(r));
             if road.access_restrictions != obj.old {
-                return Err(format!("{:?} access restrictions have changed", obj));
+                bail!("{:?} access restrictions have changed", obj);
             }
             road.access_restrictions = obj.new.clone();
         } else {
@@ -287,19 +288,19 @@ struct ChangeAccessRestrictions {
 }
 
 impl OriginalLane {
-    fn lookup(&self, map: &Map) -> Result<(RoadID, usize), String> {
+    fn lookup(&self, map: &Map) -> Result<(RoadID, usize)> {
         let r = map.get_r(map.find_r_by_osm_id(self.parent)?);
         let current_fwd = r.children_forwards();
         let current_back = r.children_backwards();
         if current_fwd.len() != self.num_fwd || current_back.len() != self.num_back {
-            return Err(format!(
+            bail!(
                 "number of lanes in {} is ({} fwd, {} back) now, but ({}, {}) in the edits",
                 r.orig_id,
                 current_fwd.len(),
                 current_back.len(),
                 self.num_fwd,
                 self.num_back
-            ));
+            );
         }
         let l = if self.dir == Direction::Fwd {
             current_fwd[self.idx].0

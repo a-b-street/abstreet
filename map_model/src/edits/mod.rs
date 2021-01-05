@@ -4,12 +4,13 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-pub use perma::PermanentMapEdits;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{retain_btreemap, retain_btreeset, Timer};
 use geom::{Speed, Time};
 
+pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     connectivity, AccessRestrictions, BusRouteID, ControlStopSign, ControlTrafficSignal, Direction,
@@ -146,14 +147,14 @@ impl MapEdits {
         }
     }
 
-    pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits, String> {
+    pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits> {
         match abstio::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
             Ok(perma) => perma.to_edits(map),
             Err(_) => {
                 // The JSON format may have changed, so attempt backwards compatibility.
                 let bytes = abstio::slurp_file(&path)?;
-                let contents = std::str::from_utf8(&bytes).map_err(|err| err.to_string())?;
-                let value = serde_json::from_str(contents).map_err(|err| err.to_string())?;
+                let contents = std::str::from_utf8(&bytes)?;
+                let value = serde_json::from_str(contents)?;
                 let perma = compat::upgrade(value, map)?;
                 perma.to_edits(map)
             }

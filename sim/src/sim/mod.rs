@@ -3,6 +3,7 @@
 use std::collections::{BTreeSet, HashSet};
 use std::panic;
 
+use anyhow::Result;
 use instant::Instant;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
@@ -816,7 +817,7 @@ impl Sim {
         abstio::find_next_file(self.save_path(base_time))
     }
 
-    pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim, String> {
+    pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim> {
         abstio::maybe_read_binary(path, timer)
     }
 }

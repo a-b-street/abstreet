@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, VecDeque};
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
@@ -198,7 +199,7 @@ impl TripManager {
                         );
                     }
                     Err(err) => {
-                        self.cancel_trip(now, trip, err, Some(vehicle), ctx);
+                        self.cancel_trip(now, trip, err.to_string(), Some(vehicle), ctx);
                     }
                 }
             }
@@ -241,7 +242,13 @@ impl TripManager {
                         Err(err) => {
                             // Move the car to the destination
                             ctx.parking.remove_parked_car(parked_car.clone());
-                            self.cancel_trip(now, trip, err, Some(parked_car.vehicle), ctx);
+                            self.cancel_trip(
+                                now,
+                                trip,
+                                err.to_string(),
+                                Some(parked_car.vehicle),
+                                ctx,
+                            );
                         }
                     }
                 } else {
@@ -305,7 +312,7 @@ impl TripManager {
                         );
                     }
                     Err(err) => {
-                        self.cancel_trip(now, trip, err, None, ctx);
+                        self.cancel_trip(now, trip, err.to_string(), None, ctx);
                     }
                 }
             }
@@ -347,7 +354,7 @@ impl TripManager {
                             );
                         }
                         Err(err) => {
-                            self.cancel_trip(now, trip, err, None, ctx);
+                            self.cancel_trip(now, trip, err.to_string(), None, ctx);
                         }
                     }
                 } else {
@@ -413,7 +420,7 @@ impl TripManager {
                         );
                     }
                     Err(err) => {
-                        self.cancel_trip(now, trip, err, None, ctx);
+                        self.cancel_trip(now, trip, err.to_string(), None, ctx);
                     }
                 }
             }
@@ -547,7 +554,7 @@ impl TripManager {
             Err(err) => {
                 // Move the car to the destination...
                 ctx.parking.remove_parked_car(parked_car.clone());
-                self.cancel_trip(now, trip, err, Some(parked_car.vehicle), ctx);
+                self.cancel_trip(now, trip, err.to_string(), Some(parked_car.vehicle), ctx);
             }
         }
     }
@@ -600,7 +607,7 @@ impl TripManager {
         let maybe_router = if req.start.lane() == req.end.lane() {
             // TODO Convert to a walking trip! Ideally, do this earlier and convert the trip to
             // walking, like schedule_trip does
-            Err(format!(
+            Err(anyhow!(
                 "biking to a different part of {} is silly, why not walk?",
                 req.start.lane()
             ))
@@ -626,7 +633,7 @@ impl TripManager {
             }
             Err(err) => {
                 let trip = trip.id;
-                self.cancel_trip(now, trip, err, None, ctx);
+                self.cancel_trip(now, trip, err.to_string(), None, ctx);
             }
         }
     }
@@ -948,7 +955,7 @@ impl TripManager {
                 );
             }
             Err(err) => {
-                self.cancel_trip(now, id, err, None, ctx);
+                self.cancel_trip(now, id, err.to_string(), None, ctx);
             }
         }
     }
@@ -962,7 +969,7 @@ impl TripManager {
         trip: TripID,
         req: PathRequest,
         car: CarID,
-    ) -> Result<Path, String> {
+    ) -> Result<Path> {
         let path = ctx.map.pathfind(req)?;
         match ctx
             .cap
@@ -975,7 +982,7 @@ impl TripManager {
             }
             CapResult::Cancel { reason } => {
                 self.trips[trip.0].info.capped = true;
-                Err(reason)
+                bail!(reason)
             }
             CapResult::Delay(_) => todo!(),
         }
@@ -1005,7 +1012,7 @@ impl TripManager {
     ) {
         let trip = &mut self.trips[id.0];
         self.unfinished_trips -= 1;
-        trip.info.cancellation_reason = Some(reason);
+        trip.info.cancellation_reason = Some(reason.to_string());
         self.events
             .push(Event::TripCancelled(trip.id, trip.info.mode));
         let person = trip.person;

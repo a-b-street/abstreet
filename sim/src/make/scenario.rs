@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt;
 
+use anyhow::Result;
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -172,7 +173,7 @@ impl Scenario {
                     Ok(spec) => spec,
                     Err(error) => TripSpec::SpawningFailure {
                         use_vehicle: maybe_idx.map(|idx| person.vehicles[idx].id),
-                        error,
+                        error: error.to_string(),
                     },
                 };
                 schedule_trips.push((
@@ -424,13 +425,15 @@ fn find_spot_near_building(
 
 impl PersonSpec {
     /// Verify that a person's trips make sense
-    fn check_schedule(&self) -> Result<(), String> {
+    fn check_schedule(&self) -> Result<()> {
         for pair in self.trips.windows(2) {
             if pair[0].depart >= pair[1].depart {
-                return Err(format!(
+                bail!(
                     "Person ({:?}) starts two trips in the wrong order: {} then {}",
-                    self.orig_id, pair[0].depart, pair[1].depart
-                ));
+                    self.orig_id,
+                    pair[0].depart,
+                    pair[1].depart
+                );
             }
         }
 
@@ -440,10 +443,11 @@ impl PersonSpec {
         }
         for pair in endpts.windows(2) {
             if pair[0] == pair[1] {
-                return Err(format!(
+                bail!(
                     "Person ({:?}) has two adjacent trips between the same place: {:?}",
-                    self.orig_id, pair[0]
-                ));
+                    self.orig_id,
+                    pair[0]
+                );
             }
         }
 

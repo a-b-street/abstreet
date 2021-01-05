@@ -1,13 +1,13 @@
 use std::collections::{BTreeMap, HashSet};
-use std::error::Error;
 
-use osm::WayID;
+use anyhow::Result;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
 use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg};
 use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
+use osm::WayID;
 use widgetry::{
     Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Menu, Outcome, Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
@@ -501,11 +501,7 @@ impl State<App> for ChangeWay {
     }
 }
 
-fn generate_osmc(
-    data: &BTreeMap<WayID, Value>,
-    in_seattle: bool,
-    timer: &mut Timer,
-) -> Result<(), Box<dyn Error>> {
+fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Timer) -> Result<()> {
     use std::fs::File;
     use std::io::Write;
 

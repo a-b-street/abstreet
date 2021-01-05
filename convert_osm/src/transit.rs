@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use anyhow::Result;
+
 use abstutil::Timer;
 use geom::{HashablePt2D, Polygon, Pt2D};
 use map_model::osm::{NodeID, OsmID, RelationID, WayID};
@@ -147,9 +149,9 @@ pub fn extract_route(
 
 // Figure out the actual order of nodes in the route. We assume the ways are at least listed in
 // order. Match them up by endpoints. There are gaps sometimes, though!
-fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>, String> {
+fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>> {
     if all_ways.len() == 1 {
-        return Err(format!("route only has one way: {}", all_ways[0]));
+        bail!("route only has one way: {}", all_ways[0]);
     }
     let mut nodes = Vec::new();
     let mut extra = Vec::new();
@@ -174,14 +176,16 @@ fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>, Strin
                 way2.nodes.iter().rev().cloned().collect(),
             )
         } else {
-            return Err(format!("gap between {} and {}", pair[0], pair[1]));
+            bail!("gap between {} and {}", pair[0], pair[1]);
         };
         if let Some(n) = nodes.pop() {
             if n != nodes1[0] {
-                return Err(format!(
+                bail!(
                     "{} and {} match up, but last piece was {}",
-                    pair[0], pair[1], n
-                ));
+                    pair[0],
+                    pair[1],
+                    n
+                );
             }
         }
         nodes.extend(nodes1);
@@ -189,7 +193,7 @@ fn glue_route(all_ways: Vec<WayID>, doc: &Document) -> Result<Vec<NodeID>, Strin
     }
     // And the last lil bit
     if nodes.is_empty() {
-        return Err(format!("empty? ways: {:?}", all_ways));
+        bail!("empty? ways: {:?}", all_ways);
     }
     assert_eq!(nodes.pop().unwrap(), extra[0]);
     nodes.extend(extra);
@@ -201,7 +205,7 @@ pub fn snap_bus_stops(
     raw: &mut RawMap,
     pt_to_road: &HashMap<HashablePt2D, OriginalRoad>,
     timer: &mut Timer,
-) -> Result<RawBusRoute, String> {
+) -> Result<RawBusRoute> {
     // TODO RawBusStop should have an osm_node_id()
 
     // For every stop, figure out what road segment and direction it matches up to.
@@ -210,7 +214,7 @@ pub fn snap_bus_stops(
             .all_pts
             .iter()
             .position(|(node, _)| stop.vehicle_pos.0 == *node)
-            .ok_or(format!("{} missing from route?!", stop.vehicle_pos.0))?;
+            .ok_or_else(|| anyhow!("{} missing from route?!", stop.vehicle_pos.0))?;
 
         let road = if raw.intersections.contains_key(&stop.vehicle_pos.0) {
             // Prefer to match just before an intersection, instead of just after
@@ -222,22 +226,22 @@ pub fn snap_bus_stops(
                         found = Some(*r);
                         break;
                     } else {
-                        return Err(format!("Some point on the route isn't even on a road?!"));
+                        bail!("Some point on the route isn't even on a road?!");
                     }
                 }
             }
             if let Some(r) = found {
                 r
             } else {
-                return Err(format!(
+                bail!(
                     "stop {} right at an intersection near the beginning of the route",
                     stop.vehicle_pos.0
-                ));
+                );
             }
         } else {
             *pt_to_road
                 .get(&stop.vehicle_pos.1.to_hashable())
-                .ok_or(format!("{} isn't on a road", stop.vehicle_pos.0))?
+                .ok_or_else(|| anyhow!("{} isn't on a road", stop.vehicle_pos.0))?
         };
 
         // Scan backwards and forwards in the route for the nearest intersections.
@@ -268,7 +272,7 @@ pub fn snap_bus_stops(
         } else if road.i1 == i2 && road.i2 == i1 {
             Direction::Back
         } else {
-            return Err(format!(
+            bail!(
                 "Can't figure out where {} is along route. At {}, between {:?} and {:?}. {} of {}",
                 stop.vehicle_pos.0,
                 road,
@@ -276,7 +280,7 @@ pub fn snap_bus_stops(
                 i2,
                 idx_in_route,
                 route.all_pts.len()
-            ));
+            );
         };
 
         stop.matched_road = Some((road, dir));
@@ -290,7 +294,7 @@ pub fn snap_bus_stops(
         let tags = &mut raw
             .roads
             .get_mut(&road)
-            .ok_or_else(|| format!("{} isn't an extracted road", road))?
+            .ok_or_else(|| anyhow!("{} isn't an extracted road", road))?
             .osm_tags;
         if tags.is(osm::INFERRED_SIDEWALKS, "true") {
             let current = tags.get(osm::SIDEWALK).unwrap();

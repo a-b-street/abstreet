@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.35"
+anyhow = "1.0.37"
 flatgeobuf = { version = "0.4" }
 futures = "0.3.8"
 geo = "0.16.0"

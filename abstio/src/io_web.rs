@@ -3,6 +3,7 @@
 
 use std::collections::BTreeSet;
 
+use anyhow::{anyhow, bail, Result};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -67,36 +68,34 @@ pub fn list_dir(dir: String) -> Vec<String> {
     results.into_iter().collect()
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>, String> {
+pub fn slurp_file(path: &str) -> Result<Vec<u8>> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())
     } else if path.starts_with(&path_player("")) {
-        let window = web_sys::window().ok_or("no window?".to_string())?;
+        let window = web_sys::window().ok_or(anyhow!("no window?"))?;
         let storage = window
             .local_storage()
             .map_err(|err| {
-                err.as_string()
-                    .unwrap_or("local_storage failed".to_string())
+                anyhow!(err
+                    .as_string()
+                    .unwrap_or("local_storage failed".to_string()))
             })?
-            .ok_or("no local_storage?".to_string())?;
+            .ok_or(anyhow!("no local_storage?"))?;
         let string = storage
             .get_item(path)
-            .map_err(|err| err.as_string().unwrap_or("get_item failed".to_string()))?
-            .ok_or(format!("{} missing from local storage", path))?;
+            .map_err(|err| anyhow!(err.as_string().unwrap_or("get_item failed".to_string())))?
+            .ok_or(anyhow!("{} missing from local storage", path))?;
         Ok(string.into_bytes())
     } else {
-        Err(format!("Can't slurp_file {}, it doesn't exist", path))
+        bail!("Can't slurp_file {}, it doesn't exist", path)
     }
 }
 
-pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Result<T, String> {
+pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Result<T> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
-        bincode::deserialize(raw.contents()).map_err(|x| x.to_string())
+        bincode::deserialize(raw.contents()).map_err(|err| err.into())
     } else {
-        Err(format!(
-            "Can't maybe_read_binary {}, it doesn't exist",
-            path
-        ))
+        bail!("Can't maybe_read_binary {}, it doesn't exist", path)
     }
 }
 

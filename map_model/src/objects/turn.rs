@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::MultiMap;
@@ -198,10 +199,7 @@ pub struct Movement {
 }
 
 impl Movement {
-    pub(crate) fn for_i(
-        i: IntersectionID,
-        map: &Map,
-    ) -> Result<BTreeMap<MovementID, Movement>, String> {
+    pub(crate) fn for_i(i: IntersectionID, map: &Map) -> Result<BTreeMap<MovementID, Movement>> {
         let mut results = BTreeMap::new();
         let mut movements: MultiMap<(DirectedRoadID, DirectedRoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {
@@ -265,9 +263,7 @@ impl Movement {
             );
         }
         if results.is_empty() {
-            return Err(format!(
-                "No Movements! Does the intersection have at least 2 roads?"
-            ));
+            bail!("No Movements! Does the intersection have at least 2 roads?");
         }
         Ok(results)
     }
@@ -339,7 +335,7 @@ fn movement_geom(
     polylines: Vec<&PolyLine>,
     from: DirectedRoadID,
     to: DirectedRoadID,
-) -> Result<PolyLine, String> {
+) -> Result<PolyLine> {
     let num_pts = polylines[0].points().len();
     for pl in &polylines {
         if num_pts != pl.points().len() {

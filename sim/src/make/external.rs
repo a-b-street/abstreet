@@ -1,6 +1,7 @@
 //! Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own
 //! simulation input data; import it here.
 
+use anyhow::Result;
 use serde::Deserialize;
 
 use geom::{Distance, FindClosest, LonLat, Time};
@@ -28,7 +29,7 @@ pub enum ExternalTripEndpoint {
 }
 
 impl ExternalPerson {
-    pub fn import(map: &Map, input: Vec<ExternalPerson>) -> Result<Vec<PersonSpec>, String> {
+    pub fn import(map: &Map, input: Vec<ExternalPerson>) -> Result<Vec<PersonSpec>> {
         let mut closest: FindClosest<TripEndpoint> = FindClosest::new(map.get_bounds());
         for b in map.all_buildings() {
             closest.add(TripEndpoint::Bldg(b.id), b.polygon.points());
@@ -41,7 +42,7 @@ impl ExternalPerson {
             ExternalTripEndpoint::Position(gps) => {
                 match closest.closest_pt(gps.to_pt(map.get_gps_bounds()), Distance::meters(100.0)) {
                     Some((x, _)) => Ok(x),
-                    None => Err(format!(
+                    None => Err(anyhow!(
                         "No building or border intersection within 100m of {}",
                         gps
                     )),

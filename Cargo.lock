@@ -20,6 +20,7 @@ name = "abstio"
 version = "0.1.0"
 dependencies = [
  "abstutil",
+ "anyhow",
  "bincode",
  "include_dir 0.6.1-alpha.0",
  "instant",
@@ -34,6 +35,7 @@ dependencies = [
 name = "abstutil"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bincode",
  "console_log",
  "env_logger",
@@ -582,6 +584,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "byteorder",
  "geom",
  "kml",
@@ -1378,6 +1381,7 @@ version = "0.1.0"
 dependencies = [
  "aabb-quadtree",
  "abstutil",
+ "anyhow",
  "earcutr",
  "geo 0.16.0",
  "geo-booleanop",
@@ -1588,6 +1592,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "geojson",
  "geom",
  "hyper",
@@ -1778,6 +1783,7 @@ dependencies = [
  "aabb-quadtree",
  "abstio",
  "abstutil",
+ "anyhow",
  "collisions",
  "convert_osm",
  "csv",
@@ -1965,6 +1971,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "csv",
  "geom",
  "roxmltree 0.14.0",
@@ -2195,6 +2202,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "enumset",
  "fast_paths",
  "geom",
@@ -2746,6 +2754,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "geom",
  "map_gui",
  "map_model",
@@ -3360,6 +3369,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "geom",
  "getrandom 0.2.0",
  "kml",
@@ -3570,6 +3580,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "ctrlc",
  "downcast-rs",
  "enum_dispatch",
@@ -3827,6 +3838,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "convert_osm",
  "geom",
  "map_model",
@@ -4163,6 +4175,7 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
  "flate2",
  "geom",
  "md5",

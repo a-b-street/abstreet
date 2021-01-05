@@ -2,6 +2,7 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 
+use anyhow::Result;
 use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 
@@ -100,7 +101,7 @@ impl Map {
                 }
                 Err(err) => {
                     error!("\nError loading {}: {}\n", path, err);
-                    if err.contains("No such file") {
+                    if err.to_string().contains("No such file") {
                         error!(
                             "{} is missing. You may need to do: cargo run --bin updater",
                             path
@@ -538,11 +539,11 @@ impl Map {
         &self.boundary_polygon
     }
 
-    pub fn pathfind(&self, req: PathRequest) -> Result<Path, String> {
+    pub fn pathfind(&self, req: PathRequest) -> Result<Path> {
         assert!(!self.pathfinder_dirty);
         self.pathfinder
             .pathfind(req.clone(), self)
-            .ok_or_else(|| format!("can't fulfill {}", req))
+            .ok_or_else(|| anyhow!("can't fulfill {}", req))
     }
     pub fn pathfind_avoiding_lanes(
         &self,
@@ -577,22 +578,22 @@ impl Map {
         None
     }
 
-    pub fn find_r_by_osm_id(&self, id: OriginalRoad) -> Result<RoadID, String> {
+    pub fn find_r_by_osm_id(&self, id: OriginalRoad) -> Result<RoadID> {
         for r in self.all_roads() {
             if r.orig_id == id {
                 return Ok(r.id);
             }
         }
-        Err(format!("Can't find {}", id))
+        bail!("Can't find {}", id)
     }
 
-    pub fn find_i_by_osm_id(&self, id: osm::NodeID) -> Result<IntersectionID, String> {
+    pub fn find_i_by_osm_id(&self, id: osm::NodeID) -> Result<IntersectionID> {
         for i in self.all_intersections() {
             if i.orig_id == id {
                 return Ok(i.id);
             }
         }
-        Err(format!("Can't find {}", id))
+        bail!("Can't find {}", id)
     }
 
     pub fn find_b_by_osm_id(&self, id: osm::OsmID) -> Option<BuildingID> {

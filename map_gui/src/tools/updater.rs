@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
-use std::error::Error;
 use std::fs::File;
+
+use anyhow::Result;
 
 use abstio::{DataPacks, Manifest};
 use abstutil::Timer;
@@ -183,10 +184,10 @@ fn sync(timer: &mut Timer) -> Vec<String> {
 }
 
 // Bytes downloaded if succesful
-fn download(url: &str, local_path: String, timer: &mut Timer) -> Result<usize, Box<dyn Error>> {
+fn download(url: &str, local_path: String, timer: &mut Timer) -> Result<usize> {
     let mut resp = reqwest::blocking::get(url)?;
     if !resp.status().is_success() {
-        return Err(format!("bad status: {:?}", resp.status()).into());
+        bail!("bad status: {:?}", resp.status());
     }
     let mut buffer: Vec<u8> = Vec::new();
     let bytes = resp.copy_to(&mut buffer)? as usize;

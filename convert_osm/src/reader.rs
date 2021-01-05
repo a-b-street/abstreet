@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
-use std::error::Error;
+
+use anyhow::Result;
 
 use abstio::slurp_file;
 use abstutil::{prettyprint_usize, Tags, Timer};
@@ -40,15 +41,11 @@ pub struct Relation {
     pub members: Vec<(String, OsmID)>,
 }
 
-pub fn read(
-    path: &str,
-    input_gps_bounds: &GPSBounds,
-    timer: &mut Timer,
-) -> Result<Document, Box<dyn Error>> {
+pub fn read(path: &str, input_gps_bounds: &GPSBounds, timer: &mut Timer) -> Result<Document> {
     timer.start(format!("read {}", path));
     let bytes = slurp_file(path)?;
     let raw_string = std::str::from_utf8(&bytes)?;
-    let tree = roxmltree::Document::parse(raw_string).map_err(|err| err.to_string())?;
+    let tree = roxmltree::Document::parse(raw_string).map_err(|err| anyhow!("{}", err))?;
     timer.stop(format!("read {}", path));
 
     let mut doc = Document {
@@ -90,7 +87,7 @@ pub fn read(
 
                 let id = NodeID(obj.attribute("id").unwrap().parse::<i64>().unwrap());
                 if doc.nodes.contains_key(&id) {
-                    return Err(format!("Duplicate {}, your .osm is corrupt", id).into());
+                    bail!("Duplicate {}, your .osm is corrupt", id);
                 }
                 let pt = LonLat::new(
                     obj.attribute("lon").unwrap().parse::<f64>().unwrap(),
@@ -103,7 +100,7 @@ pub fn read(
             "way" => {
                 let id = WayID(obj.attribute("id").unwrap().parse::<i64>().unwrap());
                 if doc.ways.contains_key(&id) {
-                    return Err(format!("Duplicate {}, your .osm is corrupt", id).into());
+                    bail!("Duplicate {}, your .osm is corrupt", id);
                 }
                 let tags = read_tags(obj);
 
@@ -126,7 +123,7 @@ pub fn read(
             "relation" => {
                 let id = RelationID(obj.attribute("id").unwrap().parse::<i64>().unwrap());
                 if doc.relations.contains_key(&id) {
-                    return Err(format!("Duplicate {}, your .osm is corrupt", id).into());
+                    bail!("Duplicate {}, your .osm is corrupt", id);
                 }
                 let tags = read_tags(obj);
                 let mut members = Vec::new();

@@ -10,6 +10,8 @@
 //!   are not currently modelled)
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use std::fmt;

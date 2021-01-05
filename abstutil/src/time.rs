@@ -1,6 +1,7 @@
 use std::fs::File;
-use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
+use std::io::{stdout, BufReader, ErrorKind, Read, Write};
 
+use anyhow::Result;
 use instant::Instant;
 
 use crate::{prettyprint_usize, PROGRESS_FREQUENCY_SECONDS};
@@ -400,10 +401,9 @@ impl<'a> Timer<'a> {
     }
 
     /// Then the caller passes this in as a reader
-    pub fn read_file(&mut self, path: &str) -> Result<(), String> {
-        self.stack.push(StackEntry::File(
-            TimedFileReader::new(path).map_err(|err| err.to_string())?,
-        ));
+    pub fn read_file(&mut self, path: &str) -> Result<()> {
+        self.stack
+            .push(StackEntry::File(TimedFileReader::new(path)?));
         Ok(())
     }
 }
@@ -519,7 +519,7 @@ struct TimedFileReader {
 }
 
 impl TimedFileReader {
-    fn new(path: &str) -> Result<TimedFileReader, Error> {
+    fn new(path: &str) -> Result<TimedFileReader> {
         let file = File::open(path)?;
         let total_bytes = file.metadata()?.len() as usize;
         Ok(TimedFileReader {
@@ -534,11 +534,11 @@ impl TimedFileReader {
 }
 
 impl<'a> Read for Timer<'a> {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize, std::io::Error> {
         let mut file = match self.stack.last_mut() {
             Some(StackEntry::File(ref mut f)) => f,
             _ => {
-                return Err(Error::new(
+                return Err(std::io::Error::new(
                     ErrorKind::Other,
                     "trying to read when Timer doesn't have file on the stack?!",
                 ));

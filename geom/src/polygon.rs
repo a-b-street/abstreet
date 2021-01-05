@@ -1,6 +1,7 @@
 use std::convert::TryFrom;
 use std::fmt;
 
+use anyhow::Result;
 use geo::algorithm::area::Area;
 use geo::algorithm::concave_hull::ConcaveHull;
 use geo::algorithm::convex_hull::ConvexHull;
@@ -321,7 +322,7 @@ impl Polygon {
     /// Creates the outline around the polygon, with the thickness half straddling the polygon and
     /// half of it just outside. Only works for polygons that're formed from rings. Those made from
     /// PolyLines won't work, for example.
-    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon, String> {
+    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon> {
         if let Some(ref rings) = self.rings {
             Ok(Polygon::union_all(
                 rings.iter().map(|r| r.to_outline(thickness)).collect(),

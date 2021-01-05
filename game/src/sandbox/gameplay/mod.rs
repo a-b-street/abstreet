@@ -1,6 +1,7 @@
 use core::future::Future;
 use core::pin::Pin;
 
+use anyhow::Result;
 use rand_xorshift::XorShiftRng;
 
 use abstio::MapName;
@@ -88,16 +89,9 @@ pub enum LoadScenario {
     // wasm futures are not `Send`, since they all ultimately run on the browser's single threaded
     // runloop
     #[cfg(target_arch = "wasm32")]
-    Future(Pin<Box<dyn Future<Output = anyhow::Result<Box<dyn Send + FnOnce(&App) -> Scenario>>>>>),
+    Future(Pin<Box<dyn Future<Output = Result<Box<dyn Send + FnOnce(&App) -> Scenario>>>>>),
     #[cfg(not(target_arch = "wasm32"))]
-    Future(
-        Pin<
-            Box<
-                dyn Send
-                    + Future<Output = anyhow::Result<Box<dyn Send + FnOnce(&App) -> Scenario>>>,
-            >,
-        >,
-    ),
+    Future(Pin<Box<dyn Send + Future<Output = Result<Box<dyn Send + FnOnce(&App) -> Scenario>>>>>),
 }
 
 impl GameplayMode {

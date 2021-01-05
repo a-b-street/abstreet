@@ -1,3 +1,4 @@
+use anyhow::Result;
 use geo::algorithm::intersects::Intersects;
 
 use geom::{GPSBounds, Polygon};
@@ -8,7 +9,7 @@ impl CensusArea {
     pub async fn fetch_all_for_map(
         map_area: &Polygon,
         bounds: &GPSBounds,
-    ) -> anyhow::Result<Vec<CensusArea>> {
+    ) -> Result<Vec<CensusArea>> {
         use flatgeobuf::HttpFgbReader;
         use geozero_core::geo_types::Geo;
 

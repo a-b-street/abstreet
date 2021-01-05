@@ -1,10 +1,10 @@
 //! Normal file IO using the filesystem
 
-use std::error::Error;
 use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Read, Write};
 use std::path::Path;
 
+use anyhow::Result;
 use instant::Instant;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -34,30 +34,27 @@ pub fn list_dir(path: String) -> Vec<String> {
     files
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>, String> {
-    inner_slurp_file(path).map_err(|err| err.to_string())
+pub fn slurp_file(path: &str) -> Result<Vec<u8>> {
+    inner_slurp_file(path)
 }
-fn inner_slurp_file(path: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+fn inner_slurp_file(path: &str) -> Result<Vec<u8>> {
     let mut file = File::open(path)?;
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer)?;
     Ok(buffer)
 }
 
-pub fn maybe_read_binary<T: DeserializeOwned>(
-    path: String,
-    timer: &mut Timer,
-) -> Result<T, String> {
+pub fn maybe_read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T> {
     if !path.ends_with(".bin") {
         panic!("read_binary needs {} to end with .bin", path);
     }
 
     timer.read_file(&path)?;
-    bincode::deserialize_from(timer).map_err(|x| x.to_string())
+    bincode::deserialize_from(timer).map_err(|err| err.into())
 }
 
 // TODO Idea: Have a wrapper type DotJSON(...) and DotBin(...) to distinguish raw path strings
-fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Box<dyn Error>> {
+fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<()> {
     if !path.ends_with(".json") {
         panic!("write_json needs {} to end with .json", path);
     }
@@ -76,7 +73,7 @@ pub fn write_json<T: Serialize>(path: String, obj: &T) {
     println!("Wrote {}", path);
 }
 
-fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Box<dyn Error>> {
+fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<()> {
     if !path.ends_with(".bin") {
         panic!("write_binary needs {} to end with .bin", path);
     }
@@ -85,7 +82,7 @@ fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Box<dyn E
         .expect("Creating parent dir failed");
 
     let file = BufWriter::new(File::create(path)?);
-    bincode::serialize_into(file, obj).map_err(|x| x.into())
+    bincode::serialize_into(file, obj).map_err(|err| err.into())
 }
 
 pub fn write_binary<T: Serialize>(path: String, obj: &T) {
@@ -121,7 +118,7 @@ impl FileWithProgress {
     /// Also hands back a callback that'll add the final result to the timer. The caller must run
     /// it.
     // TODO It's really a FnOnce, but I don't understand the compiler error.
-    pub fn new(path: &str) -> Result<(FileWithProgress, Box<dyn Fn(&mut Timer)>), Box<dyn Error>> {
+    pub fn new(path: &str) -> Result<(FileWithProgress, Box<dyn Fn(&mut Timer)>)> {
         let file = File::open(path)?;
         let path_copy = path.to_string();
         let total_bytes = file.metadata()?.len() as usize;

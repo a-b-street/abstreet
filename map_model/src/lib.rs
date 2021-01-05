@@ -22,6 +22,8 @@
 //! - ts = traffic signal
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use std::collections::BTreeMap;

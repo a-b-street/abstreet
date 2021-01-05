@@ -420,7 +420,7 @@ impl State<App> for Proposals {
                                 Transition::Replace(PopupMsg::new(
                                     ctx,
                                     "Can't load proposal",
-                                    vec![err],
+                                    vec![err.to_string()],
                                 ))
                             } else {
                                 app.primary.layer =

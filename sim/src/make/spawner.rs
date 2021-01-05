@@ -1,6 +1,7 @@
 //! Intermediate structures used to instantiate a Scenario. Badly needs simplification:
 //! https://github.com/dabreegster/abstreet/issues/258
 
+use anyhow::Result;
 use rand::seq::SliceRandom;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
@@ -221,7 +222,7 @@ impl TripSpec {
         retry_if_no_room: bool,
         rng: &mut XorShiftRng,
         map: &Map,
-    ) -> Result<TripSpec, String> {
+    ) -> Result<TripSpec> {
         Ok(match mode {
             TripMode::Drive | TripMode::Bike => {
                 let constraints = if mode == TripMode::Drive {
@@ -252,7 +253,7 @@ impl TripSpec {
                             .some_outgoing_road(map)
                             .and_then(|dr| dr.lanes(constraints, map).choose(rng).cloned())
                             .ok_or_else(|| {
-                                format!("can't start a {} trip from {}", mode.ongoing_verb(), i)
+                                anyhow!("can't start a {} trip from {}", mode.ongoing_verb(), i)
                             })?;
                         TripSpec::VehicleAppearing {
                             start_pos: Position::new(start_lane, SPAWN_DIST),
@@ -327,25 +328,25 @@ impl TripEndpoint {
         })
     }
 
-    fn start_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot, String> {
+    fn start_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot> {
         match self {
             TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(*b, map)),
             TripEndpoint::Border(i) => SidewalkSpot::start_at_border(*i, map)
-                .ok_or_else(|| format!("can't start walking from {}", i)),
+                .ok_or_else(|| anyhow!("can't start walking from {}", i)),
             TripEndpoint::SuddenlyAppear(pos) => Ok(SidewalkSpot::suddenly_appear(*pos, map)),
         }
     }
 
-    fn end_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot, String> {
+    fn end_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot> {
         match self {
             TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(*b, map)),
             TripEndpoint::Border(i) => SidewalkSpot::end_at_border(*i, map)
-                .ok_or_else(|| format!("can't end walking at {}", i)),
+                .ok_or_else(|| anyhow!("can't end walking at {}", i)),
             TripEndpoint::SuddenlyAppear(_) => unreachable!(),
         }
     }
 
-    fn driving_goal(&self, constraints: PathConstraints, map: &Map) -> Result<DrivingGoal, String> {
+    fn driving_goal(&self, constraints: PathConstraints, map: &Map) -> Result<DrivingGoal> {
         match self {
             TripEndpoint::Bldg(b) => Ok(DrivingGoal::ParkNear(*b)),
             TripEndpoint::Border(i) => map
@@ -360,7 +361,7 @@ impl TripEndpoint {
                         Some(DrivingGoal::Border(dr.dst_i(map), lanes[0]))
                     }
                 })
-                .ok_or_else(|| format!("can't end at {} for {:?}", i, constraints)),
+                .ok_or_else(|| anyhow!("can't end at {} for {:?}", i, constraints)),
             TripEndpoint::SuddenlyAppear(_) => unreachable!(),
         }
     }

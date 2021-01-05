@@ -1,21 +1,24 @@
-pub use gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
+use anyhow::Result;
 use maplit::btreeset;
-pub use speed::{SpeedControls, TimePanel};
-pub use time_warp::TimeWarpScreen;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
+use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, MapLoader};
+use map_gui::options::OptionsPanel;
+use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
-use map_gui::AppLike;
-use map_gui::ID;
+use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,
 };
 
+pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
 use self::misc_tools::{RoutePreview, TrafficRecorder};
+pub use self::speed::{SpeedControls, TimePanel};
+pub use self::time_warp::TimeWarpScreen;
 use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState, MinimapController};
 use crate::debug::DebugMode;
@@ -25,9 +28,6 @@ use crate::edit::{
 use crate::info::ContextualActions;
 use crate::layer::PickLayer;
 use crate::pregame::MainMenu;
-use map_gui::colors::ColorSchemeChoice;
-use map_gui::options::OptionsPanel;
-use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
 
 pub mod dashboards;
 pub mod gameplay;
@@ -628,7 +628,7 @@ enum LoadStage {
     // Scenario name
     LoadingPrebaked(String),
     // Scenario name, maybe prebaked data
-    GotPrebaked(String, Result<Analytics, String>),
+    GotPrebaked(String, Result<Analytics>),
     Finalizing,
 }
 

@@ -12,6 +12,7 @@ scenarios = ["gdal"]
 aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }
 csv = "1.1.4"

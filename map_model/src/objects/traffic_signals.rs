@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::convert::TryFrom;
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
@@ -107,7 +108,7 @@ impl ControlTrafficSignal {
         Duration::seconds(time.inner_seconds().ceil())
     }
 
-    pub(crate) fn validate(&self) -> Result<(), String> {
+    pub(crate) fn validate(&self) -> Result<()> {
         // Does the assignment cover the correct set of movements?
         let expected_movements: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
         let mut actual_movements: BTreeSet<MovementID> = BTreeSet::new();
@@ -116,7 +117,7 @@ impl ControlTrafficSignal {
             actual_movements.extend(stage.yield_movements.iter());
         }
         if expected_movements != actual_movements {
-            return Err(format!(
+            bail!(
                 "Traffic signal assignment for {} broken. Missing {:?}, contains irrelevant {:?}",
                 self.id,
                 expected_movements
@@ -127,7 +128,7 @@ impl ControlTrafficSignal {
                     .difference(&expected_movements)
                     .cloned()
                     .collect::<Vec<_>>()
-            ));
+            );
         }
         let mut stage_index = 0;
         for stage in &self.stages {
@@ -135,11 +136,12 @@ impl ControlTrafficSignal {
             for m1 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
                 for m2 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
                     if m1.conflicts_with(m2) {
-                        return Err(format!(
+                        bail!(
                             "Traffic signal has conflicting protected movements in one \
                              stage:\n{:?}\n\n{:?}",
-                            m1, m2
-                        ));
+                            m1,
+                            m2
+                        );
                     }
                 }
             }
@@ -151,14 +153,14 @@ impl ControlTrafficSignal {
             // Is there enough time in each stage to walk across the crosswalk
             let min_crossing_time = self.get_min_crossing_time(stage_index);
             if stage.stage_type.simple_duration() < min_crossing_time {
-                return Err(format!(
+                bail!(
                     "Traffic signal does not allow enough time in stage to complete the \
                      crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}",
                     stage_index,
                     stage,
                     min_crossing_time,
                     stage.stage_type.simple_duration()
-                ));
+                );
             }
             stage_index += 1;
         }
@@ -375,7 +377,7 @@ impl ControlTrafficSignal {
         raw: traffic_signal_data::TrafficSignal,
         id: IntersectionID,
         map: &Map,
-    ) -> Result<ControlTrafficSignal, String> {
+    ) -> Result<ControlTrafficSignal> {
         let mut stages = Vec::new();
         for s in raw.stages {
             let mut errors = Vec::new();
@@ -386,7 +388,7 @@ impl ControlTrafficSignal {
                         protected_movements.insert(mvmnt);
                     }
                     Err(err) => {
-                        errors.push(err);
+                        errors.push(err.to_string());
                     }
                 }
             }
@@ -397,7 +399,7 @@ impl ControlTrafficSignal {
                         permitted_movements.insert(mvmnt);
                     }
                     Err(err) => {
-                        errors.push(err);
+                        errors.push(err.to_string());
                     }
                 }
             }
@@ -422,7 +424,7 @@ impl ControlTrafficSignal {
                     },
                 });
             } else {
-                return Err(errors.join("; "));
+                bail!("{}", errors.join("; "));
             }
         }
         let ts = ControlTrafficSignal {
@@ -458,7 +460,7 @@ fn export_movement(id: &MovementID, map: &Map) -> traffic_signal_data::Turn {
     }
 }
 
-fn import_movement(id: traffic_signal_data::Turn, map: &Map) -> Result<MovementID, String> {
+fn import_movement(id: traffic_signal_data::Turn, map: &Map) -> Result<MovementID> {
     Ok(MovementID {
         from: find_r(id.from, map)?,
         to: find_r(id.to, map)?,
@@ -467,7 +469,7 @@ fn import_movement(id: traffic_signal_data::Turn, map: &Map) -> Result<MovementI
     })
 }
 
-fn find_r(id: traffic_signal_data::DirectedRoad, map: &Map) -> Result<DirectedRoadID, String> {
+fn find_r(id: traffic_signal_data::DirectedRoad, map: &Map) -> Result<DirectedRoadID> {
     Ok(DirectedRoadID {
         id: map.find_r_by_osm_id(OriginalRoad::new(
             id.osm_way_id,

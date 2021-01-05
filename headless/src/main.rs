@@ -10,13 +10,15 @@
 // ... huge JSON blob
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::convert::TryFrom;
-use std::error::Error;
 use std::sync::RwLock;
 
+use anyhow::Result;
 use hyper::{Body, Request, Response, Server, StatusCode};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
@@ -118,11 +120,11 @@ fn handle_command(
     sim: &mut Sim,
     map: &mut Map,
     load: &mut LoadSim,
-) -> Result<String, Box<dyn Error>> {
+) -> Result<String> {
     let get = |key: &str| {
         params
             .get(key)
-            .ok_or_else(|| format!("missing GET parameter {}", key))
+            .ok_or_else(|| anyhow!("missing GET parameter {}", key))
     };
 
     match path {
@@ -151,7 +153,7 @@ fn handle_command(
         "/sim/goto-time" => {
             let t = Time::parse(get("t")?)?;
             if t <= sim.time() {
-                Err(format!("{} is in the past. call /sim/reset first?", t).into())
+                bail!("{} is in the past. call /sim/reset first?", t)
             } else {
                 let dt = t - sim.time();
                 sim.timed_step(map, dt, &mut None, &mut Timer::new("goto-time"));
@@ -162,12 +164,11 @@ fn handle_command(
             let input: ExternalPerson = abstutil::from_json(body)?;
             for trip in &input.trips {
                 if trip.departure < sim.time() {
-                    return Err(format!(
+                    bail!(
                         "It's {} now, so you can't start a trip at {}",
                         sim.time(),
                         trip.departure
                     )
-                    .into());
                 }
             }
 
@@ -186,7 +187,7 @@ fn handle_command(
             if let Some(ts) = map.maybe_get_traffic_signal(i) {
                 Ok(abstutil::to_json(ts))
             } else {
-                Err(format!("{} isn't a traffic signal", i).into())
+                bail!("{} isn't a traffic signal", i)
             }
         }
         "/traffic-signals/set" => {
@@ -213,7 +214,7 @@ fn handle_command(
             let ts = if let Some(ts) = map.maybe_get_traffic_signal(i) {
                 ts
             } else {
-                return Err(format!("{} isn't a traffic signal", i).into());
+                bail!("{} isn't a traffic signal", i);
             };
             let movements: Vec<&MovementID> = ts.movements.keys().collect();
 
@@ -241,7 +242,7 @@ fn handle_command(
             let ts = if let Some(ts) = map.maybe_get_traffic_signal(i) {
                 ts
             } else {
-                return Err(format!("{} isn't a traffic signal", i).into());
+                bail!("{} isn't a traffic signal", i);
             };
 
             let mut thruput = Throughput {
@@ -368,7 +369,7 @@ fn handle_command(
             Ok(abstutil::to_json(&export_geometry(map, i)))
         }
         "/map/get-all-geometry" => Ok(abstutil::to_json(&export_all_geometry(map))),
-        _ => Err("Unknown command".into()),
+        _ => Err(anyhow!("Unknown command")),
     }
 }
 

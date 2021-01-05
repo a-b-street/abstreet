@@ -3,6 +3,7 @@
 use std::collections::VecDeque;
 use std::fmt;
 
+use anyhow::Result;
 use enumset::EnumSetType;
 use serde::{Deserialize, Serialize};
 
@@ -59,13 +60,13 @@ impl PathStep {
         map: &Map,
         start: Distance,
         dist_ahead: Option<Distance>,
-    ) -> Result<PolyLine, String> {
+    ) -> Result<PolyLine> {
         if let Some(d) = dist_ahead {
             if d < Distance::ZERO {
                 panic!("Negative dist_ahead?! {}", d);
             }
             if d == Distance::ZERO {
-                return Err(format!("0 dist ahead for slice"));
+                bail!("0 dist ahead for slice");
             }
         }
 

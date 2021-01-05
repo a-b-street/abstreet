@@ -4,6 +4,7 @@
 use std::future::Future;
 use std::pin::Pin;
 
+use anyhow::Result;
 use futures_channel::oneshot;
 use instant::Instant;
 use serde::de::DeserializeOwned;
@@ -56,7 +57,10 @@ impl MapLoader {
                     Err(err) => Transition::Replace(PopupMsg::new(
                         ctx,
                         "Error",
-                        vec![format!("Couldn't load {}", name.describe()), err],
+                        vec![
+                            format!("Couldn't load {}", name.describe()),
+                            err.to_string(),
+                        ],
                     )),
                 }
             }),
@@ -82,18 +86,15 @@ mod native_loader {
         path: String,
         // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
         // if a caller fails to pop the FileLoader state in their transitions!
-        on_load: Option<
-            Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T, String>) -> Transition<A>>,
-        >,
+        on_load:
+            Option<Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>>,
     }
 
     impl<A: AppLike + 'static, T: 'static + DeserializeOwned> FileLoader<A, T> {
         pub fn new(
             _: &mut EventCtx,
             path: String,
-            on_load: Box<
-                dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T, String>) -> Transition<A>,
-            >,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>,
         ) -> Box<dyn State<A>> {
             Box::new(FileLoader {
                 path,
@@ -134,10 +135,9 @@ mod wasm_loader {
     // asynchronously make an HTTP request and keep "polling" for completion in a way that's
     // compatible with winit's event loop.
     pub struct FileLoader<A: AppLike, T> {
-        response: oneshot::Receiver<Result<Vec<u8>, String>>,
-        on_load: Option<
-            Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T, String>) -> Transition<A>>,
-        >,
+        response: oneshot::Receiver<Result<Vec<u8>>>,
+        on_load:
+            Option<Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>>,
         panel: Panel,
         started: Instant,
         url: String,
@@ -147,9 +147,7 @@ mod wasm_loader {
         pub fn new(
             ctx: &mut EventCtx,
             path: String,
-            on_load: Box<
-                dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T, String>) -> Transition<A>,
-            >,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>,
         ) -> Box<dyn State<A>> {
             // Note that files are only gzipepd on S3. When running locally, we just symlink the
             // data/ directory, where files aren't compressed.
@@ -189,11 +187,11 @@ mod wasm_loader {
                         } else {
                             let status = resp.status();
                             let err = resp.status_text();
-                            tx.send(Err(format!("HTTP {}: {}", status, err))).unwrap();
+                            tx.send(Err(anyhow!("HTTP {}: {}", status, err))).unwrap();
                         }
                     }
                     Err(err) => {
-                        tx.send(Err(format!("{:?}", err))).unwrap();
+                        tx.send(Err(anyhow!("{:?}", err))).unwrap();
                     }
                 }
             });
@@ -261,8 +259,8 @@ where
     loading_title: String,
     started: Instant,
     panel: Panel,
-    receiver: oneshot::Receiver<anyhow::Result<Box<dyn Send + FnOnce(&A) -> T>>>,
-    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, anyhow::Result<T>) -> Transition<A>>>,
+    receiver: oneshot::Receiver<Result<Box<dyn Send + FnOnce(&A) -> T>>>,
+    on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, Result<T>) -> Transition<A>>>,
 
     // If Runtime is dropped, any active tasks will be canceled, so we retain it here even
     // though we never access it. It might make more sense for Runtime to live on App if we're
@@ -280,9 +278,9 @@ where
     #[cfg(target_arch = "wasm32")]
     pub fn new(
         ctx: &mut EventCtx,
-        future: Pin<Box<dyn Future<Output = anyhow::Result<Box<dyn Send + FnOnce(&A) -> T>>>>>,
+        future: Pin<Box<dyn Future<Output = Result<Box<dyn Send + FnOnce(&A) -> T>>>>>,
         loading_title: &str,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, anyhow::Result<T>) -> Transition<A>>,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<T>) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         let (tx, receiver) = oneshot::channel();
         wasm_bindgen_futures::spawn_local(async move {
@@ -300,11 +298,9 @@ where
     #[cfg(not(target_arch = "wasm32"))]
     pub fn new(
         ctx: &mut EventCtx,
-        future: Pin<
-            Box<dyn Send + Future<Output = anyhow::Result<Box<dyn Send + FnOnce(&A) -> T>>>>,
-        >,
+        future: Pin<Box<dyn Send + Future<Output = Result<Box<dyn Send + FnOnce(&A) -> T>>>>>,
         loading_title: &str,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, anyhow::Result<T>) -> Transition<A>>,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<T>) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         let runtime = Runtime::new().unwrap();
         let (tx, receiver) = oneshot::channel();
@@ -333,7 +329,7 @@ where
             Err(e) => {
                 error!("channel failed: {:?}", e);
                 let on_load = self.on_load.take().unwrap();
-                return on_load(ctx, app, Err(anyhow::anyhow!("channel canceled")));
+                return on_load(ctx, app, Err(anyhow!("channel canceled")));
             }
             Ok(None) => {
                 self.panel = ctx.make_loading_screen(Text::from_multiline(vec![

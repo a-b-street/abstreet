@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::io::Cursor;
 
+use anyhow::Result;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
 use widgetry::{
@@ -89,12 +89,9 @@ impl Music {
 }
 
 impl Inner {
-    fn new(ctx: &mut EventCtx, play_music: bool, song: &str) -> Result<Inner, Box<dyn Error>> {
+    fn new(ctx: &mut EventCtx, play_music: bool, song: &str) -> Result<Inner> {
         if cfg!(windows) {
-            return Err(
-                "Audio disabled on Windows: https://github.com/dabreegster/abstreet/issues/430"
-                    .into(),
-            );
+            bail!("Audio disabled on Windows: https://github.com/dabreegster/abstreet/issues/430");
         }
 
         let (stream, stream_handle) = OutputStream::try_default()?;
@@ -149,7 +146,7 @@ impl Inner {
         }
     }
 
-    fn change_song(&mut self, song: &str) -> Result<(), Box<dyn Error>> {
+    fn change_song(&mut self, song: &str) -> Result<()> {
         if self.current_song == song {
             return Ok(());
         }

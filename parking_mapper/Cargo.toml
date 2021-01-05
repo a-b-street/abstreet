@@ -10,6 +10,7 @@ default = ["map_gui/native", "reqwest", "widgetry/native-backend"]
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.37"
 geom = { path = "../geom" }
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }

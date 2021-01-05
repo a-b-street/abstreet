@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
-use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
 use std::process::Command;
 
+use anyhow::{Context, Result};
 use walkdir::WalkDir;
 
 use abstio::{DataPacks, Entry, Manifest};
@@ -231,11 +231,11 @@ fn rm(path: &str) {
     }
 }
 
-async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>, Box<dyn Error>> {
+async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>> {
     // Manually enable to "download" from my local copy
     if false {
         let path = format!("/home/dabreegster/s3_abst_data/{}/{}.gz", version, path);
-        return abstio::slurp_file(&path).map_err(|err| err.into());
+        return abstio::slurp_file(&path);
     }
 
     let src = format!(
@@ -245,13 +245,8 @@ async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>, Box<dyn
     println!("> download {}", src);
 
     let mut resp = reqwest::get(&src).await.unwrap();
-    match resp.error_for_status_ref() {
-        Ok(_) => {}
-        Err(err) => {
-            let err = format!("error getting {}: {}", src, err);
-            return Err(err.into());
-        }
-    }
+    resp.error_for_status_ref()
+        .with_context(|| format!("downloading {}", src))?;
 
     let total_size = resp.content_length().map(|x| x as usize);
     let mut bytes = Vec::new();

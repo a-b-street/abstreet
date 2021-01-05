@@ -572,11 +572,10 @@ impl State<App> for LoadEdits {
                             if self.mode.allows(&edits) {
                                 Ok(edits)
                             } else {
-                                Err(
+                                Err(anyhow!(
                                     "The current gameplay mode restricts edits. This proposal has \
                                      a banned command."
-                                        .to_string(),
-                                )
+                                ))
                             }
                         }) {
                             Ok(edits) => {
@@ -599,7 +598,7 @@ impl State<App> for LoadEdits {
                                     Transition::Push(PopupMsg::new(
                                         ctx,
                                         "Error",
-                                        vec![format!("Can't load {}", path), err.clone()],
+                                        vec![format!("Can't load {}", path), err.to_string()],
                                     )),
                                 ])
                             }
