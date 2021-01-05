@@ -1,16 +1,19 @@
 //! Transforms a `raw::Network` into a `Network` that's easier to reason about.
 
 use std::collections::BTreeMap;
-use std::error::Error;
+
+use anyhow::Result;
 
 use abstutil::Timer;
 use geom::{Distance, PolyLine, Pt2D, Ring};
 
-use crate::{raw, Edge, InternalEdge, InternalLane, Junction, Lane, Network};
+use crate::{
+    raw, Edge, InternalEdge, InternalLane, InternalLaneID, Junction, Lane, LaneID, Network,
+};
 
 impl Network {
     /// Reads a .net.xml file and return the normalized SUMO network.
-    pub fn load(path: &str, timer: &mut Timer) -> Result<Network, Box<dyn Error>> {
+    pub fn load(path: &str, timer: &mut Timer) -> Result<Network> {
         let raw = raw::Network::parse(path, timer)?;
         timer.start("normalize");
         let network = Network::from_raw(raw);
@@ -52,7 +55,7 @@ impl Network {
                 let mut lanes = Vec::new();
                 for lane in edge.lanes {
                     lanes.push(InternalLane {
-                        id: lane.id,
+                        id: InternalLaneID(lane.id),
                         index: lane.index,
                         speed: lane.speed,
                         length: lane.length,
@@ -87,7 +90,7 @@ impl Network {
             let mut lanes = Vec::new();
             for lane in edge.lanes {
                 lanes.push(Lane {
-                    id: lane.id,
+                    id: LaneID(lane.id),
                     index: lane.index,
                     speed: lane.speed,
                     length: lane.length,
@@ -117,6 +120,7 @@ impl Network {
         network
     }
 
+    /// Normalize coordinates to map-space, with Y increasing down.
     fn fix_coordinates(&mut self) {
         // I tried netconvert's --flip-y-axis option, but it makes all of the y coordinates
         // extremely negative.

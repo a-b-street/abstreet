@@ -15,7 +15,7 @@ and [SUMO](https://www.eclipse.org/sumo/). Some of the ideas:
 
 A quick SUMO primer. To convert an OSM file into a SUMO network:
 
-`netconvert --osm-files data/input/seattle/osm/montlake.osm --output.street-names -o montlake.net.xml`
+`netconvert --osm-files data/input/seattle/osm/montlake.osm --output.street-names --keep-edges.components 1 -o montlake.net.xml`
 
 To convert the network into an ABST map:
 

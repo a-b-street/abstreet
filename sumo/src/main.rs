@@ -2,27 +2,31 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use abstutil::{CmdArgs, MapName, Tags, Timer};
+use anyhow::{bail, Result};
+
+use abstio::MapName;
+use abstutil::{CmdArgs, Tags, Timer};
 use geom::{Distance, PolyLine};
 use map_model::{
     osm, raw, AccessRestrictions, Intersection, IntersectionID, IntersectionType, Lane, LaneID,
     LaneType, Map, Road, RoadID, Turn, TurnID, TurnType,
 };
 
-use sumo::{Direction, Network, NodeID};
+use sumo::{Direction, InternalLaneID, Network, NodeID, VehicleClass};
 
-fn main() {
+fn main() -> Result<()> {
     let mut timer = Timer::new("convert SUMO network");
     let mut args = CmdArgs::new();
     let input = args.required_free();
     args.done();
 
     let network = Network::load(&input, &mut timer).unwrap();
-    let map = convert(&input, network);
+    let map = convert(&input, network)?;
     map.save();
+    Ok(())
 }
 
-fn convert(orig_path: &str, network: Network) -> Map {
+fn convert(orig_path: &str, network: Network) -> Result<Map> {
     let mut intersections = Vec::new();
     let mut ids_intersections: BTreeMap<NodeID, IntersectionID> = BTreeMap::new();
     for (_, junction) in network.junctions {
@@ -33,10 +37,12 @@ fn convert(orig_path: &str, network: Network) -> Map {
             turns: BTreeSet::new(),
             elevation: Distance::ZERO,
             intersection_type: IntersectionType::StopSign,
+            // TODO Temporary ID. We could consider squeezing SUMO IDs into this scheme.
             orig_id: osm::NodeID(123),
             incoming_lanes: Vec::new(),
             outgoing_lanes: Vec::new(),
             roads: BTreeSet::new(),
+            merged: false,
         });
         ids_intersections.insert(junction.id, id);
     }
@@ -59,11 +65,11 @@ fn convert(orig_path: &str, network: Network) -> Map {
         for lane in &edge.lanes {
             let lane_id = LaneID(lanes.len());
             ids_lanes.insert(lane.id.clone(), lane_id);
-            let lane_type = if lane.allow == vec!["pedestrian".to_string()] {
+            let lane_type = if lane.allow == vec![VehicleClass::Pedestrian] {
                 LaneType::Sidewalk
-            } else if lane.allow == vec!["bicycle".to_string()] {
+            } else if lane.allow == vec![VehicleClass::Bicycle] {
                 LaneType::Biking
-            } else if lane.allow == vec!["rail_urban".to_string()] {
+            } else if lane.allow == vec![VehicleClass::RailUrban] {
                 LaneType::LightRail
             } else {
                 LaneType::Driving
@@ -100,9 +106,10 @@ fn convert(orig_path: &str, network: Network) -> Map {
             }
             let parts: Vec<&str> = edge.edge_type.split(".").collect();
             // "highway.footway"
-            if parts.len() == 2 {
-                tags.insert(parts[0].to_string(), parts[1].to_string());
+            if parts.len() != 2 {
+                bail!("Unknown edge_type {}", edge.edge_type);
             }
+            tags.insert(parts[0].to_string(), parts[1].to_string());
             let mut lanes_ltr = lanes_rtl;
             lanes_ltr.reverse();
 
@@ -111,6 +118,7 @@ fn convert(orig_path: &str, network: Network) -> Map {
                 osm_tags: Tags::new(tags),
                 turn_restrictions: Vec::new(),
                 complicated_turn_restrictions: Vec::new(),
+                // TODO Temporary ID. We could consider squeezing SUMO IDs into this scheme.
                 orig_id: raw::OriginalRoad::new(123, (456, 789)),
                 speed_limit,
                 access_restrictions: AccessRestrictions::new(),
@@ -124,14 +132,17 @@ fn convert(orig_path: &str, network: Network) -> Map {
                 dst_i,
             });
         } else {
-            // TODO Should we check that the attributes are the same for both directions?
+            // There's an existing road with the forward direction lanes. We're currently
+            // processing the reverse direction of that road, so lanes_rtl oriented in the forwards
+            // direction is already left-to-right.
             let mut lanes_ltr = lanes_rtl;
             lanes_ltr.extend(roads[road_id.0].lanes_ltr.clone());
+            // TODO Should we check that the attributes are the same for both directions?
             roads[road_id.0].lanes_ltr = lanes_ltr;
         }
     }
 
-    let mut internal_lane_geometry: BTreeMap<sumo::LaneID, PolyLine> = BTreeMap::new();
+    let mut internal_lane_geometry: BTreeMap<InternalLaneID, PolyLine> = BTreeMap::new();
     for (_, edge) in network.internal_edges {
         for lane in edge.lanes {
             if let Some(pl) = lane.center_line {
@@ -180,7 +191,7 @@ fn convert(orig_path: &str, network: Network) -> Map {
         }
     }
 
-    Map::import_minimal(
+    Ok(Map::import_minimal(
         // Double basename because "foo.net.xml" just becomes "foo.net"
         MapName::new("sumo", &abstutil::basename(abstutil::basename(orig_path))),
         network.location.converted_boundary,
@@ -189,5 +200,5 @@ fn convert(orig_path: &str, network: Network) -> Map {
         roads,
         lanes,
         turns,
-    )
+    ))
 }
