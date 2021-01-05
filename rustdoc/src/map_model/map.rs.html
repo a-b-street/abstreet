@@ -687,11 +687,13 @@
 <span id="684">684</span>
 <span id="685">685</span>
 <span id="686">686</span>
+<span id="687">687</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">UnGraphMap</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -790,7 +792,7 @@
                 }
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;\nError loading {}: {}\n&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>);
-                    <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">contains</span>(<span class="string">&quot;No such file&quot;</span>) {
+                    <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">to_string</span>().<span class="ident">contains</span>(<span class="string">&quot;No such file&quot;</span>) {
                         <span class="macro">error</span><span class="macro">!</span>(
                             <span class="string">&quot;{} is missing. You may need to do: cargo run --bin updater&quot;</span>,
                             <span class="ident">path</span>
@@ -1228,11 +1230,11 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">boundary_polygon</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
         <span class="self">self</span>.<span class="ident">pathfinder</span>
             .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="self">self</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, <span class="ident">req</span>))
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, <span class="ident">req</span>))
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_avoiding_lanes</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1267,22 +1269,22 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_r_by_osm_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_r_by_osm_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
             <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">orig_id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">id</span> {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">r</span>.<span class="ident">id</span>);
             }
         }
-        <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, <span class="ident">id</span>))
+        <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, <span class="ident">id</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_i_by_osm_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_i_by_osm_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_intersections</span>() {
             <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">orig_id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">id</span> {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">i</span>.<span class="ident">id</span>);
             }
         }
-        <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, <span class="ident">id</span>))
+        <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, <span class="ident">id</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_b_by_osm_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {

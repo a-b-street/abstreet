@@ -103,9 +103,12 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
@@ -187,12 +190,13 @@
     }
 
     <span class="doccomment">/// Creates an outline around the circle, strictly contained with the circle&#39;s original radius.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">radius</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">thickness</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="macro">bail</span><span class="macro">!</span>(
                 <span class="string">&quot;Can&#39;t make Circle outline with radius {} and thickness {}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">radius</span>, <span class="ident">thickness</span>
-            ));
+                <span class="self">self</span>.<span class="ident">radius</span>,
+                <span class="ident">thickness</span>
+            );
         }
 
         <span class="kw">let</span> <span class="ident">bigger</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_ring</span>();

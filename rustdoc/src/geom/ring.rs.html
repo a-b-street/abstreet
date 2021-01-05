@@ -210,11 +210,11 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-<span id="210">210</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -227,18 +227,16 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Ring</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ring</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">3</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t make a ring with &lt; 3 points&quot;</span>));
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t make a ring with &lt; 3 points&quot;</span>);
         }
         <span class="kw">if</span> <span class="ident">pts</span>[<span class="number">0</span>] <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;Can&#39;t make a ring with mismatching first/last points&quot;</span>
-            ));
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t make a ring with mismatching first/last points&quot;</span>);
         }
 
         <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>]) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Ring has ~dupe adjacent pts&quot;</span>));
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Ring has ~dupe adjacent pts&quot;</span>);
         }
 
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Ring</span> { <span class="ident">pts</span> };
@@ -248,7 +246,7 @@
             <span class="ident">seen_pts</span>.<span class="ident">insert</span>(<span class="ident">pt</span>.<span class="ident">to_hashable</span>());
         }
         <span class="kw">if</span> <span class="ident">seen_pts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">result</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Ring has repeat non-adjacent points&quot;</span>));
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Ring has repeat non-adjacent points&quot;</span>);
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
@@ -332,7 +330,7 @@
     }
 
     <span class="doccomment">/// Extract all PolyLines and Rings. Doesn&#39;t handle crazy double loops and stuff.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">split_points</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>), <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">split_points</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {

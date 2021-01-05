@@ -919,24 +919,27 @@
 <span id="916">916</span>
 <span id="917">917</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time_warp</span>::<span class="ident">TimeWarpScreen</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::{<span class="ident">FileLoader</span>, <span class="ident">MapLoader</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">OptionsPanel</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">unzoomed_agent_radius</span>, <span class="ident">UnzoomedAgents</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">Minimap</span>, <span class="ident">PopupMsg</span>, <span class="ident">TurnExplorer</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">AppLike</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Analytics</span>, <span class="ident">Scenario</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">misc_tools</span>::{<span class="ident">RoutePreview</span>, <span class="ident">TrafficRecorder</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">speed</span>::{<span class="ident">SpeedControls</span>, <span class="ident">TimePanel</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">time_warp</span>::<span class="ident">TimeWarpScreen</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>, <span class="ident">MinimapController</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">debug</span>::<span class="ident">DebugMode</span>;
@@ -946,9 +949,6 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::<span class="ident">ContextualActions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">PickLayer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">MainMenu</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">OptionsPanel</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">unzoomed_agent_radius</span>, <span class="ident">UnzoomedAgents</span>};
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dashboards</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
@@ -1549,7 +1549,7 @@
     <span class="comment">// Scenario name</span>
     <span class="ident">LoadingPrebaked</span>(<span class="ident">String</span>),
     <span class="comment">// Scenario name, maybe prebaked data</span>
-    <span class="ident">GotPrebaked</span>(<span class="ident">String</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Analytics</span>, <span class="ident">String</span><span class="op">&gt;</span>),
+    <span class="ident">GotPrebaked</span>(<span class="ident">String</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Analytics</span><span class="op">&gt;</span>),
     <span class="ident">Finalizing</span>,
 }
 

@@ -117,11 +117,11 @@
 <span id="114">114</span>
 <span id="115">115</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">Write</span>};
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">ordered_float</span>::<span class="ident">NotNan</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -191,7 +191,7 @@
 
     <span class="doccomment">/// Parses a file in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format</span>
     <span class="doccomment">/// and returns all points.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_osmosis_polygon</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_osmosis_polygon</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">line</span>) <span class="kw">in</span> <span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">f</span>).<span class="ident">lines</span>().<span class="ident">enumerate</span>() {
@@ -214,7 +214,7 @@
     <span class="doccomment">/// Writes a set of points to a file in the</span>
     <span class="doccomment">/// https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format. The input should</span>
     <span class="doccomment">/// be a closed ring, with the first and last point matching.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_osmosis_polygon</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_osmosis_polygon</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
         <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;boundary&quot;</span>)<span class="question-mark">?</span>;
         <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;1&quot;</span>)<span class="question-mark">?</span>;

@@ -526,9 +526,11 @@
 <span id="523">523</span>
 <span id="524">524</span>
 <span id="525">525</span>
+<span id="526">526</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -933,7 +935,7 @@
     <span class="doccomment">/// Returns the best-case time for a trip in a world with no traffic or intersection delays.</span>
     <span class="doccomment">/// Might fail in some cases where the real trip succeeds, but the single-mode path can&#39;t be</span>
     <span class="doccomment">/// found. Assumes the TripID exists.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_trip_time_lower_bound</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_trip_time_lower_bound</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">id</span>: <span class="ident">TripID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">trip_info</span>(<span class="ident">id</span>);
         <span class="kw">match</span> <span class="ident">TripEndpoint</span>::<span class="ident">path_req</span>(<span class="ident">info</span>.<span class="ident">start</span>, <span class="ident">info</span>.<span class="ident">end</span>, <span class="ident">info</span>.<span class="ident">mode</span>, <span class="ident">map</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">req</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -963,12 +965,12 @@
                 };
                 <span class="prelude-val">Ok</span>(<span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="ident">constraints</span>, <span class="ident">max_speed</span>))
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail</span><span class="macro">!</span>(
                 <span class="string">&quot;can&#39;t figure out PathRequest from {:?} to {:?} via {}&quot;</span>,
                 <span class="ident">info</span>.<span class="ident">start</span>,
                 <span class="ident">info</span>.<span class="ident">end</span>,
                 <span class="ident">info</span>.<span class="ident">mode</span>.<span class="ident">ongoing_verb</span>()
-            )),
+            ),
         }
     }
 }

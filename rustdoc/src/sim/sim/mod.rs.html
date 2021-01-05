@@ -1019,12 +1019,14 @@
 <span id="1016">1016</span>
 <span id="1017">1017</span>
 <span id="1018">1018</span>
+<span id="1019">1019</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -1838,7 +1840,7 @@
         <span class="ident">abstio</span>::<span class="ident">find_next_file</span>(<span class="self">self</span>.<span class="ident">save_path</span>(<span class="ident">base_time</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_savestate</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Sim</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_savestate</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Sim</span><span class="op">&gt;</span> {
         <span class="ident">abstio</span>::<span class="ident">maybe_read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>)
     }
 }

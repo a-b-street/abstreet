@@ -325,12 +325,14 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
+<span id="325">325</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.</span>
 <span class="doccomment">//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go</span>
 <span class="doccomment">//! somewhere at some time. This is an extremely simple activity model that just uses data inferred</span>
 <span class="doccomment">//! from OSM.</span>
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -535,11 +537,11 @@
     <span class="ident">work</span>: <span class="ident">TripEndpoint</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PersonSpec</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">home</span> <span class="op">=</span><span class="op">=</span> <span class="ident">work</span> {
         <span class="comment">// TODO: handle edge-case of working and living in the same building...  maybe more likely</span>
         <span class="comment">// to go for a walk later in the day or something</span>
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;TODO: handle working and living in the same building&quot;</span>.<span class="ident">into</span>());
+        <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;TODO: handle working and living in the same building&quot;</span>);
     }
 
     <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">work</span>) {
@@ -557,7 +559,7 @@
             {
                 <span class="ident">path</span>.<span class="ident">total_length</span>()
             } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;no path found&quot;</span>.<span class="ident">into</span>());
+                <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;no path found&quot;</span>);
             };
 
             <span class="comment">// TODO If home or work is in an access-restricted zone (like a living street),</span>

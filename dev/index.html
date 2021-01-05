@@ -234,8 +234,8 @@ King County GIS, and so on. If the mirrors are slow or the files vanish, you
 could fill out <code>data/config</code> and use the <code>updater</code> described above to grab the
 latest input.</p>
 <p>Building contraction hierarchies for pathfinding occurs in the --map stage. It
-can take a few minutes for larger maps. To view occasional progress updates,
-you can run the importer with</p>
+can take a few minutes for larger maps. To view occasional progress updates, you
+can run the importer with</p>
 <pre><code>RUST_LOG=&quot;fast_paths=debug/contracted node [0-9]+0000 &quot;
 </code></pre>
 <p>You can rerun specific stages of the importer:</p>
@@ -309,6 +309,8 @@ sending a PR. (You have to install the nightly toolchain just for fmt)</p>
 conflict with what some IDEs do. Follow existing code to group imports: std,
 external crates, other crates in the project, the current crate, then finally
 any module declarations.</p>
+<p>See the <a href="testing.html">testing strategy</a> page.</p>
+<h2><a class="header" href="#error-handling" id="error-handling">Error handling</a></h2>
 <p>The error handling is unfortunately inconsistent. The goal is to gracefully
 degrade instead of crashing the game. If a crash does happen, make sure the logs
 will have enough context to reproduce and debug. For example, giving up when
@@ -318,7 +320,10 @@ during map importing, since the player won't deal with this, and loudly stopping
 problems is useful. It's also fine to crash when initially constructing all of
 the renderable map objects, because this crash will consistently happen at
 startup-time and be noticed by somebody developing before a player gets to it.</p>
-<p>See the <a href="testing.html">testing strategy</a> page.</p>
+<p>Since almost none of the code ever needs to distinguish error cases, use
+<a href="https://crates.io/crates/anyhow">anyhow</a>. Most of the errors generated within
+A/B Street are just strings anyway; the <code>bail!</code> macro is a convenient way to
+return them.</p>
 <h2><a class="header" href="#logging" id="logging">Logging</a></h2>
 <p>Prefer using <code>info!</code>, <code>warn!</code>, <code>error!</code>, etc from the <code>log</code> crate rather than
 <code>println</code>. Or if a <code>Timer</code> is available and you want to collect all notes
@@ -343,9 +348,8 @@ pattern with the &quot;/&quot;:</p>
 <pre><code># only log once every 10k
 RUST_LOG=&quot;fast_paths=debug/contracted node [0-9]+0000 &quot; mike import_la
 </code></pre>
-<p>See the <a href="https://docs.rs/env_logger/0.8.2/env_logger/">env_logger
-documentation</a> for more usage
-examples.</p>
+<p>See the <a href="https://docs.rs/env_logger/0.8.2/env_logger/">env_logger documentation</a>
+for more usage examples.</p>
 <h2><a class="header" href="#profiling" id="profiling">Profiling</a></h2>
 <p>Use <a href="https://github.com/flamegraph-rs/flamegraph">https://github.com/flamegraph-rs/flamegraph</a>, just running it on the
 binaries you build normally.</p>

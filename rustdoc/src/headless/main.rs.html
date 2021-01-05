@@ -577,6 +577,7 @@
 <span id="574">574</span>
 <span id="575">575</span>
 <span id="576">576</span>
+<span id="577">577</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="comment">// https://dabreegster.github.io/abstreet/dev/api.html for documentation. To run this:</span>
@@ -590,13 +591,15 @@
 <span class="comment">// ... huge JSON blob</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">hyper</span>::{<span class="ident">Body</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">Server</span>, <span class="ident">StatusCode</span>};
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -698,11 +701,11 @@
     <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Sim</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>,
     <span class="ident">load</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">LoadSim</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">get</span> <span class="op">=</span> <span class="op">|</span><span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">|</span> {
         <span class="ident">params</span>
             .<span class="ident">get</span>(<span class="ident">key</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;missing GET parameter {}&quot;</span>, <span class="ident">key</span>))
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;missing GET parameter {}&quot;</span>, <span class="ident">key</span>))
     };
 
     <span class="kw">match</span> <span class="ident">path</span> {
@@ -731,7 +734,7 @@
         <span class="string">&quot;/sim/goto-time&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="ident">get</span>(<span class="string">&quot;t&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">sim</span>.<span class="ident">time</span>() {
-                <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} is in the past. call /sim/reset first?&quot;</span>, <span class="ident">t</span>).<span class="ident">into</span>())
+                <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;{} is in the past. call /sim/reset first?&quot;</span>, <span class="ident">t</span>)
             } <span class="kw">else</span> {
                 <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">-</span> <span class="ident">sim</span>.<span class="ident">time</span>();
                 <span class="ident">sim</span>.<span class="ident">timed_step</span>(<span class="ident">map</span>, <span class="ident">dt</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;goto-time&quot;</span>));
@@ -742,12 +745,11 @@
             <span class="kw">let</span> <span class="ident">input</span>: <span class="ident">ExternalPerson</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">from_json</span>(<span class="ident">body</span>)<span class="question-mark">?</span>;
             <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">trips</span> {
                 <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">departure</span> <span class="op">&lt;</span> <span class="ident">sim</span>.<span class="ident">time</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="macro">bail</span><span class="macro">!</span>(
                         <span class="string">&quot;It&#39;s {} now, so you can&#39;t start a trip at {}&quot;</span>,
                         <span class="ident">sim</span>.<span class="ident">time</span>(),
                         <span class="ident">trip</span>.<span class="ident">departure</span>
                     )
-                    .<span class="ident">into</span>());
                 }
             }
 
@@ -766,7 +768,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="ident">ts</span>))
             } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, <span class="ident">i</span>).<span class="ident">into</span>())
+                <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, <span class="ident">i</span>)
             }
         }
         <span class="string">&quot;/traffic-signals/set&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -793,7 +795,7 @@
             <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
                 <span class="ident">ts</span>
             } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, <span class="ident">i</span>).<span class="ident">into</span>());
+                <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, <span class="ident">i</span>);
             };
             <span class="kw">let</span> <span class="ident">movements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">collect</span>();
 
@@ -821,7 +823,7 @@
             <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
                 <span class="ident">ts</span>
             } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, <span class="ident">i</span>).<span class="ident">into</span>());
+                <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, <span class="ident">i</span>);
             };
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">thruput</span> <span class="op">=</span> <span class="ident">Throughput</span> {
@@ -948,7 +950,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">export_geometry</span>(<span class="ident">map</span>, <span class="ident">i</span>)))
         }
         <span class="string">&quot;/map/get-all-geometry&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">abstutil</span>::<span class="ident">to_json</span>(<span class="kw-2">&amp;</span><span class="ident">export_all_geometry</span>(<span class="ident">map</span>))),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Unknown command&quot;</span>.<span class="ident">into</span>()),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;Unknown command&quot;</span>)),
     }
 }
 

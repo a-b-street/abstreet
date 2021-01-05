@@ -570,10 +570,12 @@
 <span id="567">567</span>
 <span id="568">568</span>
 <span id="569">569</span>
+<span id="570">570</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">area</span>::<span class="ident">Area</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">concave_hull</span>::<span class="ident">ConcaveHull</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">convex_hull</span>::<span class="ident">ConvexHull</span>;
@@ -894,7 +896,7 @@
     <span class="doccomment">/// Creates the outline around the polygon, with the thickness half straddling the polygon and</span>
     <span class="doccomment">/// half of it just outside. Only works for polygons that&#39;re formed from rings. Those made from</span>
     <span class="doccomment">/// PolyLines won&#39;t work, for example.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">Polygon</span>::<span class="ident">union_all</span>(
                 <span class="ident">rings</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)).<span class="ident">collect</span>(),

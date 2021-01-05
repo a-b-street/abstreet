@@ -47,9 +47,11 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
+<span id="47">47</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Read</span>};
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">GeoJson</span>, <span class="ident">Value</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">LonLat</span>;
@@ -57,7 +59,7 @@
 <span class="doccomment">/// Reads GeoJSON input from STDIN, extracts a polygon from every feature, and writes numbered</span>
 <span class="doccomment">/// files in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as</span>
 <span class="doccomment">/// output.</span>
-<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
     <span class="ident">io</span>::<span class="ident">stdin</span>().<span class="ident">read_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">buffer</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">GeoJson</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
@@ -70,11 +72,11 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">extract_boundaries</span>(<span class="ident">geojson</span>: <span class="ident">GeoJson</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">extract_boundaries</span>(<span class="ident">geojson</span>: <span class="ident">GeoJson</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">features</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">geojson</span> {
         <span class="ident">GeoJson</span>::<span class="ident">Feature</span>(<span class="ident">feature</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">feature</span>],
         <span class="ident">GeoJson</span>::<span class="ident">FeatureCollection</span>(<span class="ident">feature_collection</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">feature_collection</span>.<span class="ident">features</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, <span class="ident">geojson</span>).<span class="ident">into</span>()),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, <span class="ident">geojson</span>),
     };
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="kw">in</span> <span class="ident">features</span> {
@@ -82,7 +84,7 @@
             <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">MultiPolygon</span>(<span class="ident">multi_polygon</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">multi_polygon</span>[<span class="number">0</span>][<span class="number">0</span>].<span class="ident">clone</span>(),
             <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">Polygon</span>(<span class="ident">polygon</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">polygon</span>[<span class="number">0</span>].<span class="ident">clone</span>(),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Unexpected feature: {:?}&quot;</span>, <span class="ident">feature</span>).<span class="ident">into</span>());
+                <span class="ident">anyhow</span>::<span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Unexpected feature: {:?}&quot;</span>, <span class="ident">feature</span>);
             }
         };
         <span class="ident">polygons</span>.<span class="ident">push</span>(

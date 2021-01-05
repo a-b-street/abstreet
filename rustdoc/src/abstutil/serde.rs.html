@@ -144,13 +144,19 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">MultiMap</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ord</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
+
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">MultiMap</span>;
 
 <span class="doccomment">/// Stringifies an object to nicely formatted JSON.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
@@ -163,23 +169,23 @@
 }
 
 <span class="doccomment">/// Deserializes an object from a JSON string.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="ident">serde_json</span>::<span class="ident">from_slice</span>(<span class="ident">raw</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">serde_json</span>::<span class="ident">from_slice</span>(<span class="ident">raw</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>())
 }
 
 <span class="doccomment">/// Deserializes an object from JSON, from a reader.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json_reader</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Read</span>, <span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">reader</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="ident">serde_json</span>::<span class="ident">from_reader</span>(<span class="ident">reader</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json_reader</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Read</span>, <span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">reader</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">serde_json</span>::<span class="ident">from_reader</span>(<span class="ident">reader</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>())
 }
 
 <span class="doccomment">/// Deserializes an object from the bincode format.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_binary</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="ident">bincode</span>::<span class="ident">deserialize</span>(<span class="ident">raw</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_binary</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">bincode</span>::<span class="ident">deserialize</span>(<span class="ident">raw</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>())
 }
 
 <span class="doccomment">/// Deserializes an object from the bincode format, from a reader.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_binary_reader</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Read</span>, <span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">reader</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="ident">bincode</span>::<span class="ident">deserialize_from</span>(<span class="ident">reader</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_binary_reader</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Read</span>, <span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">reader</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">bincode</span>::<span class="ident">deserialize_from</span>(<span class="ident">reader</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>())
 }
 
 <span class="doccomment">/// The number of bytes for an object serialized to bincode.</span>

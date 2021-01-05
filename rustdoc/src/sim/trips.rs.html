@@ -1516,9 +1516,17 @@
 <span id="1513">1513</span>
 <span id="1514">1514</span>
 <span id="1515">1515</span>
+<span id="1516">1516</span>
+<span id="1517">1517</span>
+<span id="1518">1518</span>
+<span id="1519">1519</span>
+<span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Counter</span>};
@@ -1717,7 +1725,7 @@
                         );
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>, <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>), <span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>), <span class="ident">ctx</span>);
                     }
                 }
             }
@@ -1760,7 +1768,13 @@
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="comment">// Move the car to the destination</span>
                             <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">remove_parked_car</span>(<span class="ident">parked_car</span>.<span class="ident">clone</span>());
-                            <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>, <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>), <span class="ident">ctx</span>);
+                            <span class="self">self</span>.<span class="ident">cancel_trip</span>(
+                                <span class="ident">now</span>,
+                                <span class="ident">trip</span>,
+                                <span class="ident">err</span>.<span class="ident">to_string</span>(),
+                                <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>),
+                                <span class="ident">ctx</span>,
+                            );
                         }
                     }
                 } <span class="kw">else</span> {
@@ -1824,7 +1838,7 @@
                         );
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>, <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
                     }
                 }
             }
@@ -1866,7 +1880,7 @@
                             );
                         }
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>, <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
+                            <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
                         }
                     }
                 } <span class="kw">else</span> {
@@ -1932,7 +1946,7 @@
                         );
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>, <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
                     }
                 }
             }
@@ -2066,7 +2080,7 @@
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Move the car to the destination...</span>
                 <span class="ident">ctx</span>.<span class="ident">parking</span>.<span class="ident">remove_parked_car</span>(<span class="ident">parked_car</span>.<span class="ident">clone</span>());
-                <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>, <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>), <span class="ident">ctx</span>);
+                <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>), <span class="ident">ctx</span>);
             }
         }
     }
@@ -2119,7 +2133,7 @@
         <span class="kw">let</span> <span class="ident">maybe_router</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() {
             <span class="comment">// TODO Convert to a walking trip! Ideally, do this earlier and convert the trip to</span>
             <span class="comment">// walking, like schedule_trip does</span>
-            <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(
                 <span class="string">&quot;biking to a different part of {} is silly, why not walk?&quot;</span>,
                 <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()
             ))
@@ -2145,7 +2159,7 @@
             }
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">id</span>;
-                <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>, <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
+                <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
             }
         }
     }
@@ -2467,7 +2481,7 @@
                 );
             }
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">id</span>, <span class="ident">err</span>, <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
+                <span class="self">self</span>.<span class="ident">cancel_trip</span>(<span class="ident">now</span>, <span class="ident">id</span>, <span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>, <span class="ident">ctx</span>);
             }
         }
     }
@@ -2481,7 +2495,7 @@
         <span class="ident">trip</span>: <span class="ident">TripID</span>,
         <span class="ident">req</span>: <span class="ident">PathRequest</span>,
         <span class="ident">car</span>: <span class="ident">CarID</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>)<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">ctx</span>
             .<span class="ident">cap</span>
@@ -2494,7 +2508,7 @@
             }
             <span class="ident">CapResult</span>::<span class="ident">Cancel</span> { <span class="ident">reason</span> } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="prelude-val">Err</span>(<span class="ident">reason</span>)
+                <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">reason</span>)
             }
             <span class="ident">CapResult</span>::<span class="ident">Delay</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(),
         }
@@ -2524,7 +2538,7 @@
     ) {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>];
         <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">cancellation_reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">reason</span>);
+        <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">cancellation_reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">reason</span>.<span class="ident">to_string</span>());
         <span class="self">self</span>.<span class="ident">events</span>
             .<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>, <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">mode</span>));
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">person</span>;

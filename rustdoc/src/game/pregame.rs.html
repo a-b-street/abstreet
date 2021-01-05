@@ -970,7 +970,7 @@
                                 <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
                                     <span class="ident">ctx</span>,
                                     <span class="string">&quot;Can&#39;t load proposal&quot;</span>,
-                                    <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">err</span>],
+                                    <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
                                 ))
                             } <span class="kw">else</span> {
                                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span>

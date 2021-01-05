@@ -73,10 +73,12 @@
 <span id="70">70</span>
 <span id="71">71</span>
 <span id="72">72</span>
+<span id="73">73</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own</span>
 <span class="doccomment">//! simulation input data; import it here.</span>
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
@@ -104,7 +106,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ExternalPerson</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest</span>::<span class="ident">new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>.<span class="ident">id</span>), <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
@@ -117,7 +119,7 @@
             <span class="ident">ExternalTripEndpoint</span>::<span class="ident">Position</span>(<span class="ident">gps</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">100.0</span>)) {
                     <span class="prelude-val">Some</span>((<span class="ident">x</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(
                         <span class="string">&quot;No building or border intersection within 100m of {}&quot;</span>,
                         <span class="ident">gps</span>
                     )),

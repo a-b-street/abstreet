@@ -540,10 +540,15 @@
 <span id="537">537</span>
 <span id="538">538</span>
 <span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -715,7 +720,7 @@
                     <span class="prelude-val">Ok</span>(<span class="ident">spec</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">spec</span>,
                     <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> {
                         <span class="ident">use_vehicle</span>: <span class="ident">maybe_idx</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">id</span>),
-                        <span class="ident">error</span>,
+                        <span class="ident">error</span>: <span class="ident">error</span>.<span class="ident">to_string</span>(),
                     },
                 };
                 <span class="ident">schedule_trips</span>.<span class="ident">push</span>((
@@ -967,13 +972,15 @@
 
 <span class="kw">impl</span> <span class="ident">PersonSpec</span> {
     <span class="doccomment">/// Verify that a person&#39;s trips make sense</span>
-    <span class="kw">fn</span> <span class="ident">check_schedule</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">check_schedule</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="macro">bail</span><span class="macro">!</span>(
                     <span class="string">&quot;Person ({:?}) starts two trips in the wrong order: {} then {}&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span>, <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span>
-                ));
+                    <span class="self">self</span>.<span class="ident">orig_id</span>,
+                    <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span>,
+                    <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span>
+                );
             }
         }
 
@@ -983,10 +990,11 @@
         }
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">endpts</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>] {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="macro">bail</span><span class="macro">!</span>(
                     <span class="string">&quot;Person ({:?}) has two adjacent trips between the same place: {:?}&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">orig_id</span>, <span class="ident">pair</span>[<span class="number">0</span>]
-                ));
+                    <span class="self">self</span>.<span class="ident">orig_id</span>,
+                    <span class="ident">pair</span>[<span class="number">0</span>]
+                );
             }
         }
 

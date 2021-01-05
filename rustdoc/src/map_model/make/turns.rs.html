@@ -400,9 +400,11 @@
 <span id="397">397</span>
 <span id="398">398</span>
 <span id="399">399</span>
+<span id="400">400</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">nbez</span>::{<span class="ident">Bez3o</span>, <span class="ident">BezCurve</span>, <span class="ident">Point2d</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
@@ -644,7 +646,7 @@
     <span class="ident">turns</span>
 }
 
-<span class="kw">fn</span> <span class="ident">curvey_turn</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">curvey_turn</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
     <span class="comment">// The control points are straight out/in from the source/destination lanes, so</span>
     <span class="comment">// that the car exits and enters at the same angle as the road.</span>
     <span class="kw">let</span> <span class="ident">src_line</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">last_line</span>();

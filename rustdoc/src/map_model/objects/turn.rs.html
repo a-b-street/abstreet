@@ -358,14 +358,11 @@
 <span id="355">355</span>
 <span id="356">356</span>
 <span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
@@ -563,10 +560,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Movement</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">for_i</span>(
-        <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">for_i</span>(<span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">movements</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span>(<span class="ident">DirectedRoadID</span>, <span class="ident">DirectedRoadID</span>), <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>) {
@@ -630,9 +624,7 @@
             );
         }
         <span class="kw">if</span> <span class="ident">results</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;No Movements! Does the intersection have at least 2 roads?&quot;</span>
-            ));
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;No Movements! Does the intersection have at least 2 roads?&quot;</span>);
         }
         <span class="prelude-val">Ok</span>(<span class="ident">results</span>)
     }
@@ -704,7 +696,7 @@
     <span class="ident">polylines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>,
     <span class="ident">from</span>: <span class="ident">DirectedRoadID</span>,
     <span class="ident">to</span>: <span class="ident">DirectedRoadID</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">num_pts</span> <span class="op">=</span> <span class="ident">polylines</span>[<span class="number">0</span>].<span class="ident">points</span>().<span class="ident">len</span>();
     <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">polylines</span> {
         <span class="kw">if</span> <span class="ident">num_pts</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pl</span>.<span class="ident">points</span>().<span class="ident">len</span>() {
