@@ -16,7 +16,7 @@ mkdir diff
 for file in `ls $before | grep -v full.png | grep -v combine.sh`; do
 	# For whatever reason, the intersection annotation doesn't seem to
 	# always match up between two captures.
-	prefix=`echo $file | sed 's/_.*//' | sed 's/.png//'`;
+	prefix=`echo $file | sed 's/_.*//' | sed 's/.png//' | sed 's/.gif//'`;
 
 	diff $before/${prefix}* $after/${prefix}*;
 	if [ $? -eq 1 ]; then

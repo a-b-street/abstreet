@@ -81,10 +81,10 @@ pub fn setup(
 
         gl.enable(glow::BLEND);
         gl.blend_func_separate(
-            glow::SRC_ALPHA,
+            glow::ONE,
             glow::ONE_MINUS_SRC_ALPHA,
-            glow::SRC_ALPHA,
-            glow::ONE_MINUS_SRC_ALPHA,
+            glow::ONE_MINUS_DST_ALPHA,
+            glow::ONE,
         );
     }
 

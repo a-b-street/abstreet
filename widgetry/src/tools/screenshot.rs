@@ -21,6 +21,8 @@ pub(crate) fn screenshot_everything<A: SharedAppState>(
     state.canvas.cam_zoom = zoom;
     std::fs::create_dir_all(dir_path)?;
 
+    // TODO Sometimes the very first image captured is of the debug mode used to launch this. Not
+    // sure why, and it's not so reproducible.
     for tile_y in 0..num_tiles_y {
         for tile_x in 0..num_tiles_x {
             timer.next();

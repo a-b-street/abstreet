@@ -81,9 +81,9 @@
       "compressed_size_bytes": 3719946
     },
     "data/input/krakow/screenshots/center.zip": {
-      "checksum": "eea3d054bf64edab34deafa2268b6d3c",
-      "uncompressed_size_bytes": 14344391,
-      "compressed_size_bytes": 14317330
+      "checksum": "707291f418a603387a84eada8affde1f",
+      "uncompressed_size_bytes": 26818019,
+      "compressed_size_bytes": 26812853
     },
     "data/input/krakow/service_roads.bin": {
       "checksum": "13e14676cf8538325c7f7898de0ca75b",
@@ -156,9 +156,9 @@
       "compressed_size_bytes": 772801
     },
     "data/input/london/screenshots/southbank.zip": {
-      "checksum": "c0f0b0cefd780655f7c2b4c86e2bbaf8",
-      "uncompressed_size_bytes": 3944957,
-      "compressed_size_bytes": 3943894
+      "checksum": "95a55d5884d98e370bcec24b2cb09fee",
+      "uncompressed_size_bytes": 7142289,
+      "compressed_size_bytes": 7141827
     },
     "data/input/london/service_roads.bin": {
       "checksum": "4f651a450d9d6b73618db015c34a03ad",
@@ -591,24 +591,24 @@
       "compressed_size_bytes": 6030275
     },
     "data/input/seattle/screenshots/downtown.zip": {
-      "checksum": "ed7e98796784139dd70a9c6ce545c1e5",
-      "uncompressed_size_bytes": 14883429,
-      "compressed_size_bytes": 14836130
+      "checksum": "81924737767e97a05fb3c4e97c3b849e",
+      "uncompressed_size_bytes": 22145905,
+      "compressed_size_bytes": 22137518
     },
     "data/input/seattle/screenshots/lakeslice.zip": {
-      "checksum": "832813fd81d64f3628f889bc6c1b6a90",
-      "uncompressed_size_bytes": 13643739,
-      "compressed_size_bytes": 13613206
+      "checksum": "ed4dcfa82f42678dbe7068cc0edf45d9",
+      "uncompressed_size_bytes": 21551056,
+      "compressed_size_bytes": 21544520
     },
     "data/input/seattle/screenshots/montlake.zip": {
-      "checksum": "5af2a61366882c679de33a5a2cbdba32",
-      "uncompressed_size_bytes": 2626137,
-      "compressed_size_bytes": 2625499
+      "checksum": "3f5d3dff62ae99e6e4756107af546a7b",
+      "uncompressed_size_bytes": 4191607,
+      "compressed_size_bytes": 4191330
     },
     "data/input/seattle/screenshots/udistrict.zip": {
-      "checksum": "1c01f94b990ef1a89583e30938553697",
-      "uncompressed_size_bytes": 6834429,
-      "compressed_size_bytes": 6825879
+      "checksum": "4a68bce56ecb899e01d8d615c203bff7",
+      "uncompressed_size_bytes": 10229787,
+      "compressed_size_bytes": 10226458
     },
     "data/input/seattle/service_roads.bin": {
       "checksum": "87362c2566507e58ab9e4d55005d27d2",
@@ -796,7 +796,7 @@
       "compressed_size_bytes": 112617851
     },
     "data/system/seattle/maps/lakeslice.bin": {
-      "checksum": "9828a5cb22dad0934cf0ef5cd0b03b10",
+      "checksum": "0c2b9ab222451f36b0fec315cc0b7cd7",
       "uncompressed_size_bytes": 24517681,
       "compressed_size_bytes": 8641217
     },

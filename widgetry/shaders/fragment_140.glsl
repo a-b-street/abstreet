@@ -13,5 +13,6 @@ in vec3 fs_texture_coord;
 out vec4 out_color;
 
 void main() {
-    out_color = fs_color * texture(textures, fs_texture_coord);
+    vec4 x = fs_color * texture(textures, fs_texture_coord);
+    out_color = vec4(x.a * x.r, x.a * x.g, x.a * x.b, x.a);
 }
