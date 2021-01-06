@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["BtnBuilder",""]],"struct":[["Btn",""],["Button",""],["MultiButton",""]]});
+initSidebarItems({"enum":[["BtnBuilder",""]],"struct":[["Btn","A questionably named place to start creating buttons."],["Button",""],["MultiButton",""]]});

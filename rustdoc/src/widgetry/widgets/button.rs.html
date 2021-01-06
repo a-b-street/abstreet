@@ -600,6 +600,8 @@
 <span id="597">597</span>
 <span id="598">598</span>
 <span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
@@ -609,6 +611,7 @@
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Button</span> {
+    <span class="doccomment">/// When a button is clicked, `Outcome::Clicked` with this string is produced.</span>
     <span class="kw">pub</span> <span class="ident">action</span>: <span class="ident">String</span>,
 
     <span class="comment">// Both of these must have the same dimensions and are oriented with their top-left corner at</span>
@@ -633,23 +636,23 @@
         <span class="ident">normal</span>: <span class="ident">GeomBatch</span>,
         <span class="ident">hovered</span>: <span class="ident">GeomBatch</span>,
         <span class="ident">hotkey</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span>,
-        <span class="ident">tooltip</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">maybe_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
         <span class="ident">hitbox</span>: <span class="ident">Polygon</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="comment">// dims are based on the hitbox, not the two drawables!</span>
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">hitbox</span>.<span class="ident">get_bounds</span>();
         <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">tooltip</span>.<span class="ident">is_empty</span>());
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">action</span>.<span class="ident">is_empty</span>());
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Button</span> {
-            <span class="ident">action</span>: <span class="ident">tooltip</span>.<span class="ident">to_string</span>(),
+            <span class="ident">action</span>: <span class="ident">action</span>.<span class="ident">to_string</span>(),
 
             <span class="ident">draw_normal</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">normal</span>),
             <span class="ident">draw_hovered</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">hovered</span>),
             <span class="ident">tooltip</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">maybe_tooltip</span> {
                 <span class="ident">t</span>
             } <span class="kw">else</span> {
-                <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>.<span class="ident">clone</span>(), <span class="ident">tooltip</span>)
+                <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>.<span class="ident">clone</span>(), <span class="ident">action</span>)
             },
             <span class="ident">hotkey</span>,
             <span class="ident">hitbox</span>,
@@ -659,7 +662,7 @@
             <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">dims</span>,
         }))
-        .<span class="ident">named</span>(<span class="ident">tooltip</span>)
+        .<span class="ident">named</span>(<span class="ident">action</span>)
     }
 }
 
@@ -712,6 +715,7 @@
     }
 }
 
+<span class="doccomment">/// A questionably named place to start creating buttons.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Btn</span> {}
 
 <span class="kw">impl</span> <span class="ident">Btn</span> {
@@ -730,39 +734,39 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plaintext</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">label</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plaintext</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
+        <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">into</span>();
         <span class="ident">BtnBuilder</span>::<span class="ident">PlainText</span> {
-            <span class="ident">label</span>: <span class="ident">label</span>.<span class="ident">clone</span>(),
-            <span class="ident">txt</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>)),
+            <span class="ident">action</span>: <span class="ident">action</span>.<span class="ident">clone</span>(),
+            <span class="ident">txt</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">action</span>)),
             <span class="ident">maybe_tooltip</span>: <span class="prelude-val">None</span>,
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plaintext_custom</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">label</span>: <span class="ident">I</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plaintext_custom</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="ident">I</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
         <span class="ident">BtnBuilder</span>::<span class="ident">PlainText</span> {
-            <span class="ident">label</span>: <span class="ident">label</span>.<span class="ident">into</span>(),
+            <span class="ident">action</span>: <span class="ident">action</span>.<span class="ident">into</span>(),
             <span class="ident">txt</span>,
             <span class="ident">maybe_tooltip</span>: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_fg</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">label</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
-        <span class="ident">BtnBuilder</span>::<span class="ident">TextFG</span>(<span class="ident">label</span>.<span class="ident">clone</span>(), <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>)), <span class="prelude-val">None</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_fg</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
+        <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">into</span>();
+        <span class="ident">BtnBuilder</span>::<span class="ident">TextFG</span>(<span class="ident">action</span>.<span class="ident">clone</span>(), <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">action</span>)), <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">txt</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">label</span>: <span class="ident">I</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
-        <span class="ident">BtnBuilder</span>::<span class="ident">TextFG</span>(<span class="ident">label</span>.<span class="ident">into</span>(), <span class="ident">txt</span>, <span class="prelude-val">None</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">txt</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="ident">I</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
+        <span class="ident">BtnBuilder</span>::<span class="ident">TextFG</span>(<span class="ident">action</span>.<span class="ident">into</span>(), <span class="ident">txt</span>, <span class="prelude-val">None</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_bg</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">label</span>: <span class="ident">I</span>,
+        <span class="ident">action</span>: <span class="ident">I</span>,
         <span class="ident">text</span>: <span class="ident">Text</span>,
         <span class="ident">unselected_bg_color</span>: <span class="ident">Color</span>,
         <span class="ident">selected_bg_color</span>: <span class="ident">Color</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
         <span class="ident">BtnBuilder</span>::<span class="ident">TextBG</span> {
-            <span class="ident">label</span>: <span class="ident">label</span>.<span class="ident">into</span>(),
+            <span class="ident">action</span>: <span class="ident">action</span>.<span class="ident">into</span>(),
             <span class="ident">maybe_tooltip</span>: <span class="prelude-val">None</span>,
 
             <span class="ident">text</span>,
@@ -772,26 +776,26 @@
     }
 
     <span class="comment">// The info panel style with the lighter background color</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_bg1</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">label</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_bg1</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
+        <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">into</span>();
         <span class="ident">BtnBuilder</span>::<span class="ident">TextBG</span> {
-            <span class="ident">label</span>: <span class="ident">label</span>.<span class="ident">clone</span>(),
+            <span class="ident">action</span>: <span class="ident">action</span>.<span class="ident">clone</span>(),
             <span class="ident">maybe_tooltip</span>: <span class="prelude-val">None</span>,
 
-            <span class="ident">text</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>)),
+            <span class="ident">text</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">action</span>)),
             <span class="ident">unselected_bg_color</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>),
             <span class="ident">selected_bg_color</span>: <span class="ident">Color</span>::<span class="ident">ORANGE</span>,
         }
     }
 
     <span class="comment">// The white background.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_bg2</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">label</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_bg2</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BtnBuilder</span> {
+        <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">into</span>();
         <span class="ident">BtnBuilder</span>::<span class="ident">TextBG</span> {
-            <span class="ident">label</span>: <span class="ident">label</span>.<span class="ident">clone</span>(),
+            <span class="ident">action</span>: <span class="ident">action</span>.<span class="ident">clone</span>(),
             <span class="ident">maybe_tooltip</span>: <span class="prelude-val">None</span>,
 
-            <span class="ident">text</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>))),
+            <span class="ident">text</span>: <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">action</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>))),
             <span class="comment">// This is sometimes against a white background and could just be None, but some</span>
             <span class="comment">// callers need the background.</span>
             <span class="ident">unselected_bg_color</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
@@ -880,12 +884,12 @@
     },
     <span class="ident">TextFG</span>(<span class="ident">String</span>, <span class="ident">Text</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>),
     <span class="ident">PlainText</span> {
-        <span class="ident">label</span>: <span class="ident">String</span>,
+        <span class="ident">action</span>: <span class="ident">String</span>,
         <span class="ident">txt</span>: <span class="ident">Text</span>,
         <span class="ident">maybe_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
     },
     <span class="ident">TextBG</span> {
-        <span class="ident">label</span>: <span class="ident">String</span>,
+        <span class="ident">action</span>: <span class="ident">String</span>,
         <span class="ident">maybe_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
 
         <span class="ident">text</span>: <span class="ident">Text</span>,
@@ -935,7 +939,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">action_tooltip</span>: <span class="ident">I</span>,
+        <span class="ident">action</span>: <span class="ident">I</span>,
         <span class="ident">key</span>: <span class="ident">MK</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">match</span> <span class="self">self</span> {
@@ -954,7 +958,7 @@
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
                     <span class="ident">key</span>.<span class="ident">into</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
+                    <span class="kw-2">&amp;</span><span class="ident">action</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_tooltip</span>,
                     <span class="ident">geom</span>,
                 )
@@ -978,7 +982,7 @@
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
                     <span class="ident">key</span>.<span class="ident">into</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
+                    <span class="kw-2">&amp;</span><span class="ident">action</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_t</span>,
                     <span class="ident">hitbox</span>,
                 )
@@ -1006,7 +1010,7 @@
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
                     <span class="ident">key</span>.<span class="ident">into</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
+                    <span class="kw-2">&amp;</span><span class="ident">action</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_tooltip</span>,
                     <span class="ident">hitbox</span>,
                 )
@@ -1037,7 +1041,7 @@
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
                     <span class="ident">key</span>.<span class="ident">into</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
+                    <span class="kw-2">&amp;</span><span class="ident">action</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_tooltip</span>,
                     <span class="ident">hitbox</span>,
                 )
@@ -1054,7 +1058,7 @@
                     <span class="ident">normal</span>,
                     <span class="ident">hovered</span>,
                     <span class="ident">key</span>.<span class="ident">into</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">action_tooltip</span>.<span class="ident">into</span>(),
+                    <span class="kw-2">&amp;</span><span class="ident">action</span>.<span class="ident">into</span>(),
                     <span class="ident">maybe_tooltip</span>,
                     <span class="ident">hitbox</span>,
                 );
@@ -1073,11 +1077,11 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">BtnBuilder</span>::<span class="ident">SVG</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t use build_def on an SVG button&quot;</span>),
             <span class="ident">BtnBuilder</span>::<span class="ident">Custom</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t use build_def on a custom button&quot;</span>),
-            <span class="ident">BtnBuilder</span>::<span class="ident">TextFG</span>(<span class="kw-2">ref</span> <span class="ident">label</span>, <span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">BtnBuilder</span>::<span class="ident">PlainText</span> { <span class="kw-2">ref</span> <span class="ident">label</span>, .. }
-            <span class="op">|</span> <span class="ident">BtnBuilder</span>::<span class="ident">TextBG</span> { <span class="kw-2">ref</span> <span class="ident">label</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">label</span>.<span class="ident">is_empty</span>());
-                <span class="kw">let</span> <span class="ident">copy</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">clone</span>();
+            <span class="ident">BtnBuilder</span>::<span class="ident">TextFG</span>(<span class="kw-2">ref</span> <span class="ident">action</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="op">|</span> <span class="ident">BtnBuilder</span>::<span class="ident">PlainText</span> { <span class="kw-2">ref</span> <span class="ident">action</span>, .. }
+            <span class="op">|</span> <span class="ident">BtnBuilder</span>::<span class="ident">TextBG</span> { <span class="kw-2">ref</span> <span class="ident">action</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">action</span>.<span class="ident">is_empty</span>());
+                <span class="kw">let</span> <span class="ident">copy</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">clone</span>();
                 <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">copy</span>, <span class="ident">key</span>)
             }
         }
@@ -1085,7 +1089,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inactive</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BtnBuilder</span>::<span class="ident">TextFG</span>(<span class="ident">label</span>, <span class="ident">txt</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
+            <span class="ident">BtnBuilder</span>::<span class="ident">TextFG</span>(<span class="ident">action</span>, <span class="ident">txt</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">txt</span>.<span class="ident">change_fg</span>(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>))
                     .<span class="ident">render</span>(<span class="ident">ctx</span>)
@@ -1096,12 +1100,12 @@
                     .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
                     .<span class="number">0</span>,
             )
-            .<span class="ident">named</span>(<span class="ident">label</span>),
+            .<span class="ident">named</span>(<span class="ident">action</span>),
             <span class="comment">// TODO This&#39;ll only work reasonably for text_bg2</span>
             <span class="ident">BtnBuilder</span>::<span class="ident">TextBG</span> {
                 <span class="ident">text</span>,
                 <span class="ident">unselected_bg_color</span>,
-                <span class="ident">label</span>,
+                <span class="ident">action</span>,
                 ..
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">unselected_bg_color</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>);
@@ -1115,9 +1119,9 @@
                         .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
                         .<span class="number">0</span>,
                 )
-                .<span class="ident">named</span>(<span class="ident">label</span>)
+                .<span class="ident">named</span>(<span class="ident">action</span>)
             }
-            <span class="ident">BtnBuilder</span>::<span class="ident">PlainText</span> { <span class="ident">txt</span>, <span class="ident">label</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
+            <span class="ident">BtnBuilder</span>::<span class="ident">PlainText</span> { <span class="ident">txt</span>, <span class="ident">action</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget</span>::<span class="ident">draw_batch</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">txt</span>.<span class="ident">change_fg</span>(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.5</span>))
                     .<span class="ident">render</span>(<span class="ident">ctx</span>)
@@ -1127,7 +1131,7 @@
                     .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
                     .<span class="number">0</span>,
             )
-            .<span class="ident">named</span>(<span class="ident">label</span>),
+            .<span class="ident">named</span>(<span class="ident">action</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t use inactive on this kind of button&quot;</span>),
         }
     }
