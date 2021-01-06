@@ -232,10 +232,10 @@
 
         <span class="ident">gl</span>.<span class="ident">enable</span>(<span class="ident">glow</span>::<span class="ident">BLEND</span>);
         <span class="ident">gl</span>.<span class="ident">blend_func_separate</span>(
-            <span class="ident">glow</span>::<span class="ident">SRC_ALPHA</span>,
+            <span class="ident">glow</span>::<span class="ident">ONE</span>,
             <span class="ident">glow</span>::<span class="ident">ONE_MINUS_SRC_ALPHA</span>,
-            <span class="ident">glow</span>::<span class="ident">SRC_ALPHA</span>,
-            <span class="ident">glow</span>::<span class="ident">ONE_MINUS_SRC_ALPHA</span>,
+            <span class="ident">glow</span>::<span class="ident">ONE_MINUS_DST_ALPHA</span>,
+            <span class="ident">glow</span>::<span class="ident">ONE</span>,
         );
     }
 
