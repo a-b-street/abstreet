@@ -6,6 +6,7 @@ use crate::{
 };
 
 pub struct Button {
+    /// When a button is clicked, `Outcome::Clicked` with this string is produced.
     pub action: String,
 
     // Both of these must have the same dimensions and are oriented with their top-left corner at
@@ -30,23 +31,23 @@ impl Button {
         normal: GeomBatch,
         hovered: GeomBatch,
         hotkey: Option<MultiKey>,
-        tooltip: &str,
+        action: &str,
         maybe_tooltip: Option<Text>,
         hitbox: Polygon,
     ) -> Widget {
         // dims are based on the hitbox, not the two drawables!
         let bounds = hitbox.get_bounds();
         let dims = ScreenDims::new(bounds.width(), bounds.height());
-        assert!(!tooltip.is_empty());
+        assert!(!action.is_empty());
         Widget::new(Box::new(Button {
-            action: tooltip.to_string(),
+            action: action.to_string(),
 
             draw_normal: ctx.upload(normal),
             draw_hovered: ctx.upload(hovered),
             tooltip: if let Some(t) = maybe_tooltip {
                 t
             } else {
-                Text::tooltip(ctx, hotkey.clone(), tooltip)
+                Text::tooltip(ctx, hotkey.clone(), action)
             },
             hotkey,
             hitbox,
@@ -56,7 +57,7 @@ impl Button {
             top_left: ScreenPt::new(0.0, 0.0),
             dims,
         }))
-        .named(tooltip)
+        .named(action)
     }
 }
 
@@ -109,6 +110,7 @@ impl WidgetImpl for Button {
     }
 }
 
+/// A questionably named place to start creating buttons.
 pub struct Btn {}
 
 impl Btn {
@@ -127,39 +129,39 @@ impl Btn {
         }
     }
 
-    pub fn plaintext<I: Into<String>>(label: I) -> BtnBuilder {
-        let label = label.into();
+    pub fn plaintext<I: Into<String>>(action: I) -> BtnBuilder {
+        let action = action.into();
         BtnBuilder::PlainText {
-            label: label.clone(),
-            txt: Text::from(Line(label)),
+            action: action.clone(),
+            txt: Text::from(Line(action)),
             maybe_tooltip: None,
         }
     }
-    pub fn plaintext_custom<I: Into<String>>(label: I, txt: Text) -> BtnBuilder {
+    pub fn plaintext_custom<I: Into<String>>(action: I, txt: Text) -> BtnBuilder {
         BtnBuilder::PlainText {
-            label: label.into(),
+            action: action.into(),
             txt,
             maybe_tooltip: None,
         }
     }
 
-    pub fn text_fg<I: Into<String>>(label: I) -> BtnBuilder {
-        let label = label.into();
-        BtnBuilder::TextFG(label.clone(), Text::from(Line(label)), None)
+    pub fn text_fg<I: Into<String>>(action: I) -> BtnBuilder {
+        let action = action.into();
+        BtnBuilder::TextFG(action.clone(), Text::from(Line(action)), None)
     }
 
-    pub fn txt<I: Into<String>>(label: I, txt: Text) -> BtnBuilder {
-        BtnBuilder::TextFG(label.into(), txt, None)
+    pub fn txt<I: Into<String>>(action: I, txt: Text) -> BtnBuilder {
+        BtnBuilder::TextFG(action.into(), txt, None)
     }
 
     pub fn text_bg<I: Into<String>>(
-        label: I,
+        action: I,
         text: Text,
         unselected_bg_color: Color,
         selected_bg_color: Color,
     ) -> BtnBuilder {
         BtnBuilder::TextBG {
-            label: label.into(),
+            action: action.into(),
             maybe_tooltip: None,
 
             text,
@@ -169,26 +171,26 @@ impl Btn {
     }
 
     // The info panel style with the lighter background color
-    pub fn text_bg1<I: Into<String>>(label: I) -> BtnBuilder {
-        let label = label.into();
+    pub fn text_bg1<I: Into<String>>(action: I) -> BtnBuilder {
+        let action = action.into();
         BtnBuilder::TextBG {
-            label: label.clone(),
+            action: action.clone(),
             maybe_tooltip: None,
 
-            text: Text::from(Line(label)),
+            text: Text::from(Line(action)),
             unselected_bg_color: Color::grey(0.5),
             selected_bg_color: Color::ORANGE,
         }
     }
 
     // The white background.
-    pub fn text_bg2<I: Into<String>>(label: I) -> BtnBuilder {
-        let label = label.into();
+    pub fn text_bg2<I: Into<String>>(action: I) -> BtnBuilder {
+        let action = action.into();
         BtnBuilder::TextBG {
-            label: label.clone(),
+            action: action.clone(),
             maybe_tooltip: None,
 
-            text: Text::from(Line(label).fg(Color::hex("#5B5B5B"))),
+            text: Text::from(Line(action).fg(Color::hex("#5B5B5B"))),
             // This is sometimes against a white background and could just be None, but some
             // callers need the background.
             unselected_bg_color: Color::WHITE,
@@ -277,12 +279,12 @@ pub enum BtnBuilder {
     },
     TextFG(String, Text, Option<Text>),
     PlainText {
-        label: String,
+        action: String,
         txt: Text,
         maybe_tooltip: Option<Text>,
     },
     TextBG {
-        label: String,
+        action: String,
         maybe_tooltip: Option<Text>,
 
         text: Text,
@@ -332,7 +334,7 @@ impl BtnBuilder {
     pub fn build<I: Into<String>, MK: Into<Option<MultiKey>>>(
         self,
         ctx: &EventCtx,
-        action_tooltip: I,
+        action: I,
         key: MK,
     ) -> Widget {
         match self {
@@ -351,7 +353,7 @@ impl BtnBuilder {
                     normal,
                     hovered,
                     key.into(),
-                    &action_tooltip.into(),
+                    &action.into(),
                     maybe_tooltip,
                     geom,
                 )
@@ -375,7 +377,7 @@ impl BtnBuilder {
                     normal,
                     hovered,
                     key.into(),
-                    &action_tooltip.into(),
+                    &action.into(),
                     maybe_t,
                     hitbox,
                 )
@@ -403,7 +405,7 @@ impl BtnBuilder {
                     normal,
                     hovered,
                     key.into(),
-                    &action_tooltip.into(),
+                    &action.into(),
                     maybe_tooltip,
                     hitbox,
                 )
@@ -434,7 +436,7 @@ impl BtnBuilder {
                     normal,
                     hovered,
                     key.into(),
-                    &action_tooltip.into(),
+                    &action.into(),
                     maybe_tooltip,
                     hitbox,
                 )
@@ -451,7 +453,7 @@ impl BtnBuilder {
                     normal,
                     hovered,
                     key.into(),
-                    &action_tooltip.into(),
+                    &action.into(),
                     maybe_tooltip,
                     hitbox,
                 );
@@ -470,11 +472,11 @@ impl BtnBuilder {
         match self {
             BtnBuilder::SVG { .. } => panic!("Can't use build_def on an SVG button"),
             BtnBuilder::Custom { .. } => panic!("Can't use build_def on a custom button"),
-            BtnBuilder::TextFG(ref label, _, _)
-            | BtnBuilder::PlainText { ref label, .. }
-            | BtnBuilder::TextBG { ref label, .. } => {
-                assert!(!label.is_empty());
-                let copy = label.clone();
+            BtnBuilder::TextFG(ref action, _, _)
+            | BtnBuilder::PlainText { ref action, .. }
+            | BtnBuilder::TextBG { ref action, .. } => {
+                assert!(!action.is_empty());
+                let copy = action.clone();
                 self.build(ctx, copy, key)
             }
         }
@@ -482,7 +484,7 @@ impl BtnBuilder {
 
     pub fn inactive(self, ctx: &EventCtx) -> Widget {
         match self {
-            BtnBuilder::TextFG(label, txt, _) => Widget::draw_batch(
+            BtnBuilder::TextFG(action, txt, _) => Widget::draw_batch(
                 ctx,
                 txt.change_fg(Color::grey(0.5))
                     .render(ctx)
@@ -493,12 +495,12 @@ impl BtnBuilder {
                     .to_geom(ctx, None)
                     .0,
             )
-            .named(label),
+            .named(action),
             // TODO This'll only work reasonably for text_bg2
             BtnBuilder::TextBG {
                 text,
                 unselected_bg_color,
-                label,
+                action,
                 ..
             } => {
                 assert_eq!(unselected_bg_color, Color::WHITE);
@@ -512,9 +514,9 @@ impl BtnBuilder {
                         .to_geom(ctx, None)
                         .0,
                 )
-                .named(label)
+                .named(action)
             }
-            BtnBuilder::PlainText { txt, label, .. } => Widget::draw_batch(
+            BtnBuilder::PlainText { txt, action, .. } => Widget::draw_batch(
                 ctx,
                 txt.change_fg(Color::grey(0.5))
                     .render(ctx)
@@ -524,7 +526,7 @@ impl BtnBuilder {
                     .to_geom(ctx, None)
                     .0,
             )
-            .named(label),
+            .named(action),
             _ => panic!("Can't use inactive on this kind of button"),
         }
     }
