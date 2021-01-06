@@ -12,7 +12,7 @@ use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS
 use sim::Sim;
 use widgetry::{
     lctrl, Btn, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, UpdateType,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, Text, UpdateType,
     VerticalAlignment, Widget,
 };
 
@@ -59,7 +59,7 @@ impl DebugMode {
                 Checkbox::switch(ctx, "show route for all agents", Key::R, false),
                 Widget::col(vec![
                     Btn::text_fg("unhide everything").build_def(ctx, lctrl(Key::H)),
-                    Btn::text_fg("screenshot everything").build_def(ctx, None),
+                    Btn::text_fg("screenshot everything (for leaflet)").build_def(ctx, None),
                     Btn::text_fg("screenshot all of the everything").build_def(ctx, None),
                     Btn::text_fg("search OSM metadata").build_def(ctx, Key::Slash),
                     Btn::text_fg("clear OSM search results").build_def(ctx, lctrl(Key::Slash)),
@@ -222,8 +222,8 @@ impl State<App> for DebugMode {
                     self.search_results = None;
                     self.reset_info(ctx);
                 }
-                "screenshot everything" => {
-                    screenshot_everything(ctx, app);
+                "screenshot everything (for leaflet)" => {
+                    screenshot_everything(ctx, app, ScreenDims::new(256.0, 256.0));
                     return Transition::Keep;
                 }
                 "screenshot all of the everything" => {
@@ -784,7 +784,7 @@ impl State<App> for ScreenshotTest {
             }
         } else {
             self.screenshot_done = true;
-            screenshot_everything(ctx, app);
+            screenshot_everything(ctx, app, ctx.canvas.get_window_dims());
             // TODO Sometimes this still gets stuck and needs a mouse wiggle for input event?
             Transition::Keep
         }
@@ -792,10 +792,11 @@ impl State<App> for ScreenshotTest {
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
-fn screenshot_everything(ctx: &mut EventCtx, app: &App) {
+fn screenshot_everything(ctx: &mut EventCtx, app: &App, dims: ScreenDims) {
     let name = app.primary.map.get_name();
     ctx.request_update(UpdateType::ScreenCaptureEverything {
         dir: format!("screenshots/{}/{}", name.city, name.map),
         zoom: 3.0,
+        dims,
     });
 }

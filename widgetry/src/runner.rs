@@ -124,7 +124,7 @@ impl<A: SharedAppState> State<A> {
         }
     }
 
-    // Returns naming hint. Logically consumes the number of uploads.
+    /// Returns naming hint. Logically consumes the number of uploads.
     pub(crate) fn draw(&mut self, prerender: &Prerender, screenshot: bool) -> Option<String> {
         let mut g = GfxCtx::new(prerender, &self.canvas, &self.style, screenshot);
 
@@ -358,8 +358,10 @@ pub fn run<
                     running = true;
                 }
                 UpdateType::Pan => {}
-                UpdateType::ScreenCaptureEverything { dir, zoom } => {
-                    if let Err(err) = screenshot_everything(&mut state, &dir, &prerender, zoom) {
+                UpdateType::ScreenCaptureEverything { dir, zoom, dims } => {
+                    if let Err(err) =
+                        screenshot_everything(&mut state, &dir, &prerender, zoom, dims)
+                    {
                         error!("Couldn't screenshot everything: {}", err);
                     }
                 }

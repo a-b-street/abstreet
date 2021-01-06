@@ -363,9 +363,9 @@ impl PrerenderInnards {
         self.window_adapter.draw_finished(gfc_ctx_innards)
     }
 
-    pub(crate) fn screencap(&self, canvas: &Canvas, filename: String) -> anyhow::Result<()> {
-        let width = canvas.window_width as u32;
-        let height = canvas.window_height as u32;
+    pub(crate) fn screencap(&self, dims: ScreenDims, filename: String) -> anyhow::Result<()> {
+        let width = dims.width as u32;
+        let height = dims.height as u32;
 
         let mut img = image::DynamicImage::new_rgba8(width, height);
         let pixels = img.as_mut_rgba8().unwrap();

@@ -1,7 +1,7 @@
 use abstutil::Timer;
 
 use crate::runner::State;
-use crate::{Prerender, SharedAppState};
+use crate::{Prerender, ScreenDims, SharedAppState};
 
 /// Take a screenshot of the entire canvas, tiling it based on the window's width and height.
 pub(crate) fn screenshot_everything<A: SharedAppState>(
@@ -9,10 +9,19 @@ pub(crate) fn screenshot_everything<A: SharedAppState>(
     dir_path: &str,
     prerender: &Prerender,
     zoom: f64,
+    dims: ScreenDims,
 ) -> anyhow::Result<()> {
+    if dims.width > state.canvas.window_width || dims.height > state.canvas.window_height {
+        bail!(
+            "Can't take screenshots of dims {:?} when the window is only {:?}",
+            dims,
+            state.canvas.get_window_dims()
+        );
+    }
+
     let mut timer = Timer::new("capturing screen");
-    let num_tiles_x = (state.canvas.map_dims.0 * zoom / state.canvas.window_width).ceil() as usize;
-    let num_tiles_y = (state.canvas.map_dims.1 * zoom / state.canvas.window_height).ceil() as usize;
+    let num_tiles_x = (state.canvas.map_dims.0 * zoom / dims.width).ceil() as usize;
+    let num_tiles_y = (state.canvas.map_dims.1 * zoom / dims.height).ceil() as usize;
     let orig_zoom = state.canvas.cam_zoom;
     let orig_x = state.canvas.cam_x;
     let orig_y = state.canvas.cam_y;
@@ -26,8 +35,8 @@ pub(crate) fn screenshot_everything<A: SharedAppState>(
     for tile_y in 0..num_tiles_y {
         for tile_x in 0..num_tiles_x {
             timer.next();
-            state.canvas.cam_x = (tile_x as f64) * state.canvas.window_width;
-            state.canvas.cam_y = (tile_y as f64) * state.canvas.window_height;
+            state.canvas.cam_x = (tile_x as f64) * dims.width;
+            state.canvas.cam_y = (tile_y as f64) * dims.height;
 
             let suffix = state.draw(prerender, true).unwrap_or_else(String::new);
             let filename = format!(
@@ -37,7 +46,7 @@ pub(crate) fn screenshot_everything<A: SharedAppState>(
                 tile_y + 1,
                 suffix
             );
-            prerender.inner.screencap(&state.canvas, filename)?;
+            prerender.inner.screencap(dims, filename)?;
         }
     }
 

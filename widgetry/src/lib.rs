@@ -26,6 +26,8 @@
 //#![warn(missing_docs)]
 
 #[macro_use]
+extern crate anyhow;
+#[macro_use]
 extern crate log;
 
 pub use crate::app_state::{DrawBaselayer, SharedAppState, SimpleState, State, Transition};
