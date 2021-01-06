@@ -261,6 +261,10 @@
 <span id="258">258</span>
 <span id="259">259</span>
 <span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
 
@@ -279,7 +283,11 @@
     <span class="ident">InputOnly</span>,
     <span class="ident">Game</span>,
     <span class="ident">Pan</span>,
-    <span class="ident">ScreenCaptureEverything</span> { <span class="ident">dir</span>: <span class="ident">String</span>, <span class="ident">zoom</span>: <span class="ident">f64</span> },
+    <span class="ident">ScreenCaptureEverything</span> {
+        <span class="ident">dir</span>: <span class="ident">String</span>,
+        <span class="ident">zoom</span>: <span class="ident">f64</span>,
+        <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
+    },
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {

@@ -802,6 +802,7 @@
 <span id="799">799</span>
 <span id="800">800</span>
 <span id="801">801</span>
+<span id="802">802</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -817,7 +818,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">Sim</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Cached</span>, <span class="ident">Checkbox</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
-    <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>,
+    <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -864,7 +865,7 @@
                 <span class="ident">Checkbox</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show route for all agents&quot;</span>, <span class="ident">Key</span>::<span class="ident">R</span>, <span class="bool-val">false</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;unhide everything&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">H</span>)),
-                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;screenshot everything&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;screenshot everything (for leaflet)&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;screenshot all of the everything&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;search OSM metadata&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">Slash</span>),
                     <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;clear OSM search results&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Slash</span>)),
@@ -1027,8 +1028,8 @@
                     <span class="self">self</span>.<span class="ident">search_results</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     <span class="self">self</span>.<span class="ident">reset_info</span>(<span class="ident">ctx</span>);
                 }
-                <span class="string">&quot;screenshot everything&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="string">&quot;screenshot everything (for leaflet)&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">256.0</span>, <span class="number">256.0</span>));
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
                 <span class="string">&quot;screenshot all of the everything&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1589,7 +1590,7 @@
             }
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">screenshot_done</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_window_dims</span>());
             <span class="comment">// TODO Sometimes this still gets stuck and needs a mouse wiggle for input event?</span>
             <span class="ident">Transition</span>::<span class="ident">Keep</span>
         }
@@ -1597,11 +1598,12 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {}
 }
 
-<span class="kw">fn</span> <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+<span class="kw">fn</span> <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">dims</span>: <span class="ident">ScreenDims</span>) {
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>();
     <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">ScreenCaptureEverything</span> {
         <span class="ident">dir</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;screenshots/{}/{}&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>),
         <span class="ident">zoom</span>: <span class="number">3.0</span>,
+        <span class="ident">dims</span>,
     });
 }
 </pre></div>
