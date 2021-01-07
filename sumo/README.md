@@ -17,6 +17,14 @@ A quick SUMO primer. To convert an OSM file into a SUMO network:
 
 `netconvert --osm-files data/input/seattle/osm/montlake.osm --output.street-names --keep-edges.components 1 -o montlake.net.xml`
 
+To generate random trips and compute the routes for them:
+
+`/usr/share/sumo/tools/randomTrips.py -n montlake.net.xml -r routes.xml`
+
+To simulate these in SUMO:
+
+`sumo-gui -r routes.xml -n montlake.net.xml`
+
 To convert the network into an ABST map:
 
 `cargo run --bin sumo montlake.net.xml`
