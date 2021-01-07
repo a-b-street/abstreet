@@ -597,6 +597,7 @@
 <span id="594">594</span>
 <span id="595">595</span>
 <span id="596">596</span>
+<span id="597">597</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
@@ -972,6 +973,7 @@
 
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">pixel_store_i32</span>(<span class="ident">glow</span>::<span class="ident">PACK_ALIGNMENT</span>, <span class="number">1</span>);
+            <span class="comment">// TODO This starts at lower-left, I think we need to use window height here</span>
             <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">read_pixels</span>(
                 <span class="number">0</span>,
                 <span class="number">0</span>,

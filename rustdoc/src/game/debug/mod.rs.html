@@ -803,6 +803,27 @@
 <span id="800">800</span>
 <span id="801">801</span>
 <span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1029,7 +1050,7 @@
                     <span class="self">self</span>.<span class="ident">reset_info</span>(<span class="ident">ctx</span>);
                 }
                 <span class="string">&quot;screenshot everything (for leaflet)&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">256.0</span>, <span class="number">256.0</span>));
+                    <span class="ident">export_for_leaflet</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
                 }
                 <span class="string">&quot;screenshot all of the everything&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1558,10 +1579,13 @@
 <span class="kw">struct</span> <span class="ident">ScreenshotTest</span> {
     <span class="ident">todo_maps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span>,
     <span class="ident">screenshot_done</span>: <span class="ident">bool</span>,
+    <span class="ident">orig_min_zoom</span>: <span class="ident">f64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ScreenshotTest</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">mut</span> <span class="ident">todo_maps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="kw-2">mut</span> <span class="ident">todo_maps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">orig_min_zoom</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>;
+        <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">0.0</span>;
         <span class="ident">MapLoader</span>::<span class="ident">new</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
@@ -1570,6 +1594,7 @@
                 <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ScreenshotTest</span> {
                     <span class="ident">todo_maps</span>,
                     <span class="ident">screenshot_done</span>: <span class="bool-val">false</span>,
+                    <span class="ident">orig_min_zoom</span>,
                 }))
             }),
         )
@@ -1580,6 +1605,7 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">screenshot_done</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">todo_maps</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">orig_min_zoom</span>;
                 <span class="ident">Transition</span>::<span class="ident">Pop</span>
             } <span class="kw">else</span> {
                 <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ScreenshotTest</span>::<span class="ident">new</span>(
@@ -1590,7 +1616,13 @@
             }
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">screenshot_done</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_window_dims</span>());
+            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>();
+            <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">ScreenCaptureEverything</span> {
+                <span class="ident">dir</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;screenshots/{}/{}&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>),
+                <span class="ident">zoom</span>: <span class="number">3.0</span>,
+                <span class="ident">dims</span>: <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_window_dims</span>(),
+                <span class="ident">leaflet_naming</span>: <span class="bool-val">false</span>,
+            });
             <span class="comment">// TODO Sometimes this still gets stuck and needs a mouse wiggle for input event?</span>
             <span class="ident">Transition</span>::<span class="ident">Keep</span>
         }
@@ -1598,13 +1630,23 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {}
 }
 
-<span class="kw">fn</span> <span class="ident">screenshot_everything</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">dims</span>: <span class="ident">ScreenDims</span>) {
+<span class="kw">fn</span> <span class="ident">export_for_leaflet</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>();
-    <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">ScreenCaptureEverything</span> {
-        <span class="ident">dir</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;screenshots/{}/{}&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>),
-        <span class="ident">zoom</span>: <span class="number">3.0</span>,
-        <span class="ident">dims</span>,
-    });
+    <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>();
+    <span class="kw">let</span> <span class="ident">map_length</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">width</span>().<span class="ident">max</span>(<span class="ident">bounds</span>.<span class="ident">height</span>());
+
+    <span class="comment">// At zoom level N, the entire map fits into (N + 1) * (N + 1) tiles</span>
+    <span class="kw">for</span> <span class="ident">zoom_level</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="number">25</span> {
+        <span class="kw">let</span> <span class="ident">num_tiles</span> <span class="op">=</span> <span class="ident">zoom_level</span> <span class="op">+</span> <span class="number">1</span>;
+        <span class="comment">// How do we fit the entire map_length into this many tiles?</span>
+        <span class="kw">let</span> <span class="ident">zoom</span> <span class="op">=</span> <span class="number">256.0</span> <span class="op">*</span> (<span class="ident">num_tiles</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">map_length</span>;
+        <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">ScreenCaptureEverything</span> {
+            <span class="ident">dir</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;screenshots/{}/{}/{}&quot;</span>, <span class="ident">name</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">zoom_level</span>),
+            <span class="ident">zoom</span>,
+            <span class="ident">dims</span>: <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">256.0</span>, <span class="number">256.0</span>),
+            <span class="ident">leaflet_naming</span>: <span class="bool-val">true</span>,
+        });
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "game";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

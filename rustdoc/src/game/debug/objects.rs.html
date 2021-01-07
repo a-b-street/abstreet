@@ -108,6 +108,10 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">PathConstraints</span>};
@@ -129,6 +133,10 @@
                 ));
                 <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>())));
                 <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;zoom: {}&quot;</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>)));
+                <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="string">&quot;cam_x = {}, cam_y = {}&quot;</span>,
+                    <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span>
+                )));
                 <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>);
             }
         }
