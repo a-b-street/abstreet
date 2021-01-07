@@ -968,19 +968,15 @@ fn allow_block_the_box(i: &Intersection) -> bool {
 
     // TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity.
     // Workaround for now.
+    //
+    // When adding new cases:
+    // 1) Organize by which map the intersection fixes
+    // 2) Ensure a prebaked scenario covers this, to track regressions and make sure it actually
+    //    helps.
     let id = i.orig_id.0;
-    // 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison,
-    // Green Lake Way N and 50th, Green Lake Way and N 64th
-    id == 53211693
-        || id == 53214134
-        || id == 53214133
-        || id == 53165712
-        || id == 53209840
-        || id == 4249361353
-        || id == 987334546
-        || id == 848817336
-        || id == 3393025729
-        || id == 59995197
-        || id == 53077575
-        || id == 2632986818
+    // lakeslice
+    if id == 53211693 || id == 53214134 || id == 53214133 || id == 987334546 || id == 848817336 {
+        return true;
+    }
+    false
 }
