@@ -1,4 +1,3 @@
-use abstutil::Timer;
 use geom::Duration;
 use map_gui::tools::ChooseSomething;
 use map_model::{
@@ -184,7 +183,6 @@ pub fn edit_entire_signal(
                 Choice::from(ControlTrafficSignal::get_possible_policies(
                     &app.primary.map,
                     i,
-                    &mut Timer::throwaway(),
                 )),
                 Box::new(move |new_signal, _, _| {
                     Transition::Multi(vec![
@@ -247,13 +245,10 @@ pub fn edit_entire_signal(
                 Transition::Pop,
                 Transition::ModifyState(Box::new(move |state, ctx, app| {
                     let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                    let new_signal = ControlTrafficSignal::get_possible_policies(
-                        &app.primary.map,
-                        i,
-                        &mut Timer::throwaway(),
-                    )
-                    .remove(0)
-                    .1;
+                    let new_signal =
+                        ControlTrafficSignal::get_possible_policies(&app.primary.map, i)
+                            .remove(0)
+                            .1;
                     editor.add_new_edit(ctx, app, 0, |ts| {
                         *ts = new_signal.clone();
                     });

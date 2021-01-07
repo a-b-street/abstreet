@@ -669,12 +669,7 @@ fn find_bad_signals(app: &App) {
     println!("Bad traffic signals:");
     for i in app.primary.map.all_intersections() {
         if i.is_traffic_signal() {
-            let first = &ControlTrafficSignal::get_possible_policies(
-                &app.primary.map,
-                i.id,
-                &mut Timer::throwaway(),
-            )[0]
-            .0;
+            let first = &ControlTrafficSignal::get_possible_policies(&app.primary.map, i.id)[0].0;
             if first == "stage per road" || first == "arbitrary assignment" {
                 println!("- {}", i.id);
                 ControlTrafficSignal::brute_force(&app.primary.map, i.id);

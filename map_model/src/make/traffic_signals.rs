@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 
-use abstutil::Timer;
 use geom::Duration;
 
 use crate::{
@@ -11,31 +10,25 @@ use crate::{
 /// Applies a bunch of heuristics to a single intersection, returning the valid results in
 /// best-first order. The signal configuration is only based on the roads connected to the
 /// intersection.
-pub fn get_possible_policies(
-    map: &Map,
-    id: IntersectionID,
-    timer: &mut Timer,
-) -> Vec<(String, ControlTrafficSignal)> {
+pub fn get_possible_policies(map: &Map, id: IntersectionID) -> Vec<(String, ControlTrafficSignal)> {
     let mut results = Vec::new();
 
-    // TODO Cache with lazy_static. Don't serialize in Map; the repo of signal data may evolve
-    // independently.
     if let Some(raw) = traffic_signal_data::load_all_data()
         .unwrap()
         .remove(&map.get_i(id).orig_id.0)
     {
         match ControlTrafficSignal::import(raw, id, map) {
             Ok(ts) => {
-                results.push(("hand-mapped current real settings".to_string(), ts));
+                results.push(("manually specified settings".to_string(), ts));
             }
             Err(err) => {
                 let i = map.get_i(id);
-                timer.error(format!(
+                panic!(
                     "traffic_signal_data data for {} ({}) out of date, go update it: {}",
                     i.orig_id,
                     i.name(None, map),
                     err
-                ));
+                );
             }
         }
     }
