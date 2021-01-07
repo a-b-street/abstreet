@@ -372,6 +372,7 @@ impl PrerenderInnards {
 
         unsafe {
             self.gl.pixel_store_i32(glow::PACK_ALIGNMENT, 1);
+            // TODO This starts at lower-left, I think we need to use window height here
             self.gl.read_pixels(
                 0,
                 0,

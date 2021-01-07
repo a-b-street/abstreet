@@ -136,7 +136,7 @@ impl App {
         g.clear(self.cs.void_background);
         g.redraw(&draw_map.boundary_polygon);
 
-        if g.canvas.cam_zoom < self.opts.min_zoom_for_detail && !g.is_screencap() {
+        if g.canvas.cam_zoom < self.opts.min_zoom_for_detail {
             // Unzoomed mode
             let layers = show_objs.layers();
             if layers.show_areas {

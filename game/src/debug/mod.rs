@@ -223,7 +223,7 @@ impl State<App> for DebugMode {
                     self.reset_info(ctx);
                 }
                 "screenshot everything (for leaflet)" => {
-                    screenshot_everything(ctx, app, ScreenDims::new(256.0, 256.0));
+                    export_for_leaflet(ctx, app);
                     return Transition::Keep;
                 }
                 "screenshot all of the everything" => {
@@ -752,10 +752,13 @@ fn find_large_intersections(app: &App) {
 struct ScreenshotTest {
     todo_maps: Vec<MapName>,
     screenshot_done: bool,
+    orig_min_zoom: f64,
 }
 
 impl ScreenshotTest {
-    fn new(ctx: &mut EventCtx, app: &App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
+    fn new(ctx: &mut EventCtx, app: &mut App, mut todo_maps: Vec<MapName>) -> Box<dyn State<App>> {
+        let orig_min_zoom = app.opts.min_zoom_for_detail;
+        app.opts.min_zoom_for_detail = 0.0;
         MapLoader::new(
             ctx,
             app,
@@ -764,6 +767,7 @@ impl ScreenshotTest {
                 Transition::Replace(Box::new(ScreenshotTest {
                     todo_maps,
                     screenshot_done: false,
+                    orig_min_zoom,
                 }))
             }),
         )
@@ -774,6 +778,7 @@ impl State<App> for ScreenshotTest {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if self.screenshot_done {
             if self.todo_maps.is_empty() {
+                app.opts.min_zoom_for_detail = self.orig_min_zoom;
                 Transition::Pop
             } else {
                 Transition::Replace(ScreenshotTest::new(
@@ -784,7 +789,13 @@ impl State<App> for ScreenshotTest {
             }
         } else {
             self.screenshot_done = true;
-            screenshot_everything(ctx, app, ctx.canvas.get_window_dims());
+            let name = app.primary.map.get_name();
+            ctx.request_update(UpdateType::ScreenCaptureEverything {
+                dir: format!("screenshots/{}/{}", name.city, name.map),
+                zoom: 3.0,
+                dims: ctx.canvas.get_window_dims(),
+                leaflet_naming: false,
+            });
             // TODO Sometimes this still gets stuck and needs a mouse wiggle for input event?
             Transition::Keep
         }
@@ -792,11 +803,21 @@ impl State<App> for ScreenshotTest {
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
-fn screenshot_everything(ctx: &mut EventCtx, app: &App, dims: ScreenDims) {
+fn export_for_leaflet(ctx: &mut EventCtx, app: &App) {
     let name = app.primary.map.get_name();
-    ctx.request_update(UpdateType::ScreenCaptureEverything {
-        dir: format!("screenshots/{}/{}", name.city, name.map),
-        zoom: 3.0,
-        dims,
-    });
+    let bounds = app.primary.map.get_bounds();
+    let map_length = bounds.width().max(bounds.height());
+
+    // At zoom level N, the entire map fits into (N + 1) * (N + 1) tiles
+    for zoom_level in 0..=25 {
+        let num_tiles = zoom_level + 1;
+        // How do we fit the entire map_length into this many tiles?
+        let zoom = 256.0 * (num_tiles as f64) / map_length;
+        ctx.request_update(UpdateType::ScreenCaptureEverything {
+            dir: format!("screenshots/{}/{}/{}", name.city, name.map, zoom_level),
+            zoom,
+            dims: ScreenDims::new(256.0, 256.0),
+            leaflet_naming: true,
+        });
+    }
 }
