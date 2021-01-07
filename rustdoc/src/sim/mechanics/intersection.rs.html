@@ -983,10 +983,6 @@
 <span id="980">980</span>
 <span id="981">981</span>
 <span id="982">982</span>
-<span id="983">983</span>
-<span id="984">984</span>
-<span id="985">985</span>
-<span id="986">986</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1958,21 +1954,17 @@
 
     <span class="comment">// TODO Sometimes a traffic signal is surrounded by tiny lanes with almost no capacity.</span>
     <span class="comment">// Workaround for now.</span>
+    <span class="comment">//</span>
+    <span class="comment">// When adding new cases:</span>
+    <span class="comment">// 1) Organize by which map the intersection fixes</span>
+    <span class="comment">// 2) Ensure a prebaked scenario covers this, to track regressions and make sure it actually</span>
+    <span class="comment">//    helps.</span>
     <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>;
-    <span class="comment">// 23rd and Madison, Madison and John, Boren and 12th, Boren and Yesler, Lake Wash and Madison,</span>
-    <span class="comment">// Green Lake Way N and 50th, Green Lake Way and N 64th</span>
-    <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53211693</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53214134</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53214133</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53165712</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53209840</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">4249361353</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">987334546</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">848817336</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">3393025729</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">59995197</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53077575</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">2632986818</span>
+    <span class="comment">// lakeslice</span>
+    <span class="kw">if</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53211693</span> <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53214134</span> <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">53214133</span> <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">987334546</span> <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="number">848817336</span> {
+        <span class="kw">return</span> <span class="bool-val">true</span>;
+    }
+    <span class="bool-val">false</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "sim";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
