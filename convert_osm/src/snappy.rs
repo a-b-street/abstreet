@@ -10,15 +10,6 @@ use map_model::{osm, Direction};
 
 /// Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.
 pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
-    if map.name.city == "oneshot" {
-        return;
-    }
-
-    // TODO Hack! Fix upstream problems.
-    if map.name.city == "xian" {
-        return;
-    }
-
     // TODO The output here is nondeterministic and I haven't figured out why. Instead of spurious
     // data diffs, just totally disable this experiment for now. Will fix when this becomes active
     // work again.

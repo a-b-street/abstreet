@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use osm::{NodeID, OsmID, RelationID, WayID};
 
+use abstio::MapName;
 use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
@@ -160,10 +161,10 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         }
     }
 
-    if map.name.city != "oneshot"
-        && ((map.name.city == "seattle" && map.name.map == "huge_seattle")
-            || map.name.city != "seattle")
-    {
+    // Since we're not actively working on using footways and service roads, stop generating except
+    // in Seattle. In the future, this should only happen for the largest or canonical map per
+    // city, but there's no way to express that right now.
+    if map.name == MapName::seattle("huge_seattle") {
         abstio::write_binary(
             abstio::path(format!("input/{}/footways.bin", map.name.city)),
             &extra_footways,

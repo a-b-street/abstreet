@@ -1,10 +1,5 @@
 {
   "entries": {
-    "data/input/bellevue/footways.bin": {
-      "checksum": "444909a7fbe3ce1a8f3cd4da0b4ab94f",
-      "uncompressed_size_bytes": 3699412,
-      "compressed_size_bytes": 796344
-    },
     "data/input/bellevue/osm/huge.osm": {
       "checksum": "ef54ab4ff049b29f92331e8c1202372a",
       "uncompressed_size_bytes": 48442449,
@@ -15,20 +10,10 @@
       "uncompressed_size_bytes": 8773874,
       "compressed_size_bytes": 2490377
     },
-    "data/input/bellevue/service_roads.bin": {
-      "checksum": "443aa73676b3c2ddfcda5ea15aa044f2",
-      "uncompressed_size_bytes": 1151940,
-      "compressed_size_bytes": 408184
-    },
     "data/input/berlin/EWR201812E_Matrix.csv": {
       "checksum": "7966d3e37c45e7ffa4ee26bb6c8cec28",
       "uncompressed_size_bytes": 89337,
       "compressed_size_bytes": 36453
-    },
-    "data/input/berlin/footways.bin": {
-      "checksum": "19d6608e9bc85800706e004e4530a81b",
-      "uncompressed_size_bytes": 1286097,
-      "compressed_size_bytes": 387197
     },
     "data/input/berlin/osm/berlin-latest.osm.pbf": {
       "checksum": "8e7f5ecf37631bb975f062593c5add99",
@@ -55,16 +40,6 @@
       "uncompressed_size_bytes": 9955969,
       "compressed_size_bytes": 2830704
     },
-    "data/input/berlin/service_roads.bin": {
-      "checksum": "be06e4b4136771f8e03a2ba7a5f9b8cd",
-      "uncompressed_size_bytes": 445108,
-      "compressed_size_bytes": 122720
-    },
-    "data/input/krakow/footways.bin": {
-      "checksum": "0102f8916948fa76a1c56f0c4288243a",
-      "uncompressed_size_bytes": 66755,
-      "compressed_size_bytes": 25780
-    },
     "data/input/krakow/osm/center.osm": {
       "checksum": "e64103d37a7009d96f7d8a653db02deb",
       "uncompressed_size_bytes": 56598855,
@@ -85,11 +60,6 @@
       "uncompressed_size_bytes": 26818019,
       "compressed_size_bytes": 26812853
     },
-    "data/input/krakow/service_roads.bin": {
-      "checksum": "13e14676cf8538325c7f7898de0ca75b",
-      "uncompressed_size_bytes": 441864,
-      "compressed_size_bytes": 133168
-    },
     "data/input/leeds/Road Safety Data - Accidents 2019.csv": {
       "checksum": "ce30e6f7743be7b451e298583c65f99a",
       "uncompressed_size_bytes": 16138801,
@@ -99,11 +69,6 @@
       "checksum": "7d478dc42993c71bea4eacf70ffa244a",
       "uncompressed_size_bytes": 28899,
       "compressed_size_bytes": 17209
-    },
-    "data/input/leeds/footways.bin": {
-      "checksum": "95961d499e97b049e620f145eb58c7c8",
-      "uncompressed_size_bytes": 1907052,
-      "compressed_size_bytes": 750759
     },
     "data/input/leeds/osm/central.osm": {
       "checksum": "579b491a9db624131df50e2f336f20b5",
@@ -150,11 +115,6 @@
       "uncompressed_size_bytes": 14637828,
       "compressed_size_bytes": 3413808
     },
-    "data/input/leeds/service_roads.bin": {
-      "checksum": "8588e5f3dda5d53903da869026ba1773",
-      "uncompressed_size_bytes": 1376915,
-      "compressed_size_bytes": 486783
-    },
     "data/input/london/Road Safety Data - Accidents 2019.csv": {
       "checksum": "ce30e6f7743be7b451e298583c65f99a",
       "uncompressed_size_bytes": 16138801,
@@ -164,11 +124,6 @@
       "checksum": "f206f015c8d70b0a5185229b8d4656df",
       "uncompressed_size_bytes": 13527,
       "compressed_size_bytes": 8222
-    },
-    "data/input/london/footways.bin": {
-      "checksum": "95816ac4d77d857c561a61830d1998a0",
-      "uncompressed_size_bytes": 473929,
-      "compressed_size_bytes": 145714
     },
     "data/input/london/osm/greater-london-latest.osm.pbf": {
       "checksum": "ef110d0831b482bb7336c82e36b115ed",
@@ -189,16 +144,6 @@
       "checksum": "95a55d5884d98e370bcec24b2cb09fee",
       "uncompressed_size_bytes": 7142289,
       "compressed_size_bytes": 7141827
-    },
-    "data/input/london/service_roads.bin": {
-      "checksum": "4f651a450d9d6b73618db015c34a03ad",
-      "uncompressed_size_bytes": 99666,
-      "compressed_size_bytes": 32656
-    },
-    "data/input/nyc/footways.bin": {
-      "checksum": "58a6a3fcc2f3c7d9a85335ec8c5bfaac",
-      "uncompressed_size_bytes": 436756,
-      "compressed_size_bytes": 131426
     },
     "data/input/nyc/osm/lower_manhattan.osm": {
       "checksum": "09bf8cdb40474741b58e74f4c486a69e",
@@ -224,16 +169,6 @@
       "checksum": "1374a11f6e2751bfbd7181644b8c0341",
       "uncompressed_size_bytes": 8823093,
       "compressed_size_bytes": 2046889
-    },
-    "data/input/nyc/service_roads.bin": {
-      "checksum": "41b6584f2c0af6324047e84995785132",
-      "uncompressed_size_bytes": 83733,
-      "compressed_size_bytes": 27077
-    },
-    "data/input/paris/footways.bin": {
-      "checksum": "8197a29367a323022a7d57338fc5fe5b",
-      "uncompressed_size_bytes": 834703,
-      "compressed_size_bytes": 313102
     },
     "data/input/paris/osm/center.osm": {
       "checksum": "224841aa32fafd0212b0b2e3cc200e9a",
@@ -290,16 +225,6 @@
       "uncompressed_size_bytes": 23780627,
       "compressed_size_bytes": 6670865
     },
-    "data/input/paris/service_roads.bin": {
-      "checksum": "611fd252dc503d8ff7f4c62182821c85",
-      "uncompressed_size_bytes": 241244,
-      "compressed_size_bytes": 76820
-    },
-    "data/input/salzburg/footways.bin": {
-      "checksum": "44083ff1b9ebe01c84d2545e427d8ae2",
-      "uncompressed_size_bytes": 501316,
-      "compressed_size_bytes": 170039
-    },
     "data/input/salzburg/osm/austria-latest.osm.pbf": {
       "checksum": "53a70dc6134b6370502218b9f2f5ecf2",
       "uncompressed_size_bytes": 631097048,
@@ -344,11 +269,6 @@
       "checksum": "c50ba43c1e73d7c4206428ae7385a4cd",
       "uncompressed_size_bytes": 8498059,
       "compressed_size_bytes": 2272085
-    },
-    "data/input/salzburg/service_roads.bin": {
-      "checksum": "6d2bdc62eb7ae9cc8ce57714b086ae09",
-      "uncompressed_size_bytes": 527270,
-      "compressed_size_bytes": 175067
     },
     "data/input/seattle/N47W122.hgt": {
       "checksum": "0db4e23e51f7680538b0bbbc72208e07",
@@ -660,11 +580,6 @@
       "uncompressed_size_bytes": 777469024,
       "compressed_size_bytes": 59701039
     },
-    "data/input/tel_aviv/footways.bin": {
-      "checksum": "4fb70e32d0cc3ddeaa8924c240bc9d5b",
-      "uncompressed_size_bytes": 544579,
-      "compressed_size_bytes": 189294
-    },
     "data/input/tel_aviv/osm/center.osm": {
       "checksum": "eeb7f3813a33f754eceed13766a3c236",
       "uncompressed_size_bytes": 43912053,
@@ -680,16 +595,6 @@
       "uncompressed_size_bytes": 12342168,
       "compressed_size_bytes": 2753908
     },
-    "data/input/tel_aviv/service_roads.bin": {
-      "checksum": "216407d6f112683e81973fbb11af6403",
-      "uncompressed_size_bytes": 208181,
-      "compressed_size_bytes": 68767
-    },
-    "data/input/xian/footways.bin": {
-      "checksum": "425becbab867631415fe49edcf8f9694",
-      "uncompressed_size_bytes": 233914,
-      "compressed_size_bytes": 90010
-    },
     "data/input/xian/osm/center.osm": {
       "checksum": "4084c665ad947bb40173a43cb33fdec8",
       "uncompressed_size_bytes": 26198743,
@@ -704,11 +609,6 @@
       "checksum": "40e30cf6e1ca4ae7d3ff6ddb77382000",
       "uncompressed_size_bytes": 12038515,
       "compressed_size_bytes": 2308943
-    },
-    "data/input/xian/service_roads.bin": {
-      "checksum": "c9a1a296817cfbd6c64dbe0d3389c40a",
-      "uncompressed_size_bytes": 249765,
-      "compressed_size_bytes": 94119
     },
     "data/system/bellevue/maps/huge.bin": {
       "checksum": "53c6c68c1fabf6849b9a22195baf4fac",
