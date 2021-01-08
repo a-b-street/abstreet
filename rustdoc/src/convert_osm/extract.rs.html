@@ -556,11 +556,13 @@
 <span id="553">553</span>
 <span id="554">554</span>
 <span id="555">555</span>
+<span id="556">556</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
 
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">HashablePt2D</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
@@ -719,10 +721,10 @@
         }
     }
 
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;oneshot&quot;</span>
-        <span class="op">&amp;&amp;</span> ((<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;seattle&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;huge_seattle&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;seattle&quot;</span>)
-    {
+    <span class="comment">// Since we&#39;re not actively working on using footways and service roads, stop generating except</span>
+    <span class="comment">// in Seattle. In the future, this should only happen for the largest or canonical map per</span>
+    <span class="comment">// city, but there&#39;s no way to express that right now.</span>
+    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>) {
         <span class="ident">abstio</span>::<span class="ident">write_binary</span>(
             <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;input/{}/footways.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>)),
             <span class="kw-2">&amp;</span><span class="ident">extra_footways</span>,

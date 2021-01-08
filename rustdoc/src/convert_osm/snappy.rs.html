@@ -169,15 +169,6 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -191,15 +182,6 @@
 
 <span class="doccomment">/// Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">snap_cycleways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;oneshot&quot;</span> {
-        <span class="kw">return</span>;
-    }
-
-    <span class="comment">// TODO Hack! Fix upstream problems.</span>
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;xian&quot;</span> {
-        <span class="kw">return</span>;
-    }
-
     <span class="comment">// TODO The output here is nondeterministic and I haven&#39;t figured out why. Instead of spurious</span>
     <span class="comment">// data diffs, just totally disable this experiment for now. Will fix when this becomes active</span>
     <span class="comment">// work again.</span>
