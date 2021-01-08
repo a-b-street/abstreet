@@ -156,7 +156,11 @@ fn main() {
 
                 match job.city.as_ref() {
                     "berlin" => berlin::import_extra_data(&raw, &config, &mut timer),
-                    "leeds" => leeds::import_extra_data(&raw, &config, &mut timer),
+                    "leeds" => {
+                        if name == "huge" {
+                            leeds::import_extra_data(&raw, &config, &mut timer);
+                        }
+                    }
                     "london" => london::import_extra_data(&raw, &config, &mut timer),
                     _ => {}
                 }

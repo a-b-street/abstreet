@@ -139,7 +139,7 @@ pub fn raw_to_map(
     timer.stop(format!("Raw->Map for {}", name.describe()));
 
     // TODO Just sticking this here for now
-    if name.map == "huge_seattle" {
+    if name.map == "huge_seattle" || name == &MapName::new("leeds", "huge") {
         timer.start("generating city manifest");
         abstio::write_binary(
             abstio::path(format!("system/{}/city.bin", map.get_city_name())),
