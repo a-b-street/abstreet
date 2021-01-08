@@ -6,7 +6,7 @@
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration};
-use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg};
+use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, Navigator, PopupMsg};
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
@@ -151,6 +151,9 @@ impl State<App> for Viewer {
                             "We're working to improve the accuracy of the map.",
                         ],
                     ));
+                }
+                "search" => {
+                    return Transition::Push(Navigator::new(ctx, app));
                 }
                 "Find your perfect home" => {
                     return Transition::Push(FindHome::new(ctx, self.isochrone.options.clone()));
@@ -325,7 +328,10 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
 
     rows.push(options_to_controls(ctx, &isochrone.options));
     rows.push(Btn::text_bg1("Find your perfect home").build_def(ctx, None));
-    rows.push(Btn::plaintext("About").build_def(ctx, None));
+    rows.push(Widget::row(vec![
+        Btn::plaintext("About").build_def(ctx, None),
+        Btn::svg_def("system/assets/tools/search.svg").build(ctx, "search", lctrl(Key::F)),
+    ]));
 
     Panel::new(Widget::col(rows))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
