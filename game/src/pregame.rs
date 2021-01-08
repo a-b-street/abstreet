@@ -348,7 +348,7 @@ impl Proposals {
             } else {
                 buttons.push(
                     Btn::text_bg2(&edits.proposal_description[0])
-                        .tooltip(Text::new())
+                        .no_tooltip()
                         .build(ctx, &name, None)
                         .margin_below(10),
                 );

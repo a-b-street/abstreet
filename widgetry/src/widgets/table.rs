@@ -261,7 +261,7 @@ fn make_table(
 
         col.push(
             Btn::custom(batch, hovered, rect, None)
-                .tooltip(Text::new())
+                .no_tooltip()
                 .build(ctx, label, None),
         );
     }

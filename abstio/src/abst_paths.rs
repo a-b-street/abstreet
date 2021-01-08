@@ -92,13 +92,16 @@ impl MapName {
         format!("{}_{}", self.city, self.map)
     }
 
-    /// Transforms a path to a map back to a MapName. Crashes if the input is strange.
-    pub fn from_path(path: &str) -> MapName {
+    /// Transforms a path to a map back to a MapName. Returns `None` if the input is strange.
+    pub fn from_path(path: &str) -> Option<MapName> {
         // TODO regex
         let parts = path.split("/").collect::<Vec<_>>();
+        if parts.len() < 3 {
+            return None;
+        }
         let city = parts[parts.len() - 3];
         let map = basename(parts[parts.len() - 1]);
-        MapName::new(city, &map)
+        Some(MapName::new(city, &map))
     }
 
     /// Returns the filesystem path to this map.
@@ -106,16 +109,32 @@ impl MapName {
         path(format!("system/{}/maps/{}.bin", self.city, self.map))
     }
 
-    /// Returns all maps from all cities.
-    pub fn list_all_maps() -> Vec<MapName> {
-        let mut names = Vec::new();
+    /// Returns all city names.
+    pub fn list_all_cities() -> Vec<String> {
+        let mut cities = Vec::new();
         for city in list_all_objects(path("system")) {
             if city == "assets" || city == "proposals" {
                 continue;
             }
-            for map in list_all_objects(path(format!("system/{}/maps", city))) {
-                names.push(MapName::new(&city, &map));
-            }
+            cities.push(city);
+        }
+        cities
+    }
+
+    /// Returns all maps from one city.
+    pub fn list_all_maps_in_city(city: &str) -> Vec<MapName> {
+        let mut names = Vec::new();
+        for map in list_all_objects(path(format!("system/{}/maps", city))) {
+            names.push(MapName::new(&city, &map));
+        }
+        names
+    }
+
+    /// Returns all maps from all cities.
+    pub fn list_all_maps() -> Vec<MapName> {
+        let mut names = Vec::new();
+        for city in MapName::list_all_cities() {
+            names.extend(MapName::list_all_maps_in_city(&city));
         }
         names
     }

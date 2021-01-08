@@ -331,6 +331,10 @@ impl BtnBuilder {
         self
     }
 
+    pub fn no_tooltip(self) -> BtnBuilder {
+        self.tooltip(Text::new())
+    }
+
     pub fn build<I: Into<String>, MK: Into<Option<MultiKey>>>(
         self,
         ctx: &EventCtx,
