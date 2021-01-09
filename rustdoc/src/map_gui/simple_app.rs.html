@@ -311,7 +311,16 @@
 <span id="308">308</span>
 <span id="309">309</span>
 <span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>};
@@ -319,6 +328,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">Transition</span>, <span class="ident">Warper</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">DrawMap</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>};
@@ -338,38 +348,44 @@
     <span class="kw">pub</span> <span class="ident">time</span>: <span class="ident">Time</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">args</span>: <span class="ident">CmdArgs</span>, <span class="ident">session</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">SimpleApp</span>::<span class="ident">new_with_opts</span>(<span class="ident">ctx</span>, <span class="ident">args</span>, <span class="ident">Options</span>::<span class="ident">default</span>(), <span class="ident">session</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_opts</span>(
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span>
+        <span class="ident">F</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="op">&gt;</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="kw-2">mut</span> <span class="ident">args</span>: <span class="ident">CmdArgs</span>,
         <span class="kw-2">mut</span> <span class="ident">opts</span>: <span class="ident">Options</span>,
         <span class="ident">session</span>: <span class="ident">T</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
-            <span class="kw">let</span> <span class="ident">map_path</span> <span class="op">=</span> <span class="ident">args</span>
-                .<span class="ident">optional_free</span>()
-                .<span class="ident">unwrap_or</span>(<span class="ident">abstio</span>::<span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>());
-            <span class="ident">args</span>.<span class="ident">done</span>();
+        <span class="ident">init_states</span>: <span class="ident">F</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
+        <span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
+        <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">args</span>
+            .<span class="ident">optional_free</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">MapName</span>::<span class="ident">from_path</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;bad map path: {}&quot;</span>, <span class="ident">path</span>)))
+            .<span class="ident">unwrap_or</span>(<span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>));
+        <span class="ident">args</span>.<span class="ident">done</span>();
 
-            <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>.<span class="ident">color_scheme</span>);
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">new</span>(<span class="ident">map_path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-            <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">DrawMap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">cs</span>, <span class="ident">timer</span>);
-            <span class="ident">CameraState</span>::<span class="ident">load</span>(<span class="ident">ctx</span>, <span class="ident">map</span>.<span class="ident">get_name</span>());
-            <span class="ident">SimpleApp</span> {
-                <span class="ident">map</span>,
-                <span class="ident">draw_map</span>,
-                <span class="ident">cs</span>,
-                <span class="ident">opts</span>,
-                <span class="ident">current_selection</span>: <span class="prelude-val">None</span>,
-                <span class="ident">session</span>,
-                <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
-            }
-        })
+        <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>.<span class="ident">color_scheme</span>);
+        <span class="comment">// Start with a blank map</span>
+        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">blank</span>();
+        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">DrawMap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
+        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">SimpleApp</span> {
+            <span class="ident">map</span>,
+            <span class="ident">draw_map</span>,
+            <span class="ident">cs</span>,
+            <span class="ident">opts</span>,
+            <span class="ident">current_selection</span>: <span class="prelude-val">None</span>,
+            <span class="ident">session</span>,
+            <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
+        };
+
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">MapLoader</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>,
+            <span class="kw-2">&amp;</span><span class="ident">app</span>,
+            <span class="ident">map_name</span>,
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="ident">Transition</span>::<span class="ident">Clear</span>(<span class="ident">init_states</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))),
+        )];
+        (<span class="ident">app</span>, <span class="ident">states</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_unzoomed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
@@ -515,7 +531,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AppLike</span> <span class="kw">for</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">AppLike</span> <span class="kw">for</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Map</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>
@@ -593,7 +609,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SharedAppState</span> <span class="kw">for</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">SharedAppState</span> <span class="kw">for</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">draw_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
         <span class="self">self</span>.<span class="ident">draw_with_opts</span>(<span class="ident">g</span>, <span class="ident">DrawOptions</span>::<span class="ident">new</span>());
     }
