@@ -12,16 +12,10 @@ use abstutil::{to_json, Timer};
 pub use crate::io::*;
 use crate::{path_player, Manifest};
 
-// Bring in everything from data/system/ matching one of the prefixes -- aka, no scenarios, and
-// only the smallest map. Everything else has to be dynamically loaded over HTTP.
-static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
-    "../data/system",
-    "assets/",
-    // don't need this
-    "-assets/music/",
-    "proposals/",
-    "seattle/maps/montlake.bin",
-);
+// Bring in all assets (except for music) and proposals. Everything else has to be dynamically
+// loaded over HTTP.
+static SYSTEM_DATA: include_dir::Dir =
+    include_dir::include_dir!("../data/system", "assets/", "-assets/music/", "proposals/",);
 
 // For file_exists and list_dir only, also check if the file is in the Manifest. The caller has to
 // know when to load this remotely, though.

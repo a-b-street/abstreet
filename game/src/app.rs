@@ -40,24 +40,6 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> App {
-        let cs = ColorScheme::new(ctx, opts.color_scheme);
-
-        let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            assert!(flags.sim_flags.modifiers.is_empty());
-            let (map, sim, _) = flags.sim_flags.load(timer);
-            PerMap::map_loaded(map, sim, splash, flags, &opts, &cs, ctx, &mut timer)
-        });
-
-        App {
-            primary,
-            cs,
-            opts,
-            per_obj: PerObjectActions::new(),
-            session: SessionState::empty(),
-        }
-    }
-
     // TODO Should the prebaked methods be on primary along with the data?
     pub fn has_prebaked(&self) -> Option<(&MapName, &String)> {
         self.primary.prebaked.as_ref().map(|(m, s, _)| (m, s))
@@ -512,13 +494,13 @@ impl map_gui::AppLike for App {
         self.primary = PerMap::map_loaded(
             map,
             sim,
-            false,
             self.primary.current_flags.clone(),
             &self.opts,
             &self.cs,
             ctx,
             timer,
-        )
+        );
+        self.primary.init_camera_for_loaded_map(ctx, false);
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {
@@ -627,10 +609,9 @@ pub struct PerMap {
 }
 
 impl PerMap {
-    fn map_loaded(
+    pub fn map_loaded(
         map: Map,
         sim: Sim,
-        splash: bool,
         flags: Flags,
         opts: &Options,
         cs: &ColorScheme,
@@ -641,7 +622,7 @@ impl PerMap {
         let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
         timer.stop("draw_map");
 
-        let per_map = PerMap {
+        PerMap {
             map,
             draw_map,
             sim,
@@ -657,33 +638,32 @@ impl PerMap {
             suspended_sim: None,
             prebaked: None,
             scenario: None,
-        };
+        }
+    }
 
-        let mut rng = per_map.current_flags.sim_flags.make_rng();
-        let rand_focus_pt = per_map
+    pub fn init_camera_for_loaded_map(&mut self, ctx: &mut EventCtx, splash: bool) {
+        let mut rng = self.current_flags.sim_flags.make_rng();
+        let rand_focus_pt = self
             .map
             .all_buildings()
             .choose(&mut rng)
-            .and_then(|b| per_map.canonical_point(ID::Building(b.id)))
+            .and_then(|b| self.canonical_point(ID::Building(b.id)))
             .or_else(|| {
-                per_map
-                    .map
+                self.map
                     .all_lanes()
                     .choose(&mut rng)
-                    .and_then(|l| per_map.canonical_point(ID::Lane(l.id)))
+                    .and_then(|l| self.canonical_point(ID::Lane(l.id)))
             })
-            .unwrap_or_else(|| per_map.map.get_bounds().center());
+            .unwrap_or_else(|| self.map.get_bounds().center());
 
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);
         } else {
-            if !CameraState::load(ctx, per_map.map.get_name()) {
+            if !CameraState::load(ctx, self.map.get_name()) {
                 info!("Couldn't load camera state, just focusing on an arbitrary building");
                 ctx.canvas.center_on_map_pt(rand_focus_pt);
             }
         }
-
-        per_map
     }
 
     /// Returns whatever was there

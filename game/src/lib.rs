@@ -3,10 +3,12 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-use abstutil::CmdArgs;
+use abstio::MapName;
+use abstutil::{CmdArgs, Timer};
 use map_gui::options::Options;
-use sim::SimFlags;
-use widgetry::{EventCtx, State};
+use map_model::Map;
+use sim::{Sim, SimFlags};
+use widgetry::{EventCtx, State, Transition};
 
 use crate::app::{App, Flags};
 use crate::pregame::TitleScreen;
@@ -115,7 +117,84 @@ fn setup_app(
         && !flags.sim_flags.load.contains("player/save")
         && !flags.sim_flags.load.contains("/scenarios/")
         && maybe_mode.is_none();
-    let mut app = App::new(flags, opts, ctx, title);
+    let cs = map_gui::colors::ColorScheme::new(ctx, opts.color_scheme);
+
+    // SimFlags::load doesn't know how to do async IO, which we need on the web. But in the common
+    // case, all we're creating there is a map. If so, use the proper async interface.
+    if flags.sim_flags.load.contains("/maps/") {
+        // Get App created with a dummy blank map
+        let map = Map::blank();
+        let sim = Sim::new(&map, flags.sim_flags.opts.clone(), &mut Timer::throwaway());
+        let primary = crate::app::PerMap::map_loaded(
+            map,
+            sim,
+            flags,
+            &opts,
+            &cs,
+            ctx,
+            &mut Timer::throwaway(),
+        );
+        let app = App {
+            primary,
+            cs,
+            opts,
+            per_obj: crate::app::PerObjectActions::new(),
+            session: crate::app::SessionState::empty(),
+        };
+        let map_name = MapName::from_path(&app.primary.current_flags.sim_flags.load).unwrap();
+        let states = vec![map_gui::load::MapLoader::new(
+            ctx,
+            &app,
+            map_name,
+            Box::new(move |ctx, app| {
+                Transition::Clear(finish_app_setup(
+                    ctx,
+                    app,
+                    title,
+                    start_with_edits,
+                    maybe_mode,
+                    initialize_tutorial,
+                ))
+            }),
+        )];
+        (app, states)
+    } else {
+        // We're loading a savestate or a scenario or a RawMap. Do it with blocking IO. This won't
+        // work on the web.
+        // TODO Handle starting from a scenario; that's also a likely useful case for the web.
+        let primary = ctx.loading_screen("load map", |ctx, mut timer| {
+            assert!(flags.sim_flags.modifiers.is_empty());
+            let (map, sim, _) = flags.sim_flags.load(timer);
+            crate::app::PerMap::map_loaded(map, sim, flags, &opts, &cs, ctx, &mut timer)
+        });
+        let mut app = App {
+            primary,
+            cs,
+            opts,
+            per_obj: crate::app::PerObjectActions::new(),
+            session: crate::app::SessionState::empty(),
+        };
+        let states = finish_app_setup(
+            ctx,
+            &mut app,
+            title,
+            start_with_edits,
+            maybe_mode,
+            initialize_tutorial,
+        );
+        (app, states)
+    }
+}
+
+fn finish_app_setup(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    title: bool,
+    start_with_edits: Option<String>,
+    maybe_mode: Option<GameplayMode>,
+    initialize_tutorial: bool,
+) -> Vec<Box<dyn State<App>>> {
+    app.primary.init_camera_for_loaded_map(ctx, !title);
 
     // Handle savestates
     let savestate = if app
@@ -135,14 +214,14 @@ fn setup_app(
     // these flags later, but we don't want to keep applying the same edits.
     if let Some(edits_name) = start_with_edits {
         // TODO Maybe loading screen
-        let mut timer = abstutil::Timer::new("apply initial edits");
+        let mut timer = Timer::new("apply initial edits");
         let edits = map_model::MapEdits::load(
             &app.primary.map,
             abstio::path_edits(app.primary.map.get_name(), &edits_name),
             &mut timer,
         )
         .unwrap();
-        crate::edit::apply_map_edits(ctx, &mut app, edits);
+        crate::edit::apply_map_edits(ctx, app, edits);
         app.primary
             .map
             .recalculate_pathfinding_after_edits(&mut timer);
@@ -150,15 +229,15 @@ fn setup_app(
     }
 
     if initialize_tutorial {
-        crate::sandbox::gameplay::Tutorial::initialize(ctx, &mut app);
+        crate::sandbox::gameplay::Tutorial::initialize(ctx, app);
     }
 
     let states: Vec<Box<dyn State<App>>> = if title {
-        vec![Box::new(TitleScreen::new(ctx, &mut app))]
+        vec![Box::new(TitleScreen::new(ctx, app))]
     } else {
         let mode = maybe_mode
             .unwrap_or_else(|| GameplayMode::Freeform(app.primary.map.get_name().clone()));
-        vec![SandboxMode::simple_new(ctx, &mut app, mode)]
+        vec![SandboxMode::simple_new(ctx, app, mode)]
     };
     if let Some(ss) = savestate {
         // TODO This is weird, we're left in Freeform mode with the wrong UI. Can't instantiate
@@ -166,7 +245,7 @@ fn setup_app(
         app.primary.sim = ss;
     }
 
-    (app, states)
+    states
 }
 
 #[cfg(target_arch = "wasm32")]
