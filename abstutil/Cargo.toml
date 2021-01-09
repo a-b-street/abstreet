@@ -21,3 +21,4 @@ termion = "1.5.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_log = "0.2.0"
+web-sys = { version = "0.3.4", features=["Location", "Window"] }
