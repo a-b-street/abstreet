@@ -40,7 +40,6 @@ impl MapLoader {
             });
         }
 
-        // TODO If we want to load montlake on the web, just pull from bundled data.
         FileLoader::<A, map_model::Map>::new(
             ctx,
             name.path(),

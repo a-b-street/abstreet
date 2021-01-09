@@ -1,3 +1,4 @@
+use abstio::MapName;
 use abstutil::{CmdArgs, Timer};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map};
@@ -5,6 +6,7 @@ use sim::Sim;
 use widgetry::{Canvas, EventCtx, GfxCtx, SharedAppState, State, Transition, Warper};
 
 use crate::colors::ColorScheme;
+use crate::load::MapLoader;
 use crate::options::Options;
 use crate::render::DrawMap;
 use crate::render::{DrawOptions, Renderable};
@@ -24,38 +26,44 @@ pub struct SimpleApp<T> {
     pub time: Time,
 }
 
-impl<T> SimpleApp<T> {
-    pub fn new(ctx: &mut EventCtx, args: CmdArgs, session: T) -> SimpleApp<T> {
-        SimpleApp::new_with_opts(ctx, args, Options::default(), session)
-    }
-
-    pub fn new_with_opts(
+impl<T: 'static> SimpleApp<T> {
+    pub fn new<
+        F: 'static + Fn(&mut EventCtx, &mut SimpleApp<T>) -> Vec<Box<dyn State<SimpleApp<T>>>>,
+    >(
         ctx: &mut EventCtx,
-        mut args: CmdArgs,
         mut opts: Options,
         session: T,
-    ) -> SimpleApp<T> {
-        ctx.loading_screen("load map", |ctx, mut timer| {
-            opts.update_from_args(&mut args);
-            let map_path = args
-                .optional_free()
-                .unwrap_or(abstio::MapName::seattle("montlake").path());
-            args.done();
+        init_states: F,
+    ) -> (SimpleApp<T>, Vec<Box<dyn State<SimpleApp<T>>>>) {
+        let mut args = CmdArgs::new();
+        opts.update_from_args(&mut args);
+        let map_name = args
+            .optional_free()
+            .map(|path| MapName::from_path(&path).expect(&format!("bad map path: {}", path)))
+            .unwrap_or(MapName::seattle("montlake"));
+        args.done();
 
-            let cs = ColorScheme::new(ctx, opts.color_scheme);
-            let map = Map::new(map_path, &mut timer);
-            let draw_map = DrawMap::new(ctx, &map, &opts, &cs, timer);
-            CameraState::load(ctx, map.get_name());
-            SimpleApp {
-                map,
-                draw_map,
-                cs,
-                opts,
-                current_selection: None,
-                session,
-                time: Time::START_OF_DAY,
-            }
-        })
+        let cs = ColorScheme::new(ctx, opts.color_scheme);
+        // Start with a blank map
+        let map = Map::blank();
+        let draw_map = DrawMap::new(ctx, &map, &opts, &cs, &mut Timer::throwaway());
+        let app = SimpleApp {
+            map,
+            draw_map,
+            cs,
+            opts,
+            current_selection: None,
+            session,
+            time: Time::START_OF_DAY,
+        };
+
+        let states = vec![MapLoader::new(
+            ctx,
+            &app,
+            map_name,
+            Box::new(move |ctx, app| Transition::Clear(init_states(ctx, app))),
+        )];
+        (app, states)
     }
 
     pub fn draw_unzoomed(&self, g: &mut GfxCtx) {
@@ -201,7 +209,7 @@ impl<T> SimpleApp<T> {
     }
 }
 
-impl<T> AppLike for SimpleApp<T> {
+impl<T: 'static> AppLike for SimpleApp<T> {
     #[inline]
     fn map(&self) -> &Map {
         &self.map
@@ -279,7 +287,7 @@ impl<T> AppLike for SimpleApp<T> {
     }
 }
 
-impl<T> SharedAppState for SimpleApp<T> {
+impl<T: 'static> SharedAppState for SimpleApp<T> {
     fn draw_default(&self, g: &mut GfxCtx) {
         self.draw_with_opts(g, DrawOptions::new());
     }

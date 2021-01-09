@@ -158,7 +158,6 @@ fn parse_args() -> anyhow::Result<Vec<String>> {
         .split("&")
         .map(|x| x.replace("%20", " ").to_string())
         .collect::<Vec<_>>();
-    log::info!("parsed out url parts: {:?}", parts);
     Ok(parts)
 }
 

@@ -28,16 +28,17 @@ pub fn main() {
             opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
             let session = session::Session::load();
             session.save();
-            let mut app =
-                map_gui::SimpleApp::new_with_opts(ctx, abstutil::CmdArgs::new(), opts, session);
-            if app.opts.dev {
-                app.session.unlock_all();
-            }
-            app.session.music = music::Music::start(ctx, app.session.play_music, "jingle_bells");
-            app.session.music.specify_volume(music::OUT_OF_GAME);
 
-            let states = vec![title::TitleScreen::new(ctx, &app)];
-            (app, states)
+            map_gui::SimpleApp::new(ctx, opts, session, |ctx, app| {
+                if app.opts.dev {
+                    app.session.unlock_all();
+                }
+                app.session.music =
+                    music::Music::start(ctx, app.session.play_music, "jingle_bells");
+                app.session.music.specify_volume(music::OUT_OF_GAME);
+
+                vec![title::TitleScreen::new(ctx, app)]
+            })
         },
     );
 }
