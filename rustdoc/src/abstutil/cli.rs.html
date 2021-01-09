@@ -131,6 +131,44 @@
 <span id="128">128</span>
 <span id="129">129</span>
 <span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -152,7 +190,14 @@
         <span class="kw">crate</span>::<span class="ident">logger</span>::<span class="ident">setup</span>();
 
         <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
-            <span class="ident">CmdArgs</span>::<span class="ident">from_args</span>(<span class="ident">Vec</span>::<span class="ident">new</span>())
+            <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">parse_args</span>() {
+                <span class="prelude-val">Ok</span>(<span class="ident">raw</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">raw</span>,
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">log</span>::<span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Didn&#39;t parse arguments from URL query params: {}&quot;</span>, <span class="ident">err</span>);
+                    <span class="ident">Vec</span>::<span class="ident">new</span>()
+                }
+            };
+            <span class="ident">CmdArgs</span>::<span class="ident">from_args</span>(<span class="ident">raw</span>)
         } <span class="kw">else</span> {
             <span class="ident">CmdArgs</span>::<span class="ident">from_args</span>(<span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">args</span>().<span class="ident">skip</span>(<span class="number">1</span>).<span class="ident">collect</span>())
         }
@@ -261,6 +306,37 @@
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unused free arguments: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">free</span>);
         }
     }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+<span class="doccomment">/// Transform the URL query parameters into command-line arguments, by treating &amp; as the separator</span>
+<span class="doccomment">/// between arguments. So for instance &quot;?--dev&amp;--color_scheme=night%20mode&quot; becomes vec![&quot;--dev&quot;,</span>
+<span class="doccomment">/// &quot;--color_scheme=night mode&quot;].</span>
+<span class="kw">fn</span> <span class="ident">parse_args</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">bail</span>};
+
+    <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys</span>::<span class="ident">window</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">location</span>().<span class="ident">href</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+        <span class="macro">anyhow</span><span class="macro">!</span>(<span class="ident">err</span>
+            .<span class="ident">as_string</span>()
+            .<span class="ident">unwrap_or</span>(<span class="string">&quot;window.location.href failed&quot;</span>.<span class="ident">to_string</span>()))
+    })<span class="question-mark">?</span>;
+    <span class="comment">// Consider using a proper url parsing crate. This works fine for now, though.</span>
+    <span class="kw">let</span> <span class="ident">url_parts</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">split</span>(<span class="string">&quot;?&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">if</span> <span class="ident">url_parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
+        <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;URL {} doesn&#39;t seem to have query params&quot;</span>);
+    }
+    <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">url_parts</span>[<span class="number">1</span>]
+        .<span class="ident">split</span>(<span class="string">&quot;&amp;&quot;</span>)
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">replace</span>(<span class="string">&quot;%20&quot;</span>, <span class="string">&quot; &quot;</span>).<span class="ident">to_string</span>())
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;parsed out url parts: {:?}&quot;</span>, <span class="ident">parts</span>);
+    <span class="prelude-val">Ok</span>(<span class="ident">parts</span>)
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+<span class="kw">fn</span> <span class="ident">parse_args</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="macro">unreachable</span><span class="macro">!</span>()
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "abstutil";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

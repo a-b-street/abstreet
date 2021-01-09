@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CmdArgs","Yet another barebones command-line flag parsing library."]]});
+initSidebarItems({"fn":[["parse_args",""]],"struct":[["CmdArgs","Yet another barebones command-line flag parsing library."]]});
