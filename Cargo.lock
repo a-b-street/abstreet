@@ -22,7 +22,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "bincode",
- "include_dir 0.6.1-alpha.0",
+ "include_dir",
  "instant",
  "lazy_static",
  "log",
@@ -1801,42 +1801,18 @@ dependencies = [
 
 [[package]]
 name = "include_dir"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23d58bdeb22b1c4691106c084b1063781904c35d0f22eda2a283598968eac61a"
-dependencies = [
- "glob",
- "include_dir_impl 0.6.0",
- "proc-macro-hack",
-]
-
-[[package]]
-name = "include_dir"
 version = "0.6.1-alpha.0"
-source = "git+https://github.com/dabreegster/include_dir?branch=union#e3b8bf1206e9303dc2727a190b105e7d817a6b3d"
+source = "git+https://github.com/dabreegster/include_dir?branch=union#0e40ac82424165dac85496283304d3c64e080bb5"
 dependencies = [
  "glob",
- "include_dir_impl 0.6.1-alpha.0",
+ "include_dir_impl",
  "proc-macro-hack",
 ]
 
 [[package]]
 name = "include_dir_impl"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "327869970574819d24d1dca25c891856144d29159ab797fa9dc725c5c3f57215"
-dependencies = [
- "anyhow",
- "proc-macro-hack",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "include_dir_impl"
 version = "0.6.1-alpha.0"
-source = "git+https://github.com/dabreegster/include_dir?branch=union#e3b8bf1206e9303dc2727a190b105e7d817a6b3d"
+source = "git+https://github.com/dabreegster/include_dir?branch=union#0e40ac82424165dac85496283304d3c64e080bb5"
 dependencies = [
  "anyhow",
  "proc-macro-hack",
@@ -4072,7 +4048,7 @@ dependencies = [
 name = "traffic_signal_data"
 version = "0.1.0"
 dependencies = [
- "include_dir 0.6.0",
+ "include_dir",
  "serde",
  "serde_derive",
  "serde_json",
