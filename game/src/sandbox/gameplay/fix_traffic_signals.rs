@@ -61,12 +61,12 @@ impl FixTrafficSignals {
             )
             .player("Sorry, boss.")
             .extra(
-                "parents",
+                "parents.svg.gz",
                 0.6,
                 "Hi, er, we're calling from Lower Queen Anne. What's going on?!",
             )
             .extra(
-                "parents",
+                "parents.svg.gz",
                 0.6,
                 "We just missed a VERY important appointment. Nobody's moving an inch!",
             )

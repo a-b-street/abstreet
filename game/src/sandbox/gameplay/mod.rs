@@ -254,7 +254,7 @@ impl FinalScore {
                 Widget::custom_row(vec![
                     Widget::draw_batch(
                         ctx,
-                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg")
+                        GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
                             .scale(0.75)
                             .autocrop(),
                     )
