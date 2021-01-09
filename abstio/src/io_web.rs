@@ -20,10 +20,7 @@ static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     // don't need this
     "-assets/music/",
     "proposals/",
-    "seattle/city.bin",
     "seattle/maps/montlake.bin",
-    // used by tutorial
-    "seattle/prebaked_results/montlake/car vs bike contention.bin",
 );
 
 // For file_exists and list_dir only, also check if the file is in the Manifest. The caller has to

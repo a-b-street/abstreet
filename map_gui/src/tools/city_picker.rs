@@ -1,5 +1,4 @@
 use abstio::MapName;
-use abstutil::Timer;
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
@@ -7,7 +6,7 @@ use widgetry::{
     Panel, ScreenPt, State, Text, TextExt, Transition, Widget,
 };
 
-use crate::load::MapLoader;
+use crate::load::{FileLoader, MapLoader};
 use crate::render::DrawArea;
 use crate::tools::{grey_out_map, nice_map_name, open_browser};
 use crate::AppLike;
@@ -29,108 +28,111 @@ impl<A: AppLike + 'static> CityPicker<A> {
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         let city = app.map().get_city_name().clone();
-        CityPicker::new_in_city(ctx, app, on_load, city)
+        CityPicker::new_in_city(ctx, on_load, city)
     }
 
     fn new_in_city(
         ctx: &mut EventCtx,
-        app: &mut A,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
         city_name: String,
     ) -> Box<dyn State<A>> {
-        let mut batch = GeomBatch::new();
-        let mut regions = Vec::new();
-        let mut this_city = vec![];
-
-        // If this city overview doesn't exist, we assume this map is the only one in the city.
-        if let Ok(city) = abstio::maybe_read_binary::<City>(
+        FileLoader::<A, City>::new(
+            ctx,
             abstio::path(format!("system/{}/city.bin", city_name)),
-            &mut Timer::throwaway(),
-        ) {
-            let bounds = city.boundary.get_bounds();
+            Box::new(move |ctx, app, _, maybe_city| {
+                let mut batch = GeomBatch::new();
+                let mut regions = Vec::new();
+                let mut this_city = vec![];
 
-            let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
-                .min(0.8 * ctx.canvas.window_height / bounds.height());
+                // If this city overview doesn't exist, we assume this map is the only one in the
+                // city.
+                if let Ok(city) = maybe_city {
+                    let bounds = city.boundary.get_bounds();
 
-            batch.push(app.cs().map_background.clone(), city.boundary);
-            for (area_type, polygon) in city.areas {
-                batch.push(DrawArea::fill(area_type, app.cs()), polygon);
-            }
+                    let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
+                        .min(0.8 * ctx.canvas.window_height / bounds.height());
 
-            for (name, polygon) in city.regions {
-                let color = app.cs().rotating_color_agents(regions.len());
+                    batch.push(app.cs().map_background.clone(), city.boundary);
+                    for (area_type, polygon) in city.areas {
+                        batch.push(DrawArea::fill(area_type, app.cs()), polygon);
+                    }
 
-                let btn = Btn::txt(
-                    name.path(),
-                    Text::from(Line(nice_map_name(&name)).fg(color)),
-                )
-                .no_tooltip();
+                    for (name, polygon) in city.regions {
+                        let color = app.cs().rotating_color_agents(regions.len());
 
-                if &name == app.map().get_name() {
-                    this_city.push(btn.inactive(ctx));
-                    batch.push(color.alpha(0.5), polygon.clone());
-                } else {
-                    this_city.push(btn.build_def(ctx, None));
-                    batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
-                    regions.push((name, color, polygon.scale(zoom)));
+                        let btn = Btn::txt(
+                            name.path(),
+                            Text::from(Line(nice_map_name(&name)).fg(color)),
+                        )
+                        .no_tooltip();
+
+                        if &name == app.map().get_name() {
+                            this_city.push(btn.inactive(ctx));
+                            batch.push(color.alpha(0.5), polygon.clone());
+                        } else {
+                            this_city.push(btn.build_def(ctx, None));
+                            batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
+                            regions.push((name, color, polygon.scale(zoom)));
+                        }
+                    }
+                    batch = batch.scale(zoom);
+
+                    this_city.insert(0, format!("More regions in {}", city_name).draw_text(ctx));
                 }
-            }
-            batch = batch.scale(zoom);
 
-            this_city.insert(0, format!("More regions in {}", city_name).draw_text(ctx));
-        }
+                let mut other_cities = vec![Line("Other cities").draw(ctx)];
+                for city in MapName::list_all_cities() {
+                    if city == city_name {
+                        continue;
+                    }
+                    // If there's only one map in the city, make the button directly load it.
+                    let maps = MapName::list_all_maps_in_city(&city);
+                    if maps.len() == 1 {
+                        other_cities.push(Btn::text_fg(city).build(ctx, maps[0].path(), None));
+                    } else {
+                        other_cities.push(Btn::text_fg(city).no_tooltip().build_def(ctx, None));
+                    }
+                }
+                other_cities.push(Btn::text_bg2("Search all maps").build_def(ctx, Key::Tab));
 
-        let mut other_cities = vec![Line("Other cities").draw(ctx)];
-        for city in MapName::list_all_cities() {
-            if city == city_name {
-                continue;
-            }
-            // If there's only one map in the city, make the button directly load it.
-            let maps = MapName::list_all_maps_in_city(&city);
-            if maps.len() == 1 {
-                other_cities.push(Btn::text_fg(city).build(ctx, maps[0].path(), None));
-            } else {
-                other_cities.push(Btn::text_fg(city).no_tooltip().build_def(ctx, None));
-            }
-        }
-        other_cities.push(Btn::text_bg2("Search all maps").build_def(ctx, Key::Tab));
-
-        Box::new(CityPicker {
-            regions,
-            selected: None,
-            on_load: Some(on_load),
-            panel: Panel::new(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Select a region").small_heading().draw(ctx),
-                    Btn::close(ctx),
-                ]),
-                Widget::row(vec![
-                    Widget::col(other_cities).centered_vert(),
-                    Widget::draw_batch(ctx, batch).named("picker"),
-                    Widget::col(this_city).centered_vert(),
-                ]),
-                Widget::custom_row(vec![
-                    "Don't see the city you want?"
-                        .draw_text(ctx)
-                        .centered_vert(),
-                    Btn::plaintext_custom(
-                        "import new city",
-                        Text::from(
-                            Line("Import a new city into A/B Street")
-                                .fg(Color::hex("#4CA4E5"))
-                                .underlined(),
-                        ),
-                    )
-                    .build_def(ctx, None),
-                ]),
-                if cfg!(not(target_arch = "wasm32")) {
-                    Btn::text_fg("Download more cities").build_def(ctx, None)
-                } else {
-                    Widget::nothing()
-                },
-            ]))
-            .build(ctx),
-        })
+                Transition::Replace(Box::new(CityPicker {
+                    regions,
+                    selected: None,
+                    on_load: Some(on_load),
+                    panel: Panel::new(Widget::col(vec![
+                        Widget::row(vec![
+                            Line("Select a region").small_heading().draw(ctx),
+                            Btn::close(ctx),
+                        ]),
+                        Widget::row(vec![
+                            Widget::col(other_cities).centered_vert(),
+                            Widget::draw_batch(ctx, batch).named("picker"),
+                            Widget::col(this_city).centered_vert(),
+                        ]),
+                        Widget::custom_row(vec![
+                            "Don't see the city you want?"
+                                .draw_text(ctx)
+                                .centered_vert(),
+                            Btn::plaintext_custom(
+                                "import new city",
+                                Text::from(
+                                    Line("Import a new city into A/B Street")
+                                        .fg(Color::hex("#4CA4E5"))
+                                        .underlined(),
+                                ),
+                            )
+                            .build_def(ctx, None),
+                        ]),
+                        if cfg!(not(target_arch = "wasm32")) {
+                            Btn::text_fg("Download more cities").build_def(ctx, None)
+                        } else {
+                            Widget::nothing()
+                        },
+                    ]))
+                    .build(ctx),
+                }))
+            }),
+        )
     }
 }
 
@@ -174,7 +176,6 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     // Browse maps for another city without loading any map there
                     return Transition::Replace(CityPicker::new_in_city(
                         ctx,
-                        app,
                         self.on_load.take().unwrap(),
                         x.to_string(),
                     ));
