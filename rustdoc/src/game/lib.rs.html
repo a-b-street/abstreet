@@ -180,16 +180,97 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
+<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">SimFlags</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">State</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">Map</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">SimFlags</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Flags</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">TitleScreen</span>;
@@ -298,7 +379,84 @@
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;player/save&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="ident">maybe_mode</span>.<span class="ident">is_none</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span>::<span class="ident">new</span>(<span class="ident">flags</span>, <span class="ident">opts</span>, <span class="ident">ctx</span>, <span class="ident">title</span>);
+    <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>.<span class="ident">color_scheme</span>);
+
+    <span class="comment">// SimFlags::load doesn&#39;t know how to do async IO, which we need on the web. But in the common</span>
+    <span class="comment">// case, all we&#39;re creating there is a map. If so, use the proper async interface.</span>
+    <span class="kw">if</span> <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
+        <span class="comment">// Get App created with a dummy blank map</span>
+        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map</span>::<span class="ident">blank</span>();
+        <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>());
+        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">PerMap</span>::<span class="ident">map_loaded</span>(
+            <span class="ident">map</span>,
+            <span class="ident">sim</span>,
+            <span class="ident">flags</span>,
+            <span class="kw-2">&amp;</span><span class="ident">opts</span>,
+            <span class="kw-2">&amp;</span><span class="ident">cs</span>,
+            <span class="ident">ctx</span>,
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
+        );
+        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
+            <span class="ident">primary</span>,
+            <span class="ident">cs</span>,
+            <span class="ident">opts</span>,
+            <span class="ident">per_obj</span>: <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">PerObjectActions</span>::<span class="ident">new</span>(),
+            <span class="ident">session</span>: <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">SessionState</span>::<span class="ident">empty</span>(),
+        };
+        <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">from_path</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>::<span class="ident">new</span>(
+            <span class="ident">ctx</span>,
+            <span class="kw-2">&amp;</span><span class="ident">app</span>,
+            <span class="ident">map_name</span>,
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="ident">Transition</span>::<span class="ident">Clear</span>(<span class="ident">finish_app_setup</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">title</span>,
+                    <span class="ident">start_with_edits</span>,
+                    <span class="ident">maybe_mode</span>,
+                    <span class="ident">initialize_tutorial</span>,
+                ))
+            }),
+        )];
+        (<span class="ident">app</span>, <span class="ident">states</span>)
+    } <span class="kw">else</span> {
+        <span class="comment">// We&#39;re loading a savestate or a scenario or a RawMap. Do it with blocking IO. This won&#39;t</span>
+        <span class="comment">// work on the web.</span>
+        <span class="comment">// TODO Handle starting from a scenario; that&#39;s also a likely useful case for the web.</span>
+        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">modifiers</span>.<span class="ident">is_empty</span>());
+            <span class="kw">let</span> (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>(<span class="ident">timer</span>);
+            <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">PerMap</span>::<span class="ident">map_loaded</span>(<span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">flags</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+        });
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
+            <span class="ident">primary</span>,
+            <span class="ident">cs</span>,
+            <span class="ident">opts</span>,
+            <span class="ident">per_obj</span>: <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">PerObjectActions</span>::<span class="ident">new</span>(),
+            <span class="ident">session</span>: <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">SessionState</span>::<span class="ident">empty</span>(),
+        };
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="ident">finish_app_setup</span>(
+            <span class="ident">ctx</span>,
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>,
+            <span class="ident">title</span>,
+            <span class="ident">start_with_edits</span>,
+            <span class="ident">maybe_mode</span>,
+            <span class="ident">initialize_tutorial</span>,
+        );
+        (<span class="ident">app</span>, <span class="ident">states</span>)
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">finish_app_setup</span>(
+    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
+    <span class="ident">title</span>: <span class="ident">bool</span>,
+    <span class="ident">start_with_edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">maybe_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span>,
+    <span class="ident">initialize_tutorial</span>: <span class="ident">bool</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">init_camera_for_loaded_map</span>(<span class="ident">ctx</span>, <span class="op">!</span><span class="ident">title</span>);
 
     <span class="comment">// Handle savestates</span>
     <span class="kw">let</span> <span class="ident">savestate</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>
@@ -318,14 +476,14 @@
     <span class="comment">// these flags later, but we don&#39;t want to keep applying the same edits.</span>
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits_name</span>) <span class="op">=</span> <span class="ident">start_with_edits</span> {
         <span class="comment">// TODO Maybe loading screen</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;apply initial edits&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;apply initial edits&quot;</span>);
         <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">MapEdits</span>::<span class="ident">load</span>(
             <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
             <span class="ident">abstio</span>::<span class="ident">path_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">edits_name</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
         )
         .<span class="ident">unwrap</span>();
-        <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>, <span class="ident">edits</span>);
+        <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
         <span class="ident">app</span>.<span class="ident">primary</span>
             .<span class="ident">map</span>
             .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
@@ -333,15 +491,15 @@
     }
 
     <span class="kw">if</span> <span class="ident">initialize_tutorial</span> {
-        <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">Tutorial</span>::<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>);
+        <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">Tutorial</span>::<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 
     <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">title</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>))]
+        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))]
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">maybe_mode</span>
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>()));
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>, <span class="ident">mode</span>)]
+        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)]
     };
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ss</span>) <span class="op">=</span> <span class="ident">savestate</span> {
         <span class="comment">// TODO This is weird, we&#39;re left in Freeform mode with the wrong UI. Can&#39;t instantiate</span>
@@ -349,7 +507,7 @@
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">ss</span>;
     }
 
-    (<span class="ident">app</span>, <span class="ident">states</span>)
+    <span class="ident">states</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>

@@ -838,26 +838,6 @@
 <span id="835">835</span>
 <span id="836">836</span>
 <span id="837">837</span>
-<span id="838">838</span>
-<span id="839">839</span>
-<span id="840">840</span>
-<span id="841">841</span>
-<span id="842">842</span>
-<span id="843">843</span>
-<span id="844">844</span>
-<span id="845">845</span>
-<span id="846">846</span>
-<span id="847">847</span>
-<span id="848">848</span>
-<span id="849">849</span>
-<span id="850">850</span>
-<span id="851">851</span>
-<span id="852">852</span>
-<span id="853">853</span>
-<span id="854">854</span>
-<span id="855">855</span>
-<span id="856">856</span>
-<span id="857">857</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -901,24 +881,6 @@
 }
 
 <span class="kw">impl</span> <span class="ident">App</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">flags</span>: <span class="ident">Flags</span>, <span class="ident">opts</span>: <span class="ident">Options</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">splash</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">App</span> {
-        <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>.<span class="ident">color_scheme</span>);
-
-        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">modifiers</span>.<span class="ident">is_empty</span>());
-            <span class="kw">let</span> (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>(<span class="ident">timer</span>);
-            <span class="ident">PerMap</span>::<span class="ident">map_loaded</span>(<span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">splash</span>, <span class="ident">flags</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
-        });
-
-        <span class="ident">App</span> {
-            <span class="ident">primary</span>,
-            <span class="ident">cs</span>,
-            <span class="ident">opts</span>,
-            <span class="ident">per_obj</span>: <span class="ident">PerObjectActions</span>::<span class="ident">new</span>(),
-            <span class="ident">session</span>: <span class="ident">SessionState</span>::<span class="ident">empty</span>(),
-        }
-    }
-
     <span class="comment">// TODO Should the prebaked methods be on primary along with the data?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_prebaked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="kw-2">&amp;</span><span class="ident">String</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">m</span>, <span class="ident">s</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="ident">m</span>, <span class="ident">s</span>))
@@ -1373,13 +1335,13 @@
         <span class="self">self</span>.<span class="ident">primary</span> <span class="op">=</span> <span class="ident">PerMap</span>::<span class="ident">map_loaded</span>(
             <span class="ident">map</span>,
             <span class="ident">sim</span>,
-            <span class="bool-val">false</span>,
             <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">clone</span>(),
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">opts</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cs</span>,
             <span class="ident">ctx</span>,
             <span class="ident">timer</span>,
-        )
+        );
+        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">init_camera_for_loaded_map</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>) {
@@ -1488,10 +1450,9 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PerMap</span> {
-    <span class="kw">fn</span> <span class="ident">map_loaded</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_loaded</span>(
         <span class="ident">map</span>: <span class="ident">Map</span>,
         <span class="ident">sim</span>: <span class="ident">Sim</span>,
-        <span class="ident">splash</span>: <span class="ident">bool</span>,
         <span class="ident">flags</span>: <span class="ident">Flags</span>,
         <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
@@ -1502,7 +1463,7 @@
         <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">DrawMap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>, <span class="ident">cs</span>, <span class="ident">timer</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;draw_map&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">per_map</span> <span class="op">=</span> <span class="ident">PerMap</span> {
+        <span class="ident">PerMap</span> {
             <span class="ident">map</span>,
             <span class="ident">draw_map</span>,
             <span class="ident">sim</span>,
@@ -1518,33 +1479,32 @@
             <span class="ident">suspended_sim</span>: <span class="prelude-val">None</span>,
             <span class="ident">prebaked</span>: <span class="prelude-val">None</span>,
             <span class="ident">scenario</span>: <span class="prelude-val">None</span>,
-        };
+        }
+    }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">per_map</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>();
-        <span class="kw">let</span> <span class="ident">rand_focus_pt</span> <span class="op">=</span> <span class="ident">per_map</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init_camera_for_loaded_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">splash</span>: <span class="ident">bool</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>();
+        <span class="kw">let</span> <span class="ident">rand_focus_pt</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">map</span>
             .<span class="ident">all_buildings</span>()
             .<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">per_map</span>.<span class="ident">canonical_point</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>.<span class="ident">id</span>)))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canonical_point</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>.<span class="ident">id</span>)))
             .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">per_map</span>
-                    .<span class="ident">map</span>
+                <span class="self">self</span>.<span class="ident">map</span>
                     .<span class="ident">all_lanes</span>()
                     .<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">per_map</span>.<span class="ident">canonical_point</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>.<span class="ident">id</span>)))
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canonical_point</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>.<span class="ident">id</span>)))
             })
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>());
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>());
 
         <span class="kw">if</span> <span class="ident">splash</span> {
             <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">rand_focus_pt</span>);
         } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">CameraState</span>::<span class="ident">load</span>(<span class="ident">ctx</span>, <span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()) {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">CameraState</span>::<span class="ident">load</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()) {
                 <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t load camera state, just focusing on an arbitrary building&quot;</span>);
                 <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">rand_focus_pt</span>);
             }
         }
-
-        <span class="ident">per_map</span>
     }
 
     <span class="doccomment">/// Returns whatever was there</span>
