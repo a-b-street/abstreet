@@ -702,3 +702,12 @@ changes here.
 - bugfix from Bruce to prevent sim from crashing when a short road is over capacity
 - automatically fetch census data for any US map and use for scenario generation, from Michael
 - some initial experiments to bring A/B Street's lane rendering to the web using Leaflet
+
+0.2.26
+
+- dramatically improve initial web loading and be able to start with any map
+- city picker UI now better organizes other regions with many maps
+- new tool to convert SUMO networks into A/B Street maps
+- taking screenshots of the entire map now much faster, portable. trying to use for Leaflet raster tiles, but not working yet.
+- widgetry UI library now doesn't depend on anything specific to A/B Street
+- internal refactoring for error handling
