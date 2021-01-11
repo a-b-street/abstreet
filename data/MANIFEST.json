@@ -40,6 +40,21 @@
       "uncompressed_size_bytes": 9955969,
       "compressed_size_bytes": 2830704
     },
+    "data/input/cambridge/osm/cambridgeshire-latest.osm.pbf": {
+      "checksum": "e7ac328f5b13c1a90da861abc84ae08d",
+      "uncompressed_size_bytes": 22600428,
+      "compressed_size_bytes": 22582107
+    },
+    "data/input/cambridge/osm/trumpington.osm": {
+      "checksum": "9663eead6715ae21be0181cdbb621220",
+      "uncompressed_size_bytes": 51162272,
+      "compressed_size_bytes": 5116187
+    },
+    "data/input/cambridge/raw_maps/trumpington.bin": {
+      "checksum": "7fe18c9b86b7df1f77b081f1ec554687",
+      "uncompressed_size_bytes": 13976436,
+      "compressed_size_bytes": 3225165
+    },
     "data/input/krakow/osm/center.osm": {
       "checksum": "e64103d37a7009d96f7d8a653db02deb",
       "uncompressed_size_bytes": 56598855,
@@ -619,6 +634,11 @@
       "checksum": "30bed67327d80399b5b12151190ad08b",
       "uncompressed_size_bytes": 25606072,
       "compressed_size_bytes": 8005261
+    },
+    "data/system/cambridge/maps/trumpington.bin": {
+      "checksum": "056d7ef9e5dc7f686388fe7dceca8d13",
+      "uncompressed_size_bytes": 24955054,
+      "compressed_size_bytes": 8899682
     },
     "data/system/krakow/maps/center.bin": {
       "checksum": "e621cd0cf13daee0141fdf59cad828bc",
