@@ -92,6 +92,8 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A representation of traffic signal configuration that references OpenStreetMap IDs and is</span>
 <span class="doccomment">//! hopefully robust over minor edits over time.</span>
@@ -172,9 +174,11 @@
     <span class="kw">pub</span> <span class="ident">is_forwards</span>: <span class="ident">bool</span>,
 }
 
-<span class="kw">static</span> <span class="ident">DATA</span>: <span class="ident">include_dir</span>::<span class="ident">Dir</span> <span class="op">=</span> <span class="ident">include_dir</span>::<span class="macro">include_dir</span><span class="macro">!</span>(<span class="string">&quot;data&quot;</span>);
+<span class="comment">// &quot;&quot; means include all files within data. My hacks to the include_dir crate need a better API.</span>
+<span class="kw">static</span> <span class="ident">DATA</span>: <span class="ident">include_dir</span>::<span class="ident">Dir</span> <span class="op">=</span> <span class="ident">include_dir</span>::<span class="macro">include_dir</span><span class="macro">!</span>(<span class="string">&quot;data&quot;</span>, <span class="string">&quot;&quot;</span>);
 
-<span class="doccomment">/// Returns all traffic signal data compiled into this build, keyed by OSM node ID.</span>
+<span class="doccomment">/// Returns all traffic signal data compiled into this build, keyed by OSM node ID. If any single</span>
+<span class="doccomment">/// file is broken, returns an error for the entire load.</span>
 <span class="comment">// TODO Use a build script to do this. But have to generate Rust code to populate the struct?</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_all_data</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">TrafficSignal</span><span class="op">&gt;</span>, <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();

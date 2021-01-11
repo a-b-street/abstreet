@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["TripEndpoint","Specifies where a trip begins or ends."],["TripSpec",""]]});
+initSidebarItems({"enum":[["TripEndpoint","Specifies where a trip begins or ends."],["TripSpec",""]],"struct":[["StartTripArgs","We need to remember a few things from scenario instantiation that're used for starting the trip."]]});
