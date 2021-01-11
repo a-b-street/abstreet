@@ -2,18 +2,21 @@
 //! https://github.com/dabreegster/abstreet/issues/258
 
 use anyhow::Result;
-use rand::seq::SliceRandom;
-use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
 
-use crate::{
-    CarID, DrivingGoal, PersonID, SidewalkSpot, TripInfo, TripLeg, TripMode, VehicleType,
-    SPAWN_DIST,
-};
+use crate::{CarID, DrivingGoal, SidewalkSpot, TripLeg, TripMode, VehicleType, SPAWN_DIST};
+
+/// We need to remember a few things from scenario instantiation that're used for starting the
+/// trip.
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+pub(crate) struct StartTripArgs {
+    pub retry_if_no_room: bool,
+    pub use_vehicle: Option<CarID>,
+}
 
 // TODO Some of these fields are unused now that we separately pass TripEndpoint
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -56,12 +59,7 @@ pub(crate) enum TripSpec {
 }
 
 impl TripSpec {
-    pub fn to_plan(
-        self,
-        person: PersonID,
-        info: TripInfo,
-        map: &Map,
-    ) -> (PersonID, TripInfo, TripSpec, Vec<TripLeg>) {
+    pub fn to_plan(self, map: &Map) -> (TripSpec, Vec<TripLeg>) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         let mut legs = Vec::new();
         match &self {
@@ -101,7 +99,7 @@ impl TripSpec {
                         use_vehicle: Some(use_vehicle.clone()),
                         error: format!("goal_pos to {:?} for a {:?} failed", goal, constraints),
                     }
-                    .to_plan(person, info, map);
+                    .to_plan(map);
                 }
             }
             TripSpec::SpawningFailure { .. } => {
@@ -153,14 +151,14 @@ impl TripSpec {
                                      sidewalk!",
                                     start, b
                                 );
-                                return backup_plan.unwrap().to_plan(person, info, map);
+                                return backup_plan.unwrap().to_plan(map);
                             }
                         } else {
                             info!(
                                 "Can't find biking connection for goal {}, walking instead",
                                 b
                             );
-                            return backup_plan.unwrap().to_plan(person, info, map);
+                            return backup_plan.unwrap().to_plan(map);
                         }
                     }
 
@@ -174,7 +172,7 @@ impl TripSpec {
                     }
                 } else if backup_plan.is_some() {
                     info!("Can't start biking from {}. Walking instead", start);
-                    return backup_plan.unwrap().to_plan(person, info, map);
+                    return backup_plan.unwrap().to_plan(map);
                 } else {
                     return TripSpec::SpawningFailure {
                         use_vehicle: Some(*bike),
@@ -183,7 +181,7 @@ impl TripSpec {
                             start, goal
                         ),
                     }
-                    .to_plan(person, info, map);
+                    .to_plan(map);
                 }
             }
             TripSpec::UsingTransit {
@@ -209,7 +207,7 @@ impl TripSpec {
             }
         };
 
-        (person, info, self, legs)
+        (self, legs)
     }
 
     /// Turn an origin/destination pair and mode into a specific plan for instantiating a trip.
@@ -220,7 +218,6 @@ impl TripSpec {
         mode: TripMode,
         use_vehicle: Option<CarID>,
         retry_if_no_room: bool,
-        rng: &mut XorShiftRng,
         map: &Map,
     ) -> Result<TripSpec> {
         Ok(match mode {
@@ -251,7 +248,9 @@ impl TripSpec {
                         let start_lane = map
                             .get_i(i)
                             .some_outgoing_road(map)
-                            .and_then(|dr| dr.lanes(constraints, map).choose(rng).cloned())
+                            // TODO Since we're now doing this right when the trip is starting,
+                            // pick the least loaded lane or similar.
+                            .and_then(|dr| dr.lanes(constraints, map).pop())
                             .ok_or_else(|| {
                                 anyhow!("can't start a {} trip from {}", mode.ongoing_verb(), i)
                             })?;

@@ -10,7 +10,7 @@ pub use self::load::SimFlags;
 pub use self::modifier::ScenarioModifier;
 pub use self::scenario::{IndividTrip, PersonSpec, Scenario, TripPurpose};
 pub use self::spawner::TripEndpoint;
-pub(crate) use self::spawner::TripSpec;
+pub(crate) use self::spawner::{StartTripArgs, TripSpec};
 
 mod activity_model;
 mod external;

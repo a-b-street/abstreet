@@ -15,8 +15,9 @@ use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
     Event, IndividTrip, OrigPersonID, ParkedCar, ParkingSim, ParkingSpot, PedestrianID, PersonID,
-    PersonSpec, Scenario, SidewalkPOI, SidewalkSpot, TransitSimState, TripEndpoint, TripID,
-    TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
+    PersonSpec, Scenario, SidewalkPOI, SidewalkSpot, StartTripArgs, TransitSimState, TripEndpoint,
+    TripID, TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec, VehicleType,
+    WalkingSimState,
 };
 
 /// Manages people, each of which executes some trips through the day. Each trip is further broken
@@ -91,10 +92,7 @@ impl TripManager {
         id
     }
 
-    pub fn new_trip(&mut self, person: PersonID, info: TripInfo, legs: Vec<TripLeg>) -> TripID {
-        assert!(!legs.is_empty());
-        // TODO Make sure the legs constitute a valid state machine.
-
+    pub fn new_trip(&mut self, person: PersonID, info: TripInfo) -> TripID {
         let id = TripID(self.trips.len());
         let trip = Trip {
             id,
@@ -104,7 +102,7 @@ impl TripManager {
             finished_at: None,
             total_blocked_time: Duration::ZERO,
             total_distance: Distance::ZERO,
-            legs: VecDeque::from(legs),
+            legs: VecDeque::new(),
         };
         self.unfinished_trips += 1;
         let person = &mut self.people[trip.person.0];
@@ -132,7 +130,7 @@ impl TripManager {
         id
     }
 
-    pub fn start_trip(&mut self, now: Time, trip: TripID, spec: TripSpec, ctx: &mut Ctx) {
+    pub fn start_trip(&mut self, now: Time, trip: TripID, args: StartTripArgs, ctx: &mut Ctx) {
         assert!(self.trips[trip.0].info.cancellation_reason.is_none());
 
         let person = &mut self.people[self.trips[trip.0].person.0];
@@ -147,7 +145,7 @@ impl TripManager {
                     ),
                 ));
             }
-            person.delayed_trips.push((trip, spec));
+            person.delayed_trips.push((trip, args));
             self.events.push(Event::TripPhaseStarting(
                 trip,
                 person.id,
@@ -157,6 +155,26 @@ impl TripManager {
             return;
         }
         self.trips[trip.0].started = true;
+
+        let info = &self.trips[trip.0].info;
+        let spec = match TripSpec::maybe_new(
+            info.start.clone(),
+            info.end.clone(),
+            info.mode,
+            args.use_vehicle,
+            args.retry_if_no_room,
+            ctx.map,
+        ) {
+            Ok(spec) => spec,
+            Err(error) => TripSpec::SpawningFailure {
+                use_vehicle: args.use_vehicle,
+                error: error.to_string(),
+            },
+        };
+        // to_plan might actually change the TripSpec
+        let (spec, legs) = spec.to_plan(ctx.map);
+        assert!(self.trips[trip.0].legs.is_empty());
+        self.trips[trip.0].legs.extend(legs);
 
         match spec {
             TripSpec::VehicleAppearing {
@@ -913,7 +931,7 @@ impl TripManager {
         if person.delayed_trips.is_empty() {
             return;
         }
-        let (trip, spec) = person.delayed_trips.remove(0);
+        let (trip, args) = person.delayed_trips.remove(0);
         if false {
             self.events.push(Event::Alert(
                 AlertLocation::Person(person.id),
@@ -923,7 +941,7 @@ impl TripManager {
                 ),
             ));
         }
-        self.start_trip(now, trip, spec, ctx);
+        self.start_trip(now, trip, args, ctx);
     }
 
     fn spawn_ped(&mut self, now: Time, id: TripID, start: SidewalkSpot, ctx: &mut Ctx) {
@@ -1337,6 +1355,7 @@ struct Trip {
     finished_at: Option<Time>,
     total_blocked_time: Duration,
     total_distance: Distance,
+    // Not filled out until the trip starts
     legs: VecDeque<TripLeg>,
     person: PersonID,
 }
@@ -1487,7 +1506,7 @@ pub struct Person {
     /// Both cars and bikes
     pub vehicles: Vec<Vehicle>,
 
-    delayed_trips: Vec<(TripID, TripSpec)>,
+    delayed_trips: Vec<(TripID, StartTripArgs)>,
     on_bus: Option<CarID>,
 }
 

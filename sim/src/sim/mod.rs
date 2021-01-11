@@ -22,8 +22,8 @@ use crate::{
     AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
     Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,
     ParkingSimState, ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    TrafficRecorder, TransitSimState, TripID, TripInfo, TripLeg, TripManager, TripPhaseType,
-    TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH,
+    StartTripArgs, TrafficRecorder, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType,
+    Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH,
     MIN_CAR_LENGTH,
 };
 
@@ -230,20 +230,21 @@ impl Sim {
 
     pub(crate) fn spawn_trips(
         &mut self,
-        input: Vec<(PersonID, TripInfo, TripSpec, Vec<TripLeg>)>,
+        input: Vec<(PersonID, TripInfo, StartTripArgs)>,
         map: &Map,
         timer: &mut Timer,
     ) {
         timer.start_iter("spawn trips", input.len());
-        for (p, info, spec, legs) in input {
+        for (p, info, args) in input {
             timer.next();
 
-            let trip = self.trips.new_trip(p, info.clone(), legs);
+            let trip = self.trips.new_trip(p, info.clone());
+            // This might be immediately true due to ScenarioModifiers
             if let Some(msg) = info.cancellation_reason {
                 self.trips.cancel_unstarted_trip(trip, msg);
             } else {
                 self.scheduler
-                    .push(info.departure, Command::StartTrip(trip, spec));
+                    .push(info.departure, Command::StartTrip(trip, args));
             }
         }
 
@@ -435,8 +436,8 @@ impl Sim {
         };
 
         match cmd {
-            Command::StartTrip(id, trip_spec) => {
-                self.trips.start_trip(self.time, id, trip_spec, &mut ctx);
+            Command::StartTrip(id, args) => {
+                self.trips.start_trip(self.time, id, args, &mut ctx);
             }
             Command::SpawnCar(create_car, retry_if_no_room) => {
                 // If this SpawnCar is being retried and the map was live-edited since the first
