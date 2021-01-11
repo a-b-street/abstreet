@@ -7,7 +7,7 @@ use abstutil::{retain_btreemap, Tags, Timer};
 use geom::{HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
-use map_model::{osm, Amenity, AreaType, NamePerLanguage};
+use map_model::{osm, Amenity, AreaType, DrivingSide, NamePerLanguage};
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use crate::{transit, Options};
@@ -505,7 +505,11 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         {
             tags.insert(osm::SIDEWALK, "none");
         } else if tags.is("oneway", "yes") {
-            tags.insert(osm::SIDEWALK, "right");
+            if opts.map_config.driving_side == DrivingSide::Right {
+                tags.insert(osm::SIDEWALK, "right");
+            } else {
+                tags.insert(osm::SIDEWALK, "left");
+            }
             if tags.is_any(osm::HIGHWAY, vec!["residential", "living_street"])
                 && !tags.is("dual_carriageway", "yes")
             {

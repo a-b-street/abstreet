@@ -51,9 +51,9 @@
       "compressed_size_bytes": 5116187
     },
     "data/input/cambridge/raw_maps/trumpington.bin": {
-      "checksum": "7fe18c9b86b7df1f77b081f1ec554687",
-      "uncompressed_size_bytes": 13976436,
-      "compressed_size_bytes": 3225165
+      "checksum": "4e9319057ed080cf50981e1b7c1d1140",
+      "uncompressed_size_bytes": 13976203,
+      "compressed_size_bytes": 3225186
     },
     "data/input/krakow/osm/center.osm": {
       "checksum": "e64103d37a7009d96f7d8a653db02deb",
@@ -111,24 +111,24 @@
       "compressed_size_bytes": 4369994
     },
     "data/input/leeds/raw_maps/central.bin": {
-      "checksum": "a0ad96751b86fd49851b02f5976ba463",
-      "uncompressed_size_bytes": 9882557,
-      "compressed_size_bytes": 2255243
+      "checksum": "102a3b9b23e871880507a1d2cde1e655",
+      "uncompressed_size_bytes": 9881064,
+      "compressed_size_bytes": 2255057
     },
     "data/input/leeds/raw_maps/huge.bin": {
-      "checksum": "27bb82d38ca4181f96ecbf802cc7d120",
-      "uncompressed_size_bytes": 41794113,
-      "compressed_size_bytes": 9911640
+      "checksum": "90797f846922eab7a2413ad3c845bc7e",
+      "uncompressed_size_bytes": 41791541,
+      "compressed_size_bytes": 9911149
     },
     "data/input/leeds/raw_maps/north.bin": {
-      "checksum": "2357d88e66c2c86fdcfd2171c386efa1",
-      "uncompressed_size_bytes": 18040441,
-      "compressed_size_bytes": 4317543
+      "checksum": "2aa3f6d833929ecf3b07e66c321655c0",
+      "uncompressed_size_bytes": 18039317,
+      "compressed_size_bytes": 4317360
     },
     "data/input/leeds/raw_maps/west.bin": {
-      "checksum": "7bc890de2e64d439d7877502daa776cd",
-      "uncompressed_size_bytes": 14637828,
-      "compressed_size_bytes": 3413808
+      "checksum": "1fc1f1a41b796dbd97d67eb828c7181e",
+      "uncompressed_size_bytes": 14637001,
+      "compressed_size_bytes": 3413648
     },
     "data/input/london/Road Safety Data - Accidents 2019.csv": {
       "checksum": "ce30e6f7743be7b451e298583c65f99a",
@@ -151,14 +151,14 @@
       "compressed_size_bytes": 2120711
     },
     "data/input/london/raw_maps/southbank.bin": {
-      "checksum": "a6e3939121a21b99518f481865ef7ee0",
-      "uncompressed_size_bytes": 3317757,
-      "compressed_size_bytes": 772801
+      "checksum": "4862cfd9c745b89942bed888bf2ffbf7",
+      "uncompressed_size_bytes": 3317573,
+      "compressed_size_bytes": 772700
     },
     "data/input/london/screenshots/southbank.zip": {
-      "checksum": "95a55d5884d98e370bcec24b2cb09fee",
-      "uncompressed_size_bytes": 7142289,
-      "compressed_size_bytes": 7141827
+      "checksum": "e10f890cd30457f0df1ec20d4c20375a",
+      "uncompressed_size_bytes": 7106922,
+      "compressed_size_bytes": 7106442
     },
     "data/input/nyc/osm/lower_manhattan.osm": {
       "checksum": "09bf8cdb40474741b58e74f4c486a69e",
@@ -636,9 +636,9 @@
       "compressed_size_bytes": 8005261
     },
     "data/system/cambridge/maps/trumpington.bin": {
-      "checksum": "056d7ef9e5dc7f686388fe7dceca8d13",
-      "uncompressed_size_bytes": 24955054,
-      "compressed_size_bytes": 8899682
+      "checksum": "03f01582a4775086fa58dd2bad918533",
+      "uncompressed_size_bytes": 24548424,
+      "compressed_size_bytes": 8779662
     },
     "data/system/krakow/maps/center.bin": {
       "checksum": "e621cd0cf13daee0141fdf59cad828bc",
@@ -651,29 +651,29 @@
       "compressed_size_bytes": 726053
     },
     "data/system/leeds/maps/central.bin": {
-      "checksum": "4bb7e6a0f4f355164a35354b23a78a41",
-      "uncompressed_size_bytes": 32987851,
-      "compressed_size_bytes": 11079454
+      "checksum": "96377f30fc1fba8fba344639731e8d49",
+      "uncompressed_size_bytes": 30347835,
+      "compressed_size_bytes": 10250290
     },
     "data/system/leeds/maps/huge.bin": {
-      "checksum": "b256a52236f47f2caacbbc817816a684",
-      "uncompressed_size_bytes": 123082319,
-      "compressed_size_bytes": 42273483
+      "checksum": "5889b084ccbbd3ebe39651034c586ce7",
+      "uncompressed_size_bytes": 118586557,
+      "compressed_size_bytes": 40772083
     },
     "data/system/leeds/maps/north.bin": {
-      "checksum": "25a89ca03df549dd780e86cec7bd9767",
-      "uncompressed_size_bytes": 53574957,
-      "compressed_size_bytes": 18387069
+      "checksum": "d547778e0218a54685aca3fa53a27b51",
+      "uncompressed_size_bytes": 51604565,
+      "compressed_size_bytes": 17761395
     },
     "data/system/leeds/maps/west.bin": {
-      "checksum": "5c84b7998e52a53b209e82f42ff06ac4",
-      "uncompressed_size_bytes": 44918526,
-      "compressed_size_bytes": 15314574
+      "checksum": "3a323c0b0b270126e073a8a84e737e88",
+      "uncompressed_size_bytes": 43489740,
+      "compressed_size_bytes": 14865729
     },
     "data/system/london/maps/southbank.bin": {
-      "checksum": "017d04e8eec2f02009e2061421ef34f9",
-      "uncompressed_size_bytes": 8522005,
-      "compressed_size_bytes": 2826536
+      "checksum": "d682b946e086098f9163ca1d59bbc2a9",
+      "uncompressed_size_bytes": 8220386,
+      "compressed_size_bytes": 2733976
     },
     "data/system/nyc/city.bin": {
       "checksum": "aae1b9807f852aa74b9d7d6e66db1810",
