@@ -77,11 +77,27 @@ impl ControlTrafficSignal {
         policies.remove(0).1
     }
 
+    /// Only call this variant while importing the map, to enforce that baked-in signal config is
+    /// valid.
+    pub(crate) fn validating_new(
+        map: &Map,
+        id: IntersectionID,
+        timer: &mut Timer,
+    ) -> ControlTrafficSignal {
+        let mut policies = get_possible_policies(map, id, true);
+        if policies.len() == 1 {
+            timer.warn(format!("Falling back to greedy_assignment for {}", id));
+        }
+        policies.remove(0).1
+    }
+
     pub fn get_possible_policies(
         map: &Map,
         id: IntersectionID,
     ) -> Vec<(String, ControlTrafficSignal)> {
-        get_possible_policies(map, id)
+        // This method is called publicly while editing the map, so don't enforce valid baked-in
+        // signal config.
+        get_possible_policies(map, id, false)
     }
     // TODO tmp
     pub fn brute_force(map: &Map, id: IntersectionID) {

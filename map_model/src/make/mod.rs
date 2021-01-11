@@ -310,7 +310,10 @@ impl Map {
                 }
                 IntersectionType::TrafficSignal => match Movement::for_i(i.id, &map) {
                     Ok(_) => {
-                        traffic_signals.insert(i.id, ControlTrafficSignal::new(&map, i.id, timer));
+                        traffic_signals.insert(
+                            i.id,
+                            ControlTrafficSignal::validating_new(&map, i.id, timer),
+                        );
                     }
                     Err(err) => {
                         timer.error(format!(

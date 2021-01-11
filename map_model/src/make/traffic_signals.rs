@@ -10,7 +10,15 @@ use crate::{
 /// Applies a bunch of heuristics to a single intersection, returning the valid results in
 /// best-first order. The signal configuration is only based on the roads connected to the
 /// intersection.
-pub fn get_possible_policies(map: &Map, id: IntersectionID) -> Vec<(String, ControlTrafficSignal)> {
+///
+/// If `enforce_manual_signals` is true, then any data from the `traffic_signal_data` crate that
+/// matches the map will be validated against the current map. If the config is out-of-date, this
+/// method will panic, so that whoever is running the importer can immediately fix the config.
+pub fn get_possible_policies(
+    map: &Map,
+    id: IntersectionID,
+    enforce_manual_signals: bool,
+) -> Vec<(String, ControlTrafficSignal)> {
     let mut results = Vec::new();
 
     if let Some(raw) = traffic_signal_data::load_all_data()
@@ -23,12 +31,19 @@ pub fn get_possible_policies(map: &Map, id: IntersectionID) -> Vec<(String, Cont
             }
             Err(err) => {
                 let i = map.get_i(id);
-                panic!(
-                    "traffic_signal_data data for {} ({}) out of date, go update it: {}",
-                    i.orig_id,
-                    i.name(None, map),
-                    err
-                );
+                if enforce_manual_signals {
+                    panic!(
+                        "traffic_signal_data data for {} ({}) out of date, go update it: {}",
+                        i.orig_id,
+                        i.name(None, map),
+                        err
+                    );
+                } else {
+                    warn!(
+                        "traffic_signal_data data for {} no longer valid with map edits: {}",
+                        i.orig_id, err
+                    );
+                }
             }
         }
     }
