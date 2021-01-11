@@ -194,7 +194,7 @@ fn finish_app_setup(
     maybe_mode: Option<GameplayMode>,
     initialize_tutorial: bool,
 ) -> Vec<Box<dyn State<App>>> {
-    app.primary.init_camera_for_loaded_map(ctx, !title);
+    app.primary.init_camera_for_loaded_map(ctx, title);
 
     // Handle savestates
     let savestate = if app
