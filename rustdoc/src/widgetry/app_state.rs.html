@@ -266,6 +266,15 @@
 <span id="263">263</span>
 <span id="264">264</span>
 <span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
 <span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
@@ -322,16 +331,25 @@
             }
             <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span> <span class="op">=</span><span class="op">&gt;</span> {}
             <span class="ident">DrawBaselayer</span>::<span class="ident">PreviousState</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw_baselayer</span>() {
-                    <span class="ident">DrawBaselayer</span>::<span class="ident">DefaultDraw</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">draw_default</span>(<span class="ident">g</span>);
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
+                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw_baselayer</span>() {
+                        <span class="ident">DrawBaselayer</span>::<span class="ident">DefaultDraw</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">draw_default</span>(<span class="ident">g</span>);
+                        }
+                        <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                        <span class="comment">// Don&#39;t recurse, but at least clear the screen, because the state is</span>
+                        <span class="comment">// usually expecting the previous thing to happen.</span>
+                        <span class="ident">DrawBaselayer</span>::<span class="ident">PreviousState</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
+                        }
                     }
-                    <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                    <span class="comment">// Don&#39;t recurse, but at least clear the screen, because the state is usually</span>
-                    <span class="comment">// expecting the previous thing to happen.</span>
-                    <span class="ident">DrawBaselayer</span>::<span class="ident">PreviousState</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
-                    }
+                } <span class="kw">else</span> {
+                    <span class="comment">// I&#39;m not entirely sure why this happens, but crashing isn&#39;t ideal.</span>
+                    <span class="macro">warn</span><span class="macro">!</span>(
+                        <span class="string">&quot;A state requested DrawBaselayer::PreviousState, but it&#39;s the only state \
+                         on the stack!&quot;</span>
+                    );
+                    <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
                 }
 
                 <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared_app_state</span>);
