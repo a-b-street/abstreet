@@ -564,6 +564,10 @@
 <span id="561">561</span>
 <span id="562">562</span>
 <span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -574,7 +578,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">HashablePt2D</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::{<span class="ident">RawArea</span>, <span class="ident">RawBuilding</span>, <span class="ident">RawMap</span>, <span class="ident">RawParkingLot</span>, <span class="ident">RawRoad</span>, <span class="ident">RestrictionType</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">AreaType</span>, <span class="ident">NamePerLanguage</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">AreaType</span>, <span class="ident">DrivingSide</span>, <span class="ident">NamePerLanguage</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">osm_geom</span>::{<span class="ident">get_multipolygon_members</span>, <span class="ident">glue_multipolygon</span>, <span class="ident">multipoly_geometry</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">transit</span>, <span class="ident">Options</span>};
@@ -1072,7 +1076,11 @@
         {
             <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;none&quot;</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
-            <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;right&quot;</span>);
+            <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
+                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;right&quot;</span>);
+            } <span class="kw">else</span> {
+                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;left&quot;</span>);
+            }
             <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;residential&quot;</span>, <span class="string">&quot;living_street&quot;</span>])
                 <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;dual_carriageway&quot;</span>, <span class="string">&quot;yes&quot;</span>)
             {
