@@ -41,6 +41,13 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         }
     }
 
+    // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
+    // various things for A/B Street.
+    if let Some(way) = doc.ways.get_mut(&WayID(881403608)) {
+        // https://www.openstreetmap.org/way/881403608 is a roundabout that keeps causing gridlock
+        way.tags.insert("highway", "construction");
+    }
+
     if opts.clip.is_none() {
         // Use the boundary from .osm.
         map.gps_bounds = doc.gps_bounds.clone();
