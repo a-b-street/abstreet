@@ -1093,6 +1093,17 @@ impl TripManager {
                             ),
                         ));
                     }
+                } else if let Some(parked_car) = ctx.parking.lookup_parked_car(vehicle.id).cloned()
+                {
+                    self.events.push(Event::Alert(
+                        AlertLocation::Person(person),
+                        format!(
+                            "{} had a trip from on-map to off-map cancelled, so warping their car \
+                             off-map",
+                            person
+                        ),
+                    ));
+                    ctx.parking.remove_parked_car(parked_car);
                 }
             }
         } else {
