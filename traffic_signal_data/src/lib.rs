@@ -77,9 +77,11 @@ pub struct DirectedRoad {
     pub is_forwards: bool,
 }
 
-static DATA: include_dir::Dir = include_dir::include_dir!("data");
+// "" means include all files within data. My hacks to the include_dir crate need a better API.
+static DATA: include_dir::Dir = include_dir::include_dir!("data", "");
 
-/// Returns all traffic signal data compiled into this build, keyed by OSM node ID.
+/// Returns all traffic signal data compiled into this build, keyed by OSM node ID. If any single
+/// file is broken, returns an error for the entire load.
 // TODO Use a build script to do this. But have to generate Rust code to populate the struct?
 pub fn load_all_data() -> Result<BTreeMap<i64, TrafficSignal>, std::io::Error> {
     let mut results = BTreeMap::new();

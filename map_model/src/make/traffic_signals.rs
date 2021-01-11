@@ -17,7 +17,7 @@ pub fn get_possible_policies(map: &Map, id: IntersectionID) -> Vec<(String, Cont
         .unwrap()
         .remove(&map.get_i(id).orig_id.0)
     {
-        match ControlTrafficSignal::import(raw, id, map) {
+        match ControlTrafficSignal::import(raw, id, map).and_then(|ts| ts.validate().map(|_| ts)) {
             Ok(ts) => {
                 results.push(("manually specified settings".to_string(), ts));
             }
