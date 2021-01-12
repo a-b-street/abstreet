@@ -11,7 +11,7 @@ use crate::make::traffic_signals::{brute_force, get_possible_policies};
 use crate::raw::OriginalRoad;
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
-    MovementID, TurnID, TurnPriority, TurnType,
+    MovementID, RoadID, TurnID, TurnPriority, TurnType,
 };
 
 // The pace to use for crosswalk pace in m/s
@@ -220,6 +220,63 @@ impl ControlTrafficSignal {
             self.stages.push(all_walk_stage);
         }
         self != &orig
+    }
+
+    /// Modifies the fixed timing of all stages, applying either a major or minor duration,
+    /// depending on the relative rank of the roads involved in the intersection. If this
+    /// transformation couldn't be applied, returns an error. Even if an error is returned, the
+    /// signal may have been changed -- so only call this on a cloned signal.
+    pub fn adjust_major_minor_timing(
+        &mut self,
+        major: Duration,
+        minor: Duration,
+        map: &Map,
+    ) -> Result<()> {
+        if self.stages.len() != 2 {
+            bail!("This intersection doesn't have 2 stages.");
+        }
+
+        // What's the rank of each road?
+        let mut rank_per_road: BTreeMap<RoadID, osm::RoadRank> = BTreeMap::new();
+        for r in &map.get_i(self.id).roads {
+            rank_per_road.insert(*r, map.get_r(*r).get_rank());
+        }
+        let mut ranks: Vec<osm::RoadRank> = rank_per_road.values().cloned().collect();
+        ranks.sort();
+        ranks.dedup();
+        if ranks.len() == 1 {
+            bail!("This intersection doesn't have major/minor roads; they're all the same rank.");
+        }
+        let highest_rank = ranks.pop().unwrap();
+
+        // Try to apply the transformation
+        let orig = self.clone();
+        for stage in &mut self.stages {
+            match stage.stage_type {
+                StageType::Fixed(_) => {}
+                _ => bail!("This intersection doesn't use fixed timing."),
+            }
+            // Ignoring crosswalks, do any of the turns come from a major road?
+            if stage
+                .protected_movements
+                .iter()
+                .any(|m| !m.crosswalk && highest_rank == rank_per_road[&m.from.id])
+            {
+                stage.stage_type = StageType::Fixed(major);
+            } else {
+                stage.stage_type = StageType::Fixed(minor);
+            }
+        }
+
+        if self.simple_cycle_duration() != major + minor {
+            bail!("This intersection didn't already group major/minor roads together.");
+        }
+
+        if self == &orig {
+            bail!("This change had no effect.");
+        }
+
+        Ok(())
     }
 
     pub fn turn_to_movement(&self, turn: TurnID) -> MovementID {

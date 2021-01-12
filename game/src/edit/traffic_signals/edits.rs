@@ -1,5 +1,5 @@
 use geom::Duration;
-use map_gui::tools::ChooseSomething;
+use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
@@ -157,6 +157,7 @@ pub fn edit_entire_signal(
 
     let use_template = "use template";
     let all_walk = "add an all-walk stage at the end";
+    let major_minor_timing = "use timing pattern for a major/minor intersection";
     let stop_sign = "convert to stop signs";
     let close = "close intersection for construction";
     let reset = "reset to default";
@@ -165,6 +166,7 @@ pub fn edit_entire_signal(
     if has_sidewalks {
         choices.push(all_walk);
     }
+    choices.push(major_minor_timing);
     // TODO Conflating stop signs and construction here
     if mode.can_edit_stop_signs() {
         choices.push(stop_sign);
@@ -208,6 +210,38 @@ pub fn edit_entire_signal(
                     }
                 })),
             ]),
+            x if x == major_minor_timing => Transition::Replace(ChooseSomething::new(
+                ctx,
+                "Use what timing split?",
+                vec![
+                    Choice::new(
+                        "120s cycle: 96s major roads, 24s minor roads",
+                        (Duration::seconds(96.0), Duration::seconds(24.0)),
+                    ),
+                    Choice::new(
+                        "60s cycle: 36s major roads, 24s minor roads",
+                        (Duration::seconds(36.0), Duration::seconds(24.0)),
+                    ),
+                ],
+                Box::new(move |timing, ctx, app| {
+                    let mut new_signal = app.primary.map.get_traffic_signal(i).clone();
+                    match new_signal.adjust_major_minor_timing(timing.0, timing.1, &app.primary.map)
+                    {
+                        Ok(()) => Transition::Multi(vec![
+                            Transition::Pop,
+                            Transition::ModifyState(Box::new(move |state, ctx, app| {
+                                let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                                editor.add_new_edit(ctx, app, 0, |ts| {
+                                    *ts = new_signal.clone();
+                                });
+                            })),
+                        ]),
+                        Err(err) => {
+                            Transition::Replace(PopupMsg::new(ctx, "Error", vec![err.to_string()]))
+                        }
+                    }
+                }),
+            )),
             x if x == stop_sign => {
                 original.apply(app);
 
