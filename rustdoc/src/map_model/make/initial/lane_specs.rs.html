@@ -486,6 +486,21 @@
 <span id="483">483</span>
 <span id="484">484</span>
 <span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
@@ -533,6 +548,21 @@
     <span class="comment">// Easy special cases first.</span>
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;railway&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;light_rail&quot;</span>, <span class="string">&quot;rail&quot;</span>]) {
         <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">LightRail</span>)];
+    }
+    <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">separate_cycleways</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;cycleway&quot;</span>) {
+        <span class="kw">let</span> <span class="ident">half_width</span> <span class="op">=</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">spec</span>: <span class="ident">LaneSpec</span><span class="op">|</span> {
+            <span class="ident">spec</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>;
+            <span class="ident">spec</span>
+        };
+        <span class="kw">return</span> <span class="ident">assemble_ltr</span>(
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">half_width</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>))],
+            <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+                <span class="macro">vec</span><span class="macro">!</span>[]
+            } <span class="kw">else</span> {
+                <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">half_width</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>))]
+            },
+            <span class="ident">cfg</span>.<span class="ident">driving_side</span>,
+        );
     }
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(
         <span class="ident">osm</span>::<span class="ident">HIGHWAY</span>,

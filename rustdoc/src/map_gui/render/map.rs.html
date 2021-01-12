@@ -439,6 +439,10 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -649,6 +653,8 @@
                 <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>),
                 <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
                     <span class="ident">cs</span>.<span class="ident">light_rail_track</span>
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>() {
+                    <span class="ident">cs</span>.<span class="ident">unzoomed_trail</span>
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
                     <span class="ident">cs</span>.<span class="ident">private_road</span>
                 } <span class="kw">else</span> {
@@ -663,6 +669,8 @@
                 <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_stop_sign</span>() {
                     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_light_rail</span>(<span class="ident">map</span>) {
                         <span class="ident">cs</span>.<span class="ident">light_rail_track</span>
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_cycleway</span>(<span class="ident">map</span>) {
+                        <span class="ident">cs</span>.<span class="ident">unzoomed_trail</span>
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_private</span>(<span class="ident">map</span>) {
                         <span class="ident">cs</span>.<span class="ident">private_road</span>
                     } <span class="kw">else</span> {

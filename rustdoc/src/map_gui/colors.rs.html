@@ -582,6 +582,8 @@
 <span id="579">579</span>
 <span id="580">580</span>
 <span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -675,6 +677,7 @@
     <span class="ident">unzoomed_highway</span>: <span class="ident">Color</span>,
     <span class="ident">unzoomed_arterial</span>: <span class="ident">Color</span>,
     <span class="ident">unzoomed_residential</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">unzoomed_trail</span>: <span class="ident">Color</span>,
 
     <span class="comment">// Intersections</span>
     <span class="kw">pub</span> <span class="ident">normal_intersection</span>: <span class="ident">Color</span>,
@@ -800,6 +803,7 @@
             <span class="ident">unzoomed_highway</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">232</span>, <span class="number">146</span>, <span class="number">162</span>),
             <span class="ident">unzoomed_arterial</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">255</span>, <span class="number">199</span>, <span class="number">62</span>),
             <span class="ident">unzoomed_residential</span>: <span class="ident">Color</span>::<span class="ident">WHITE</span>,
+            <span class="ident">unzoomed_trail</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">15</span>, <span class="number">125</span>, <span class="number">75</span>),
 
             <span class="comment">// Intersections</span>
             <span class="ident">normal_intersection</span>: <span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.2</span>),

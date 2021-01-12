@@ -688,6 +688,9 @@
 <span id="685">685</span>
 <span id="686">686</span>
 <span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -719,6 +722,8 @@
     <span class="doccomment">/// false, no sidewalks will be inferred if not tagged in OSM, and separate sidewalks will be</span>
     <span class="doccomment">/// included.</span>
     <span class="kw">pub</span> <span class="ident">inferred_sidewalks</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// If true, separate cycleways from OSM will be included.</span>
+    <span class="kw">pub</span> <span class="ident">separate_cycleways</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
@@ -853,6 +858,7 @@
                 <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>::<span class="ident">Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
+                <span class="ident">separate_cycleways</span>: <span class="bool-val">false</span>,
             },
             <span class="ident">pathfinder</span>: <span class="ident">Pathfinder</span>::<span class="ident">Dijkstra</span>,
             <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,

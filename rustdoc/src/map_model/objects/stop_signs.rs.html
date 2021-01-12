@@ -143,6 +143,8 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -253,11 +255,13 @@
         <span class="comment">// Highest rank is first</span>
         <span class="ident">ranks</span>.<span class="ident">reverse</span>();
 
-        <span class="comment">// If all roads have the same rank, all-way stop. Otherwise, everything stops except the</span>
-        <span class="comment">// highest-priority roads.</span>
-        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">cfg</span>) <span class="kw">in</span> <span class="ident">ss</span>.<span class="ident">roads</span>.<span class="ident">iter_mut</span>() {
-            <span class="kw">if</span> <span class="ident">ranks</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">rank</span>[<span class="ident">r</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">ranks</span>[<span class="number">0</span>] {
-                <span class="ident">cfg</span>.<span class="ident">must_stop</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="comment">// If all roads have the same rank and it&#39;s not just intersecting cycleways, all-way stop.</span>
+        <span class="comment">// Otherwise, everything stops except the highest-priority roads.</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">is_cycleway</span>(<span class="ident">map</span>) {
+            <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">cfg</span>) <span class="kw">in</span> <span class="ident">ss</span>.<span class="ident">roads</span>.<span class="ident">iter_mut</span>() {
+                <span class="kw">if</span> <span class="ident">ranks</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">rank</span>[<span class="ident">r</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">ranks</span>[<span class="number">0</span>] {
+                    <span class="ident">cfg</span>.<span class="ident">must_stop</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                }
             }
         }
         <span class="ident">ss</span>
