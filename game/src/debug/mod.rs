@@ -235,7 +235,7 @@ impl State<App> for DebugMode {
                             MapName::new("krakow", "center"),
                             MapName::seattle("lakeslice"),
                             MapName::seattle("montlake"),
-                            MapName::new("london", "southbank"),
+                            MapName::new("cambridge", "trumpington"),
                             MapName::seattle("udistrict"),
                         ],
                     ));

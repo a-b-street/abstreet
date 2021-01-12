@@ -525,10 +525,9 @@ impl PolyLine {
         let head_size = thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
 
-        if self.length() < triangle_height + EPSILON_DIST {
-            return None;
-        }
-        let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
+        let slice = self
+            .maybe_exact_slice(Distance::ZERO, self.length() - triangle_height)
+            .ok()?;
 
         let angle = slice.last_pt().angle_to(self.last_pt());
         let corner1 = self

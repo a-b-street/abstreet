@@ -55,6 +55,11 @@
       "uncompressed_size_bytes": 14840548,
       "compressed_size_bytes": 3387178
     },
+    "data/input/cambridge/screenshots/trumpington.zip": {
+      "checksum": "a42f59cf1aab838872f7246baa17845c",
+      "uncompressed_size_bytes": 39274168,
+      "compressed_size_bytes": 39250810
+    },
     "data/input/krakow/osm/center.osm": {
       "checksum": "e64103d37a7009d96f7d8a653db02deb",
       "uncompressed_size_bytes": 56598855,
@@ -154,11 +159,6 @@
       "checksum": "c8c82a44f5548eac8ce9664d24ae1cc0",
       "uncompressed_size_bytes": 3349383,
       "compressed_size_bytes": 786484
-    },
-    "data/input/london/screenshots/southbank.zip": {
-      "checksum": "54bbcb9fd4b2eb8bceb474abb1724a03",
-      "uncompressed_size_bytes": 7148105,
-      "compressed_size_bytes": 7147592
     },
     "data/input/nyc/osm/lower_manhattan.osm": {
       "checksum": "09bf8cdb40474741b58e74f4c486a69e",
