@@ -470,6 +470,22 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
@@ -670,7 +686,11 @@
         }
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:left&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;opposite_track&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
             <span class="kw">if</span> <span class="ident">oneway</span> {
-                <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>));
+                <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide</span>::<span class="ident">Right</span> {
+                    <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>));
+                } <span class="kw">else</span> {
+                    <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>));
+                }
                 <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway:bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
                     <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>));
                 }
@@ -904,6 +924,18 @@
                 <span class="ident">DrivingSide</span>::<span class="ident">Left</span>,
                 <span class="string">&quot;sdd&quot;</span>,
                 <span class="string">&quot;^^^&quot;</span>,
+            ),
+            (
+                <span class="string">&quot;https://www.openstreetmap.org/way/4188078&quot;</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="string">&quot;lanes=2&quot;</span>,
+                    <span class="string">&quot;cycleway:left=lane&quot;</span>,
+                    <span class="string">&quot;oneway=yes&quot;</span>,
+                    <span class="string">&quot;sidewalk=left&quot;</span>,
+                ],
+                <span class="ident">DrivingSide</span>::<span class="ident">Left</span>,
+                <span class="string">&quot;sbdd&quot;</span>,
+                <span class="string">&quot;^^^^&quot;</span>,
             ),
         ] {
             <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">MapConfig</span> {
