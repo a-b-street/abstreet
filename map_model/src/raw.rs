@@ -111,6 +111,7 @@ impl RawMap {
                 driving_side: DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
+                separate_cycleways: false,
             },
         }
     }

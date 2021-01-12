@@ -337,6 +337,12 @@ impl Road {
         self.osm_tags.is(osm::HIGHWAY, "service")
     }
 
+    pub fn is_cycleway(&self) -> bool {
+        self.lanes_ltr()
+            .into_iter()
+            .all(|(_, _, lt)| lt == LaneType::Biking)
+    }
+
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
         if self.src_i == other.src_i || self.src_i == other.dst_i {
             self.src_i

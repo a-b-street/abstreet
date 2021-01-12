@@ -255,6 +255,7 @@ fn oneshot(
                 },
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks,
+                separate_cycleways: false,
             },
 
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,

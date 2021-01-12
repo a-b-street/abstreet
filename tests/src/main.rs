@@ -56,6 +56,7 @@ fn import_map(path: String) -> Map {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
+                separate_cycleways: false,
             },
             onstreet_parking: convert_osm::OnstreetParking::JustOSM,
             public_offstreet_parking: convert_osm::PublicOffstreetParking::None,

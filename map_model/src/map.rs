@@ -28,6 +28,8 @@ pub struct MapConfig {
     /// false, no sidewalks will be inferred if not tagged in OSM, and separate sidewalks will be
     /// included.
     pub inferred_sidewalks: bool,
+    /// If true, separate cycleways from OSM will be included.
+    pub separate_cycleways: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -162,6 +164,7 @@ impl Map {
                 driving_side: DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
+                separate_cycleways: false,
             },
             pathfinder: Pathfinder::Dijkstra,
             pathfinder_dirty: false,

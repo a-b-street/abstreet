@@ -455,12 +455,19 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
-    if (highway == "cycleway" || highway == "footway" || highway == "path" || highway == "steps")
+    if highway == "cycleway" {
+        if !opts.map_config.separate_cycleways && opts.map_config.inferred_sidewalks {
+            return false;
+        }
+    }
+
+    if (highway == "footway" || highway == "path" || highway == "steps")
         && opts.map_config.inferred_sidewalks
     {
         return false;
     }
-    if (highway == "cycleway" || highway == "path")
+    if !opts.map_config.separate_cycleways
+        && (highway == "cycleway" || highway == "path")
         && !tags.is_any("foot", vec!["yes", "designated"])
     {
         return false;
@@ -502,6 +509,8 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
             || tags.is_any("junction", vec!["intersection", "roundabout"])
             || tags.is("foot", "no")
             || tags.is(osm::HIGHWAY, "service")
+            // TODO For now, not attempting shared walking/biking paths.
+            || tags.is(osm::HIGHWAY, "cycleway")
         {
             tags.insert(osm::SIDEWALK, "none");
         } else if tags.is("oneway", "yes") {
@@ -543,7 +552,7 @@ fn get_bldg_amenities(tags: &Tags) -> Vec<Amenity> {
 }
 
 fn get_area_type(tags: &Tags) -> Option<AreaType> {
-    if tags.is_any("leisure", vec!["park", "golf_course"]) {
+    if tags.is_any("leisure", vec!["garden", "park", "golf_course"]) {
         return Some(AreaType::Park);
     }
     if tags.is_any("natural", vec!["wood", "scrub"]) {

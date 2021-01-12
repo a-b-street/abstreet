@@ -107,11 +107,13 @@ impl ControlStopSign {
         // Highest rank is first
         ranks.reverse();
 
-        // If all roads have the same rank, all-way stop. Otherwise, everything stops except the
-        // highest-priority roads.
-        for (r, cfg) in ss.roads.iter_mut() {
-            if ranks.len() == 1 || rank[r] != ranks[0] {
-                cfg.must_stop = true;
+        // If all roads have the same rank and it's not just intersecting cycleways, all-way stop.
+        // Otherwise, everything stops except the highest-priority roads.
+        if !map.get_i(id).is_cycleway(map) {
+            for (r, cfg) in ss.roads.iter_mut() {
+                if ranks.len() == 1 || rank[r] != ranks[0] {
+                    cfg.must_stop = true;
+                }
             }
         }
         ss
