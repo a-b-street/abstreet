@@ -347,7 +347,7 @@ impl Widget {
         let (mut batch, bounds) = crate::svg::load_svg(ctx.prerender, &filename.into());
         // Preserve the whitespace in the SVG.
         // TODO Maybe always do this, add a way to autocrop() to remove it if needed.
-        batch.push(Color::INVISIBLE, bounds.get_rectangle());
+        batch.push(Color::CLEAR, bounds.get_rectangle());
         DrawWithTooltips::new(
             ctx,
             batch,
