@@ -6,9 +6,9 @@ use rand_xorshift::XorShiftRng;
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series,
-    SharedAppState, State, Text, TextExt, Texture, Transition, UpdateType, VerticalAlignment,
-    Widget,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
+    ScreenDims, Series, SharedAppState, State, Text, TextExt, Texture, Transition, UpdateType,
+    VerticalAlignment, Widget,
 };
 
 pub fn main() {
@@ -337,43 +337,125 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .build(ctx),
             ]),
         ]),
+        // Button Style Gallery
         Widget::row(vec![
             Widget::col(vec![
                 Text::from(Line("Neutral Dark")).bg(Color::CLEAR).draw(ctx),
                 ButtonBuilder::new()
                     .label_text("Primary")
-                    .label_color(Color::hex("#666666"), ButtonState::Default)
+                    .label_color(Color::hex("#666666"), ButtonState::Default) // TODO is this the right color? it differs from icon and icon+text tinting
                     .bg_color(Color::WHITE.alpha(0.8), ButtonState::Default)
                     .bg_color(Color::WHITE, ButtonState::Hover)
                     .outline(2.0, Color::WHITE.alpha(0.8), ButtonState::Default)
-                    .action("neutral_dark_primary")
+                    .action("neutral_dark_primary_text")
                     .build(ctx),
+                Widget::row(vec![
+                    ButtonBuilder::new()
+                        .image_path("system/assets/tools/map.svg")
+                        .image_dims(ScreenDims::square(24.0))
+                        .image_color(Color::hex("#4c4c4c"), ButtonState::Default)
+                        .padding(6)
+                        .outline(2.0, Color::WHITE.alpha(0.8), ButtonState::Default)
+                        .bg_color(Color::WHITE.alpha(0.8), ButtonState::Default)
+                        .bg_color(Color::WHITE, ButtonState::Hover)
+                        .action("neutral_dark_primary_image_1")
+                        .build(ctx),
+                    ButtonBuilder::new()
+                        .image_path("system/assets/tools/layers.svg")
+                        .image_dims(ScreenDims::square(24.0))
+                        .image_color(Color::hex("#4c4c4c"), ButtonState::Default)
+                        .padding(6)
+                        .outline(2.0, Color::WHITE.alpha(0.8), ButtonState::Default)
+                        .bg_color(Color::WHITE.alpha(0.8), ButtonState::Default)
+                        .bg_color(Color::WHITE, ButtonState::Hover)
+                        .action("neutral_dark_primary_image_2")
+                        .build(ctx),
+                ]),
                 ButtonBuilder::new()
                     .label_text("Secondary")
                     .label_color(Color::hex("#4c4c4c"), ButtonState::Default)
                     .bg_color(Color::hex("#4c4c4c").alpha(0.1), ButtonState::Hover)
                     .outline(2.0, Color::hex("#4c4c4c"), ButtonState::Default)
-                    .action("neutral_dark_secondary")
+                    .action("neutral_dark_secondary_text")
                     .build(ctx),
+                Widget::row(vec![
+                    ButtonBuilder::new()
+                        .image_path("system/assets/tools/map.svg")
+                        .image_dims(ScreenDims::square(24.0))
+                        .image_color(Color::hex("#4c4c4c"), ButtonState::Default)
+                        .padding(6)
+                        .bg_color(Color::hex("#4c4c4c").alpha(0.1), ButtonState::Hover)
+                        .outline(2.0, Color::hex("#4c4c4c"), ButtonState::Default)
+                        .action("neutral_dark_secondary_image_1")
+                        .build(ctx),
+                    ButtonBuilder::new()
+                        .image_path("system/assets/tools/layers.svg")
+                        .image_dims(ScreenDims::square(24.0))
+                        .image_color(Color::hex("#4c4c4c"), ButtonState::Default)
+                        .padding(6)
+                        .bg_color(Color::hex("#4c4c4c").alpha(0.1), ButtonState::Hover)
+                        .action("neutral_dark_secondary_image_2")
+                        .build(ctx),
+                ]),
             ]),
             Widget::col(vec![
                 Text::from(Line("Neutral Light")).bg(Color::CLEAR).draw(ctx),
                 ButtonBuilder::new()
                     .label_text("Primary")
                     .label_color(Color::hex("#F2F2F2"), ButtonState::Default)
-                    .label_color(Color::hex("#F2F2F2"), ButtonState::Default)
                     .bg_color(Color::hex("#003046").alpha(0.6), ButtonState::Default)
                     .bg_color(Color::hex("#003046"), ButtonState::Hover)
                     .outline(2.0, Color::hex("#003046").alpha(0.6), ButtonState::Default)
-                    .action("neutral_light_primary")
+                    .action("neutral_light_primary_text")
                     .build(ctx),
+                Widget::row(vec![
+                    ButtonBuilder::new()
+                        .image_path("system/assets/tools/home.svg")
+                        .image_dims(ScreenDims::square(24.0))
+                        .image_color(Color::hex("#F2F2F2"), ButtonState::Default)
+                        .padding(6)
+                        .outline(2.0, Color::hex("#003046").alpha(0.6), ButtonState::Default)
+                        .bg_color(Color::hex("#003046").alpha(0.6), ButtonState::Default)
+                        .bg_color(Color::hex("#003046"), ButtonState::Hover)
+                        .action("neutral_light_primary_image_1")
+                        .build(ctx),
+                    ButtonBuilder::new()
+                        .image_path("system/assets/tools/location.svg")
+                        .image_dims(ScreenDims::square(24.0))
+                        .image_color(Color::hex("#F2F2F2"), ButtonState::Default)
+                        .padding(6)
+                        .outline(2.0, Color::hex("#003046").alpha(0.6), ButtonState::Default)
+                        .bg_color(Color::hex("#003046").alpha(0.6), ButtonState::Default)
+                        .bg_color(Color::hex("#003046"), ButtonState::Hover)
+                        .action("neutral_light_primary_image_2")
+                        .build(ctx),
+                ]),
                 ButtonBuilder::new()
                     .label_text("Secondary")
-                    .label_color(Color::hex("#f2f2f2"), ButtonState::Default)
-                    .bg_color(Color::hex("#f2f2f2").alpha(0.1), ButtonState::Hover)
-                    .outline(2.0, Color::hex("#f2f2f2"), ButtonState::Default)
-                    .action("neutral_light_secondary")
+                    .label_color(Color::hex("#F2F2F2"), ButtonState::Default)
+                    .bg_color(Color::hex("#F2F2F2").alpha(0.1), ButtonState::Hover)
+                    .outline(2.0, Color::hex("#F2F2F2"), ButtonState::Default)
+                    .action("neutral_light_secondary_text")
                     .build(ctx),
+                Widget::row(vec![
+                    ButtonBuilder::new()
+                        .image_path("system/assets/tools/home.svg")
+                        .image_dims(ScreenDims::square(24.0))
+                        .image_color(Color::hex("#F2F2F2"), ButtonState::Default)
+                        .padding(6)
+                        .bg_color(Color::hex("#F2F2F2").alpha(0.1), ButtonState::Hover)
+                        .outline(2.0, Color::hex("#F2F2F2"), ButtonState::Default)
+                        .action("neutral_light_secondary_image_1")
+                        .build(ctx),
+                    ButtonBuilder::new()
+                        .image_path("system/assets/tools/location.svg")
+                        .image_dims(ScreenDims::square(24.0))
+                        .image_color(Color::hex("#F2F2F2"), ButtonState::Default)
+                        .padding(6)
+                        .bg_color(Color::hex("#F2F2F2").alpha(0.1), ButtonState::Hover)
+                        .action("neutral_light_secondary_image_2")
+                        .build(ctx),
+                ]),
             ]),
         ]),
         Widget::row(vec![

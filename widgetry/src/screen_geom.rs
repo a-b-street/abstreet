@@ -112,6 +112,10 @@ impl ScreenDims {
         }
     }
 
+    pub fn square(width: f64) -> Self {
+        Self::new(width, width)
+    }
+
     pub fn top_left_for_corner(&self, corner: ScreenPt, canvas: &Canvas) -> ScreenPt {
         // TODO Ideally also avoid covered canvas areas
         if corner.x + self.width < canvas.window_width {

@@ -272,8 +272,27 @@ impl Btn {
 }
 
 pub struct Image<'a> {
-    path: &'a str,
-    size: ScreenDims,
+    path: Option<&'a str>,
+    color: Option<Color>,
+    dims: Option<ScreenDims>,
+    content_mode: ContentMode,
+}
+
+impl Default for Image<'_> {
+    fn default() -> Self {
+        Image {
+            path: None,
+            color: None,
+            dims: None,
+            content_mode: ContentMode::ScaleAspectFit,
+        }
+    }
+}
+
+pub enum ContentMode {
+    ScaleToFill,
+    ScaleAspectFit,
+    ScaleAspectFill,
 }
 
 pub struct Label<'a> {
@@ -302,6 +321,7 @@ pub struct ButtonStyle<'a> {
 
 pub struct ButtonBuilder<'a> {
     action: Option<&'a str>,
+    padding: EdgeInsets,
     default_style: ButtonStyle<'a>,
     hover_style: ButtonStyle<'a>,
 }
@@ -315,6 +335,12 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     pub fn new() -> Self {
         ButtonBuilder {
             action: None,
+            padding: EdgeInsets {
+                top: 8.0,
+                bottom: 8.0,
+                left: 16.0,
+                right: 16.0,
+            },
             default_style: Default::default(),
             hover_style: Default::default(),
         }
@@ -325,29 +351,37 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    pub fn padding<EI: Into<EdgeInsets>>(&mut self, padding: EI) -> &mut Self {
+        self.padding = padding.into();
+        self
+    }
+
     pub fn label_text(&'a mut self, text: &'a str) -> &mut Self {
-        let mut label = self.default_style.label.take().unwrap_or_default();
-        label.text = text;
         // Currently we don't support setting text for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
+        let mut label = self.default_style.label.take().unwrap_or_default();
+        label.text = text;
         self.default_style.label = Some(label);
         self
     }
 
-    // can we get rid of this now that we have `style`?
-    // fn take_label(&mut self, state: ButtonState) -> Label<'a> {
-    //    match state {
-    //        ButtonState::Default => self.default.label.take().unwrap_or_default(),
-    //        ButtonState::Hover => self.hover.label.take().unwrap_or_default(),
-    //    }
-    // }
-    //
-    //fn set_label(&mut self, label: Label<'a>, state: ButtonState) {
-    //    match state {
-    //        ButtonState::Default => self.default.label = Some(label),
-    //        ButtonState::Hover => self.hover.label = Some(label),
-    //    }
-    //}
+    pub fn image_path(&'a mut self, path: &'a str) -> &mut Self {
+        // Currently we don't support setting image for other states like "hover", we easily
+        // could, but the API gets more verbose for a thing we don't currently need.
+        let mut image = self.default_style.image.take().unwrap_or_default();
+        image.path = Some(path);
+        self.default_style.image = Some(image);
+        self
+    }
+
+    pub fn image_dims(&'a mut self, dims: ScreenDims) -> &mut Self {
+        // Currently we don't support setting image for other states like "hover", we easily
+        // could, but the API gets more verbose for a thing we don't currently need.
+        let mut image = self.default_style.image.take().unwrap_or_default();
+        image.dims = Some(dims);
+        self.default_style.image = Some(image);
+        self
+    }
 
     pub fn label_color(&'a mut self, color: Color, state: ButtonState) -> &mut Self {
         let state_style = self.style_mut(state);
@@ -357,7 +391,14 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    // TODO: style_mut?
+    pub fn image_color(&'a mut self, color: Color, state: ButtonState) -> &mut Self {
+        let state_style = self.style_mut(state);
+        let mut image = state_style.image.take().unwrap_or_default();
+        image.color = Some(color);
+        state_style.image = Some(image);
+        self
+    }
+
     fn style_mut(&'b mut self, state: ButtonState) -> &'b mut ButtonStyle<'a> {
         match state {
             ButtonState::Default => &mut self.default_style,
@@ -411,19 +452,44 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .image
             .as_ref()
             .or(default_style.image.as_ref())
-            .map(|image| {
-                let mut image_batch = GeomBatch::new();
-                // maybe we want to hardcode a size so icons take up the same space regardless of
-                // their particular layout?
-                let container = Polygon::rectangle(image.size.width, image.size.height);
-                image_batch.push(Color::CLEAR, container);
+            .and_then(|image| {
+                image.path.and_then(|image_path| {
+                    let (mut svg_batch, svg_bounds) = svg::load_svg(ctx.prerender, image_path);
+                    if let Some(color) = image.color {
+                        svg_batch = svg_batch.color(RewriteColor::ChangeAll(color));
+                    }
 
-                let svg_batch = GeomBatch::load_svg(ctx.prerender, image.path)
-                    .color(RewriteColor::ChangeAll(ctx.style().outline_color))
-                    .autocrop()
-                    .centered_on(image_batch.get_bounds().center());
-                image_batch.append(svg_batch);
-                image_batch
+                    if let Some(image_dims) = image.dims {
+                        if svg_bounds.width() != 0.0 && svg_bounds.height() != 0.0 {
+                            let (x_factor, y_factor) = (
+                                image_dims.width / svg_bounds.width(),
+                                image_dims.height / svg_bounds.height(),
+                            );
+                            svg_batch = match image.content_mode {
+                                ContentMode::ScaleToFill => svg_batch.scale_xy(x_factor, y_factor),
+                                ContentMode::ScaleAspectFit => {
+                                    svg_batch.scale(x_factor.min(y_factor))
+                                }
+                                ContentMode::ScaleAspectFill => {
+                                    svg_batch.scale(x_factor.max(y_factor))
+                                }
+                            }
+                        }
+
+                        let mut container_batch = GeomBatch::new();
+                        let container = Polygon::rectangle(image_dims.width, image_dims.height);
+                        container_batch.push(Color::CLEAR, container);
+
+                        svg_batch = svg_batch
+                            .autocrop()
+                            .centered_on(container_batch.get_bounds().center());
+                        container_batch.append(svg_batch);
+
+                        svg_batch = container_batch
+                    }
+
+                    Some(svg_batch)
+                })
             });
 
         let label_batch = state_style
@@ -460,17 +526,10 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 todo!("support other layouts")
             }
         }
-        let insets = EdgeInsets {
-            top: 8.0,
-            bottom: 8.0,
-            left: 12.0,
-            right: 12.0,
-        };
-        debug!("insets: {:?}", &insets);
         let mut button_widget = content_batch
             .batch()
             .container()
-            .padding(insets)
+            .padding(self.padding)
             // TODO: Do we need Color::CLEAR?
             .bg(state_style
                 .bg_color

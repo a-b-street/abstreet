@@ -146,6 +146,10 @@ impl Polygon {
         self.transform(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
     }
 
+    pub fn scale_xy(&self, x_factor: f64, y_factor: f64) -> Polygon {
+        self.transform(|pt| Pt2D::new(pt.x() * x_factor, pt.y() * y_factor))
+    }
+
     pub fn rotate(&self, angle: Angle) -> Polygon {
         self.rotate_around(angle, self.center())
     }

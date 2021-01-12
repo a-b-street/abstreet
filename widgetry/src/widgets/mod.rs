@@ -745,6 +745,26 @@ pub struct EdgeInsets {
     pub right: f32,
 }
 
+impl EdgeInsets {
+    pub fn zero() -> Self {
+        EdgeInsets {
+            top: 0.0,
+            left: 0.0,
+            bottom: 0.0,
+            right: 0.0,
+        }
+    }
+
+    pub fn uniform(inset: f32) -> Self {
+        EdgeInsets {
+            top: inset,
+            left: inset,
+            bottom: inset,
+            right: inset,
+        }
+    }
+}
+
 impl From<usize> for EdgeInsets {
     fn from(uniform_size: usize) -> EdgeInsets {
         EdgeInsets {
