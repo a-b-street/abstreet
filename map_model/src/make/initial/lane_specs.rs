@@ -197,7 +197,11 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         }
         if tags.is_any("cycleway:left", vec!["lane", "opposite_track", "track"]) {
             if oneway {
-                fwd_side.insert(0, fwd(LaneType::Biking));
+                if cfg.driving_side == DrivingSide::Right {
+                    fwd_side.insert(0, fwd(LaneType::Biking));
+                } else {
+                    fwd_side.push(fwd(LaneType::Biking));
+                }
                 if tags.is("oneway:bicycle", "no") {
                     back_side.push(back(LaneType::Biking));
                 }
@@ -431,6 +435,18 @@ mod tests {
                 DrivingSide::Left,
                 "sdd",
                 "^^^",
+            ),
+            (
+                "https://www.openstreetmap.org/way/4188078",
+                vec![
+                    "lanes=2",
+                    "cycleway:left=lane",
+                    "oneway=yes",
+                    "sidewalk=left",
+                ],
+                DrivingSide::Left,
+                "sbdd",
+                "^^^^",
             ),
         ] {
             let cfg = MapConfig {
