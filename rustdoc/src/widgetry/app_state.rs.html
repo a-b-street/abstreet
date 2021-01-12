@@ -343,6 +343,8 @@
                             <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
                         }
                     }
+
+                    <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared_app_state</span>);
                 } <span class="kw">else</span> {
                     <span class="comment">// I&#39;m not entirely sure why this happens, but crashing isn&#39;t ideal.</span>
                     <span class="macro">warn</span><span class="macro">!</span>(
@@ -351,8 +353,6 @@
                     );
                     <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
                 }
-
-                <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared_app_state</span>);
             }
         }
         <span class="ident">state</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared_app_state</span>);
