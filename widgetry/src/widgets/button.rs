@@ -271,6 +271,222 @@ impl Btn {
     }
 }
 
+pub struct Image<'a> {
+    path: &'a str,
+    size: ScreenDims,
+}
+
+pub struct Label<'a> {
+    text: &'a str,
+    color: Option<Color>,
+}
+
+impl std::default::Default for Label<'_> {
+    fn default() -> Self {
+        Label {
+            text: "",
+            color: None,
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct ButtonStyle<'a> {
+    image: Option<Image<'a>>,
+    label: Option<Label<'a>>,
+    outline: Option<(f64, Color)>,
+    bg_color: Option<Color>,
+    /* tooltip: Option<()>,
+     * geom: Option<()>, */
+}
+
+pub struct ButtonBuilder<'a> {
+    action: Option<&'a str>,
+    default_style: ButtonStyle<'a>,
+    hover_style: ButtonStyle<'a>,
+}
+
+pub enum ButtonState {
+    Default,
+    Hover, // TODO: Pressing, Disabled
+}
+
+impl<'b, 'a: 'b> ButtonBuilder<'a> {
+    pub fn new() -> Self {
+        ButtonBuilder {
+            action: None,
+            default_style: Default::default(),
+            hover_style: Default::default(),
+        }
+    }
+
+    pub fn action(&mut self, action: &'a str) -> &mut Self {
+        self.action = Some(action);
+        self
+    }
+
+    pub fn label_text(&'a mut self, text: &'a str) -> &mut Self {
+        let mut label = self.default_style.label.take().unwrap_or_default();
+        label.text = text;
+        // Currently we don't support setting text for other states like "hover", we easily
+        // could, but the API gets more verbose for a thing we don't currently need.
+        self.default_style.label = Some(label);
+        self
+    }
+
+    // can we get rid of this now that we have `style`?
+    // fn take_label(&mut self, state: ButtonState) -> Label<'a> {
+    //    match state {
+    //        ButtonState::Default => self.default.label.take().unwrap_or_default(),
+    //        ButtonState::Hover => self.hover.label.take().unwrap_or_default(),
+    //    }
+    // }
+    //
+    //fn set_label(&mut self, label: Label<'a>, state: ButtonState) {
+    //    match state {
+    //        ButtonState::Default => self.default.label = Some(label),
+    //        ButtonState::Hover => self.hover.label = Some(label),
+    //    }
+    //}
+
+    pub fn label_color(&'a mut self, color: Color, state: ButtonState) -> &mut Self {
+        let state_style = self.style_mut(state);
+        let mut label = state_style.label.take().unwrap_or_default();
+        label.color = Some(color);
+        state_style.label = Some(label);
+        self
+    }
+
+    // TODO: style_mut?
+    fn style_mut(&'b mut self, state: ButtonState) -> &'b mut ButtonStyle<'a> {
+        match state {
+            ButtonState::Default => &mut self.default_style,
+            ButtonState::Hover => &mut self.hover_style,
+        }
+    }
+
+    fn style(&'b self, state: ButtonState) -> &'b ButtonStyle<'a> {
+        match state {
+            ButtonState::Default => &self.default_style,
+            ButtonState::Hover => &self.hover_style,
+        }
+    }
+
+    pub fn bg_color(&'a mut self, color: Color, state: ButtonState) -> &mut Self {
+        self.style_mut(state).bg_color = Some(color);
+        self
+    }
+
+    pub fn outline(&'a mut self, thickness: f64, color: Color, state: ButtonState) -> &mut Self {
+        self.style_mut(state).outline = Some((thickness, color));
+        self
+    }
+
+    pub fn build(&self, ctx: &EventCtx) -> Widget {
+        let normal = self.batch(ctx, ButtonState::Default);
+        let hovered = self.batch(ctx, ButtonState::Hover);
+        // derive from edge insets
+        assert!(
+            normal.get_bounds() != geom::Bounds::zero(),
+            "button was empty"
+        );
+        let hitbox = normal.get_bounds().get_rectangle();
+        debug!("normal.get_bounds().get_rectangle(): {:?}", hitbox);
+        Button::new(
+            ctx,
+            normal,
+            hovered,
+            None,
+            self.action.as_ref().expect("missing action for button"),
+            None,
+            hitbox,
+        )
+    }
+
+    fn batch(&'a self, ctx: &EventCtx, state: ButtonState) -> GeomBatch {
+        let state_style = self.style(state);
+        let default_style = &self.default_style;
+
+        let image_batch = state_style
+            .image
+            .as_ref()
+            .or(default_style.image.as_ref())
+            .map(|image| {
+                let mut image_batch = GeomBatch::new();
+                // maybe we want to hardcode a size so icons take up the same space regardless of
+                // their particular layout?
+                let container = Polygon::rectangle(image.size.width, image.size.height);
+                image_batch.push(Color::CLEAR, container);
+
+                let svg_batch = GeomBatch::load_svg(ctx.prerender, image.path)
+                    .color(RewriteColor::ChangeAll(ctx.style().outline_color))
+                    .autocrop()
+                    .centered_on(image_batch.get_bounds().center());
+                image_batch.append(svg_batch);
+                image_batch
+            });
+
+        let label_batch = state_style
+            .label
+            .as_ref()
+            .or(default_style.label.as_ref())
+            .map(|label| {
+                let text = Text::from(
+                    Line(label.text).fg(label.color.unwrap_or(ctx.style().outline_color)),
+                );
+
+                // Without a background color, the label is not centered in the button border
+                // TODO: Why?
+                let text = text.bg(Color::CLEAR);
+
+                text.render(ctx)
+            });
+
+        let mut content_batch = GeomBatch::new();
+        content_batch.autocrop_dims = false;
+        let is_horizontal = true;
+        let is_image_before_text = true;
+        match (is_horizontal, is_image_before_text) {
+            (true, true) => {
+                if let Some(image_batch) = image_batch {
+                    content_batch.append(image_batch);
+                }
+                if let Some(label_batch) = label_batch {
+                    debug!("adding label_batch: {:?}", label_batch);
+                    content_batch.append(label_batch);
+                }
+            }
+            _ => {
+                todo!("support other layouts")
+            }
+        }
+        let insets = EdgeInsets {
+            top: 8.0,
+            bottom: 8.0,
+            left: 12.0,
+            right: 12.0,
+        };
+        debug!("insets: {:?}", &insets);
+        let mut button_widget = content_batch
+            .batch()
+            .container()
+            .padding(insets)
+            // TODO: Do we need Color::CLEAR?
+            .bg(state_style
+                .bg_color
+                .or(default_style.bg_color)
+                .unwrap_or(Color::CLEAR));
+
+        if let Some((thickness, color)) = state_style.outline.or(default_style.outline) {
+            button_widget = button_widget.outline(thickness, color);
+        }
+
+        let (geom_batch, _hitbox) = button_widget.to_geom(ctx, None);
+        debug!("button_widget.to_geom().hitbox: {:?}", _hitbox);
+        geom_batch
+    }
+}
+
 pub enum BtnBuilder {
     SVG {
         path: String,

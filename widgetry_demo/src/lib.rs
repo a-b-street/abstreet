@@ -297,12 +297,85 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 }
 
 fn make_controls(ctx: &mut EventCtx) -> Panel {
+    use widgetry::{ButtonBuilder, ButtonState};
     Panel::new(Widget::col(vec![
         Text::from_multiline(vec![
             Line("widgetry demo").small_heading(),
             Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
         ])
         .draw(ctx),
+        Widget::row(vec![
+            Text::from(Line(
+                "Buttons with characters of different height should line up:",
+            ))
+            .bg(Color::CLEAR)
+            .draw(ctx),
+            Widget::col(vec![
+                ButtonBuilder::new()
+                    // text with short ascender/descenders
+                    .label_text("aaa")
+                    .outline(2.0, Color::WHITE, ButtonState::Default)
+                    .action("button:aa1")
+                    .build(ctx),
+                ButtonBuilder::new()
+                    .label_text("aaa")
+                    .outline(2.0, Color::WHITE, ButtonState::Default)
+                    .action("button:aa2")
+                    .build(ctx),
+            ]),
+            Widget::col(vec![
+                ButtonBuilder::new()
+                    // text with tall ascender/descenders
+                    .label_text("Yyy")
+                    .outline(2.0, Color::WHITE, ButtonState::Default)
+                    .action("button:yy1")
+                    .build(ctx),
+                ButtonBuilder::new()
+                    .label_text("Yyy")
+                    .outline(2.0, Color::WHITE, ButtonState::Default)
+                    .action("button:yy2")
+                    .build(ctx),
+            ]),
+        ]),
+        Widget::row(vec![
+            Widget::col(vec![
+                Text::from(Line("Neutral Dark")).bg(Color::CLEAR).draw(ctx),
+                ButtonBuilder::new()
+                    .label_text("Primary")
+                    .label_color(Color::hex("#666666"), ButtonState::Default)
+                    .bg_color(Color::WHITE.alpha(0.8), ButtonState::Default)
+                    .bg_color(Color::WHITE, ButtonState::Hover)
+                    .outline(2.0, Color::WHITE.alpha(0.8), ButtonState::Default)
+                    .action("neutral_dark_primary")
+                    .build(ctx),
+                ButtonBuilder::new()
+                    .label_text("Secondary")
+                    .label_color(Color::hex("#4c4c4c"), ButtonState::Default)
+                    .bg_color(Color::hex("#4c4c4c").alpha(0.1), ButtonState::Hover)
+                    .outline(2.0, Color::hex("#4c4c4c"), ButtonState::Default)
+                    .action("neutral_dark_secondary")
+                    .build(ctx),
+            ]),
+            Widget::col(vec![
+                Text::from(Line("Neutral Light")).bg(Color::CLEAR).draw(ctx),
+                ButtonBuilder::new()
+                    .label_text("Primary")
+                    .label_color(Color::hex("#F2F2F2"), ButtonState::Default)
+                    .label_color(Color::hex("#F2F2F2"), ButtonState::Default)
+                    .bg_color(Color::hex("#003046").alpha(0.6), ButtonState::Default)
+                    .bg_color(Color::hex("#003046"), ButtonState::Hover)
+                    .outline(2.0, Color::hex("#003046").alpha(0.6), ButtonState::Default)
+                    .action("neutral_light_primary")
+                    .build(ctx),
+                ButtonBuilder::new()
+                    .label_text("Secondary")
+                    .label_color(Color::hex("#f2f2f2"), ButtonState::Default)
+                    .bg_color(Color::hex("#f2f2f2").alpha(0.1), ButtonState::Hover)
+                    .outline(2.0, Color::hex("#f2f2f2"), ButtonState::Default)
+                    .action("neutral_light_secondary")
+                    .build(ctx),
+            ]),
+        ]),
         Widget::row(vec![
             Btn::text_fg("New faces").build(ctx, "generate new faces", Key::F),
             Checkbox::switch(ctx, "Draw scrollable canvas", None, true),

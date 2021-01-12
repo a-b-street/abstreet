@@ -47,7 +47,7 @@ pub use crate::tools::warper::Warper;
 pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
-pub use crate::widgets::button::{Btn, MultiButton};
+pub use crate::widgets::button::{Btn, ButtonBuilder, ButtonState, MultiButton};
 pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;
