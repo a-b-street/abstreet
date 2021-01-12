@@ -65,6 +65,8 @@ impl<A: SharedAppState> App<A> {
                             g.clear(Color::BLACK);
                         }
                     }
+
+                    self.states[self.states.len() - 2].draw(g, &self.shared_app_state);
                 } else {
                     // I'm not entirely sure why this happens, but crashing isn't ideal.
                     warn!(
@@ -73,8 +75,6 @@ impl<A: SharedAppState> App<A> {
                     );
                     g.clear(Color::BLACK);
                 }
-
-                self.states[self.states.len() - 2].draw(g, &self.shared_app_state);
             }
         }
         state.draw(g, &self.shared_app_state);
