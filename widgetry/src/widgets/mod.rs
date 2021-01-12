@@ -737,6 +737,7 @@ impl Widget {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct EdgeInsets {
     pub top: f32,
     pub left: f32,
