@@ -568,6 +568,8 @@
 <span id="565">565</span>
 <span id="566">566</span>
 <span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -1120,8 +1122,10 @@
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;natural&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;wood&quot;</span>, <span class="string">&quot;scrub&quot;</span>]) {
         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType</span>::<span class="ident">Park</span>);
     }
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;landuse&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cemetery&quot;</span>, <span class="string">&quot;forest&quot;</span>, <span class="string">&quot;grass&quot;</span>])
-        <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;graveyard&quot;</span>)
+    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(
+        <span class="string">&quot;landuse&quot;</span>,
+        <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cemetery&quot;</span>, <span class="string">&quot;forest&quot;</span>, <span class="string">&quot;grass&quot;</span>, <span class="string">&quot;recreation_ground&quot;</span>],
+    ) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;graveyard&quot;</span>)
     {
         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType</span>::<span class="ident">Park</span>);
     }
