@@ -1013,26 +1013,46 @@ impl DrivingSimState {
     }
 
     pub fn agent_properties(&self, id: CarID, now: Time) -> AgentProperties {
-        let car = self.cars.get(&id).unwrap();
-        let path = car.router.get_path();
-        let time_spent_waiting = car.state.time_spent_waiting(now);
+        if let Some(car) = self.cars.get(&id) {
+            let path = car.router.get_path();
+            let time_spent_waiting = car.state.time_spent_waiting(now);
 
-        // In all cases, we can figure out exactly where we are along the current queue, then
-        // assume we've travelled from the start of that, unless it's the very first step.
-        let front = self.get_car_front(now, car);
-        let current_state_dist =
-            if car.router.head() == Traversable::Lane(path.get_req().start.lane()) {
-                front - path.get_req().start.dist_along()
-            } else {
-                front
-            };
+            // In all cases, we can figure out exactly where we are along the current queue, then
+            // assume we've travelled from the start of that, unless it's the very first step.
+            let front = self.get_car_front(now, car);
+            let current_state_dist =
+                if car.router.head() == Traversable::Lane(path.get_req().start.lane()) {
+                    front - path.get_req().start.dist_along()
+                } else {
+                    front
+                };
 
-        AgentProperties {
-            total_time: now - car.started_at,
-            waiting_here: time_spent_waiting,
-            total_waiting: car.total_blocked_time + time_spent_waiting,
-            dist_crossed: path.crossed_so_far() + current_state_dist,
-            total_dist: path.total_length(),
+            AgentProperties {
+                total_time: now - car.started_at,
+                waiting_here: time_spent_waiting,
+                total_waiting: car.total_blocked_time + time_spent_waiting,
+                dist_crossed: path.crossed_so_far() + current_state_dist,
+                total_dist: path.total_length(),
+            }
+        } else {
+            for (car, _) in &self.waiting_to_spawn {
+                if id == *car {
+                    // If the vehicle is waiting to spawn, we don't have any stats on them yet.  We
+                    // could track when they originally tried to spawn and use for a few of these
+                    // fields, but we should also make sure that delay gets recorded later.
+                    return AgentProperties {
+                        total_time: Duration::ZERO,
+                        waiting_here: Duration::ZERO,
+                        total_waiting: Duration::ZERO,
+                        dist_crossed: Distance::ZERO,
+                        total_dist: Distance::ZERO,
+                    };
+                }
+            }
+            panic!(
+                "Can't get agent_properties of {} at {}; they don't exist",
+                id, now
+            );
         }
     }
 
