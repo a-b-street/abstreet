@@ -216,6 +216,21 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">ops</span>};
 
@@ -321,22 +336,13 @@
             <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Time {}: no :&#39;s&quot;</span>, <span class="ident">string</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seconds</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">contains</span>(<span class="string">&#39;.&#39;</span>) {
-            <span class="kw">let</span> <span class="ident">last_parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>).<span class="ident">collect</span>();
-            <span class="kw">if</span> <span class="ident">last_parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Time {}: no . in last part&quot;</span>, <span class="ident">string</span>);
-            }
-            <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="ident">last_parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span> <span class="op">/</span> <span class="number">10.0</span>;
-            <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="ident">last_parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="ident">parts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        }
-
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seconds</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">len</span>() {
             <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Time</span>::<span class="ident">seconds_since_midnight</span>(<span class="ident">seconds</span>)),
             <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="number">60.0</span> <span class="op">*</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+                <span class="comment">// They&#39;re really minutes</span>
+                <span class="ident">seconds</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">60.0</span>;
+                <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="number">3600.0</span> <span class="op">*</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(<span class="ident">Time</span>::<span class="ident">seconds_since_midnight</span>(<span class="ident">seconds</span>))
             }
             <span class="number">3</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -430,6 +436,30 @@
 
     <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="number">0</span>)
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">parse</span>() {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">42.3</span>),
+            <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="string">&quot;42.3&quot;</span>).<span class="ident">unwrap</span>()
+        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">7</span>) <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">30</span>),
+            <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="string">&quot;07:30&quot;</span>).<span class="ident">unwrap</span>()
+        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>
+                <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">7</span>)
+                <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">30</span>)
+                <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">5.0</span>),
+            <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="string">&quot;07:30:05&quot;</span>).<span class="ident">unwrap</span>()
+        );
     }
 }
 </pre></div>
