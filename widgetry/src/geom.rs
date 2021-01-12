@@ -14,6 +14,16 @@ pub struct GeomBatch {
     pub autocrop_dims: bool,
 }
 
+impl std::fmt::Debug for GeomBatch {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GeomBatch")
+            .field("bounds", &self.get_bounds())
+            .field("items", &self.list.len())
+            .field("autocrop_dims", &self.autocrop_dims)
+            .finish()
+    }
+}
+
 impl GeomBatch {
     /// Creates an empty batch.
     pub fn new() -> GeomBatch {
