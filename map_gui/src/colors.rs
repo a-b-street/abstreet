@@ -579,7 +579,7 @@ impl ColorScheme {
         cs.grass = nonempty_space.into();
         cs.water = nonempty_space.into();
         // TODO Why is this showing up?!
-        cs.light_rail_track = Color::INVISIBLE;
+        cs.light_rail_track = Color::CLEAR;
         cs
     }
 }

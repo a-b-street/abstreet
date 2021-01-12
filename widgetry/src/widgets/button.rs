@@ -201,7 +201,7 @@ impl Btn {
     pub fn pop_up<I: Into<String>>(ctx: &EventCtx, label: Option<I>) -> BtnBuilder {
         let mut icon_batch = GeomBatch::new();
         let icon_container = Polygon::rectangle(20.0, 30.0);
-        icon_batch.push(Color::INVISIBLE, icon_container);
+        icon_batch.push(Color::CLEAR, icon_container);
 
         let icon = GeomBatch::from_svg_contents(
             include_bytes!("../../icons/arrow_drop_down.svg").to_vec(),
