@@ -261,9 +261,43 @@
 <span id="258">258</span>
 <span id="259">259</span>
 <span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">ChooseSomething</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">StageType</span>,
 };
@@ -421,6 +455,7 @@
 
     <span class="kw">let</span> <span class="ident">use_template</span> <span class="op">=</span> <span class="string">&quot;use template&quot;</span>;
     <span class="kw">let</span> <span class="ident">all_walk</span> <span class="op">=</span> <span class="string">&quot;add an all-walk stage at the end&quot;</span>;
+    <span class="kw">let</span> <span class="ident">major_minor_timing</span> <span class="op">=</span> <span class="string">&quot;use timing pattern for a major/minor intersection&quot;</span>;
     <span class="kw">let</span> <span class="ident">stop_sign</span> <span class="op">=</span> <span class="string">&quot;convert to stop signs&quot;</span>;
     <span class="kw">let</span> <span class="ident">close</span> <span class="op">=</span> <span class="string">&quot;close intersection for construction&quot;</span>;
     <span class="kw">let</span> <span class="ident">reset</span> <span class="op">=</span> <span class="string">&quot;reset to default&quot;</span>;
@@ -429,6 +464,7 @@
     <span class="kw">if</span> <span class="ident">has_sidewalks</span> {
         <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">all_walk</span>);
     }
+    <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">major_minor_timing</span>);
     <span class="comment">// TODO Conflating stop signs and construction here</span>
     <span class="kw">if</span> <span class="ident">mode</span>.<span class="ident">can_edit_stop_signs</span>() {
         <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">stop_sign</span>);
@@ -472,6 +508,38 @@
                     }
                 })),
             ]),
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">major_minor_timing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;Use what timing split?&quot;</span>,
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(
+                        <span class="string">&quot;120s cycle: 96s major roads, 24s minor roads&quot;</span>,
+                        (<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">96.0</span>), <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">24.0</span>)),
+                    ),
+                    <span class="ident">Choice</span>::<span class="ident">new</span>(
+                        <span class="string">&quot;60s cycle: 36s major roads, 24s minor roads&quot;</span>,
+                        (<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">36.0</span>), <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">24.0</span>)),
+                    ),
+                ],
+                <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">timing</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">clone</span>();
+                    <span class="kw">match</span> <span class="ident">new_signal</span>.<span class="ident">adjust_major_minor_timing</span>(<span class="ident">timing</span>.<span class="number">0</span>, <span class="ident">timing</span>.<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+                    {
+                        <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+                            <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                                <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                                <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
+                                    <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
+                                });
+                            })),
+                        ]),
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]))
+                        }
+                    }
+                }),
+            )),
             <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stop_sign</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
 

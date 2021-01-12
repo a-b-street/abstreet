@@ -490,6 +490,63 @@
 <span id="487">487</span>
 <span id="488">488</span>
 <span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
@@ -504,7 +561,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>,
-    <span class="ident">MovementID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+    <span class="ident">MovementID</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="comment">// The pace to use for crosswalk pace in m/s</span>
@@ -713,6 +770,63 @@
             <span class="self">self</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">all_walk_stage</span>);
         }
         <span class="self">self</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">orig</span>
+    }
+
+    <span class="doccomment">/// Modifies the fixed timing of all stages, applying either a major or minor duration,</span>
+    <span class="doccomment">/// depending on the relative rank of the roads involved in the intersection. If this</span>
+    <span class="doccomment">/// transformation couldn&#39;t be applied, returns an error. Even if an error is returned, the</span>
+    <span class="doccomment">/// signal may have been changed -- so only call this on a cloned signal.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">adjust_major_minor_timing</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">major</span>: <span class="ident">Duration</span>,
+        <span class="ident">minor</span>: <span class="ident">Duration</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;This intersection doesn&#39;t have 2 stages.&quot;</span>);
+        }
+
+        <span class="comment">// What&#39;s the rank of each road?</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rank_per_road</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">osm</span>::<span class="ident">RoadRank</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">roads</span> {
+            <span class="ident">rank_per_road</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_rank</span>());
+        }
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ranks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">RoadRank</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">rank_per_road</span>.<span class="ident">values</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
+        <span class="ident">ranks</span>.<span class="ident">sort</span>();
+        <span class="ident">ranks</span>.<span class="ident">dedup</span>();
+        <span class="kw">if</span> <span class="ident">ranks</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;This intersection doesn&#39;t have major/minor roads; they&#39;re all the same rank.&quot;</span>);
+        }
+        <span class="kw">let</span> <span class="ident">highest_rank</span> <span class="op">=</span> <span class="ident">ranks</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+
+        <span class="comment">// Try to apply the transformation</span>
+        <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
+        <span class="kw">for</span> <span class="ident">stage</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">stages</span> {
+            <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">stage_type</span> {
+                <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;This intersection doesn&#39;t use fixed timing.&quot;</span>),
+            }
+            <span class="comment">// Ignoring crosswalks, do any of the turns come from a major road?</span>
+            <span class="kw">if</span> <span class="ident">stage</span>
+                .<span class="ident">protected_movements</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span> <span class="op">&amp;&amp;</span> <span class="ident">highest_rank</span> <span class="op">=</span><span class="op">=</span> <span class="ident">rank_per_road</span>[<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">from</span>.<span class="ident">id</span>])
+            {
+                <span class="ident">stage</span>.<span class="ident">stage_type</span> <span class="op">=</span> <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">major</span>);
+            } <span class="kw">else</span> {
+                <span class="ident">stage</span>.<span class="ident">stage_type</span> <span class="op">=</span> <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">minor</span>);
+            }
+        }
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">simple_cycle_duration</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span> {
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;This intersection didn&#39;t already group major/minor roads together.&quot;</span>);
+        }
+
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">orig</span> {
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;This change had no effect.&quot;</span>);
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">turn_to_movement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MovementID</span> {
