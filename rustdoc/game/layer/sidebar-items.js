@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["LayerOutcome",""]],"mod":[["elevation",""],["map",""],["pandemic",""],["parking",""],["population",""],["traffic",""],["transit",""]],"struct":[["PickLayer",""]],"trait":[["Layer",""]]});
+initSidebarItems({"enum":[["LayerOutcome",""]],"mod":[["elevation",""],["favorites",""],["map",""],["pandemic",""],["parking",""],["population",""],["traffic",""],["transit",""]],"struct":[["PickLayer",""]],"trait":[["Layer",""]]});

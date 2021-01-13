@@ -257,6 +257,11 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -268,6 +273,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>;
 
 <span class="kw">mod</span> <span class="ident">elevation</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">favorites</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">map</span>;
 <span class="kw">mod</span> <span class="ident">pandemic</span>;
 <span class="kw">mod</span> <span class="ident">parking</span>;
@@ -376,6 +382,7 @@
                     <span class="ident">btn</span>(<span class="string">&quot;transit network&quot;</span>, <span class="ident">Key</span>::<span class="ident">U</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;population map&quot;</span>, <span class="ident">Key</span>::<span class="ident">X</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;no sidewalks&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;favorite buildings&quot;</span>, <span class="ident">Key</span>::<span class="ident">F</span>),
                 ]),
             ])
             .<span class="ident">evenly_spaced</span>(),
@@ -442,6 +449,9 @@
                 }
                 <span class="string">&quot;no sidewalks&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">no_sidewalks</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                }
+                <span class="string">&quot;favorite buildings&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">favorites</span>::<span class="ident">ShowFavorites</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;pandemic model&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">pandemic</span>::<span class="ident">Pandemic</span>::<span class="ident">new</span>(

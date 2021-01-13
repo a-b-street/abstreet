@@ -185,7 +185,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>();
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">load</span>.<span class="ident">starts_with</span>(<span class="kw-2">&amp;</span><span class="ident">abstio</span>::<span class="ident">path</span>(<span class="string">&quot;player/saves/&quot;</span>)) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">load</span>.<span class="ident">starts_with</span>(<span class="kw-2">&amp;</span><span class="ident">abstio</span>::<span class="ident">path_player</span>(<span class="string">&quot;saves/&quot;</span>)) {
             <span class="ident">timer</span>.<span class="ident">note</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Resuming from {}&quot;</span>, <span class="self">self</span>.<span class="ident">load</span>));
 
             <span class="kw">let</span> <span class="ident">sim</span>: <span class="ident">Sim</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">must_read_object</span>(<span class="self">self</span>.<span class="ident">load</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);

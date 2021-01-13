@@ -918,6 +918,24 @@
 <span id="915">915</span>
 <span id="916">916</span>
 <span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -947,6 +965,7 @@
     <span class="ident">can_edit_lane</span>, <span class="ident">EditMode</span>, <span class="ident">LaneEditor</span>, <span class="ident">SaveEdits</span>, <span class="ident">StopSignEditor</span>, <span class="ident">TrafficSignalEditor</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::<span class="ident">ContextualActions</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">favorites</span>::{<span class="ident">Favorites</span>, <span class="ident">ShowFavorites</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">PickLayer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pregame</span>::<span class="ident">MainMenu</span>;
 
@@ -1458,6 +1477,13 @@
                         <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">E</span>, <span class="string">&quot;edit lane&quot;</span>.<span class="ident">to_string</span>()));
                     }
                 }
+                <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="ident">Favorites</span>::<span class="ident">contains</span>(<span class="ident">app</span>, <span class="ident">b</span>) {
+                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">F</span>, <span class="string">&quot;remove this building from favorites&quot;</span>.<span class="ident">to_string</span>()));
+                    } <span class="kw">else</span> {
+                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key</span>::<span class="ident">F</span>, <span class="string">&quot;add this building to favorites&quot;</span>.<span class="ident">to_string</span>()));
+                    }
+                }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
@@ -1503,6 +1529,16 @@
                 <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">EditMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
                 <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
             ]),
+            (<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>), <span class="string">&quot;add this building to favorites&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Favorites</span>::<span class="ident">add</span>(<span class="ident">app</span>, <span class="ident">b</span>);
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ShowFavorites</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                <span class="ident">Transition</span>::<span class="ident">Keep</span>
+            }
+            (<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>), <span class="string">&quot;remove this building from favorites&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Favorites</span>::<span class="ident">remove</span>(<span class="ident">app</span>, <span class="ident">b</span>);
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ShowFavorites</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                <span class="ident">Transition</span>::<span class="ident">Keep</span>
+            }
             (<span class="kw">_</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw-2">*</span><span class="ident">close_panel</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="ident">Transition</span>::<span class="ident">ModifyState</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
