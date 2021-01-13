@@ -8,6 +8,7 @@ use crate::common::hotkey_btn;
 use crate::sandbox::dashboards;
 
 mod elevation;
+pub mod favorites;
 pub mod map;
 mod pandemic;
 mod parking;
@@ -116,6 +117,7 @@ impl PickLayer {
                     btn("transit network", Key::U),
                     btn("population map", Key::X),
                     btn("no sidewalks", Key::S),
+                    btn("favorite buildings", Key::F),
                 ]),
             ])
             .evenly_spaced(),
@@ -182,6 +184,9 @@ impl State<App> for PickLayer {
                 }
                 "no sidewalks" => {
                     app.primary.layer = Some(Box::new(map::Static::no_sidewalks(ctx, app)));
+                }
+                "favorite buildings" => {
+                    app.primary.layer = Some(Box::new(favorites::ShowFavorites::new(ctx, app)));
                 }
                 "pandemic model" => {
                     app.primary.layer = Some(Box::new(pandemic::Pandemic::new(

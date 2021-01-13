@@ -61,7 +61,7 @@ impl SimFlags {
 
         let mut opts = self.opts.clone();
 
-        if self.load.starts_with(&abstio::path("player/saves/")) {
+        if self.load.starts_with(&abstio::path_player("saves/")) {
             timer.note(format!("Resuming from {}", self.load));
 
             let sim: Sim = abstio::must_read_object(self.load.clone(), timer);

@@ -26,6 +26,7 @@ use crate::edit::{
     can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
 };
 use crate::info::ContextualActions;
+use crate::layer::favorites::{Favorites, ShowFavorites};
 use crate::layer::PickLayer;
 use crate::pregame::MainMenu;
 
@@ -537,6 +538,13 @@ impl ContextualActions for Actions {
                         actions.push((Key::E, "edit lane".to_string()));
                     }
                 }
+                ID::Building(b) => {
+                    if Favorites::contains(app, b) {
+                        actions.push((Key::F, "remove this building from favorites".to_string()));
+                    } else {
+                        actions.push((Key::F, "add this building to favorites".to_string()));
+                    }
+                }
                 _ => {}
             }
         }
@@ -582,6 +590,16 @@ impl ContextualActions for Actions {
                 Transition::Push(EditMode::new(ctx, app, self.gameplay.clone())),
                 Transition::Push(LaneEditor::new(ctx, app, l, self.gameplay.clone())),
             ]),
+            (ID::Building(b), "add this building to favorites") => {
+                Favorites::add(app, b);
+                app.primary.layer = Some(Box::new(ShowFavorites::new(ctx, app)));
+                Transition::Keep
+            }
+            (ID::Building(b), "remove this building from favorites") => {
+                Favorites::remove(app, b);
+                app.primary.layer = Some(Box::new(ShowFavorites::new(ctx, app)));
+                Transition::Keep
+            }
             (_, "follow (run the simulation)") => {
                 *close_panel = false;
                 Transition::ModifyState(Box::new(|state, ctx, app| {

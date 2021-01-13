@@ -73,7 +73,7 @@ impl<A: AppLike + 'static> State<A> for Picker<A> {
                             data_packs.runtime.insert(city);
                         }
                     }
-                    abstio::write_json(abstio::path("player/data.json"), &data_packs);
+                    abstio::write_json(abstio::path_player("data.json"), &data_packs);
 
                     let messages = ctx.loading_screen("sync files", |_, timer| sync(timer));
                     return Transition::Multi(vec![
