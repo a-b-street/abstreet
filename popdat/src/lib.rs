@@ -29,6 +29,8 @@ use geom::{Distance, Time};
 use map_model::{BuildingID, Map};
 use sim::Scenario;
 
+pub use self::distribute_people::distribute_population_to_homes;
+
 mod activities;
 mod distribute_people;
 mod import_census;
