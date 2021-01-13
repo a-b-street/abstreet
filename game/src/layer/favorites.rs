@@ -80,7 +80,7 @@ impl ShowFavorites {
                 batch.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/star.svg")
                         .centered_on(app.primary.map.get_b(b).polygon.center())
-                        .color(RewriteColor::ChangeAll(Color::YELLOW)),
+                        .color(RewriteColor::ChangeAll(Color::RED)),
                 );
             }
         }
