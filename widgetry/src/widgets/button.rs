@@ -26,7 +26,7 @@ pub struct Button {
 }
 
 impl Button {
-    fn new(
+    fn widget(
         ctx: &EventCtx,
         normal: GeomBatch,
         hovered: GeomBatch,
@@ -35,13 +35,33 @@ impl Button {
         maybe_tooltip: Option<Text>,
         hitbox: Polygon,
     ) -> Widget {
+        Widget::new(Box::new(Self::new(
+            ctx,
+            normal,
+            hovered,
+            hotkey,
+            action,
+            maybe_tooltip,
+            hitbox,
+        )))
+        .named(action)
+    }
+
+    fn new(
+        ctx: &EventCtx,
+        normal: GeomBatch,
+        hovered: GeomBatch,
+        hotkey: Option<MultiKey>,
+        action: &str,
+        maybe_tooltip: Option<Text>,
+        hitbox: Polygon,
+    ) -> Button {
         // dims are based on the hitbox, not the two drawables!
         let bounds = hitbox.get_bounds();
         let dims = ScreenDims::new(bounds.width(), bounds.height());
         assert!(!action.is_empty());
-        Widget::new(Box::new(Button {
+        Button {
             action: action.to_string(),
-
             draw_normal: ctx.upload(normal),
             draw_hovered: ctx.upload(hovered),
             tooltip: if let Some(t) = maybe_tooltip {
@@ -56,8 +76,7 @@ impl Button {
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims,
-        }))
-        .named(action)
+        }
     }
 }
 
@@ -647,7 +666,7 @@ impl BtnBuilder {
 
                 let hovered = normal.clone().color(rewrite_hover);
 
-                Button::new(
+                Button::widget(
                     ctx,
                     normal,
                     hovered,
@@ -671,7 +690,7 @@ impl BtnBuilder {
                     .padding(8)
                     .to_geom(ctx, None);
 
-                Button::new(
+                Button::widget(
                     ctx,
                     normal,
                     hovered,
@@ -699,7 +718,7 @@ impl BtnBuilder {
                     .padding(8)
                     .to_geom(ctx, None);
 
-                Button::new(
+                Button::widget(
                     ctx,
                     normal,
                     hovered,
@@ -730,7 +749,7 @@ impl BtnBuilder {
                     .bg(selected_bg_color)
                     .to_geom(ctx, None);
 
-                Button::new(
+                Button::widget(
                     ctx,
                     normal,
                     hovered,
@@ -747,7 +766,7 @@ impl BtnBuilder {
                 maybe_tooltip,
                 maybe_outline,
             } => {
-                let button = Button::new(
+                let button = Button::widget(
                     ctx,
                     normal,
                     hovered,
