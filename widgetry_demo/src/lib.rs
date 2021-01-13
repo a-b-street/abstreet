@@ -300,44 +300,12 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
     use widgetry::{ButtonBuilder, ButtonState};
     Panel::new(Widget::col(vec![
         Text::from_multiline(vec![
-            Line("widgetry demo").small_heading(),
+            Line("widgetry demo").big_heading_styled(),
             Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
         ])
         .draw(ctx),
-        Widget::row(vec![
-            Text::from(Line(
-                "Buttons with characters of different height should line up:",
-            ))
-            .bg(Color::CLEAR)
-            .draw(ctx),
-            Widget::col(vec![
-                ButtonBuilder::new()
-                    // text with short ascender/descenders
-                    .label_text("aaa")
-                    .outline(2.0, Color::WHITE, ButtonState::Default)
-                    .action("button:aa1")
-                    .build(ctx),
-                ButtonBuilder::new()
-                    .label_text("aaa")
-                    .outline(2.0, Color::WHITE, ButtonState::Default)
-                    .action("button:aa2")
-                    .build(ctx),
-            ]),
-            Widget::col(vec![
-                ButtonBuilder::new()
-                    // text with tall ascender/descenders
-                    .label_text("Yyy")
-                    .outline(2.0, Color::WHITE, ButtonState::Default)
-                    .action("button:yy1")
-                    .build(ctx),
-                ButtonBuilder::new()
-                    .label_text("Yyy")
-                    .outline(2.0, Color::WHITE, ButtonState::Default)
-                    .action("button:yy2")
-                    .build(ctx),
-            ]),
-        ]),
         // Button Style Gallery
+        Text::from(Line("Buttons").big_heading_styled().sized(18)).draw(ctx),
         Widget::row(vec![
             Widget::col(vec![
                 Text::from(Line("Neutral Dark")).bg(Color::CLEAR).draw(ctx),

@@ -129,6 +129,11 @@ impl TextSpan {
         self.underlined = true;
         self
     }
+
+    pub fn sized(mut self, size: usize) -> TextSpan {
+        self.size = size;
+        self
+    }
 }
 
 // TODO What's the better way of doing this? Also "Line" is a bit of a misnomer
