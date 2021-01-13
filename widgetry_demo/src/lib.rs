@@ -469,9 +469,11 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .bg_color(Color::hex("#F2F2F2").alpha(0.1), ButtonState::Hover)
                     .outline(2.0, Color::hex("#F2F2F2"), ButtonState::Default)
                     .action("neutral_light_secondary_image_and_text")
-                    .build(ctx),
+                    .build_widget(ctx),
             ]),
         ]),
+        Text::from(Line("Spinner").big_heading_styled().sized(18)).draw(ctx),
+        widgetry::Spinner::new(ctx, (0, 11), 1),
         Widget::row(vec![
             Btn::text_fg("New faces").build(ctx, "generate new faces", Key::F),
             Checkbox::switch(ctx, "Draw scrollable canvas", None, true),

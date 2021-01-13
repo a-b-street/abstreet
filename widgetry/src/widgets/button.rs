@@ -376,7 +376,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn label_text(&'a mut self, text: &'a str) -> &mut Self {
+    pub fn label_text(&mut self, text: &'a str) -> &mut Self {
         // Currently we don't support setting text for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut label = self.default_style.label.take().unwrap_or_default();
@@ -385,7 +385,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_path(&'a mut self, path: &'a str) -> &mut Self {
+    pub fn image_path(&mut self, path: &'a str) -> &mut Self {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();
@@ -394,7 +394,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_dims(&'a mut self, dims: ScreenDims) -> &mut Self {
+    pub fn image_dims(&mut self, dims: ScreenDims) -> &mut Self {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();
@@ -403,7 +403,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn label_color(&'a mut self, color: Color, state: ButtonState) -> &mut Self {
+    pub fn label_color(&mut self, color: Color, state: ButtonState) -> &mut Self {
         let state_style = self.style_mut(state);
         let mut label = state_style.label.take().unwrap_or_default();
         label.color = Some(color);
@@ -411,7 +411,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_color(&'a mut self, color: Color, state: ButtonState) -> &mut Self {
+    pub fn image_color(&mut self, color: Color, state: ButtonState) -> &mut Self {
         let state_style = self.style_mut(state);
         let mut image = state_style.image.take().unwrap_or_default();
         image.color = Some(color);
@@ -433,17 +433,23 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
     }
 
-    pub fn bg_color(&'a mut self, color: Color, state: ButtonState) -> &mut Self {
+    pub fn bg_color(&mut self, color: Color, state: ButtonState) -> &mut Self {
         self.style_mut(state).bg_color = Some(color);
         self
     }
 
-    pub fn outline(&'a mut self, thickness: f64, color: Color, state: ButtonState) -> &mut Self {
+    pub fn outline(&mut self, thickness: f64, color: Color, state: ButtonState) -> &mut Self {
         self.style_mut(state).outline = Some((thickness, color));
         self
     }
 
-    pub fn build(&self, ctx: &EventCtx) -> Widget {
+    // TODO pass in action? Since it doesnt make sense to re-uses them in a builder.
+    pub fn build_widget(&self, ctx: &EventCtx) -> Widget {
+        Widget::new(Box::new(self.build(ctx))).named(self.action.expect("missing action"))
+    }
+
+    // TODO pass in action? Since it doesnt make sense to re-uses them in a builder.
+    pub fn build(&self, ctx: &EventCtx) -> Button {
         let normal = self.batch(ctx, ButtonState::Default);
         let hovered = self.batch(ctx, ButtonState::Hover);
         // derive from edge insets
@@ -464,7 +470,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         )
     }
 
-    fn batch(&'a self, ctx: &EventCtx, state: ButtonState) -> GeomBatch {
+    fn batch(&self, ctx: &EventCtx, state: ButtonState) -> GeomBatch {
         let state_style = self.style(state);
         let default_style = &self.default_style;
 

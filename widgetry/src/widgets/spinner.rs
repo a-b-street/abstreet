@@ -1,7 +1,7 @@
 use geom::{Polygon, Pt2D};
 
 use crate::{
-    text, Btn, Button, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
+    text, Button, ButtonBuilder, EventCtx, GeomBatch, GfxCtx, Line, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
@@ -25,12 +25,29 @@ pub struct Spinner {
 
 impl Spinner {
     pub fn new(ctx: &EventCtx, (low, high): (isize, isize), mut current: isize) -> Widget {
-        let up = Btn::text_fg("↑")
-            .build(ctx, "increase value", None)
-            .take_btn();
-        let down = Btn::text_fg("↓")
-            .build(ctx, "decrease value", None)
-            .take_btn();
+        let mut button_builder = ButtonBuilder::new();
+
+        let button_builder = button_builder
+            // CLEANUP: For things to look balanced, left/right padding are unequal.
+            // I'm not sure why this is - maybe an issue with text layout?
+            .padding_left(7.0)
+            .padding_right(4.0)
+            .bg_color(Color::WHITE.alpha(0.1), ButtonState::Hover);
+
+        use crate::{ButtonState, Color};
+        let up = button_builder
+            .label_text("↑")
+            .padding_top(2.0)
+            .padding_bottom(0.0)
+            .action("increase value")
+            .build(ctx);
+
+        let down = button_builder
+            .label_text("↓")
+            .padding_top(0.0)
+            .padding_bottom(2.0)
+            .action("decrease value")
+            .build(ctx);
 
         let dims = ScreenDims::new(
             TEXT_WIDTH + up.get_dims().width,
