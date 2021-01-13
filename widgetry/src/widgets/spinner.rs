@@ -39,15 +39,13 @@ impl Spinner {
             .label_text("↑")
             .padding_top(2.0)
             .padding_bottom(0.0)
-            .action("increase value")
-            .build(ctx);
+            .build(ctx, "increase value");
 
         let down = button_builder
             .label_text("↓")
             .padding_top(0.0)
             .padding_bottom(2.0)
-            .action("decrease value")
-            .build(ctx);
+            .build(ctx, "decrease value");
 
         let dims = ScreenDims::new(
             TEXT_WIDTH + up.get_dims().width,

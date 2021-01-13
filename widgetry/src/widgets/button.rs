@@ -339,7 +339,6 @@ pub struct ButtonStyle<'a> {
 }
 
 pub struct ButtonBuilder<'a> {
-    action: Option<&'a str>,
     padding: EdgeInsets,
     default_style: ButtonStyle<'a>,
     hover_style: ButtonStyle<'a>,
@@ -353,7 +352,6 @@ pub enum ButtonState {
 impl<'b, 'a: 'b> ButtonBuilder<'a> {
     pub fn new() -> Self {
         ButtonBuilder {
-            action: None,
             padding: EdgeInsets {
                 top: 8.0,
                 bottom: 8.0,
@@ -363,11 +361,6 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             default_style: Default::default(),
             hover_style: Default::default(),
         }
-    }
-
-    pub fn action(&mut self, action: &'a str) -> &mut Self {
-        self.action = Some(action);
-        self
     }
 
     pub fn padding<EI: Into<EdgeInsets>>(&mut self, padding: EI) -> &mut Self {
@@ -463,12 +456,12 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     // TODO pass in action? Since it doesnt make sense to re-uses them in a builder.
-    pub fn build_widget(&self, ctx: &EventCtx) -> Widget {
-        Widget::new(Box::new(self.build(ctx))).named(self.action.expect("missing action"))
+    pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
+        Widget::new(Box::new(self.build(ctx, action))).named(action)
     }
 
     // TODO pass in action? Since it doesnt make sense to re-uses them in a builder.
-    pub fn build(&self, ctx: &EventCtx) -> Button {
+    pub fn build(&self, ctx: &EventCtx, action: &str) -> Button {
         let normal = self.batch(ctx, ButtonState::Default);
         let hovered = self.batch(ctx, ButtonState::Hover);
         // derive from edge insets
@@ -478,15 +471,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         );
         let hitbox = normal.get_bounds().get_rectangle();
         debug!("normal.get_bounds().get_rectangle(): {:?}", hitbox);
-        Button::new(
-            ctx,
-            normal,
-            hovered,
-            None,
-            self.action.as_ref().expect("missing action for button"),
-            None,
-            hitbox,
-        )
+        Button::new(ctx, normal, hovered, None, action, None, hitbox)
     }
 
     fn batch(&self, ctx: &EventCtx, state: ButtonState) -> GeomBatch {

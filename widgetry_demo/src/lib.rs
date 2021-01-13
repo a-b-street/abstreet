@@ -315,8 +315,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .bg_color(Color::WHITE.alpha(0.8), ButtonState::Default)
                     .bg_color(Color::WHITE, ButtonState::Hover)
                     .outline(2.0, Color::WHITE.alpha(0.8), ButtonState::Default)
-                    .action("neutral_dark_primary_text")
-                    .build_widget(ctx),
+                    .build_widget(ctx, "neutral_dark_primary_text"),
                 Widget::row(vec![
                     ButtonBuilder::new()
                         .image_path("system/assets/tools/map.svg")
@@ -326,8 +325,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                         .outline(2.0, Color::WHITE.alpha(0.8), ButtonState::Default)
                         .bg_color(Color::WHITE.alpha(0.8), ButtonState::Default)
                         .bg_color(Color::WHITE, ButtonState::Hover)
-                        .action("neutral_dark_primary_image_1")
-                        .build_widget(ctx),
+                        .build_widget(ctx, "neutral_dark_primary_image_1"),
                     ButtonBuilder::new()
                         .image_path("system/assets/tools/layers.svg")
                         .image_dims(ScreenDims::square(24.0))
@@ -336,8 +334,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                         .outline(2.0, Color::WHITE.alpha(0.8), ButtonState::Default)
                         .bg_color(Color::WHITE.alpha(0.8), ButtonState::Default)
                         .bg_color(Color::WHITE, ButtonState::Hover)
-                        .action("neutral_dark_primary_image_2")
-                        .build_widget(ctx),
+                        .build_widget(ctx, "neutral_dark_primary_image_2"),
                 ]),
                 ButtonBuilder::new()
                     .label_text("Primary")
@@ -349,15 +346,13 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .outline(2.0, Color::WHITE.alpha(0.8), ButtonState::Default)
                     .bg_color(Color::WHITE.alpha(0.8), ButtonState::Default)
                     .bg_color(Color::WHITE, ButtonState::Hover)
-                    .action("neutral_dark_primary_image_and_text")
-                    .build_widget(ctx),
+                    .build_widget(ctx, "neutral_dark_primary_image_and_text"),
                 ButtonBuilder::new()
                     .label_text("Secondary")
                     .label_color(Color::hex("#4c4c4c"), ButtonState::Default)
                     .bg_color(Color::hex("#4c4c4c").alpha(0.1), ButtonState::Hover)
                     .outline(2.0, Color::hex("#4c4c4c"), ButtonState::Default)
-                    .action("neutral_dark_secondary_text")
-                    .build_widget(ctx),
+                    .build_widget(ctx, "neutral_dark_secondary_text"),
                 Widget::row(vec![
                     ButtonBuilder::new()
                         .image_path("system/assets/tools/map.svg")
@@ -366,16 +361,14 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                         .padding(6)
                         .bg_color(Color::hex("#4c4c4c").alpha(0.1), ButtonState::Hover)
                         .outline(2.0, Color::hex("#4c4c4c"), ButtonState::Default)
-                        .action("neutral_dark_secondary_image_1")
-                        .build_widget(ctx),
+                        .build_widget(ctx, "neutral_dark_secondary_image_1"),
                     ButtonBuilder::new()
                         .image_path("system/assets/tools/layers.svg")
                         .image_dims(ScreenDims::square(24.0))
                         .image_color(Color::hex("#4c4c4c"), ButtonState::Default)
                         .padding(6)
                         .bg_color(Color::hex("#4c4c4c").alpha(0.1), ButtonState::Hover)
-                        .action("neutral_dark_secondary_image_2")
-                        .build_widget(ctx),
+                        .build_widget(ctx, "neutral_dark_secondary_image_2"),
                 ]),
                 ButtonBuilder::new()
                     .label_text("Secondary")
@@ -386,8 +379,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .bg_color(Color::hex("#4c4c4c").alpha(0.1), ButtonState::Hover)
                     .padding_left(12.0)
                     .outline(2.0, Color::hex("#4c4c4c"), ButtonState::Default)
-                    .action("neutral_dark_secondary_image_and_text")
-                    .build_widget(ctx),
+                    .build_widget(ctx, "neutral_dark_secondary_image_and_text"),
             ]),
             Widget::col(vec![
                 Text::from(Line("Neutral Light")).bg(Color::CLEAR).draw(ctx),
@@ -397,8 +389,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .bg_color(Color::hex("#003046").alpha(0.6), ButtonState::Default)
                     .bg_color(Color::hex("#003046"), ButtonState::Hover)
                     .outline(2.0, Color::hex("#003046").alpha(0.6), ButtonState::Default)
-                    .action("neutral_light_primary_text")
-                    .build_widget(ctx),
+                    .build_widget(ctx, "neutral_light_primary_text"),
                 Widget::row(vec![
                     ButtonBuilder::new()
                         .image_path("system/assets/tools/home.svg")
@@ -408,8 +399,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                         .outline(2.0, Color::hex("#003046").alpha(0.6), ButtonState::Default)
                         .bg_color(Color::hex("#003046").alpha(0.6), ButtonState::Default)
                         .bg_color(Color::hex("#003046"), ButtonState::Hover)
-                        .action("neutral_light_primary_image_1")
-                        .build_widget(ctx),
+                        .build_widget(ctx, "neutral_light_primary_image_1"),
                     ButtonBuilder::new()
                         .image_path("system/assets/tools/location.svg")
                         .image_dims(ScreenDims::square(24.0))
@@ -418,8 +408,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                         .outline(2.0, Color::hex("#003046").alpha(0.6), ButtonState::Default)
                         .bg_color(Color::hex("#003046").alpha(0.6), ButtonState::Default)
                         .bg_color(Color::hex("#003046"), ButtonState::Hover)
-                        .action("neutral_light_primary_image_2")
-                        .build_widget(ctx),
+                        .build_widget(ctx, "neutral_light_primary_image_2"),
                 ]),
                 ButtonBuilder::new()
                     .label_text("Primary")
@@ -431,15 +420,13 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .padding_left(12.0)
                     .bg_color(Color::hex("#003046").alpha(0.6), ButtonState::Default)
                     .bg_color(Color::hex("#003046"), ButtonState::Hover)
-                    .action("neutral_light_primary_image_and_text")
-                    .build_widget(ctx),
+                    .build_widget(ctx, "neutral_light_primary_image_and_text"),
                 ButtonBuilder::new()
                     .label_text("Secondary")
                     .label_color(Color::hex("#F2F2F2"), ButtonState::Default)
                     .bg_color(Color::hex("#F2F2F2").alpha(0.1), ButtonState::Hover)
                     .outline(2.0, Color::hex("#F2F2F2"), ButtonState::Default)
-                    .action("neutral_light_secondary_text")
-                    .build_widget(ctx),
+                    .build_widget(ctx, "neutral_light_secondary_text"),
                 Widget::row(vec![
                     ButtonBuilder::new()
                         .image_path("system/assets/tools/home.svg")
@@ -448,16 +435,14 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                         .padding(6)
                         .bg_color(Color::hex("#F2F2F2").alpha(0.1), ButtonState::Hover)
                         .outline(2.0, Color::hex("#F2F2F2"), ButtonState::Default)
-                        .action("neutral_light_secondary_image_1")
-                        .build_widget(ctx),
+                        .build_widget(ctx, "neutral_light_secondary_image_1"),
                     ButtonBuilder::new()
                         .image_path("system/assets/tools/location.svg")
                         .image_dims(ScreenDims::square(24.0))
                         .image_color(Color::hex("#F2F2F2"), ButtonState::Default)
                         .padding(6)
                         .bg_color(Color::hex("#F2F2F2").alpha(0.1), ButtonState::Hover)
-                        .action("neutral_light_secondary_image_2")
-                        .build_widget(ctx),
+                        .build_widget(ctx, "neutral_light_secondary_image_2"),
                 ]),
                 ButtonBuilder::new()
                     .label_text("Secondary")
@@ -468,8 +453,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .padding_left(12.0)
                     .bg_color(Color::hex("#F2F2F2").alpha(0.1), ButtonState::Hover)
                     .outline(2.0, Color::hex("#F2F2F2"), ButtonState::Default)
-                    .action("neutral_light_secondary_image_and_text")
-                    .build_widget(ctx),
+                    .build_widget(ctx, "neutral_light_secondary_image_and_text"),
             ]),
         ]),
         Text::from(Line("Spinner").big_heading_styled().sized(18)).draw(ctx),
