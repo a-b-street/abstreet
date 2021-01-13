@@ -131,6 +131,8 @@
 <span id="128">128</span>
 <span id="129">129</span>
 <span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! popdat (&quot;population data&quot;) generates `Scenarios` given a map and some external census data.</span>
 <span class="doccomment">//! Some of this functionality should maybe be reorganized or incorporated into the importer crate,</span>
@@ -162,6 +164,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">Scenario</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">distribute_people</span>::<span class="ident">distribute_population_to_homes</span>;
 
 <span class="kw">mod</span> <span class="ident">activities</span>;
 <span class="kw">mod</span> <span class="ident">distribute_people</span>;
