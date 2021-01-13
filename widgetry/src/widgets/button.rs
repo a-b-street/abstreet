@@ -356,6 +356,26 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    pub fn padding_top(&mut self, padding: f32) -> &mut Self {
+        self.padding.top = padding;
+        self
+    }
+
+    pub fn padding_left(&mut self, padding: f32) -> &mut Self {
+        self.padding.left = padding;
+        self
+    }
+
+    pub fn padding_bottom(&mut self, padding: f32) -> &mut Self {
+        self.padding.bottom = padding;
+        self
+    }
+
+    pub fn padding_right(&mut self, padding: f32) -> &mut Self {
+        self.padding.right = padding;
+        self
+    }
+
     pub fn label_text(&'a mut self, text: &'a str) -> &mut Self {
         // Currently we don't support setting text for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
@@ -508,25 +528,19 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 text.render(ctx)
             });
 
-        let mut content_batch = GeomBatch::new();
-        content_batch.autocrop_dims = false;
-        let is_horizontal = true;
-        let is_image_before_text = true;
-        match (is_horizontal, is_image_before_text) {
-            (true, true) => {
-                if let Some(image_batch) = image_batch {
-                    content_batch.append(image_batch);
-                }
-                if let Some(label_batch) = label_batch {
-                    debug!("adding label_batch: {:?}", label_batch);
-                    content_batch.append(label_batch);
-                }
-            }
-            _ => {
-                todo!("support other layouts")
-            }
+        use geom_batch_stack::Stack;
+        let mut stack = Stack::horizontal();
+        stack.spacing(10.0);
+
+        if let Some(image_batch) = image_batch {
+            stack.push(image_batch);
         }
-        let mut button_widget = content_batch
+        if let Some(label_batch) = label_batch {
+            stack.push(label_batch);
+        }
+
+        let mut button_widget = stack
+            .batch()
             .batch()
             .container()
             .padding(self.padding)
@@ -875,6 +889,104 @@ impl WidgetImpl for MultiButton {
                 let draw = g.upload(GeomBatch::from(vec![(Color::YELLOW, p)]));
                 g.redraw_at(self.top_left, &draw);
             }
+        }
+    }
+}
+
+mod geom_batch_stack {
+    use crate::GeomBatch;
+    enum Alignment {
+        Center, // TODO: Top, Left, Bottom, Right, etc.
+    }
+    enum Axis {
+        Horizontal,
+        Vertical,
+    }
+
+    pub struct Stack {
+        batches: Vec<GeomBatch>,
+        alignment: Alignment,
+        axis: Axis,
+        spacing: f64,
+    }
+
+    impl Default for Stack {
+        fn default() -> Self {
+            Stack {
+                batches: vec![],
+                alignment: Alignment::Center,
+                axis: Axis::Horizontal,
+                spacing: 0.0,
+            }
+        }
+    }
+
+    impl Stack {
+        pub fn horizontal() -> Self {
+            Stack {
+                axis: Axis::Horizontal,
+                ..Default::default()
+            }
+        }
+
+        pub fn vertical() -> Self {
+            Stack {
+                axis: Axis::Vertical,
+                ..Default::default()
+            }
+        }
+
+        pub fn push(&mut self, geom_batch: GeomBatch) {
+            self.batches.push(geom_batch);
+        }
+
+        pub fn append(&mut self, geom_batches: &mut Vec<GeomBatch>) {
+            self.batches.append(geom_batches);
+        }
+
+        pub fn spacing(&mut self, spacing: f64) -> &mut Self {
+            self.spacing = spacing;
+            self
+        }
+
+        pub fn batch(self) -> GeomBatch {
+            if self.batches.is_empty() {
+                return GeomBatch::new();
+            }
+
+            let max_bound_for_axis = self
+                .batches
+                .iter()
+                .map(GeomBatch::get_bounds)
+                .max_by(|b1, b2| match self.axis {
+                    Axis::Vertical => b1.width().partial_cmp(&b2.width()).unwrap(),
+                    Axis::Horizontal => b1.height().partial_cmp(&b2.height()).unwrap(),
+                })
+                .unwrap();
+
+            let mut stack_batch = GeomBatch::new();
+            let mut stack_offset = 0.0;
+            for mut batch in self.batches {
+                let bounds = batch.get_bounds();
+                let alignment_inset = match self.axis {
+                    Axis::Vertical => (max_bound_for_axis.width() - bounds.width()) / 2.0,
+                    Axis::Horizontal => (max_bound_for_axis.height() - bounds.height()) / 2.0,
+                };
+
+                let (dx, dy) = match self.axis {
+                    Axis::Vertical => (alignment_inset, stack_offset),
+                    Axis::Horizontal => (stack_offset, alignment_inset),
+                };
+                batch = batch.translate(dx, dy);
+                stack_batch.append(batch);
+
+                stack_offset += self.spacing;
+                match self.axis {
+                    Axis::Vertical => stack_offset += bounds.height(),
+                    Axis::Horizontal => stack_offset += bounds.width(),
+                }
+            }
+            stack_batch
         }
     }
 }
