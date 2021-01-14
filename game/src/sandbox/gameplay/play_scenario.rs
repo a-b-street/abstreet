@@ -56,7 +56,7 @@ impl GameplayState for PlayScenario {
                         ctx,
                         app,
                         Box::new(move |ctx, app| {
-                            // Try to load a scenario with the same name exists
+                            // Try to load a scenario with the same name if it exists
                             let mode = if abstio::file_exists(abstio::path_scenario(
                                 app.primary.map.get_name(),
                                 &scenario,
@@ -129,7 +129,7 @@ impl GameplayState for PlayScenario {
                 ),
             ])
             .centered(),
-            if self.scenario_name == "weekday" {
+            if self.scenario_name != "empty" {
                 Widget::row(vec![
                     Btn::svg_def("system/assets/tools/pencil.svg").build(
                         ctx,
