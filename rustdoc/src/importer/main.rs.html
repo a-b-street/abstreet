@@ -277,9 +277,27 @@
 <span id="274">274</span>
 <span id="275">275</span>
 <span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">basename</span>;
@@ -287,6 +305,7 @@
 <span class="kw">use</span> <span class="ident">configuration</span>::{<span class="ident">load_configuration</span>, <span class="ident">ImporterConfiguration</span>};
 <span class="kw">use</span> <span class="ident">dependencies</span>::<span class="ident">are_dependencies_callable</span>;
 
+<span class="kw">mod</span> <span class="ident">actdev</span>;
 <span class="kw">mod</span> <span class="ident">berlin</span>;
 <span class="kw">mod</span> <span class="ident">configuration</span>;
 <span class="kw">mod</span> <span class="ident">dependencies</span>;
@@ -398,19 +417,24 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;import map data&quot;</span>);
 
     <span class="kw">let</span> (<span class="ident">maybe_popdat</span>, <span class="ident">maybe_huge_map</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">job</span>.<span class="ident">scenario</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">job</span>.<span class="ident">city</span>, <span class="string">&quot;seattle&quot;</span>);
+        <span class="comment">// TODO This is getting messy!</span>
+        <span class="kw">if</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;cambridge&quot;</span> {
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
+        } <span class="kw">else</span> {
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">job</span>.<span class="ident">city</span>, <span class="string">&quot;seattle&quot;</span>);
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
-        {
-            <span class="kw">let</span> (<span class="ident">popdat</span>, <span class="ident">huge_map</span>) <span class="op">=</span> <span class="ident">seattle</span>::<span class="ident">ensure_popdat_exists</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>);
-            (<span class="prelude-val">Some</span>(<span class="ident">popdat</span>), <span class="prelude-val">Some</span>(<span class="ident">huge_map</span>))
-        }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
+            {
+                <span class="kw">let</span> (<span class="ident">popdat</span>, <span class="ident">huge_map</span>) <span class="op">=</span> <span class="ident">seattle</span>::<span class="ident">ensure_popdat_exists</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>);
+                (<span class="prelude-val">Some</span>(<span class="ident">popdat</span>), <span class="prelude-val">Some</span>(<span class="ident">huge_map</span>))
+            }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>))]</span>
-        {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t do --scenario without the scenarios feature compiled in&quot;</span>);
-            <span class="comment">// Nonsense to make the type-checker work</span>
-            (<span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>))
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>))]</span>
+            {
+                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t do --scenario without the scenarios feature compiled in&quot;</span>);
+                <span class="comment">// Nonsense to make the type-checker work</span>
+                (<span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>))
+            }
         }
     } <span class="kw">else</span> {
         (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
@@ -475,28 +499,34 @@
             <span class="prelude-val">None</span>
         };
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
         <span class="kw">if</span> <span class="ident">job</span>.<span class="ident">scenario</span> {
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-            <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">soundcast</span>::<span class="ident">make_weekday_scenario</span>(
-                <span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
-                <span class="ident">maybe_popdat</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
-                <span class="ident">maybe_huge_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-            );
-            <span class="ident">scenario</span>.<span class="ident">save</span>();
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;scenarios&quot;</span>)]</span>
+            <span class="kw">if</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;seattle&quot;</span> {
+                <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
+                <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">soundcast</span>::<span class="ident">make_weekday_scenario</span>(
+                    <span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
+                    <span class="ident">maybe_popdat</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
+                    <span class="ident">maybe_huge_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+                );
+                <span class="ident">scenario</span>.<span class="ident">save</span>();
+                <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
 
-            <span class="comment">// This is a strange ordering.</span>
-            <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;downtown&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;south_seattle&quot;</span> {
-                <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;adjust parking for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-                <span class="ident">seattle</span>::<span class="ident">adjust_private_parking</span>(<span class="ident">maybe_map</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">scenario</span>);
-                <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;adjust parking for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
+                <span class="comment">// This is a strange ordering.</span>
+                <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;downtown&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;south_seattle&quot;</span> {
+                    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;adjust parking for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
+                    <span class="ident">seattle</span>::<span class="ident">adjust_private_parking</span>(<span class="ident">maybe_map</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">scenario</span>);
+                    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;adjust parking for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
+                }
+
+                <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;match parcels to buildings&quot;</span>);
+                <span class="ident">seattle</span>::<span class="ident">match_parcels_to_buildings</span>(<span class="ident">maybe_map</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+                <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;match parcels to buildings&quot;</span>);
             }
 
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;match parcels to buildings&quot;</span>);
-            <span class="ident">seattle</span>::<span class="ident">match_parcels_to_buildings</span>(<span class="ident">maybe_map</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;match parcels to buildings&quot;</span>);
+            <span class="kw">if</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;cambridge&quot;</span> {
+                <span class="ident">actdev</span>::<span class="ident">import_scenarios</span>(<span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+            }
         }
     }
 

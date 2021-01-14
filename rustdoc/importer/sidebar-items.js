@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""],["oneshot",""]],"mod":[["berlin",""],["configuration",""],["dependencies",""],["generic",""],["leeds",""],["london",""],["seattle",""],["utils",""]],"struct":[["Job",""]]});
+initSidebarItems({"fn":[["main",""],["oneshot",""]],"mod":[["actdev","This module is used for all cities associated with the https://github.com/cyipt/actdev project."],["berlin",""],["configuration",""],["dependencies",""],["generic",""],["leeds",""],["london",""],["seattle",""],["utils",""]],"struct":[["Job",""]]});

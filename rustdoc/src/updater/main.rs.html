@@ -271,6 +271,8 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -508,8 +510,10 @@
 <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">curl</span>(<span class="ident">version</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">quiet</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Manually enable to &quot;download&quot; from my local copy</span>
     <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/home/dabreegster/s3_abst_data/{}/{}.gz&quot;</span>, <span class="ident">version</span>, <span class="ident">path</span>);
-        <span class="kw">return</span> <span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>);
+        <span class="kw">return</span> <span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="string">&quot;/home/dabreegster/s3_abst_data/{}/{}.gz&quot;</span>,
+            <span class="ident">version</span>, <span class="ident">path</span>
+        ));
     }
 
     <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
