@@ -199,8 +199,8 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_browser</span>(<span class="ident">url</span>: <span class="ident">String</span>) {
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">webbrowser</span>::<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>);
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_browser</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I</span>) {
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">webbrowser</span>::<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>.<span class="ident">into</span>());
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "map_gui";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

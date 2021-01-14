@@ -332,8 +332,6 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -487,9 +485,7 @@
                     ));
                 }
                 <span class="string">&quot;import new city&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">open_browser</span>(
-                        <span class="string">&quot;https://dabreegster.github.io/abstreet/howto/new_city.html&quot;</span>.<span class="ident">to_string</span>(),
-                    );
+                    <span class="ident">open_browser</span>(<span class="string">&quot;https://dabreegster.github.io/abstreet/howto/new_city.html&quot;</span>);
                 }
                 <span class="string">&quot;Download more cities&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="string">&quot;just stop this from counting as an attribute on an expression&quot;</span>;

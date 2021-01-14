@@ -535,19 +535,62 @@
 <span id="532">532</span>
 <span id="533">533</span>
 <span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">ChooseSomething</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{
+    <span class="ident">grey_out_map</span>, <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>,
+};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Position</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">SimpleState</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -593,12 +636,7 @@
                         ])
                     }),
                 ))),
-                <span class="string">&quot;change traffic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">make_change_traffic</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">rect_of</span>(<span class="string">&quot;change traffic&quot;</span>).<span class="ident">clone</span>(),
-                    <span class="string">&quot;none&quot;</span>.<span class="ident">to_string</span>(),
-                ))),
+                <span class="string">&quot;change scenario&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChangeScenario</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;none&quot;</span>))),
                 <span class="string">&quot;edit map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">EditMode</span>::<span class="ident">new</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
@@ -653,7 +691,7 @@
                     <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
                 ),
                 <span class="string">&quot;Scenario:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;none&quot;</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change traffic&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
+                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;none&quot;</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit_map.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;edit map&quot;</span>,
@@ -680,77 +718,121 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_change_traffic</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">btn</span>: <span class="ident">ScreenRectangle</span>,
-    <span class="ident">current</span>: <span class="ident">String</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">abstio</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstio</span>::<span class="ident">path_all_scenarios</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>())) {
-        <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;weekday&quot;</span> {
-            <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;realistic weekday traffic&quot;</span>, <span class="ident">name</span>).<span class="ident">tooltip</span>(
-                <span class="string">&quot;Trips will begin throughout the entire day. Midnight is usually quiet, so you \
-                 may need to fast-forward to morning rush hour. Data comes from Puget Sound \
-                 Regional Council&#39;s Soundcast model.&quot;</span>,
-            ));
-        } <span class="kw">else</span> {
-            <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">name</span>));
-        }
-    }
-    <span class="ident">choices</span>.<span class="ident">push</span>(
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;trips between home and work&quot;</span>, <span class="string">&quot;home_to_work&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">tooltip</span>(
-            <span class="string">&quot;Randomized people will leave homes in the morning, go to work, then return in the \
-             afternoon. It&#39;ll be very quiet before 7am and between 10am to 5pm.&quot;</span>,
-        ),
-    );
-    <span class="ident">choices</span>.<span class="ident">push</span>(
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;random unrealistic trips&quot;</span>, <span class="string">&quot;random&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">tooltip</span>(
-            <span class="string">&quot;Lots of trips will start at midnight, but not constantly appear through the day.&quot;</span>,
-        ),
-    );
-    <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(
-        <span class="string">&quot;generate from census data&quot;</span>,
-        <span class="string">&quot;census&quot;</span>.<span class="ident">to_string</span>(),
-    ));
-    <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice</span>::<span class="ident">new</span>(
-        <span class="string">&quot;none, except for buses -- you manually spawn traffic&quot;</span>,
-        <span class="string">&quot;none&quot;</span>.<span class="ident">to_string</span>(),
-    ));
-    <span class="kw">let</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">choices</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="ident">current</span> {
-                <span class="ident">c</span>.<span class="ident">active</span>(<span class="bool-val">false</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">c</span>
-            }
-        })
-        .<span class="ident">collect</span>();
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChangeScenario</span>;
 
-    <span class="ident">ChooseSomething</span>::<span class="ident">new_below</span>(
-        <span class="ident">ctx</span>,
-        <span class="kw-2">&amp;</span><span class="ident">btn</span>,
-        <span class="ident">choices</span>,
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">scenario_name</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+<span class="kw">impl</span> <span class="ident">ChangeScenario</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">current_scenario</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="comment">// (Button action, label, full description)</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">abstio</span>::<span class="ident">list_all_objects</span>(<span class="ident">abstio</span>::<span class="ident">path_all_scenarios</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
+        {
+            <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;weekday&quot;</span> {
+                <span class="ident">choices</span>.<span class="ident">push</span>((
+                    <span class="ident">name</span>,
+                    <span class="string">&quot;realistic weekday traffic&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;Trips will begin throughout the entire day. Midnight is usually quiet, so \
+                     you may need to fast-forward to morning rush hour. Data comes from Puget \
+                     Sound Regional Council&#39;s Soundcast model from 2014.&quot;</span>,
+                ));
+            } <span class="kw">else</span> {
+                <span class="ident">choices</span>.<span class="ident">push</span>((
+                    <span class="ident">name</span>.<span class="ident">clone</span>(),
+                    <span class="ident">name</span>,
+                    <span class="string">&quot;This is custom scenario data for this map&quot;</span>,
+                ));
+            }
+        }
+        <span class="ident">choices</span>.<span class="ident">push</span>((
+            <span class="string">&quot;home_to_work&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;trips between home and work&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;Randomized people will leave homes in the morning, go to work, then return in the \
+             afternoon. It&#39;ll be very quiet before 7am and between 10am to 5pm. The population \
+             size and location of homes and workplaces is all guessed just from OpenStreetMap \
+             tags.&quot;</span>,
+        ));
+        <span class="ident">choices</span>.<span class="ident">push</span>((
+            <span class="string">&quot;random&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;random unrealistic trips&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;A fixed number of trips will start at midnight, but not constantly appear through \
+             the day.&quot;</span>,
+        ));
+        <span class="ident">choices</span>.<span class="ident">push</span>((
+            <span class="string">&quot;census&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;generate from US census data&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;A population from 2010 US census data will travel between home and workplaces. This \
+             option will only work for maps in the US, and generating it will take a few moments \
+             as some data is downloaded for this map.&quot;</span>,
+        ));
+        <span class="ident">choices</span>.<span class="ident">push</span>((
+            <span class="string">&quot;none&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;none, except for buses&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;You can manually spawn traffic around a single intersection or by using the tool in \
+             the top panel to start individual trips.&quot;</span>,
+        ));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Pick your scenario&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
+                <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
+            ]),
+            <span class="ident">Line</span>(<span class="string">&quot;Each scenario determines what people live and travel around this map&quot;</span>).<span class="ident">draw</span>(<span class="ident">ctx</span>),
+        ];
+        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">label</span>, <span class="ident">description</span>) <span class="kw">in</span> <span class="ident">choices</span> {
+            <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">current_scenario</span> {
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="ident">label</span>).<span class="ident">inactive</span>(<span class="ident">ctx</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="ident">label</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">name</span>, <span class="prelude-val">None</span>)
+            };
+            <span class="ident">col</span>.<span class="ident">push</span>(
+                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">btn</span>,
+                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">description</span>).<span class="ident">secondary</span>())
+                        .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">40</span>)
+                        .<span class="ident">draw</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">align_right</span>(),
+                ])
+                .<span class="ident">margin_above</span>(<span class="number">30</span>),
+            );
+        }
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Import your own data&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
+
+        <span class="ident">SimpleState</span>::<span class="ident">new</span>(
+            <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>),
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChangeScenario</span>),
+        )
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChangeScenario</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;close&quot;</span> {
+            <span class="ident">Transition</span>::<span class="ident">Pop</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Import your own data&quot;</span> {
+            <span class="ident">open_browser</span>(<span class="string">&quot;https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import&quot;</span>);
+            <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        } <span class="kw">else</span> {
             <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                 <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
-                    <span class="kw">if</span> <span class="ident">scenario_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;none&quot;</span> {
+                    <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;none&quot;</span> {
                         <span class="ident">GameplayMode</span>::<span class="ident">Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>())
                     } <span class="kw">else</span> {
                         <span class="ident">GameplayMode</span>::<span class="ident">PlayScenario</span>(
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                            <span class="ident">scenario_name</span>,
+                            <span class="ident">x</span>.<span class="ident">to_string</span>(),
                             <span class="ident">Vec</span>::<span class="ident">new</span>(),
                         )
                     },
                 )),
             ])
-        }),
-    )
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    }
 }
 
 <span class="kw">struct</span> <span class="ident">AgentSpawner</span> {

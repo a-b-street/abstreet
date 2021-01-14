@@ -435,7 +435,6 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
-<span id="435">435</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -451,7 +450,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">checkbox_per_mode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">freeform</span>::<span class="ident">make_change_traffic</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">freeform</span>::<span class="ident">ChangeScenario</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
 
@@ -515,11 +514,10 @@
                         }),
                     )))
                 }
-                <span class="string">&quot;change traffic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">make_change_traffic</span>(
+                <span class="string">&quot;change scenario&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChangeScenario</span>::<span class="ident">new</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
-                    <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">rect_of</span>(<span class="string">&quot;change traffic&quot;</span>).<span class="ident">clone</span>(),
-                    <span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>(),
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>,
                 ))),
                 <span class="string">&quot;edit map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">EditMode</span>::<span class="ident">new</span>(
                     <span class="ident">ctx</span>,
@@ -561,7 +559,7 @@
                     <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
                 ),
                 <span class="string">&quot;Scenario:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change traffic&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
+                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
                 <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit_map.svg&quot;</span>).<span class="ident">build</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;edit map&quot;</span>,

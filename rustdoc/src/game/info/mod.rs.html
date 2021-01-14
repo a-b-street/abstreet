@@ -1349,7 +1349,7 @@
                         ))),
                     )
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;open &quot;</span>) {
-                    <span class="ident">open_browser</span>(<span class="ident">url</span>.<span class="ident">to_string</span>());
+                    <span class="ident">open_browser</span>(<span class="ident">url</span>);
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;edit BusRoute #&quot;</span>) {
                     (

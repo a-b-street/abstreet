@@ -749,7 +749,7 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">About</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;Feedback&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">open_browser</span>(<span class="string">&quot;https://forms.gle/ocvbek1bTaZUr3k49&quot;</span>.<span class="ident">to_string</span>());
+                    <span class="ident">open_browser</span>(<span class="string">&quot;https://forms.gle/ocvbek1bTaZUr3k49&quot;</span>);
                 }
                 <span class="string">&quot;Community Proposals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Proposals</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>));
@@ -835,7 +835,7 @@
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="string">&quot;See full credits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">open_browser</span>(<span class="string">&quot;https://github.com/dabreegster/abstreet#credits&quot;</span>.<span class="ident">to_string</span>());
+                    <span class="ident">open_browser</span>(<span class="string">&quot;https://github.com/dabreegster/abstreet#credits&quot;</span>);
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
