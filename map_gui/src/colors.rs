@@ -53,6 +53,13 @@ impl ColorSchemeChoice {
     }
 }
 
+pub struct ButtonColorScheme {
+    pub fg: Color,
+    pub outline: Color,
+    pub bg: Color,
+    pub bg_hover: Color,
+}
+
 pub struct ColorScheme {
     scheme: ColorSchemeChoice,
 
@@ -75,6 +82,12 @@ pub struct ColorScheme {
     pub minimap_cursor_bg: Option<Color>,
     pub minimap_selected_zoom: Color,
     pub minimap_unselected_zoom: Color,
+
+    // UI - Buttons
+    pub btn_primary_dark: ButtonColorScheme,
+    pub btn_secondary_dark: ButtonColorScheme,
+    pub btn_primary_light: ButtonColorScheme,
+    pub btn_secondary_light: ButtonColorScheme,
 
     // Roads
     driving_lane: Color,
@@ -202,6 +215,32 @@ impl ColorScheme {
             minimap_selected_zoom: Color::WHITE,
             minimap_unselected_zoom: Color::WHITE.alpha(0.2),
             gui_style,
+
+            // UI > Buttons
+            btn_primary_dark: ButtonColorScheme {
+                fg: hex("#4c4c4c"),
+                bg: Color::WHITE.alpha(0.8),
+                bg_hover: Color::WHITE,
+                outline: Color::WHITE.alpha(0.6),
+            },
+            btn_secondary_dark: ButtonColorScheme {
+                fg: hex("#4C4C4C"),
+                bg: Color::CLEAR,
+                bg_hover: hex("#4C4C4C").alpha(0.1),
+                outline: hex("#4C4C4C"),
+            },
+            btn_primary_light: ButtonColorScheme {
+                fg: hex("#F2F2F2"),
+                bg: hex("#003046").alpha(0.6),
+                bg_hover: hex("#003046"),
+                outline: hex("#003046").alpha(0.6),
+            },
+            btn_secondary_light: ButtonColorScheme {
+                fg: hex("#F2F2F2"),
+                bg: Color::CLEAR,
+                bg_hover: hex("#F2F2F2").alpha(0.1),
+                outline: hex("#F2F2F2"),
+            },
 
             // Roads
             driving_lane: Color::BLACK,

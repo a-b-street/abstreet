@@ -46,11 +46,10 @@ impl TitleScreen {
                     Widget::draw_svg(ctx, "system/assets/pregame/logo.svg"),
                     // TODO that nicer font
                     // TODO Any key
-                    widgetry::Btn::text_bg2("PLAY").build(
-                        ctx,
-                        "start game",
-                        hotkeys(vec![Key::Space, Key::Enter]),
-                    ),
+                    app.cs
+                        .btn_primary_dark_text("PLAY")
+                        .hotkey(hotkeys(vec![Key::Space, Key::Enter]))
+                        .build_widget(ctx, "start game"),
                 ])
                 .bg(app.cs.dialog_bg)
                 .padding(16)
@@ -103,7 +102,8 @@ impl MainMenu {
                 txt.draw(ctx).centered_horiz()
             },
             Widget::row(vec![
-                Btn::svg("system/assets/pregame/tutorial.svg", app.cs.hovering)
+                app.cs
+                    .btn_svg("system/assets/pregame/tutorial.svg")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
                         // FIXME: these second lines don't seem to appear anywhere.
@@ -112,7 +112,8 @@ impl MainMenu {
                     })
                     .hotkey(Key::T)
                     .build_widget(ctx, "Tutorial"),
-                Btn::svg("system/assets/pregame/sandbox.svg", app.cs.hovering)
+                app.cs
+                    .btn_svg("system/assets/pregame/sandbox.svg")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
                         txt.add(Line("No goals, try out any idea here").small());
@@ -120,7 +121,8 @@ impl MainMenu {
                     })
                     .hotkey(Key::S)
                     .build_widget(ctx, "Sandbox mode"),
-                Btn::svg("system/assets/pregame/challenges.svg", app.cs.hovering)
+                app.cs
+                    .btn_svg("system/assets/pregame/challenges.svg")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
                         txt.add(Line("Fix specific problems").small());
@@ -131,20 +133,29 @@ impl MainMenu {
             ])
             .centered(),
             Widget::row(vec![
-                widgetry::Btn::text_bg2("Community Proposals")
+                app.cs
+                    .btn_secondary_light_text("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::P, "Community Proposals");
                         txt.add(Line("See existing ideas for improving traffic").small());
                         txt
                     })
-                    .build_def(ctx, Key::P),
-                widgetry::Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
+                    .hotkey(Key::P)
+                    .build_widget(ctx, "Community Proposals"),
+                app.cs
+                    .btn_secondary_light_text("Internal Dev Tools")
+                    .hotkey(Key::D)
+                    .build_widget(ctx, "Internal Dev Tools"),
             ])
             .centered(),
             Widget::col(vec![
                 Widget::row(vec![
-                    widgetry::Btn::text_bg2("About").build_def(ctx, None),
-                    widgetry::Btn::text_bg2("Feedback").build_def(ctx, None),
+                    app.cs
+                        .btn_secondary_light_text("About")
+                        .build_widget(ctx, "About"),
+                    app.cs
+                        .btn_secondary_light_text("Feedback")
+                        .build_widget(ctx, "Feedback"),
                 ]),
                 built_info::time().draw(ctx),
             ])

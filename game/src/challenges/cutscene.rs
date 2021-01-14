@@ -170,7 +170,8 @@ fn make_panel(
     idx: usize,
 ) -> Panel {
     let prev = if idx > 0 {
-        Btn::svg("system/assets/tools/prev.svg", app.cs.hovering)
+        app.cs
+            .btn_svg("system/assets/tools/prev.svg")
             .hotkey(Key::LeftArrow)
             .build_widget(ctx, "back")
     } else {
@@ -180,7 +181,9 @@ fn make_panel(
             RewriteColor::ChangeAlpha(0.3),
         )
     };
-    let next = Btn::svg("system/assets/tools/next.svg", app.cs.hovering)
+    let next = app
+        .cs
+        .btn_svg("system/assets/tools/next.svg")
         .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
         .build_widget(ctx, "next");
 
