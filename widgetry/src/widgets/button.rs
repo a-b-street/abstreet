@@ -290,6 +290,7 @@ impl Btn {
     }
 }
 
+#[derive(Clone)]
 pub struct Image<'a> {
     path: Option<&'a str>,
     color: Option<Color>,
@@ -308,12 +309,14 @@ impl Default for Image<'_> {
     }
 }
 
+#[derive(Clone)]
 pub enum ContentMode {
     ScaleToFill,
     ScaleAspectFit,
     ScaleAspectFill,
 }
 
+#[derive(Clone)]
 pub struct Label<'a> {
     text: &'a str,
     color: Option<Color>,
@@ -328,7 +331,7 @@ impl std::default::Default for Label<'_> {
     }
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct ButtonStyle<'a> {
     image: Option<Image<'a>>,
     label: Option<Label<'a>>,
@@ -338,12 +341,14 @@ pub struct ButtonStyle<'a> {
      * geom: Option<()>, */
 }
 
+#[derive(Clone)]
 pub struct ButtonBuilder<'a> {
     padding: EdgeInsets,
     default_style: ButtonStyle<'a>,
     hover_style: ButtonStyle<'a>,
 }
 
+#[derive(Clone, Copy)]
 pub enum ButtonState {
     Default,
     Hover, // TODO: Pressing, Disabled
@@ -363,32 +368,32 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
     }
 
-    pub fn padding<EI: Into<EdgeInsets>>(&mut self, padding: EI) -> &mut Self {
+    pub fn padding<EI: Into<EdgeInsets>>(mut self, padding: EI) -> Self {
         self.padding = padding.into();
         self
     }
 
-    pub fn padding_top(&mut self, padding: f32) -> &mut Self {
+    pub fn padding_top(mut self, padding: f32) -> Self {
         self.padding.top = padding;
         self
     }
 
-    pub fn padding_left(&mut self, padding: f32) -> &mut Self {
+    pub fn padding_left(mut self, padding: f32) -> Self {
         self.padding.left = padding;
         self
     }
 
-    pub fn padding_bottom(&mut self, padding: f32) -> &mut Self {
+    pub fn padding_bottom(mut self, padding: f32) -> Self {
         self.padding.bottom = padding;
         self
     }
 
-    pub fn padding_right(&mut self, padding: f32) -> &mut Self {
+    pub fn padding_right(mut self, padding: f32) -> Self {
         self.padding.right = padding;
         self
     }
 
-    pub fn label_text(&mut self, text: &'a str) -> &mut Self {
+    pub fn label_text(mut self, text: &'a str) -> Self {
         // Currently we don't support setting text for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut label = self.default_style.label.take().unwrap_or_default();
@@ -397,7 +402,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_path(&mut self, path: &'a str) -> &mut Self {
+    pub fn image_path(mut self, path: &'a str) -> Self {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();
@@ -406,7 +411,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_dims(&mut self, dims: ScreenDims) -> &mut Self {
+    pub fn image_dims(mut self, dims: ScreenDims) -> Self {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();
@@ -415,7 +420,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn label_color(&mut self, color: Color, state: ButtonState) -> &mut Self {
+    pub fn label_color(mut self, color: Color, state: ButtonState) -> Self {
         let state_style = self.style_mut(state);
         let mut label = state_style.label.take().unwrap_or_default();
         label.color = Some(color);
@@ -423,7 +428,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_color(&mut self, color: Color, state: ButtonState) -> &mut Self {
+    pub fn image_color(mut self, color: Color, state: ButtonState) -> Self {
         let state_style = self.style_mut(state);
         let mut image = state_style.image.take().unwrap_or_default();
         image.color = Some(color);
@@ -445,12 +450,12 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
     }
 
-    pub fn bg_color(&mut self, color: Color, state: ButtonState) -> &mut Self {
+    pub fn bg_color(mut self, color: Color, state: ButtonState) -> Self {
         self.style_mut(state).bg_color = Some(color);
         self
     }
 
-    pub fn outline(&mut self, thickness: f64, color: Color, state: ButtonState) -> &mut Self {
+    pub fn outline(mut self, thickness: f64, color: Color, state: ButtonState) -> Self {
         self.style_mut(state).outline = Some((thickness, color));
         self
     }

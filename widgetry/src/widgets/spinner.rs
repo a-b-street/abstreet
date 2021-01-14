@@ -36,6 +36,7 @@ impl Spinner {
 
         use crate::{ButtonState, Color};
         let up = button_builder
+            .clone()
             .label_text("↑")
             .padding_top(2.0)
             .padding_bottom(0.0)
