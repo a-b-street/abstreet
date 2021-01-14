@@ -22,8 +22,8 @@ pub mod load;
 pub mod options;
 pub mod render;
 mod simple_app;
+pub mod theme;
 pub mod tools;
-
 /// An application wishing to use the tools in this crate has to implement this on the struct that
 /// implements `widgetry::SharedAppState`, so that the tools here can access the map. See
 /// `SimpleApp` for an example implementation.

@@ -25,7 +25,7 @@ pub struct Spinner {
 
 impl Spinner {
     pub fn new(ctx: &EventCtx, (low, high): (isize, isize), mut current: isize) -> Widget {
-        let mut button_builder = ButtonBuilder::new();
+        let button_builder = ButtonBuilder::new();
 
         let button_builder = button_builder
             // CLEANUP: For things to look balanced, left/right padding are unequal.

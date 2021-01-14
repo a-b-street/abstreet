@@ -7,12 +7,13 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::{Duration, Line, Percent, Pt2D, Speed};
 use map_gui::load::MapLoader;
+use map_gui::theme::Btn;
 use map_gui::tools::{open_browser, PopupMsg};
 use map_model::PermanentMapEdits;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
-    hotkeys, Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor,
-    State, Text, UpdateType, Widget,
+    hotkeys, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text,
+    UpdateType, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -45,7 +46,7 @@ impl TitleScreen {
                     Widget::draw_svg(ctx, "system/assets/pregame/logo.svg"),
                     // TODO that nicer font
                     // TODO Any key
-                    Btn::text_bg2("PLAY").build(
+                    widgetry::Btn::text_bg2("PLAY").build(
                         ctx,
                         "start game",
                         hotkeys(vec![Key::Space, Key::Enter]),
@@ -93,7 +94,7 @@ pub struct MainMenu {
 impl MainMenu {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
-            Btn::svg_def("system/assets/pregame/quit.svg")
+            widgetry::Btn::svg_def("system/assets/pregame/quit.svg")
                 .build(ctx, "quit", Key::Escape)
                 .align_left(),
             {
@@ -102,53 +103,48 @@ impl MainMenu {
                 txt.draw(ctx).centered_horiz()
             },
             Widget::row(vec![
-                Btn::svg(
-                    "system/assets/pregame/tutorial.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip({
-                    let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
-                    txt.add(Line("Learn how to play the game").small());
-                    txt
-                })
-                .build(ctx, "Tutorial", Key::T),
-                Btn::svg(
-                    "system/assets/pregame/sandbox.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip({
-                    let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
-                    txt.add(Line("No goals, try out any idea here").small());
-                    txt
-                })
-                .build(ctx, "Sandbox mode", Key::S),
-                Btn::svg(
-                    "system/assets/pregame/challenges.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip({
-                    let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
-                    txt.add(Line("Fix specific problems").small());
-                    txt
-                })
-                .build(ctx, "Challenges", Key::C),
+                Btn::svg("system/assets/pregame/tutorial.svg", app.cs.hovering)
+                    .tooltip({
+                        let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
+                        // FIXME: these second lines don't seem to appear anywhere.
+                        txt.add(Line("Learn how to play the game").small());
+                        txt
+                    })
+                    .hotkey(Key::T)
+                    .build_widget(ctx, "Tutorial"),
+                Btn::svg("system/assets/pregame/sandbox.svg", app.cs.hovering)
+                    .tooltip({
+                        let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
+                        txt.add(Line("No goals, try out any idea here").small());
+                        txt
+                    })
+                    .hotkey(Key::S)
+                    .build_widget(ctx, "Sandbox mode"),
+                Btn::svg("system/assets/pregame/challenges.svg", app.cs.hovering)
+                    .tooltip({
+                        let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
+                        txt.add(Line("Fix specific problems").small());
+                        txt
+                    })
+                    .hotkey(Key::C)
+                    .build_widget(ctx, "Challenges"),
             ])
             .centered(),
             Widget::row(vec![
-                Btn::text_bg2("Community Proposals")
+                widgetry::Btn::text_bg2("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::P, "Community Proposals");
                         txt.add(Line("See existing ideas for improving traffic").small());
                         txt
                     })
                     .build_def(ctx, Key::P),
-                Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
+                widgetry::Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
             ])
             .centered(),
             Widget::col(vec![
                 Widget::row(vec![
-                    Btn::text_bg2("About").build_def(ctx, None),
-                    Btn::text_bg2("Feedback").build_def(ctx, None),
+                    widgetry::Btn::text_bg2("About").build_def(ctx, None),
+                    widgetry::Btn::text_bg2("Feedback").build_def(ctx, None),
                 ]),
                 built_info::time().draw(ctx),
             ])
@@ -232,7 +228,7 @@ struct About {
 impl About {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
-            Btn::svg_def("system/assets/pregame/back.svg")
+            widgetry::Btn::svg_def("system/assets/pregame/back.svg")
                 .build(ctx, "back", Key::Escape)
                 .align_left(),
             {
@@ -264,7 +260,7 @@ impl About {
                 .bg(app.cs.panel_bg)
                 .padding(16)
             },
-            Btn::text_bg2("See full credits")
+            widgetry::Btn::text_bg2("See full credits")
                 .build_def(ctx, None)
                 .centered_horiz(),
         ];
@@ -337,17 +333,18 @@ impl Proposals {
 
                 if edits.proposal_link.is_some() {
                     current_tab.push(
-                        Btn::text_bg2("Read detailed write-up")
+                        widgetry::Btn::text_bg2("Read detailed write-up")
                             .build_def(ctx, None)
                             .margin_below(10),
                     );
                 }
-                current_tab.push(Btn::text_bg2("Try out this proposal").build_def(ctx, None));
+                current_tab
+                    .push(widgetry::Btn::text_bg2("Try out this proposal").build_def(ctx, None));
 
-                buttons.push(Btn::text_bg2(&edits.proposal_description[0]).inactive(ctx));
+                buttons.push(widgetry::Btn::text_bg2(&edits.proposal_description[0]).inactive(ctx));
             } else {
                 buttons.push(
-                    Btn::text_bg2(&edits.proposal_description[0])
+                    widgetry::Btn::text_bg2(&edits.proposal_description[0])
                         .no_tooltip()
                         .build(ctx, &name, None)
                         .margin_below(10),
@@ -375,7 +372,7 @@ impl Proposals {
         Box::new(Proposals {
             proposals,
             panel: Panel::new(Widget::custom_col(vec![
-                Btn::svg_def("system/assets/pregame/back.svg")
+                widgetry::Btn::svg_def("system/assets/pregame/back.svg")
                     .build(ctx, "back", Key::Escape)
                     .align_left()
                     .margin_below(20),

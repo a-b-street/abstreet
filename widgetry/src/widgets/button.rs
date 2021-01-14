@@ -133,6 +133,7 @@ impl WidgetImpl for Button {
 pub struct Btn {}
 
 impl Btn {
+    #[deprecated]
     pub fn svg<I: Into<String>>(path: I, rewrite_hover: RewriteColor) -> BtnBuilder {
         BtnBuilder::SVG {
             path: path.into(),
@@ -341,9 +342,11 @@ pub struct ButtonStyle<'a> {
      * geom: Option<()>, */
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct ButtonBuilder<'a> {
     padding: EdgeInsets,
+    hotkey: Option<MultiKey>,
+    tooltip: Option<Text>,
     default_style: ButtonStyle<'a>,
     hover_style: ButtonStyle<'a>,
 }
@@ -363,8 +366,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 left: 16.0,
                 right: 16.0,
             },
-            default_style: Default::default(),
-            hover_style: Default::default(),
+            ..Default::default()
         }
     }
 
@@ -460,12 +462,21 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    // TODO pass in action? Since it doesnt make sense to re-uses them in a builder.
+    pub fn hotkey<MK: Into<MultiKey>>(mut self, key: MK) -> Self {
+        self.hotkey = Some(key.into());
+        self
+    }
+    pub fn tooltip(mut self, tooltip: Text) -> Self {
+        // overzealous?
+        debug_assert!(self.tooltip.is_none());
+        self.tooltip = Some(tooltip);
+        self
+    }
+
     pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
         Widget::new(Box::new(self.build(ctx, action))).named(action)
     }
 
-    // TODO pass in action? Since it doesnt make sense to re-uses them in a builder.
     pub fn build(&self, ctx: &EventCtx, action: &str) -> Button {
         let normal = self.batch(ctx, ButtonState::Default);
         let hovered = self.batch(ctx, ButtonState::Hover);
@@ -476,7 +487,15 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         );
         let hitbox = normal.get_bounds().get_rectangle();
         debug!("normal.get_bounds().get_rectangle(): {:?}", hitbox);
-        Button::new(ctx, normal, hovered, None, action, None, hitbox)
+        Button::new(
+            ctx,
+            normal,
+            hovered,
+            self.hotkey.clone(),
+            action,
+            None,
+            hitbox,
+        )
     }
 
     fn batch(&self, ctx: &EventCtx, state: ButtonState) -> GeomBatch {
@@ -920,7 +939,8 @@ mod geom_batch_stack {
 
     pub struct Stack {
         batches: Vec<GeomBatch>,
-        alignment: Alignment,
+        // TODO: top/bottom/etc
+        // alignment: Alignment,
         axis: Axis,
         spacing: f64,
     }
@@ -929,7 +949,8 @@ mod geom_batch_stack {
         fn default() -> Self {
             Stack {
                 batches: vec![],
-                alignment: Alignment::Center,
+                // TODO:
+                // alignment: Alignment::Center,
                 axis: Axis::Horizontal,
                 spacing: 0.0,
             }

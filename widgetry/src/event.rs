@@ -420,12 +420,19 @@ pub fn lctrl(key: Key) -> Option<MultiKey> {
     Some(MultiKey::LCtrl(key))
 }
 
-pub fn hotkeys(keys: Vec<Key>) -> Option<MultiKey> {
-    Some(MultiKey::Any(keys))
+// REVIEW: Delete this? Or is it worth keeping around?
+pub fn hotkeys(keys: Vec<Key>) -> MultiKey {
+    MultiKey::Any(keys)
 }
 
 impl std::convert::From<Key> for Option<MultiKey> {
     fn from(key: Key) -> Option<MultiKey> {
         Some(MultiKey::Normal(key))
+    }
+}
+
+impl std::convert::From<Key> for MultiKey {
+    fn from(key: Key) -> MultiKey {
+        MultiKey::Normal(key)
     }
 }
