@@ -872,8 +872,9 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
 name = "earcutr"
-version = "0.1.0"
-source = "git+https://github.com/donbright/earcutr#aaa18bfdfe581db26bb9869aec170329b4e14f4c"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9734102a0d57b956cac7944d73612ca7bc10a9ada09b128be403c81cd9c7c6d"
 
 [[package]]
 name = "either"

@@ -560,7 +560,7 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
     }
     if tags.is_any(
         "landuse",
-        vec!["cemetery", "forest", "grass", "recreation_ground"],
+        vec!["cemetery", "forest", "grass", "meadow", "recreation_ground"],
     ) || tags.is("amenity", "graveyard")
     {
         return Some(AreaType::Park);
