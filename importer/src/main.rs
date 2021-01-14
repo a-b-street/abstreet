@@ -1,12 +1,16 @@
 //! It's assumed that the importer is run with the current directory as the project repository; aka
 //! `./data/` and `./importer/config` must exist.
 
+#[macro_use]
+extern crate anyhow;
+
 use abstio::MapName;
 use abstutil::basename;
 
 use configuration::{load_configuration, ImporterConfiguration};
 use dependencies::are_dependencies_callable;
 
+mod actdev;
 mod berlin;
 mod configuration;
 mod dependencies;
@@ -118,19 +122,24 @@ fn main() {
     let mut timer = abstutil::Timer::new("import map data");
 
     let (maybe_popdat, maybe_huge_map) = if job.scenario {
-        assert_eq!(job.city, "seattle");
+        // TODO This is getting messy!
+        if job.city == "cambridge" {
+            (None, None)
+        } else {
+            assert_eq!(job.city, "seattle");
 
-        #[cfg(feature = "scenarios")]
-        {
-            let (popdat, huge_map) = seattle::ensure_popdat_exists(&mut timer, &config);
-            (Some(popdat), Some(huge_map))
-        }
+            #[cfg(feature = "scenarios")]
+            {
+                let (popdat, huge_map) = seattle::ensure_popdat_exists(&mut timer, &config);
+                (Some(popdat), Some(huge_map))
+            }
 
-        #[cfg(not(feature = "scenarios"))]
-        {
-            panic!("Can't do --scenario without the scenarios feature compiled in");
-            // Nonsense to make the type-checker work
-            (Some(true), Some(true))
+            #[cfg(not(feature = "scenarios"))]
+            {
+                panic!("Can't do --scenario without the scenarios feature compiled in");
+                // Nonsense to make the type-checker work
+                (Some(true), Some(true))
+            }
         }
     } else {
         (None, None)
@@ -195,28 +204,34 @@ fn main() {
             None
         };
 
-        #[cfg(feature = "scenarios")]
         if job.scenario {
-            timer.start(format!("scenario for {}", name.describe()));
-            let scenario = soundcast::make_weekday_scenario(
-                maybe_map.as_ref().unwrap(),
-                maybe_popdat.as_ref().unwrap(),
-                maybe_huge_map.as_ref().unwrap(),
-                &mut timer,
-            );
-            scenario.save();
-            timer.stop(format!("scenario for {}", name.describe()));
+            #[cfg(feature = "scenarios")]
+            if job.city == "seattle" {
+                timer.start(format!("scenario for {}", name.describe()));
+                let scenario = soundcast::make_weekday_scenario(
+                    maybe_map.as_ref().unwrap(),
+                    maybe_popdat.as_ref().unwrap(),
+                    maybe_huge_map.as_ref().unwrap(),
+                    &mut timer,
+                );
+                scenario.save();
+                timer.stop(format!("scenario for {}", name.describe()));
 
-            // This is a strange ordering.
-            if name.map == "downtown" || name.map == "south_seattle" {
-                timer.start(format!("adjust parking for {}", name.describe()));
-                seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), &scenario);
-                timer.stop(format!("adjust parking for {}", name.describe()));
+                // This is a strange ordering.
+                if name.map == "downtown" || name.map == "south_seattle" {
+                    timer.start(format!("adjust parking for {}", name.describe()));
+                    seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), &scenario);
+                    timer.stop(format!("adjust parking for {}", name.describe()));
+                }
+
+                timer.start("match parcels to buildings");
+                seattle::match_parcels_to_buildings(maybe_map.as_mut().unwrap(), &mut timer);
+                timer.stop("match parcels to buildings");
             }
 
-            timer.start("match parcels to buildings");
-            seattle::match_parcels_to_buildings(maybe_map.as_mut().unwrap(), &mut timer);
-            timer.stop("match parcels to buildings");
+            if job.city == "cambridge" {
+                actdev::import_scenarios(maybe_map.as_ref().unwrap(), &config, &mut timer).unwrap();
+            }
         }
     }
 

@@ -40,6 +40,11 @@
       "uncompressed_size_bytes": 9996435,
       "compressed_size_bytes": 2845017
     },
+    "data/input/cambridge/desire_lines_disag.geojson": {
+      "checksum": "37020c1232b357b8f5753157eaf6b95f",
+      "uncompressed_size_bytes": 66601,
+      "compressed_size_bytes": 6385
+    },
     "data/input/cambridge/osm/cambridgeshire-latest.osm.pbf": {
       "checksum": "e7ac328f5b13c1a90da861abc84ae08d",
       "uncompressed_size_bytes": 22600428,

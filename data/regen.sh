@@ -7,7 +7,7 @@ rm -fv data/system/seattle/maps/huge_seattle.bin data/input/raw_maps/huge_seattl
 ./import.sh --raw --map --scenario
 ./import.sh --raw --map --city=bellevue
 ./import.sh --raw --map --city=berlin
-./import.sh --raw --map --city=cambridge
+./import.sh --raw --map --city=cambridge	# TODO Enable --scenario
 ./import.sh --raw --map --city=krakow
 ./import.sh --raw --map --city=leeds
 ./import.sh --raw --map --city=london

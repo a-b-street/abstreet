@@ -34,8 +34,8 @@ pub fn list_dir(path: String) -> Vec<String> {
     files
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>> {
-    inner_slurp_file(path)
+pub fn slurp_file<I: Into<String>>(path: I) -> Result<Vec<u8>> {
+    inner_slurp_file(&path.into())
 }
 fn inner_slurp_file(path: &str) -> Result<Vec<u8>> {
     let mut file = File::open(path)?;

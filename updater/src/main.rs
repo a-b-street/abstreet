@@ -234,8 +234,10 @@ fn rm(path: &str) {
 async fn curl(version: &str, path: &str, quiet: bool) -> Result<Vec<u8>> {
     // Manually enable to "download" from my local copy
     if false {
-        let path = format!("/home/dabreegster/s3_abst_data/{}/{}.gz", version, path);
-        return abstio::slurp_file(&path);
+        return abstio::slurp_file(format!(
+            "/home/dabreegster/s3_abst_data/{}/{}.gz",
+            version, path
+        ));
     }
 
     let src = format!(

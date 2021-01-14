@@ -97,7 +97,7 @@ impl Inner {
         let (stream, stream_handle) = OutputStream::try_default()?;
         let sink = rodio::Sink::try_new(&stream_handle)?;
 
-        let raw_bytes = Cursor::new(abstio::slurp_file(&abstio::path(format!(
+        let raw_bytes = Cursor::new(abstio::slurp_file(abstio::path(format!(
             "system/assets/music/{}.ogg",
             song
         )))?);
@@ -154,7 +154,7 @@ impl Inner {
         let old_volume = self.sink.volume();
 
         self.sink = rodio::Sink::try_new(&self.stream_handle)?;
-        let raw_bytes = Cursor::new(abstio::slurp_file(&abstio::path(format!(
+        let raw_bytes = Cursor::new(abstio::slurp_file(abstio::path(format!(
             "system/assets/music/{}.ogg",
             song
         )))?);

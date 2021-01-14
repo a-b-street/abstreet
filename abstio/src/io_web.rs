@@ -61,7 +61,7 @@ pub fn list_dir(dir: String) -> Vec<String> {
     results.into_iter().collect()
 }
 
-pub fn slurp_file(path: &str) -> Result<Vec<u8>> {
+pub fn slurp_file<I: Into<String>>(path: I) -> Result<Vec<u8>> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())
     } else if path.starts_with(&path_player("")) {
