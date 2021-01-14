@@ -3,13 +3,15 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
-use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker, PopupMsg, PromptInput};
+use map_gui::tools::{
+    grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
+};
 use map_gui::ID;
 use map_model::{BuildingID, IntersectionID, Position, NORMAL_LANE_THICKNESS};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
     lctrl, Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    ScreenRectangle, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -55,12 +57,7 @@ impl GameplayState for Freeform {
                         ])
                     }),
                 ))),
-                "change traffic" => Some(Transition::Push(make_change_traffic(
-                    ctx,
-                    app,
-                    self.top_center.rect_of("change traffic").clone(),
-                    "none".to_string(),
-                ))),
+                "change scenario" => Some(Transition::Push(ChangeScenario::new(ctx, app, "none"))),
                 "edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
                     app,
@@ -115,7 +112,7 @@ impl GameplayState for Freeform {
                     lctrl(Key::L),
                 ),
                 "Scenario:".draw_text(ctx),
-                Btn::pop_up(ctx, Some("none")).build(ctx, "change traffic", Key::S),
+                Btn::pop_up(ctx, Some("none")).build(ctx, "change scenario", Key::S),
                 Btn::svg_def("system/assets/tools/edit_map.svg").build(
                     ctx,
                     "edit map",
@@ -142,77 +139,121 @@ impl GameplayState for Freeform {
     }
 }
 
-pub fn make_change_traffic(
-    ctx: &mut EventCtx,
-    app: &App,
-    btn: ScreenRectangle,
-    current: String,
-) -> Box<dyn State<App>> {
-    let mut choices = Vec::new();
-    for name in abstio::list_all_objects(abstio::path_all_scenarios(app.primary.map.get_name())) {
-        if name == "weekday" {
-            choices.push(Choice::new("realistic weekday traffic", name).tooltip(
-                "Trips will begin throughout the entire day. Midnight is usually quiet, so you \
-                 may need to fast-forward to morning rush hour. Data comes from Puget Sound \
-                 Regional Council's Soundcast model.",
-            ));
-        } else {
-            choices.push(Choice::new(name.clone(), name));
-        }
-    }
-    choices.push(
-        Choice::new("trips between home and work", "home_to_work".to_string()).tooltip(
-            "Randomized people will leave homes in the morning, go to work, then return in the \
-             afternoon. It'll be very quiet before 7am and between 10am to 5pm.",
-        ),
-    );
-    choices.push(
-        Choice::new("random unrealistic trips", "random".to_string()).tooltip(
-            "Lots of trips will start at midnight, but not constantly appear through the day.",
-        ),
-    );
-    choices.push(Choice::new(
-        "generate from census data",
-        "census".to_string(),
-    ));
-    choices.push(Choice::new(
-        "none, except for buses -- you manually spawn traffic",
-        "none".to_string(),
-    ));
-    let choices = choices
-        .into_iter()
-        .map(|c| {
-            if c.data == current {
-                c.active(false)
-            } else {
-                c
-            }
-        })
-        .collect();
+pub struct ChangeScenario;
 
-    ChooseSomething::new_below(
-        ctx,
-        &btn,
-        choices,
-        Box::new(|scenario_name, ctx, app| {
+impl ChangeScenario {
+    pub fn new(ctx: &mut EventCtx, app: &App, current_scenario: &str) -> Box<dyn State<App>> {
+        // (Button action, label, full description)
+        let mut choices = Vec::new();
+        for name in abstio::list_all_objects(abstio::path_all_scenarios(app.primary.map.get_name()))
+        {
+            if name == "weekday" {
+                choices.push((
+                    name,
+                    "realistic weekday traffic".to_string(),
+                    "Trips will begin throughout the entire day. Midnight is usually quiet, so \
+                     you may need to fast-forward to morning rush hour. Data comes from Puget \
+                     Sound Regional Council's Soundcast model from 2014.",
+                ));
+            } else {
+                choices.push((
+                    name.clone(),
+                    name,
+                    "This is custom scenario data for this map",
+                ));
+            }
+        }
+        choices.push((
+            "home_to_work".to_string(),
+            "trips between home and work".to_string(),
+            "Randomized people will leave homes in the morning, go to work, then return in the \
+             afternoon. It'll be very quiet before 7am and between 10am to 5pm. The population \
+             size and location of homes and workplaces is all guessed just from OpenStreetMap \
+             tags.",
+        ));
+        choices.push((
+            "random".to_string(),
+            "random unrealistic trips".to_string(),
+            "A fixed number of trips will start at midnight, but not constantly appear through \
+             the day.",
+        ));
+        choices.push((
+            "census".to_string(),
+            "generate from US census data".to_string(),
+            "A population from 2010 US census data will travel between home and workplaces. This \
+             option will only work for maps in the US, and generating it will take a few moments \
+             as some data is downloaded for this map.",
+        ));
+        choices.push((
+            "none".to_string(),
+            "none, except for buses".to_string(),
+            "You can manually spawn traffic around a single intersection or by using the tool in \
+             the top panel to start individual trips.",
+        ));
+
+        let mut col = vec![
+            Widget::row(vec![
+                Line("Pick your scenario").small_heading().draw(ctx),
+                Btn::close(ctx),
+            ]),
+            Line("Each scenario determines what people live and travel around this map").draw(ctx),
+        ];
+        for (name, label, description) in choices {
+            let btn = if name == current_scenario {
+                Btn::text_bg2(label).inactive(ctx)
+            } else {
+                Btn::text_bg2(label).build(ctx, name, None)
+            };
+            col.push(
+                Widget::row(vec![
+                    btn,
+                    Text::from(Line(description).secondary())
+                        .wrap_to_pct(ctx, 40)
+                        .draw(ctx)
+                        .align_right(),
+                ])
+                .margin_above(30),
+            );
+        }
+        col.push(Btn::text_fg("Import your own data").build_def(ctx, None));
+
+        SimpleState::new(
+            Panel::new(Widget::col(col)).build(ctx),
+            Box::new(ChangeScenario),
+        )
+    }
+}
+
+impl SimpleState<App> for ChangeScenario {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        if x == "close" {
+            Transition::Pop
+        } else if x == "Import your own data" {
+            open_browser("https://dabreegster.github.io/abstreet/trafficsim/travel_demand.html#custom-import");
+            Transition::Keep
+        } else {
             Transition::Multi(vec![
                 Transition::Pop,
                 Transition::Replace(SandboxMode::simple_new(
                     ctx,
                     app,
-                    if scenario_name == "none" {
+                    if x == "none" {
                         GameplayMode::Freeform(app.primary.map.get_name().clone())
                     } else {
                         GameplayMode::PlayScenario(
                             app.primary.map.get_name().clone(),
-                            scenario_name,
+                            x.to_string(),
                             Vec::new(),
                         )
                     },
                 )),
             ])
-        }),
-    )
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
+    }
 }
 
 struct AgentSpawner {

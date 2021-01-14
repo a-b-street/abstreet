@@ -554,7 +554,7 @@ impl InfoPanel {
                         ))),
                     )
                 } else if let Some(url) = action.strip_prefix("open ") {
-                    open_browser(url.to_string());
+                    open_browser(url);
                     (false, None)
                 } else if let Some(x) = action.strip_prefix("edit BusRoute #") {
                     (

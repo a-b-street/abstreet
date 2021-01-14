@@ -150,9 +150,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     ));
                 }
                 "import new city" => {
-                    open_browser(
-                        "https://dabreegster.github.io/abstreet/howto/new_city.html".to_string(),
-                    );
+                    open_browser("https://dabreegster.github.io/abstreet/howto/new_city.html");
                 }
                 "Download more cities" => {
                     let _ = "just stop this from counting as an attribute on an expression";

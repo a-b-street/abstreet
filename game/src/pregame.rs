@@ -199,7 +199,7 @@ impl State<App> for MainMenu {
                     return Transition::Push(About::new(ctx, app));
                 }
                 "Feedback" => {
-                    open_browser("https://forms.gle/ocvbek1bTaZUr3k49".to_string());
+                    open_browser("https://forms.gle/ocvbek1bTaZUr3k49");
                 }
                 "Community Proposals" => {
                     return Transition::Push(Proposals::new(ctx, app, None));
@@ -285,7 +285,7 @@ impl State<App> for About {
                     return Transition::Pop;
                 }
                 "See full credits" => {
-                    open_browser("https://github.com/dabreegster/abstreet#credits".to_string());
+                    open_browser("https://github.com/dabreegster/abstreet#credits");
                 }
                 _ => unreachable!(),
             },

@@ -320,7 +320,7 @@ impl State<App> for Viewer {
                 }
                 x => {
                     if let Some(url) = x.strip_prefix("open ") {
-                        open_browser(url.to_string());
+                        open_browser(url);
                     } else {
                         unreachable!()
                     }

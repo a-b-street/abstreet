@@ -95,6 +95,6 @@ pub fn nice_map_name(name: &MapName) -> &str {
     }
 }
 
-pub fn open_browser(url: String) {
-    let _ = webbrowser::open(&url);
+pub fn open_browser<I: Into<String>>(url: I) {
+    let _ = webbrowser::open(&url.into());
 }

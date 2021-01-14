@@ -12,7 +12,7 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::checkbox_per_mode;
 use crate::edit::EditMode;
-use crate::sandbox::gameplay::freeform::make_change_traffic;
+use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
 use crate::sandbox::{Actions, SandboxControls, SandboxMode};
 
@@ -76,11 +76,10 @@ impl GameplayState for PlayScenario {
                         }),
                     )))
                 }
-                "change traffic" => Some(Transition::Push(make_change_traffic(
+                "change scenario" => Some(Transition::Push(ChangeScenario::new(
                     ctx,
                     app,
-                    self.top_center.rect_of("change traffic").clone(),
-                    self.scenario_name.clone(),
+                    &self.scenario_name,
                 ))),
                 "edit map" => Some(Transition::Push(EditMode::new(
                     ctx,
@@ -122,7 +121,7 @@ impl GameplayState for PlayScenario {
                     lctrl(Key::L),
                 ),
                 "Scenario:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(&self.scenario_name)).build(ctx, "change traffic", Key::S),
+                Btn::pop_up(ctx, Some(&self.scenario_name)).build(ctx, "change scenario", Key::S),
                 Btn::svg_def("system/assets/tools/edit_map.svg").build(
                     ctx,
                     "edit map",
