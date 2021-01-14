@@ -121,7 +121,7 @@ impl GameplayState for PlayScenario {
                     "change map",
                     lctrl(Key::L),
                 ),
-                "Traffic:".draw_text(ctx),
+                "Scenario:".draw_text(ctx),
                 Btn::pop_up(ctx, Some(&self.scenario_name)).build(ctx, "change traffic", Key::S),
                 Btn::svg_def("system/assets/tools/edit_map.svg").build(
                     ctx,
