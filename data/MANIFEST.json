@@ -56,9 +56,9 @@
       "compressed_size_bytes": 3387178
     },
     "data/input/cambridge/screenshots/trumpington.zip": {
-      "checksum": "a42f59cf1aab838872f7246baa17845c",
-      "uncompressed_size_bytes": 39274168,
-      "compressed_size_bytes": 39250810
+      "checksum": "e1e831d882b4a74b257a03553d5069ad",
+      "uncompressed_size_bytes": 39239222,
+      "compressed_size_bytes": 39215655
     },
     "data/input/krakow/osm/center.osm": {
       "checksum": "e64103d37a7009d96f7d8a653db02deb",
@@ -636,9 +636,9 @@
       "compressed_size_bytes": 8020444
     },
     "data/system/cambridge/maps/trumpington.bin": {
-      "checksum": "c6f88a7509c4afc0756e86d43088a2ed",
+      "checksum": "847f473cf8ee383735a23fc1b9494dac",
       "uncompressed_size_bytes": 28161452,
-      "compressed_size_bytes": 9976432
+      "compressed_size_bytes": 9976483
     },
     "data/system/krakow/maps/center.bin": {
       "checksum": "6b39b2b5a2066603cbe5e4dc087e7071",
