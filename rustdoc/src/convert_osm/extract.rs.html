@@ -1142,7 +1142,7 @@
     }
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(
         <span class="string">&quot;landuse&quot;</span>,
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cemetery&quot;</span>, <span class="string">&quot;forest&quot;</span>, <span class="string">&quot;grass&quot;</span>, <span class="string">&quot;recreation_ground&quot;</span>],
+        <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cemetery&quot;</span>, <span class="string">&quot;forest&quot;</span>, <span class="string">&quot;grass&quot;</span>, <span class="string">&quot;meadow&quot;</span>, <span class="string">&quot;recreation_ground&quot;</span>],
     ) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;graveyard&quot;</span>)
     {
         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType</span>::<span class="ident">Park</span>);
