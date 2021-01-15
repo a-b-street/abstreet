@@ -113,12 +113,13 @@ Run the tool:
 cargo run --bin import_traffic -- --map=data/system/seattle/maps/montlake.bin --input=/path/to/input.json
 ```
 
-The tool matches input positions to the nearest building or border intersection,
-within 100 meters. The `departure` time is seconds since midnight. The tool will
-fail if any point doesn't match to a building, or if any of the specified trips
-can't be created (due to graph connectivity problems, for example). If your
-requirements are different or you have any trouble using this format/tool,
-please file a Github issue -- just consider this tool and format a prototype.
+The tool matches input positions to the nearest building, within 100 meters. If
+the point lies outside the map boundary, it's snapped to the nearest map border.
+The `departure` time is seconds since midnight. The tool will fail if any point
+doesn't match to a building, or if any of the specified trips can't be created
+(due to graph connectivity problems, for example). If your requirements are
+different or you have any trouble using this format/tool, please file a Github
+issue -- just consider this tool and format a prototype.
 
 ## Modifying demand
 

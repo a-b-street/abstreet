@@ -41,9 +41,9 @@
       "compressed_size_bytes": 2845017
     },
     "data/input/cambridge/desire_lines_disag.geojson": {
-      "checksum": "37020c1232b357b8f5753157eaf6b95f",
-      "uncompressed_size_bytes": 66601,
-      "compressed_size_bytes": 6385
+      "checksum": "1cb0f5fc91626099dca6582c97f49c43",
+      "uncompressed_size_bytes": 80600,
+      "compressed_size_bytes": 11174
     },
     "data/input/cambridge/osm/cambridgeshire-latest.osm.pbf": {
       "checksum": "e7ac328f5b13c1a90da861abc84ae08d",
@@ -644,6 +644,16 @@
       "checksum": "5dafded149afef0f1fb9985b819dc471",
       "uncompressed_size_bytes": 28191229,
       "compressed_size_bytes": 9988667
+    },
+    "data/system/cambridge/scenarios/trumpington/baseline.bin": {
+      "checksum": "661ce8362a2854023d24822b9f2bb8fe",
+      "uncompressed_size_bytes": 71752,
+      "compressed_size_bytes": 18953
+    },
+    "data/system/cambridge/scenarios/trumpington/go_dutch.bin": {
+      "checksum": "b87b56638974c3ca6b88b498ac655a35",
+      "uncompressed_size_bytes": 71752,
+      "compressed_size_bytes": 18791
     },
     "data/system/krakow/maps/center.bin": {
       "checksum": "6b39b2b5a2066603cbe5e4dc087e7071",
