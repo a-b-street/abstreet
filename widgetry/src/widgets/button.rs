@@ -368,9 +368,11 @@ pub struct ButtonStyle<'a> {
 #[derive(Clone, Debug, Default)]
 pub struct ButtonBuilder<'a> {
     padding: EdgeInsets,
+    stack_spacing: f64,
     hotkey: Option<MultiKey>,
     tooltip: Option<Text>,
     stack_axis: Option<geom_batch_stack::Axis>,
+    is_label_before_image: bool,
     is_disabled: bool,
     default_style: ButtonStyle<'a>,
     hover_style: ButtonStyle<'a>,
@@ -394,6 +396,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                 left: 16.0,
                 right: 16.0,
             },
+            stack_spacing: 10.0,
             ..Default::default()
         }
     }
@@ -540,6 +543,21 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    pub fn label_first(mut self) -> Self {
+        self.is_label_before_image = true;
+        self
+    }
+
+    pub fn image_first(mut self) -> Self {
+        self.is_label_before_image = false;
+        self
+    }
+
+    pub fn stack_spacing(mut self, value: f64) -> Self {
+        self.stack_spacing = value;
+        self
+    }
+
     /// Shorthand method to build a Button wrapped in a Widget
     pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
         Widget::new(Box::new(self.build(ctx, action))).named(action)
@@ -568,7 +586,10 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             "button was empty"
         );
         let hitbox = normal.get_bounds().get_rectangle();
-        debug!("normal.get_bounds().get_rectangle(): {:?}", hitbox);
+        debug!(
+            "normal.get_bounds().get_rectangle(): {:?} for button: {:?}",
+            hitbox, self
+        );
         Button::new(
             ctx,
             normal,
@@ -672,14 +693,19 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         if let Some(stack_axis) = self.stack_axis {
             stack.set_axis(stack_axis);
         }
-        stack.spacing(10.0);
+        stack.spacing(self.stack_spacing);
 
+        let mut items = vec![];
         if let Some(image_batch) = image_batch {
-            stack.push(image_batch);
+            items.push(image_batch);
         }
         if let Some(label_batch) = label_batch {
-            stack.push(label_batch);
+            items.push(label_batch);
         }
+        if self.is_label_before_image {
+            items.reverse()
+        }
+        stack.append(&mut items);
 
         let mut button_widget = stack
             .batch()

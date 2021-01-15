@@ -2,7 +2,7 @@ use map_gui::theme::Buttons;
 use map_gui::tools::grey_out_map;
 use widgetry::{
     hotkeys, Btn, ButtonState, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Outcome, Panel, ScreenDims, State, Text, Widget,
+    Outcome, Panel, State, Text, Widget,
 };
 
 use crate::app::App;

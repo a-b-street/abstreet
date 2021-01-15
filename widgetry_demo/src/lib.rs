@@ -474,7 +474,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                 Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", Key::Space),
             )
             .named("paused"),
-            PersistentSplit::new(
+            PersistentSplit::widget(
                 ctx,
                 "adjust timer",
                 Duration::seconds(20.0),

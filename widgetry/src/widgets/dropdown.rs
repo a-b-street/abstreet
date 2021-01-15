@@ -1,8 +1,8 @@
 use geom::{Distance, Polygon, Pt2D};
 
 use crate::{
-    Btn, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, Menu, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, WidgetImpl, WidgetOutput,
+    Button, ButtonBuilder, ButtonState, Choice, Color, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
+    Menu, Outcome, ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
 };
 
 pub struct Dropdown<T: Clone> {
@@ -11,7 +11,7 @@ pub struct Dropdown<T: Clone> {
     // TODO Why not T?
     menu: Option<Menu<usize>>,
     label: String,
-    blank_btn_label: bool,
+    is_persisten_split: bool,
 
     choices: Vec<Choice<T>>,
 }
@@ -23,7 +23,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> Dropdown<T> {
         default_value: T,
         choices: Vec<Choice<T>>,
         // TODO Ideally builder style
-        blank_btn_label: bool,
+        is_persisten_split: bool,
     ) -> Dropdown<T> {
         let current_idx = if let Some(idx) = choices.iter().position(|c| c.data == default_value) {
             idx
@@ -36,10 +36,10 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> Dropdown<T> {
 
         Dropdown {
             current_idx,
-            btn: make_btn(ctx, &choices[current_idx].label, label, blank_btn_label),
+            btn: make_btn(ctx, &choices[current_idx].label, label, is_persisten_split),
             menu: None,
             label: label.to_string(),
-            blank_btn_label,
+            is_persisten_split,
             choices,
         }
     }
@@ -49,8 +49,8 @@ impl<T: 'static + PartialEq + Clone> Dropdown<T> {
     pub fn current_value(&self) -> T {
         self.choices[self.current_idx].data.clone()
     }
-    pub(crate) fn current_value_label(&self) -> String {
-        self.choices[self.current_idx].label.clone()
+    pub(crate) fn current_value_label(&self) -> &str {
+        &self.choices[self.current_idx].label
     }
 }
 
@@ -102,7 +102,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                     ctx,
                     &self.choices[self.current_idx].label,
                     &self.label,
-                    self.blank_btn_label,
+                    self.is_persisten_split,
                 );
                 self.btn.set_pos(top_left);
                 output.redo_layout = true;
@@ -173,9 +173,59 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
     }
 }
 
-fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, blank_btn_label: bool) -> Button {
-    let button_label = if blank_btn_label { None } else { Some(label) };
-    Btn::pop_up(ctx, button_label)
-        .build(ctx, tooltip, None)
-        .take_btn()
+fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool) -> Button {
+    let mut builder = button_builder()
+        .image_path("system/assets/tools/arrow_drop_down.svg")
+        .image_dims(ScreenDims::square(12.0))
+        .stack_spacing(16.0)
+        .label_first();
+
+    if is_persisten_split {
+        // Quick hacks to make PersistentSplit's dropdown look a little better.
+        // It's not ideal, but we only use one persistent split in the whole app
+        // and it's front and center - we'll notice if something breaks.
+        builder = builder
+            .padding(EdgeInsets {
+                top: 13.0,
+                bottom: 13.0,
+                left: 4.0,
+                right: 4.0,
+            })
+            .bg_color(Color::CLEAR, ButtonState::Default)
+            .outline(0.0, Color::CLEAR, ButtonState::Default);
+    } else {
+        builder = builder.label_text(label);
+    }
+
+    builder.build(ctx, tooltip)
+}
+
+// TODO: eventually this should be configurable.
+// I'd like to base it on ColorScheme, but that currently lives in map_gui, so for now
+// I've hardcoded the builder.
+fn button_builder<'a>() -> ButtonBuilder<'a> {
+    // let primary_light = ButtonColorScheme {
+    //     fg: hex("#F2F2F2"),
+    //     fg_disabled: hex("#F2F2F2").alpha(0.3),
+    //     bg: hex("#003046").alpha(0.8),
+    //     bg_hover: hex("#003046"),
+    //     bg_disabled: Color::grey(0.1),
+    //     outline: hex("#003046").alpha(0.6),
+    // };
+    let fg = Color::hex("#F2F2F2");
+    let fg_disabled = Color::hex("#F2F2F2").alpha(0.3);
+    let bg = Color::hex("#003046").alpha(0.8);
+    let bg_hover = Color::hex("#003046");
+    let bg_disabled = Color::grey(0.1);
+    let outline = Color::hex("#003046").alpha(0.6);
+
+    ButtonBuilder::new()
+        .label_color(fg, ButtonState::Default)
+        .label_color(fg_disabled, ButtonState::Disabled)
+        .image_color(fg, ButtonState::Default)
+        .image_color(fg_disabled, ButtonState::Disabled)
+        .bg_color(bg, ButtonState::Default)
+        .bg_color(bg_hover, ButtonState::Hover)
+        .bg_color(bg_disabled, ButtonState::Disabled)
+        .outline(2.0, outline, ButtonState::Default)
 }

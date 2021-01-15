@@ -4,8 +4,9 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
-    Btn, Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, PersistentSplit, RewriteColor, Text, VerticalAlignment, Widget,
+    ButtonBuilder, ButtonState, Choice, Color, ContentMode, EdgeInsets, EventCtx, GeomBatch,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -45,17 +46,25 @@ impl SpeedControls {
 
     pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut row = Vec::new();
-        row.push(
-            if self.paused {
-                Btn::svg_def("system/assets/speed/triangle.svg").build(ctx, "play", Key::Space)
+        row.push({
+            let button = app
+                .cs
+                .btn_primary_light()
+                .image_dims(ScreenDims::square(20.0))
+                .padding(8.0)
+                .hotkey(Key::Space);
+
+            Widget::custom_row(vec![if self.paused {
+                button
+                    .image_path("system/assets/speed/triangle.svg")
+                    .build_widget(ctx, "play")
             } else {
-                Btn::svg_def("system/assets/speed/pause.svg").build(ctx, "pause", Key::Space)
-            }
-            .container()
-            .padding(9)
-            .bg(app.cs.section_bg)
-            .margin_right(16),
-        );
+                button
+                    .image_path("system/assets/speed/pause.svg")
+                    .build_widget(ctx, "pause")
+            }])
+            .margin_right(16)
+        });
 
         row.push(
             Widget::custom_row(
@@ -71,27 +80,46 @@ impl SpeedControls {
                     txt.extend(Text::tooltip(ctx, Key::LeftArrow, "slow down"));
                     txt.extend(Text::tooltip(ctx, Key::RightArrow, "speed up"));
 
-                    GeomBatch::load_svg(ctx, "system/assets/speed/triangle.svg")
-                        .color(if self.setting >= s {
-                            RewriteColor::NoOp
-                        } else {
-                            RewriteColor::ChangeAll(Color::WHITE.alpha(0.2))
-                        })
-                        .to_btn(ctx)
+                    let mut triangle_btn = app
+                        .cs
+                        .btn_plain_light()
+                        .image_path("system/assets/speed/triangle.svg")
+                        .image_dims(ScreenDims::new(16.0, 22.0))
+                        .bg_color(app.cs.btn_primary_light.bg_hover, ButtonState::Hover)
                         .tooltip(txt)
-                        .build(ctx, label, None)
-                        .margin_right(6)
+                        .padding(EdgeInsets {
+                            top: 8.0,
+                            bottom: 8.0,
+                            left: 3.0,
+                            right: 3.0,
+                        });
+
+                    if s == SpeedSetting::Realtime {
+                        triangle_btn = triangle_btn.padding_left(10.0);
+                    }
+                    if s == SpeedSetting::Fastest {
+                        triangle_btn = triangle_btn.padding_right(10.0);
+                    }
+
+                    if self.setting < s {
+                        triangle_btn = triangle_btn.image_color(
+                            app.cs.btn_secondary_light.fg_disabled,
+                            ButtonState::Default,
+                        )
+                    }
+
+                    triangle_btn.build_widget(ctx, label)
                 })
                 .collect(),
             )
-            .bg(app.cs.section_bg)
-            .centered()
-            .padding(6)
+            // Inner buttons, styled as one composite button w/ background/border
+            .bg(app.cs.btn_primary_light.bg)
+            .outline(2.0, app.cs.btn_primary_light.outline)
             .margin_right(16),
         );
 
         row.push(
-            PersistentSplit::new(
+            PersistentSplit::widget(
                 ctx,
                 "step forwards",
                 app.opts.time_increment,
@@ -103,22 +131,34 @@ impl SpeedControls {
                     Choice::new("+0.1s", Duration::seconds(0.1)),
                 ],
             )
-            .bg(app.cs.section_bg)
             .margin_right(16),
         );
 
         row.push(
-            Widget::custom_row(vec![
-                Btn::svg_def("system/assets/speed/jump_to_time.svg")
-                    .build(ctx, "jump to specific time", Key::B)
-                    .container()
-                    .padding(9),
-                Btn::svg_def("system/assets/speed/reset.svg")
-                    .build(ctx, "reset to midnight", Key::X)
-                    .container()
-                    .padding(9),
-            ])
-            .bg(app.cs.section_bg),
+            {
+                let buttons = app
+                    .cs
+                    .btn_plain_light()
+                    .bg_color(app.cs.btn_primary_light.bg_hover, ButtonState::Hover)
+                    .font_size(18)
+                    .image_dims(ScreenDims::square(20.0));
+                Widget::custom_row(vec![
+                    buttons
+                        .clone()
+                        .label_text("jump")
+                        .image_path("system/assets/speed/jump_to_time.svg")
+                        .hotkey(Key::B)
+                        .build_widget(ctx, "jump to specific time"),
+                    buttons
+                        .label_text("reset")
+                        .image_path("system/assets/speed/reset.svg")
+                        .hotkey(Key::X)
+                        .build_widget(ctx, "reset to midnight"),
+                ])
+            }
+            // Inner buttons, styled as one composite button w/ background/border
+            .bg(app.cs.btn_primary_light.bg)
+            .outline(2.0, app.cs.btn_primary_light.outline),
         );
 
         self.panel = Panel::new(Widget::custom_row(row))

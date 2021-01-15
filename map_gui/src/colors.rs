@@ -221,7 +221,7 @@ impl ColorScheme {
             // UI > Buttons
             btn_primary_dark: ButtonColorScheme {
                 fg: hex("#4C4C4C"),
-                fg_disabled: hex("#4C4C4C").alpha(0.1),
+                fg_disabled: hex("#4C4C4C").alpha(0.3),
                 bg: Color::WHITE.alpha(0.8),
                 bg_hover: Color::WHITE,
                 bg_disabled: Color::grey(0.6),
@@ -229,7 +229,7 @@ impl ColorScheme {
             },
             btn_secondary_dark: ButtonColorScheme {
                 fg: hex("#4C4C4C"),
-                fg_disabled: hex("#4C4C4C").alpha(0.1),
+                fg_disabled: hex("#4C4C4C").alpha(0.3),
                 bg: Color::CLEAR,
                 bg_hover: hex("#4C4C4C").alpha(0.1),
                 bg_disabled: Color::grey(0.8),
@@ -237,15 +237,15 @@ impl ColorScheme {
             },
             btn_primary_light: ButtonColorScheme {
                 fg: hex("#F2F2F2"),
-                fg_disabled: hex("#F2F2F2").alpha(0.1),
-                bg: hex("#003046").alpha(0.6),
+                fg_disabled: hex("#F2F2F2").alpha(0.3),
+                bg: hex("#003046").alpha(0.8),
                 bg_hover: hex("#003046"),
                 bg_disabled: Color::grey(0.1),
                 outline: hex("#003046").alpha(0.6),
             },
             btn_secondary_light: ButtonColorScheme {
                 fg: hex("#F2F2F2"),
-                fg_disabled: hex("#F2F2F2").alpha(0.1),
+                fg_disabled: hex("#F2F2F2").alpha(0.3),
                 bg: Color::CLEAR,
                 bg_hover: hex("#F2F2F2").alpha(0.1),
                 bg_disabled: Color::grey(0.9),
