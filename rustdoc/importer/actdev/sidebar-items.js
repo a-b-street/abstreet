@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["desire_lines_to_scenarios",""],["import_scenarios",""],["parse_usize",""],["rand_duration",""],["rand_time",""]],"struct":[["DesireLine",""]]});
+initSidebarItems({"fn":[["generate_scenario",""],["import_scenarios",""],["parse_usize",""],["rand_duration",""],["rand_time",""]],"struct":[["ODSummary","Describes some number of people that have the same home, workplace, and preferred mode. When they're created, the only thing that'll differ between them is exact departure time."]]});
