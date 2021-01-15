@@ -75,6 +75,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
             .unwrap()
             .insert("version".to_string(), Value::Number(6.into()));
     }
+    if value["version"] == Value::Number(6.into()) {
+        fix_plans(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(7.into()));
+    }
 
     abstutil::from_json(&value.to_string().into_bytes())
 }
@@ -278,6 +285,30 @@ fn fix_adaptive_stages(value: &mut Value) {
         }
         false
     });
+}
+
+// e08d76c8ba51d1ca8045e7692195b5f6245150c4 added traffic signal plans.
+fn fix_plans(value: &mut Value) {
+    walk(value, &|map| {
+        if map.len() == 1 && map.contains_key("TrafficSignal") {
+            let ts = map
+                .get_mut("TrafficSignal")
+                .unwrap()
+                .as_object_mut()
+                .unwrap();
+            let mut plan = serde_json::Map::new();
+            plan.insert("start_time_seconds".to_string(), Value::Number(0.into()));
+            plan.insert("stages".to_string(), ts.remove("stages").unwrap());
+            plan.insert(
+                "offset_seconds".to_string(),
+                ts.remove("offset_seconds").unwrap(),
+            );
+            ts.insert("plans".to_string(), Value::Array(vec![Value::Object(plan)]));
+            true
+        } else {
+            false
+        }
+    })
 }
 
 // These're old structs used in fix_old_lane_cmds.

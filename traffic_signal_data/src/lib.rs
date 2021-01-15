@@ -1,5 +1,5 @@
 //! A representation of traffic signal configuration that references OpenStreetMap IDs and is
-//! hopefully robust over minor edits over time.
+//! hopefully robust to minor edits over time.
 
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -8,7 +8,24 @@ use std::collections::{BTreeMap, BTreeSet};
 pub struct TrafficSignal {
     /// The ID of the OSM node representing the intersection with the traffic signal. This node
     /// should be tagged `highway = traffic_signals` in OSM.
+    ///
+    /// TODO Describe how consolidated intersections are handled.
     pub intersection_osm_node_id: i64,
+    /// The traffic signal uses configuration from one plan at a time. The plans must be listed in
+    /// order of ascending `start_time_seconds`, the first plan must begin at `0` (midnight), and
+    /// the last plan must not start after 24 hours.
+    pub plans: Vec<Plan>,
+}
+
+/// A plan describes how a traffic signal is configured during some period of time. Multiple plans
+/// allow a single intersection to behave differently in the middle of the night with low traffic,
+/// compared to the middle of rush hour.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct Plan {
+    /// This plan takes effect at this local time, measured in seconds after midnight. The plan
+    /// lasts until the next plan in the listed sequence starts, or ends at midnight if it's the
+    /// last plan.
+    pub start_time_seconds: usize,
     /// The traffic signal repeatedly cycles through these stages. During each stage, only some
     /// turns are protected and permitted through the intersection.
     pub stages: Vec<Stage>,

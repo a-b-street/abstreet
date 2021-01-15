@@ -406,45 +406,50 @@ impl ControlTrafficSignal {
     pub fn export(&self, map: &Map) -> traffic_signal_data::TrafficSignal {
         traffic_signal_data::TrafficSignal {
             intersection_osm_node_id: map.get_i(self.id).orig_id.0,
-            stages: self
-                .stages
-                .iter()
-                .map(|s| traffic_signal_data::Stage {
-                    protected_turns: s
-                        .protected_movements
-                        .iter()
-                        .map(|t| export_movement(t, map))
-                        .collect(),
-                    permitted_turns: s
-                        .yield_movements
-                        .iter()
-                        .map(|t| export_movement(t, map))
-                        .collect(),
-                    stage_type: match s.stage_type {
-                        StageType::Fixed(d) => {
-                            traffic_signal_data::StageType::Fixed(d.inner_seconds() as usize)
-                        }
-                        StageType::Variable(min, delay, additional) => {
-                            traffic_signal_data::StageType::Variable(
-                                min.inner_seconds() as usize,
-                                delay.inner_seconds() as usize,
-                                additional.inner_seconds() as usize,
-                            )
-                        }
-                    },
-                })
-                .collect(),
-            offset_seconds: self.offset.inner_seconds() as usize,
+            plans: vec![traffic_signal_data::Plan {
+                start_time_seconds: 0,
+                stages: self
+                    .stages
+                    .iter()
+                    .map(|s| traffic_signal_data::Stage {
+                        protected_turns: s
+                            .protected_movements
+                            .iter()
+                            .map(|t| export_movement(t, map))
+                            .collect(),
+                        permitted_turns: s
+                            .yield_movements
+                            .iter()
+                            .map(|t| export_movement(t, map))
+                            .collect(),
+                        stage_type: match s.stage_type {
+                            StageType::Fixed(d) => {
+                                traffic_signal_data::StageType::Fixed(d.inner_seconds() as usize)
+                            }
+                            StageType::Variable(min, delay, additional) => {
+                                traffic_signal_data::StageType::Variable(
+                                    min.inner_seconds() as usize,
+                                    delay.inner_seconds() as usize,
+                                    additional.inner_seconds() as usize,
+                                )
+                            }
+                        },
+                    })
+                    .collect(),
+                offset_seconds: self.offset.inner_seconds() as usize,
+            }],
         }
     }
 
     pub(crate) fn import(
-        raw: traffic_signal_data::TrafficSignal,
+        mut raw: traffic_signal_data::TrafficSignal,
         id: IntersectionID,
         map: &Map,
     ) -> Result<ControlTrafficSignal> {
+        // TODO Only import the first plan. Will import all of them later.
+        let plan = raw.plans.remove(0);
         let mut stages = Vec::new();
-        for s in raw.stages {
+        for s in plan.stages {
             let mut errors = Vec::new();
             let mut protected_movements = BTreeSet::new();
             for t in s.protected_turns {
@@ -492,7 +497,7 @@ impl ControlTrafficSignal {
         let ts = ControlTrafficSignal {
             id,
             stages,
-            offset: Duration::seconds(raw.offset_seconds as f64),
+            offset: Duration::seconds(plan.offset_seconds as f64),
             movements: Movement::for_i(id, map).unwrap(),
         };
         ts.validate()?;
