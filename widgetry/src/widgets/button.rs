@@ -10,10 +10,11 @@ pub struct Button {
     /// When a button is clicked, `Outcome::Clicked` with this string is produced.
     pub action: String,
 
-    // Both of these must have the same dimensions and are oriented with their top-left corner at
+    // These must have the same dimensions and are oriented with their top-left corner at
     // 0, 0. Transformation happens later.
     draw_normal: Drawable,
     draw_hovered: Drawable,
+    draw_disabled: Drawable,
 
     pub(crate) hotkey: Option<MultiKey>,
     tooltip: Text,
@@ -21,6 +22,7 @@ pub struct Button {
     hitbox: Polygon,
 
     pub(crate) hovering: bool,
+    is_disabled: bool,
 
     pub(crate) top_left: ScreenPt,
     pub(crate) dims: ScreenDims,
@@ -31,19 +33,23 @@ impl Button {
         ctx: &EventCtx,
         normal: GeomBatch,
         hovered: GeomBatch,
+        disabled: GeomBatch,
         hotkey: Option<MultiKey>,
         action: &str,
         maybe_tooltip: Option<Text>,
         hitbox: Polygon,
+        is_disabled: bool,
     ) -> Widget {
         Widget::new(Box::new(Self::new(
             ctx,
             normal,
             hovered,
+            disabled,
             hotkey,
             action,
             maybe_tooltip,
             hitbox,
+            is_disabled,
         )))
         .named(action)
     }
@@ -52,10 +58,12 @@ impl Button {
         ctx: &EventCtx,
         normal: GeomBatch,
         hovered: GeomBatch,
+        disabled: GeomBatch,
         hotkey: Option<MultiKey>,
         action: &str,
         maybe_tooltip: Option<Text>,
         hitbox: Polygon,
+        is_disabled: bool,
     ) -> Button {
         // dims are based on the hitbox, not the two drawables!
         let bounds = hitbox.get_bounds();
@@ -65,6 +73,7 @@ impl Button {
             action: action.to_string(),
             draw_normal: ctx.upload(normal),
             draw_hovered: ctx.upload(hovered),
+            draw_disabled: ctx.upload(disabled),
             tooltip: if let Some(t) = maybe_tooltip {
                 t
             } else {
@@ -73,6 +82,7 @@ impl Button {
             hotkey,
             hitbox,
 
+            is_disabled,
             hovering: false,
 
             top_left: ScreenPt::new(0.0, 0.0),
@@ -101,6 +111,11 @@ impl WidgetImpl for Button {
                 self.hovering = false;
             }
         }
+
+        if self.is_disabled {
+            return;
+        }
+
         if self.hovering && ctx.normal_left_click() {
             self.hovering = false;
             output.outcome = Outcome::Clicked(self.action.clone());
@@ -119,7 +134,9 @@ impl WidgetImpl for Button {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        if self.hovering {
+        if self.is_disabled {
+            g.redraw_at(self.top_left, &self.draw_disabled);
+        } else if self.hovering {
             g.redraw_at(self.top_left, &self.draw_hovered);
             if !self.tooltip.is_empty() {
                 g.draw_mouse_tooltip(self.tooltip.clone());
@@ -333,7 +350,7 @@ pub enum ContentMode {
 
 #[derive(Clone, Debug, Default)]
 pub struct Label<'a> {
-    text: &'a str,
+    text: Option<&'a str>,
     color: Option<Color>,
     font_size: Option<usize>,
     font: Option<Font>,
@@ -355,14 +372,18 @@ pub struct ButtonBuilder<'a> {
     hotkey: Option<MultiKey>,
     tooltip: Option<Text>,
     stack_axis: Option<geom_batch_stack::Axis>,
+    is_disabled: bool,
     default_style: ButtonStyle<'a>,
     hover_style: ButtonStyle<'a>,
+    disable_style: ButtonStyle<'a>,
 }
 
 #[derive(Clone, Copy, Debug)]
 pub enum ButtonState {
     Default,
-    Hover, // TODO: Pressing, Disabled
+    Hover,
+    Disabled,
+    // TODO: Pressing
 }
 
 impl<'b, 'a: 'b> ButtonBuilder<'a> {
@@ -405,7 +426,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     pub fn label_text(mut self, text: &'a str) -> Self {
         let mut label = self.default_style.label.take().unwrap_or_default();
-        label.text = text;
+        label.text = Some(text);
         self.default_style.label = Some(label);
         self
     }
@@ -467,6 +488,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         match state {
             ButtonState::Default => &mut self.default_style,
             ButtonState::Hover => &mut self.hover_style,
+            ButtonState::Disabled => &mut self.disable_style,
         }
     }
 
@@ -474,6 +496,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         match state {
             ButtonState::Default => &self.default_style,
             ButtonState::Hover => &self.hover_style,
+            ButtonState::Disabled => &self.disable_style,
         }
     }
 
@@ -509,6 +532,11 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    pub fn disabled(mut self) -> Self {
+        self.is_disabled = true;
+        self
+    }
+
     /// Shorthand method to build a Button wrapped in a Widget
     pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
         Widget::new(Box::new(self.build(ctx, action))).named(action)
@@ -521,13 +549,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .default_style
             .label
             .as_ref()
-            .and_then(|label| {
-                if label.text.len() == 0 {
-                    None
-                } else {
-                    Some(label.text)
-                }
-            })
+            .and_then(|label| label.text)
             .expect("Must set `label_text` before calling build_def");
 
         self.build_widget(ctx, action)
@@ -536,6 +558,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     pub fn build(&self, ctx: &EventCtx, action: &str) -> Button {
         let normal = self.batch(ctx, ButtonState::Default);
         let hovered = self.batch(ctx, ButtonState::Hover);
+        let disabled = self.batch(ctx, ButtonState::Disabled);
+
         // derive from edge insets
         assert!(
             normal.get_bounds() != geom::Bounds::zero(),
@@ -547,10 +571,12 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             ctx,
             normal,
             hovered,
+            disabled,
             self.hotkey.clone(),
             action,
             None,
             hitbox,
+            self.is_disabled,
         )
     }
 
@@ -563,43 +589,49 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .as_ref()
             .or(default_style.image.as_ref())
             .and_then(|image| {
-                image.path.and_then(|image_path| {
-                    let (mut svg_batch, svg_bounds) = svg::load_svg(ctx.prerender, image_path);
-                    if let Some(color) = image.color {
-                        svg_batch = svg_batch.color(RewriteColor::ChangeAll(color));
-                    }
-
-                    if let Some(image_dims) = image.dims {
-                        if svg_bounds.width() != 0.0 && svg_bounds.height() != 0.0 {
-                            let (x_factor, y_factor) = (
-                                image_dims.width / svg_bounds.width(),
-                                image_dims.height / svg_bounds.height(),
-                            );
-                            svg_batch = match image.content_mode {
-                                ContentMode::ScaleToFill => svg_batch.scale_xy(x_factor, y_factor),
-                                ContentMode::ScaleAspectFit => {
-                                    svg_batch.scale(x_factor.min(y_factor))
-                                }
-                                ContentMode::ScaleAspectFill => {
-                                    svg_batch.scale(x_factor.max(y_factor))
-                                }
-                            }
+                let default = default_style.image.as_ref();
+                image
+                    .path
+                    .or(default.and_then(|d| d.path))
+                    .and_then(|image_path| {
+                        let (mut svg_batch, svg_bounds) = svg::load_svg(ctx.prerender, image_path);
+                        if let Some(color) = image.color.or(default.and_then(|d| d.color)) {
+                            svg_batch = svg_batch.color(RewriteColor::ChangeAll(color));
                         }
 
-                        let mut container_batch = GeomBatch::new();
-                        let container = Polygon::rectangle(image_dims.width, image_dims.height);
-                        container_batch.push(Color::CLEAR, container);
+                        if let Some(image_dims) = image.dims.or(default.and_then(|d| d.dims)) {
+                            if svg_bounds.width() != 0.0 && svg_bounds.height() != 0.0 {
+                                let (x_factor, y_factor) = (
+                                    image_dims.width / svg_bounds.width(),
+                                    image_dims.height / svg_bounds.height(),
+                                );
+                                svg_batch = match image.content_mode {
+                                    ContentMode::ScaleToFill => {
+                                        svg_batch.scale_xy(x_factor, y_factor)
+                                    }
+                                    ContentMode::ScaleAspectFit => {
+                                        svg_batch.scale(x_factor.min(y_factor))
+                                    }
+                                    ContentMode::ScaleAspectFill => {
+                                        svg_batch.scale(x_factor.max(y_factor))
+                                    }
+                                }
+                            }
 
-                        svg_batch = svg_batch
-                            .autocrop()
-                            .centered_on(container_batch.get_bounds().center());
-                        container_batch.append(svg_batch);
+                            let mut container_batch = GeomBatch::new();
+                            let container = Polygon::rectangle(image_dims.width, image_dims.height);
+                            container_batch.push(Color::CLEAR, container);
 
-                        svg_batch = container_batch
-                    }
+                            svg_batch = svg_batch
+                                .autocrop()
+                                .centered_on(container_batch.get_bounds().center());
+                            container_batch.append(svg_batch);
 
-                    Some(svg_batch)
-                })
+                            svg_batch = container_batch
+                        }
+
+                        Some(svg_batch)
+                    })
             });
 
         let label_batch = state_style
@@ -607,21 +639,30 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .as_ref()
             .or(default_style.label.as_ref())
             .map(|label| {
-                let mut line =
-                    Line(label.text).fg(label.color.unwrap_or(ctx.style().outline_color));
-                if let Some(font_size) = label.font_size {
+                let default = default_style.label.as_ref();
+                let text = label
+                    .text
+                    .or(default.and_then(|d| d.text))
+                    .unwrap_or_default();
+                let color = label
+                    .color
+                    .or(default.and_then(|d| d.color))
+                    .unwrap_or(ctx.style().outline_color);
+                let mut line = Line(text).fg(color);
+
+                if let Some(font_size) = label.font_size.or(default.and_then(|d| d.font_size)) {
                     line = line.size(font_size);
                 }
-                if let Some(font) = label.font {
+
+                if let Some(font) = label.font.or(default.and_then(|d| d.font)) {
                     line = line.font(font);
                 }
 
-                let text = Text::from(line);
-                // Without a background color, the label is not centered in the button border
-                // TODO: Why?
-                let text = text.bg(Color::CLEAR);
-
-                text.render(ctx)
+                Text::from(line)
+                    // Without a background color, the label is not centered in the button border
+                    // TODO: Why?
+                    .bg(Color::CLEAR)
+                    .render(ctx)
             });
 
         use geom_batch_stack::Stack;
@@ -742,12 +783,14 @@ impl BtnBuilder {
 
                 Button::widget(
                     ctx,
-                    normal,
+                    normal.clone(),
                     hovered,
+                    normal, // TODO: remove this method. copying disabled from normal for now
                     key.into(),
                     &action.into(),
                     maybe_tooltip,
                     geom,
+                    false,
                 )
             }
             BtnBuilder::TextFG(_, normal_txt, maybe_t) => {
@@ -766,12 +809,14 @@ impl BtnBuilder {
 
                 Button::widget(
                     ctx,
-                    normal,
+                    normal.clone(),
                     hovered,
+                    normal,
                     key.into(),
                     &action.into(),
                     maybe_t,
                     hitbox,
+                    false,
                 )
                 .outline(2.0, Color::WHITE)
             }
@@ -794,12 +839,14 @@ impl BtnBuilder {
 
                 Button::widget(
                     ctx,
-                    normal,
+                    normal.clone(),
                     hovered,
+                    normal,
                     key.into(),
                     &action.into(),
                     maybe_tooltip,
                     hitbox,
+                    false,
                 )
             }
             BtnBuilder::TextBG {
@@ -825,12 +872,14 @@ impl BtnBuilder {
 
                 Button::widget(
                     ctx,
-                    normal,
+                    normal.clone(),
                     hovered,
+                    normal,
                     key.into(),
                     &action.into(),
                     maybe_tooltip,
                     hitbox,
+                    false,
                 )
             }
             BtnBuilder::Custom {
@@ -842,12 +891,14 @@ impl BtnBuilder {
             } => {
                 let button = Button::widget(
                     ctx,
-                    normal,
+                    normal.clone(),
                     hovered,
+                    normal,
                     key.into(),
                     &action.into(),
                     maybe_tooltip,
                     hitbox,
+                    false,
                 );
 
                 if let Some(outline) = maybe_outline {

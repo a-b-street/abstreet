@@ -1,4 +1,4 @@
-use crate::ColorScheme;
+use crate::colors::{ButtonColorScheme, ColorScheme};
 use widgetry::{ButtonBuilder, ButtonState, Color};
 
 pub trait Btn<'a> {
@@ -25,7 +25,14 @@ pub trait Btn<'a> {
     }
 
     fn btn_plain_dark(&self) -> ButtonBuilder<'a>;
+    fn btn_plain_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_plain_dark().label_text(text)
+    }
+
     fn btn_plain_light(&self) -> ButtonBuilder<'a>;
+    fn btn_plain_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
+        self.btn_plain_light().label_text(text)
+    }
 
     // Specific UI Elements
 
@@ -46,52 +53,32 @@ impl<'a> Btn<'a> for ColorScheme {
 
     fn btn_primary_dark(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_primary_dark;
-        ButtonBuilder::new()
-            .label_color(colors.fg, ButtonState::Default)
-            .image_color(colors.fg, ButtonState::Default)
-            .bg_color(colors.bg, ButtonState::Default)
-            .bg_color(colors.bg_hover, ButtonState::Hover)
-            .outline(2.0, colors.outline, ButtonState::Default)
+        plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)
     }
 
     fn btn_secondary_dark(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_secondary_dark;
-        self.btn_plain_dark()
-            .outline(2.0, colors.outline, ButtonState::Default)
+        plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)
     }
 
     fn btn_plain_dark(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_secondary_dark;
-        ButtonBuilder::new()
-            .label_color(colors.fg, ButtonState::Default)
-            .image_color(colors.fg, ButtonState::Default)
-            .bg_color(colors.bg, ButtonState::Default)
-            .bg_color(colors.bg_hover, ButtonState::Hover)
+        plain_builder(colors)
     }
 
     fn btn_primary_light(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_primary_light;
-        ButtonBuilder::new()
-            .label_color(colors.fg, ButtonState::Default)
-            .image_color(colors.fg, ButtonState::Default)
-            .bg_color(colors.bg, ButtonState::Default)
-            .bg_color(colors.bg_hover, ButtonState::Hover)
-            .outline(2.0, colors.outline, ButtonState::Default)
+        plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)
     }
 
     fn btn_secondary_light(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_secondary_light;
-        self.btn_plain_light()
-            .outline(2.0, colors.outline, ButtonState::Default)
+        plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)
     }
 
     fn btn_plain_light(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_secondary_light;
-        ButtonBuilder::new()
-            .label_color(colors.fg, ButtonState::Default)
-            .image_color(colors.fg, ButtonState::Default)
-            .bg_color(colors.bg, ButtonState::Default)
-            .bg_color(colors.bg_hover, ButtonState::Hover)
+        plain_builder(colors)
     }
 
     // specific UI elements
@@ -103,6 +90,17 @@ impl<'a> Btn<'a> for ColorScheme {
     fn btn_back_dark(&self, title: &'a str) -> ButtonBuilder<'a> {
         back_button(self.btn_plain_dark(), title)
     }
+}
+
+fn plain_builder<'a>(color_scheme: &ButtonColorScheme) -> ButtonBuilder<'a> {
+    ButtonBuilder::new()
+        .label_color(color_scheme.fg, ButtonState::Default)
+        .label_color(color_scheme.fg_disabled, ButtonState::Disabled)
+        .image_color(color_scheme.fg, ButtonState::Default)
+        .image_color(color_scheme.fg_disabled, ButtonState::Disabled)
+        .bg_color(color_scheme.bg, ButtonState::Default)
+        .bg_color(color_scheme.bg_hover, ButtonState::Hover)
+        .bg_color(color_scheme.bg_disabled, ButtonState::Disabled)
 }
 
 fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {

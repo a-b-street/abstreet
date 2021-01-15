@@ -378,7 +378,12 @@ impl Proposals {
                         .build_def(ctx),
                 );
 
-                buttons.push(widgetry::Btn::text_bg2(&edits.proposal_description[0]).inactive(ctx));
+                buttons.push(
+                    app.cs
+                        .btn_primary_dark_text(&edits.proposal_description[0])
+                        .disabled()
+                        .build_def(ctx),
+                );
             } else {
                 buttons.push(
                     app.cs
