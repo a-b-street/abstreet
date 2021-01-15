@@ -83,7 +83,7 @@ pub struct ColorScheme {
     pub minimap_selected_zoom: Color,
     pub minimap_unselected_zoom: Color,
 
-    // UI - Buttons
+    // UI > Buttons
     pub btn_primary_dark: ButtonColorScheme,
     pub btn_secondary_dark: ButtonColorScheme,
     pub btn_primary_light: ButtonColorScheme,

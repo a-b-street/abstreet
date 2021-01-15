@@ -491,6 +491,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self.hotkey = Some(key.into());
         self
     }
+
     pub fn tooltip(mut self, tooltip: Text) -> Self {
         // overzealous?
         debug_assert!(self.tooltip.is_none());
@@ -508,8 +509,28 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Shorthand method to build a Button wrapped in a Widget
     pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
         Widget::new(Box::new(self.build(ctx, action))).named(action)
+    }
+
+    /// Shorthand method to build a widget whose action is derived from the label's text.
+    // Does `def` stand for anything meaningful? Is there a better short name?
+    pub fn build_def(&self, ctx: &EventCtx) -> Widget {
+        let action = self
+            .default_style
+            .label
+            .as_ref()
+            .and_then(|label| {
+                if label.text.len() == 0 {
+                    None
+                } else {
+                    Some(label.text)
+                }
+            })
+            .expect("Must set `label_text` before calling build_def");
+
+        self.build_widget(ctx, action)
     }
 
     pub fn build(&self, ctx: &EventCtx, action: &str) -> Button {

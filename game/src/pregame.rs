@@ -258,8 +258,10 @@ struct About {
 impl About {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
-            widgetry::Btn::svg_def("system/assets/pregame/back.svg")
-                .build(ctx, "back", Key::Escape)
+            app.cs
+                .btn_back_light("Home")
+                .hotkey(Key::Escape)
+                .build_widget(ctx, "back")
                 .align_left(),
             {
                 Text::from_multiline(vec![
@@ -290,8 +292,9 @@ impl About {
                 .bg(app.cs.panel_bg)
                 .padding(16)
             },
-            widgetry::Btn::text_bg2("See full credits")
-                .build_def(ctx, None)
+            app.cs
+                .btn_primary_dark_text("See full credits")
+                .build_def(ctx)
                 .centered_horiz(),
         ];
 
@@ -363,20 +366,24 @@ impl Proposals {
 
                 if edits.proposal_link.is_some() {
                     current_tab.push(
-                        widgetry::Btn::text_bg2("Read detailed write-up")
-                            .build_def(ctx, None)
+                        app.cs
+                            .btn_primary_dark_text("Read detailed write-up")
+                            .build_def(ctx)
                             .margin_below(10),
                     );
                 }
-                current_tab
-                    .push(widgetry::Btn::text_bg2("Try out this proposal").build_def(ctx, None));
+                current_tab.push(
+                    app.cs
+                        .btn_primary_dark_text("Try out this proposal")
+                        .build_def(ctx),
+                );
 
                 buttons.push(widgetry::Btn::text_bg2(&edits.proposal_description[0]).inactive(ctx));
             } else {
                 buttons.push(
-                    widgetry::Btn::text_bg2(&edits.proposal_description[0])
-                        .no_tooltip()
-                        .build(ctx, &name, None)
+                    app.cs
+                        .btn_primary_dark_text(&edits.proposal_description[0])
+                        .build_widget(ctx, &name)
                         .margin_below(10),
                 );
             }
@@ -402,8 +409,10 @@ impl Proposals {
         Box::new(Proposals {
             proposals,
             panel: Panel::new(Widget::custom_col(vec![
-                widgetry::Btn::svg_def("system/assets/pregame/back.svg")
-                    .build(ctx, "back", Key::Escape)
+                app.cs
+                    .btn_back_light("Home")
+                    .hotkey(Key::Escape)
+                    .build_widget(ctx, "back")
                     .align_left()
                     .margin_below(20),
                 Widget::col(col).bg(app.cs.panel_bg).padding(16),
