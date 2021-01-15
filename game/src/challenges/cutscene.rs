@@ -1,8 +1,8 @@
 use map_gui::theme::Btn;
 use map_gui::tools::grey_out_map;
 use widgetry::{
-    hotkeys, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    RewriteColor, State, Text, Widget,
+    hotkeys, ButtonState, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, State, Text, Widget,
 };
 
 use crate::app::App;
@@ -169,29 +169,31 @@ fn make_panel(
     make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
     idx: usize,
 ) -> Panel {
-    let prev = if idx > 0 {
-        app.cs
-            .btn_svg("system/assets/tools/prev.svg")
-            .hotkey(Key::LeftArrow)
-            .build_widget(ctx, "back")
-    } else {
-        Widget::draw_svg_transform(
-            ctx,
-            "system/assets/tools/prev.svg",
-            RewriteColor::ChangeAlpha(0.3),
-        )
-    };
+    let mut prev = app
+        .cs
+        .btn_plain_dark()
+        .image_path("system/assets/tools/prev.svg")
+        .hotkey(Key::LeftArrow)
+        .bg_color(Color::CLEAR, ButtonState::Disabled);
+    if idx == 0 {
+        prev = prev.disabled();
+    }
+    let prev = prev.build_widget(ctx, "back");
+
     let next = app
         .cs
-        .btn_svg("system/assets/tools/next.svg")
+        .btn_plain_dark()
+        .image_path("system/assets/tools/next.svg")
         .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
         .build_widget(ctx, "next");
 
     let inner = if idx == scenes.len() {
         Widget::custom_col(vec![
             (make_task)(ctx),
-            widgetry::Btn::txt("Start", Text::from(Line("Start").fg(Color::BLACK)))
-                .build_def(ctx, Key::Enter)
+            app.cs
+                .btn_primary_light_text("Start")
+                .hotkey(Key::Enter)
+                .build_def(ctx)
                 .centered_horiz()
                 .align_bottom(),
         ])
@@ -247,12 +249,10 @@ fn make_panel(
             .margin_above(100),
             Widget::col(vec![
                 Widget::row(vec![prev, next]).centered_horiz(),
-                widgetry::Btn::txt(
-                    "Skip cutscene",
-                    Text::from(Line("Skip cutscene").fg(Color::BLACK)),
-                )
-                .build_def(ctx, None)
-                .centered_horiz(),
+                app.cs
+                    .btn_secondary_dark_text("Skip cutscene")
+                    .build_def(ctx)
+                    .centered_horiz(),
             ])
             .align_bottom(),
         ])
@@ -261,8 +261,9 @@ fn make_panel(
     let col = vec![
         // TODO Can't get this to alignment to work
         Widget::custom_row(vec![
-            widgetry::Btn::svg_def("system/assets/pregame/back.svg")
-                .build(ctx, "quit", None)
+            app.cs
+                .btn_back_light("Home")
+                .build_widget(ctx, "quit")
                 .margin_right(100),
             Line(name).big_heading_styled().draw(ctx),
         ])
