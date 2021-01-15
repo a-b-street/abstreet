@@ -592,60 +592,58 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .or(default_style.image.as_ref())
             .and_then(|image| {
                 let default = default_style.image.as_ref();
-                image
-                    .path
-                    .or(default.and_then(|d| d.path))
-                    .and_then(|image_path| {
-                        let (mut svg_batch, svg_bounds) = svg::load_svg(ctx.prerender, image_path);
-                        if let Some(color) = image.color.or(default.and_then(|d| d.color)) {
-                            svg_batch = svg_batch.color(RewriteColor::ChangeAll(color));
+                let image_path = image.path.or(default.and_then(|d| d.path));
+                if image_path.is_none() {
+                    return None;
+                }
+                let image_path = image_path.unwrap();
+                let (mut svg_batch, svg_bounds) = svg::load_svg(ctx.prerender, image_path);
+                if let Some(color) = image.color.or(default.and_then(|d| d.color)) {
+                    svg_batch = svg_batch.color(RewriteColor::ChangeAll(color));
+                }
+
+                if let Some(image_dims) = image.dims.or(default.and_then(|d| d.dims)) {
+                    if svg_bounds.width() != 0.0 && svg_bounds.height() != 0.0 {
+                        let (x_factor, y_factor) = (
+                            image_dims.width / svg_bounds.width(),
+                            image_dims.height / svg_bounds.height(),
+                        );
+                        svg_batch = match image.content_mode {
+                            ContentMode::ScaleToFill => svg_batch.scale_xy(x_factor, y_factor),
+                            ContentMode::ScaleAspectFit => svg_batch.scale(x_factor.min(y_factor)),
+                            ContentMode::ScaleAspectFill => svg_batch.scale(x_factor.max(y_factor)),
                         }
+                    }
 
-                        if let Some(image_dims) = image.dims.or(default.and_then(|d| d.dims)) {
-                            if svg_bounds.width() != 0.0 && svg_bounds.height() != 0.0 {
-                                let (x_factor, y_factor) = (
-                                    image_dims.width / svg_bounds.width(),
-                                    image_dims.height / svg_bounds.height(),
-                                );
-                                svg_batch = match image.content_mode {
-                                    ContentMode::ScaleToFill => {
-                                        svg_batch.scale_xy(x_factor, y_factor)
-                                    }
-                                    ContentMode::ScaleAspectFit => {
-                                        svg_batch.scale(x_factor.min(y_factor))
-                                    }
-                                    ContentMode::ScaleAspectFill => {
-                                        svg_batch.scale(x_factor.max(y_factor))
-                                    }
-                                }
-                            }
+                    let mut container_batch = GeomBatch::new();
+                    let container = Polygon::rectangle(image_dims.width, image_dims.height);
+                    container_batch.push(Color::CLEAR, container);
 
-                            let mut container_batch = GeomBatch::new();
-                            let container = Polygon::rectangle(image_dims.width, image_dims.height);
-                            container_batch.push(Color::CLEAR, container);
+                    svg_batch = svg_batch
+                        .autocrop()
+                        .centered_on(container_batch.get_bounds().center());
+                    container_batch.append(svg_batch);
 
-                            svg_batch = svg_batch
-                                .autocrop()
-                                .centered_on(container_batch.get_bounds().center());
-                            container_batch.append(svg_batch);
+                    svg_batch = container_batch
+                }
 
-                            svg_batch = container_batch
-                        }
-
-                        Some(svg_batch)
-                    })
+                Some(svg_batch)
             });
 
         let label_batch = state_style
             .label
             .as_ref()
             .or(default_style.label.as_ref())
-            .map(|label| {
+            .and_then(|label| {
                 let default = default_style.label.as_ref();
-                let text = label
-                    .text
-                    .or(default.and_then(|d| d.text))
-                    .unwrap_or_default();
+                let text = label.text.or(default.and_then(|d| d.text));
+
+                // Is there a better way to do this like a `guard let`?
+                if text.is_none() {
+                    return None;
+                }
+                let text = text.unwrap();
+
                 let color = label
                     .color
                     .or(default.and_then(|d| d.color))
@@ -660,11 +658,13 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
                     line = line.font(font);
                 }
 
-                Text::from(line)
-                    // Without a background color, the label is not centered in the button border
-                    // TODO: Why?
-                    .bg(Color::CLEAR)
-                    .render(ctx)
+                Some(
+                    Text::from(line)
+                        // Without a background color, the label is not centered in the button
+                        // border TODO: Why?
+                        .bg(Color::CLEAR)
+                        .render(ctx),
+                )
             });
 
         use geom_batch_stack::Stack;
