@@ -387,6 +387,13 @@ impl Road {
                 .unwrap(),
         )
     }
+
+    /// Many roads wind up with almost no length, due to their representation in OpenStreetMap. In
+    /// reality, these segments are likely located within the interior of an intersection. This
+    /// method uses a hardcoded threshold to detect these cases.
+    pub fn is_extremely_short(&self) -> bool {
+        self.center_pts.length() < Distance::meters(2.0)
+    }
 }
 
 // TODO All of this is kind of deprecated? During the transiton towards lanes_ltr, some pieces

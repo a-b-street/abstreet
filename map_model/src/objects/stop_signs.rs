@@ -119,7 +119,10 @@ impl ControlStopSign {
         // highest-priority roads.
         for (r, cfg) in ss.roads.iter_mut() {
             if ranks.len() == 1 || rank[r] != ranks[0] {
-                cfg.must_stop = true;
+                // Don't stop in the middle of something that's likely actually an intersection.
+                if !map.get_r(*r).is_extremely_short() {
+                    cfg.must_stop = true;
+                }
             }
         }
         ss

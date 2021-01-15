@@ -975,7 +975,13 @@ fn allow_block_the_box(i: &Intersection) -> bool {
     //    helps.
     let id = i.orig_id.0;
     // lakeslice
-    if id == 53211693 || id == 53214134 || id == 53214133 || id == 987334546 || id == 848817336 {
+    if id == 53211693
+        || id == 53214134
+        || id == 53214133
+        || id == 987334546
+        || id == 848817336
+        || id == 1726088131
+    {
         return true;
     }
     false
