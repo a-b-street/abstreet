@@ -516,9 +516,13 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     pub fn tooltip(mut self, tooltip: Text) -> Self {
-        // overzealous?
-        debug_assert!(self.tooltip.is_none());
         self.tooltip = Some(tooltip);
+        self
+    }
+
+    pub fn no_tooltip(mut self) -> Self {
+        // otherwise the widgets `name` is used
+        self.tooltip = Some(Text::new());
         self
     }
 
@@ -574,7 +578,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             disabled,
             self.hotkey.clone(),
             action,
-            None,
+            self.tooltip.clone(),
             hitbox,
             self.is_disabled,
         )

@@ -382,12 +382,14 @@ impl Proposals {
                     app.cs
                         .btn_primary_dark_text(&edits.proposal_description[0])
                         .disabled()
-                        .build_def(ctx),
+                        .build_def(ctx)
+                        .margin_below(10),
                 );
             } else {
                 buttons.push(
                     app.cs
                         .btn_primary_dark_text(&edits.proposal_description[0])
+                        .no_tooltip()
                         .build_widget(ctx, &name)
                         .margin_below(10),
                 );
