@@ -305,7 +305,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         ])
         .draw(ctx),
         // Button Style Gallery
-        Text::from(Line("Buttons").big_heading_styled().sized(18)).draw(ctx),
+        Text::from(Line("Buttons").big_heading_styled().size(18)).draw(ctx),
         Widget::row(vec![
             Widget::col(vec![
                 Text::from(Line("Neutral Dark")).bg(Color::CLEAR).draw(ctx),
@@ -456,7 +456,7 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
                     .build_widget(ctx, "neutral_light_secondary_image_and_text"),
             ]),
         ]),
-        Text::from(Line("Spinner").big_heading_styled().sized(18)).draw(ctx),
+        Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),
         widgetry::Spinner::new(ctx, (0, 11), 1),
         Widget::row(vec![
             Btn::text_fg("New faces").build(ctx, "generate new faces", Key::F),

@@ -130,8 +130,13 @@ impl TextSpan {
         self
     }
 
-    pub fn sized(mut self, size: usize) -> TextSpan {
+    pub fn size(mut self, size: usize) -> TextSpan {
         self.size = size;
+        self
+    }
+
+    pub fn font(mut self, font: Font) -> TextSpan {
+        self.font = font;
         self
     }
 }

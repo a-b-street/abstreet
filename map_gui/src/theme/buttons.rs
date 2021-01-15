@@ -26,6 +26,7 @@ pub trait Btn<'a> {
 }
 
 impl<'a> Btn<'a> for ColorScheme {
+    // REVIEW: deprecate?
     fn btn_svg(&self, path: &'a str) -> ButtonBuilder<'a> {
         ButtonBuilder::new()
             .image_path(&path)
@@ -36,6 +37,7 @@ impl<'a> Btn<'a> for ColorScheme {
         let colors = &self.btn_primary_dark;
         ButtonBuilder::new()
             .label_color(colors.fg, ButtonState::Default)
+            .image_color(colors.fg, ButtonState::Default)
             .bg_color(colors.bg, ButtonState::Default)
             .bg_color(colors.bg_hover, ButtonState::Hover)
             .outline(2.0, colors.outline, ButtonState::Default)
@@ -45,6 +47,7 @@ impl<'a> Btn<'a> for ColorScheme {
         let colors = &self.btn_secondary_dark;
         ButtonBuilder::new()
             .label_color(colors.fg, ButtonState::Default)
+            .image_color(colors.fg, ButtonState::Default)
             .bg_color(colors.bg, ButtonState::Default)
             .bg_color(colors.bg_hover, ButtonState::Hover)
             .outline(2.0, colors.outline, ButtonState::Default)
@@ -54,6 +57,7 @@ impl<'a> Btn<'a> for ColorScheme {
         let colors = &self.btn_primary_light;
         ButtonBuilder::new()
             .label_color(colors.fg, ButtonState::Default)
+            .image_color(colors.fg, ButtonState::Default)
             .bg_color(colors.bg, ButtonState::Default)
             .bg_color(colors.bg_hover, ButtonState::Hover)
             .outline(2.0, colors.outline, ButtonState::Default)
@@ -63,6 +67,7 @@ impl<'a> Btn<'a> for ColorScheme {
         let colors = &self.btn_secondary_light;
         ButtonBuilder::new()
             .label_color(colors.fg, ButtonState::Default)
+            .image_color(colors.fg, ButtonState::Default)
             .bg_color(colors.bg, ButtonState::Default)
             .bg_color(colors.bg_hover, ButtonState::Hover)
             .outline(2.0, colors.outline, ButtonState::Default)

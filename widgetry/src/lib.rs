@@ -42,12 +42,13 @@ pub use crate::input::UserInput;
 pub use crate::runner::{run, Settings};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::style::Style;
-pub use crate::text::{Line, Text, TextExt, TextSpan};
+pub use crate::text::{Font, Line, Text, TextExt, TextSpan};
 pub use crate::tools::warper::Warper;
 pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
-pub use crate::widgets::button::{Btn, ButtonBuilder, ButtonState, MultiButton};
+// REVIEW: move ContentMode to upper level?
+pub use crate::widgets::button::{Btn, ButtonBuilder, ButtonState, ContentMode, MultiButton};
 pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;

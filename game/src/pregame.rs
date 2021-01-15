@@ -12,8 +12,8 @@ use map_gui::tools::{open_browser, PopupMsg};
 use map_model::PermanentMapEdits;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
-    hotkeys, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text,
-    UpdateType, Widget,
+    hotkeys, Color, ContentMode, DrawBaselayer, EdgeInsets, EventCtx, Font, GfxCtx, Key, Line,
+    Outcome, Panel, ScreenDims, State, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -47,7 +47,7 @@ impl TitleScreen {
                     // TODO that nicer font
                     // TODO Any key
                     app.cs
-                        .btn_primary_dark_text("PLAY")
+                        .btn_primary_dark_text("Play")
                         .hotkey(hotkeys(vec![Key::Space, Key::Enter]))
                         .build_widget(ctx, "start game"),
                 ])
@@ -101,36 +101,61 @@ impl MainMenu {
                 txt.add(Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk"));
                 txt.draw(ctx).centered_horiz()
             },
-            Widget::row(vec![
-                app.cs
-                    .btn_svg("system/assets/pregame/tutorial.svg")
-                    .tooltip({
-                        let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
-                        // FIXME: these second lines don't seem to appear anywhere.
-                        txt.add(Line("Learn how to play the game").small());
-                        txt
+            Widget::row({
+                let btn_builder = app
+                    .cs
+                    .btn_primary_dark()
+                    .image_dims(ScreenDims::new(200.0, 100.0))
+                    .font_size(40)
+                    .font(Font::OverpassBold)
+                    // CLEANUP: There's some baked in padding with our current assets which is
+                    // probably not desirable, but we compensate for that here by applying
+                    // unequal padding
+                    .padding(EdgeInsets {
+                        top: 40.0,
+                        bottom: 40.0,
+                        left: 20.0,
+                        right: 20.0,
                     })
-                    .hotkey(Key::T)
-                    .build_widget(ctx, "Tutorial"),
-                app.cs
-                    .btn_svg("system/assets/pregame/sandbox.svg")
-                    .tooltip({
-                        let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
-                        txt.add(Line("No goals, try out any idea here").small());
-                        txt
-                    })
-                    .hotkey(Key::S)
-                    .build_widget(ctx, "Sandbox mode"),
-                app.cs
-                    .btn_svg("system/assets/pregame/challenges.svg")
-                    .tooltip({
-                        let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
-                        txt.add(Line("Fix specific problems").small());
-                        txt
-                    })
-                    .hotkey(Key::C)
-                    .build_widget(ctx, "Challenges"),
-            ])
+                    .image_content_mode(ContentMode::ScaleAspectFill)
+                    .vertical();
+                vec![
+                    btn_builder
+                        .clone()
+                        .image_path("system/assets/pregame/tutorial.svg")
+                        .label_text("Tutorial")
+                        .tooltip({
+                            let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
+                            // FIXME: these second lines don't seem to appear anywhere.
+                            txt.add(Line("Learn how to play the game").small());
+                            txt
+                        })
+                        .hotkey(Key::T)
+                        .build_widget(ctx, "Tutorial"),
+                    btn_builder
+                        .clone()
+                        .image_path("system/assets/pregame/sandbox.svg")
+                        .label_text("Sandbox")
+                        .tooltip({
+                            let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
+                            txt.add(Line("No goals, try out any idea here").small());
+                            txt
+                        })
+                        .hotkey(Key::S)
+                        .build_widget(ctx, "Sandbox mode"),
+                    btn_builder
+                        .clone()
+                        .image_path("system/assets/pregame/challenges.svg")
+                        .label_text("Challenge")
+                        .tooltip({
+                            let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
+                            txt.add(Line("Fix specific problems").small());
+                            txt
+                        })
+                        .hotkey(Key::C)
+                        .build_widget(ctx, "Challenges"),
+                ]
+            })
             .centered(),
             Widget::row(vec![
                 app.cs

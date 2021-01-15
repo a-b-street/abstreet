@@ -1,8 +1,9 @@
 use geom::{Distance, Polygon};
 
 use crate::{
-    svg, Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, Outcome,
-    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    svg, text::Font, Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey,
+    Outcome, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl,
+    WidgetOutput,
 };
 
 pub struct Button {
@@ -292,7 +293,7 @@ impl Btn {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Image<'a> {
     path: Option<&'a str>,
     color: Option<Color>,
@@ -311,29 +312,34 @@ impl Default for Image<'_> {
     }
 }
 
-#[derive(Clone)]
+/// Rules for how content should stretch to fill it's bounds
+#[derive(Clone, Debug)]
 pub enum ContentMode {
+    /// Stretches content to fit its bounds exactly, breaking aspect ratio as necessary.
     ScaleToFill,
+
+    /// Maintaining aspect ration, content grows within its bounds.
+    ///
+    /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
+    /// there will be some empty space within the bounds.
     ScaleAspectFit,
+
+    /// Maintaining aspect ration, content grows to cover its bounds
+    ///
+    /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
+    /// the content will overflow one dimension of its bounds.
     ScaleAspectFill,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Default)]
 pub struct Label<'a> {
     text: &'a str,
     color: Option<Color>,
+    font_size: Option<usize>,
+    font: Option<Font>,
 }
 
-impl std::default::Default for Label<'_> {
-    fn default() -> Self {
-        Label {
-            text: "",
-            color: None,
-        }
-    }
-}
-
-#[derive(Clone, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct ButtonStyle<'a> {
     image: Option<Image<'a>>,
     label: Option<Label<'a>>,
@@ -343,16 +349,17 @@ pub struct ButtonStyle<'a> {
      * geom: Option<()>, */
 }
 
-#[derive(Default, Clone)]
+#[derive(Clone, Debug, Default)]
 pub struct ButtonBuilder<'a> {
     padding: EdgeInsets,
     hotkey: Option<MultiKey>,
     tooltip: Option<Text>,
+    stack_axis: Option<geom_batch_stack::Axis>,
     default_style: ButtonStyle<'a>,
     hover_style: ButtonStyle<'a>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum ButtonState {
     Default,
     Hover, // TODO: Pressing, Disabled
@@ -397,10 +404,30 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     pub fn label_text(mut self, text: &'a str) -> Self {
-        // Currently we don't support setting text for other states like "hover", we easily
-        // could, but the API gets more verbose for a thing we don't currently need.
         let mut label = self.default_style.label.take().unwrap_or_default();
         label.text = text;
+        self.default_style.label = Some(label);
+        self
+    }
+
+    pub fn label_color(mut self, color: Color, state: ButtonState) -> Self {
+        let state_style = self.style_mut(state);
+        let mut label = state_style.label.take().unwrap_or_default();
+        label.color = Some(color);
+        state_style.label = Some(label);
+        self
+    }
+
+    pub fn font(mut self, font: Font) -> Self {
+        let mut label = self.default_style.label.take().unwrap_or_default();
+        label.font = Some(font);
+        self.default_style.label = Some(label);
+        self
+    }
+
+    pub fn font_size(mut self, font_size: usize) -> Self {
+        let mut label = self.default_style.label.take().unwrap_or_default();
+        label.font_size = Some(font_size);
         self.default_style.label = Some(label);
         self
     }
@@ -415,19 +442,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     pub fn image_dims(mut self, dims: ScreenDims) -> Self {
-        // Currently we don't support setting image for other states like "hover", we easily
-        // could, but the API gets more verbose for a thing we don't currently need.
         let mut image = self.default_style.image.take().unwrap_or_default();
         image.dims = Some(dims);
         self.default_style.image = Some(image);
-        self
-    }
-
-    pub fn label_color(mut self, color: Color, state: ButtonState) -> Self {
-        let state_style = self.style_mut(state);
-        let mut label = state_style.label.take().unwrap_or_default();
-        label.color = Some(color);
-        state_style.label = Some(label);
         self
     }
 
@@ -436,6 +453,13 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         let mut image = state_style.image.take().unwrap_or_default();
         image.color = Some(color);
         state_style.image = Some(image);
+        self
+    }
+
+    pub fn image_content_mode(mut self, content_mode: ContentMode) -> Self {
+        let mut image = self.default_style.image.take().unwrap_or_default();
+        image.content_mode = content_mode;
+        self.default_style.image = Some(image);
         self
     }
 
@@ -471,6 +495,16 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         // overzealous?
         debug_assert!(self.tooltip.is_none());
         self.tooltip = Some(tooltip);
+        self
+    }
+
+    pub fn vertical(mut self) -> Self {
+        self.stack_axis = Some(geom_batch_stack::Axis::Vertical);
+        self
+    }
+
+    pub fn horizontal(mut self) -> Self {
+        self.stack_axis = Some(geom_batch_stack::Axis::Horizontal);
         self
     }
 
@@ -552,10 +586,16 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .as_ref()
             .or(default_style.label.as_ref())
             .map(|label| {
-                let text = Text::from(
-                    Line(label.text).fg(label.color.unwrap_or(ctx.style().outline_color)),
-                );
+                let mut line =
+                    Line(label.text).fg(label.color.unwrap_or(ctx.style().outline_color));
+                if let Some(font_size) = label.font_size {
+                    line = line.size(font_size);
+                }
+                if let Some(font) = label.font {
+                    line = line.font(font);
+                }
 
+                let text = Text::from(line);
                 // Without a background color, the label is not centered in the button border
                 // TODO: Why?
                 let text = text.bg(Color::CLEAR);
@@ -565,6 +605,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
         use geom_batch_stack::Stack;
         let mut stack = Stack::horizontal();
+        if let Some(stack_axis) = self.stack_axis {
+            stack.set_axis(stack_axis);
+        }
         stack.spacing(10.0);
 
         if let Some(image_batch) = image_batch {
@@ -930,14 +973,19 @@ impl WidgetImpl for MultiButton {
 
 mod geom_batch_stack {
     use crate::GeomBatch;
+
+    #[derive(Clone, Copy, Debug, PartialEq)]
     enum Alignment {
         Center, // TODO: Top, Left, Bottom, Right, etc.
     }
-    enum Axis {
+
+    #[derive(Clone, Copy, Debug, PartialEq)]
+    pub enum Axis {
         Horizontal,
         Vertical,
     }
 
+    #[derive(Debug)]
     pub struct Stack {
         batches: Vec<GeomBatch>,
         // TODO: top/bottom/etc
@@ -971,6 +1019,10 @@ mod geom_batch_stack {
                 axis: Axis::Vertical,
                 ..Default::default()
             }
+        }
+
+        pub fn set_axis(&mut self, new_value: Axis) {
+            self.axis = new_value;
         }
 
         pub fn push(&mut self, geom_batch: GeomBatch) {
