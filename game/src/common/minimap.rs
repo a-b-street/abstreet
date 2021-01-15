@@ -1,4 +1,4 @@
-use map_gui::theme::Btn;
+use map_gui::theme::Buttons;
 use map_gui::tools::{MinimapControls, Navigator};
 use widgetry::{
     ButtonState, EventCtx, GfxCtx, HorizontalAlignment, Key, Panel, ScreenDims, VerticalAlignment,

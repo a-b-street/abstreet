@@ -1,8 +1,8 @@
-use map_gui::theme::Btn;
+use map_gui::theme::Buttons;
 use map_gui::tools::grey_out_map;
 use widgetry::{
-    hotkeys, ButtonState, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, State, Text, Widget,
+    hotkeys, Btn, ButtonState, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    Outcome, Panel, ScreenDims, State, Text, Widget,
 };
 
 use crate::app::App;
@@ -290,7 +290,7 @@ impl FYI {
             panel: Panel::new(
                 Widget::custom_col(vec![
                     contents,
-                    widgetry::Btn::txt("Okay", Text::from(Line("Okay").fg(Color::BLACK)))
+                    Btn::txt("Okay", Text::from(Line("Okay").fg(Color::BLACK)))
                         .build_def(ctx, hotkeys(vec![Key::Escape, Key::Space, Key::Enter]))
                         .centered_horiz()
                         .align_bottom(),

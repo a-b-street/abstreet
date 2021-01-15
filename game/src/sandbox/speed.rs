@@ -1,4 +1,5 @@
 use geom::{Duration, Polygon, Time};
+use map_gui::theme::Buttons;
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;

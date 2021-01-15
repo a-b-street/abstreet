@@ -5,8 +5,9 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{
-    lctrl, Checkbox, Color, ContentMode, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Panel, ScreenDims, ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment, Widget,
+    lctrl, Btn, Checkbox, Color, ContentMode, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Panel, ScreenDims, ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment,
+    Widget,
 };
 
 pub use self::minimap::MinimapController;
@@ -14,7 +15,7 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
-use map_gui::theme::Btn;
+use map_gui::theme::Buttons;
 
 mod minimap;
 mod warp;
@@ -387,7 +388,7 @@ pub fn hotkey_btn<I: Into<String>>(ctx: &EventCtx, app: &App, label: I, key: Key
     let mut txt = Text::new();
     txt.append(key.txt(ctx));
     txt.append(Line(format!(" - {}", label)));
-    widgetry::Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, key)
+    Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, key)
 }
 
 pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {

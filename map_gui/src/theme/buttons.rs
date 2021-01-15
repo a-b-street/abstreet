@@ -43,14 +43,7 @@ pub trait Btn<'a> {
     fn btn_back_dark(&self, title: &'a str) -> ButtonBuilder<'a>;
 }
 
-impl<'a> Btn<'a> for ColorScheme {
-    // REVIEW: deprecate?
-    fn btn_svg(&self, path: &'a str) -> ButtonBuilder<'a> {
-        ButtonBuilder::new()
-            .image_path(&path)
-            .bg_color(self.hovering, ButtonState::Hover)
-    }
-
+impl<'a> Buttons<'a> for ColorScheme {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_primary_dark;
         plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)

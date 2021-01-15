@@ -1,3 +1,3 @@
 mod buttons;
 
-pub use buttons::Btn;
+pub use buttons::Buttons;

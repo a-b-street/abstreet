@@ -97,6 +97,7 @@ impl ScreenRectangle {
     }
 }
 
+// REVIEW: Rename to something shorter? e.g. Dims / Size
 /// ScreenDims is in units of logical pixels, as opposed to physical pixels.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ScreenDims {
