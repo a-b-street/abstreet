@@ -134,7 +134,7 @@ impl State<App> for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx));
+            return Transition::Push(DebugMode::new(ctx, app));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -894,7 +894,7 @@ impl SandboxControls {
                 None
             },
             tool_panel: if gameplay.has_tool_panel() {
-                Some(tool_panel(ctx))
+                Some(tool_panel(ctx, app))
             } else {
                 None
             },
@@ -923,7 +923,7 @@ impl SandboxControls {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.tool_panel.is_some() {
-            self.tool_panel = Some(tool_panel(ctx));
+            self.tool_panel = Some(tool_panel(ctx, app));
         }
         if let Some(ref mut speed) = self.speed {
             speed.recreate_panel(ctx, app);

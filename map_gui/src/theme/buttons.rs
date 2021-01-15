@@ -1,5 +1,5 @@
 use crate::colors::{ButtonColorScheme, ColorScheme};
-use widgetry::{ButtonBuilder, ButtonState, Color};
+use widgetry::{ButtonBuilder, ButtonState};
 
 pub trait Btn<'a> {
     fn btn_svg(&self, path: &'a str) -> ButtonBuilder<'a>;

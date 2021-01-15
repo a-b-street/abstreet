@@ -60,7 +60,7 @@ impl EditMode {
         let edits = app.primary.map.get_edits();
         let layer = crate::layer::map::Static::edits(ctx, app);
         Box::new(EditMode {
-            tool_panel: tool_panel(ctx),
+            tool_panel: tool_panel(ctx, app),
             top_center: make_topcenter(ctx, app),
             changelist: make_changelist(ctx, app),
             orig_edits: edits.clone(),
@@ -171,7 +171,7 @@ impl State<App> for EditMode {
         }
 
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx));
+            return Transition::Push(DebugMode::new(ctx, app));
         }
 
         match self.top_center.event(ctx) {

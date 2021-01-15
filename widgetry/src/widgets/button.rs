@@ -222,7 +222,6 @@ impl Btn {
     }
 
     // The white background.
-    #[deprecated]
     pub fn text_bg2<I: Into<String>>(action: I) -> BtnBuilder {
         let action = action.into();
         BtnBuilder::TextBG {
