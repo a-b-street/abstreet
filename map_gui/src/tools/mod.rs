@@ -72,6 +72,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         ("bellevue", "huge") => "Bellevue",
         ("berlin", "center") => "Berlin (city center)",
         ("cambridge", "trumpington") => "Trumpington (outside Cambridge)",
+        ("detroit", "downtown") => "Detroit",
         ("krakow", "center") => "Kraków (city center)",
         ("leeds", "huge") => "Leeds (entire area inside motorways)",
         ("leeds", "north") => "North Leeds",

@@ -65,6 +65,21 @@
       "uncompressed_size_bytes": 39365088,
       "compressed_size_bytes": 39341496
     },
+    "data/input/detroit/osm/downtown.osm": {
+      "checksum": "5c8dd6ecc94a80879bac965ef624e2e7",
+      "uncompressed_size_bytes": 40741899,
+      "compressed_size_bytes": 4025725
+    },
+    "data/input/detroit/osm/michigan-latest.osm.pbf": {
+      "checksum": "650b1af616be7c83408a2c2b4bba4daf",
+      "uncompressed_size_bytes": 178719141,
+      "compressed_size_bytes": 178529871
+    },
+    "data/input/detroit/raw_maps/downtown.bin": {
+      "checksum": "bd216b8b235306ef9cba74c4e2c5bc33",
+      "uncompressed_size_bytes": 10751817,
+      "compressed_size_bytes": 2583912
+    },
     "data/input/krakow/osm/center.osm": {
       "checksum": "e64103d37a7009d96f7d8a653db02deb",
       "uncompressed_size_bytes": 56598855,
@@ -654,6 +669,11 @@
       "checksum": "b9af9a890c908f641b5773c50c731cb6",
       "uncompressed_size_bytes": 71752,
       "compressed_size_bytes": 18772
+    },
+    "data/system/detroit/maps/downtown.bin": {
+      "checksum": "5cb422cf9dcd901ca30829ee27a36ceb",
+      "uncompressed_size_bytes": 65204109,
+      "compressed_size_bytes": 21863363
     },
     "data/system/krakow/maps/center.bin": {
       "checksum": "6b39b2b5a2066603cbe5e4dc087e7071",
