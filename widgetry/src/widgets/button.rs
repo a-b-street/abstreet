@@ -430,8 +430,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn label_color(mut self, color: Color, state: ButtonState) -> Self {
-        let state_style = self.style_mut(state);
+    pub fn label_color(mut self, color: Color, for_state: ButtonState) -> Self {
+        let state_style = self.style_mut(for_state);
         let mut label = state_style.label.take().unwrap_or_default();
         label.color = Some(color);
         state_style.label = Some(label);
@@ -468,8 +468,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_color(mut self, color: Color, state: ButtonState) -> Self {
-        let state_style = self.style_mut(state);
+    pub fn image_color(mut self, color: Color, for_state: ButtonState) -> Self {
+        let state_style = self.style_mut(for_state);
         let mut image = state_style.image.take().unwrap_or_default();
         image.color = Some(color);
         state_style.image = Some(image);
@@ -499,13 +499,13 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
     }
 
-    pub fn bg_color(mut self, color: Color, state: ButtonState) -> Self {
-        self.style_mut(state).bg_color = Some(color);
+    pub fn bg_color(mut self, color: Color, for_state: ButtonState) -> Self {
+        self.style_mut(for_state).bg_color = Some(color);
         self
     }
 
-    pub fn outline(mut self, thickness: f64, color: Color, state: ButtonState) -> Self {
-        self.style_mut(state).outline = Some((thickness, color));
+    pub fn outline(mut self, thickness: f64, color: Color, for_state: ButtonState) -> Self {
+        self.style_mut(for_state).outline = Some((thickness, color));
         self
     }
 
@@ -563,7 +563,6 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         let hovered = self.batch(ctx, ButtonState::Hover);
         let disabled = self.batch(ctx, ButtonState::Disabled);
 
-        // derive from edge insets
         assert!(
             normal.get_bounds() != geom::Bounds::zero(),
             "button was empty"
@@ -583,8 +582,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         )
     }
 
-    fn batch(&self, ctx: &EventCtx, state: ButtonState) -> GeomBatch {
-        let state_style = self.style(state);
+    fn batch(&self, ctx: &EventCtx, for_state: ButtonState) -> GeomBatch {
+        let state_style = self.style(for_state);
         let default_style = &self.default_style;
 
         let image_batch = state_style
@@ -684,7 +683,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
         let mut button_widget = stack
             .batch()
-            .batch()
+            .batch() // TODO: rename -> `widget` or `build_widget`
             .container()
             .padding(self.padding)
             // TODO: Do we need Color::CLEAR?
@@ -1049,10 +1048,10 @@ impl WidgetImpl for MultiButton {
 mod geom_batch_stack {
     use crate::GeomBatch;
 
-    #[derive(Clone, Copy, Debug, PartialEq)]
-    enum Alignment {
-        Center, // TODO: Top, Left, Bottom, Right, etc.
-    }
+    // #[derive(Clone, Copy, Debug, PartialEq)]
+    // enum Alignment {
+    //     Center, // TODO: Top, Left, Bottom, Right, etc.
+    // }
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub enum Axis {
