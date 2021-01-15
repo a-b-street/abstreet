@@ -93,9 +93,6 @@ pub struct MainMenu {
 impl MainMenu {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
-            widgetry::Btn::svg_def("system/assets/pregame/quit.svg")
-                .build(ctx, "quit", Key::Escape)
-                .align_left(),
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
                 txt.add(Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk"));
@@ -199,9 +196,6 @@ impl State<App> for MainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "quit" => {
-                    return Transition::Pop;
-                }
                 "Tutorial" => {
                     return Tutorial::start(ctx, app);
                 }
