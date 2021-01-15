@@ -1,37 +1,53 @@
 use crate::colors::{ButtonColorScheme, ColorScheme};
 use widgetry::{ButtonBuilder, ButtonState};
 
-pub trait Btn<'a> {
-    fn btn_svg(&self, path: &'a str) -> ButtonBuilder<'a>;
-
+pub trait Buttons<'a> {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a>;
     fn btn_primary_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_primary_dark().label_text(text)
+    }
+    fn btn_primary_dark_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        image_padding(self.btn_primary_dark().image_path(image_path))
     }
 
     fn btn_secondary_dark(&self) -> ButtonBuilder<'a>;
     fn btn_secondary_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_secondary_dark().label_text(text)
     }
+    fn btn_secondary_dark_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        image_padding(self.btn_secondary_dark().image_path(image_path))
+    }
 
     fn btn_primary_light(&self) -> ButtonBuilder<'a>;
     fn btn_primary_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_primary_light().label_text(text)
+    }
+    fn btn_primary_light_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        image_padding(self.btn_primary_light().image_path(image_path))
     }
 
     fn btn_secondary_light(&self) -> ButtonBuilder<'a>;
     fn btn_secondary_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_secondary_light().label_text(text)
     }
+    fn btn_secondary_light_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        image_padding(self.btn_secondary_light().image_path(image_path))
+    }
 
     fn btn_plain_dark(&self) -> ButtonBuilder<'a>;
     fn btn_plain_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_plain_dark().label_text(text)
     }
+    fn btn_plain_dark_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        image_padding(self.btn_plain_dark().image_path(image_path))
+    }
 
     fn btn_plain_light(&self) -> ButtonBuilder<'a>;
     fn btn_plain_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_plain_light().label_text(text)
+    }
+    fn btn_plain_light_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        image_padding(self.btn_plain_light().image_path(image_path))
     }
 
     // Specific UI Elements
@@ -96,9 +112,15 @@ fn plain_builder<'a>(color_scheme: &ButtonColorScheme) -> ButtonBuilder<'a> {
         .bg_color(color_scheme.bg_disabled, ButtonState::Disabled)
 }
 
+fn image_padding<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
+    builder.padding(4)
+}
+
 fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {
+    // DESIGN REVIEW: this button seems absurdly large
     builder
         .image_path("system/assets/pregame/back.svg")
         .label_text(title)
+        .padding_left(8.0)
         .font_size(30)
 }

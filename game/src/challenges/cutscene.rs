@@ -171,8 +171,7 @@ fn make_panel(
 ) -> Panel {
     let mut prev = app
         .cs
-        .btn_plain_dark()
-        .image_path("system/assets/tools/prev.svg")
+        .btn_plain_dark_image("system/assets/tools/prev.svg")
         .hotkey(Key::LeftArrow)
         .bg_color(Color::CLEAR, ButtonState::Disabled);
     if idx == 0 {
@@ -182,8 +181,7 @@ fn make_panel(
 
     let next = app
         .cs
-        .btn_plain_dark()
-        .image_path("system/assets/tools/next.svg")
+        .btn_plain_dark_image("system/assets/tools/next.svg")
         .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
         .build_widget(ctx, "next");
 
