@@ -74,6 +74,22 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Some users of the API (https://dabreegster.github.io/abstreet/dev/api.html) have their own</span>
 <span class="doccomment">//! simulation input data; import it here.</span>
@@ -106,23 +122,39 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ExternalPerson</span> {
+    <span class="doccomment">/// Import external scenario data. The main difference between `ExternalPerson` and</span>
+    <span class="doccomment">/// `PersonSpec` is a way to specify endpoints by a `LonLat`. This is snapped to the nearest</span>
+    <span class="doccomment">/// building. If the point is outside of the map boundary, it&#39;s snapped to the nearest border</span>
+    <span class="doccomment">/// (by Euclidean distance -- the network outside the given map isn&#39;t known). Failure happens</span>
+    <span class="doccomment">/// if a point is within the map, but not close enough to any buildings.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest</span>::<span class="ident">new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>.<span class="ident">id</span>), <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
         }
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-            <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>.<span class="ident">id</span>), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
+            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_border</span>() {
+                <span class="ident">borders</span>.<span class="ident">push</span>((<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>.<span class="ident">id</span>), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()));
+            }
         }
+
         <span class="kw">let</span> <span class="ident">lookup_pt</span> <span class="op">=</span> <span class="op">|</span><span class="ident">endpt</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">endpt</span> {
             <span class="ident">ExternalTripEndpoint</span>::<span class="ident">TripEndpoint</span>(<span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>),
             <span class="ident">ExternalTripEndpoint</span>::<span class="ident">Position</span>(<span class="ident">gps</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">match</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">100.0</span>)) {
-                    <span class="prelude-val">Some</span>((<span class="ident">x</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(
-                        <span class="string">&quot;No building or border intersection within 100m of {}&quot;</span>,
-                        <span class="ident">gps</span>
-                    )),
+                <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
+                    <span class="kw">match</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">100.0</span>)) {
+                        <span class="prelude-val">Some</span>((<span class="ident">x</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>),
+                        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;No building within 100m of {}&quot;</span>, <span class="ident">gps</span>)),
+                    }
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">borders</span>
+                        .<span class="ident">iter</span>()
+                        .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">border</span>)<span class="op">|</span> <span class="ident">border</span>.<span class="ident">fast_dist</span>(<span class="ident">pt</span>))
+                        .<span class="ident">unwrap</span>()
+                        .<span class="number">0</span>
+                        .<span class="ident">clone</span>())
                 }
             }
         };

@@ -239,12 +239,13 @@ example:</p>
 <p>Run the tool:</p>
 <pre><code>cargo run --bin import_traffic -- --map=data/system/seattle/maps/montlake.bin --input=/path/to/input.json
 </code></pre>
-<p>The tool matches input positions to the nearest building or border intersection,
-within 100 meters. The <code>departure</code> time is seconds since midnight. The tool will
-fail if any point doesn't match to a building, or if any of the specified trips
-can't be created (due to graph connectivity problems, for example). If your
-requirements are different or you have any trouble using this format/tool,
-please file a Github issue -- just consider this tool and format a prototype.</p>
+<p>The tool matches input positions to the nearest building, within 100 meters. If
+the point lies outside the map boundary, it's snapped to the nearest map border.
+The <code>departure</code> time is seconds since midnight. The tool will fail if any point
+doesn't match to a building, or if any of the specified trips can't be created
+(due to graph connectivity problems, for example). If your requirements are
+different or you have any trouble using this format/tool, please file a Github
+issue -- just consider this tool and format a prototype.</p>
 <h2><a class="header" href="#modifying-demand" id="modifying-demand">Modifying demand</a></h2>
 <p>The travel demand model is extremely fixed; the main effect of a different
 random number seed is currently to initially place parked cars in specific
