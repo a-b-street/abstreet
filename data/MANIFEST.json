@@ -646,14 +646,14 @@
       "compressed_size_bytes": 9988667
     },
     "data/system/cambridge/scenarios/trumpington/baseline.bin": {
-      "checksum": "661ce8362a2854023d24822b9f2bb8fe",
+      "checksum": "b26dd3395d63b23613be2f6e3f596e93",
       "uncompressed_size_bytes": 71752,
-      "compressed_size_bytes": 18953
+      "compressed_size_bytes": 18925
     },
     "data/system/cambridge/scenarios/trumpington/go_dutch.bin": {
-      "checksum": "b87b56638974c3ca6b88b498ac655a35",
+      "checksum": "b9af9a890c908f641b5773c50c731cb6",
       "uncompressed_size_bytes": 71752,
-      "compressed_size_bytes": 18791
+      "compressed_size_bytes": 18772
     },
     "data/system/krakow/maps/center.bin": {
       "checksum": "6b39b2b5a2066603cbe5e4dc087e7071",

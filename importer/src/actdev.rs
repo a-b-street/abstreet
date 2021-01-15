@@ -5,7 +5,6 @@ use geojson::{Feature, GeoJson, Value};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
-use abstutil::Timer;
 use geom::{Duration, LonLat, Time};
 use map_model::Map;
 use sim::{ExternalPerson, ExternalTrip, ExternalTripEndpoint, Scenario, TripMode};
@@ -13,11 +12,7 @@ use sim::{ExternalPerson, ExternalTrip, ExternalTripEndpoint, Scenario, TripMode
 use crate::configuration::ImporterConfiguration;
 use crate::utils::download;
 
-pub fn import_scenarios(
-    map: &Map,
-    config: &ImporterConfiguration,
-    timer: &mut Timer,
-) -> Result<()> {
+pub fn import_scenarios(map: &Map, config: &ImporterConfiguration) -> Result<()> {
     // TODO This hardcodes for one city right now; generalize.
     download(
         config,
@@ -28,10 +23,10 @@ pub fn import_scenarios(
     let bytes = abstio::slurp_file(abstio::path("input/cambridge/desire_lines_disag.geojson"))?;
     let raw_string = std::str::from_utf8(&bytes)?;
     let geojson = raw_string.parse::<GeoJson>()?;
-    let mut results = Vec::new();
+    let mut baseline = Vec::new();
+    let mut go_dutch = Vec::new();
     if let GeoJson::FeatureCollection(collection) = geojson {
         for feature in collection.features {
-            // TODO Convert to geo types and then further convert to a PolyLine?
             let (home, work) = match feature.geometry.as_ref().map(|g| &g.value) {
                 Some(Value::LineString(pts)) => {
                     if pts.len() != 2 {
@@ -47,30 +42,33 @@ pub fn import_scenarios(
                     bail!("Geometry isn't a line-string: {:?}", feature);
                 }
             };
-
-            // TODO Can we get ahold of the raw JSON and run it through serde? That'd be way
-            // easier.
-            results.push(DesireLine {
-                home,
-                work,
-
-                foot: parse_usize(&feature, "foot")?,
-                bicycle: parse_usize(&feature, "bicycle")?,
-                car_driver: parse_usize(&feature, "car_driver")?,
-
-                walk_commute_godutch: parse_usize(&feature, "walk_commute_godutch")?,
-                bicycle_commute_godutch: parse_usize(&feature, "bicycle_commute_godutch")?,
-                car_commute_godutch: parse_usize(&feature, "car_commute_godutch")?,
-            });
+            for (mode, baseline_key, go_dutch_key) in vec![
+                (TripMode::Walk, "foot", "walk_commute_godutch"),
+                (TripMode::Bike, "bicycle", "bicycle_commute_godutch"),
+                (TripMode::Drive, "car_driver", "car_commute_godutch"),
+            ] {
+                baseline.push(ODSummary {
+                    home,
+                    work,
+                    mode,
+                    count: parse_usize(&feature, baseline_key)?,
+                });
+                go_dutch.push(ODSummary {
+                    home,
+                    work,
+                    mode,
+                    count: parse_usize(&feature, go_dutch_key)?,
+                });
+            }
         }
     }
 
-    desire_lines_to_scenarios(map, results);
+    generate_scenario("baseline", baseline, map);
+    generate_scenario("go_dutch", go_dutch, map);
 
     Ok(())
 }
 
-// TODO Can we be more succinct here?
 fn parse_usize(feature: &Feature, key: &str) -> Result<usize> {
     match feature.property(key).and_then(|value| value.as_f64()) {
         Some(count) => Ok(count as usize),
@@ -78,78 +76,47 @@ fn parse_usize(feature: &Feature, key: &str) -> Result<usize> {
     }
 }
 
-struct DesireLine {
+/// Describes some number of people that have the same home, workplace, and preferred mode. When
+/// they're created, the only thing that'll differ between them is exact departure time.
+struct ODSummary {
     home: LonLat,
     work: LonLat,
-
-    foot: usize,
-    bicycle: usize,
-    car_driver: usize,
-
-    walk_commute_godutch: usize,
-    bicycle_commute_godutch: usize,
-    car_commute_godutch: usize,
+    mode: TripMode,
+    count: usize,
 }
 
-fn desire_lines_to_scenarios(map: &Map, input: Vec<DesireLine>) {
+fn generate_scenario(name: &str, input: Vec<ODSummary>, map: &Map) {
     // Arbitrary but fixed seed
     let mut rng = XorShiftRng::seed_from_u64(42);
 
-    let mut baseline_people = Vec::new();
-    let mut go_dutch_people = Vec::new();
-    for desire in input {
-        // TODO The people in the two scenarios aren't related!
-        for (mode, baseline_count, go_dutch_count) in vec![
-            (TripMode::Walk, desire.foot, desire.walk_commute_godutch),
-            (
-                TripMode::Bike,
-                desire.bicycle,
-                desire.bicycle_commute_godutch,
-            ),
-            (
-                TripMode::Drive,
-                desire.car_driver,
-                desire.car_commute_godutch,
-            ),
-        ] {
-            for (count, output) in vec![
-                (baseline_count, &mut baseline_people),
-                (go_dutch_count, &mut go_dutch_people),
-            ] {
-                for _ in 0..count {
-                    let leave_time = rand_time(&mut rng, Duration::hours(7), Duration::hours(9));
-                    let return_time = rand_time(&mut rng, Duration::hours(17), Duration::hours(19));
-
-                    output.push(ExternalPerson {
-                        origin: ExternalTripEndpoint::Position(desire.home),
-                        trips: vec![
-                            ExternalTrip {
-                                departure: leave_time,
-                                destination: ExternalTripEndpoint::Position(desire.work),
-                                mode,
-                            },
-                            ExternalTrip {
-                                departure: return_time,
-                                destination: ExternalTripEndpoint::Position(desire.home),
-                                mode,
-                            },
-                        ],
-                    });
-                }
-            }
+    let mut people = Vec::new();
+    for od in input {
+        for _ in 0..od.count {
+            let leave_time = rand_time(&mut rng, Duration::hours(7), Duration::hours(9));
+            let return_time = rand_time(&mut rng, Duration::hours(17), Duration::hours(19));
+            people.push(ExternalPerson {
+                origin: ExternalTripEndpoint::Position(od.home),
+                trips: vec![
+                    ExternalTrip {
+                        departure: leave_time,
+                        destination: ExternalTripEndpoint::Position(od.work),
+                        mode: od.mode,
+                    },
+                    ExternalTrip {
+                        departure: return_time,
+                        destination: ExternalTripEndpoint::Position(od.home),
+                        mode: od.mode,
+                    },
+                ],
+            });
         }
     }
 
-    let mut baseline = Scenario::empty(&map, "baseline");
+    let mut scenario = Scenario::empty(map, name);
     // Include all buses/trains
-    baseline.only_seed_buses = None;
-    baseline.people = ExternalPerson::import(map, baseline_people).unwrap();
-    baseline.save();
-
-    let mut go_dutch = Scenario::empty(&map, "go_dutch");
-    go_dutch.only_seed_buses = None;
-    go_dutch.people = ExternalPerson::import(map, go_dutch_people).unwrap();
-    go_dutch.save();
+    scenario.only_seed_buses = None;
+    scenario.people = ExternalPerson::import(map, people).unwrap();
+    scenario.save();
 }
 
 // TODO Dedupe the many copies of these

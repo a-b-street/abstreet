@@ -230,7 +230,7 @@ fn main() {
             }
 
             if job.city == "cambridge" {
-                actdev::import_scenarios(maybe_map.as_ref().unwrap(), &config, &mut timer).unwrap();
+                actdev::import_scenarios(maybe_map.as_ref().unwrap(), &config).unwrap();
             }
         }
     }
