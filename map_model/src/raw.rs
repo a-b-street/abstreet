@@ -5,6 +5,7 @@
 use std::collections::BTreeMap;
 use std::fmt;
 
+use crate::anyhow::Context;
 use anyhow::Result;
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
@@ -173,7 +174,10 @@ impl RawMap {
         };
         let mut roads = BTreeMap::new();
         for r in &i.roads {
-            roads.insert(*r, initial::Road::new(*r, &self.roads[r], &self.config));
+            roads.insert(
+                *r,
+                initial::Road::new(*r, &self.roads[r], &self.config).unwrap(),
+            );
         }
 
         let (poly, debug) = initial::intersection_polygon(&i, &mut roads, timer).unwrap();
@@ -185,6 +189,33 @@ impl RawMap {
                 .collect(),
             debug,
         )
+    }
+
+    /// Generate the trimmed `PolyLine` for a single RawRoad by calculating both intersections
+    pub fn trimmed_road_geometry(&self, road: OriginalRoad) -> Option<PolyLine> {
+        use crate::make::initial;
+
+        let mut roads = BTreeMap::new();
+        for id in vec![road.i1, road.i2] {
+            for r in self.roads_per_intersection(id) {
+                roads.insert(
+                    r,
+                    initial::Road::new(r, &self.roads[&r], &self.config).ok()?,
+                );
+            }
+        }
+        for id in vec![road.i1, road.i2] {
+            let i = initial::Intersection {
+                id,
+                polygon: Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(1.0)).to_polygon(),
+                roads: self.roads_per_intersection(id).into_iter().collect(),
+                intersection_type: self.intersections[&id].intersection_type,
+                elevation: self.intersections[&id].elevation,
+            };
+            initial::intersection_polygon(&i, &mut roads, &mut Timer::throwaway()).unwrap();
+        }
+
+        Some(roads.remove(&road).unwrap().trimmed_center_pts)
     }
 
     pub fn save(&self) {
@@ -388,7 +419,7 @@ pub struct RawRoad {
 
 impl RawRoad {
     /// Returns the corrected center and total width
-    pub fn get_geometry(&self, id: OriginalRoad, cfg: &MapConfig) -> (PolyLine, Distance) {
+    pub fn get_geometry(&self, id: OriginalRoad, cfg: &MapConfig) -> Result<(PolyLine, Distance)> {
         let lane_specs = get_lane_specs_ltr(&self.osm_tags, cfg);
         let mut total_width = Distance::ZERO;
         let mut sidewalk_right = None;
@@ -405,7 +436,8 @@ impl RawRoad {
         }
 
         // If there's a sidewalk on only one side, adjust the true center of the road.
-        let mut true_center = PolyLine::new(self.center_points.clone()).expect(&id.to_string());
+        let mut true_center =
+            PolyLine::new(self.center_points.clone()).with_context(|| id.to_string())?;
         match (sidewalk_right, sidewalk_left) {
             (Some(w), None) => {
                 true_center = true_center.must_shift_right(w / 2.0);
@@ -416,7 +448,7 @@ impl RawRoad {
             _ => {}
         }
 
-        (true_center, total_width)
+        Ok((true_center, total_width))
     }
 
     // TODO For the moment, treating all rail things as light rail

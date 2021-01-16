@@ -39,7 +39,7 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
         if r.is_light_rail() || r.is_footway() || r.is_service() {
             continue;
         }
-        let (pl, total_width) = r.get_geometry(*id, &map.config);
+        let (pl, total_width) = r.get_geometry(*id, &map.config).unwrap();
         road_edges.insert(
             (*id, Direction::Fwd),
             pl.must_shift_right(total_width / 2.0),
