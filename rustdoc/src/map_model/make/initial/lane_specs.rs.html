@@ -501,6 +501,12 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
@@ -554,15 +560,21 @@
             <span class="ident">spec</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>;
             <span class="ident">spec</span>
         };
-        <span class="kw">return</span> <span class="ident">assemble_ltr</span>(
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">half_width</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>))],
-            <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
-                <span class="macro">vec</span><span class="macro">!</span>[]
-            } <span class="kw">else</span> {
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">half_width</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>))]
-            },
-            <span class="ident">cfg</span>.<span class="ident">driving_side</span>,
-        );
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd_side</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">half_width</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>))];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">back_side</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+            <span class="macro">vec</span><span class="macro">!</span>[]
+        } <span class="kw">else</span> {
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">half_width</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>))]
+        };
+        <span class="comment">// Cycleways in the UK allow foot traffic by default. Until we have a LaneType for</span>
+        <span class="comment">// shared-use trails, just stick a tiny shoulder on one or both sides.</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;foot&quot;</span>, <span class="string">&quot;no&quot;</span>) {
+            <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">back_side</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
+            }
+        }
+        <span class="kw">return</span> <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
     }
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(
         <span class="ident">osm</span>::<span class="ident">HIGHWAY</span>,
