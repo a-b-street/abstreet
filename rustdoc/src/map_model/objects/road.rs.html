@@ -460,6 +460,13 @@
 <span id="457">457</span>
 <span id="458">458</span>
 <span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -849,6 +856,13 @@
                 .<span class="ident">find</span>(<span class="op">|</span><span class="ident">z</span><span class="op">|</span> <span class="ident">z</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>))
                 .<span class="ident">unwrap</span>(),
         )
+    }
+
+    <span class="doccomment">/// Many roads wind up with almost no length, due to their representation in OpenStreetMap. In</span>
+    <span class="doccomment">/// reality, these segments are likely located within the interior of an intersection. This</span>
+    <span class="doccomment">/// method uses a hardcoded threshold to detect these cases.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_extremely_short</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>)
     }
 }
 

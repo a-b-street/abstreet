@@ -501,6 +501,22 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -651,6 +667,22 @@
     }
 
     <span class="ident">result</span>
+}
+
+<span class="doccomment">/// Filter out crosswalks on really short roads. In reality, these roads are usually located within</span>
+<span class="doccomment">/// an intersection, which isn&#39;t a valid place for a pedestrian crossing.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_turns</span>(<span class="kw-2">mut</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
+    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
+        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_extremely_short</span>() {
+            <span class="ident">input</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
+                <span class="op">!</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">r</span>
+                    <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">r</span>
+                    <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">Crosswalk</span>)
+            });
+        }
+    }
+
+    <span class="ident">input</span>
 }
 
 <span class="comment">// TODO Need to filter out extraneous crosswalks. Why weren&#39;t they being created before?</span>

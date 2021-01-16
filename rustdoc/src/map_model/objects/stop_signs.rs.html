@@ -151,6 +151,9 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -273,7 +276,10 @@
         <span class="comment">// highest-priority roads.</span>
         <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">cfg</span>) <span class="kw">in</span> <span class="ident">ss</span>.<span class="ident">roads</span>.<span class="ident">iter_mut</span>() {
             <span class="kw">if</span> <span class="ident">ranks</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">rank</span>[<span class="ident">r</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">ranks</span>[<span class="number">0</span>] {
-                <span class="ident">cfg</span>.<span class="ident">must_stop</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="comment">// Don&#39;t stop in the middle of something that&#39;s likely actually an intersection.</span>
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_extremely_short</span>() {
+                    <span class="ident">cfg</span>.<span class="ident">must_stop</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                }
             }
         }
         <span class="ident">ss</span>
