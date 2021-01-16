@@ -146,6 +146,7 @@ fn plain_builder<'a>(color_scheme: &ButtonColorScheme) -> ButtonBuilder<'a> {
         .bg_color(color_scheme.bg_disabled, ButtonState::Disabled)
 }
 
+// Captures some constants for uniform styling of icon-only buttons
 fn icon_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
     builder.padding(8.0).image_dims(20.0)
 }
@@ -160,12 +161,7 @@ fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<
         .font_size(30)
 }
 
-// TODO: Move this into impl ButtonBuilder?
+// TODO: inline this now that it's so simple
 fn popup_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {
-    builder
-        .image_path("system/assets/tools/arrow_drop_down.svg")
-        .image_dims(12.0)
-        .stack_spacing(16.0)
-        .label_text(title)
-        .label_first()
+    builder.dropdown().label_text(title)
 }

@@ -558,6 +558,15 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    // Specific UI treatments
+
+    pub fn dropdown(mut self) -> Self {
+        self.image_path("system/assets/tools/arrow_drop_down.svg")
+            .image_dims(12.0)
+            .stack_spacing(12.0)
+            .label_first()
+    }
+
     /// Shorthand method to build a Button wrapped in a Widget
     pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
         Widget::new(Box::new(self.build(ctx, action))).named(action)

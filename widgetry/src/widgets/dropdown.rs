@@ -174,12 +174,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 }
 
 fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool) -> Button {
-    let mut builder = button_builder()
-        .image_path("system/assets/tools/arrow_drop_down.svg")
-        .image_dims(ScreenDims::square(12.0))
-        .stack_spacing(16.0)
-        .label_first();
-
+    let mut builder = button_builder().dropdown();
     if is_persisten_split {
         // Quick hacks to make PersistentSplit's dropdown look a little better.
         // It's not ideal, but we only use one persistent split in the whole app
@@ -188,8 +183,8 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
             .padding(EdgeInsets {
                 top: 13.0,
                 bottom: 13.0,
-                left: 4.0,
-                right: 4.0,
+                left: 8.0,
+                right: 8.0,
             })
             .bg_color(Color::CLEAR, ButtonState::Default)
             .outline(0.0, Color::CLEAR, ButtonState::Default);
