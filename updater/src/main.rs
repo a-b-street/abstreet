@@ -18,16 +18,29 @@ async fn main() {
     let version = args.optional("--version").unwrap_or("dev".to_string());
     if args.enabled("--upload") {
         assert_eq!(version, "dev");
+        args.done();
         upload(version);
-        return;
+    } else if args.enabled("--dry") {
+        let single_file = args.optional_free();
+        args.done();
+        if let Some(path) = single_file {
+            let (local, _) = md5sum(&path);
+            let truth = Manifest::load()
+                .entries
+                .remove(&path)
+                .expect(&format!("{} not in data/MANIFEST.txt", path))
+                .checksum;
+            if local != truth {
+                println!("{} has changed", path);
+            }
+        } else {
+            just_compare();
+        }
+    } else {
+        let quiet = args.enabled("--quiet");
+        args.done();
+        download(version, quiet).await;
     }
-    if args.enabled("--dry") {
-        just_compare();
-        return;
-    }
-    let quiet = args.enabled("--quiet");
-    args.done();
-    download(version, quiet).await;
 }
 
 async fn download(version: String, quiet: bool) {
@@ -175,19 +188,7 @@ fn generate_manifest() -> Manifest {
         print!("> compute md5sum of {}", path);
         std::io::stdout().flush().unwrap();
 
-        // since these files can be very large, computes the md5 hash in chunks
-        let mut file = File::open(&orig_path).unwrap();
-        let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
-        let mut context = md5::Context::new();
-        let mut uncompressed_size_bytes = 0;
-        while let Ok(n) = file.read(&mut buffer) {
-            if n == 0 {
-                break;
-            }
-            uncompressed_size_bytes += n;
-            context.consume(&buffer[..n]);
-        }
-        let checksum = format!("{:x}", context.compute());
+        let (checksum, uncompressed_size_bytes) = md5sum(&orig_path);
         kv.insert(
             path,
             Entry {
@@ -200,6 +201,23 @@ fn generate_manifest() -> Manifest {
     }
     println!();
     Manifest { entries: kv }
+}
+
+/// Returns (checksum, uncompressed_size_bytes)
+fn md5sum(path: &str) -> (String, usize) {
+    // since these files can be very large, computes the md5 hash in chunks
+    let mut file = File::open(path).unwrap();
+    let mut buffer = [0 as u8; MD5_BUF_READ_SIZE];
+    let mut context = md5::Context::new();
+    let mut uncompressed_size_bytes = 0;
+    while let Ok(n) = file.read(&mut buffer) {
+        if n == 0 {
+            break;
+        }
+        uncompressed_size_bytes += n;
+        context.consume(&buffer[..n]);
+    }
+    (format!("{:x}", context.compute()), uncompressed_size_bytes)
 }
 
 fn must_run_cmd(cmd: &mut Command) {
