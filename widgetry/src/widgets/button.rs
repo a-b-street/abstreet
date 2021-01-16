@@ -464,9 +464,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_dims(mut self, dims: ScreenDims) -> Self {
+    pub fn image_dims<D: Into<ScreenDims>>(mut self, dims: D) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
-        image.dims = Some(dims);
+        image.dims = Some(dims.into());
         self.default_style.image = Some(image);
         self
     }

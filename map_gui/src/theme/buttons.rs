@@ -6,10 +6,10 @@ pub trait Buttons<'a> {
     fn btn_primary_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_primary_dark().label_text(text)
     }
-    fn btn_primary_dark_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        image_padding(self.btn_primary_dark().image_path(image_path))
+    fn btn_primary_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_primary_dark().image_path(image_path))
     }
-    fn btn_primary_dark_image_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
+    fn btn_primary_dark_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_primary_dark()
             .label_text(text)
             .image_path(image_path)
@@ -20,10 +20,10 @@ pub trait Buttons<'a> {
     fn btn_secondary_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_secondary_dark().label_text(text)
     }
-    fn btn_secondary_dark_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        image_padding(self.btn_secondary_dark().image_path(image_path))
+    fn btn_secondary_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_secondary_dark().image_path(image_path))
     }
-    fn btn_secondary_dark_image_text(
+    fn btn_secondary_dark_icon_text(
         &self,
         image_path: &'a str,
         text: &'a str,
@@ -38,14 +38,10 @@ pub trait Buttons<'a> {
     fn btn_primary_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_primary_light().label_text(text)
     }
-    fn btn_primary_light_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        image_padding(self.btn_primary_light().image_path(image_path))
+    fn btn_primary_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_primary_light().image_path(image_path))
     }
-    fn btn_primary_light_image_text(
-        &self,
-        image_path: &'a str,
-        text: &'a str,
-    ) -> ButtonBuilder<'a> {
+    fn btn_primary_light_icon_text(&self, image_path: &'a str, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_primary_light()
             .label_text(text)
             .image_path(image_path)
@@ -56,10 +52,10 @@ pub trait Buttons<'a> {
     fn btn_secondary_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_secondary_light().label_text(text)
     }
-    fn btn_secondary_light_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        image_padding(self.btn_secondary_light().image_path(image_path))
+    fn btn_secondary_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_secondary_light().image_path(image_path))
     }
-    fn btn_secondary_light_image_text(
+    fn btn_secondary_light_icon_text(
         &self,
         image_path: &'a str,
         text: &'a str,
@@ -74,25 +70,37 @@ pub trait Buttons<'a> {
     fn btn_plain_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_plain_dark().label_text(text)
     }
-    fn btn_plain_dark_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        image_padding(self.btn_plain_dark().image_path(image_path))
+    fn btn_plain_dark_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_plain_dark().image_path(image_path))
     }
 
     fn btn_plain_light(&self) -> ButtonBuilder<'a>;
     fn btn_plain_light_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_plain_light().label_text(text)
     }
-    fn btn_plain_light_image(&self, image_path: &'a str) -> ButtonBuilder<'a> {
-        image_padding(self.btn_plain_light().image_path(image_path))
+    fn btn_plain_light_icon(&self, image_path: &'a str) -> ButtonBuilder<'a> {
+        icon_button(self.btn_plain_light().image_path(image_path))
     }
 
     // Specific UI Elements
 
     /// title: name of previous screen, which you'll return to
-    fn btn_back_light(&self, title: &'a str) -> ButtonBuilder<'a>;
+    fn btn_back_light(&self, title: &'a str) -> ButtonBuilder<'a> {
+        back_button(self.btn_plain_light(), title)
+    }
 
     /// title: name of previous screen, which you'll return to
-    fn btn_back_dark(&self, title: &'a str) -> ButtonBuilder<'a>;
+    fn btn_back_dark(&self, title: &'a str) -> ButtonBuilder<'a> {
+        back_button(self.btn_plain_dark(), title)
+    }
+
+    fn btn_popup_light(&self, text: &'a str) -> ButtonBuilder<'a> {
+        popup_button(self.btn_secondary_light(), text)
+    }
+
+    fn btn_popup_dark(&self, text: &'a str) -> ButtonBuilder<'a> {
+        popup_button(self.btn_secondary_dark(), text)
+    }
 }
 
 impl<'a> Buttons<'a> for ColorScheme {
@@ -125,16 +133,6 @@ impl<'a> Buttons<'a> for ColorScheme {
         let colors = &self.btn_secondary_light;
         plain_builder(colors)
     }
-
-    // specific UI elements
-
-    fn btn_back_light(&self, title: &'a str) -> ButtonBuilder<'a> {
-        back_button(self.btn_plain_light(), title)
-    }
-
-    fn btn_back_dark(&self, title: &'a str) -> ButtonBuilder<'a> {
-        back_button(self.btn_plain_dark(), title)
-    }
 }
 
 fn plain_builder<'a>(color_scheme: &ButtonColorScheme) -> ButtonBuilder<'a> {
@@ -148,10 +146,11 @@ fn plain_builder<'a>(color_scheme: &ButtonColorScheme) -> ButtonBuilder<'a> {
         .bg_color(color_scheme.bg_disabled, ButtonState::Disabled)
 }
 
-fn image_padding<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
-    builder.padding(4)
+fn icon_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
+    builder.padding(8.0).image_dims(20.0)
 }
 
+// TODO: Move this into impl ButtonBuilder?
 fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {
     // DESIGN REVIEW: this button seems absurdly large
     builder

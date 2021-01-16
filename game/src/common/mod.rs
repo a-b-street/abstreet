@@ -291,18 +291,10 @@ impl CommonState {
 
 // TODO Kinda misnomer
 pub fn tool_panel(ctx: &mut EventCtx, app: &App) -> Panel {
-    // This doesn't look great with the built-in panel margins and row item-spacing
-    // TODO: customizable panel margins and row item-spacing
-    let buttons = app
-        .cs
-        .btn_plain_light()
-        .image_dims(ScreenDims::square(20.0))
-        .padding(4)
-        .image_content_mode(ContentMode::ScaleAspectFill);
+    let buttons = app.cs.btn_plain_light_icon("system/assets/tools/home.svg");
     Panel::new(Widget::row(vec![
         buttons
             .clone()
-            .image_path("system/assets/tools/home.svg")
             .hotkey(Key::Escape)
             .build_widget(ctx, "back"),
         buttons

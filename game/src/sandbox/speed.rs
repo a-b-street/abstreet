@@ -49,15 +49,11 @@ impl SpeedControls {
         row.push({
             let button = app
                 .cs
-                .btn_primary_light()
-                .image_dims(ScreenDims::square(20.0))
-                .padding(8.0)
+                .btn_primary_light_icon("system/assets/speed/triangle.svg")
                 .hotkey(Key::Space);
 
             Widget::custom_row(vec![if self.paused {
-                button
-                    .image_path("system/assets/speed/triangle.svg")
-                    .build_widget(ctx, "play")
+                button.clone().build_widget(ctx, "play")
             } else {
                 button
                     .image_path("system/assets/speed/pause.svg")

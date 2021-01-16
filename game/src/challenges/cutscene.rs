@@ -171,7 +171,8 @@ fn make_panel(
 ) -> Panel {
     let mut prev = app
         .cs
-        .btn_plain_dark_image("system/assets/tools/prev.svg")
+        .btn_plain_dark_icon("system/assets/tools/prev.svg")
+        .image_dims(45.0)
         .hotkey(Key::LeftArrow)
         .bg_color(Color::CLEAR, ButtonState::Disabled);
     if idx == 0 {
@@ -181,7 +182,8 @@ fn make_panel(
 
     let next = app
         .cs
-        .btn_plain_dark_image("system/assets/tools/next.svg")
+        .btn_plain_dark_icon("system/assets/tools/next.svg")
+        .image_dims(45.0)
         .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
         .build_widget(ctx, "next");
 
@@ -246,7 +248,7 @@ fn make_panel(
             }
             .margin_above(100),
             Widget::col(vec![
-                Widget::row(vec![prev, next]).centered_horiz(),
+                Widget::row(vec![prev.margin_right(40), next]).centered_horiz(),
                 app.cs
                     .btn_secondary_dark_text("Skip cutscene")
                     .build_def(ctx)

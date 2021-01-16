@@ -113,8 +113,8 @@ impl ScreenDims {
         }
     }
 
-    pub fn square(width: f64) -> Self {
-        Self::new(width, width)
+    pub fn square(square: f64) -> Self {
+        Self::new(square, square)
     }
 
     pub fn top_left_for_corner(&self, corner: ScreenPt, canvas: &Canvas) -> ScreenPt {
@@ -157,5 +157,11 @@ impl From<winit::dpi::LogicalSize<f64>> for ScreenDims {
 impl From<ScreenDims> for winit::dpi::LogicalSize<f64> {
     fn from(dims: ScreenDims) -> winit::dpi::LogicalSize<f64> {
         winit::dpi::LogicalSize::new(dims.width, dims.height)
+    }
+}
+
+impl From<f64> for ScreenDims {
+    fn from(square: f64) -> ScreenDims {
+        ScreenDims::square(square)
     }
 }
