@@ -5,7 +5,7 @@ use anyhow::Result;
 use serde::Deserialize;
 
 use geom::{Distance, FindClosest, LonLat, Time};
-use map_model::Map;
+use map_model::{IntersectionID, Map, PathConstraints};
 
 use crate::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
@@ -39,14 +39,9 @@ impl ExternalPerson {
         for b in map.all_buildings() {
             closest.add(TripEndpoint::Bldg(b.id), b.polygon.points());
         }
-        let mut borders = Vec::new();
-        for i in map.all_intersections() {
-            if i.is_border() {
-                borders.push((TripEndpoint::Border(i.id), i.polygon.center()));
-            }
-        }
+        let borders = MapBorders::new(map);
 
-        let lookup_pt = |endpt| match endpt {
+        let lookup_pt = |endpt, is_origin, mode| match endpt {
             ExternalTripEndpoint::TripEndpoint(endpt) => Ok(endpt),
             ExternalTripEndpoint::Position(gps) => {
                 let pt = gps.to_pt(map.get_gps_bounds());
@@ -56,12 +51,15 @@ impl ExternalPerson {
                         None => Err(anyhow!("No building within 100m of {}", gps)),
                     }
                 } else {
-                    Ok(borders
-                        .iter()
-                        .min_by_key(|(_, border)| border.fast_dist(pt))
-                        .unwrap()
-                        .0
-                        .clone())
+                    let (incoming, outgoing) = borders.for_mode(mode);
+                    let candidates = if is_origin { incoming } else { outgoing };
+                    Ok(TripEndpoint::Border(
+                        candidates
+                            .iter()
+                            .min_by_key(|(_, border)| border.fast_dist(gps))
+                            .ok_or_else(|| anyhow!("No border for {}", mode.ongoing_verb()))?
+                            .0,
+                    ))
                 }
             }
         };
@@ -70,7 +68,7 @@ impl ExternalPerson {
         for person in input {
             let mut spec = PersonSpec {
                 orig_id: None,
-                origin: lookup_pt(person.origin)?,
+                origin: lookup_pt(person.origin, true, person.trips[0].mode)?,
                 trips: Vec::new(),
             };
             for trip in person.trips {
@@ -78,12 +76,94 @@ impl ExternalPerson {
                 spec.trips.push(IndividTrip::new(
                     trip.departure,
                     TripPurpose::Shopping,
-                    lookup_pt(trip.destination)?,
+                    // TODO Do we handle somebody going off-map via one one-way bridge, and
+                    // re-entering using the other?
+                    lookup_pt(trip.destination, false, trip.mode)?,
                     trip.mode,
                 ));
             }
             results.push(spec);
         }
         Ok(results)
+    }
+}
+
+pub struct MapBorders {
+    pub incoming_walking: Vec<(IntersectionID, LonLat)>,
+    pub incoming_driving: Vec<(IntersectionID, LonLat)>,
+    pub incoming_biking: Vec<(IntersectionID, LonLat)>,
+    pub outgoing_walking: Vec<(IntersectionID, LonLat)>,
+    pub outgoing_driving: Vec<(IntersectionID, LonLat)>,
+    pub outgoing_biking: Vec<(IntersectionID, LonLat)>,
+}
+
+impl MapBorders {
+    pub fn new(map: &Map) -> MapBorders {
+        let bounds = map.get_gps_bounds();
+        let incoming_walking: Vec<(IntersectionID, LonLat)> = map
+            .all_incoming_borders()
+            .into_iter()
+            .filter(|i| {
+                !i.get_outgoing_lanes(map, PathConstraints::Pedestrian)
+                    .is_empty()
+            })
+            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
+            .collect();
+        let incoming_driving: Vec<(IntersectionID, LonLat)> = map
+            .all_incoming_borders()
+            .into_iter()
+            .filter(|i| !i.get_outgoing_lanes(map, PathConstraints::Car).is_empty())
+            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
+            .collect();
+        let incoming_biking: Vec<(IntersectionID, LonLat)> = map
+            .all_incoming_borders()
+            .into_iter()
+            .filter(|i| !i.get_outgoing_lanes(map, PathConstraints::Bike).is_empty())
+            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
+            .collect();
+        let outgoing_walking: Vec<(IntersectionID, LonLat)> = map
+            .all_outgoing_borders()
+            .into_iter()
+            .filter(|i| {
+                !i.get_incoming_lanes(map, PathConstraints::Pedestrian)
+                    .is_empty()
+            })
+            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
+            .collect();
+        let outgoing_driving: Vec<(IntersectionID, LonLat)> = map
+            .all_outgoing_borders()
+            .into_iter()
+            .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Car).is_empty())
+            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
+            .collect();
+        let outgoing_biking: Vec<(IntersectionID, LonLat)> = map
+            .all_outgoing_borders()
+            .into_iter()
+            .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Bike).is_empty())
+            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
+            .collect();
+        MapBorders {
+            incoming_walking,
+            incoming_driving,
+            incoming_biking,
+            outgoing_walking,
+            outgoing_driving,
+            outgoing_biking,
+        }
+    }
+
+    /// Returns the (incoming, outgoing) borders for the specififed mode.
+    pub fn for_mode(
+        &self,
+        mode: TripMode,
+    ) -> (
+        &Vec<(IntersectionID, LonLat)>,
+        &Vec<(IntersectionID, LonLat)>,
+    ) {
+        match mode {
+            TripMode::Walk | TripMode::Transit => (&self.incoming_walking, &self.outgoing_walking),
+            TripMode::Drive => (&self.incoming_driving, &self.outgoing_driving),
+            TripMode::Bike => (&self.incoming_biking, &self.outgoing_biking),
+        }
     }
 }

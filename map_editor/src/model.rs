@@ -306,7 +306,9 @@ impl Model {
     }
 
     fn road_object(&self, id: OriginalRoad) -> Object<ID> {
-        let (center, total_width) = self.map.roads[&id].get_geometry(id, &self.map.config);
+        let (center, total_width) = self.map.roads[&id]
+            .get_geometry(id, &self.map.config)
+            .unwrap();
         Object::new(
             ID::Road(id),
             Color::grey(0.8),

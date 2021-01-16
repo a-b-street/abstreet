@@ -661,14 +661,14 @@
       "compressed_size_bytes": 9924393
     },
     "data/system/cambridge/scenarios/trumpington/baseline.bin": {
-      "checksum": "b26dd3395d63b23613be2f6e3f596e93",
+      "checksum": "5f560b95626e8635c00783d26d02be01",
       "uncompressed_size_bytes": 71752,
-      "compressed_size_bytes": 18925
+      "compressed_size_bytes": 18975
     },
     "data/system/cambridge/scenarios/trumpington/go_dutch.bin": {
-      "checksum": "b9af9a890c908f641b5773c50c731cb6",
+      "checksum": "a943a280ba33228e5b88d41ca9e73939",
       "uncompressed_size_bytes": 71752,
-      "compressed_size_bytes": 18772
+      "compressed_size_bytes": 18825
     },
     "data/system/detroit/maps/downtown.bin": {
       "checksum": "a582e9865daf7055e676cda6dad1800f",
