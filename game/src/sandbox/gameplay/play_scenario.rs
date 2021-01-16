@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use maplit::btreeset;
 
+use map_gui::theme::Buttons;
 use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
@@ -115,29 +116,30 @@ impl GameplayState for PlayScenario {
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 "Map:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
-                    ctx,
-                    "change map",
-                    lctrl(Key::L),
-                ),
+                app.cs
+                    .btn_popup_light(nice_map_name(app.primary.map.get_name()))
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "change map"),
                 "Scenario:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(&self.scenario_name)).build(ctx, "change scenario", Key::S),
-                Btn::svg_def("system/assets/tools/edit_map.svg").build(
-                    ctx,
-                    "edit map",
-                    lctrl(Key::E),
-                ),
+                app.cs
+                    .btn_popup_light(&self.scenario_name)
+                    .hotkey(Key::S)
+                    .build_widget(ctx, "change scenario"),
+                app.cs
+                    .btn_secondary_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
+                    .hotkey(lctrl(Key::E))
+                    .build_widget(ctx, "edit map"),
             ])
             .centered(),
             if self.scenario_name != "empty" {
                 Widget::row(vec![
-                    Btn::svg_def("system/assets/tools/pencil.svg").build(
-                        ctx,
-                        "edit traffic patterns",
-                        None,
-                    ),
+                    app.cs
+                        .btn_primary_light_icon("system/assets/tools/pencil.svg")
+                        .build_widget(ctx, "edit traffic patterns")
+                        .centered_vert(),
                     format!("{} modifications to traffic patterns", self.modifiers.len())
-                        .draw_text(ctx),
+                        .draw_text(ctx)
+                        .centered_vert(),
                 ])
                 .centered_horiz()
             } else {

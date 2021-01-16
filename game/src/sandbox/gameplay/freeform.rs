@@ -107,15 +107,17 @@ impl GameplayState for Freeform {
                 Line("Sandbox").small_heading().draw(ctx),
                 Widget::vert_separator(ctx, 50.0),
                 "Map:".draw_text(ctx),
-                Btn::pop_up(ctx, Some(nice_map_name(app.primary.map.get_name()))).build(
-                    ctx,
-                    "change map",
-                    lctrl(Key::L),
-                ),
-                "Scenario:".draw_text(ctx),
-                Btn::pop_up(ctx, Some("none")).build(ctx, "change scenario", Key::S),
                 app.cs
-                    .btn_secondary_light_image_text("system/assets/tools/pencil.svg", "Edit map")
+                    .btn_popup_light(nice_map_name(app.primary.map.get_name()))
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "change map"),
+                "Scenario:".draw_text(ctx),
+                app.cs
+                    .btn_popup_light("none")
+                    .hotkey(Key::S)
+                    .build_widget(ctx, "change scenario"),
+                app.cs
+                    .btn_secondary_light_icon_text("system/assets/tools/pencil.svg", "Edit map")
                     .hotkey(lctrl(Key::E))
                     .build_widget(ctx, "edit map"),
             ])

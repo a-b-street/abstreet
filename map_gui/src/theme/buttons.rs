@@ -159,3 +159,13 @@ fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<
         .padding_left(8.0)
         .font_size(30)
 }
+
+// TODO: Move this into impl ButtonBuilder?
+fn popup_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {
+    builder
+        .image_path("system/assets/tools/arrow_drop_down.svg")
+        .image_dims(12.0)
+        .stack_spacing(16.0)
+        .label_text(title)
+        .label_first()
+}
