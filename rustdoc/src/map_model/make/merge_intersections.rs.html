@@ -39,11 +39,28 @@
 <span id="36">36</span>
 <span id="37">37</span>
 <span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
+<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">osm</span>::<span class="ident">NodeID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span>;
+
+<span class="comment">// Manually adjust this to try locally. Need to work through issues with merging before enabling</span>
+<span class="comment">// generally.</span>
+<span class="kw">const</span> <span class="ident">SHORT_ROAD_THRESHOLD</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">0.0</span>);
 
 <span class="doccomment">/// Merge tiny &quot;roads&quot; that&#39;re actually just part of a complicated intersection. Returns all</span>
 <span class="doccomment">/// surviving intersections adjacent to one of these merged roads.</span>
@@ -58,7 +75,12 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changes</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">clone</span>() {
             <span class="comment">// See https://wiki.openstreetmap.org/wiki/Proposed_features/junction%3Dintersection</span>
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>) {
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>)
+                <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>
+                    .<span class="ident">trimmed_road_geometry</span>(<span class="ident">id</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">SHORT_ROAD_THRESHOLD</span>)
+                    .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+            {
                 <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">merge_short_road</span>(<span class="ident">id</span>) {
                     <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">merged</span>.<span class="ident">insert</span>(<span class="ident">i</span>);
@@ -66,7 +88,7 @@
                         <span class="kw">break</span>;
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Ignoring junction=intersection: {}&quot;</span>, <span class="ident">err</span>);
+                        <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Not merging short road / junction=intersection: {}&quot;</span>, <span class="ident">err</span>);
                     }
                 }
             }
