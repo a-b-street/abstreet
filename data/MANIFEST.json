@@ -61,9 +61,9 @@
       "compressed_size_bytes": 3400814
     },
     "data/input/cambridge/screenshots/trumpington.zip": {
-      "checksum": "6fa57aabcc7bcf651a72a064e74dbcfb",
-      "uncompressed_size_bytes": 39332562,
-      "compressed_size_bytes": 39309219
+      "checksum": "d7e8c8cbe53a609e432ad99a10bff3a5",
+      "uncompressed_size_bytes": 39332389,
+      "compressed_size_bytes": 39309058
     },
     "data/input/detroit/osm/downtown.osm": {
       "checksum": "5c8dd6ecc94a80879bac965ef624e2e7",
@@ -96,9 +96,9 @@
       "compressed_size_bytes": 3735845
     },
     "data/input/krakow/screenshots/center.zip": {
-      "checksum": "1b9271c5371beda3e510c49ef8a6fe4f",
-      "uncompressed_size_bytes": 26868391,
-      "compressed_size_bytes": 26863087
+      "checksum": "b4991c7c61593e90ebc5fca8827203d8",
+      "uncompressed_size_bytes": 26868675,
+      "compressed_size_bytes": 26863345
     },
     "data/input/leeds/Road Safety Data - Accidents 2019.csv": {
       "checksum": "ce30e6f7743be7b451e298583c65f99a",
@@ -576,24 +576,24 @@
       "compressed_size_bytes": 6037734
     },
     "data/input/seattle/screenshots/downtown.zip": {
-      "checksum": "954dbbb70bc05516fa2c2153c15a9a66",
-      "uncompressed_size_bytes": 22167033,
-      "compressed_size_bytes": 22158388
+      "checksum": "96f114884895ce4171994d8a5d0d69fc",
+      "uncompressed_size_bytes": 22166719,
+      "compressed_size_bytes": 22158145
     },
     "data/input/seattle/screenshots/lakeslice.zip": {
-      "checksum": "2707a77188ca0d8a1d4e30202c44965e",
-      "uncompressed_size_bytes": 21540280,
-      "compressed_size_bytes": 21533736
+      "checksum": "c71dfca622c74efa217497540cb8589e",
+      "uncompressed_size_bytes": 21541093,
+      "compressed_size_bytes": 21534566
     },
     "data/input/seattle/screenshots/montlake.zip": {
-      "checksum": "63b59a10dbf211af822115ded5621379",
-      "uncompressed_size_bytes": 4190009,
-      "compressed_size_bytes": 4189755
+      "checksum": "b3b1fdd2fd670ff46a7eea5ccb10d15b",
+      "uncompressed_size_bytes": 4189929,
+      "compressed_size_bytes": 4189663
     },
     "data/input/seattle/screenshots/udistrict.zip": {
-      "checksum": "3a9f0f43b144f5d3349f329677e5832b",
-      "uncompressed_size_bytes": 10239601,
-      "compressed_size_bytes": 10236225
+      "checksum": "932e5c46eea902e40fb891e6c7a2f7e2",
+      "uncompressed_size_bytes": 10240972,
+      "compressed_size_bytes": 10237641
     },
     "data/input/seattle/service_roads.bin": {
       "checksum": "cee771e67c5487db177526199f1b73ab",

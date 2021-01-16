@@ -396,7 +396,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
         for _ in 0..=num_markings {
             let pt1 = line.dist_along(dist_along).expect(&err);
             // Reuse perp_line. Project away an arbitrary amount
-            let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
+            let pt2 = pt1.project_away(Distance::meters(1.0), line.angle());
             let general_road_marking =
                 cs.general_road_marking(map.get_i(turn.id.parent).get_rank(map));
             batch.push(
@@ -408,7 +408,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             let pt3 = line
                 .dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS)
                 .expect(&err);
-            let pt4 = pt3.project_away(Distance::meters(1.0), turn.angle());
+            let pt4 = pt3.project_away(Distance::meters(1.0), line.angle());
             batch.push(
                 general_road_marking,
                 perp_line(Line::must_new(pt3, pt4), width).make_polygons(CROSSWALK_LINE_THICKNESS),
