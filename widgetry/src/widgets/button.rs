@@ -151,7 +151,6 @@ impl WidgetImpl for Button {
 pub struct Btn {}
 
 impl Btn {
-    #[deprecated]
     pub fn svg<I: Into<String>>(path: I, rewrite_hover: RewriteColor) -> BtnBuilder {
         BtnBuilder::SVG {
             path: path.into(),
@@ -351,6 +350,7 @@ pub enum ContentMode {
 pub struct Label<'a> {
     text: Option<&'a str>,
     color: Option<Color>,
+    styled_text: Option<Text>,
     font_size: Option<usize>,
     font: Option<Font>,
 }
@@ -430,6 +430,20 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         let mut label = self.default_style.label.take().unwrap_or_default();
         label.text = Some(text);
         self.default_style.label = Some(label);
+        self
+    }
+
+    /// Assign a pre-styled `Text` instance if your button need something more than uniformly
+    /// colored text.
+    pub fn label_styled_text(mut self, styled_text: Text, for_state: ButtonState) -> Self {
+        let state_style = self.style_mut(for_state);
+        let mut label = state_style.label.take().unwrap_or_default();
+        label.styled_text = Some(styled_text);
+        // Unset plain `text` to avoid confusion. Alternatively we could assign the inner text -
+        // something like:
+        //      label.text = styled_text.rows.map(|r|r.text).join(" ")
+        label.text = None;
+        state_style.label = Some(label);
         self
     }
 
@@ -560,7 +574,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     // Specific UI treatments
 
-    pub fn dropdown(mut self) -> Self {
+    pub fn dropdown(self) -> Self {
         self.image_path("system/assets/tools/arrow_drop_down.svg")
             .image_dims(12.0)
             .stack_spacing(12.0)
@@ -666,6 +680,15 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .or(default_style.label.as_ref())
             .and_then(|label| {
                 let default = default_style.label.as_ref();
+
+                if let Some(styled_text) = label
+                    .styled_text
+                    .as_ref()
+                    .or(default.and_then(|d| d.styled_text.as_ref()))
+                {
+                    return Some(styled_text.clone().bg(Color::CLEAR).render(ctx));
+                }
+
                 let text = label.text.or(default.and_then(|d| d.text));
 
                 // Is there a better way to do this like a `guard let`?

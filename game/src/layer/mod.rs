@@ -4,8 +4,8 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::hotkey_btn;
 use crate::sandbox::dashboards;
+use map_gui::theme::Buttons;
 
 mod elevation;
 pub mod favorites;
@@ -92,11 +92,11 @@ impl PickLayer {
             Some(ref l) => l.name().unwrap_or(""),
         };
         let btn = |name: &str, key| {
+            let mut button = app.cs.btn_hotkey_light(name, key);
             if name == current {
-                Btn::text_bg2(name).inactive(ctx)
-            } else {
-                hotkey_btn(ctx, app, name, key)
+                button = button.disabled();
             }
+            button.build_widget(ctx, name)
         };
 
         col.push(btn("None", Key::N));

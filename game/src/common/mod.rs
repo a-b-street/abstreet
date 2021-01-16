@@ -5,9 +5,8 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, ContentMode, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Panel, ScreenDims, ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment,
-    Widget,
+    lctrl, Checkbox, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    ScreenDims, ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment, Widget,
 };
 
 pub use self::minimap::MinimapController;
@@ -374,13 +373,10 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
     }
 }
 
-// TODO Well, there goes the nice consolidation of stuff in BtnBuilder. :\
-pub fn hotkey_btn<I: Into<String>>(ctx: &EventCtx, app: &App, label: I, key: Key) -> Widget {
-    let label = label.into();
-    let mut txt = Text::new();
-    txt.append(key.txt(ctx));
-    txt.append(Line(format!(" - {}", label)));
-    Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, key)
+pub fn hotkey_btn(ctx: &EventCtx, app: &App, label: &str, key: Key) -> Widget {
+    app.cs
+        .btn_hotkey_light(label, key)
+        .build_widget(ctx, &label)
 }
 
 pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {

@@ -372,7 +372,7 @@ impl InfoPanel {
             if let Some(id) = maybe_id.clone() {
                 for (key, label) in ctx_actions.actions(app, id) {
                     cached_actions.push(key);
-                    col.push(hotkey_btn(ctx, app, label, key));
+                    col.push(hotkey_btn(ctx, app, &label, key));
                 }
             }
         }

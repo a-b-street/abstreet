@@ -101,9 +101,37 @@ pub trait Buttons<'a> {
     fn btn_popup_dark(&self, text: &'a str) -> ButtonBuilder<'a> {
         popup_button(self.btn_secondary_dark(), text)
     }
+
+    fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
 }
 
+use widgetry::{Key, Line, Text};
 impl<'a> Buttons<'a> for ColorScheme {
+    fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
+        let default = {
+            let mut txt = Text::new();
+            let key_txt = Line(key.describe()).fg(self.gui_style.hotkey_color);
+            txt.append(key_txt);
+            let label_text = Line(format!(" - {}", label)).fg(self.btn_primary_light.fg);
+            txt.append(label_text);
+            txt
+        };
+
+        let disabled = {
+            let mut txt = Text::new();
+            let key_txt = Line(key.describe()).fg(self.gui_style.hotkey_color.alpha(0.3));
+            txt.append(key_txt);
+            let label_text = Line(format!(" - {}", label)).fg(self.btn_primary_light.fg_disabled);
+            txt.append(label_text);
+            txt
+        };
+
+        self.btn_primary_light()
+            .label_styled_text(default, ButtonState::Default)
+            .label_styled_text(disabled, ButtonState::Disabled)
+            .hotkey(key)
+    }
+
     fn btn_primary_dark(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_primary_dark;
         plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)

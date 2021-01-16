@@ -4,9 +4,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
-    ButtonBuilder, ButtonState, Choice, Color, ContentMode, EdgeInsets, EventCtx, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, Text,
-    VerticalAlignment, Widget,
+    ButtonState, Choice, Color, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
