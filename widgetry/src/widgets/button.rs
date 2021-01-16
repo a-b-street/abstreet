@@ -567,6 +567,8 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Spacing between the image and text of a button.
+    /// Has no effect if the button is text-only or image-only.
     pub fn stack_spacing(mut self, value: f64) -> Self {
         self.stack_spacing = value;
         self
