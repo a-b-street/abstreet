@@ -7,6 +7,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, MapLoader};
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
+use map_gui::theme::Buttons;
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
@@ -430,8 +431,10 @@ impl AgentMeter {
                 } else {
                     Widget::nothing()
                 },
-                Btn::svg_def("system/assets/meters/trip_histogram.svg")
-                    .build(ctx, "more data", Key::Q)
+                app.cs
+                    .btn_primary_light_icon("system/assets/meters/trip_histogram.svg")
+                    .hotkey(Key::Q)
+                    .build_widget(ctx, "more data")
                     .align_right(),
             ]),
         ];
