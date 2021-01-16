@@ -656,9 +656,9 @@
       "compressed_size_bytes": 7993697
     },
     "data/system/cambridge/maps/trumpington.bin": {
-      "checksum": "e8f492e567a5c4bb1fc94a4808fba708",
-      "uncompressed_size_bytes": 27952728,
-      "compressed_size_bytes": 9924393
+      "checksum": "32ddf72e08e092f27878d5f107088afa",
+      "uncompressed_size_bytes": 29854323,
+      "compressed_size_bytes": 10558107
     },
     "data/system/cambridge/scenarios/trumpington/baseline.bin": {
       "checksum": "5f560b95626e8635c00783d26d02be01",

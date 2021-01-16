@@ -338,9 +338,15 @@ impl Road {
     }
 
     pub fn is_cycleway(&self) -> bool {
-        self.lanes_ltr()
-            .into_iter()
-            .all(|(_, _, lt)| lt == LaneType::Biking)
+        let mut bike = false;
+        for (_, _, lt) in self.lanes_ltr() {
+            if lt == LaneType::Biking {
+                bike = true;
+            } else if lt != LaneType::Shoulder {
+                return false;
+            }
+        }
+        bike
     }
 
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {

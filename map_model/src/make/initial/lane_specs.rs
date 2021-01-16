@@ -50,15 +50,21 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
             spec.width = spec.width / 2.0;
             spec
         };
-        return assemble_ltr(
-            vec![half_width(fwd(LaneType::Biking))],
-            if tags.is("oneway", "yes") {
-                vec![]
-            } else {
-                vec![half_width(back(LaneType::Biking))]
-            },
-            cfg.driving_side,
-        );
+        let mut fwd_side = vec![half_width(fwd(LaneType::Biking))];
+        let mut back_side = if tags.is("oneway", "yes") {
+            vec![]
+        } else {
+            vec![half_width(back(LaneType::Biking))]
+        };
+        // Cycleways in the UK allow foot traffic by default. Until we have a LaneType for
+        // shared-use trails, just stick a tiny shoulder on one or both sides.
+        if !tags.is("foot", "no") {
+            fwd_side.push(fwd(LaneType::Shoulder));
+            if !back_side.is_empty() {
+                back_side.push(back(LaneType::Shoulder));
+            }
+        }
+        return assemble_ltr(fwd_side, back_side, cfg.driving_side);
     }
     if tags.is_any(
         osm::HIGHWAY,
