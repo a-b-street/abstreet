@@ -416,8 +416,8 @@ impl MultiKey {
     }
 }
 
-pub fn lctrl(key: Key) -> Option<MultiKey> {
-    Some(MultiKey::LCtrl(key))
+pub fn lctrl(key: Key) -> MultiKey {
+    MultiKey::LCtrl(key)
 }
 
 // REVIEW: Delete this? Or is it worth keeping around?

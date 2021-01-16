@@ -3,6 +3,7 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
+use map_gui::theme::Buttons;
 use map_gui::tools::{
     grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
 };
@@ -113,16 +114,19 @@ impl GameplayState for Freeform {
                 ),
                 "Scenario:".draw_text(ctx),
                 Btn::pop_up(ctx, Some("none")).build(ctx, "change scenario", Key::S),
-                Btn::svg_def("system/assets/tools/edit_map.svg").build(
-                    ctx,
-                    "edit map",
-                    lctrl(Key::E),
-                ),
+                app.cs
+                    .btn_secondary_light_image_text("system/assets/tools/pencil.svg", "Edit map")
+                    .hotkey(lctrl(Key::E))
+                    .build_widget(ctx, "edit map"),
             ])
             .centered(),
             Widget::row(vec![
-                Btn::text_fg("Start a new trip").build_def(ctx, None),
-                Btn::text_fg("Record trips as a scenario").build_def(ctx, None),
+                app.cs
+                    .btn_secondary_light_text("Start a new trip")
+                    .build_def(ctx),
+                app.cs
+                    .btn_secondary_light_text("Record trips as a scenario")
+                    .build_def(ctx),
             ])
             .centered(),
             Text::from_all(vec![

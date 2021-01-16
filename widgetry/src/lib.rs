@@ -128,8 +128,8 @@ impl<T> Choice<T> {
         self
     }
 
-    pub fn multikey(mut self, mk: Option<MultiKey>) -> Choice<T> {
-        self.hotkey = mk;
+    pub fn multikey(mut self, mk: MultiKey) -> Choice<T> {
+        self.hotkey = Some(mk);
         self
     }
 

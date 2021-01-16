@@ -172,12 +172,8 @@ impl MainMenu {
             .centered(),
             Widget::col(vec![
                 Widget::row(vec![
-                    app.cs
-                        .btn_secondary_light_text("About")
-                        .build_widget(ctx, "About"),
-                    app.cs
-                        .btn_secondary_light_text("Feedback")
-                        .build_widget(ctx, "Feedback"),
+                    app.cs.btn_secondary_light_text("About").build_def(ctx),
+                    app.cs.btn_secondary_light_text("Feedback").build_def(ctx),
                 ]),
                 built_info::time().draw(ctx),
             ])
