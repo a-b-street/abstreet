@@ -579,6 +579,11 @@
 <span id="576">576</span>
 <span id="577">577</span>
 <span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -1019,6 +1024,7 @@
         <span class="string">&quot;motorway&quot;</span>,
         <span class="string">&quot;motorway_link&quot;</span>,
         <span class="string">&quot;path&quot;</span>,
+        <span class="string">&quot;pedestrian&quot;</span>,
         <span class="string">&quot;primary&quot;</span>,
         <span class="string">&quot;primary_link&quot;</span>,
         <span class="string">&quot;residential&quot;</span>,
@@ -1092,7 +1098,7 @@
             <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;foot&quot;</span>, <span class="string">&quot;no&quot;</span>)
             <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;service&quot;</span>)
             <span class="comment">// TODO For now, not attempting shared walking/biking paths.</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;cycleway&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cycleway&quot;</span>, <span class="string">&quot;pedestrian&quot;</span>])
         {
             <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>, <span class="string">&quot;none&quot;</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
@@ -1154,6 +1160,10 @@
 
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;place&quot;</span>, <span class="string">&quot;island&quot;</span>) {
         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType</span>::<span class="ident">Island</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;pedestrian&quot;</span>) {
+        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType</span>::<span class="ident">PedestrianPlaza</span>);
     }
 
     <span class="prelude-val">None</span>

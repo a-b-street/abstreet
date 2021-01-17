@@ -507,6 +507,25 @@
 <span id="504">504</span>
 <span id="505">505</span>
 <span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
@@ -576,10 +595,27 @@
         }
         <span class="kw">return</span> <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
     }
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(
-        <span class="ident">osm</span>::<span class="ident">HIGHWAY</span>,
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cycleway&quot;</span>, <span class="string">&quot;footway&quot;</span>, <span class="string">&quot;path&quot;</span>, <span class="string">&quot;pedestrian&quot;</span>, <span class="string">&quot;steps&quot;</span>],
-    ) {
+    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;pedestrian&quot;</span>) {
+        <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
+            <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>)];
+        }
+
+        <span class="kw">let</span> <span class="ident">half_width</span> <span class="op">=</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">spec</span>: <span class="ident">LaneSpec</span><span class="op">|</span> {
+            <span class="ident">spec</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>;
+            <span class="ident">spec</span>
+        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd_side</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">half_width</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>))];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">back_side</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+            <span class="macro">vec</span><span class="macro">!</span>[]
+        } <span class="kw">else</span> {
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">half_width</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Biking</span>))]
+        };
+        <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
+        <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
+        <span class="kw">return</span> <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cycleway&quot;</span>, <span class="string">&quot;footway&quot;</span>, <span class="string">&quot;path&quot;</span>, <span class="string">&quot;steps&quot;</span>]) {
         <span class="kw">return</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>)];
     }
 
@@ -810,7 +846,9 @@
         <span class="ident">need_back_shoulder</span> <span class="op">=</span> <span class="bool-val">false</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">inferred_sidewalks</span> {
+    <span class="comment">// For living streets in Krakow, there aren&#39;t separate footways. People can walk in the street.</span>
+    <span class="comment">// For now, model that by putting shoulders.</span>
+    <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">inferred_sidewalks</span> <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;living_street&quot;</span>) {
         <span class="kw">if</span> <span class="ident">need_fwd_shoulder</span> {
             <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType</span>::<span class="ident">Shoulder</span>));
         }

@@ -584,6 +584,8 @@
 <span id="581">581</span>
 <span id="582">582</span>
 <span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -706,6 +708,7 @@
     <span class="kw">pub</span> <span class="ident">grass</span>: <span class="ident">Fill</span>,
     <span class="kw">pub</span> <span class="ident">water</span>: <span class="ident">Fill</span>,
     <span class="kw">pub</span> <span class="ident">median_strip</span>: <span class="ident">Fill</span>,
+    <span class="kw">pub</span> <span class="ident">pedestrian_plaza</span>: <span class="ident">Fill</span>,
 
     <span class="comment">// Unzoomed dynamic elements</span>
     <span class="kw">pub</span> <span class="ident">unzoomed_car</span>: <span class="ident">Color</span>,
@@ -832,6 +835,7 @@
             <span class="ident">grass</span>: <span class="ident">hex</span>(<span class="string">&quot;#94C84A&quot;</span>).<span class="ident">into</span>(),
             <span class="ident">water</span>: <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="number">164</span>, <span class="number">200</span>, <span class="number">234</span>).<span class="ident">into</span>(),
             <span class="ident">median_strip</span>: <span class="ident">Color</span>::<span class="ident">CYAN</span>.<span class="ident">into</span>(),
+            <span class="ident">pedestrian_plaza</span>: <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#DDDDE8&quot;</span>).<span class="ident">into</span>(),
 
             <span class="comment">// Unzoomed dynamic elements</span>
             <span class="ident">unzoomed_car</span>: <span class="ident">hex</span>(<span class="string">&quot;#A32015&quot;</span>),
