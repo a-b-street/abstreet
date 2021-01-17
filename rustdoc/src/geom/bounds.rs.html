@@ -189,6 +189,15 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -197,7 +206,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="doccomment">/// Represents a rectangular boundary of `Pt2D` points.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Bounds</span> {
     <span class="kw">pub</span> <span class="ident">min_x</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">min_y</span>: <span class="ident">f64</span>,
@@ -213,6 +222,15 @@
             <span class="ident">min_y</span>: <span class="ident">f64</span>::<span class="ident">MAX</span>,
             <span class="ident">max_x</span>: <span class="ident">f64</span>::<span class="ident">MIN</span>,
             <span class="ident">max_y</span>: <span class="ident">f64</span>::<span class="ident">MIN</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Bounds</span> {
+            <span class="ident">min_x</span>: <span class="number">0.0</span>,
+            <span class="ident">min_y</span>: <span class="number">0.0</span>,
+            <span class="ident">max_x</span>: <span class="number">0.0</span>,
+            <span class="ident">max_y</span>: <span class="number">0.0</span>,
         }
     }
 

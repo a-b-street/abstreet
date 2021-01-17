@@ -289,6 +289,16 @@
 <span id="286">286</span>
 <span id="287">287</span>
 <span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -304,6 +314,16 @@
     <span class="comment">// rendering above values closer to 0.0.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Polygon</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">autocrop_dims</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GeomBatch&quot;</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;bounds&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_bounds</span>())
+            .<span class="ident">field</span>(<span class="string">&quot;items&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">list</span>.<span class="ident">len</span>())
+            .<span class="ident">field</span>(<span class="string">&quot;autocrop_dims&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">autocrop_dims</span>)
+            .<span class="ident">finish</span>()
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">GeomBatch</span> {

@@ -768,6 +768,7 @@
 <span id="765">765</span>
 <span id="766">766</span>
 <span id="767">767</span>
+<span id="768">768</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1118,7 +1119,7 @@
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">svg</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="kw-2">&amp;</span><span class="ident">filename</span>.<span class="ident">into</span>());
         <span class="comment">// Preserve the whitespace in the SVG.</span>
         <span class="comment">// TODO Maybe always do this, add a way to autocrop() to remove it if needed.</span>
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">INVISIBLE</span>, <span class="ident">bounds</span>.<span class="ident">get_rectangle</span>());
+        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">bounds</span>.<span class="ident">get_rectangle</span>());
         <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(
             <span class="ident">ctx</span>,
             <span class="ident">batch</span>,
@@ -1508,6 +1509,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EdgeInsets</span> {
     <span class="kw">pub</span> <span class="ident">top</span>: <span class="ident">f32</span>,
     <span class="kw">pub</span> <span class="ident">left</span>: <span class="ident">f32</span>,
