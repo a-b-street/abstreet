@@ -51,6 +51,11 @@ fn should_merge(map: &RawMap, id: &OriginalRoad) -> bool {
         return true;
     }
 
+    // TODO Keep everything below disabled until merging works better.
+    if true {
+        return false;
+    }
+
     let road_length = if let Some(pl) = map.trimmed_road_geometry(*id) {
         pl.length()
     } else {

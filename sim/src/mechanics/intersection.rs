@@ -981,6 +981,7 @@ fn allow_block_the_box(i: &Intersection) -> bool {
         || id == 987334546
         || id == 848817336
         || id == 1726088131
+        || id == 1726088130
     {
         return true;
     }

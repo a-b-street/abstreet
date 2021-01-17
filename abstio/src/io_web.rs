@@ -62,6 +62,8 @@ pub fn list_dir(dir: String) -> Vec<String> {
 }
 
 pub fn slurp_file<I: Into<String>>(path: I) -> Result<Vec<u8>> {
+    let path = path.into();
+
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())
     } else if path.starts_with(&path_player("")) {
@@ -75,7 +77,7 @@ pub fn slurp_file<I: Into<String>>(path: I) -> Result<Vec<u8>> {
             })?
             .ok_or(anyhow!("no local_storage?"))?;
         let string = storage
-            .get_item(path)
+            .get_item(&path)
             .map_err(|err| anyhow!(err.as_string().unwrap_or("get_item failed".to_string())))?
             .ok_or(anyhow!("{} missing from local storage", path))?;
         Ok(string.into_bytes())

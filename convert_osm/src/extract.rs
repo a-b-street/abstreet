@@ -437,6 +437,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         "motorway",
         "motorway_link",
         "path",
+        "pedestrian",
         "primary",
         "primary_link",
         "residential",
@@ -510,7 +511,7 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
             || tags.is("foot", "no")
             || tags.is(osm::HIGHWAY, "service")
             // TODO For now, not attempting shared walking/biking paths.
-            || tags.is(osm::HIGHWAY, "cycleway")
+            || tags.is_any(osm::HIGHWAY, vec!["cycleway", "pedestrian"])
         {
             tags.insert(osm::SIDEWALK, "none");
         } else if tags.is("oneway", "yes") {

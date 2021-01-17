@@ -127,7 +127,7 @@ pub fn osm_to_raw(name: &str, timer: &mut Timer, config: &ImporterConfiguration)
                 // TODO Utter guesses
                 match name {
                     "downtown" => 5,
-                    "lakeslice" => 3,
+                    "lakeslice" => 5,
                     "south_seattle" => 5,
                     "udistrict" => 5,
                     _ => 1,
