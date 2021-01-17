@@ -397,7 +397,7 @@ fn header(
     };
     rows.push(Widget::row(vec![
         Line(label).small_heading().draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
 
     rows.push(make_tabs(ctx, &mut details.hyperlinks, tab, {

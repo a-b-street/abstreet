@@ -193,7 +193,7 @@ fn header(
 
     rows.push(Widget::row(vec![
         Line(id.to_string()).small_heading().draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
 
     rows.push(make_tabs(

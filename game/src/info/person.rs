@@ -435,7 +435,7 @@ pub fn crowd(
 
     rows.push(Widget::row(vec![
         Line("Pedestrian crowd").small_heading().draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
 
     for (idx, id) in members.into_iter().enumerate() {

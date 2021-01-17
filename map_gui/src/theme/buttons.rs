@@ -1,5 +1,5 @@
 use crate::colors::{ButtonColorScheme, ColorScheme};
-use widgetry::{ButtonBuilder, ButtonState, ScreenDims};
+use widgetry::{ButtonBuilder, ButtonState, EventCtx, ScreenDims};
 
 pub trait Buttons<'a> {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a>;
@@ -103,6 +103,10 @@ pub trait Buttons<'a> {
     }
 
     fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
+
+    fn btn_close(&self) -> ButtonBuilder<'a> {
+        self.btn_plain_light_icon("system/assets/tools/close.svg")
+    }
 }
 
 use widgetry::{Key, Line, Text};

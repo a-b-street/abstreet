@@ -17,7 +17,7 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
 
     rows.push(Widget::row(vec![
         Line("Bus stop").small_heading().draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
     rows.push(Line(&bs.name).draw(ctx));
 
@@ -144,7 +144,7 @@ fn bus_header(
         ))
         .small_heading()
         .draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
     rows.push(make_tabs(
         ctx,
@@ -165,7 +165,7 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
         Line(format!("Route {}", route.short_name))
             .small_heading()
             .draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
     rows.push(
         Text::from(Line(&route.full_name))
