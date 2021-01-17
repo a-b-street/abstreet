@@ -711,3 +711,12 @@ changes here.
 - taking screenshots of the entire map now much faster, portable. trying to use for Leaflet raster tiles, but not working yet.
 - widgetry UI library now doesn't depend on anything specific to A/B Street
 - internal refactoring for error handling
+
+0.2.27
+
+- dramatically speed up starting scenarios by deferring when public transit riders pick their route
+- start importing separate cyclepaths and pedestrian plazas for Cambridge, many adjustments to make these start working
+- full panel for picking a scenario to start
+- import trip data from the actdev project for Cambridge
+- improve inferred map elements (stop signs and crosswalks) near short roads
+- heuristics for automatically finding and merging short roads. disabled, but solid start
