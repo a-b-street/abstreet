@@ -742,8 +742,10 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
                 Some(
                     Text::from(line)
-                        // Without a background color, the label is not centered in the button
-                        // border TODO: Why?
+                        // Add a clear background to maintain a consistent amount of space for the
+                        // label based on the font, rather than the particular text.
+                        // Otherwise a button with text "YYY" will not line up with a button
+                        // with text "aaa".
                         .bg(Color::CLEAR)
                         .render(ctx),
                 )
@@ -773,10 +775,12 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .batch() // TODO: rename -> `widget` or `build_widget`
             .container()
             .padding(self.padding)
-            // TODO: Do we need Color::CLEAR?
             .bg(state_style
                 .bg_color
                 .or(default_style.bg_color)
+                // If we have *no* background, buttons will be cropped differently depending on
+                // their specific content, and it becomes impossible to have
+                // uniformly sized buttons.
                 .unwrap_or(Color::CLEAR));
 
         if let Some((thickness, color)) = state_style.outline.or(default_style.outline) {
