@@ -32,9 +32,9 @@ impl Spinner {
             // I'm not sure why this is - maybe an issue with text layout?
             .padding_left(7.0)
             .padding_right(4.0)
-            .bg_color(Color::WHITE.alpha(0.1), ButtonState::Hover);
+            .bg_color(Color::WHITE.alpha(0.1), ControlState::Hover);
 
-        use crate::{ButtonState, Color};
+        use crate::{Color, ControlState};
         let up = button_builder
             .clone()
             .label_text("↑")

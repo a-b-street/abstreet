@@ -86,13 +86,13 @@ fn button_builder<'a>() -> ButtonBuilder<'a> {
     let bg_hover = Color::hex("#003046");
     let bg_disabled = Color::grey(0.1);
 
-    use crate::ButtonState;
+    use crate::ControlState;
     ButtonBuilder::new()
         .font_size(18)
-        .label_color(fg, ButtonState::Default)
-        .label_color(fg_disabled, ButtonState::Disabled)
-        .bg_color(bg_hover, ButtonState::Hover)
-        .bg_color(bg_disabled, ButtonState::Disabled)
+        .label_color(fg, ControlState::Default)
+        .label_color(fg_disabled, ControlState::Disabled)
+        .bg_color(bg_hover, ControlState::Hover)
+        .bg_color(bg_disabled, ControlState::Disabled)
 }
 
 impl<T: 'static + PartialEq + Clone> PersistentSplit<T> {

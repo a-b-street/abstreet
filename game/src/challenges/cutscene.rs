@@ -1,7 +1,7 @@
 use map_gui::theme::Buttons;
 use map_gui::tools::grey_out_map;
 use widgetry::{
-    hotkeys, Btn, ButtonState, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    hotkeys, Btn, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
     Outcome, Panel, State, Text, Widget,
 };
 
@@ -174,7 +174,7 @@ fn make_panel(
         .btn_plain_dark_icon("system/assets/tools/prev.svg")
         .image_dims(45.0)
         .hotkey(Key::LeftArrow)
-        .bg_color(Color::CLEAR, ButtonState::Disabled);
+        .bg_color(Color::CLEAR, ControlState::Disabled);
     if idx == 0 {
         prev = prev.disabled();
     }

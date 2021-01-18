@@ -1,7 +1,7 @@
 use geom::{Distance, Polygon, Pt2D};
 
 use crate::{
-    Button, ButtonBuilder, ButtonState, Choice, Color, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
+    Button, ButtonBuilder, Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
     Menu, Outcome, ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
 };
 
@@ -186,8 +186,8 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
                 left: 8.0,
                 right: 8.0,
             })
-            .bg_color(Color::CLEAR, ButtonState::Default)
-            .outline(0.0, Color::CLEAR, ButtonState::Default);
+            .bg_color(Color::CLEAR, ControlState::Default)
+            .outline(0.0, Color::CLEAR, ControlState::Default);
     } else {
         builder = builder.label_text(label);
     }
@@ -215,12 +215,12 @@ fn button_builder<'a>() -> ButtonBuilder<'a> {
     let outline = Color::hex("#003046").alpha(0.6);
 
     ButtonBuilder::new()
-        .label_color(fg, ButtonState::Default)
-        .label_color(fg_disabled, ButtonState::Disabled)
-        .image_color(fg, ButtonState::Default)
-        .image_color(fg_disabled, ButtonState::Disabled)
-        .bg_color(bg, ButtonState::Default)
-        .bg_color(bg_hover, ButtonState::Hover)
-        .bg_color(bg_disabled, ButtonState::Disabled)
-        .outline(2.0, outline, ButtonState::Default)
+        .label_color(fg, ControlState::Default)
+        .label_color(fg_disabled, ControlState::Disabled)
+        .image_color(fg, ControlState::Default)
+        .image_color(fg_disabled, ControlState::Disabled)
+        .bg_color(bg, ControlState::Default)
+        .bg_color(bg_hover, ControlState::Hover)
+        .bg_color(bg_disabled, ControlState::Disabled)
+        .outline(2.0, outline, ControlState::Default)
 }

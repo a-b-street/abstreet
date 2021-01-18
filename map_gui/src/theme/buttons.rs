@@ -1,5 +1,5 @@
 use crate::colors::{ButtonColorScheme, ColorScheme};
-use widgetry::{ButtonBuilder, ButtonState, EventCtx, ScreenDims};
+use widgetry::{ButtonBuilder, ControlState, EventCtx, ScreenDims};
 
 pub trait Buttons<'a> {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a>;
@@ -131,19 +131,19 @@ impl<'a> Buttons<'a> for ColorScheme {
         };
 
         self.btn_primary_light()
-            .label_styled_text(default, ButtonState::Default)
-            .label_styled_text(disabled, ButtonState::Disabled)
+            .label_styled_text(default, ControlState::Default)
+            .label_styled_text(disabled, ControlState::Disabled)
             .hotkey(key)
     }
 
     fn btn_primary_dark(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_primary_dark;
-        plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)
+        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
     fn btn_secondary_dark(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_secondary_dark;
-        plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)
+        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
     fn btn_plain_dark(&self) -> ButtonBuilder<'a> {
@@ -153,12 +153,12 @@ impl<'a> Buttons<'a> for ColorScheme {
 
     fn btn_primary_light(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_primary_light;
-        plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)
+        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
     fn btn_secondary_light(&self) -> ButtonBuilder<'a> {
         let colors = &self.btn_secondary_light;
-        plain_builder(colors).outline(2.0, colors.outline, ButtonState::Default)
+        plain_builder(colors).outline(2.0, colors.outline, ControlState::Default)
     }
 
     fn btn_plain_light(&self) -> ButtonBuilder<'a> {
@@ -169,13 +169,13 @@ impl<'a> Buttons<'a> for ColorScheme {
 
 fn plain_builder<'a>(color_scheme: &ButtonColorScheme) -> ButtonBuilder<'a> {
     ButtonBuilder::new()
-        .label_color(color_scheme.fg, ButtonState::Default)
-        .label_color(color_scheme.fg_disabled, ButtonState::Disabled)
-        .image_color(color_scheme.fg, ButtonState::Default)
-        .image_color(color_scheme.fg_disabled, ButtonState::Disabled)
-        .bg_color(color_scheme.bg, ButtonState::Default)
-        .bg_color(color_scheme.bg_hover, ButtonState::Hover)
-        .bg_color(color_scheme.bg_disabled, ButtonState::Disabled)
+        .label_color(color_scheme.fg, ControlState::Default)
+        .label_color(color_scheme.fg_disabled, ControlState::Disabled)
+        .image_color(color_scheme.fg, ControlState::Default)
+        .image_color(color_scheme.fg_disabled, ControlState::Disabled)
+        .bg_color(color_scheme.bg, ControlState::Default)
+        .bg_color(color_scheme.bg_hover, ControlState::Hover)
+        .bg_color(color_scheme.bg_disabled, ControlState::Disabled)
 }
 
 // Captures some constants for uniform styling of icon-only buttons

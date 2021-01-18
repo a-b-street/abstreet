@@ -48,7 +48,7 @@ pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
 // REVIEW: move ContentMode to upper level?
-pub use crate::widgets::button::{Btn, ButtonBuilder, ButtonState, ContentMode, MultiButton};
+pub use crate::widgets::button::{Btn, ButtonBuilder, ContentMode, ControlState, MultiButton};
 pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;

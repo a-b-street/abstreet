@@ -380,7 +380,7 @@ pub struct ButtonBuilder<'a> {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub enum ButtonState {
+pub enum ControlState {
     Default,
     Hover,
     Disabled,
@@ -435,7 +435,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     /// Assign a pre-styled `Text` instance if your button need something more than uniformly
     /// colored text.
-    pub fn label_styled_text(mut self, styled_text: Text, for_state: ButtonState) -> Self {
+    pub fn label_styled_text(mut self, styled_text: Text, for_state: ControlState) -> Self {
         let state_style = self.style_mut(for_state);
         let mut label = state_style.label.take().unwrap_or_default();
         label.styled_text = Some(styled_text);
@@ -447,7 +447,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn label_color(mut self, color: Color, for_state: ButtonState) -> Self {
+    pub fn label_color(mut self, color: Color, for_state: ControlState) -> Self {
         let state_style = self.style_mut(for_state);
         let mut label = state_style.label.take().unwrap_or_default();
         label.color = Some(color);
@@ -485,7 +485,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_color(mut self, color: Color, for_state: ButtonState) -> Self {
+    pub fn image_color(mut self, color: Color, for_state: ControlState) -> Self {
         let state_style = self.style_mut(for_state);
         let mut image = state_style.image.take().unwrap_or_default();
         image.color = Some(color);
@@ -500,28 +500,28 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    fn style_mut(&'b mut self, state: ButtonState) -> &'b mut ButtonStyle<'a> {
+    fn style_mut(&'b mut self, state: ControlState) -> &'b mut ButtonStyle<'a> {
         match state {
-            ButtonState::Default => &mut self.default_style,
-            ButtonState::Hover => &mut self.hover_style,
-            ButtonState::Disabled => &mut self.disable_style,
+            ControlState::Default => &mut self.default_style,
+            ControlState::Hover => &mut self.hover_style,
+            ControlState::Disabled => &mut self.disable_style,
         }
     }
 
-    fn style(&'b self, state: ButtonState) -> &'b ButtonStyle<'a> {
+    fn style(&'b self, state: ControlState) -> &'b ButtonStyle<'a> {
         match state {
-            ButtonState::Default => &self.default_style,
-            ButtonState::Hover => &self.hover_style,
-            ButtonState::Disabled => &self.disable_style,
+            ControlState::Default => &self.default_style,
+            ControlState::Hover => &self.hover_style,
+            ControlState::Disabled => &self.disable_style,
         }
     }
 
-    pub fn bg_color(mut self, color: Color, for_state: ButtonState) -> Self {
+    pub fn bg_color(mut self, color: Color, for_state: ControlState) -> Self {
         self.style_mut(for_state).bg_color = Some(color);
         self
     }
 
-    pub fn outline(mut self, thickness: f64, color: Color, for_state: ButtonState) -> Self {
+    pub fn outline(mut self, thickness: f64, color: Color, for_state: ControlState) -> Self {
         self.style_mut(for_state).outline = Some((thickness, color));
         self
     }
@@ -602,9 +602,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     pub fn build(&self, ctx: &EventCtx, action: &str) -> Button {
-        let normal = self.batch(ctx, ButtonState::Default);
-        let hovered = self.batch(ctx, ButtonState::Hover);
-        let disabled = self.batch(ctx, ButtonState::Disabled);
+        let normal = self.batch(ctx, ControlState::Default);
+        let hovered = self.batch(ctx, ControlState::Hover);
+        let disabled = self.batch(ctx, ControlState::Disabled);
 
         assert!(
             normal.get_bounds() != geom::Bounds::zero(),
@@ -628,7 +628,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         )
     }
 
-    fn batch(&self, ctx: &EventCtx, for_state: ButtonState) -> GeomBatch {
+    fn batch(&self, ctx: &EventCtx, for_state: ControlState) -> GeomBatch {
         let state_style = self.style(for_state);
         let default_style = &self.default_style;
 

@@ -1,7 +1,7 @@
 use map_gui::theme::Buttons;
 use map_gui::tools::{MinimapControls, Navigator};
 use widgetry::{
-    ButtonState, EventCtx, GfxCtx, HorizontalAlignment, Key, Panel, ScreenDims, VerticalAlignment,
+    ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Panel, ScreenDims, VerticalAlignment,
     Widget,
 };
 
@@ -104,7 +104,7 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         .image_dims(ScreenDims::square(20.0))
         // the default transparent button background is jarring for these buttons which are floating
         // in a transparent panel.
-        .bg_color(app.cs.inner_panel, ButtonState::Default)
+        .bg_color(app.cs.inner_panel, ControlState::Default)
         .padding(8);
 
     Widget::col(vec![
