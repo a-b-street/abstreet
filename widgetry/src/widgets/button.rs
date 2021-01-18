@@ -401,6 +401,16 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
     }
 
+    /// Extra spacing around a buttons items (label and/or image).
+    ///
+    /// If not specified, a default will be applied.
+    /// ```
+    /// # use widgetry::{ButtonBuilder, EdgeInsets};
+    /// // Custom padding for each inset
+    /// ButtonBuilder::new().padding(EdgeInsets{ top: 1.0, bottom: 2.0,  left: 12.0, right: 14.0 })
+    /// // uniform padding
+    /// ButtonBuilder::new().padding(4)
+    /// ```
     pub fn padding<EI: Into<EdgeInsets>>(mut self, padding: EI) -> Self {
         self.padding = padding.into();
         self
@@ -426,6 +436,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Set the text of the button's label.
+    ///
+    /// If `label_text` is not set, the button will not have a label.
     pub fn label_text(mut self, text: &'a str) -> Self {
         let mut label = self.default_style.label.take().unwrap_or_default();
         label.text = Some(text);
@@ -447,6 +460,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Set the color of the button's label.
+    ///
+    /// If not specified, a default font color will be used.
     pub fn label_color(mut self, color: Color, for_state: ControlState) -> Self {
         let state_style = self.style_mut(for_state);
         let mut label = state_style.label.take().unwrap_or_default();
@@ -455,6 +471,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Set the font used by the button's label.
+    ///
+    /// If not specified, a default font will be used.
     pub fn font(mut self, font: Font) -> Self {
         let mut label = self.default_style.label.take().unwrap_or_default();
         label.font = Some(font);
@@ -462,6 +481,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Set the size of the font of the button's label.
+    ///
+    /// If not specified, a default font size will be used.
     pub fn font_size(mut self, font_size: usize) -> Self {
         let mut label = self.default_style.label.take().unwrap_or_default();
         label.font_size = Some(font_size);
@@ -469,6 +491,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Set the image for the button. If not set, the button will have no image.
     pub fn image_path(mut self, path: &'a str) -> Self {
         // Currently we don't support setting image for other states like "hover", we easily
         // could, but the API gets more verbose for a thing we don't currently need.
@@ -478,13 +501,12 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    pub fn image_dims<D: Into<ScreenDims>>(mut self, dims: D) -> Self {
-        let mut image = self.default_style.image.take().unwrap_or_default();
-        image.dims = Some(dims.into());
-        self.default_style.image = Some(image);
-        self
-    }
-
+    /// Rewrite the color of the button's image.
+    ///
+    /// This has no effect if the button does not have an image.
+    ///
+    /// If the style hasn't been set for the current ControlState, the style for
+    /// `ControlState::Default` will be used.
     pub fn image_color(mut self, color: Color, for_state: ControlState) -> Self {
         let state_style = self.style_mut(for_state);
         let mut image = state_style.image.take().unwrap_or_default();
@@ -493,6 +515,25 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Scale the bounds containing the image. If `image_dims` are not specified, the images
+    /// intrinsic size will be used.
+    ///
+    /// See [`ButtonBuilder::image_content_mode`] to control how the image scales to fit
+    /// its custom bounds.
+    pub fn image_dims<D: Into<ScreenDims>>(mut self, dims: D) -> Self {
+        let mut image = self.default_style.image.take().unwrap_or_default();
+        image.dims = Some(dims.into());
+        self.default_style.image = Some(image);
+        self
+    }
+
+    /// If a custom `image_dims` was set, control how the image should be scaled to its new bounds
+    ///
+    /// If `image_dims` were not specified, the image will not be scaled, so content_mode has no
+    /// affect.
+    ///
+    /// The default, [`ContentMode::ScaleAspectFit`] will only grow as much as it can while
+    /// maintaining it's aspect ratio and not exceeding its bounds.
     pub fn image_content_mode(mut self, content_mode: ContentMode) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
         image.content_mode = content_mode;
@@ -500,68 +541,79 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    fn style_mut(&'b mut self, state: ControlState) -> &'b mut ButtonStyle<'a> {
-        match state {
-            ControlState::Default => &mut self.default_style,
-            ControlState::Hover => &mut self.hover_style,
-            ControlState::Disabled => &mut self.disable_style,
-        }
-    }
-
-    fn style(&'b self, state: ControlState) -> &'b ButtonStyle<'a> {
-        match state {
-            ControlState::Default => &self.default_style,
-            ControlState::Hover => &self.hover_style,
-            ControlState::Disabled => &self.disable_style,
-        }
-    }
-
+    /// Set a background color for the button based on the button's [`ControlState`].
+    ///
+    /// If the style hasn't been set for the current ControlState, the style for
+    /// `ControlState::Default` will be used.
     pub fn bg_color(mut self, color: Color, for_state: ControlState) -> Self {
         self.style_mut(for_state).bg_color = Some(color);
         self
     }
 
+    /// Set an outline for the button based on the button's [`ControlState`].
+    ///
+    /// If the style hasn't been set for the current ControlState, the style for
+    /// `ControlState::Default` will be used.
     pub fn outline(mut self, thickness: f64, color: Color, for_state: ControlState) -> Self {
         self.style_mut(for_state).outline = Some((thickness, color));
         self
     }
 
+    /// Set a hotkey for the button
     pub fn hotkey<MK: Into<MultiKey>>(mut self, key: MK) -> Self {
         self.hotkey = Some(key.into());
         self
     }
 
+    /// Set a non-default tooltip [`Text`] to appear when hovering over the button.
+    ///
+    /// If a `tooltip` is not specified, a default tooltip will be applied.
     pub fn tooltip(mut self, tooltip: Text) -> Self {
         self.tooltip = Some(tooltip);
         self
     }
 
+    /// If a `tooltip` is not specified, a default tooltip will be applied. Use `no_tooltip` when
+    /// you do not want even the default tooltip to appear.
     pub fn no_tooltip(mut self) -> Self {
         // otherwise the widgets `name` is used
         self.tooltip = Some(Text::new());
         self
     }
 
+    /// The buttons items will be rendered in a vertical column
+    ///
+    /// If the button doesn't have both an image and label, this has no effect.
     pub fn vertical(mut self) -> Self {
         self.stack_axis = Some(geom_batch_stack::Axis::Vertical);
         self
     }
 
+    /// The buttons items will be rendered in a horizontal row
+    ///
+    /// If the button doesn't have both an image and label, this has no effect.
     pub fn horizontal(mut self) -> Self {
         self.stack_axis = Some(geom_batch_stack::Axis::Horizontal);
         self
     }
 
+    /// The button cannot be clicked and will be styled as [`ControlState::Disabled`]
     pub fn disabled(mut self) -> Self {
         self.is_disabled = true;
         self
     }
 
+    /// Display the button's label before the button's image.
+    ///
+    /// If the button doesn't have both an image and label, this has no effect.
     pub fn label_first(mut self) -> Self {
         self.is_label_before_image = true;
         self
     }
 
+    /// Display the button's image before the button's label.
+    ///
+    /// If the button doesn't have both an image and label, this has no effect.
     pub fn image_first(mut self) -> Self {
         self.is_label_before_image = false;
         self
@@ -576,6 +628,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     // Specific UI treatments
 
+    // Used internally by `Dropdown`
     pub fn dropdown(self) -> Self {
         self.image_path("system/assets/tools/arrow_drop_down.svg")
             .image_dims(12.0)
@@ -583,24 +636,24 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             .label_first()
     }
 
-    /// Shorthand method to build a Button wrapped in a Widget
-    pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
-        Widget::new(Box::new(self.build(ctx, action))).named(action)
-    }
+    // Building
 
-    /// Shorthand method to build a widget whose action is derived from the label's text.
-    // Does `def` stand for anything meaningful? Is there a better short name?
-    pub fn build_def(&self, ctx: &EventCtx) -> Widget {
-        let action = self
-            .default_style
-            .label
-            .as_ref()
-            .and_then(|label| label.text)
-            .expect("Must set `label_text` before calling build_def");
-
-        self.build_widget(ctx, action)
-    }
-
+    /// Build a button.
+    ///
+    /// ```
+    /// # use widgetry::{Color, ButtonBuilder, ControlState};
+    /// let one_off_builder = ButtonBuilder::new().label_text("foo");
+    ///
+    /// // If you'd like to build a series of similar buttons, `clone` the builder first.
+    /// let red_builder = ButtonBuilder::new()
+    ///     .bg_color(Color::RED, ControlState::Default)
+    ///     .bg_color(Color::RED.alpha(0.3), ControlState::Default)
+    ///     .outline(2.0, Color::WHITE, ControlState::Default);
+    ///
+    /// let red_button_1 = red_builder.clone().label_text("First red button").build();
+    /// let red_button_2 = red_builder.clone().label_text("Second red button").build();
+    /// let red_button_3 = red_builder.label_text("Last red button").build();
+    /// ```
     pub fn build(&self, ctx: &EventCtx, action: &str) -> Button {
         let normal = self.batch(ctx, ControlState::Default);
         let hovered = self.batch(ctx, ControlState::Hover);
@@ -626,6 +679,41 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             hitbox,
             self.is_disabled,
         )
+    }
+
+    /// Shorthand method to build a Button wrapped in a Widget
+    pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
+        Widget::new(Box::new(self.build(ctx, action))).named(action)
+    }
+
+    /// Shorthand method to build a widget whose action is derived from the label's text.
+    pub fn build_def(&self, ctx: &EventCtx) -> Widget {
+        let action = self
+            .default_style
+            .label
+            .as_ref()
+            .and_then(|label| label.text)
+            .expect("Must set `label_text` before calling build_def");
+
+        self.build_widget(ctx, action)
+    }
+
+    // private  methods
+
+    fn style_mut(&'b mut self, state: ControlState) -> &'b mut ButtonStyle<'a> {
+        match state {
+            ControlState::Default => &mut self.default_style,
+            ControlState::Hover => &mut self.hover_style,
+            ControlState::Disabled => &mut self.disable_style,
+        }
+    }
+
+    fn style(&'b self, state: ControlState) -> &'b ButtonStyle<'a> {
+        match state {
+            ControlState::Default => &self.default_style,
+            ControlState::Hover => &self.hover_style,
+            ControlState::Disabled => &self.disable_style,
+        }
     }
 
     fn batch(&self, ctx: &EventCtx, for_state: ControlState) -> GeomBatch {
