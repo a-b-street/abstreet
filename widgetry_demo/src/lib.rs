@@ -6,9 +6,9 @@ use rand_xorshift::XorShiftRng;
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
-    ScreenDims, Series, SharedAppState, State, StyledButtons, Text, TextExt, Texture, Transition,
-    UpdateType, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions, Series,
+    SharedAppState, State, StyledButtons, Text, TextExt, Texture, Transition, UpdateType,
+    VerticalAlignment, Widget,
 };
 
 pub fn main() {
