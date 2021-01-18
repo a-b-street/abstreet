@@ -1,5 +1,5 @@
-use crate::colors::{ButtonColorScheme, ColorScheme};
-use widgetry::{ButtonBuilder, ControlState, ScreenDims};
+use super::ButtonStyle;
+use crate::{ButtonBuilder, ControlState, ScreenDims, Style};
 
 pub trait Buttons<'a> {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a>;
@@ -109,12 +109,12 @@ pub trait Buttons<'a> {
     }
 }
 
-use widgetry::{Key, Line, Text};
-impl<'a> Buttons<'a> for ColorScheme {
+use crate::{Key, Line, Text};
+impl<'a> Buttons<'a> for Style {
     fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
         let default = {
             let mut txt = Text::new();
-            let key_txt = Line(key.describe()).fg(self.gui_style.hotkey_color);
+            let key_txt = Line(key.describe()).fg(self.hotkey_color);
             txt.append(key_txt);
             let label_text = Line(format!(" - {}", label)).fg(self.btn_primary_light.fg);
             txt.append(label_text);
@@ -123,7 +123,7 @@ impl<'a> Buttons<'a> for ColorScheme {
 
         let disabled = {
             let mut txt = Text::new();
-            let key_txt = Line(key.describe()).fg(self.gui_style.hotkey_color.alpha(0.3));
+            let key_txt = Line(key.describe()).fg(self.hotkey_color.alpha(0.3));
             txt.append(key_txt);
             let label_text = Line(format!(" - {}", label)).fg(self.btn_primary_light.fg_disabled);
             txt.append(label_text);
@@ -167,7 +167,7 @@ impl<'a> Buttons<'a> for ColorScheme {
     }
 }
 
-fn plain_builder<'a>(color_scheme: &ButtonColorScheme) -> ButtonBuilder<'a> {
+fn plain_builder<'a>(color_scheme: &ButtonStyle) -> ButtonBuilder<'a> {
     ButtonBuilder::new()
         .label_color(color_scheme.fg, ControlState::Default)
         .label_color(color_scheme.fg_disabled, ControlState::Disabled)

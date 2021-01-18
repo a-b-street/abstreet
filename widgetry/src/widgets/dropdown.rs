@@ -199,7 +199,7 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
 // I'd like to base it on ColorScheme, but that currently lives in map_gui, so for now
 // I've hardcoded the builder.
 fn button_builder<'a>() -> ButtonBuilder<'a> {
-    // let primary_light = ButtonColorScheme {
+    // let primary_light = ButtonStyle {
     //     fg: hex("#F2F2F2"),
     //     fg_disabled: hex("#F2F2F2").alpha(0.3),
     //     bg: hex("#003046").alpha(0.8),

@@ -80,7 +80,10 @@ impl SpeedControls {
                         .btn_plain_light()
                         .image_path("system/assets/speed/triangle.svg")
                         .image_dims(ScreenDims::new(16.0, 22.0))
-                        .bg_color(app.cs.btn_primary_light.bg_hover, ControlState::Hover)
+                        .bg_color(
+                            app.cs.gui_style.btn_primary_light.bg_hover,
+                            ControlState::Hover,
+                        )
                         .tooltip(txt)
                         .padding(EdgeInsets {
                             top: 8.0,
@@ -98,7 +101,7 @@ impl SpeedControls {
 
                     if self.setting < s {
                         triangle_btn = triangle_btn.image_color(
-                            app.cs.btn_secondary_light.fg_disabled,
+                            app.cs.gui_style.btn_secondary_light.fg_disabled,
                             ControlState::Default,
                         )
                     }
@@ -108,8 +111,8 @@ impl SpeedControls {
                 .collect(),
             )
             // Inner buttons, styled as one composite button w/ background/border
-            .bg(app.cs.btn_primary_light.bg)
-            .outline(2.0, app.cs.btn_primary_light.outline)
+            .bg(app.cs.gui_style.btn_primary_light.bg)
+            .outline(2.0, app.cs.gui_style.btn_primary_light.outline)
             .margin_right(16),
         );
 
@@ -134,7 +137,10 @@ impl SpeedControls {
                 let buttons = app
                     .cs
                     .btn_plain_light()
-                    .bg_color(app.cs.btn_primary_light.bg_hover, ControlState::Hover)
+                    .bg_color(
+                        app.cs.gui_style.btn_primary_light.bg_hover,
+                        ControlState::Hover,
+                    )
                     .font_size(18)
                     .image_dims(ScreenDims::square(20.0));
                 Widget::custom_row(vec![
@@ -152,8 +158,8 @@ impl SpeedControls {
                 ])
             }
             // Inner buttons, styled as one composite button w/ background/border
-            .bg(app.cs.btn_primary_light.bg)
-            .outline(2.0, app.cs.btn_primary_light.outline),
+            .bg(app.cs.gui_style.btn_primary_light.bg)
+            .outline(2.0, app.cs.gui_style.btn_primary_light.outline),
         );
 
         self.panel = Panel::new(Widget::custom_row(row))
