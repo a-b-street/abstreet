@@ -1,9 +1,9 @@
-pub use widgetry::Buttons;
+pub use widgetry::StyledButtons;
 use widgetry::{ButtonBuilder, Key};
 
 // This impl just delegates to the underlying impl on self.gui_style so we can more succinctly write
 // `app.cs.btn_primary_dark()` rather than `app.cs.gui_style.btn_primary_dark()`
-impl<'a> Buttons<'a> for crate::ColorScheme {
+impl<'a> StyledButtons<'a> for crate::ColorScheme {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a> {
         self.gui_style.btn_primary_dark()
     }

@@ -3,7 +3,7 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Polygon};
-use map_gui::theme::Buttons;
+use map_gui::theme::StyledButtons;
 use map_gui::tools::{
     grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput,
 };

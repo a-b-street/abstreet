@@ -36,7 +36,7 @@ impl Style {
             hovering_color: Color::ORANGE,
             loading_tips: Text::new(),
 
-            // UI > Buttons
+            // Buttons
             btn_primary_dark: ButtonStyle {
                 fg: hex("#4C4C4C"),
                 fg_disabled: hex("#4C4C4C").alpha(0.3),

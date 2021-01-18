@@ -14,7 +14,7 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
-use map_gui::theme::Buttons;
+use map_gui::theme::StyledButtons;
 
 mod minimap;
 mod warp;

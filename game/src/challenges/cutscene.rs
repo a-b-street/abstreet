@@ -1,4 +1,4 @@
-use map_gui::theme::Buttons;
+use map_gui::theme::StyledButtons;
 use map_gui::tools::grey_out_map;
 use widgetry::{
     hotkeys, Btn, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,

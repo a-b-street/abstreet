@@ -7,8 +7,8 @@ use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Btn, Checkbox, Choice, Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
-    ScreenDims, Series, SharedAppState, State, Text, TextExt, Texture, Transition, UpdateType,
-    VerticalAlignment, Widget,
+    ScreenDims, Series, SharedAppState, State, StyledButtons, Text, TextExt, Texture, Transition,
+    UpdateType, VerticalAlignment, Widget,
 };
 
 pub fn main() {
@@ -309,7 +309,8 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         Widget::row(vec![
             Widget::col(vec![
                 Text::from(Line("Neutral Dark")).bg(Color::CLEAR).draw(ctx),
-                ButtonBuilder::new()
+                ctx.style()
+                    .btn_primary_light()
                     .label_text("Primary")
                     .label_color(Color::hex("#666666"), ControlState::Default) // TODO is this the right color? it differs from icon and icon+text tinting
                     .bg_color(Color::WHITE.alpha(0.8), ControlState::Default)

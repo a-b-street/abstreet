@@ -1,7 +1,7 @@
 use super::ButtonStyle;
 use crate::{ButtonBuilder, ControlState, ScreenDims, Style};
 
-pub trait Buttons<'a> {
+pub trait StyledButtons<'a> {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a>;
     fn btn_primary_dark_text(&self, text: &'a str) -> ButtonBuilder<'a> {
         self.btn_primary_dark().label_text(text)
@@ -110,7 +110,7 @@ pub trait Buttons<'a> {
 }
 
 use crate::{Key, Line, Text};
-impl<'a> Buttons<'a> for Style {
+impl<'a> StyledButtons<'a> for Style {
     fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a> {
         let default = {
             let mut txt = Text::new();

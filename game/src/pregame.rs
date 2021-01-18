@@ -7,7 +7,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::{Duration, Line, Percent, Pt2D, Speed};
 use map_gui::load::MapLoader;
-use map_gui::theme::Buttons;
+use map_gui::theme::StyledButtons;
 use map_gui::tools::{open_browser, PopupMsg};
 use map_model::PermanentMapEdits;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};

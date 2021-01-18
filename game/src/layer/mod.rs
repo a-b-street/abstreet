@@ -5,7 +5,7 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::sandbox::dashboards;
-use map_gui::theme::Buttons;
+use map_gui::theme::StyledButtons;
 
 mod elevation;
 pub mod favorites;

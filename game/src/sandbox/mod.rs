@@ -7,7 +7,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, MapLoader};
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
-use map_gui::theme::Buttons;
+use map_gui::theme::StyledButtons;
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};

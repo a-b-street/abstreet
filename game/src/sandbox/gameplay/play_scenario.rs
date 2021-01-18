@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use maplit::btreeset;
 
-use map_gui::theme::Buttons;
+use map_gui::theme::StyledButtons;
 use map_gui::tools::{grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg};
 use sim::{ScenarioModifier, TripMode};
 use widgetry::{
