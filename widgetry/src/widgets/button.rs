@@ -347,7 +347,7 @@ pub enum ContentMode {
 }
 
 #[derive(Clone, Debug, Default)]
-pub struct Label<'a> {
+struct Label<'a> {
     text: Option<&'a str>,
     color: Option<Color>,
     styled_text: Option<Text>,
@@ -356,7 +356,7 @@ pub struct Label<'a> {
 }
 
 #[derive(Clone, Debug, Default)]
-pub struct ButtonStyle<'a> {
+struct ButtonStyle<'a> {
     image: Option<Image<'a>>,
     label: Option<Label<'a>>,
     outline: Option<(f64, Color)>,
