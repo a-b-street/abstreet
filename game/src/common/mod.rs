@@ -290,14 +290,13 @@ impl CommonState {
 
 // TODO Kinda misnomer
 pub fn tool_panel(ctx: &mut EventCtx, app: &App) -> Panel {
-    let buttons = app.cs.btn_plain_light_icon("system/assets/tools/home.svg");
     Panel::new(Widget::row(vec![
-        buttons
-            .clone()
+        app.cs
+            .btn_plain_light_icon("system/assets/tools/home.svg")
             .hotkey(Key::Escape)
             .build_widget(ctx, "back"),
-        buttons
-            .image_path("system/assets/tools/settings.svg")
+        app.cs
+            .btn_plain_light_icon("system/assets/tools/settings.svg")
             .build_widget(ctx, "settings"),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
@@ -371,12 +370,6 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
         TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
         TripPhaseType::DelayedStart => Color::YELLOW,
     }
-}
-
-pub fn hotkey_btn(ctx: &EventCtx, app: &App, label: &str, key: Key) -> Widget {
-    app.cs
-        .btn_hotkey_light(label, key)
-        .build_widget(ctx, &label)
 }
 
 pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {

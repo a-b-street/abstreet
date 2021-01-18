@@ -52,7 +52,7 @@ impl SpeedControls {
                 .hotkey(Key::Space);
 
             Widget::custom_row(vec![if self.paused {
-                button.clone().build_widget(ctx, "play")
+                button.build_widget(ctx, "play")
             } else {
                 button
                     .image_path("system/assets/speed/pause.svg")

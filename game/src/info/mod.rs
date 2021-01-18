@@ -17,7 +17,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::{color_for_agent_type, hotkey_btn, Warping};
+use crate::common::{color_for_agent_type, Warping};
 use crate::debug::path_counter::PathCounter;
 use crate::edit::{EditMode, RouteEditor};
 use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
@@ -373,7 +373,11 @@ impl InfoPanel {
             if let Some(id) = maybe_id.clone() {
                 for (key, label) in ctx_actions.actions(app, id) {
                     cached_actions.push(key);
-                    col.push(hotkey_btn(ctx, app, &label, key));
+                    let button = app
+                        .cs
+                        .btn_hotkey_light(&label, key)
+                        .build_widget(ctx, &label);
+                    col.push(button);
                 }
             }
         }

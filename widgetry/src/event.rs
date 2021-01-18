@@ -420,7 +420,6 @@ pub fn lctrl(key: Key) -> MultiKey {
     MultiKey::LCtrl(key)
 }
 
-// REVIEW: Delete this? Or is it worth keeping around?
 pub fn hotkeys(keys: Vec<Key>) -> MultiKey {
     MultiKey::Any(keys)
 }
