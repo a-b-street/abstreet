@@ -95,18 +95,18 @@ pub trait StyledButtons<'a> {
     }
 
     fn btn_popup_light(&self, text: &'a str) -> ButtonBuilder<'a> {
-        popup_button(self.btn_secondary_light(), text)
+        self.btn_secondary_light().dropdown().label_text(text)
     }
 
     fn btn_popup_dark(&self, text: &'a str) -> ButtonBuilder<'a> {
-        popup_button(self.btn_secondary_dark(), text)
+        self.btn_secondary_dark().dropdown().label_text(text)
     }
-
-    fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
 
     fn btn_close(&self) -> ButtonBuilder<'a> {
         self.btn_plain_light_icon("system/assets/tools/close.svg")
     }
+
+    fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
 }
 
 use crate::{Key, Line, Text};
@@ -183,7 +183,6 @@ fn icon_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
     builder.padding(8.0).image_dims(20.0)
 }
 
-// TODO: Move this into impl ButtonBuilder?
 fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {
     // DESIGN REVIEW: this button seems absurdly large
     builder
@@ -191,9 +190,4 @@ fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<
         .label_text(title)
         .padding_left(8.0)
         .font_size(30)
-}
-
-// TODO: inline this now that it's so simple
-fn popup_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<'a> {
-    builder.dropdown().label_text(title)
 }
