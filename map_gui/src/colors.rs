@@ -76,8 +76,6 @@ pub struct ColorScheme {
     pub minimap_selected_zoom: Color,
     pub minimap_unselected_zoom: Color,
 
-    // UI > Buttons
-
     // Roads
     driving_lane: Color,
     bus_lane: Color,
