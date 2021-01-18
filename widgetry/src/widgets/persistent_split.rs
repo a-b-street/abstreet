@@ -2,7 +2,7 @@ use geom::Polygon;
 
 use crate::{
     Button, ButtonBuilder, Choice, Color, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw,
-    MultiKey, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
+    MultiKey, Outcome, ScreenDims, ScreenPt, StyledButtons, Widget, WidgetImpl, WidgetOutput,
 };
 
 // TODO Radio buttons in the menu
@@ -43,7 +43,7 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
         choices: Vec<Choice<T>>,
     ) -> PersistentSplit<T> {
         let dropdown = Dropdown::new(ctx, "change", default_value, choices, true);
-        let mut btn = button_builder().label_text(dropdown.current_value_label());
+        let mut btn = button_builder(ctx).label_text(dropdown.current_value_label());
 
         if let Some(multikey) = hotkey.into() {
             btn = btn.hotkey(multikey)
@@ -68,31 +68,12 @@ impl<T: 'static + PartialEq + Clone + std::fmt::Debug> PersistentSplit<T> {
     }
 }
 
-// TODO: It'd be nice for this to be configurable.
-//
-// I'd like to base it on ColorScheme, but that currently lives in map_gui, so for now
-// I've hardcoded the builder colors. We literally use it in one place.
-fn button_builder<'a>() -> ButtonBuilder<'a> {
-    // let primary_light = ButtonStyle {
-    //     fg: hex("#F2F2F2"),
-    //     fg_disabled: hex("#F2F2F2").alpha(0.3),
-    //     bg: hex("#003046").alpha(0.8),
-    //     bg_hover: hex("#003046"),
-    //     bg_disabled: Color::grey(0.1),
-    //     outline: hex("#003046").alpha(0.6),
-    // };
-    let fg = Color::hex("#F2F2F2");
-    let fg_disabled = Color::hex("#F2F2F2").alpha(0.3);
-    let bg_hover = Color::hex("#003046");
-    let bg_disabled = Color::grey(0.1);
-
-    use crate::ControlState;
-    ButtonBuilder::new()
+fn button_builder<'a>(ctx: &EventCtx) -> ButtonBuilder<'a> {
+    use crate::{ControlState, StyledButtons};
+    ctx.style()
+        .btn_primary_light()
         .font_size(18)
-        .label_color(fg, ControlState::Default)
-        .label_color(fg_disabled, ControlState::Disabled)
-        .bg_color(bg_hover, ControlState::Hover)
-        .bg_color(bg_disabled, ControlState::Disabled)
+        .outline(0.0, Color::CLEAR, ControlState::Default)
 }
 
 impl<T: 'static + PartialEq + Clone> PersistentSplit<T> {
@@ -134,7 +115,7 @@ impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
             self.current_value = new_value;
             let label = self.btn.action.clone();
             let mut button_builder =
-                button_builder().label_text(self.dropdown.current_value_label());
+                button_builder(ctx).label_text(self.dropdown.current_value_label());
             if let Some(multikey) = self.btn.hotkey.take() {
                 button_builder = button_builder.hotkey(multikey)
             }

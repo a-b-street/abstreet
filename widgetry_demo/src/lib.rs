@@ -162,7 +162,13 @@ impl State<App> for Demo {
                     let (bg_texture, fg_texture) = self.controls.dropdown_value("texture");
                     self.texture_demo = setup_texture_demo(ctx, bg_texture, fg_texture);
                 }
-                _ => unimplemented!("clicked: {:?}", x),
+                action => {
+                    if action.contains("btn_") {
+                        log::info!("clicked button: {:?}", action);
+                    } else {
+                        unimplemented!("clicked: {:?}", x);
+                    }
+                }
             },
             _ => {}
         }
@@ -297,164 +303,62 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 }
 
 fn make_controls(ctx: &mut EventCtx) -> Panel {
-    use widgetry::{ButtonBuilder, ControlState};
+    let btn = ctx.style();
     Panel::new(Widget::col(vec![
         Text::from_multiline(vec![
             Line("widgetry demo").big_heading_styled(),
-            Line("Click and drag to pan, use touchpad or scroll wheel to zoom"),
+            Line("Click and drag the background to pan, use touchpad or scroll wheel to zoom"),
         ])
         .draw(ctx),
         // Button Style Gallery
+        // TODO might be nice to have this in separate tabs or something.
         Text::from(Line("Buttons").big_heading_styled().size(18)).draw(ctx),
         Widget::row(vec![
             Widget::col(vec![
                 Text::from(Line("Neutral Dark")).bg(Color::CLEAR).draw(ctx),
-                ctx.style()
-                    .btn_primary_light()
-                    .label_text("Primary")
-                    .label_color(Color::hex("#666666"), ControlState::Default) // TODO is this the right color? it differs from icon and icon+text tinting
-                    .bg_color(Color::WHITE.alpha(0.8), ControlState::Default)
-                    .bg_color(Color::WHITE, ControlState::Hover)
-                    .outline(2.0, Color::WHITE.alpha(0.8), ControlState::Default)
-                    .build_widget(ctx, "neutral_dark_primary_text"),
+                btn.btn_primary_dark_text("Primary")
+                    .build_widget(ctx, "btn_primary_dark_text"),
                 Widget::row(vec![
-                    ButtonBuilder::new()
-                        .image_path("system/assets/tools/map.svg")
-                        .image_dims(ScreenDims::square(24.0))
-                        .image_color(Color::hex("#4c4c4c"), ControlState::Default)
-                        .padding(6)
-                        .outline(2.0, Color::WHITE.alpha(0.8), ControlState::Default)
-                        .bg_color(Color::WHITE.alpha(0.8), ControlState::Default)
-                        .bg_color(Color::WHITE, ControlState::Hover)
-                        .build_widget(ctx, "neutral_dark_primary_image_1"),
-                    ButtonBuilder::new()
-                        .image_path("system/assets/tools/layers.svg")
-                        .image_dims(ScreenDims::square(24.0))
-                        .image_color(Color::hex("#4c4c4c"), ControlState::Default)
-                        .padding(6)
-                        .outline(2.0, Color::WHITE.alpha(0.8), ControlState::Default)
-                        .bg_color(Color::WHITE.alpha(0.8), ControlState::Default)
-                        .bg_color(Color::WHITE, ControlState::Hover)
-                        .build_widget(ctx, "neutral_dark_primary_image_2"),
+                    btn.btn_primary_dark_icon("system/assets/tools/map.svg")
+                        .build_widget(ctx, "btn_primary_dark_icon_1"),
+                    btn.btn_primary_dark_icon("system/assets/tools/layers.svg")
+                        .build_widget(ctx, "btn_primary_dark_icon_2"),
                 ]),
-                ButtonBuilder::new()
-                    .label_text("Primary")
-                    .label_color(Color::hex("#4c4c4c"), ControlState::Default)
-                    .image_path("system/assets/tools/location.svg")
-                    .image_dims(ScreenDims::square(18.0))
-                    .image_color(Color::hex("#4c4c4c"), ControlState::Default)
-                    .padding_left(12.0)
-                    .outline(2.0, Color::WHITE.alpha(0.8), ControlState::Default)
-                    .bg_color(Color::WHITE.alpha(0.8), ControlState::Default)
-                    .bg_color(Color::WHITE, ControlState::Hover)
-                    .build_widget(ctx, "neutral_dark_primary_image_and_text"),
-                ButtonBuilder::new()
-                    .label_text("Secondary")
-                    .label_color(Color::hex("#4c4c4c"), ControlState::Default)
-                    .bg_color(Color::hex("#4c4c4c").alpha(0.1), ControlState::Hover)
-                    .outline(2.0, Color::hex("#4c4c4c"), ControlState::Default)
-                    .build_widget(ctx, "neutral_dark_secondary_text"),
+                btn.btn_primary_dark_icon_text("system/assets/tools/location.svg", "Primary")
+                    .build_widget(ctx, "btn_primary_dark_icon_text"),
+                btn.btn_secondary_dark_text("Secondary")
+                    .build_widget(ctx, "btn_secondary_dark_text"),
                 Widget::row(vec![
-                    ButtonBuilder::new()
-                        .image_path("system/assets/tools/map.svg")
-                        .image_dims(ScreenDims::square(24.0))
-                        .image_color(Color::hex("#4c4c4c"), ControlState::Default)
-                        .padding(6)
-                        .bg_color(Color::hex("#4c4c4c").alpha(0.1), ControlState::Hover)
-                        .outline(2.0, Color::hex("#4c4c4c"), ControlState::Default)
-                        .build_widget(ctx, "neutral_dark_secondary_image_1"),
-                    ButtonBuilder::new()
-                        .image_path("system/assets/tools/layers.svg")
-                        .image_dims(ScreenDims::square(24.0))
-                        .image_color(Color::hex("#4c4c4c"), ControlState::Default)
-                        .padding(6)
-                        .bg_color(Color::hex("#4c4c4c").alpha(0.1), ControlState::Hover)
-                        .build_widget(ctx, "neutral_dark_secondary_image_2"),
+                    btn.btn_secondary_dark_icon("system/assets/tools/map.svg")
+                        .build_widget(ctx, "btn_secondary_dark_icon_1"),
+                    btn.btn_secondary_dark_icon("system/assets/tools/layers.svg")
+                        .build_widget(ctx, "btn_secondary_dark_icon_2"),
                 ]),
-                ButtonBuilder::new()
-                    .label_text("Secondary")
-                    .label_color(Color::hex("#4c4c4c"), ControlState::Default)
-                    .image_path("system/assets/tools/home.svg")
-                    .image_dims(ScreenDims::square(18.0))
-                    .image_color(Color::hex("#4c4c4c"), ControlState::Default)
-                    .bg_color(Color::hex("#4c4c4c").alpha(0.1), ControlState::Hover)
-                    .padding_left(12.0)
-                    .outline(2.0, Color::hex("#4c4c4c"), ControlState::Default)
-                    .build_widget(ctx, "neutral_dark_secondary_image_and_text"),
+                btn.btn_secondary_dark_icon_text("system/assets/tools/home.svg", "Secondary")
+                    .build_widget(ctx, "btn_secondary_dark_icon_text"),
             ]),
             Widget::col(vec![
                 Text::from(Line("Neutral Light")).bg(Color::CLEAR).draw(ctx),
-                ButtonBuilder::new()
-                    .label_text("Primary")
-                    .label_color(Color::hex("#F2F2F2"), ControlState::Default)
-                    .bg_color(Color::hex("#003046").alpha(0.6), ControlState::Default)
-                    .bg_color(Color::hex("#003046"), ControlState::Hover)
-                    .outline(2.0, Color::hex("#003046").alpha(0.6), ControlState::Default)
-                    .build_widget(ctx, "neutral_light_primary_text"),
+                btn.btn_primary_light_text("Primary")
+                    .build_widget(ctx, "btn_primary_light_text"),
                 Widget::row(vec![
-                    ButtonBuilder::new()
-                        .image_path("system/assets/tools/home.svg")
-                        .image_dims(ScreenDims::square(24.0))
-                        .image_color(Color::hex("#F2F2F2"), ControlState::Default)
-                        .padding(6)
-                        .outline(2.0, Color::hex("#003046").alpha(0.6), ControlState::Default)
-                        .bg_color(Color::hex("#003046").alpha(0.6), ControlState::Default)
-                        .bg_color(Color::hex("#003046"), ControlState::Hover)
-                        .build_widget(ctx, "neutral_light_primary_image_1"),
-                    ButtonBuilder::new()
-                        .image_path("system/assets/tools/location.svg")
-                        .image_dims(ScreenDims::square(24.0))
-                        .image_color(Color::hex("#F2F2F2"), ControlState::Default)
-                        .padding(6)
-                        .outline(2.0, Color::hex("#003046").alpha(0.6), ControlState::Default)
-                        .bg_color(Color::hex("#003046").alpha(0.6), ControlState::Default)
-                        .bg_color(Color::hex("#003046"), ControlState::Hover)
-                        .build_widget(ctx, "neutral_light_primary_image_2"),
+                    btn.btn_primary_light_icon("system/assets/tools/home.svg")
+                        .build_widget(ctx, "btn_primary_light_icon_1"),
+                    btn.btn_primary_light_icon("system/assets/tools/location.svg")
+                        .build_widget(ctx, "btn_primary_light_icon_2"),
                 ]),
-                ButtonBuilder::new()
-                    .label_text("Primary")
-                    .label_color(Color::hex("#F2F2F2"), ControlState::Default)
-                    .image_path("system/assets/tools/map.svg")
-                    .image_dims(ScreenDims::square(18.0))
-                    .image_color(Color::hex("#F2F2F2"), ControlState::Default)
-                    .outline(2.0, Color::hex("#003046").alpha(0.6), ControlState::Default)
-                    .padding_left(12.0)
-                    .bg_color(Color::hex("#003046").alpha(0.6), ControlState::Default)
-                    .bg_color(Color::hex("#003046"), ControlState::Hover)
-                    .build_widget(ctx, "neutral_light_primary_image_and_text"),
-                ButtonBuilder::new()
-                    .label_text("Secondary")
-                    .label_color(Color::hex("#F2F2F2"), ControlState::Default)
-                    .bg_color(Color::hex("#F2F2F2").alpha(0.1), ControlState::Hover)
-                    .outline(2.0, Color::hex("#F2F2F2"), ControlState::Default)
-                    .build_widget(ctx, "neutral_light_secondary_text"),
+                btn.btn_primary_light_icon_text("system/assets/tools/map.svg", "Primary")
+                    .build_widget(ctx, "btn_primary_light_icon_text"),
+                btn.btn_secondary_light_text("Secondary")
+                    .build_widget(ctx, "btn_secondary_light_text"),
                 Widget::row(vec![
-                    ButtonBuilder::new()
-                        .image_path("system/assets/tools/home.svg")
-                        .image_dims(ScreenDims::square(24.0))
-                        .image_color(Color::hex("#F2F2F2"), ControlState::Default)
-                        .padding(6)
-                        .bg_color(Color::hex("#F2F2F2").alpha(0.1), ControlState::Hover)
-                        .outline(2.0, Color::hex("#F2F2F2"), ControlState::Default)
-                        .build_widget(ctx, "neutral_light_secondary_image_1"),
-                    ButtonBuilder::new()
-                        .image_path("system/assets/tools/location.svg")
-                        .image_dims(ScreenDims::square(24.0))
-                        .image_color(Color::hex("#F2F2F2"), ControlState::Default)
-                        .padding(6)
-                        .bg_color(Color::hex("#F2F2F2").alpha(0.1), ControlState::Hover)
-                        .build_widget(ctx, "neutral_light_secondary_image_2"),
+                    btn.btn_secondary_light_icon("system/assets/tools/home.svg")
+                        .build_widget(ctx, "btn_secondary_light_icon_1"),
+                    btn.btn_secondary_light_icon("system/assets/tools/location.svg")
+                        .build_widget(ctx, "btn_secondary_light_icon_2"),
                 ]),
-                ButtonBuilder::new()
-                    .label_text("Secondary")
-                    .label_color(Color::hex("#F2F2F2"), ControlState::Default)
-                    .image_path("system/assets/tools/layers.svg")
-                    .image_dims(ScreenDims::square(18.0))
-                    .image_color(Color::hex("#F2F2F2"), ControlState::Default)
-                    .padding_left(12.0)
-                    .bg_color(Color::hex("#F2F2F2").alpha(0.1), ControlState::Hover)
-                    .outline(2.0, Color::hex("#F2F2F2"), ControlState::Default)
-                    .build_widget(ctx, "neutral_light_secondary_image_and_text"),
+                btn.btn_secondary_light_icon_text("system/assets/tools/layers.svg", "Secondary")
+                    .build_widget(ctx, "btn_secondary_light_icon_text"),
             ]),
         ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).draw(ctx),

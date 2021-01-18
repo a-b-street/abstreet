@@ -94,12 +94,28 @@ pub trait StyledButtons<'a> {
         back_button(self.btn_plain_dark(), title)
     }
 
+    fn btn_primary_light_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_primary_light())
+    }
+
+    fn btn_secondary_light_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_secondary_light())
+    }
+
+    fn btn_primary_dark_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_primary_dark())
+    }
+
+    fn btn_secondary_dark_dropdown(&self) -> ButtonBuilder<'a> {
+        dropdown_button(self.btn_secondary_dark())
+    }
+
     fn btn_popup_light(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_secondary_light().dropdown().label_text(text)
+        self.btn_secondary_light_dropdown().label_text(text)
     }
 
     fn btn_popup_dark(&self, text: &'a str) -> ButtonBuilder<'a> {
-        self.btn_secondary_dark().dropdown().label_text(text)
+        self.btn_secondary_dark_dropdown().label_text(text)
     }
 
     fn btn_close(&self) -> ButtonBuilder<'a> {
@@ -190,4 +206,12 @@ fn back_button<'a>(builder: ButtonBuilder<'a>, title: &'a str) -> ButtonBuilder<
         .label_text(title)
         .padding_left(8.0)
         .font_size(30)
+}
+
+fn dropdown_button<'a>(builder: ButtonBuilder<'a>) -> ButtonBuilder<'a> {
+    builder
+        .image_path("system/assets/tools/arrow_drop_down.svg")
+        .image_dims(12.0)
+        .stack_spacing(12.0)
+        .label_first()
 }

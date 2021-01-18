@@ -174,7 +174,9 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
 }
 
 fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool) -> Button {
-    let mut builder = button_builder().dropdown();
+    use crate::StyledButtons;
+    // If we want to make Dropdown configurable, pass in or expose its button builder?
+    let mut builder = ctx.style().btn_primary_light_dropdown();
     if is_persisten_split {
         // Quick hacks to make PersistentSplit's dropdown look a little better.
         // It's not ideal, but we only use one persistent split in the whole app
@@ -193,34 +195,4 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
     }
 
     builder.build(ctx, tooltip)
-}
-
-// TODO: eventually this should be configurable.
-// I'd like to base it on ColorScheme, but that currently lives in map_gui, so for now
-// I've hardcoded the builder.
-fn button_builder<'a>() -> ButtonBuilder<'a> {
-    // let primary_light = ButtonStyle {
-    //     fg: hex("#F2F2F2"),
-    //     fg_disabled: hex("#F2F2F2").alpha(0.3),
-    //     bg: hex("#003046").alpha(0.8),
-    //     bg_hover: hex("#003046"),
-    //     bg_disabled: Color::grey(0.1),
-    //     outline: hex("#003046").alpha(0.6),
-    // };
-    let fg = Color::hex("#F2F2F2");
-    let fg_disabled = Color::hex("#F2F2F2").alpha(0.3);
-    let bg = Color::hex("#003046").alpha(0.8);
-    let bg_hover = Color::hex("#003046");
-    let bg_disabled = Color::grey(0.1);
-    let outline = Color::hex("#003046").alpha(0.6);
-
-    ButtonBuilder::new()
-        .label_color(fg, ControlState::Default)
-        .label_color(fg_disabled, ControlState::Disabled)
-        .image_color(fg, ControlState::Default)
-        .image_color(fg_disabled, ControlState::Disabled)
-        .bg_color(bg, ControlState::Default)
-        .bg_color(bg_hover, ControlState::Hover)
-        .bg_color(bg_disabled, ControlState::Disabled)
-        .outline(2.0, outline, ControlState::Default)
 }

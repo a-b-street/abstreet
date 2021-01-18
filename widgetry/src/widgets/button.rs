@@ -573,16 +573,6 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    // Specific UI treatments
-
-    // Used internally by `Dropdown`
-    pub fn dropdown(self) -> Self {
-        self.image_path("system/assets/tools/arrow_drop_down.svg")
-            .image_dims(12.0)
-            .stack_spacing(12.0)
-            .label_first()
-    }
-
     // Building
 
     /// Build a button.
