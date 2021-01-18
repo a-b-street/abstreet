@@ -190,7 +190,7 @@ fn plain_builder<'a>(color_scheme: &ButtonStyle) -> ButtonBuilder<'a> {
         .image_color(color_scheme.fg, ControlState::Default)
         .image_color(color_scheme.fg_disabled, ControlState::Disabled)
         .bg_color(color_scheme.bg, ControlState::Default)
-        .bg_color(color_scheme.bg_hover, ControlState::Hover)
+        .bg_color(color_scheme.bg_hover, ControlState::Hovered)
         .bg_color(color_scheme.bg_disabled, ControlState::Disabled)
 }
 

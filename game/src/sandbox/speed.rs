@@ -82,7 +82,7 @@ impl SpeedControls {
                         .image_dims(ScreenDims::new(16.0, 22.0))
                         .bg_color(
                             app.cs.gui_style.btn_primary_light.bg_hover,
-                            ControlState::Hover,
+                            ControlState::Hovered,
                         )
                         .tooltip(txt)
                         .padding(EdgeInsets {
@@ -139,7 +139,7 @@ impl SpeedControls {
                     .btn_plain_light()
                     .bg_color(
                         app.cs.gui_style.btn_primary_light.bg_hover,
-                        ControlState::Hover,
+                        ControlState::Hovered,
                     )
                     .font_size(18)
                     .image_dims(ScreenDims::square(20.0));

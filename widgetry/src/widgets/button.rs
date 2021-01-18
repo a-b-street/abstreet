@@ -597,7 +597,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// ```
     pub fn build(&self, ctx: &EventCtx, action: &str) -> Button {
         let normal = self.batch(ctx, ControlState::Default);
-        let hovered = self.batch(ctx, ControlState::Hover);
+        let hovered = self.batch(ctx, ControlState::Hovered);
         let disabled = self.batch(ctx, ControlState::Disabled);
 
         assert!(
@@ -642,7 +642,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     fn style_mut(&'b mut self, state: ControlState) -> &'b mut ButtonStyle<'a> {
         match state {
             ControlState::Default => &mut self.default_style,
-            ControlState::Hover => &mut self.hover_style,
+            ControlState::Hovered => &mut self.hover_style,
             ControlState::Disabled => &mut self.disable_style,
         }
     }
@@ -650,7 +650,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     fn style(&'b self, state: ControlState) -> &'b ButtonStyle<'a> {
         match state {
             ControlState::Default => &self.default_style,
-            ControlState::Hover => &self.hover_style,
+            ControlState::Hovered => &self.hover_style,
             ControlState::Disabled => &self.disable_style,
         }
     }

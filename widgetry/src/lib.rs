@@ -97,7 +97,7 @@ mod backend {
 #[derive(Clone, Copy, Debug)]
 pub enum ControlState {
     Default,
-    Hover,
+    Hovered,
     Disabled,
     // TODO: Pressing
 }
