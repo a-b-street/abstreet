@@ -8,6 +8,7 @@ rm -fv data/system/seattle/maps/huge_seattle.bin data/input/raw_maps/huge_seattl
 ./import.sh --raw --map --city=bellevue
 ./import.sh --raw --map --city=berlin
 ./import.sh --raw --map --city=cambridge --scenario
+./import.sh --raw --map --city=cheshire
 ./import.sh --raw --map --city=detroit
 ./import.sh --raw --map --city=krakow
 ./import.sh --raw --map --city=leeds

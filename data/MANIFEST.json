@@ -50,20 +50,35 @@
       "uncompressed_size_bytes": 22600428,
       "compressed_size_bytes": 22582107
     },
-    "data/input/cambridge/osm/trumpington.osm": {
-      "checksum": "9663eead6715ae21be0181cdbb621220",
-      "uncompressed_size_bytes": 51162272,
-      "compressed_size_bytes": 5116187
+    "data/input/cambridge/osm/great_kneighton.osm": {
+      "checksum": "ae033f7695754513fdfaf3f631e3e27f",
+      "uncompressed_size_bytes": 54284236,
+      "compressed_size_bytes": 5427399
     },
-    "data/input/cambridge/raw_maps/trumpington.bin": {
-      "checksum": "12bbcd0d468b2a467e8eb7cf4cb5e7af",
-      "uncompressed_size_bytes": 14997968,
-      "compressed_size_bytes": 3440174
+    "data/input/cambridge/raw_maps/great_kneighton.bin": {
+      "checksum": "027d2039553fdb3da18fb61a216a9dda",
+      "uncompressed_size_bytes": 15897744,
+      "compressed_size_bytes": 3648721
     },
-    "data/input/cambridge/screenshots/trumpington.zip": {
-      "checksum": "a957ba222b7bcb0fcfe135e2fc36cad0",
-      "uncompressed_size_bytes": 38729765,
-      "compressed_size_bytes": 38706259
+    "data/input/cambridge/screenshots/great_kneighton.zip": {
+      "checksum": "b6e123ef67ba46313c0d1f2d743abbfc",
+      "uncompressed_size_bytes": 43009066,
+      "compressed_size_bytes": 42983890
+    },
+    "data/input/cheshire/osm/chapelford.osm": {
+      "checksum": "da8daf2687f5fdccd483d4724c63e92e",
+      "uncompressed_size_bytes": 26802514,
+      "compressed_size_bytes": 2627121
+    },
+    "data/input/cheshire/osm/cheshire-latest.osm.pbf": {
+      "checksum": "46e92f455453c6cd15aaf2589235fcd8",
+      "uncompressed_size_bytes": 27365189,
+      "compressed_size_bytes": 27335966
+    },
+    "data/input/cheshire/raw_maps/chapelford.bin": {
+      "checksum": "539edabee15e528388379d205c484313",
+      "uncompressed_size_bytes": 9469838,
+      "compressed_size_bytes": 1961249
     },
     "data/input/detroit/osm/downtown.osm": {
       "checksum": "5c8dd6ecc94a80879bac965ef624e2e7",
@@ -655,20 +670,25 @@
       "uncompressed_size_bytes": 26283072,
       "compressed_size_bytes": 8239726
     },
-    "data/system/cambridge/maps/trumpington.bin": {
-      "checksum": "a84065fe8826c754bfd97ef91a97ddc4",
-      "uncompressed_size_bytes": 30221099,
-      "compressed_size_bytes": 10678378
+    "data/system/cambridge/maps/great_kneighton.bin": {
+      "checksum": "40e008f4178b681fa4bec8fbb7be447d",
+      "uncompressed_size_bytes": 33131475,
+      "compressed_size_bytes": 11709298
     },
-    "data/system/cambridge/scenarios/trumpington/baseline.bin": {
-      "checksum": "67c6a6e053e235187aea88e0a8bad98f",
-      "uncompressed_size_bytes": 71752,
-      "compressed_size_bytes": 18969
+    "data/system/cambridge/scenarios/great_kneighton/baseline.bin": {
+      "checksum": "a2294578999ddab2d014b7caaa9a9b30",
+      "uncompressed_size_bytes": 71756,
+      "compressed_size_bytes": 19431
     },
-    "data/system/cambridge/scenarios/trumpington/go_dutch.bin": {
-      "checksum": "726f7d29bc40ca19b3212fba247f7ced",
-      "uncompressed_size_bytes": 71752,
-      "compressed_size_bytes": 18823
+    "data/system/cambridge/scenarios/great_kneighton/go_dutch.bin": {
+      "checksum": "24fab30d3fead56ae2617e7b204aed07",
+      "uncompressed_size_bytes": 71756,
+      "compressed_size_bytes": 19237
+    },
+    "data/system/cheshire/maps/chapelford.bin": {
+      "checksum": "d9886541b5726cf1a5ea4fc516ecfa1b",
+      "uncompressed_size_bytes": 50211308,
+      "compressed_size_bytes": 17075940
     },
     "data/system/detroit/maps/downtown.bin": {
       "checksum": "35da3c5f5892832968ca279dc06bbbf7",
