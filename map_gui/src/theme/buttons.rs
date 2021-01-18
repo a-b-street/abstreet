@@ -1,5 +1,5 @@
 use crate::colors::{ButtonColorScheme, ColorScheme};
-use widgetry::{ButtonBuilder, ControlState, EventCtx, ScreenDims};
+use widgetry::{ButtonBuilder, ControlState, ScreenDims};
 
 pub trait Buttons<'a> {
     fn btn_primary_dark(&self) -> ButtonBuilder<'a>;

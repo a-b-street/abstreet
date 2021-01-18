@@ -1188,13 +1188,14 @@ impl WidgetImpl for MultiButton {
     }
 }
 
+// Currently only the ButtonBuilder uses the Stack module below, but this might be useful in other
+// places.
+//
+// It's similar to Widget::row/column, but more of a builder pattern - you can add items
+// individually, change `spacing` and `axis`, and call `batch` at the end to apply this
+// configuration things to compute the layout.
 mod geom_batch_stack {
     use crate::GeomBatch;
-
-    // #[derive(Clone, Copy, Debug, PartialEq)]
-    // enum Alignment {
-    //     Center, // TODO: Top, Left, Bottom, Right, etc.
-    // }
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub enum Axis {
@@ -1203,10 +1204,8 @@ mod geom_batch_stack {
     }
 
     #[derive(Debug)]
-    pub struct Stack {
+    pub(crate) struct Stack {
         batches: Vec<GeomBatch>,
-        // TODO: top/bottom/etc
-        // alignment: Alignment,
         axis: Axis,
         spacing: f64,
     }
@@ -1231,6 +1230,7 @@ mod geom_batch_stack {
             }
         }
 
+        #[allow(unused)]
         pub fn vertical() -> Self {
             Stack {
                 axis: Axis::Vertical,
@@ -1242,6 +1242,7 @@ mod geom_batch_stack {
             self.axis = new_value;
         }
 
+        #[allow(unused)]
         pub fn push(&mut self, geom_batch: GeomBatch) {
             self.batches.push(geom_batch);
         }
