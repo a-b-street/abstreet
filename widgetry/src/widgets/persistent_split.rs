@@ -2,7 +2,7 @@ use geom::Polygon;
 
 use crate::{
     Button, ButtonBuilder, Choice, Color, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw,
-    MultiKey, Outcome, ScreenDims, ScreenPt, StyledButtons, Widget, WidgetImpl, WidgetOutput,
+    MultiKey, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
 };
 
 // TODO Radio buttons in the menu
