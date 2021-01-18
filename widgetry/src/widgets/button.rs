@@ -350,9 +350,9 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// ```
     /// # use widgetry::{ButtonBuilder, EdgeInsets};
     /// // Custom padding for each inset
-    /// ButtonBuilder::new().padding(EdgeInsets{ top: 1.0, bottom: 2.0,  left: 12.0, right: 14.0 })
+    /// let b = ButtonBuilder::new().padding(EdgeInsets{ top: 1.0, bottom: 2.0,  left: 12.0, right: 14.0 });
     /// // uniform padding
-    /// ButtonBuilder::new().padding(4)
+    /// let b = ButtonBuilder::new().padding(6);
     /// ```
     pub fn padding<EI: Into<EdgeInsets>>(mut self, padding: EI) -> Self {
         self.padding = padding.into();
@@ -587,19 +587,23 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
 
     /// Build a button.
     ///
+    /// `action`: The event that will be fired when clicked
     /// ```
-    /// # use widgetry::{Color, ButtonBuilder, ControlState};
-    /// let one_off_builder = ButtonBuilder::new().label_text("foo");
+    /// # use widgetry::{Color, ButtonBuilder, ControlState, EventCtx};
     ///
-    /// // If you'd like to build a series of similar buttons, `clone` the builder first.
-    /// let red_builder = ButtonBuilder::new()
-    ///     .bg_color(Color::RED, ControlState::Default)
-    ///     .bg_color(Color::RED.alpha(0.3), ControlState::Default)
-    ///     .outline(2.0, Color::WHITE, ControlState::Default);
+    /// fn build_some_buttons(ctx: &EventCtx) {
+    ///     let one_off_builder = ButtonBuilder::new().label_text("foo").build(ctx, "foo");
     ///
-    /// let red_button_1 = red_builder.clone().label_text("First red button").build();
-    /// let red_button_2 = red_builder.clone().label_text("Second red button").build();
-    /// let red_button_3 = red_builder.label_text("Last red button").build();
+    ///     // If you'd like to build a series of similar buttons, `clone` the builder first.
+    ///     let red_builder = ButtonBuilder::new()
+    ///         .bg_color(Color::RED, ControlState::Default)
+    ///         .bg_color(Color::RED.alpha(0.3), ControlState::Default)
+    ///         .outline(2.0, Color::WHITE, ControlState::Default);
+    ///
+    ///     let red_button_1 = red_builder.clone().label_text("First red button").build(ctx, "first");
+    ///     let red_button_2 = red_builder.clone().label_text("Second red button").build(ctx, "second");
+    ///     let red_button_3 = red_builder.label_text("Last red button").build(ctx, "third");
+    /// }
     /// ```
     pub fn build(&self, ctx: &EventCtx, action: &str) -> Button {
         let normal = self.batch(ctx, ControlState::Default);
@@ -625,11 +629,13 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     }
 
     /// Shorthand method to build a Button wrapped in a Widget
+    ///
+    /// `action`: The event that will be fired when clicked
     pub fn build_widget(&self, ctx: &EventCtx, action: &str) -> Widget {
         Widget::new(Box::new(self.build(ctx, action))).named(action)
     }
 
-    /// Shorthand method to build a widget whose action is derived from the label's text.
+    /// Shorthand method to build a default widget whose `action` is derived from the label's text.
     pub fn build_def(&self, ctx: &EventCtx) -> Widget {
         let action = self
             .default_style
