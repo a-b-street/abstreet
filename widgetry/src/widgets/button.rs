@@ -1,9 +1,9 @@
 use geom::{Distance, Polygon};
 
 use crate::{
-    svg, text::Font, Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey,
-    Outcome, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl,
-    WidgetOutput,
+    svg, text::Font, Color, ContentMode, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch,
+    GfxCtx, Key, Line, MultiKey, Outcome, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle,
+    Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Button {
@@ -308,63 +308,6 @@ impl Btn {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct Image<'a> {
-    path: Option<&'a str>,
-    color: Option<Color>,
-    dims: Option<ScreenDims>,
-    content_mode: ContentMode,
-}
-
-impl Default for Image<'_> {
-    fn default() -> Self {
-        Image {
-            path: None,
-            color: None,
-            dims: None,
-            content_mode: ContentMode::ScaleAspectFit,
-        }
-    }
-}
-
-/// Rules for how content should stretch to fill it's bounds
-#[derive(Clone, Debug)]
-pub enum ContentMode {
-    /// Stretches content to fit its bounds exactly, breaking aspect ratio as necessary.
-    ScaleToFill,
-
-    /// Maintaining aspect ration, content grows within its bounds.
-    ///
-    /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
-    /// there will be some empty space within the bounds.
-    ScaleAspectFit,
-
-    /// Maintaining aspect ration, content grows to cover its bounds
-    ///
-    /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
-    /// the content will overflow one dimension of its bounds.
-    ScaleAspectFill,
-}
-
-#[derive(Clone, Debug, Default)]
-struct Label<'a> {
-    text: Option<&'a str>,
-    color: Option<Color>,
-    styled_text: Option<Text>,
-    font_size: Option<usize>,
-    font: Option<Font>,
-}
-
-#[derive(Clone, Debug, Default)]
-struct ButtonStyle<'a> {
-    image: Option<Image<'a>>,
-    label: Option<Label<'a>>,
-    outline: Option<(f64, Color)>,
-    bg_color: Option<Color>,
-    /* tooltip: Option<()>,
-     * geom: Option<()>, */
-}
-
 #[derive(Clone, Debug, Default)]
 pub struct ButtonBuilder<'a> {
     padding: EdgeInsets,
@@ -379,12 +322,12 @@ pub struct ButtonBuilder<'a> {
     disable_style: ButtonStyle<'a>,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub enum ControlState {
-    Default,
-    Hover,
-    Disabled,
-    // TODO: Pressing
+#[derive(Clone, Debug, Default)]
+struct ButtonStyle<'a> {
+    image: Option<Image<'a>>,
+    label: Option<Label<'a>>,
+    outline: Option<(f64, Color)>,
+    bg_color: Option<Color>,
 }
 
 impl<'b, 'a: 'b> ButtonBuilder<'a> {
@@ -401,7 +344,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
     }
 
-    /// Extra spacing around a buttons items (label and/or image).
+    /// Extra spacing around a button's items (label and/or image).
     ///
     /// If not specified, a default will be applied.
     /// ```
@@ -416,21 +359,25 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
+    /// Extra spacing around a button's items (label and/or image).
     pub fn padding_top(mut self, padding: f32) -> Self {
         self.padding.top = padding;
         self
     }
 
+    /// Extra spacing around a button's items (label and/or image).
     pub fn padding_left(mut self, padding: f32) -> Self {
         self.padding.left = padding;
         self
     }
 
+    /// Extra spacing around a button's items (label and/or image).
     pub fn padding_bottom(mut self, padding: f32) -> Self {
         self.padding.bottom = padding;
         self
     }
 
+    /// Extra spacing around a button's items (label and/or image).
     pub fn padding_right(mut self, padding: f32) -> Self {
         self.padding.right = padding;
         self
@@ -581,7 +528,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    /// The buttons items will be rendered in a vertical column
+    /// The button's items will be rendered in a vertical column
     ///
     /// If the button doesn't have both an image and label, this has no effect.
     pub fn vertical(mut self) -> Self {
@@ -589,7 +536,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         self
     }
 
-    /// The buttons items will be rendered in a horizontal row
+    /// The button's items will be rendered in a horizontal row
     ///
     /// If the button doesn't have both an image and label, this has no effect.
     pub fn horizontal(mut self) -> Self {
@@ -843,6 +790,23 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         let (geom_batch, _hitbox) = button_widget.to_geom(ctx, None);
         geom_batch
     }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct Image<'a> {
+    path: Option<&'a str>,
+    color: Option<Color>,
+    dims: Option<ScreenDims>,
+    content_mode: ContentMode,
+}
+
+#[derive(Clone, Debug, Default)]
+struct Label<'a> {
+    text: Option<&'a str>,
+    color: Option<Color>,
+    styled_text: Option<Text>,
+    font_size: Option<usize>,
+    font: Option<Font>,
 }
 
 pub enum BtnBuilder {

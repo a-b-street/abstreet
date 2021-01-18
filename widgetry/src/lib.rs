@@ -48,7 +48,7 @@ pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
 // REVIEW: move ContentMode to upper level?
-pub use crate::widgets::button::{Btn, ButtonBuilder, ContentMode, ControlState, MultiButton};
+pub use crate::widgets::button::{Btn, ButtonBuilder, MultiButton};
 pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
 pub(crate) use crate::widgets::dropdown::Dropdown;
@@ -92,6 +92,39 @@ mod widgets;
 mod backend {
     #[cfg(any(feature = "native-backend", feature = "wasm-backend"))]
     pub use crate::backend_glow::*;
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum ControlState {
+    Default,
+    Hover,
+    Disabled,
+    // TODO: Pressing
+}
+
+/// Rules for how content should stretch to fill it's bounds
+#[derive(Clone, Debug)]
+pub enum ContentMode {
+    /// Stretches content to fit its bounds exactly, breaking aspect ratio as necessary.
+    ScaleToFill,
+
+    /// Maintaining aspect ration, content grows within its bounds.
+    ///
+    /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
+    /// there will be some empty space within the bounds.
+    ScaleAspectFit,
+
+    /// Maintaining aspect ration, content grows to cover its bounds
+    ///
+    /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
+    /// the content will overflow one dimension of its bounds.
+    ScaleAspectFill,
+}
+
+impl Default for ContentMode {
+    fn default() -> Self {
+        ContentMode::ScaleAspectFit
+    }
 }
 
 pub struct Choice<T> {
