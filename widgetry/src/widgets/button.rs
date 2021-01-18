@@ -664,10 +664,6 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
             "button was empty"
         );
         let hitbox = normal.get_bounds().get_rectangle();
-        debug!(
-            "normal.get_bounds().get_rectangle(): {:?} for button: {:?}",
-            hitbox, self
-        );
         Button::new(
             ctx,
             normal,
@@ -845,7 +841,6 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
         }
 
         let (geom_batch, _hitbox) = button_widget.to_geom(ctx, None);
-        debug!("button_widget.to_geom().hitbox: {:?}", _hitbox);
         geom_batch
     }
 }
