@@ -645,6 +645,21 @@
       "uncompressed_size_bytes": 12648852,
       "compressed_size_bytes": 2810763
     },
+    "data/input/warsaw/osm/center.osm": {
+      "checksum": "b41830dd375674ffc9f7ec15d6cf9c0c",
+      "uncompressed_size_bytes": 99007263,
+      "compressed_size_bytes": 10833342
+    },
+    "data/input/warsaw/osm/mazowieckie-latest.osm.pbf": {
+      "checksum": "a3d60b83f7d8b8d3b9549408d173b9bb",
+      "uncompressed_size_bytes": 164117919,
+      "compressed_size_bytes": 163918548
+    },
+    "data/input/warsaw/raw_maps/center.bin": {
+      "checksum": "3b10574778e45ed0d3f3f66b1f87e262",
+      "uncompressed_size_bytes": 32102959,
+      "compressed_size_bytes": 7199663
+    },
     "data/input/xian/osm/center.osm": {
       "checksum": "4084c665ad947bb40173a43cb33fdec8",
       "uncompressed_size_bytes": 26198743,
@@ -964,6 +979,11 @@
       "checksum": "b99195b971f065e3c34d2c4fdc537fcb",
       "uncompressed_size_bytes": 48798259,
       "compressed_size_bytes": 16123973
+    },
+    "data/system/warsaw/maps/center.bin": {
+      "checksum": "751e757dbe40d4425b06383da7baf09b",
+      "uncompressed_size_bytes": 91587298,
+      "compressed_size_bytes": 29527059
     },
     "data/system/xian/maps/center.bin": {
       "checksum": "9f55fc455181622c8769de34487c7805",
