@@ -128,8 +128,6 @@ the JSON, you have to convert it back to the binary format:
 cargo run --bin json_to_binary_map -- --input=montlake.json out=data/system/seattle/maps/montlake_modified.bin`
 ```
 
-... Except this tool doesn't seem to work yet!
-
 The format of the map isn't well-documented yet. See the
 [generated API docs](https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html)
 and [the map model docs](../map/index.md) in the meantime.
