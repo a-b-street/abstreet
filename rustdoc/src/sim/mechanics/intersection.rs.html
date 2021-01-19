@@ -990,6 +990,11 @@
 <span id="987">987</span>
 <span id="988">988</span>
 <span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1168,7 +1173,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_deleted_mid_turn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">agent</span>: <span class="ident">AgentID</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>) {
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">parent</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">state</span>.<span class="ident">accepted</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">Request</span> { <span class="ident">agent</span>, <span class="ident">turn</span> }));
-        <span class="ident">state</span>.<span class="ident">reserved</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">Request</span> { <span class="ident">agent</span>, <span class="ident">turn</span> });
+
+        <span class="comment">// This agent might have a few more nearby turns reserved, because they&#39;re part of an</span>
+        <span class="comment">// uber-turn. It&#39;s a blunt response to just clear them all out, but it should be correct.</span>
+        <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">values_mut</span>() {
+            <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">state</span>.<span class="ident">reserved</span>, <span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">agent</span> <span class="op">!</span><span class="op">=</span> <span class="ident">agent</span>);
+        }
     }
 
     <span class="kw">fn</span> <span class="ident">wakeup_waiting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {

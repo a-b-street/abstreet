@@ -131,11 +131,19 @@
 <span id="128">128</span>
 <span id="129">129</span>
 <span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
 <span class="comment">// live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
 <span class="comment">//</span>
 <span class="comment">// TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.</span>
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
@@ -228,6 +236,7 @@
     <span class="ident">active_destinations</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
 
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">active_destinations</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">num_edits</span>) {
+        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Closing someone&#39;s target {}&quot;</span>, <span class="ident">l</span>);
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
         <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
             <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>)].<span class="number">0</span> <span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span>;
@@ -256,6 +265,7 @@
         .<span class="ident">collect</span>();
     <span class="ident">parking_lanes</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">parking_lanes</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">num_edits</span>) {
+        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Closing parking {}&quot;</span>, <span class="ident">l</span>);
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
         <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
             <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>)].<span class="number">0</span> <span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span>;
