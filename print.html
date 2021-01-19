@@ -311,7 +311,7 @@ the only thing you need to change is <code>osm_url</code>.</p>
 <p>Run it: <code>./import.sh --city=your_city --raw --map</code></p>
 </li>
 <li>
-<p>Update <code>.gitignore</code> and <code>data/regen.sh</code>, following <code>tel_aviv</code> as an example.</p>
+<p>Update <code>.gitignore</code> and <code>importer/src/main.rs</code>, following <code>tel_aviv</code> as an example.</p>
 </li>
 <li>
 <p>Fill out <code>nice_map_name</code> in <code>map_gui/src/tools/mod.rs</code>.</p>
@@ -1142,7 +1142,6 @@ a building not explicitly designated in OpenStreetMap as a garage. After editing
 the JSON, you have to convert it back to the binary format:</p>
 <pre><code>cargo run --bin json_to_binary_map -- --input=montlake.json out=data/system/seattle/maps/montlake_modified.bin`
 </code></pre>
-<p>... Except this tool doesn't seem to work yet!</p>
 <p>The format of the map isn't well-documented yet. See the
 <a href="https://dabreegster.github.io/abstreet/rustdoc/map_model/index.html">generated API docs</a>
 and <a href="dev/../map/index.html">the map model docs</a> in the meantime.</p>
