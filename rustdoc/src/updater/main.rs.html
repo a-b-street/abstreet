@@ -284,20 +284,6 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -308,7 +294,7 @@
 <span class="kw">use</span> <span class="ident">walkdir</span>::<span class="ident">WalkDir</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">DataPacks</span>, <span class="ident">Entry</span>, <span class="ident">Manifest</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">CmdArgs</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">must_run_cmd</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">CmdArgs</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Percent</span>;
 
 <span class="kw">const</span> <span class="ident">MD5_BUF_READ_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">4096</span>;
@@ -526,20 +512,6 @@
         <span class="ident">context</span>.<span class="ident">consume</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..<span class="ident">n</span>]);
     }
     (<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">context</span>.<span class="ident">compute</span>()), <span class="ident">uncompressed_size_bytes</span>)
-}
-
-<span class="kw">fn</span> <span class="ident">must_run_cmd</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Command</span>) {
-    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;&gt; Running {:?}&quot;</span>, <span class="ident">cmd</span>);
-    <span class="kw">match</span> <span class="ident">cmd</span>.<span class="ident">status</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">status</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">status</span>.<span class="ident">success</span>() {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{:?} failed&quot;</span>, <span class="ident">cmd</span>);
-            }
-        }
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Failed to run {:?}: {:?}&quot;</span>, <span class="ident">cmd</span>, <span class="ident">err</span>);
-        }
-    }
 }
 
 <span class="kw">fn</span> <span class="ident">rm</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
