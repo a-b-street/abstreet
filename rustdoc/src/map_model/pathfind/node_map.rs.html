@@ -72,6 +72,13 @@
 <span id="69">69</span>
 <span id="70">70</span>
 <span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Some helpers for working with fast_paths.</span>
 
@@ -81,9 +88,12 @@
 <span class="kw">use</span> <span class="ident">fast_paths</span>::{<span class="ident">NodeId</span>, <span class="ident">ShortestPath</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>};
 
+<span class="doccomment">/// A bidirectional mapping between fast_paths NodeId and some custom ID type.</span>
 <span class="comment">// TODO Upstream this in fast_paths when this is more solid.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Serialize</span><span class="op">&gt;</span> {
+    <span class="comment">// These two fields are redundant and large, so don&#39;t serialize the bigger one, to cut down</span>
+    <span class="comment">// file size.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>)]</span>
     <span class="ident">node_to_id</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">NodeId</span><span class="op">&gt;</span>,
     <span class="ident">id_to_node</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
@@ -123,7 +133,12 @@
     }
 }
 
-<span class="comment">// TODO Still can&#39;t figure out how to derive Deserialize on NodeMap directly.</span>
+<span class="comment">// A serialized NodeMap has this form in JSON. Use this to deserialize.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">InnerNodeMap</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Debug</span><span class="op">&gt;</span> {
+    <span class="ident">id_to_node</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+}
+
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deserialize_nodemap</span><span class="op">&lt;</span>
     <span class="lifetime">&#39;de</span>,
     <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
@@ -131,9 +146,8 @@
 <span class="op">&gt;</span>(
     <span class="ident">d</span>: <span class="ident">D</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="comment">// TODO I&#39;m offline and can&#39;t look up hw to use Deserializer twice in sequence. Since the two</span>
-    <span class="comment">// fields are redundant, just serialize one of them.</span>
-    <span class="kw">let</span> <span class="ident">id_to_node</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">InnerNodeMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">id_to_node</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">id_to_node</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_to_id</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">node</span>) <span class="kw">in</span> <span class="ident">id_to_node</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="ident">node_to_id</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">node</span>, <span class="ident">id</span>);
