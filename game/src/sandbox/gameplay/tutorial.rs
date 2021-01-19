@@ -895,7 +895,7 @@ impl TutorialState {
             fire_station: app.primary.map.find_b_by_osm_id(bldg(731238736)).unwrap(),
         };
 
-        let tool_panel = tool_panel(ctx);
+        let tool_panel = tool_panel(ctx, app);
         let time = TimePanel::new(ctx, app);
         let speed = SpeedControls::new(ctx, app);
         let agent_meter = AgentMeter::new(ctx, app);

@@ -5,8 +5,8 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Panel, ScreenDims, ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment, Widget,
+    lctrl, Checkbox, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    ScreenDims, ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment, Widget,
 };
 
 pub use self::minimap::MinimapController;
@@ -14,6 +14,7 @@ pub use self::warp::Warping;
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
+use map_gui::theme::StyledButtons;
 
 mod minimap;
 mod warp;
@@ -288,10 +289,15 @@ impl CommonState {
 }
 
 // TODO Kinda misnomer
-pub fn tool_panel(ctx: &mut EventCtx) -> Panel {
+pub fn tool_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new(Widget::row(vec![
-        Btn::svg_def("system/assets/tools/home.svg").build(ctx, "back", Key::Escape),
-        Btn::svg_def("system/assets/tools/settings.svg").build(ctx, "settings", None),
+        app.cs
+            .btn_plain_light_icon("system/assets/tools/home.svg")
+            .hotkey(Key::Escape)
+            .build_widget(ctx, "back"),
+        app.cs
+            .btn_plain_light_icon("system/assets/tools/settings.svg")
+            .build_widget(ctx, "settings"),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
     .build(ctx)
@@ -364,15 +370,6 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
         TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
         TripPhaseType::DelayedStart => Color::YELLOW,
     }
-}
-
-// TODO Well, there goes the nice consolidation of stuff in BtnBuilder. :\
-pub fn hotkey_btn<I: Into<String>>(ctx: &EventCtx, app: &App, label: I, key: Key) -> Widget {
-    let label = label.into();
-    let mut txt = Text::new();
-    txt.append(key.txt(ctx));
-    txt.append(Line(format!(" - {}", label)));
-    Btn::text_bg(label, txt, app.cs.section_bg, app.cs.hovering).build_def(ctx, key)
 }
 
 pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {

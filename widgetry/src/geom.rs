@@ -205,14 +205,19 @@ impl GeomBatch {
     }
 
     /// Scales the batch by some factor.
-    pub fn scale(mut self, factor: f64) -> GeomBatch {
-        if factor == 1.0 {
+    pub fn scale(self, factor: f64) -> GeomBatch {
+        self.scale_xy(factor, factor)
+    }
+
+    pub fn scale_xy(mut self, x_factor: f64, y_factor: f64) -> GeomBatch {
+        if x_factor == 1.0 && y_factor == 1.0 {
             return self;
         }
+
         for (_, poly, _) in &mut self.list {
             // strip_rings first -- sometimes when scaling down, the original rings collapse. Since
             // this polygon is part of a GeomBatch anyway, not calling to_outline on it.
-            *poly = poly.strip_rings().scale(factor);
+            *poly = poly.strip_rings().scale_xy(x_factor, y_factor);
         }
         self
     }

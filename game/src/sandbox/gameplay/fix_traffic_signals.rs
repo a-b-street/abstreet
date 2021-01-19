@@ -3,7 +3,7 @@ use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
     Btn, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor,
-    State, Text, VerticalAlignment, Widget,
+    State, StyledButtons, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::Transition;
@@ -306,8 +306,9 @@ fn make_meter(ctx: &mut EventCtx, app: &App, worst: Option<(IntersectionID, Dura
                     }),
                 ])
                 .draw(ctx),
-                Btn::svg_def("system/assets/tools/location.svg")
-                    .build(ctx, "go to slowest intersection", None)
+                app.cs
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .build_widget(ctx, "go to slowest intersection")
                     .align_right(),
             ])
         } else {

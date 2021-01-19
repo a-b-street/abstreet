@@ -378,8 +378,6 @@ impl Widget {
             false,
         )))
         .named(label)
-        // Why is this still required? The button Dropdown uses *already* has an outline
-        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
     }
 
     pub fn custom_row(widgets: Vec<Widget>) -> Widget {
@@ -737,12 +735,32 @@ impl Widget {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub struct EdgeInsets {
     pub top: f32,
     pub left: f32,
     pub bottom: f32,
     pub right: f32,
+}
+
+impl EdgeInsets {
+    pub fn zero() -> Self {
+        EdgeInsets {
+            top: 0.0,
+            left: 0.0,
+            bottom: 0.0,
+            right: 0.0,
+        }
+    }
+
+    pub fn uniform(inset: f32) -> Self {
+        EdgeInsets {
+            top: inset,
+            left: inset,
+            bottom: inset,
+            right: inset,
+        }
+    }
 }
 
 impl From<usize> for EdgeInsets {
@@ -752,6 +770,17 @@ impl From<usize> for EdgeInsets {
             left: uniform_size as f32,
             bottom: uniform_size as f32,
             right: uniform_size as f32,
+        }
+    }
+}
+
+impl From<f32> for EdgeInsets {
+    fn from(uniform_size: f32) -> EdgeInsets {
+        EdgeInsets {
+            top: uniform_size,
+            left: uniform_size,
+            bottom: uniform_size,
+            right: uniform_size,
         }
     }
 }

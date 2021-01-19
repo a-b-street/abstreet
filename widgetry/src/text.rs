@@ -129,6 +129,16 @@ impl TextSpan {
         self.underlined = true;
         self
     }
+
+    pub fn size(mut self, size: usize) -> TextSpan {
+        self.size = size;
+        self
+    }
+
+    pub fn font(mut self, font: Font) -> TextSpan {
+        self.font = font;
+        self
+    }
 }
 
 // TODO What's the better way of doing this? Also "Line" is a bit of a misnomer
@@ -440,9 +450,9 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     for span in spans {
         write!(
             &mut contents,
-            r##"<tspan fill="{}" {}>{}</tspan>"##,
-            // TODO Doesn't support alpha
+            r##"<tspan fill="{}" fill-opacity="{}" {}>{}</tspan>"##,
             span.fg_color.to_hex(),
+            span.fg_color.a,
             if span.underlined {
                 "text-decoration=\"underline\""
             } else {
@@ -523,7 +533,7 @@ impl TextSpan {
             - (Text::from(Line(&self.text)).dims(assets).width * scale) / 2.0;
         write!(
             &mut svg,
-            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" startOffset="{}">"##,
+            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" startOffset="{}">"##,
             // This is seemingly the easiest way to do this. We could .scale() the whole batch
             // after, but then we have to re-translate it to the proper spot
             (self.size as f64) * scale,
@@ -534,6 +544,7 @@ impl TextSpan {
                 _ => "",
             },
             self.fg_color.to_hex(),
+            self.fg_color.a,
             start_offset,
         )
             .unwrap();

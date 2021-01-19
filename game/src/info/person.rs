@@ -11,8 +11,8 @@ use sim::{
     TripMode, TripResult, VehicleType,
 };
 use widgetry::{
-    Btn, Color, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor, Text, TextExt, TextSpan,
-    Widget,
+    Btn, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, Key, Line, RewriteColor,
+    StyledButtons, Text, TextExt, TextSpan, Widget,
 };
 
 use crate::app::App;
@@ -435,7 +435,7 @@ pub fn crowd(
 
     rows.push(Widget::row(vec![
         Line("Pedestrian crowd").small_heading().draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
 
     for (idx, id) in members.into_iter().enumerate() {
@@ -483,17 +483,17 @@ pub fn parked_car(
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                Btn::svg_def("system/assets/tools/location.svg").build(
-                    ctx,
-                    "follow (run the simulation)",
-                    Key::F,
-                )
+                app.cs
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
-                GeomBatch::load_svg(ctx, "system/assets/tools/location.svg")
-                    .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
-                    .to_btn(ctx)
-                    .build(ctx, "unfollow (pause the simulation)", Key::F)
+                app.cs
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .image_color(Color::hex("#7FFA4D"), ControlState::Default)
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "unfollow (pause the simulation)")
             },
             Btn::close(ctx),
         ])
@@ -603,17 +603,17 @@ fn header(
             // Little indirect, but the handler of this action is actually the ContextualActions
             // for SandboxMode.
             if is_paused {
-                Btn::svg_def("system/assets/tools/location.svg").build(
-                    ctx,
-                    "follow (run the simulation)",
-                    Key::F,
-                )
+                app.cs
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "follow (run the simulation)")
             } else {
                 // TODO Blink
-                GeomBatch::load_svg(ctx, "system/assets/tools/location.svg")
-                    .color(RewriteColor::ChangeAll(Color::hex("#7FFA4D")))
-                    .to_btn(ctx)
-                    .build(ctx, "unfollow (pause the simulation)", Key::F)
+                app.cs
+                    .btn_plain_light_icon("system/assets/tools/location.svg")
+                    .image_color(Color::hex("#7FFA4D"), ControlState::Default)
+                    .hotkey(Key::F)
+                    .build_widget(ctx, "unfollow (pause the simulation)")
             },
             Btn::close(ctx),
         ])

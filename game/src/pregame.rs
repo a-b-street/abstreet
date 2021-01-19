@@ -7,12 +7,13 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::{Duration, Line, Percent, Pt2D, Speed};
 use map_gui::load::MapLoader;
+use map_gui::theme::StyledButtons;
 use map_gui::tools::{open_browser, PopupMsg};
 use map_model::PermanentMapEdits;
 use sim::{AlertHandler, ScenarioGenerator, Sim, SimOptions};
 use widgetry::{
-    hotkeys, Btn, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, RewriteColor,
-    State, Text, UpdateType, Widget,
+    hotkeys, Color, ContentMode, DrawBaselayer, EdgeInsets, EventCtx, Font, GfxCtx, Key, Line,
+    Outcome, Panel, ScreenDims, State, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -45,11 +46,10 @@ impl TitleScreen {
                     Widget::draw_svg(ctx, "system/assets/pregame/logo.svg"),
                     // TODO that nicer font
                     // TODO Any key
-                    Btn::text_bg2("PLAY").build(
-                        ctx,
-                        "start game",
-                        hotkeys(vec![Key::Space, Key::Enter]),
-                    ),
+                    app.cs
+                        .btn_primary_dark_text("Play")
+                        .hotkey(hotkeys(vec![Key::Space, Key::Enter]))
+                        .build_widget(ctx, "start game"),
                 ])
                 .bg(app.cs.dialog_bg)
                 .padding(16)
@@ -93,62 +93,86 @@ pub struct MainMenu {
 impl MainMenu {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
-            Btn::svg_def("system/assets/pregame/quit.svg")
-                .build(ctx, "quit", Key::Escape)
-                .align_left(),
             {
                 let mut txt = Text::from(Line("A/B STREET").display_title());
                 txt.add(Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk"));
                 txt.draw(ctx).centered_horiz()
             },
-            Widget::row(vec![
-                Btn::svg(
-                    "system/assets/pregame/tutorial.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip({
-                    let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
-                    txt.add(Line("Learn how to play the game").small());
-                    txt
-                })
-                .build(ctx, "Tutorial", Key::T),
-                Btn::svg(
-                    "system/assets/pregame/sandbox.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip({
-                    let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
-                    txt.add(Line("No goals, try out any idea here").small());
-                    txt
-                })
-                .build(ctx, "Sandbox mode", Key::S),
-                Btn::svg(
-                    "system/assets/pregame/challenges.svg",
-                    RewriteColor::Change(Color::WHITE, app.cs.hovering),
-                )
-                .tooltip({
-                    let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
-                    txt.add(Line("Fix specific problems").small());
-                    txt
-                })
-                .build(ctx, "Challenges", Key::C),
-            ])
+            Widget::row({
+                let btn_builder = app
+                    .cs
+                    .btn_primary_dark()
+                    .image_dims(ScreenDims::new(200.0, 100.0))
+                    .font_size(40)
+                    .font(Font::OverpassBold)
+                    // CLEANUP: There's some baked in padding with our current assets which is
+                    // probably not desirable, but we compensate for that here by applying
+                    // unequal padding
+                    .padding(EdgeInsets {
+                        top: 40.0,
+                        bottom: 40.0,
+                        left: 20.0,
+                        right: 20.0,
+                    })
+                    .image_content_mode(ContentMode::ScaleAspectFill)
+                    .vertical();
+                vec![
+                    btn_builder
+                        .clone()
+                        .image_path("system/assets/pregame/tutorial.svg")
+                        .label_text("Tutorial")
+                        .tooltip({
+                            let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
+                            txt.add(Line("Learn how to play the game").small());
+                            txt
+                        })
+                        .hotkey(Key::T)
+                        .build_widget(ctx, "Tutorial"),
+                    btn_builder
+                        .clone()
+                        .image_path("system/assets/pregame/sandbox.svg")
+                        .label_text("Sandbox")
+                        .tooltip({
+                            let mut txt = Text::tooltip(ctx, Key::S, "Sandbox");
+                            txt.add(Line("No goals, try out any idea here").small());
+                            txt
+                        })
+                        .hotkey(Key::S)
+                        .build_widget(ctx, "Sandbox mode"),
+                    btn_builder
+                        .clone()
+                        .image_path("system/assets/pregame/challenges.svg")
+                        .label_text("Challenge")
+                        .tooltip({
+                            let mut txt = Text::tooltip(ctx, Key::C, "Challenges");
+                            txt.add(Line("Fix specific problems").small());
+                            txt
+                        })
+                        .hotkey(Key::C)
+                        .build_widget(ctx, "Challenges"),
+                ]
+            })
             .centered(),
             Widget::row(vec![
-                Btn::text_bg2("Community Proposals")
+                app.cs
+                    .btn_secondary_light_text("Community Proposals")
                     .tooltip({
                         let mut txt = Text::tooltip(ctx, Key::P, "Community Proposals");
                         txt.add(Line("See existing ideas for improving traffic").small());
                         txt
                     })
-                    .build_def(ctx, Key::P),
-                Btn::text_bg2("Internal Dev Tools").build_def(ctx, Key::D),
+                    .hotkey(Key::P)
+                    .build_widget(ctx, "Community Proposals"),
+                app.cs
+                    .btn_secondary_light_text("Internal Dev Tools")
+                    .hotkey(Key::D)
+                    .build_widget(ctx, "Internal Dev Tools"),
             ])
             .centered(),
             Widget::col(vec![
                 Widget::row(vec![
-                    Btn::text_bg2("About").build_def(ctx, None),
-                    Btn::text_bg2("Feedback").build_def(ctx, None),
+                    app.cs.btn_secondary_light_text("About").build_def(ctx),
+                    app.cs.btn_secondary_light_text("Feedback").build_def(ctx),
                 ]),
                 built_info::time().draw(ctx),
             ])
@@ -167,9 +191,6 @@ impl State<App> for MainMenu {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "quit" => {
-                    return Transition::Pop;
-                }
                 "Tutorial" => {
                     return Tutorial::start(ctx, app);
                 }
@@ -232,8 +253,10 @@ struct About {
 impl About {
     fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let col = vec![
-            Btn::svg_def("system/assets/pregame/back.svg")
-                .build(ctx, "back", Key::Escape)
+            app.cs
+                .btn_back_light("Home")
+                .hotkey(Key::Escape)
+                .build_widget(ctx, "back")
                 .align_left(),
             {
                 Text::from_multiline(vec![
@@ -264,8 +287,9 @@ impl About {
                 .bg(app.cs.panel_bg)
                 .padding(16)
             },
-            Btn::text_bg2("See full credits")
-                .build_def(ctx, None)
+            app.cs
+                .btn_primary_dark_text("See full credits")
+                .build_def(ctx)
                 .centered_horiz(),
         ];
 
@@ -337,19 +361,31 @@ impl Proposals {
 
                 if edits.proposal_link.is_some() {
                     current_tab.push(
-                        Btn::text_bg2("Read detailed write-up")
-                            .build_def(ctx, None)
+                        app.cs
+                            .btn_primary_dark_text("Read detailed write-up")
+                            .build_def(ctx)
                             .margin_below(10),
                     );
                 }
-                current_tab.push(Btn::text_bg2("Try out this proposal").build_def(ctx, None));
+                current_tab.push(
+                    app.cs
+                        .btn_primary_dark_text("Try out this proposal")
+                        .build_def(ctx),
+                );
 
-                buttons.push(Btn::text_bg2(&edits.proposal_description[0]).inactive(ctx));
+                buttons.push(
+                    app.cs
+                        .btn_primary_dark_text(&edits.proposal_description[0])
+                        .disabled()
+                        .build_def(ctx)
+                        .margin_below(10),
+                );
             } else {
                 buttons.push(
-                    Btn::text_bg2(&edits.proposal_description[0])
+                    app.cs
+                        .btn_primary_dark_text(&edits.proposal_description[0])
                         .no_tooltip()
-                        .build(ctx, &name, None)
+                        .build_widget(ctx, &name)
                         .margin_below(10),
                 );
             }
@@ -375,8 +411,10 @@ impl Proposals {
         Box::new(Proposals {
             proposals,
             panel: Panel::new(Widget::custom_col(vec![
-                Btn::svg_def("system/assets/pregame/back.svg")
-                    .build(ctx, "back", Key::Escape)
+                app.cs
+                    .btn_back_light("Home")
+                    .hotkey(Key::Escape)
+                    .build_widget(ctx, "back")
                     .align_left()
                     .margin_below(20),
                 Widget::col(col).bg(app.cs.panel_bg).padding(16),

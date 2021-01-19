@@ -43,7 +43,7 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         Box::new(DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
@@ -84,7 +84,7 @@ impl DebugMode {
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx),
+            tool_panel: tool_panel(ctx, app),
             objects: objects::ObjectDebugger,
             hidden: HashSet::new(),
             layers: ShowLayers::new(),

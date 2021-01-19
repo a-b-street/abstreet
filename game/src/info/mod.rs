@@ -3,6 +3,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Time};
+use map_gui::theme::StyledButtons;
 use map_gui::tools::open_browser;
 use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
@@ -16,7 +17,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::{color_for_agent_type, hotkey_btn, Warping};
+use crate::common::{color_for_agent_type, Warping};
 use crate::debug::path_counter::PathCounter;
 use crate::edit::{EditMode, RouteEditor};
 use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
@@ -372,7 +373,11 @@ impl InfoPanel {
             if let Some(id) = maybe_id.clone() {
                 for (key, label) in ctx_actions.actions(app, id) {
                     cached_actions.push(key);
-                    col.push(hotkey_btn(ctx, app, label, key));
+                    let button = app
+                        .cs
+                        .btn_hotkey_light(&label, key)
+                        .build_widget(ctx, &label);
+                    col.push(button);
                 }
             }
         }
@@ -701,10 +706,13 @@ fn make_tabs(
     Widget::custom_row(row).bg(Color::WHITE).margin_vert(16)
 }
 
-fn header_btns(ctx: &EventCtx) -> Widget {
+fn header_btns(ctx: &EventCtx, app: &App) -> Widget {
     Widget::row(vec![
-        Btn::svg_def("system/assets/tools/location.svg").build(ctx, "jump to object", Key::J),
-        Btn::close(ctx),
+        app.cs
+            .btn_plain_light_icon("system/assets/tools/location.svg")
+            .hotkey(Key::J)
+            .build_widget(ctx, "jump to object"),
+        app.cs.btn_close().build_widget(ctx, "close"),
     ])
     .align_right()
 }

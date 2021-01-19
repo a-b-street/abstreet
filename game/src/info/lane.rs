@@ -249,7 +249,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
         Line(format!("{} #{}", label, id.0))
             .small_heading()
             .draw(ctx),
-        header_btns(ctx),
+        header_btns(ctx, app),
     ]));
     rows.push(format!("@ {}", r.get_name(app.opts.language.as_ref())).draw_text(ctx));
 

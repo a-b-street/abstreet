@@ -8,7 +8,7 @@ use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 
 pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLotID) -> Vec<Widget> {
-    let mut rows = header(ctx, details, id, Tab::ParkingLot(id));
+    let mut rows = header(ctx, app, details, id, Tab::ParkingLot(id));
     let pl = app.primary.map.get_pl(id);
     let capacity = pl.capacity();
 
@@ -60,11 +60,17 @@ pub fn info(ctx: &mut EventCtx, app: &App, details: &mut Details, id: ParkingLot
     rows
 }
 
-fn header(ctx: &EventCtx, details: &mut Details, id: ParkingLotID, tab: Tab) -> Vec<Widget> {
+fn header(
+    ctx: &EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: ParkingLotID,
+    tab: Tab,
+) -> Vec<Widget> {
     vec![
         Widget::row(vec![
             Line(id.to_string()).small_heading().draw(ctx),
-            header_btns(ctx),
+            header_btns(ctx, app),
         ]),
         make_tabs(
             ctx,

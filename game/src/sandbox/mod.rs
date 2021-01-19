@@ -7,6 +7,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::{FileLoader, MapLoader};
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
+use map_gui::theme::StyledButtons;
 use map_gui::tools::{ChooseSomething, Minimap, PopupMsg, TurnExplorer};
 use map_gui::{AppLike, ID};
 use sim::{Analytics, Scenario};
@@ -134,7 +135,7 @@ impl State<App> for SandboxMode {
 
         // Order here is pretty arbitrary
         if app.opts.dev && ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new(ctx));
+            return Transition::Push(DebugMode::new(ctx, app));
         }
 
         if let Some(ref mut m) = self.controls.minimap {
@@ -430,8 +431,10 @@ impl AgentMeter {
                 } else {
                     Widget::nothing()
                 },
-                Btn::svg_def("system/assets/meters/trip_histogram.svg")
-                    .build(ctx, "more data", Key::Q)
+                app.cs
+                    .btn_primary_light_icon("system/assets/meters/trip_histogram.svg")
+                    .hotkey(Key::Q)
+                    .build_widget(ctx, "more data")
                     .align_right(),
             ]),
         ];
@@ -894,7 +897,7 @@ impl SandboxControls {
                 None
             },
             tool_panel: if gameplay.has_tool_panel() {
-                Some(tool_panel(ctx))
+                Some(tool_panel(ctx, app))
             } else {
                 None
             },
@@ -923,7 +926,7 @@ impl SandboxControls {
 
     fn recreate_panels(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.tool_panel.is_some() {
-            self.tool_panel = Some(tool_panel(ctx));
+            self.tool_panel = Some(tool_panel(ctx, app));
         }
         if let Some(ref mut speed) = self.speed {
             speed.recreate_panel(ctx, app);
