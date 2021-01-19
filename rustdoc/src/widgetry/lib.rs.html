@@ -176,6 +176,40 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
@@ -220,13 +254,13 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">input</span>::<span class="ident">UserInput</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runner</span>::{<span class="ident">run</span>, <span class="ident">Settings</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">screen_geom</span>::{<span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">style</span>::<span class="ident">Style</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::{<span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">style</span>::{<span class="ident">buttons</span>::<span class="ident">StyledButtons</span>, <span class="ident">Style</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::{<span class="ident">Font</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">warper</span>::<span class="ident">Warper</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">Cached</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">autocomplete</span>::<span class="ident">Autocomplete</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">Button</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::{<span class="ident">Btn</span>, <span class="ident">MultiButton</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::{<span class="ident">Btn</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">MultiButton</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">checkbox</span>::<span class="ident">Checkbox</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">compare_times</span>::<span class="ident">CompareTimes</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">dropdown</span>::<span class="ident">Dropdown</span>;
@@ -272,6 +306,40 @@
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow</span>::<span class="kw-2">*</span>;
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ControlState</span> {
+    <span class="ident">Default</span>,
+    <span class="ident">Hovered</span>,
+    <span class="ident">Disabled</span>,
+    <span class="comment">// TODO: Pressing</span>
+}
+
+<span class="doccomment">/// Rules for how content should stretch to fill its bounds</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ContentMode</span> {
+    <span class="doccomment">/// Stretches content to fit its bounds exactly, breaking aspect ratio as necessary.</span>
+    <span class="ident">ScaleToFill</span>,
+
+    <span class="doccomment">/// Maintaining aspect ratio, content grows until it touches its bounds in one dimension.</span>
+    <span class="doccomment">/// This is the default ContentMode.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,</span>
+    <span class="doccomment">/// then there will be some empty space within the bounds to center the content.</span>
+    <span class="ident">ScaleAspectFit</span>,
+
+    <span class="doccomment">/// Maintaining aspect ratio, content grows until both bounds are met.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,</span>
+    <span class="doccomment">/// the content will overflow one dimension of its bounds.</span>
+    <span class="ident">ScaleAspectFill</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ContentMode</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFit</span>
+    }
+}
+
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">label</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">T</span>,
@@ -306,8 +374,8 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multikey</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mk</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">hotkey</span> <span class="op">=</span> <span class="ident">mk</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multikey</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mk</span>: <span class="ident">MultiKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">hotkey</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">mk</span>);
         <span class="self">self</span>
     }
 

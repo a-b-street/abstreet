@@ -44,7 +44,7 @@
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Line</span>(<span class="ident">id</span>.<span class="ident">to_string</span>()).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-        <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+        <span class="ident">header_btns</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
     ]));
 
     <span class="kw">let</span> <span class="ident">area</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_a</span>(<span class="ident">id</span>);

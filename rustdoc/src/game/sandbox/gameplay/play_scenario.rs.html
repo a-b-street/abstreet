@@ -435,11 +435,14 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">theme</span>::<span class="ident">StyledButtons</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">nice_map_name</span>, <span class="ident">ChooseSomething</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ScenarioModifier</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -553,29 +556,30 @@
                 <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
                 <span class="string">&quot;Map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;change map&quot;</span>,
-                    <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
-                ),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_popup_light</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
                 <span class="string">&quot;Scenario:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit_map.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;edit map&quot;</span>,
-                    <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>),
-                ),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_popup_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_secondary_light_icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit map&quot;</span>),
             ])
             .<span class="ident">centered</span>(),
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario_name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;empty&quot;</span> {
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>).<span class="ident">build</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;edit traffic patterns&quot;</span>,
-                        <span class="prelude-val">None</span>,
-                    ),
+                    <span class="ident">app</span>.<span class="ident">cs</span>
+                        .<span class="ident">btn_primary_light_icon</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit traffic patterns&quot;</span>)
+                        .<span class="ident">centered_vert</span>(),
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} modifications to traffic patterns&quot;</span>, <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">len</span>())
-                        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
+                        .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">centered_vert</span>(),
                 ])
                 .<span class="ident">centered_horiz</span>()
             } <span class="kw">else</span> {

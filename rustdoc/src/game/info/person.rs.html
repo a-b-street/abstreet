@@ -682,8 +682,8 @@
     <span class="ident">TripMode</span>, <span class="ident">TripResult</span>, <span class="ident">VehicleType</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>,
+    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -1106,7 +1106,7 @@
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Line</span>(<span class="string">&quot;Pedestrian crowd&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
-        <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+        <span class="ident">header_btns</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
     ]));
 
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
@@ -1154,17 +1154,17 @@
             <span class="comment">// Little indirect, but the handler of this action is actually the ContextualActions</span>
             <span class="comment">// for SandboxMode.</span>
             <span class="kw">if</span> <span class="ident">is_paused</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;follow (run the simulation)&quot;</span>,
-                    <span class="ident">Key</span>::<span class="ident">F</span>,
-                )
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>)
             } <span class="kw">else</span> {
                 <span class="comment">// TODO Blink</span>
-                <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>)))
-                    .<span class="ident">to_btn</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>, <span class="ident">Key</span>::<span class="ident">F</span>)
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">image_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>)
             },
             <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
         ])
@@ -1274,17 +1274,17 @@
             <span class="comment">// Little indirect, but the handler of this action is actually the ContextualActions</span>
             <span class="comment">// for SandboxMode.</span>
             <span class="kw">if</span> <span class="ident">is_paused</span> {
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;follow (run the simulation)&quot;</span>,
-                    <span class="ident">Key</span>::<span class="ident">F</span>,
-                )
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>)
             } <span class="kw">else</span> {
                 <span class="comment">// TODO Blink</span>
-                <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>)))
-                    .<span class="ident">to_btn</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>, <span class="ident">Key</span>::<span class="ident">F</span>)
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .<span class="ident">image_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>)
             },
             <span class="ident">Btn</span>::<span class="ident">close</span>(<span class="ident">ctx</span>),
         ])

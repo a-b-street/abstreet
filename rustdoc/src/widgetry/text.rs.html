@@ -559,6 +559,17 @@
 <span id="556">556</span>
 <span id="557">557</span>
 <span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Write</span>;
@@ -689,6 +700,16 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">underlined</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
         <span class="self">self</span>.<span class="ident">underlined</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="ident">size</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">font</span>;
         <span class="self">self</span>
     }
 }
@@ -1002,9 +1023,9 @@
     <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
         <span class="macro">write</span><span class="macro">!</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">contents</span>,
-            <span class="string">r##&quot;&lt;tspan fill=&quot;{}&quot; {}&gt;{}&lt;/tspan&gt;&quot;##</span>,
-            <span class="comment">// TODO Doesn&#39;t support alpha</span>
+            <span class="string">r##&quot;&lt;tspan fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; {}&gt;{}&lt;/tspan&gt;&quot;##</span>,
             <span class="ident">span</span>.<span class="ident">fg_color</span>.<span class="ident">to_hex</span>(),
+            <span class="ident">span</span>.<span class="ident">fg_color</span>.<span class="ident">a</span>,
             <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">underlined</span> {
                 <span class="string">&quot;text-decoration=\&quot;underline\&quot;&quot;</span>
             } <span class="kw">else</span> {
@@ -1085,7 +1106,7 @@
             <span class="op">-</span> (<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">text</span>)).<span class="ident">dims</span>(<span class="ident">assets</span>).<span class="ident">width</span> <span class="op">*</span> <span class="ident">scale</span>) <span class="op">/</span> <span class="number">2.0</span>;
         <span class="macro">write</span><span class="macro">!</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
-            <span class="string">r##&quot;&lt;text xml:space=&quot;preserve&quot; font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; startOffset=&quot;{}&quot;&gt;&quot;##</span>,
+            <span class="string">r##&quot;&lt;text xml:space=&quot;preserve&quot; font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; startOffset=&quot;{}&quot;&gt;&quot;##</span>,
             <span class="comment">// This is seemingly the easiest way to do this. We could .scale() the whole batch</span>
             <span class="comment">// after, but then we have to re-translate it to the proper spot</span>
             (<span class="self">self</span>.<span class="ident">size</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">scale</span>,
@@ -1096,6 +1117,7 @@
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
             },
             <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">to_hex</span>(),
+            <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">a</span>,
             <span class="ident">start_offset</span>,
         )
             .<span class="ident">unwrap</span>();

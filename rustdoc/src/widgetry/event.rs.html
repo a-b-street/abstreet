@@ -432,6 +432,12 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">winit</span>::<span class="ident">event</span>::{
     <span class="ident">ElementState</span>, <span class="ident">KeyboardInput</span>, <span class="ident">MouseButton</span>, <span class="ident">MouseScrollDelta</span>, <span class="ident">VirtualKeyCode</span>, <span class="ident">WindowEvent</span>,
@@ -851,17 +857,23 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lctrl</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Some</span>(<span class="ident">MultiKey</span>::<span class="ident">LCtrl</span>(<span class="ident">key</span>))
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lctrl</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiKey</span> {
+    <span class="ident">MultiKey</span>::<span class="ident">LCtrl</span>(<span class="ident">key</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkeys</span>(<span class="ident">keys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Some</span>(<span class="ident">MultiKey</span>::<span class="ident">Any</span>(<span class="ident">keys</span>))
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkeys</span>(<span class="ident">keys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiKey</span> {
+    <span class="ident">MultiKey</span>::<span class="ident">Any</span>(<span class="ident">keys</span>)
 }
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="ident">MultiKey</span>::<span class="ident">Normal</span>(<span class="ident">key</span>))
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MultiKey</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiKey</span> {
+        <span class="ident">MultiKey</span>::<span class="ident">Normal</span>(<span class="ident">key</span>)
     }
 }
 </pre></div>

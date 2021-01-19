@@ -576,12 +576,19 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">seq</span>::<span class="ident">SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">theme</span>::<span class="ident">StyledButtons</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{
     <span class="ident">grey_out_map</span>, <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>,
 };
@@ -685,23 +692,28 @@
                 <span class="ident">Line</span>(<span class="string">&quot;Sandbox&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
                 <span class="string">&quot;Map:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;change map&quot;</span>,
-                    <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>),
-                ),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_popup_light</span>(<span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
                 <span class="string">&quot;Scenario:&quot;</span>.<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
-                <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;none&quot;</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/edit_map.svg&quot;</span>).<span class="ident">build</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;edit map&quot;</span>,
-                    <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>),
-                ),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_popup_light</span>(<span class="string">&quot;none&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change scenario&quot;</span>),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_secondary_light_icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit map&quot;</span>),
             ])
             .<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Start a new trip&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Record trips as a scenario&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Start a new trip&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Record trips as a scenario&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ])
             .<span class="ident">centered</span>(),
             <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[

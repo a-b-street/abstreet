@@ -571,6 +571,10 @@
 <span id="568">568</span>
 <span id="569">569</span>
 <span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -718,6 +722,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">factor</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="self">self</span>.<span class="ident">transform</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">factor</span>, <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">factor</span>))
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale_xy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x_factor</span>: <span class="ident">f64</span>, <span class="ident">y_factor</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+        <span class="self">self</span>.<span class="ident">transform</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">x_factor</span>, <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">y_factor</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {

@@ -374,6 +374,8 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -381,7 +383,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">PersonID</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -627,7 +629,9 @@
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.2</span>),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;locate VIP&quot;</span>, <span class="prelude-val">None</span>),
+            <span class="ident">app</span>.<span class="ident">cs</span>
+                .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;locate VIP&quot;</span>),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{} trips done&quot;</span>, <span class="ident">done</span>, <span class="ident">trips</span>).<span class="ident">draw_text</span>(<span class="ident">ctx</span>),
             <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>),
         ]),

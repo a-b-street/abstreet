@@ -547,6 +547,44 @@
 <span id="544">544</span>
 <span id="545">545</span>
 <span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -557,12 +595,13 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Percent</span>, <span class="ident">Pt2D</span>, <span class="ident">Speed</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">theme</span>::<span class="ident">StyledButtons</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">PermanentMapEdits</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkeys</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
+    <span class="ident">hotkeys</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">Font</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -595,11 +634,10 @@
                     <span class="ident">Widget</span>::<span class="ident">draw_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>),
                     <span class="comment">// TODO that nicer font</span>
                     <span class="comment">// TODO Any key</span>
-                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;PLAY&quot;</span>).<span class="ident">build</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;start game&quot;</span>,
-                        <span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]),
-                    ),
+                    <span class="ident">app</span>.<span class="ident">cs</span>
+                        .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Play&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;start game&quot;</span>),
                 ])
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">dialog_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">16</span>)
@@ -643,62 +681,86 @@
 <span class="kw">impl</span> <span class="ident">MainMenu</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/pregame/quit.svg&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;quit&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
-                .<span class="ident">align_left</span>(),
             {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>).<span class="ident">display_title</span>());
                 <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>));
                 <span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>()
             },
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">svg</span>(
-                    <span class="string">&quot;system/assets/pregame/tutorial.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>),
-                )
-                .<span class="ident">tooltip</span>({
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">T</span>, <span class="string">&quot;Tutorial&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Learn how to play the game&quot;</span>).<span class="ident">small</span>());
-                    <span class="ident">txt</span>
-                })
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;Tutorial&quot;</span>, <span class="ident">Key</span>::<span class="ident">T</span>),
-                <span class="ident">Btn</span>::<span class="ident">svg</span>(
-                    <span class="string">&quot;system/assets/pregame/sandbox.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>),
-                )
-                .<span class="ident">tooltip</span>({
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">S</span>, <span class="string">&quot;Sandbox&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;No goals, try out any idea here&quot;</span>).<span class="ident">small</span>());
-                    <span class="ident">txt</span>
-                })
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;Sandbox mode&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
-                <span class="ident">Btn</span>::<span class="ident">svg</span>(
-                    <span class="string">&quot;system/assets/pregame/challenges.svg&quot;</span>,
-                    <span class="ident">RewriteColor</span>::<span class="ident">Change</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>),
-                )
-                .<span class="ident">tooltip</span>({
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">C</span>, <span class="string">&quot;Challenges&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Fix specific problems&quot;</span>).<span class="ident">small</span>());
-                    <span class="ident">txt</span>
-                })
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;Challenges&quot;</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
-            ])
+            <span class="ident">Widget</span>::<span class="ident">row</span>({
+                <span class="kw">let</span> <span class="ident">btn_builder</span> <span class="op">=</span> <span class="ident">app</span>
+                    .<span class="ident">cs</span>
+                    .<span class="ident">btn_primary_dark</span>()
+                    .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">200.0</span>, <span class="number">100.0</span>))
+                    .<span class="ident">font_size</span>(<span class="number">40</span>)
+                    .<span class="ident">font</span>(<span class="ident">Font</span>::<span class="ident">OverpassBold</span>)
+                    <span class="comment">// CLEANUP: There&#39;s some baked in padding with our current assets which is</span>
+                    <span class="comment">// probably not desirable, but we compensate for that here by applying</span>
+                    <span class="comment">// unequal padding</span>
+                    .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
+                        <span class="ident">top</span>: <span class="number">40.0</span>,
+                        <span class="ident">bottom</span>: <span class="number">40.0</span>,
+                        <span class="ident">left</span>: <span class="number">20.0</span>,
+                        <span class="ident">right</span>: <span class="number">20.0</span>,
+                    })
+                    .<span class="ident">image_content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFill</span>)
+                    .<span class="ident">vertical</span>();
+                <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">btn_builder</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/tutorial.svg&quot;</span>)
+                        .<span class="ident">label_text</span>(<span class="string">&quot;Tutorial&quot;</span>)
+                        .<span class="ident">tooltip</span>({
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">T</span>, <span class="string">&quot;Tutorial&quot;</span>);
+                            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Learn how to play the game&quot;</span>).<span class="ident">small</span>());
+                            <span class="ident">txt</span>
+                        })
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">T</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Tutorial&quot;</span>),
+                    <span class="ident">btn_builder</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/sandbox.svg&quot;</span>)
+                        .<span class="ident">label_text</span>(<span class="string">&quot;Sandbox&quot;</span>)
+                        .<span class="ident">tooltip</span>({
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">S</span>, <span class="string">&quot;Sandbox&quot;</span>);
+                            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;No goals, try out any idea here&quot;</span>).<span class="ident">small</span>());
+                            <span class="ident">txt</span>
+                        })
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">S</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Sandbox mode&quot;</span>),
+                    <span class="ident">btn_builder</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/challenges.svg&quot;</span>)
+                        .<span class="ident">label_text</span>(<span class="string">&quot;Challenge&quot;</span>)
+                        .<span class="ident">tooltip</span>({
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">C</span>, <span class="string">&quot;Challenges&quot;</span>);
+                            <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;Fix specific problems&quot;</span>).<span class="ident">small</span>());
+                            <span class="ident">txt</span>
+                        })
+                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">C</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Challenges&quot;</span>),
+                ]
+            })
             .<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Community Proposals&quot;</span>)
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Community Proposals&quot;</span>)
                     .<span class="ident">tooltip</span>({
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">P</span>, <span class="string">&quot;Community Proposals&quot;</span>);
                         <span class="ident">txt</span>.<span class="ident">add</span>(<span class="ident">Line</span>(<span class="string">&quot;See existing ideas for improving traffic&quot;</span>).<span class="ident">small</span>());
                         <span class="ident">txt</span>
                     })
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">P</span>),
-                <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Internal Dev Tools&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">P</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Community Proposals&quot;</span>),
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Internal Dev Tools&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">D</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Internal Dev Tools&quot;</span>),
             ])
             .<span class="ident">centered</span>(),
             <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Feedback&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">btn_secondary_light_text</span>(<span class="string">&quot;Feedback&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">built_info</span>::<span class="ident">time</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>),
             ])
@@ -717,9 +779,6 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;quit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
-                }
                 <span class="string">&quot;Tutorial&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Tutorial</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
@@ -782,8 +841,10 @@
 <span class="kw">impl</span> <span class="ident">About</span> {
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/pregame/back.svg&quot;</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
+            <span class="ident">app</span>.<span class="ident">cs</span>
+                .<span class="ident">btn_back_light</span>(<span class="string">&quot;Home&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>)
                 .<span class="ident">align_left</span>(),
             {
                 <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -814,8 +875,9 @@
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">16</span>)
             },
-            <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;See full credits&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+            <span class="ident">app</span>.<span class="ident">cs</span>
+                .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;See full credits&quot;</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_horiz</span>(),
         ];
 
@@ -887,19 +949,31 @@
 
                 <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">proposal_link</span>.<span class="ident">is_some</span>() {
                     <span class="ident">current_tab</span>.<span class="ident">push</span>(
-                        <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Read detailed write-up&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
+                        <span class="ident">app</span>.<span class="ident">cs</span>
+                            .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Read detailed write-up&quot;</span>)
+                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                             .<span class="ident">margin_below</span>(<span class="number">10</span>),
                     );
                 }
-                <span class="ident">current_tab</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="string">&quot;Try out this proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>));
+                <span class="ident">current_tab</span>.<span class="ident">push</span>(
+                    <span class="ident">app</span>.<span class="ident">cs</span>
+                        .<span class="ident">btn_primary_dark_text</span>(<span class="string">&quot;Try out this proposal&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                );
 
-                <span class="ident">buttons</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>]).<span class="ident">inactive</span>(<span class="ident">ctx</span>));
+                <span class="ident">buttons</span>.<span class="ident">push</span>(
+                    <span class="ident">app</span>.<span class="ident">cs</span>
+                        .<span class="ident">btn_primary_dark_text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
+                        .<span class="ident">disabled</span>()
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">margin_below</span>(<span class="number">10</span>),
+                );
             } <span class="kw">else</span> {
                 <span class="ident">buttons</span>.<span class="ident">push</span>(
-                    <span class="ident">Btn</span>::<span class="ident">text_bg2</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
+                    <span class="ident">app</span>.<span class="ident">cs</span>
+                        .<span class="ident">btn_primary_dark_text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
                         .<span class="ident">no_tooltip</span>()
-                        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="prelude-val">None</span>)
+                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>)
                         .<span class="ident">margin_below</span>(<span class="number">10</span>),
                 );
             }
@@ -925,8 +999,10 @@
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Proposals</span> {
             <span class="ident">proposals</span>,
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/pregame/back.svg&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>)
+                <span class="ident">app</span>.<span class="ident">cs</span>
+                    .<span class="ident">btn_back_light</span>(<span class="string">&quot;Home&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>)
                     .<span class="ident">align_left</span>()
                     .<span class="ident">margin_below</span>(<span class="number">20</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>).<span class="ident">padding</span>(<span class="number">16</span>),

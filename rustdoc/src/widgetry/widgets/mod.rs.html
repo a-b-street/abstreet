@@ -769,6 +769,35 @@
 <span id="766">766</span>
 <span id="767">767</span>
 <span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1150,8 +1179,6 @@
             <span class="bool-val">false</span>,
         )))
         .<span class="ident">named</span>(<span class="ident">label</span>)
-        <span class="comment">// Why is this still required? The button Dropdown uses *already* has an outline</span>
-        .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_thickness</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">outline_color</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_row</span>(<span class="ident">widgets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -1509,12 +1536,32 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EdgeInsets</span> {
     <span class="kw">pub</span> <span class="ident">top</span>: <span class="ident">f32</span>,
     <span class="kw">pub</span> <span class="ident">left</span>: <span class="ident">f32</span>,
     <span class="kw">pub</span> <span class="ident">bottom</span>: <span class="ident">f32</span>,
     <span class="kw">pub</span> <span class="ident">right</span>: <span class="ident">f32</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">EdgeInsets</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">EdgeInsets</span> {
+            <span class="ident">top</span>: <span class="number">0.0</span>,
+            <span class="ident">left</span>: <span class="number">0.0</span>,
+            <span class="ident">bottom</span>: <span class="number">0.0</span>,
+            <span class="ident">right</span>: <span class="number">0.0</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform</span>(<span class="ident">inset</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">EdgeInsets</span> {
+            <span class="ident">top</span>: <span class="ident">inset</span>,
+            <span class="ident">left</span>: <span class="ident">inset</span>,
+            <span class="ident">bottom</span>: <span class="ident">inset</span>,
+            <span class="ident">right</span>: <span class="ident">inset</span>,
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EdgeInsets</span> {
@@ -1524,6 +1571,17 @@
             <span class="ident">left</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f32</span>,
             <span class="ident">bottom</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f32</span>,
             <span class="ident">right</span>: <span class="ident">uniform_size</span> <span class="kw">as</span> <span class="ident">f32</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EdgeInsets</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uniform_size</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EdgeInsets</span> {
+        <span class="ident">EdgeInsets</span> {
+            <span class="ident">top</span>: <span class="ident">uniform_size</span>,
+            <span class="ident">left</span>: <span class="ident">uniform_size</span>,
+            <span class="ident">bottom</span>: <span class="ident">uniform_size</span>,
+            <span class="ident">right</span>: <span class="ident">uniform_size</span>,
         }
     }
 }

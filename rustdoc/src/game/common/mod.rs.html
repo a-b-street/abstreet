@@ -410,9 +410,6 @@
 <span id="407">407</span>
 <span id="408">408</span>
 <span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -421,8 +418,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentType</span>, <span class="ident">TripMode</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">minimap</span>::<span class="ident">MinimapController</span>;
@@ -430,6 +427,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">ContextualActions</span>, <span class="ident">InfoPanel</span>, <span class="ident">Tab</span>};
+<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">theme</span>::<span class="ident">StyledButtons</span>;
 
 <span class="kw">mod</span> <span class="ident">minimap</span>;
 <span class="kw">mod</span> <span class="ident">warp</span>;
@@ -704,10 +702,15 @@
 }
 
 <span class="comment">// TODO Kinda misnomer</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tool_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tool_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>, <span class="ident">Key</span>::<span class="ident">Escape</span>),
-        <span class="ident">Btn</span>::<span class="ident">svg_def</span>(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;settings&quot;</span>, <span class="prelude-val">None</span>),
+        <span class="ident">app</span>.<span class="ident">cs</span>
+            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>),
+        <span class="ident">app</span>.<span class="ident">cs</span>
+            .<span class="ident">btn_plain_light_icon</span>(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>)
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;settings&quot;</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">BottomAboveOSD</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
@@ -780,15 +783,6 @@
         <span class="ident">TripPhaseType</span>::<span class="ident">Cancelled</span> <span class="op">|</span> <span class="ident">TripPhaseType</span>::<span class="ident">Finished</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         <span class="ident">TripPhaseType</span>::<span class="ident">DelayedStart</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">YELLOW</span>,
     }
-}
-
-<span class="comment">// TODO Well, there goes the nice consolidation of stuff in BtnBuilder. :\</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey_btn</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">label</span>: <span class="ident">I</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">key</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>));
-    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot; - {}&quot;</span>, <span class="ident">label</span>)));
-    <span class="ident">Btn</span>::<span class="ident">text_bg</span>(<span class="ident">label</span>, <span class="ident">txt</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">section_bg</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">hovering</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="ident">key</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersections_from_roads</span>(<span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {

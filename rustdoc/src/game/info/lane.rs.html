@@ -519,7 +519,7 @@
         <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} #{}&quot;</span>, <span class="ident">label</span>, <span class="ident">id</span>.<span class="number">0</span>))
             .<span class="ident">small_heading</span>()
             .<span class="ident">draw</span>(<span class="ident">ctx</span>),
-        <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+        <span class="ident">header_btns</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
     ]));
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;@ {}&quot;</span>, <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>())).<span class="ident">draw_text</span>(<span class="ident">ctx</span>));
 

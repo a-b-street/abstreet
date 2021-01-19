@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PersistentSplit",""]]});
+initSidebarItems({"fn":[["button_builder",""]],"struct":[["PersistentSplit",""]]});

@@ -182,12 +182,29 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Btn</span>, <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> {
@@ -196,7 +213,7 @@
     <span class="comment">// TODO Why not T?</span>
     <span class="ident">menu</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Menu</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">label</span>: <span class="ident">String</span>,
-    <span class="ident">blank_btn_label</span>: <span class="ident">bool</span>,
+    <span class="ident">is_persisten_split</span>: <span class="ident">bool</span>,
 
     <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
@@ -208,7 +225,7 @@
         <span class="ident">default_value</span>: <span class="ident">T</span>,
         <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="comment">// TODO Ideally builder style</span>
-        <span class="ident">blank_btn_label</span>: <span class="ident">bool</span>,
+        <span class="ident">is_persisten_split</span>: <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">current_idx</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="ident">default_value</span>) {
             <span class="ident">idx</span>
@@ -221,10 +238,10 @@
 
         <span class="ident">Dropdown</span> {
             <span class="ident">current_idx</span>,
-            <span class="ident">btn</span>: <span class="ident">make_btn</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">choices</span>[<span class="ident">current_idx</span>].<span class="ident">label</span>, <span class="ident">label</span>, <span class="ident">blank_btn_label</span>),
+            <span class="ident">btn</span>: <span class="ident">make_btn</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">choices</span>[<span class="ident">current_idx</span>].<span class="ident">label</span>, <span class="ident">label</span>, <span class="ident">is_persisten_split</span>),
             <span class="ident">menu</span>: <span class="prelude-val">None</span>,
             <span class="ident">label</span>: <span class="ident">label</span>.<span class="ident">to_string</span>(),
-            <span class="ident">blank_btn_label</span>,
+            <span class="ident">is_persisten_split</span>,
             <span class="ident">choices</span>,
         }
     }
@@ -234,8 +251,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
         <span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">data</span>.<span class="ident">clone</span>()
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">current_value_label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">label</span>.<span class="ident">clone</span>()
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">current_value_label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">label</span>
     }
 }
 
@@ -287,7 +304,7 @@
                     <span class="ident">ctx</span>,
                     <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">label</span>,
                     <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">label</span>,
-                    <span class="self">self</span>.<span class="ident">blank_btn_label</span>,
+                    <span class="self">self</span>.<span class="ident">is_persisten_split</span>,
                 );
                 <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">set_pos</span>(<span class="ident">top_left</span>);
                 <span class="ident">output</span>.<span class="ident">redo_layout</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -358,11 +375,28 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">tooltip</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">blank_btn_label</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
-    <span class="kw">let</span> <span class="ident">button_label</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">blank_btn_label</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="ident">label</span>) };
-    <span class="ident">Btn</span>::<span class="ident">pop_up</span>(<span class="ident">ctx</span>, <span class="ident">button_label</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">tooltip</span>, <span class="prelude-val">None</span>)
-        .<span class="ident">take_btn</span>()
+<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">tooltip</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">is_persisten_split</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">StyledButtons</span>;
+    <span class="comment">// If we want to make Dropdown configurable, pass in or expose its button builder?</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_primary_light_dropdown</span>();
+    <span class="kw">if</span> <span class="ident">is_persisten_split</span> {
+        <span class="comment">// Quick hacks to make PersistentSplit&#39;s dropdown look a little better.</span>
+        <span class="comment">// It&#39;s not ideal, but we only use one persistent split in the whole app</span>
+        <span class="comment">// and it&#39;s front and center - we&#39;ll notice if something breaks.</span>
+        <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>
+            .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
+                <span class="ident">top</span>: <span class="number">13.0</span>,
+                <span class="ident">bottom</span>: <span class="number">13.0</span>,
+                <span class="ident">left</span>: <span class="number">8.0</span>,
+                <span class="ident">right</span>: <span class="number">8.0</span>,
+            })
+            .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+            .<span class="ident">outline</span>(<span class="number">0.0</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>);
+    } <span class="kw">else</span> {
+        <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">label_text</span>(<span class="ident">label</span>);
+    }
+
+    <span class="ident">builder</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">tooltip</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "widgetry";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
