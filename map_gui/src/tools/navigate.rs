@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use map_model::RoadID;
 use widgetry::{
     Autocomplete, Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    State, Text, Transition, Widget,
+    State, StyledButtons, Text, Transition, Widget,
 };
 
 use crate::tools::grey_out_map;
@@ -20,7 +20,7 @@ impl Navigator {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a street name").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,
@@ -113,7 +113,7 @@ impl CrossStreet {
                         )));
                         txt.draw(ctx)
                     },
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,
@@ -202,7 +202,7 @@ impl SearchBuildings {
                     Line("Enter a business name or address")
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Autocomplete::new(
                     ctx,

@@ -5,8 +5,8 @@ use map_gui::ID;
 use map_model::{AmenityType, LaneType, PathConstraints};
 use sim::AgentType;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, Text, TextExt,
-    VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, StyledButtons, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -109,7 +109,7 @@ impl BikeNetwork {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Bike network".draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Text::from_multiline(vec![
                 Line(format!("{} lanes", num_lanes)),
@@ -191,7 +191,7 @@ impl Static {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 title.draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             extra,
             legend,
@@ -420,7 +420,7 @@ impl CongestionCaps {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Congestion caps".draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             format!("{} roads have caps", prettyprint_usize(num_roads)).draw_text(ctx),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["available", "full"]),

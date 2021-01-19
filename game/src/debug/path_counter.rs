@@ -3,8 +3,8 @@ use map_gui::tools::{ColorLegend, ColorNetwork};
 use map_gui::ID;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, Text,
-    VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
+    StyledButtons, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -68,7 +68,7 @@ impl PathCounter {
                     Line(format!("Paths across {}", i))
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 ColorLegend::gradient(
                     ctx,

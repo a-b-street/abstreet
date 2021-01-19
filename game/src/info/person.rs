@@ -495,7 +495,7 @@ pub fn parked_car(
                     .hotkey(Key::F)
                     .build_widget(ctx, "unfollow (pause the simulation)")
             },
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])
         .align_right(),
     ]));
@@ -615,7 +615,7 @@ fn header(
                     .hotkey(Key::F)
                     .build_widget(ctx, "unfollow (pause the simulation)")
             },
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])
         .align_right(),
     ]));

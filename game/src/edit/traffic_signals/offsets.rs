@@ -7,7 +7,7 @@ use map_model::IntersectionID;
 use sim::Scenario;
 use widgetry::{
     Btn, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, RewriteColor,
-    SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    SimpleState, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -48,7 +48,7 @@ impl ShowAbsolute {
                 Line(format!("Tuning offset for {} signals", members.len()))
                     .small_heading()
                     .draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             "Select an intersection as the base".draw_text(ctx),
         ]))
@@ -137,7 +137,7 @@ impl ShowRelative {
                 Line(format!("Tuning offset for {} signals", members.len()))
                     .small_heading()
                     .draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             "Select a second intersection to tune offset between the two".draw_text(ctx),
         ]))
@@ -229,7 +229,7 @@ impl TuneRelative {
                 Line(format!("Tuning offset between {} and {}", i1, i2))
                     .small_heading()
                     .draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Text::from_multiline(vec![
                 Line(format!("Distance: {}", dist_btwn)),

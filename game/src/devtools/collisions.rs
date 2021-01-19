@@ -4,8 +4,8 @@ use geom::{Circle, Distance, Duration, FindClosest, Polygon, Time};
 use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, Slider, State, Text, TextExt, VerticalAlignment, Widget,
+    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    Outcome, Panel, Slider, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -41,7 +41,7 @@ impl CollisionsViewer {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Collisions viewer").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 format!("{} collisions", prettyprint_usize(count))
                     .draw_text(ctx)

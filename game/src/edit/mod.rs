@@ -11,7 +11,7 @@ use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
 use widgetry::{
     lctrl, Btn, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Menu,
-    Outcome, Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::cluster_traffic_signals::ClusterTrafficSignalEditor;
@@ -533,7 +533,7 @@ impl LoadEdits {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Load proposal").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Btn::text_fg("Start over with blank proposal").build_def(ctx, None),
                 Widget::row(vec![Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
@@ -821,7 +821,7 @@ impl ConfirmDiscard {
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "system/assets/tools/alert.svg"),
                     Line("Alert").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 "Are you sure you want to discard changes you made?".draw_text(ctx),
                 Widget::row(vec![

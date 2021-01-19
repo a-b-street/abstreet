@@ -6,7 +6,8 @@ use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, ParkingLotID, RoadID};
 use sim::{PedestrianID, PersonID, TripID};
 use widgetry::{
-    Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Warper, Widget,
+    Btn, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, Text, TextExt, Warper,
+    Widget,
 };
 
 use crate::app::{App, PerMap, Transition};
@@ -77,7 +78,7 @@ impl DebugWarp {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Warp to an object by ID").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 "Example: r42 is Road #42".draw_text(ctx),
                 // T

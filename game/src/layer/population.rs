@@ -5,8 +5,8 @@ use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, VerticalAlignment, Widget,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, StyledButtons, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -149,7 +149,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         Widget::row(vec![
             Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
             Line(format!("Population: {}", prettyprint_usize(total_ppl))).draw(ctx),
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ]),
         Widget::row(vec![
             Widget::row(vec![

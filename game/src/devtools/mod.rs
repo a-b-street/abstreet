@@ -6,7 +6,7 @@ use geom::{LonLat, Percent};
 use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker};
 use widgetry::{
     lctrl, Btn, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, TextExt, VerticalAlignment, Widget,
+    Panel, State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -28,7 +28,7 @@ impl DevToolsMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Internal dev tools").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
                     "Change map:".draw_text(ctx),

@@ -5,8 +5,8 @@ use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    Outcome, Panel, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -179,7 +179,7 @@ fn make_controls(ctx: &mut EventCtx, app: &App, opts: &Options, legend: Option<W
         Widget::row(vec![
             Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
             "Pandemic model".draw_text(ctx),
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ]),
         Text::from_multiline(vec![
             Line(format!(

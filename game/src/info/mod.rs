@@ -712,7 +712,7 @@ fn header_btns(ctx: &EventCtx, app: &App) -> Widget {
             .btn_plain_light_icon("system/assets/tools/location.svg")
             .hotkey(Key::J)
             .build_widget(ctx, "jump to object"),
-        app.cs.btn_close().build_widget(ctx, "close"),
+        app.cs.btn_close_widget(ctx),
     ])
     .align_right()
 }

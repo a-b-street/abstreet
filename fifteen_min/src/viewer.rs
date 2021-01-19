@@ -268,7 +268,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         Line("15-minute neighborhood explorer")
             .small_heading()
             .draw(ctx),
-        Btn::close(ctx),
+        ctx.style().btn_close_widget(ctx),
     ]));
 
     rows.push(Widget::row(vec![
@@ -465,7 +465,7 @@ impl ExploreAmenities {
                 Line(format!("{} within 15 minutes", category))
                     .small_heading()
                     .draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             table.render(ctx, app),
         ]))
@@ -486,7 +486,7 @@ impl ExploreAmenities {
                 Line(format!("{} within 15 minutes", self.category))
                     .small_heading()
                     .draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             self.table.render(ctx, app),
         ]))
