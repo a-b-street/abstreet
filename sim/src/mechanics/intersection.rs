@@ -175,7 +175,12 @@ impl IntersectionSimState {
     pub fn agent_deleted_mid_turn(&mut self, agent: AgentID, turn: TurnID) {
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
-        state.reserved.remove(&Request { agent, turn });
+
+        // This agent might have a few more nearby turns reserved, because they're part of an
+        // uber-turn. It's a blunt response to just clear them all out, but it should be correct.
+        for state in self.state.values_mut() {
+            retain_btreeset(&mut state.reserved, |req| req.agent != agent);
+        }
     }
 
     fn wakeup_waiting(&self, now: Time, i: IntersectionID, scheduler: &mut Scheduler, map: &Map) {
