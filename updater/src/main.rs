@@ -7,7 +7,7 @@ use anyhow::{Context, Result};
 use walkdir::WalkDir;
 
 use abstio::{DataPacks, Entry, Manifest};
-use abstutil::{prettyprint_usize, CmdArgs, Timer};
+use abstutil::{prettyprint_usize, CmdArgs, Parallelism, Timer};
 use geom::Percent;
 
 const MD5_BUF_READ_SIZE: usize = 4096;
@@ -169,7 +169,7 @@ fn upload(version: String) {
 }
 
 fn generate_manifest() -> Manifest {
-    let mut kv = BTreeMap::new();
+    let mut paths = Vec::new();
     for entry in WalkDir::new("data/input")
         .into_iter()
         .chain(WalkDir::new("data/system").into_iter())
@@ -183,23 +183,30 @@ fn generate_manifest() -> Manifest {
         if path.contains("system/assets/") || path.contains("system/proposals") {
             continue;
         }
-
-        abstutil::clear_current_line();
-        print!("> compute md5sum of {}", path);
-        std::io::stdout().flush().unwrap();
-
-        let (checksum, uncompressed_size_bytes) = md5sum(&orig_path);
-        kv.insert(
-            path,
-            Entry {
-                checksum,
-                uncompressed_size_bytes,
-                // Will calculate later
-                compressed_size_bytes: 0,
-            },
-        );
+        paths.push((orig_path, path));
     }
-    println!();
+
+    let mut kv = BTreeMap::new();
+    for (path, entry) in Timer::new("compute md5sums").parallelize(
+        "compute md5sums",
+        Parallelism::Fastest,
+        paths,
+        |(orig_path, path)| {
+            let (checksum, uncompressed_size_bytes) = md5sum(&orig_path);
+            (
+                path,
+                Entry {
+                    checksum,
+                    uncompressed_size_bytes,
+                    // Will calculate later
+                    compressed_size_bytes: 0,
+                },
+            )
+        },
+    ) {
+        kv.insert(path, entry);
+    }
+
     Manifest { entries: kv }
 }
 
