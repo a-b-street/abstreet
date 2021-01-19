@@ -7,7 +7,7 @@ use anyhow::{Context, Result};
 use walkdir::WalkDir;
 
 use abstio::{DataPacks, Entry, Manifest};
-use abstutil::{prettyprint_usize, CmdArgs, Parallelism, Timer};
+use abstutil::{must_run_cmd, prettyprint_usize, CmdArgs, Parallelism, Timer};
 use geom::Percent;
 
 const MD5_BUF_READ_SIZE: usize = 4096;
@@ -225,20 +225,6 @@ fn md5sum(path: &str) -> (String, usize) {
         context.consume(&buffer[..n]);
     }
     (format!("{:x}", context.compute()), uncompressed_size_bytes)
-}
-
-fn must_run_cmd(cmd: &mut Command) {
-    println!("> Running {:?}", cmd);
-    match cmd.status() {
-        Ok(status) => {
-            if !status.success() {
-                panic!("{:?} failed", cmd);
-            }
-        }
-        Err(err) => {
-            panic!("Failed to run {:?}: {:?}", cmd, err);
-        }
-    }
 }
 
 fn rm(path: &str) {
