@@ -480,7 +480,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     /// affect.
     ///
     /// The default, [`ContentMode::ScaleAspectFit`] will only grow as much as it can while
-    /// maintaining it's aspect ratio and not exceeding its bounds.
+    /// maintaining its aspect ratio and not exceeding its bounds.
     pub fn image_content_mode(mut self, content_mode: ContentMode) -> Self {
         let mut image = self.default_style.image.take().unwrap_or_default();
         image.content_mode = content_mode;
@@ -587,7 +587,7 @@ impl<'b, 'a: 'b> ButtonBuilder<'a> {
     ///     // If you'd like to build a series of similar buttons, `clone` the builder first.
     ///     let red_builder = ButtonBuilder::new()
     ///         .bg_color(Color::RED, ControlState::Default)
-    ///         .bg_color(Color::RED.alpha(0.3), ControlState::Default)
+    ///         .bg_color(Color::RED.alpha(0.3), ControlState::Disabled)
     ///         .outline(2.0, Color::WHITE, ControlState::Default);
     ///
     ///     let red_button_1 = red_builder.clone().label_text("First red button").build(ctx, "first");

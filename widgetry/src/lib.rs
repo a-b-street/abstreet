@@ -47,7 +47,6 @@ pub use crate::tools::warper::Warper;
 pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
-// REVIEW: move ContentMode to upper level?
 pub use crate::widgets::button::{Btn, ButtonBuilder, MultiButton};
 pub use crate::widgets::checkbox::Checkbox;
 pub use crate::widgets::compare_times::CompareTimes;
@@ -102,19 +101,20 @@ pub enum ControlState {
     // TODO: Pressing
 }
 
-/// Rules for how content should stretch to fill it's bounds
+/// Rules for how content should stretch to fill its bounds
 #[derive(Clone, Debug)]
 pub enum ContentMode {
     /// Stretches content to fit its bounds exactly, breaking aspect ratio as necessary.
     ScaleToFill,
 
-    /// Maintaining aspect ration, content grows within its bounds.
+    /// Maintaining aspect ratio, content grows until it touches its bounds in one dimension.
+    /// This is the default ContentMode.
     ///
     /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
-    /// there will be some empty space within the bounds.
+    /// then there will be some empty space within the bounds to center the content.
     ScaleAspectFit,
 
-    /// Maintaining aspect ration, content grows to cover its bounds
+    /// Maintaining aspect ratio, content grows until both bounds are met.
     ///
     /// If the aspect ratio of the bounds do not exactly match the aspect ratio of the content,
     /// the content will overflow one dimension of its bounds.

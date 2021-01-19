@@ -123,7 +123,6 @@ impl MainMenu {
                         .label_text("Tutorial")
                         .tooltip({
                             let mut txt = Text::tooltip(ctx, Key::T, "Tutorial");
-                            // FIXME: these second lines don't seem to appear anywhere.
                             txt.add(Line("Learn how to play the game").small());
                             txt
                         })
