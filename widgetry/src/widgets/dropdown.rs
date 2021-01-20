@@ -183,8 +183,8 @@ fn make_btn(ctx: &EventCtx, label: &str, tooltip: &str, is_persisten_split: bool
         // and it's front and center - we'll notice if something breaks.
         builder = builder
             .padding(EdgeInsets {
-                top: 13.0,
-                bottom: 13.0,
+                top: 15.0,
+                bottom: 15.0,
                 left: 8.0,
                 right: 8.0,
             })

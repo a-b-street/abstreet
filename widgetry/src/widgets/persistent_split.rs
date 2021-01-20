@@ -72,7 +72,6 @@ fn button_builder<'a>(ctx: &EventCtx) -> ButtonBuilder<'a> {
     use crate::{ControlState, StyledButtons};
     ctx.style()
         .btn_primary_light()
-        .font_size(18)
         .outline(0.0, Color::CLEAR, ControlState::Default)
 }
 

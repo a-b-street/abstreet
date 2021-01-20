@@ -79,7 +79,7 @@ impl SpeedControls {
                         .cs
                         .btn_plain_light()
                         .image_path("system/assets/speed/triangle.svg")
-                        .image_dims(ScreenDims::new(16.0, 22.0))
+                        .image_dims(ScreenDims::new(16.0, 26.0))
                         .bg_color(
                             app.cs.gui_style.btn_primary_light.bg_hover,
                             ControlState::Hovered,
@@ -141,7 +141,6 @@ impl SpeedControls {
                         app.cs.gui_style.btn_primary_light.bg_hover,
                         ControlState::Hovered,
                     )
-                    .font_size(18)
                     .image_dims(ScreenDims::square(20.0));
                 Widget::custom_row(vec![
                     buttons

@@ -250,7 +250,6 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                     .padding(5)
                     .outline(2.0, Color::WHITE)
             } else {
-                let _hitbox = batch.get_bounds().get_rectangle();
                 let normal = batch.clone().color(RewriteColor::MakeGrayscale);
                 let hovered = batch;
                 ButtonBuilder::new()
