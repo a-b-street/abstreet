@@ -4,7 +4,7 @@ use anyhow::Result;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
 use widgetry::{
-    Btn, Checkbox, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, StyledButtons,
+    Checkbox, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, StyledButtons,
     VerticalAlignment,
 };
 

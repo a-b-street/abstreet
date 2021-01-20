@@ -123,7 +123,7 @@ pub fn trips(
         };
         let trip = sim.trip_info(*t);
 
-        let (row_btn, hitbox) = Widget::custom_row(vec![
+        let (row_btn, _hitbox) = Widget::custom_row(vec![
             format!("Trip {} ", idx + 1)
                 .batch_text(ctx)
                 .centered_vert()
@@ -209,26 +209,26 @@ pub fn trips(
         .bg(app.cs.inner_panel)
         .to_geom(ctx, Some(0.3));
         rows.push(
-            Btn::custom(
-                row_btn.clone(),
-                row_btn.color(RewriteColor::Change(app.cs.inner_panel, app.cs.hovering)),
-                hitbox,
-                None,
-            )
-            .build(
-                ctx,
-                format!(
-                    "{} {}",
-                    if open_trips.contains_key(t) {
-                        "hide"
-                    } else {
-                        "show"
-                    },
-                    t
-                ),
-                None,
-            )
-            .margin_above(if idx == 0 { 0 } else { 16 }),
+            ctx.style()
+                .btn_primary_light()
+                .custom_batch(row_btn.clone(), ControlState::Default)
+                .custom_batch(
+                    row_btn.color(RewriteColor::Change(app.cs.inner_panel, app.cs.hovering)),
+                    ControlState::Hovered,
+                )
+                .build_widget(
+                    ctx,
+                    &format!(
+                        "{} {}",
+                        if open_trips.contains_key(t) {
+                            "hide"
+                        } else {
+                            "show"
+                        },
+                        t
+                    ),
+                )
+                .margin_above(if idx == 0 { 0 } else { 16 }),
         );
 
         if let Some(info) = maybe_info {

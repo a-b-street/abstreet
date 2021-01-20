@@ -259,22 +259,6 @@ impl Btn {
             maybe_outline: Some(outline),
         }
     }
-
-    #[deprecated]
-    pub fn custom(
-        normal: GeomBatch,
-        hovered: GeomBatch,
-        hitbox: Polygon,
-        outline: Option<(f64, Color)>,
-    ) -> BtnBuilder {
-        BtnBuilder::Custom {
-            normal,
-            hovered,
-            hitbox,
-            maybe_tooltip: None,
-            maybe_outline: outline,
-        }
-    }
 }
 
 #[derive(Clone, Debug, Default)]

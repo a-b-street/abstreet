@@ -11,8 +11,9 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::BuildingID;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
+    Btn, ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::buildings::{BldgState, Buildings};
@@ -249,10 +250,13 @@ fn make_vehicle_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                     .padding(5)
                     .outline(2.0, Color::WHITE)
             } else {
-                let hitbox = batch.get_bounds().get_rectangle();
+                let _hitbox = batch.get_bounds().get_rectangle();
                 let normal = batch.clone().color(RewriteColor::MakeGrayscale);
                 let hovered = batch;
-                Btn::custom(normal, hovered, hitbox, None).build(ctx, name, None)
+                ButtonBuilder::new()
+                    .custom_batch(normal, ControlState::Default)
+                    .custom_batch(hovered, ControlState::Hovered)
+                    .build_widget(ctx, name)
             }
             .centered_vert(),
         );

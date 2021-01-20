@@ -1,8 +1,8 @@
 use geom::Percent;
 use map_gui::tools::open_browser;
 use widgetry::{
-    Btn, Color, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel, RewriteColor,
-    SimpleState, State, StyledButtons, Text, TextExt, Widget,
+    Btn, ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    Panel, RewriteColor, SimpleState, State, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::levels::Level;
@@ -133,11 +133,15 @@ fn locked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Wid
 }
 
 fn unlocked_level(ctx: &mut EventCtx, app: &App, level: &Level, idx: usize) -> Widget {
-    level_btn(ctx, app, level, idx)
-        .to_btn_custom(RewriteColor::Change(
-            Color::WHITE,
-            ctx.style().hovering_color,
-        ))
+    let normal = level_btn(ctx, app, level, idx);
+    let hovered = normal.clone().color(RewriteColor::Change(
+        Color::WHITE,
+        ctx.style().hovering_color,
+    ));
+
+    ButtonBuilder::new()
+        .custom_batch(normal, ControlState::Default)
+        .custom_batch(hovered, ControlState::Hovered)
         .build_widget(ctx, &level.title)
 }
 
