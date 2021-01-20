@@ -189,12 +189,25 @@ impl<A, T: 'static, F> Table<A, T, F> {
 }
 
 fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
+    let mut next = ctx
+        .style()
+        .btn_plain_light_icon("system/assets/tools/next.svg")
+        .hotkey(Key::RightArrow);
+
+    if skip + 1 + ROWS >= total {
+        next = next.disabled();
+    }
+
+    let mut prev = ctx
+        .style()
+        .btn_plain_light_icon("system/assets/tools/prev.svg")
+        .hotkey(Key::LeftArrow);
+    if skip == 0 {
+        prev = prev.disabled();
+    };
+
     Widget::row(vec![
-        if skip > 0 {
-            Btn::plaintext("<").build(ctx, "previous", Key::LeftArrow)
-        } else {
-            Btn::plaintext("<").inactive(ctx)
-        },
+        prev.build_widget(ctx, "previous"),
         format!(
             "{}-{} of {}",
             if total > 0 {
@@ -207,11 +220,7 @@ fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
         )
         .draw_text(ctx)
         .centered_vert(),
-        if skip + 1 + ROWS < total {
-            Btn::plaintext(">").build(ctx, "next", Key::RightArrow)
-        } else {
-            Btn::plaintext(">").inactive(ctx)
-        },
+        next.build_widget(ctx, "next"),
     ])
 }
 
