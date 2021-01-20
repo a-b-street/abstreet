@@ -70,8 +70,9 @@ pub(crate) struct Ctx<'a> {
     pub cap: &'a mut CapSimState,
     pub scheduler: &'a mut Scheduler,
     pub map: &'a Map,
-    /// If true, live map edits are being processed. Some regular work should maybe be skipped.
-    pub handling_live_edits: bool,
+    /// If present, live map edits are being processed, and the agents specified are in the process
+    /// of being deleted. Some regular work should maybe be skipped.
+    pub handling_live_edits: Option<BTreeSet<AgentID>>,
 }
 
 /// Options controlling the traffic simulation.
@@ -432,7 +433,7 @@ impl Sim {
             cap: &mut self.cap,
             scheduler: &mut self.scheduler,
             map,
-            handling_live_edits: false,
+            handling_live_edits: None,
         };
 
         match cmd {
@@ -837,6 +838,7 @@ impl Sim {
 
         let (affected, num_parked_cars) = self.find_trips_affected_by_live_edits(map);
         let num_trips_cancelled = affected.len();
+        let affected_agents: BTreeSet<AgentID> = affected.iter().map(|(a, _)| *a).collect();
 
         // V1: Just cancel every trip crossing an affected area.
         // (V2 is probably rerouting everyone, only cancelling when that fails)
@@ -847,7 +849,7 @@ impl Sim {
             cap: &mut self.cap,
             scheduler: &mut self.scheduler,
             map,
-            handling_live_edits: true,
+            handling_live_edits: Some(affected_agents),
         };
         for (agent, trip) in affected {
             match agent {
@@ -962,7 +964,7 @@ impl Sim {
                 cap: &mut self.cap,
                 scheduler: &mut self.scheduler,
                 map,
-                handling_live_edits: false,
+                handling_live_edits: None,
             };
             let vehicle = self.driving.delete_car(id, self.time, &mut ctx);
             self.trips.cancel_trip(

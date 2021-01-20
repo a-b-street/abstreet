@@ -671,7 +671,7 @@ impl DrivingSimState {
                 Traversable::Lane(l) => ctx.map.get_l(l).src_i,
                 Traversable::Turn(t) => t.parent,
             };
-            if !ctx.handling_live_edits {
+            if ctx.handling_live_edits.is_none() {
                 ctx.intersections
                     .space_freed(now, i, ctx.scheduler, ctx.map);
             }
@@ -689,6 +689,14 @@ impl DrivingSimState {
         // Update the follower so that they don't suddenly jump forwards.
         if idx != dists.len() - 1 {
             let (follower_id, follower_dist) = dists[idx + 1];
+
+            // If we're going to delete the follower soon, don't bother waking them up.
+            if let Some(ref deleting_agents) = ctx.handling_live_edits {
+                if deleting_agents.contains(&AgentID::Car(follower_id)) {
+                    return;
+                }
+            }
+
             let mut follower = self.cars.get_mut(&follower_id).unwrap();
             // TODO If the leader vanished at a border node, this still jumps a bit -- the lead
             // car's back is still sticking out. Need to still be bound by them, even though they
@@ -803,12 +811,12 @@ impl DrivingSimState {
                         t,
                         ctx.scheduler,
                         ctx.map,
-                        ctx.handling_live_edits,
+                        ctx.handling_live_edits.is_some(),
                     );
                 }
                 Traversable::Lane(l) => {
                     old_queue.free_reserved_space(car);
-                    if !ctx.handling_live_edits {
+                    if ctx.handling_live_edits.is_none() {
                         ctx.intersections.space_freed(
                             now,
                             ctx.map.get_l(l).src_i,
@@ -833,7 +841,7 @@ impl DrivingSimState {
                                 // gets out of the way. So immediately promote them to
                                 // WaitingToAdvance.
                                 follower.state = CarState::WaitingToAdvance { blocked_since };
-                                if self.recalc_lanechanging && !ctx.handling_live_edits {
+                                if self.recalc_lanechanging && ctx.handling_live_edits.is_none() {
                                     follower.router.opportunistically_lanechange(
                                         &self.queues,
                                         ctx.map,
