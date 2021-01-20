@@ -156,22 +156,6 @@ impl Btn {
         BtnBuilder::TextFG(action.clone(), Text::from(Line(action)), None)
     }
 
-    pub fn text_bg<I: Into<String>>(
-        action: I,
-        text: Text,
-        unselected_bg_color: Color,
-        selected_bg_color: Color,
-    ) -> BtnBuilder {
-        BtnBuilder::TextBG {
-            action: action.into(),
-            maybe_tooltip: None,
-
-            text,
-            unselected_bg_color,
-            selected_bg_color,
-        }
-    }
-
     // The white background.
     pub fn text_bg2<I: Into<String>>(action: I) -> BtnBuilder {
         let action = action.into();
