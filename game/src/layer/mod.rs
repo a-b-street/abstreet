@@ -1,11 +1,11 @@
 use map_gui::tools::{grey_out_map, HeatmapOptions};
 use widgetry::{
-    Btn, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
+    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, StyledButtons, TextExt,
+    Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::sandbox::dashboards;
-use map_gui::theme::StyledButtons;
 
 mod elevation;
 pub mod favorites;
@@ -84,7 +84,7 @@ impl PickLayer {
     pub fn pick(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut col = vec![Widget::custom_row(vec![
             Line("Layers").small_heading().draw(ctx),
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])];
 
         let current = match app.primary.layer {

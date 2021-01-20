@@ -23,7 +23,7 @@ impl FindHome {
         let panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("Find your walkable home").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
             "Select the types of businesses you want within a 15 minute walkshed.".draw_text(ctx),

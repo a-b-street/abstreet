@@ -3,7 +3,7 @@ use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
     Autocomplete, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, ScreenPt, State, Text, TextExt, Transition, Widget,
+    Panel, ScreenPt, State, StyledButtons, Text, TextExt, Transition, Widget,
 };
 
 use crate::load::{FileLoader, MapLoader};
@@ -102,7 +102,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     panel: Panel::new(Widget::col(vec![
                         Widget::row(vec![
                             Line("Select a region").small_heading().draw(ctx),
-                            Btn::close(ctx),
+                            ctx.style().btn_close_widget(ctx),
                         ]),
                         Widget::row(vec![
                             Widget::col(other_cities).centered_vert(),
@@ -273,7 +273,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Select a region").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "system/assets/tools/search.svg"),

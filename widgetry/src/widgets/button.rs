@@ -2,8 +2,8 @@ use geom::{Distance, Polygon};
 
 use crate::{
     svg, text::Font, Color, ContentMode, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch,
-    GfxCtx, Key, Line, MultiKey, Outcome, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle,
-    Text, Widget, WidgetImpl, WidgetOutput,
+    GfxCtx, Line, MultiKey, Outcome, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct Button {
@@ -297,14 +297,6 @@ impl Btn {
             maybe_tooltip: None,
             maybe_outline: outline,
         }
-    }
-
-    /// An "X" button to close the current state. Bound to the escape key and aligned to the right,
-    /// usually after a title.
-    pub fn close(ctx: &EventCtx) -> Widget {
-        Btn::plaintext("X")
-            .build(ctx, "close", Key::Escape)
-            .align_right()
     }
 }
 

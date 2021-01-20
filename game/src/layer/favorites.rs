@@ -6,8 +6,8 @@ use abstutil::Timer;
 use map_model::osm::OsmID;
 use map_model::BuildingID;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Panel, RewriteColor,
-    TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Panel, RewriteColor,
+    StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -88,7 +88,7 @@ impl ShowFavorites {
         let panel = Panel::new(Widget::row(vec![
             Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
             "Your favorite buildings".draw_text(ctx),
-            Btn::close(ctx),
+            ctx.style().btn_close_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
         .build(ctx);

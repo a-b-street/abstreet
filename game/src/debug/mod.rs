@@ -12,8 +12,8 @@ use map_model::{osm, ControlTrafficSignal, IntersectionID, NORMAL_LANE_THICKNESS
 use sim::Sim;
 use widgetry::{
     lctrl, Btn, Cached, Checkbox, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch,
-    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, Text, UpdateType,
-    VerticalAlignment, Widget,
+    GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, StyledButtons, Text,
+    UpdateType, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowLayers, ShowObject, Transition};
@@ -48,7 +48,7 @@ impl DebugMode {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("Debug Mode").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Text::new().draw(ctx).named("current info"),
                 Checkbox::switch(ctx, "show buildings", Key::Num1, true),

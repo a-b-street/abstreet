@@ -48,7 +48,7 @@ impl Viewer {
         let top_panel = Panel::new(Widget::col(vec![
             Widget::row(vec![
                 Line("OpenStreetMap viewer").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![
                 "Change map:".draw_text(ctx),

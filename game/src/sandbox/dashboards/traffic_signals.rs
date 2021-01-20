@@ -7,8 +7,8 @@ use map_gui::ID;
 use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
 use sim::TripEndpoint;
 use widgetry::{
-    Btn, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Spinner, State, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -44,7 +44,7 @@ impl TrafficSignalDemand {
                     Line("Traffic signal demand over time")
                         .small_heading()
                         .draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 Text::from_all(vec![
                     Line("Press "),

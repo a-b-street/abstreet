@@ -200,7 +200,7 @@ impl ChangeScenario {
         let mut col = vec![
             Widget::row(vec![
                 Line("Pick your scenario").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Line("Each scenario determines what people live and travel around this map").draw(ctx),
         ];
@@ -278,7 +278,7 @@ impl AgentSpawner {
             panel: Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("New trip").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 "Click a building or border to specify start"
                     .draw_text(ctx)

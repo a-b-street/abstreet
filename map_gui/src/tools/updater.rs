@@ -6,7 +6,8 @@ use anyhow::Result;
 use abstio::{DataPacks, Manifest};
 use abstutil::Timer;
 use widgetry::{
-    Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Transition, Widget,
+    Btn, Checkbox, EventCtx, GfxCtx, Line, Outcome, Panel, State, StyledButtons, TextExt,
+    Transition, Widget,
 };
 
 use crate::tools::PopupMsg;
@@ -31,7 +32,7 @@ impl<A: AppLike + 'static> Picker<A> {
         let mut col = vec![
             Widget::row(vec![
                 Line("Download more cities").small_heading().draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             "Select the cities you want to include".draw_text(ctx),
             Line(

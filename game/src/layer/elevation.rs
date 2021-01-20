@@ -1,8 +1,8 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::{ColorLegend, ColorNetwork};
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, Text,
-    TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, StyledButtons,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -91,7 +91,7 @@ impl Elevation {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Elevation change".draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Text::from_multiline(vec![
                 Line(format!("Steepest road: {:.0}% grade", max * 100.0)),

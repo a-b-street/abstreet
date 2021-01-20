@@ -2,7 +2,7 @@ use abstutil::CmdArgs;
 use geom::{Duration, UnitFmt};
 use widgetry::{
     Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
-    TextExt, Widget,
+    StyledButtons, TextExt, Widget,
 };
 
 use crate::colors::ColorSchemeChoice;
@@ -129,7 +129,7 @@ impl OptionsPanel {
             panel: Panel::new(Widget::col(vec![
                 Widget::custom_row(vec![
                     Line("Settings").small_heading().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 "Camera controls".draw_text(ctx),
                 Widget::col(vec![

@@ -147,7 +147,7 @@ impl Credits {
             Panel::new(Widget::col(vec![
                 Widget::row(vec![
                     Line("15-minute Santa").big_heading_plain().draw(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 link(
                     ctx,

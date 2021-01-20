@@ -7,7 +7,7 @@ use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
 use widgetry::{
     Btn, Checkbox, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, Slider, State, Text, UpdateType, Widget,
+    Panel, Slider, State, StyledButtons, Text, UpdateType, Widget,
 };
 
 use crate::app::{App, FindDelayedIntersections, ShowEverything, Transition};
@@ -33,7 +33,7 @@ impl JumpToTime {
             target,
             maybe_mode,
             panel: Panel::new(Widget::col(vec![
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
                 Widget::custom_row(vec![
                     Btn::text_bg2("Jump to time").inactive(ctx),
                     Btn::text_bg2("Jump to delay").build_def(ctx, Key::D),
@@ -162,7 +162,7 @@ impl JumpToDelay {
         Box::new(JumpToDelay {
             maybe_mode,
             panel: Panel::new(Widget::col(vec![
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
                 Widget::custom_row(vec![
                     Btn::text_bg2("Jump to time").build_def(ctx, Key::T),
                     Btn::text_bg2("Jump to delay").inactive(ctx),

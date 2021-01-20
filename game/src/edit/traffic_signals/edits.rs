@@ -5,7 +5,7 @@ use map_model::{
 };
 use widgetry::{
     Btn, Checkbox, Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State,
-    TextExt, Widget,
+    StyledButtons, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -28,7 +28,7 @@ impl ChangeDuration {
                 Line("How long should this stage last?")
                     .small_heading()
                     .draw(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![
                 "Seconds:".draw_text(ctx).centered_vert(),

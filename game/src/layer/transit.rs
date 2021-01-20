@@ -1,8 +1,8 @@
 use map_gui::tools::ColorDiscrete;
 use map_model::{PathConstraints, PathStep};
 use widgetry::{
-    Btn, Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, TextExt,
-    VerticalAlignment, Widget,
+    Checkbox, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, StyledButtons,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -118,7 +118,7 @@ impl TransitNetwork {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Transit network".draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Checkbox::switch(ctx, "show all routes", None, show_all_routes),
             Checkbox::switch(ctx, "show buses", None, show_buses),

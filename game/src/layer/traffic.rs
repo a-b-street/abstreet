@@ -10,8 +10,8 @@ use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::VehicleType;
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    Outcome, Panel, Text, TextExt, VerticalAlignment, Widget,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
+    Panel, StyledButtons, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -74,7 +74,7 @@ impl Backpressure {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Backpressure".draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Text::from(
                 Line("This counts all active trips passing through a road in the future")
@@ -201,7 +201,7 @@ impl Throughput {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Throughput".draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Text::from(Line("This counts all people crossing since midnight").secondary())
                 .wrap_to_pct(ctx, 15)
@@ -334,7 +334,7 @@ impl CompareThroughput {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Relative Throughput".draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Checkbox::switch(ctx, "Compare before proposal", None, true),
             scale.make_legend(ctx, vec!["less traffic", "same", "more"]),
@@ -422,7 +422,7 @@ impl TrafficJams {
             Widget::row(vec![
                 Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                 "Traffic jams".draw_text(ctx),
-                Btn::close(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
             Text::from(
                 Line("A jam starts when delay exceeds 5 mins, then spreads out").secondary(),
@@ -574,7 +574,7 @@ impl Delay {
                 Widget::row(vec![
                     Widget::draw_svg(ctx, "system/assets/tools/layers.svg"),
                     "Delay per agent (minutes)".draw_text(ctx),
-                    Btn::close(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "5", "10", "15+"]),
             ]))
