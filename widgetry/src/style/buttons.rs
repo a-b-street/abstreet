@@ -120,14 +120,11 @@ pub trait StyledButtons<'a> {
 
     /// An "X" button to close the current state. Bound to the escape key and aligned to the right,
     /// usually after a title.
-    fn btn_close(&self) -> ButtonBuilder<'a> {
+    fn btn_close_widget(&self, ctx: &EventCtx) -> Widget {
         self.btn_plain_light_icon("system/assets/tools/close.svg")
             .hotkey(Key::Escape)
-    }
-
-    /// Short-hand for a right aligned rendered [`btn_stop`] Widget
-    fn btn_close_widget(&self, ctx: &EventCtx) -> Widget {
-        self.btn_close().build_widget(ctx, "close").align_right()
+            .build_widget(ctx, "close")
+            .align_right()
     }
 
     fn btn_hotkey_light(&self, label: &str, key: Key) -> ButtonBuilder<'a>;
