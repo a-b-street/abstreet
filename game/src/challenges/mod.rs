@@ -143,8 +143,9 @@ impl ChallengesPicker {
             ])
             .draw(ctx)
             .centered_horiz(),
-            Btn::text_bg2("Introduction and tutorial")
-                .build_def(ctx, None)
+            ctx.style()
+                .btn_primary_dark_text("Introduction and tutorial")
+                .build_def(ctx)
                 .centered_horiz()
                 .bg(app.cs.panel_bg)
                 .padding(16)
@@ -159,7 +160,12 @@ impl ChallengesPicker {
                 .map(|(n, _)| n == &name)
                 .unwrap_or(false)
             {
-                flex_row.push(Btn::text_bg2(&name).inactive(ctx));
+                flex_row.push(
+                    ctx.style()
+                        .btn_primary_dark_text(&name)
+                        .disabled()
+                        .build_def(ctx),
+                );
             } else {
                 flex_row.push(
                     ctx.style()

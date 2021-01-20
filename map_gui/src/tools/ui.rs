@@ -180,7 +180,10 @@ impl PopupMsg {
         Box::new(PopupMsg {
             panel: Panel::new(Widget::col(vec![
                 txt.draw(ctx),
-                Btn::text_bg2("OK").build_def(ctx, hotkeys(vec![Key::Enter, Key::Escape])),
+                ctx.style()
+                    .btn_primary_dark_text("OK")
+                    .hotkey(hotkeys(vec![Key::Enter, Key::Escape]))
+                    .build_def(ctx),
             ]))
             .build(ctx),
             unzoomed,

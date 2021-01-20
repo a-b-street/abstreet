@@ -325,7 +325,9 @@ pub fn bio(
         } else {
             if app.primary.sim.lookup_parked_car(v.id).is_some() {
                 rows.push(
-                    Btn::text_bg2(format!("Owner of {} (parked)", v.id)).build_def(ctx, None),
+                    ctx.style()
+                        .btn_primary_dark_text(&format!("Owner of {} (parked)", v.id))
+                        .build_def(ctx),
                 );
                 details
                     .hyperlinks

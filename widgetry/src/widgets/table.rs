@@ -2,7 +2,7 @@ use abstutil::prettyprint_usize;
 use geom::Polygon;
 
 use crate::{
-    Btn, Color, ControlState, EventCtx, GeomBatch, Key, Line, Panel, StyledButtons, Text, TextExt,
+    Color, ControlState, EventCtx, GeomBatch, Key, Line, Panel, StyledButtons, Text, TextExt,
     Widget,
 };
 
@@ -100,12 +100,13 @@ impl<A, T, F> Table<A, T, F> {
             .iter()
             .map(|col| {
                 if self.sort_by == col.name {
-                    Btn::text_bg2(format!(
-                        "{} {}",
-                        col.name,
-                        if self.descending { "↓" } else { "↑" }
-                    ))
-                    .build(ctx, &col.name, None)
+                    ctx.style()
+                        .btn_primary_dark_text(&format!(
+                            "{} {}",
+                            col.name,
+                            if self.descending { "↓" } else { "↑" }
+                        ))
+                        .build_widget(ctx, &col.name)
                 } else if let Col::Sortable(_) = col.col {
                     ctx.style().btn_primary_dark_text(&col.name).build_def(ctx)
                 } else {

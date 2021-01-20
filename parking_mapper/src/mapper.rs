@@ -9,7 +9,7 @@ use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
 use osm::WayID;
 use widgetry::{
-    Btn, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Menu, Outcome, Panel, State, StyledButtons, Text, TextExt, Transition, VerticalAlignment,
     Widget,
 };
@@ -179,7 +179,9 @@ impl ParkingMapper {
                     ),
                 ]),
                 Checkbox::checkbox(ctx, "max 3 days parking (default in Seattle)", None, false),
-                Btn::text_fg("Generate OsmChange file").build_def(ctx, None),
+                ctx.style()
+                    .btn_secondary_light_text("Generate OsmChange file")
+                    .build_def(ctx),
                 "Select a road".draw_text(ctx).named("info"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

@@ -498,7 +498,10 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
             .btn_primary_dark_text("Finish")
             .hotkey(Key::Enter)
             .build_def(ctx),
-        Btn::text_bg2("Preview").build_def(ctx, lctrl(Key::P)),
+        ctx.style()
+            .btn_primary_dark_text("Preview")
+            .hotkey(lctrl(Key::P))
+            .build_def(ctx),
         (if can_undo {
             ctx.style()
                 .btn_plain_light_icon("system/assets/tools/undo.svg")
@@ -703,8 +706,9 @@ fn make_side_panel(
     }
 
     col.push(
-        Btn::text_bg2("Add a new stage")
-            .build_def(ctx, None)
+        ctx.style()
+            .btn_primary_dark_text("Add a new stage")
+            .build_def(ctx)
             .centered_horiz(),
     );
 

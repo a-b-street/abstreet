@@ -11,7 +11,7 @@ use map_gui::tools::{
 use map_gui::{SimpleApp, ID};
 use map_model::osm;
 use widgetry::{
-    lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
+    lctrl, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, State, StyledButtons, Text, TextExt,
     Transition, VerticalAlignment, Widget,
 };
@@ -97,18 +97,18 @@ impl Viewer {
                 let r = app.map.get_parent(l);
                 col.push(
                     Widget::row(vec![
-                        Btn::text_bg2(format!("Open OSM way {}", r.orig_id.osm_way_id.0)).build(
+                        ctx.style()
+                            .btn_primary_dark_text(&format!(
+                                "Open OSM way {}",
+                                r.orig_id.osm_way_id.0
+                            ))
+                            .build_widget(ctx, &format!("open {}", r.orig_id.osm_way_id)),
+                        ctx.style().btn_primary_dark_text("Edit OSM way").build_widget(
                             ctx,
-                            format!("open {}", r.orig_id.osm_way_id),
-                            None,
-                        ),
-                        Btn::text_bg2("Edit OSM way").build(
-                            ctx,
-                            format!(
+                            &format!(
                                 "open https://www.openstreetmap.org/edit?way={}",
                                 r.orig_id.osm_way_id.0
                             ),
-                            None,
                         ),
                     ])
                     .evenly_spaced(),
@@ -141,21 +141,17 @@ impl Viewer {
             Some(ID::Intersection(i)) => {
                 let i = app.map.get_i(i);
                 col.push(
-                    Btn::text_bg2(format!("Open OSM node {}", i.orig_id.0)).build(
-                        ctx,
-                        format!("open {}", i.orig_id),
-                        None,
-                    ),
+                    ctx.style()
+                        .btn_primary_dark_text(&format!("Open OSM node {}", i.orig_id.0))
+                        .build_widget(ctx, &format!("open {}", i.orig_id)),
                 );
             }
             Some(ID::Building(b)) => {
                 let b = app.map.get_b(b);
                 col.push(
-                    Btn::text_bg2(format!("Open OSM ID {}", b.orig_id.inner())).build(
-                        ctx,
-                        format!("open {}", b.orig_id),
-                        None,
-                    ),
+                    ctx.style()
+                        .btn_primary_dark_text(&format!("Open OSM ID {}", b.orig_id.inner()))
+                        .build_widget(ctx, &format!("open {}", b.orig_id))
                 );
 
                 let mut txt = Text::new();
@@ -201,11 +197,9 @@ impl Viewer {
             Some(ID::ParkingLot(pl)) => {
                 let pl = app.map.get_pl(pl);
                 col.push(
-                    Btn::text_bg2(format!("Open OSM ID {}", pl.osm_id.inner())).build(
-                        ctx,
-                        format!("open {}", pl.osm_id),
-                        None,
-                    ),
+                    ctx.style()
+                        .btn_primary_dark_text(&format!("Open OSM ID {}", pl.osm_id.inner()))
+                        .build_widget(ctx, &format!("open {}", pl.osm_id)),
                 );
 
                 col.push(

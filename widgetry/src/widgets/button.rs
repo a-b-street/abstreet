@@ -155,21 +155,6 @@ impl Btn {
         let action = action.into();
         BtnBuilder::TextFG(action.clone(), Text::from(Line(action)), None)
     }
-
-    // The white background.
-    pub fn text_bg2<I: Into<String>>(action: I) -> BtnBuilder {
-        let action = action.into();
-        BtnBuilder::TextBG {
-            action: action.clone(),
-            maybe_tooltip: None,
-
-            text: Text::from(Line(action).fg(Color::hex("#5B5B5B"))),
-            // This is sometimes against a white background and could just be None, but some
-            // callers need the background.
-            unselected_bg_color: Color::WHITE,
-            selected_bg_color: Color::grey(0.8),
-        }
-    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -692,27 +677,12 @@ struct Label<'a> {
 
 pub enum BtnBuilder {
     TextFG(String, Text, Option<Text>),
-    TextBG {
-        action: String,
-        maybe_tooltip: Option<Text>,
-
-        text: Text,
-        unselected_bg_color: Color,
-        selected_bg_color: Color,
-    },
 }
 
 impl BtnBuilder {
     pub fn tooltip(mut self, tooltip: Text) -> BtnBuilder {
         match self {
             BtnBuilder::TextFG(_, _, ref mut maybe_tooltip) => {
-                assert!(maybe_tooltip.is_none());
-                *maybe_tooltip = Some(tooltip);
-            }
-            BtnBuilder::TextBG {
-                ref mut maybe_tooltip,
-                ..
-            } => {
                 assert!(maybe_tooltip.is_none());
                 *maybe_tooltip = Some(tooltip);
             }
@@ -758,46 +728,13 @@ impl BtnBuilder {
                 )
                 .outline(2.0, Color::WHITE)
             }
-            BtnBuilder::TextBG {
-                text,
-                maybe_tooltip,
-                unselected_bg_color,
-                selected_bg_color,
-                ..
-            } => {
-                let (normal, hitbox) = text
-                    .clone()
-                    .batch(ctx)
-                    .container()
-                    .padding(15)
-                    .bg(unselected_bg_color)
-                    .to_geom(ctx, None);
-                let (hovered, _) = text
-                    .batch(ctx)
-                    .container()
-                    .padding(15)
-                    .bg(selected_bg_color)
-                    .to_geom(ctx, None);
-
-                Button::widget(
-                    ctx,
-                    normal.clone(),
-                    hovered,
-                    normal,
-                    key.into(),
-                    &action.into(),
-                    maybe_tooltip,
-                    hitbox,
-                    false,
-                )
-            }
         }
     }
 
     // Use the text as the action
     pub fn build_def<MK: Into<Option<MultiKey>>>(self, ctx: &EventCtx, key: MK) -> Widget {
         match self {
-            BtnBuilder::TextFG(ref action, _, _) | BtnBuilder::TextBG { ref action, .. } => {
+            BtnBuilder::TextFG(ref action, _, _) => {
                 assert!(!action.is_empty());
                 let copy = action.clone();
                 self.build(ctx, copy, key)
@@ -819,26 +756,6 @@ impl BtnBuilder {
                     .0,
             )
             .named(action),
-            // TODO This'll only work reasonably for text_bg2
-            BtnBuilder::TextBG {
-                text,
-                unselected_bg_color,
-                action,
-                ..
-            } => {
-                assert_eq!(unselected_bg_color, Color::WHITE);
-                Widget::draw_batch(
-                    ctx,
-                    text.render(ctx)
-                        .batch()
-                        .container()
-                        .padding(15)
-                        .bg(Color::grey(0.7))
-                        .to_geom(ctx, None)
-                        .0,
-                )
-                .named(action)
-            }
         }
     }
 }
