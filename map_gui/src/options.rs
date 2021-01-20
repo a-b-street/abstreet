@@ -1,7 +1,7 @@
 use abstutil::CmdArgs;
 use geom::{Duration, UnitFmt};
 use widgetry::{
-    Btn, Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
+    Checkbox, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
     StyledButtons, TextExt, Widget,
 };
 
@@ -259,8 +259,10 @@ impl OptionsPanel {
                 ])
                 .bg(app.cs().section_bg)
                 .padding(8),
-                Btn::text_bg2("Apply")
-                    .build_def(ctx, Key::Enter)
+                ctx.style()
+                    .btn_primary_dark_text("Apply")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx)
                     .centered_horiz(),
             ]))
             .build(ctx),

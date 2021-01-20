@@ -299,8 +299,10 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
     // Don't overwhelm players on the very first level.
     if app.session.upzones_unlocked == 0 {
         return Panel::new(
-            Btn::text_bg2("Start game")
-                .build_def(ctx, Key::Enter)
+            ctx.style()
+                .btn_primary_dark_text("Start game")
+                .hotkey(Key::Enter)
+                .build_def(ctx)
                 .container(),
         )
         .aligned(
@@ -332,12 +334,16 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
             if num_picked == app.session.upzones_unlocked {
                 Btn::text_fg("Randomly choose upzones").inactive(ctx)
             } else {
-                Btn::text_fg("Randomly choose upzones").build_def(ctx, None)
+                ctx.style()
+                    .btn_secondary_light_text("Randomly choose upzones")
+                    .build_def(ctx)
             },
             if num_picked == 0 {
                 Btn::text_fg("Clear upzones").inactive(ctx)
             } else {
-                Btn::text_fg("Clear upzones").build_def(ctx, None)
+                ctx.style()
+                    .btn_secondary_light_text("Clear upzones")
+                    .build_def(ctx)
             }
             .align_right(),
         ]),
@@ -347,7 +353,9 @@ fn make_upzone_panel(ctx: &mut EventCtx, app: &App, num_picked: usize) -> Panel 
                 .hotkey(Key::Enter)
                 .build_def(ctx)
         } else {
-            Btn::text_bg2("Finish upzoning before playing").inactive(ctx)
+            ctx.style()
+                .btn_primary_dark_text("Finish upzoning before playing")
+                .disabled().build_def(ctx)
         },
     ]))
     .aligned(

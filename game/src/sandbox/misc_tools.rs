@@ -5,8 +5,8 @@ use map_gui::ID;
 use map_model::IntersectionID;
 use sim::AgentID;
 use widgetry::{
-    Btn, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, StyledButtons, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, StyledButtons, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -151,8 +151,11 @@ impl State<App> for TrafficRecorder {
 
 fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
     if num == 0 {
-        return Btn::text_bg2("Record 0 intersections")
-            .inactive(ctx)
+        return ctx
+            .style()
+            .btn_primary_dark_text("Record 0 intersections")
+            .disabled()
+            .build_def(ctx)
             .named("record");
     }
 
@@ -161,5 +164,8 @@ fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
     } else {
         format!("Record {} intersections", num)
     };
-    Btn::text_bg2(title).build(ctx, "record", Key::Enter)
+    ctx.style()
+        .btn_primary_dark_text(&title)
+        .hotkey(Key::Enter)
+        .build_widget(ctx, "record")
 }

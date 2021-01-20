@@ -10,7 +10,7 @@ use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
     Btn, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, ScreenPt, SharedAppState, Text, Transition, VerticalAlignment, Widget,
+    Outcome, Panel, ScreenPt, SharedAppState, Text, Transition, VerticalAlignment, Widget, StyledButtons
 };
 
 mod model;
@@ -78,7 +78,9 @@ impl MainState {
                     Text::new().draw(ctx).named("current info"),
                     Widget::col(vec![
                         Btn::text_fg("quit").build_def(ctx, Key::Escape),
-                        Btn::text_fg("export to OSM").build_def(ctx, None),
+                        ctx.style()
+                            .btn_secondary_light_text("export to OSM")
+                            .build_def(ctx),
                         Btn::text_fg("preview all intersections").build_def(ctx, Key::G),
                     ]),
                 ]))

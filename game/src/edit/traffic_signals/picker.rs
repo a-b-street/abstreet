@@ -3,8 +3,8 @@ use std::collections::BTreeSet;
 use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
-    hotkeys, Btn, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, StyledButtons, VerticalAlignment, Widget,
+    hotkeys, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, StyledButtons, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -108,7 +108,12 @@ impl State<App> for SignalPicker {
 
 fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
     if num == 0 {
-        return Btn::text_bg2("Edit 0 signals").inactive(ctx).named("edit");
+        return ctx
+            .style()
+            .btn_primary_dark_text("Edit 0 signals")
+            .disabled()
+            .build_def(ctx)
+            .named("edit");
     }
 
     let title = if num == 1 {
@@ -116,5 +121,8 @@ fn make_btn(ctx: &mut EventCtx, num: usize) -> Widget {
     } else {
         format!("Edit {} signals", num)
     };
-    Btn::text_bg2(title).build(ctx, "edit", hotkeys(vec![Key::Enter, Key::E]))
+    ctx.style()
+        .btn_primary_dark_text(&title)
+        .hotkey(hotkeys(vec![Key::Enter, Key::E]))
+        .build_widget(ctx, "edit")
 }

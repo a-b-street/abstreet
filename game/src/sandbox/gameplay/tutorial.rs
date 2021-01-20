@@ -851,8 +851,10 @@ impl TutorialState {
                 ])];
                 if self.current.part == self.stage().messages.len() - 1 {
                     controls.push(
-                        Btn::text_bg2("Try it")
-                            .build_def(ctx, hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter])),
+                        ctx.style()
+                            .btn_primary_dark_text("Try it")
+                            .hotkey(hotkeys(vec![Key::RightArrow, Key::Space, Key::Enter]))
+                            .build_def(ctx),
                     );
                 }
                 col.push(Widget::col(controls).align_bottom());

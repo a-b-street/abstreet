@@ -12,7 +12,7 @@ use sim::{
     VehicleType,
 };
 use widgetry::{
-    Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     LinePlot, Outcome, Panel, PlotOptions, Series, TextExt, VerticalAlignment, Widget,
 };
 
@@ -695,7 +695,13 @@ fn make_tabs(
     let mut row = Vec::new();
     for (name, link) in tabs {
         if current_tab.variant() == link.variant() {
-            row.push(Btn::text_bg2(name).inactive(ctx).centered_vert());
+            row.push(
+                ctx.style()
+                    .btn_primary_dark_text(name)
+                    .disabled()
+                    .build_def(ctx)
+                    .centered_vert(),
+            );
         } else {
             hyperlinks.insert(name.to_string(), link);
             row.push(

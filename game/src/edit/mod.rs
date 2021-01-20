@@ -437,15 +437,27 @@ impl SaveEdits {
 
     fn recalc_btn(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.current_name.is_empty() {
-            self.panel
-                .replace(ctx, "Save", Btn::text_bg2("Save").inactive(ctx));
+            self.panel.replace(
+                ctx,
+                "Save",
+                ctx.style()
+                    .btn_primary_dark_text("Save")
+                    .disabled()
+                    .build_def(ctx),
+            );
             self.panel.replace(ctx, "warning", Text::new().draw(ctx));
         } else if abstio::file_exists(abstio::path_edits(
             app.primary.map.get_name(),
             &self.current_name,
         )) {
-            self.panel
-                .replace(ctx, "Save", Btn::text_bg2("Save").inactive(ctx));
+            self.panel.replace(
+                ctx,
+                "Save",
+                ctx.style()
+                    .btn_primary_dark_text("Save")
+                    .disabled()
+                    .build_def(ctx),
+            );
             self.panel.replace(
                 ctx,
                 "warning",
@@ -633,16 +645,18 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             .small_heading()
             .draw(ctx)
             .centered_horiz(),
-        Btn::text_bg2(format!(
-            "Finish & resume from {}",
-            app.primary
-                .suspended_sim
-                .as_ref()
-                .unwrap()
-                .time()
-                .ampm_tostring()
-        ))
-        .build(ctx, "finish editing", Key::Escape),
+        ctx.style()
+            .btn_primary_dark_text(&format!(
+                "Finish & resume from {}",
+                app.primary
+                    .suspended_sim
+                    .as_ref()
+                    .unwrap()
+                    .time()
+                    .ampm_tostring()
+            ))
+            .hotkey(Key::Escape)
+            .build_widget(ctx, "finish editing"),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
