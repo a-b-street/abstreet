@@ -427,6 +427,10 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -438,7 +442,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Btn</span>, <span class="ident">Checkbox</span>, <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">FanChart</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">PlotOptions</span>,
-    <span class="ident">ScatterPlot</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">ScatterPlot</span>, <span class="ident">Series</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
@@ -465,7 +469,11 @@
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>));
 
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Btn</span>::<span class="ident">text_bg1</span>(<span class="string">&quot;Open OSM node&quot;</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>), <span class="prelude-val">None</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_primary_light_text</span>(<span class="string">&quot;Open OSM node&quot;</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>)),
+        );
     }
 
     <span class="ident">rows</span>

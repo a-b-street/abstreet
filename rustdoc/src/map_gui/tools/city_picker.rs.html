@@ -332,13 +332,15 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">City</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Autocomplete</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
+    <span class="ident">Autocomplete</span>, <span class="ident">Btn</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">State</span>, <span class="ident">StyledButtons</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::{<span class="ident">FileLoader</span>, <span class="ident">MapLoader</span>};
@@ -448,15 +450,17 @@
                             <span class="string">&quot;Don&#39;t see the city you want?&quot;</span>
                                 .<span class="ident">draw_text</span>(<span class="ident">ctx</span>)
                                 .<span class="ident">centered_vert</span>(),
-                            <span class="ident">Btn</span>::<span class="ident">plaintext_custom</span>(
-                                <span class="string">&quot;import new city&quot;</span>,
-                                <span class="ident">Text</span>::<span class="ident">from</span>(
-                                    <span class="ident">Line</span>(<span class="string">&quot;Import a new city into A/B Street&quot;</span>)
-                                        .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA4E5&quot;</span>))
-                                        .<span class="ident">underlined</span>(),
-                                ),
-                            )
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+                            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                                .<span class="ident">btn_plain_light</span>()
+                                .<span class="ident">label_styled_text</span>(
+                                    <span class="ident">Text</span>::<span class="ident">from</span>(
+                                        <span class="ident">Line</span>(<span class="string">&quot;Import a new city into A/B Street&quot;</span>)
+                                            .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA4E5&quot;</span>))
+                                            .<span class="ident">underlined</span>(),
+                                    ),
+                                    <span class="ident">ControlState</span>::<span class="ident">Default</span>,
+                                )
+                                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;import new city&quot;</span>),
                         ]),
                         <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) {
                             <span class="ident">Btn</span>::<span class="ident">text_fg</span>(<span class="string">&quot;Download more cities&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>)
