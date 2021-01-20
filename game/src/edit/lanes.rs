@@ -2,8 +2,8 @@ use map_gui::render::Renderable;
 use map_gui::ID;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    Btn, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    Btn, Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    SimpleState, State, StyledButtons, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -75,11 +75,11 @@ impl LaneEditor {
         let col = vec![
             Widget::row(vec![
                 Line(format!("Editing {}", l)).small_heading().draw(ctx),
-                Btn::plaintext_custom(
-                    "Edit multiple lanes",
-                    Text::from(Line("+ Edit multiple").fg(Color::hex("#4CA7E9"))),
-                )
-                .build_def(ctx, Key::M),
+                ctx.style()
+                    .btn_plain_light_text("+ Edit multiple")
+                    .label_color(Color::hex("#4CA7E9"), ControlState::Default)
+                    .hotkey(Key::M)
+                    .build_widget(ctx, "Edit multiple lanes"),
             ]),
             "Type of lane".draw_text(ctx),
             Widget::custom_row(row).centered(),

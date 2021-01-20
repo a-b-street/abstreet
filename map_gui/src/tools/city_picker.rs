@@ -2,8 +2,8 @@ use abstio::MapName;
 use geom::{Distance, Percent, Polygon, Pt2D};
 use map_model::City;
 use widgetry::{
-    Autocomplete, Btn, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, ScreenPt, State, StyledButtons, Text, TextExt, Transition, Widget,
+    Autocomplete, Btn, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    Outcome, Panel, ScreenPt, State, StyledButtons, Text, TextExt, Transition, Widget,
 };
 
 use crate::load::{FileLoader, MapLoader};
@@ -113,15 +113,17 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             "Don't see the city you want?"
                                 .draw_text(ctx)
                                 .centered_vert(),
-                            Btn::plaintext_custom(
-                                "import new city",
-                                Text::from(
-                                    Line("Import a new city into A/B Street")
-                                        .fg(Color::hex("#4CA4E5"))
-                                        .underlined(),
-                                ),
-                            )
-                            .build_def(ctx, None),
+                            ctx.style()
+                                .btn_plain_light()
+                                .label_styled_text(
+                                    Text::from(
+                                        Line("Import a new city into A/B Street")
+                                            .fg(Color::hex("#4CA4E5"))
+                                            .underlined(),
+                                    ),
+                                    ControlState::Default,
+                                )
+                                .build_widget(ctx, "import new city"),
                         ]),
                         if cfg!(not(target_arch = "wasm32")) {
                             Btn::text_fg("Download more cities").build_def(ctx, None)
