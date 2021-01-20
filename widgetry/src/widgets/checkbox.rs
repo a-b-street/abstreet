@@ -1,6 +1,7 @@
 use crate::{
-    Btn, Button, Color, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome, RewriteColor,
-    ScreenDims, ScreenPt, Text, TextExt, TextSpan, Widget, WidgetImpl, WidgetOutput,
+    Btn, Button, Color, ControlState, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, Outcome,
+    RewriteColor, ScreenDims, ScreenPt, StyledButtons, Text, TextExt, TextSpan, Widget, WidgetImpl,
+    WidgetOutput,
 };
 
 pub struct Checkbox {
@@ -101,18 +102,27 @@ impl Checkbox {
         enabled: bool,
     ) -> Widget {
         let label = label.into();
-        let hotkey = hotkey.into();
+        // TODO: get an svg checkbox! and use a image+text button
         let mut off = vec![Line("[ ] ")];
         let mut on = vec![Line("[X] ")];
         off.extend(spans.clone());
         on.extend(spans);
 
+        let mut button = ctx.style().btn_secondary_light();
+        if let Some(hotkey) = hotkey.into() {
+            button = button.hotkey(hotkey);
+        }
+
         Checkbox::new(
             enabled,
-            Btn::txt(&label, Text::from_all(off)).build_def(ctx, hotkey.clone()),
-            Btn::txt(&label, Text::from_all(on)).build_def(ctx, hotkey),
+            button
+                .clone()
+                .label_styled_text(Text::from_all(off), ControlState::Default)
+                .build_widget(ctx, &label),
+            button
+                .label_styled_text(Text::from_all(on), ControlState::Default)
+                .build_widget(ctx, &label),
         )
-        .outline(ctx.style().outline_thickness, ctx.style().outline_color)
         .named(label)
     }
 

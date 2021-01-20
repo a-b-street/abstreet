@@ -13,8 +13,8 @@ use map_model::{AmenityType, Building, BuildingID, LaneType};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     lctrl, Btn, Cached, Checkbox, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
-    VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, StyledButtons, Text,
+    TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::find_home::FindHome;
@@ -327,7 +327,11 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
 
     rows.push(options_to_controls(ctx, &isochrone.options));
-    rows.push(Btn::text_bg1("Find your perfect home").build_def(ctx, None));
+    rows.push(
+        ctx.style()
+            .btn_primary_light_text("Find your perfect home")
+            .build_def(ctx),
+    );
     rows.push(Widget::row(vec![
         Btn::plaintext("About").build_def(ctx, None),
         Btn::svg_def("system/assets/tools/search.svg").build(ctx, "search", lctrl(Key::F)),

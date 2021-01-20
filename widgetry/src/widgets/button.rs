@@ -180,10 +180,6 @@ impl Btn {
         BtnBuilder::TextFG(action.clone(), Text::from(Line(action)), None)
     }
 
-    pub fn txt<I: Into<String>>(action: I, txt: Text) -> BtnBuilder {
-        BtnBuilder::TextFG(action.into(), txt, None)
-    }
-
     pub fn text_bg<I: Into<String>>(
         action: I,
         text: Text,

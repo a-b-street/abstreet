@@ -12,8 +12,8 @@ use map_gui::{SimpleApp, ID};
 use map_model::osm;
 use widgetry::{
     lctrl, Btn, Checkbox, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt, Transition,
-    VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, State, StyledButtons, Text, TextExt,
+    Transition, VerticalAlignment, Widget,
 };
 
 type App = SimpleApp<()>;

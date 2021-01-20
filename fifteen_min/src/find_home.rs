@@ -6,7 +6,7 @@ use map_gui::tools::PopupMsg;
 use map_model::{AmenityType, BuildingID};
 use widgetry::{
     Btn, Checkbox, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Panel, SimpleState, State, TextExt, Transition, VerticalAlignment, Widget,
+    Panel, SimpleState, State, StyledButtons, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::isochrone::Options;
