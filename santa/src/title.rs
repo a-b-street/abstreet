@@ -2,7 +2,7 @@ use geom::Percent;
 use map_gui::tools::open_browser;
 use widgetry::{
     Btn, Color, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel, RewriteColor,
-    SimpleState, State, Text, TextExt, Widget,
+    SimpleState, State, StyledButtons, Text, TextExt, Widget,
 };
 
 use crate::levels::Level;
@@ -51,11 +51,13 @@ impl TitleScreen {
                 .centered_horiz(),
                 Widget::custom_row(level_buttons).flex_wrap(ctx, Percent::int(80)),
                 Widget::row(vec![
-                    Btn::text_bg1("Credits").build_def(ctx, None),
+                    ctx.style().btn_primary_light_text("Credits").build_def(ctx),
                     "Created by Dustin Carlino, Yuwen Li, & Michael Kirk"
                         .draw_text(ctx)
                         .container()
-                        .padding(16)
+                        .padding(6)
+                        // cheat this to lineup with button text
+                        .padding_bottom(2)
                         .bg(app.cs.fade_map_dark),
                 ])
                 .centered_horiz()

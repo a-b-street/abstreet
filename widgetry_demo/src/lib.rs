@@ -375,8 +375,14 @@ fn make_controls(ctx: &mut EventCtx) -> Panel {
         Widget::row(vec![
             Checkbox::new(
                 false,
-                Btn::text_bg1("Pause").build(ctx, "pause the stopwatch", Key::Space),
-                Btn::text_bg1("Resume").build(ctx, "resume the stopwatch", Key::Space),
+                ctx.style()
+                    .btn_primary_light_text("Pause")
+                    .hotkey(Key::Space)
+                    .build_widget(ctx, "pause the stopwatch"),
+                ctx.style()
+                    .btn_primary_light_text("Resume")
+                    .hotkey(Key::Space)
+                    .build_widget(ctx, "resume the stopwatch"),
             )
             .named("paused"),
             PersistentSplit::widget(
